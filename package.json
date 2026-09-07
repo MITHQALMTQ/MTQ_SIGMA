@@ -1,0 +1,43 @@
+{
+  "name": "primary",
+  "version": "1.0.0",
+  "description": "MTQ Σ — The Global Purchasing Power Unit",
+  "main": "index.js",
+  "scripts": {
+    "dev": "next dev",
+    "build": "next build",
+    "start": "next start",
+    "lint": "next lint"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/MITHQALMTQ/MTQ_SIGMA.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/MITHQALMTQ/MTQ_SIGMA/issues"
+  },
+  "homepage": "https://github.com/MITHQALMTQ/MTQ_SIGMA#readme",
+  "dependencies": {
+    "@vercel/analytics": "^2.0.1",
+    "autoprefixer": "^10.5.5",
+    "next": "^16.3.4",
+    "postcss": "^8.5.28",
+    "react": "^19.2.8",
+    "react-dom": "^19.2.8",
+    "tailwindcss": "^4.3.3"
+  },
+  "devDependencies": {
+    "@eslint/eslintrc": "^3.3.7",
+    "@eslint/js": "^10.0.1",
+    "@tailwindcss/postcss": "^4.3.3",
+    "@types/node": "^26.5.0",
+    "@types/react": "^19.2.18",
+    "@types/react-dom": "^19.2.7",
+    "eslint": "^9.39.5",
+    "eslint-config-next": "^16.3.4",
+    "typescript": "^5.9.3"
+  }
+}
