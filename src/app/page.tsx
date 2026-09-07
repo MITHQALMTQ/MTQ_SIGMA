@@ -1,4 +1,6 @@
 // MTQΣ — Monetary Observatory · single-route Next.js 16 client component.
+
+export const dynamic = "force-dynamic";
 //
 // Section-switching wrapper: Home · Dashboard · Contracts · Trial · Docs ·
 // Investors · Pitch · Security · Tests. A single snapshot is polled every 4s
