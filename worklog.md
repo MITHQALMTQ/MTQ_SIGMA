@@ -639,3 +639,45 @@ Stage Summary:
 - ✅ Apple segmented control navigation (frosted glass pill indicator)
 - ✅ Vercel deployment LIVE with all Apple classes: https://mtq-sigma.vercel.app
 - NOTE: backdrop-filter shows 'none' in Agent Browser (headless Chromium limitation) but renders correctly in real browsers (Chrome/Safari/Firefox). The CSS is confirmed present in Vercel's served output.
+
+---
+Task ID: C1
+Agent: Orchestrator (COO)
+Task: Fix tokenized gold visibility (PAXG + XAUT) in all screens + verify rebalancing
+
+HONEST FINDINGS:
+- The tokenized gold (bullion) was NOT properly visible in the UI. The ReserveVault component showed gold as a single entry "XAU/PAXG" — it did NOT show XAUT (Tether Gold) as a separate asset, even though the engine tracks both PAXG and XAUT separately (split 50/50 for issuer diversification).
+- The LiveMonetaryState component labeled it "gold net (PAXG)" — missing XAUT.
+- The per-asset table in ReserveVault had only one gold row (XAU/PAXG), not two (PAXG + XAUT).
+- The perIssuer data (paxgUsd, xautUsd) was available in the API but NOT displayed in the UI.
+
+FIXES APPLIED:
+1. ReserveVault.tsx: Both the VaultDiagram assets array and the per-asset table assets array now show PAXG (Paxos) and XAUT (Tether) as SEPARATE rows, using the perIssuer.paxgUsd and perIssuer.xautUsd values from the engine. PAXG color: #f5d27a (lighter gold), XAUT color: #e0c068 (slightly darker gold).
+2. LiveMonetaryState.tsx: Label changed from "gold net (PAXG)" to "gold net (PAXG + XAUT)".
+
+VERIFIED ON VERCEL PRODUCTION:
+- PAXG: visible ✓ (with "Paxos" label)
+- XAUT: visible ✓ (with "Tether" label)
+- gold net (PAXG + XAUT): visible ✓
+- Gold Weight gauge: observed vs target, bounds 22-30%, base 26.25% ✓
+- Buffer state: BASE, buffer Au 62.50% ✓
+- Rebalance: hold/buy/sell direction visible ✓
+- 0 Application errors ✓
+
+REBALANCING STATUS (verified working):
+- Observed gold weight: 24.16% (of NAV)
+- Target gold weight: 26.59% (computed by §6 Adaptive Macro Engine + §8 Dynamic Buffer)
+- Deviation: -2.43pp (deficit → need to buy gold)
+- Buffer state: BASE (RR ≥ 110%, buffer gold = 62.5%)
+- Rebalance decision: HOLD (direction lock — 24h whipsaw guard, last trade was a buy)
+- The §7 Rebalancing Engine is correctly evaluating cost-benefit + direction lock
+- The §6 Adaptive Macro Engine (VIX/DXY z-scores → θ → EMA-smoothed target) is computing the target dynamically
+- The §8 Dynamic Buffer is in BASE state (62.5% buffer gold = 26.25% total target)
+
+LIVE VALUES (from /api/metrics):
+- PAXG (Paxos): $136,174
+- XAUT (Tether): $136,174
+- Total gold net: $272,347
+- Gold price: $4,391/oz (live from gold-api.com)
+- Gold weight: 24.16% of NAV (target: 26.59%)
+- Buffer state: BASE (62.5% buffer gold ratio)
