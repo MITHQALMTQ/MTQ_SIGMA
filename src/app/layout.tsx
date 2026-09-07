@@ -3,7 +3,6 @@ import { Geist, Geist_Mono, Cormorant_Garamond, Inter } from "next/font/google";
 import "./globals.css";
 import { Toaster } from "@/components/ui/toaster";
 
-export const dynamic = "force-dynamic";
 import { Toaster as SonnerToaster } from "@/components/ui/sonner";
 
 const geistSans = Geist({
