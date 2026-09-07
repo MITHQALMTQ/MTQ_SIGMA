@@ -1,0 +1,8 @@
+{
+  "framework": "nextjs",
+  "buildCommand": "next build",
+  "installCommand": "bun install",
+  "env": {
+    "NEXT_PUBLIC_MTQS_NAME": "MTQΣ"
+  }
+}
