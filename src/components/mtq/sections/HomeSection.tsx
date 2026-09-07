@@ -195,34 +195,34 @@ export function HomeSection({ onNavigate }: { onNavigate: (id: SectionId) => voi
           {/* Hero content */}
           <div className="absolute inset-0 flex flex-col items-center justify-center text-center px-6 py-10">
             <motion.div
-              initial={{ opacity: 0, y: 12 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.6, ease: [0.16, 1, 0.3, 1] }}
-              className="space-y-4"
+              initial={{ opacity: 0, y: 16, scale: 0.98 }}
+              animate={{ opacity: 1, y: 0, scale: 1 }}
+              transition={{ type: "spring", stiffness: 300, damping: 28, delay: 0.1 }}
+              className="space-y-5"
             >
-              <div className="text-[0.65rem] sm:text-xs uppercase tracking-[0.32em] text-mtqs-gold/75">
+              <div className="text-[0.65rem] sm:text-xs uppercase tracking-[0.32em] text-mtqs-gold/75 mtqs-fade-in">
                 The Monetary Observatory
               </div>
-              <h1 className="mtqs-display mtqs-gold-text text-5xl sm:text-7xl lg:text-8xl font-semibold leading-none">
+              <h1 className="mtqs-display mtqs-gold-text mtqs-hero-text mtqs-fade-in mtqs-stagger-1">
                 MTQΣ
               </h1>
-              <p className="mtqs-display text-base sm:text-xl text-amber-100/85 italic max-w-2xl mx-auto leading-relaxed">
+              <p className="mtqs-display mtqs-hero-subtitle text-amber-100/85 italic max-w-2xl mx-auto mtqs-fade-in mtqs-stagger-2">
                 {BRAND_VOICE.tagline}
               </p>
-              <p className="text-[0.72rem] sm:text-sm text-muted-foreground/80 max-w-xl mx-auto leading-relaxed">
+              <p className="mtqs-body text-muted-foreground/80 max-w-xl mx-auto mtqs-fade-in mtqs-stagger-3">
                 {BRAND_VOICE.coreObjective}
               </p>
-              <div className="flex flex-wrap items-center justify-center gap-3 pt-2">
+              <div className="flex flex-wrap items-center justify-center gap-3 pt-3 mtqs-fade-in mtqs-stagger-4">
                 <button
                   onClick={() => onNavigate("trial")}
-                  className="group inline-flex items-center gap-2 rounded-full border border-mtqs-gold/40 bg-mtqs-gold/10 px-5 py-2.5 text-sm font-medium text-mtqs-gold-light hover:bg-mtqs-gold/20 hover:border-mtqs-gold/60 transition"
+                  className="mtqs-btn-apple mtqs-btn-primary group inline-flex items-center gap-2"
                 >
                   Start Trial
                   <ArrowRight className="h-4 w-4 transition group-hover:translate-x-0.5" aria-hidden="true" />
                 </button>
                 <button
                   onClick={() => onNavigate("dashboard")}
-                  className="inline-flex items-center gap-2 rounded-full border border-white/[0.12] bg-white/[0.04] px-5 py-2.5 text-sm font-medium text-foreground/85 hover:border-mtqs-gold/30 hover:text-foreground transition"
+                  className="mtqs-btn-apple mtqs-btn-secondary inline-flex items-center gap-2"
                 >
                   View Dashboard
                 </button>

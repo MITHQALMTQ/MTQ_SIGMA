@@ -135,10 +135,10 @@ export function SectionHeading({
   className?: string;
 }) {
   return (
-    <div className={`flex items-end justify-between gap-4 mb-5 ${className}`}>
+    <div className={`flex items-end justify-between gap-4 mb-6 ${className}`}>
       <div className="space-y-1.5 min-w-0">
         <Eyebrow>{eyebrow}</Eyebrow>
-        <h2 className="text-lg sm:text-xl font-medium tracking-tight text-foreground/95">
+        <h2 className="mtqs-section-title text-foreground/95">
           {title}
         </h2>
       </div>
@@ -163,10 +163,10 @@ export function Panel({
 }) {
   const v =
     variant === "emerald"
-      ? "mtqs-panel mtqs-panel-emerald"
+      ? "mtqs-glass mtqs-glass-emerald mtqs-hover-lift"
       : variant === "rose"
-      ? "mtqs-panel mtqs-panel-rose"
-      : "mtqs-panel";
+      ? "mtqs-glass mtqs-glass-emerald mtqs-hover-lift"
+      : "mtqs-glass mtqs-hover-lift";
   return (
     <As className={`${v} ${className}`} style={style}>
       {children}
@@ -195,7 +195,7 @@ export function Reveal({
       ref={ref}
       initial={{ opacity: 0, y }}
       animate={inView ? { opacity: 1, y: 0 } : { opacity: 0, y }}
-      transition={{ duration: 0.3, delay, ease: [0.16, 1, 0.3, 1] }}
+      transition={{ type: "spring", stiffness: 300, damping: 28, delay }}
       className={className}
     >
       {children}

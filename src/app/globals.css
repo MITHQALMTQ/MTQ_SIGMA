@@ -353,8 +353,8 @@
   mix-blend-mode: screen;
 }
 
-/* Glass panel — frosted obsidian for modals/popovers */
-.mtqs-glass {
+/* Glass panel — legacy (kept for compat, overridden by Apple .mtqs-glass below) */
+.mtqs-glass-legacy {
   background: linear-gradient(180deg, rgba(12, 16, 16, 0.85), rgba(8, 10, 12, 0.92));
   backdrop-filter: blur(16px) saturate(140%);
   -webkit-backdrop-filter: blur(16px) saturate(140%);
