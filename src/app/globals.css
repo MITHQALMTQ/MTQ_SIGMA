@@ -1,0 +1,411 @@
+@import "tailwindcss";
+@import "tw-animate-css";
+
+@custom-variant dark (&:is(.dark *));
+
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --font-sans: var(--font-geist-sans);
+  --font-mono: var(--font-geist-mono);
+  --font-display: var(--font-mtqs-display);
+  /* MTQΣ brand color tokens (state of the art) */
+  --color-mtqs-gold: #e8b964;
+  --color-mtqs-gold-light: #f5d27a;
+  --color-mtqs-gold-deep: #b8861f;
+  --color-mtqs-emerald: #3ddc97;
+  --color-mtqs-rose: #ff5d73;
+  --color-mtqs-amber: #ffb84d;
+  --color-mtqs-obsidian: #080a0c;
+  --color-mtqs-vault: #0b0f0e;
+  --color-sidebar-ring: var(--sidebar-ring);
+  --color-sidebar-border: var(--sidebar-border);
+  --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
+  --color-sidebar-accent: var(--sidebar-accent);
+  --color-sidebar-primary-foreground: var(--sidebar-primary-foreground);
+  --color-sidebar-primary: var(--sidebar-primary);
+  --color-sidebar-foreground: var(--sidebar-foreground);
+  --color-sidebar: var(--sidebar);
+  --color-chart-5: var(--chart-5);
+  --color-chart-4: var(--chart-4);
+  --color-chart-3: var(--chart-3);
+  --color-chart-2: var(--chart-2);
+  --color-chart-1: var(--chart-1);
+  --color-ring: var(--ring);
+  --color-input: var(--input);
+  --color-border: var(--border);
+  --color-destructive: var(--destructive);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-accent: var(--accent);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-muted: var(--muted);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-secondary: var(--secondary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-primary: var(--primary);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-popover: var(--popover);
+  --color-card-foreground: var(--card-foreground);
+  --color-card: var(--card);
+  --radius-sm: calc(var(--radius) - 4px);
+  --radius-md: calc(var(--radius) - 2px);
+  --radius-lg: var(--radius);
+  --radius-xl: calc(var(--radius) + 4px);
+}
+
+:root {
+  --radius: 0.625rem;
+  --background: oklch(1 0 0);
+  --foreground: oklch(0.145 0 0);
+  --card: oklch(1 0 0);
+  --card-foreground: oklch(0.145 0 0);
+  --popover: oklch(1 0 0);
+  --popover-foreground: oklch(0.145 0 0);
+  --primary: oklch(0.205 0 0);
+  --primary-foreground: oklch(0.985 0 0);
+  --secondary: oklch(0.97 0 0);
+  --secondary-foreground: oklch(0.205 0 0);
+  --muted: oklch(0.97 0 0);
+  --muted-foreground: oklch(0.556 0 0);
+  --accent: oklch(0.97 0 0);
+  --accent-foreground: oklch(0.205 0 0);
+  --destructive: oklch(0.577 0.245 27.325);
+  --border: oklch(0.922 0 0);
+  --input: oklch(0.922 0 0);
+  --ring: oklch(0.708 0 0);
+  --chart-1: oklch(0.646 0.222 41.116);
+  --chart-2: oklch(0.6 0.118 184.704);
+  --chart-3: oklch(0.398 0.07 227.392);
+  --chart-4: oklch(0.828 0.189 84.429);
+  --chart-5: oklch(0.769 0.188 70.08);
+  --sidebar: oklch(0.985 0 0);
+  --sidebar-foreground: oklch(0.145 0 0);
+  --sidebar-primary: oklch(0.205 0 0);
+  --sidebar-primary-foreground: oklch(0.985 0 0);
+  --sidebar-accent: oklch(0.97 0 0);
+  --sidebar-accent-foreground: oklch(0.205 0 0);
+  --sidebar-border: oklch(0.922 0 0);
+  --sidebar-ring: oklch(0.708 0 0);
+}
+
+/* ============================================================
+   MTQΣ — Monetary Observatory bespoke palette (dark, warm, gold)
+   ============================================================ */
+.dark {
+  --background: oklch(0.07 0.005 80);            /* #080a0c obsidian */
+  --foreground: oklch(0.96 0.012 70);            /* #f4f1ea warm white */
+  --card: oklch(0.11 0.008 80);                  /* #0d1211 vault card */
+  --card-foreground: oklch(0.96 0.012 70);
+  --popover: oklch(0.11 0.008 80);
+  --popover-foreground: oklch(0.96 0.012 70);
+  --primary: oklch(0.78 0.13 75);                /* gold */
+  --primary-foreground: oklch(0.10 0.008 80);
+  --secondary: oklch(0.16 0.01 70);
+  --secondary-foreground: oklch(0.96 0.012 70);
+  --muted: oklch(0.16 0.01 70);
+  --muted-foreground: oklch(0.62 0.018 70);     /* warm gray */
+  --accent: oklch(0.20 0.014 70);
+  --accent-foreground: oklch(0.96 0.012 70);
+  --destructive: oklch(0.704 0.21 22);           /* rose */
+  --border: oklch(0.30 0.012 70 / 38%);
+  --input: oklch(0.30 0.012 70 / 50%);
+  --ring: oklch(0.78 0.13 75);
+  --chart-1: oklch(0.78 0.13 75);                /* gold */
+  --chart-2: oklch(0.74 0.14 162);               /* emerald */
+  --chart-3: oklch(0.70 0.16 30);                /* amber/orange */
+  --chart-4: oklch(0.66 0.20 0);                 /* rose */
+  --chart-5: oklch(0.55 0.04 70);                /* warm gray */
+  --sidebar: oklch(0.11 0.008 80);
+  --sidebar-foreground: oklch(0.96 0.012 70);
+  --sidebar-primary: oklch(0.78 0.13 75);
+  --sidebar-primary-foreground: oklch(0.10 0.008 80);
+  --sidebar-accent: oklch(0.20 0.014 70);
+  --sidebar-accent-foreground: oklch(0.96 0.012 70);
+  --sidebar-border: oklch(0.30 0.012 70 / 38%);
+  --sidebar-ring: oklch(0.78 0.13 75);
+}
+
+@layer base {
+  * {
+    @apply border-border outline-ring/50;
+  }
+  body {
+    @apply bg-background text-foreground;
+    font-feature-settings: "ss01", "cv01";
+  }
+}
+
+/* ============================================================
+   MTQΣ — bespoke utilities
+   ============================================================ */
+
+/* Gold-themed thin scrollbar */
+.mtqs-scroll {
+  scrollbar-width: thin;
+  scrollbar-color: rgba(232, 185, 100, 0.4) transparent;
+}
+.mtqs-scroll::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+.mtqs-scroll::-webkit-scrollbar-track {
+  background: rgba(255, 255, 255, 0.02);
+  border-radius: 8px;
+}
+.mtqs-scroll::-webkit-scrollbar-thumb {
+  background: linear-gradient(180deg, rgba(232, 185, 100, 0.55), rgba(212, 160, 23, 0.40));
+  border-radius: 8px;
+}
+.mtqs-scroll::-webkit-scrollbar-thumb:hover {
+  background: linear-gradient(180deg, rgba(232, 185, 100, 0.8), rgba(212, 160, 23, 0.6));
+}
+
+/* Gold gradient text */
+.mtqs-gold-text {
+  background: linear-gradient(135deg, #f5d27a 0%, #e8b964 40%, #c9933e 75%, #b8860b 100%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+  color: transparent;
+}
+
+/* Emerald gradient text */
+.mtqs-emerald-text {
+  background: linear-gradient(135deg, #6effc0 0%, #3ddc97 50%, #16a97a 100%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+  color: transparent;
+}
+
+/* Subtle gold ring + glow */
+.mtqs-glow {
+  box-shadow:
+    0 0 0 1px rgba(232, 185, 100, 0.22),
+    0 0 28px rgba(232, 185, 100, 0.08);
+}
+.mtqs-glow-emerald {
+  box-shadow:
+    0 0 0 1px rgba(61, 220, 151, 0.30),
+    0 0 28px rgba(61, 220, 151, 0.08);
+}
+.mtqs-glow-rose {
+  box-shadow:
+    0 0 0 1px rgba(255, 93, 115, 0.35),
+    0 0 28px rgba(255, 93, 115, 0.10);
+}
+
+/* Faint gold grid backdrop */
+.mtqs-grid-bg {
+  background-image:
+    linear-gradient(rgba(232, 185, 100, 0.035) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(232, 185, 100, 0.035) 1px, transparent 1px);
+  background-size: 40px 40px;
+  background-position: center center;
+}
+
+/* Subtle radial obsidian glow (top center) */
+.mtqs-radial-glow {
+  background:
+    radial-gradient(ellipse 60% 40% at 50% 0%, rgba(61, 220, 151, 0.06), transparent 70%),
+    radial-gradient(ellipse 80% 50% at 50% 8%, rgba(232, 185, 100, 0.04), transparent 70%);
+}
+
+/* Hairline divider that fades */
+.mtqs-hr {
+  height: 1px;
+  background: linear-gradient(90deg, transparent, rgba(232, 185, 100, 0.25), transparent);
+}
+
+/* Pulsing live dot — slow pulse */
+@keyframes mtqs-pulse {
+  0%, 100% { opacity: 1; transform: scale(1); }
+  50% { opacity: 0.35; transform: scale(0.7); }
+}
+.mtqs-live-dot::after {
+  content: "";
+  position: absolute;
+  inset: -4px;
+  border-radius: 9999px;
+  background: currentColor;
+  opacity: 0.35;
+  animation: mtqs-pulse 1.8s ease-in-out infinite;
+}
+
+/* Slow rotate for concentric rings */
+@keyframes mtqs-spin-slow {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+.mtqs-spin-slow {
+  animation: mtqs-spin-slow 90s linear infinite;
+  transform-origin: center;
+}
+.mtqs-spin-slower {
+  animation: mtqs-spin-slow 180s linear infinite reverse;
+  transform-origin: center;
+}
+
+/* Drifting starfield (CSS only) */
+@keyframes mtqs-drift {
+  0%   { transform: translate3d(0, 0, 0); }
+  100% { transform: translate3d(-200px, -120px, 0); }
+}
+.mtqs-starfield {
+  position: absolute;
+  inset: -200px;
+  background-image:
+    radial-gradient(1px 1px at 24px 30px,  rgba(232, 185, 100, 0.55), transparent),
+    radial-gradient(1px 1px at 80px 130px, rgba(255, 255, 255, 0.35), transparent),
+    radial-gradient(1.5px 1.5px at 140px 80px, rgba(61, 220, 151, 0.45), transparent),
+    radial-gradient(1px 1px at 200px 200px, rgba(232, 185, 100, 0.4), transparent),
+    radial-gradient(1px 1px at 280px 50px, rgba(255, 255, 255, 0.3), transparent),
+    radial-gradient(1px 1px at 340px 240px, rgba(232, 185, 100, 0.35), transparent),
+    radial-gradient(1px 1px at 60px 280px, rgba(61, 220, 151, 0.35), transparent),
+    radial-gradient(1.5px 1.5px at 320px 320px, rgba(232, 185, 100, 0.45), transparent);
+  background-size: 400px 400px;
+  background-repeat: repeat;
+  opacity: 0.55;
+  animation: mtqs-drift 180s linear infinite;
+  pointer-events: none;
+}
+
+/* Flow line dash animation for the closed-loop diagram */
+@keyframes mtqs-dash {
+  to { stroke-dashoffset: -24; }
+}
+.mtqs-flow-dash {
+  stroke-dasharray: 4 6;
+  animation: mtqs-flow-dash 1.6s linear infinite;
+}
+@keyframes mtqs-dash-slow {
+  to { stroke-dashoffset: -16; }
+}
+.mtqs-flow-dash-slow {
+  stroke-dasharray: 3 5;
+  animation: mtqs-flow-dash-slow 3.2s linear infinite;
+}
+
+/* Subtle number-tick flash on update */
+@keyframes mtqs-tick-flash {
+  0% { color: #f5d27a; text-shadow: 0 0 18px rgba(232, 185, 100, 0.45); }
+  100% { color: inherit; text-shadow: 0 0 0 transparent; }
+}
+.mtqs-tick-flash {
+  animation: mtqs-tick-flash 0.6s ease-out;
+}
+
+/* Card surface — bespoke layered obsidian */
+.mtqs-panel {
+  position: relative;
+  background:
+    linear-gradient(180deg, rgba(232, 185, 100, 0.025) 0%, transparent 30%),
+    linear-gradient(180deg, #0c1010 0%, #0a0e0d 100%);
+  border: 1px solid rgba(232, 185, 100, 0.10);
+  border-radius: 14px;
+  box-shadow:
+    0 1px 0 rgba(255, 255, 255, 0.04) inset,
+    0 24px 60px -36px rgba(0, 0, 0, 0.9);
+}
+.mtqs-panel-emerald {
+  border-color: rgba(61, 220, 151, 0.18);
+}
+.mtqs-panel-rose {
+  border-color: rgba(255, 93, 115, 0.22);
+}
+
+/* Section eyebrow label */
+.mtqs-eyebrow {
+  font-size: 0.6875rem;
+  letter-spacing: 0.28em;
+  text-transform: uppercase;
+  color: rgba(232, 185, 100, 0.7);
+  font-weight: 500;
+}
+
+/* Hide scrollbar utility (for ticker strip) */
+.mtqs-no-scrollbar::-webkit-scrollbar { display: none; }
+.mtqs-no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+
+/* Tabular numerals everywhere on mono */
+.mtqs-tnum { font-variant-numeric: tabular-nums; font-feature-settings: "tnum"; }
+
+/* Focus ring — bespoke gold */
+.mtqs-focus:focus-visible {
+  outline: 2px solid rgba(232, 185, 100, 0.6);
+  outline-offset: 2px;
+  border-radius: 6px;
+}
+
+/* ============================================================
+   MTQΣ — brand extensions (full identity system)
+   ============================================================ */
+
+/* Brand pattern — currency-basket weave (faint section backdrop) */
+.mtqs-pattern-bg {
+  background-image: url("/brand/mtqs-pattern.png");
+  background-size: 320px 320px;
+  background-repeat: repeat;
+  background-position: center;
+  opacity: 0.06;
+  mix-blend-mode: screen;
+}
+
+/* Glass panel — frosted obsidian for modals/popovers */
+.mtqs-glass {
+  background: linear-gradient(180deg, rgba(12, 16, 16, 0.85), rgba(8, 10, 12, 0.92));
+  backdrop-filter: blur(16px) saturate(140%);
+  -webkit-backdrop-filter: blur(16px) saturate(140%);
+  border: 1px solid rgba(232, 185, 100, 0.12);
+}
+
+/* Wordmark display font for hero / brand lockup */
+.mtqs-display {
+  font-family: "Cormorant Garamond", Georgia, "Times New Roman", serif;
+  font-weight: 600;
+  letter-spacing: -0.015em;
+  font-feature-settings: "ss01";
+}
+
+/* Tight tracked uppercase label (eyebrow / section header) */
+.mtqs-label {
+  font-family: "Inter", system-ui, sans-serif;
+  font-weight: 600;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  font-size: 0.6875rem;
+}
+
+/* Mono data cell — premium tabular */
+.mtqs-data {
+  font-family: "JetBrains Mono", ui-monospace, "SF Mono", monospace;
+  font-variant-numeric: tabular-nums;
+  font-feature-settings: "tnum", "zero", "ss01";
+  letter-spacing: -0.01em;
+}
+
+/* Gold ingot chip */
+.mtqs-chip-gold {
+  background: linear-gradient(135deg, rgba(232, 185, 100, 0.18), rgba(184, 134, 31, 0.12));
+  border: 1px solid rgba(232, 185, 100, 0.35);
+  color: #f4d58d;
+}
+
+/* Tier ring helpers (governance) */
+.mtqs-tier-constitutional { color: #f4d58d; border-color: rgba(232, 185, 100, 0.35); }
+.mtqs-tier-monetary       { color: #5fe8b0; border-color: rgba(61, 220, 151, 0.35); }
+.mtqs-tier-risk           { color: #aeb6bf; border-color: rgba(174, 182, 191, 0.30); }
+.mtqs-tier-emergency      { color: #ff8a9c; border-color: rgba(255, 93, 115, 0.35); }
+
+/* Reconciliation badge — fixed finding */
+.mtqs-badge-fixed {
+  background: linear-gradient(135deg, rgba(61, 220, 151, 0.18), rgba(34, 178, 126, 0.10));
+  border: 1px solid rgba(61, 220, 151, 0.40);
+  color: #5fe8b0;
+}
+/* Reconciliation badge — outstanding finding */
+.mtqs-badge-outstanding {
+  background: linear-gradient(135deg, rgba(245, 166, 35, 0.16), rgba(204, 132, 17, 0.10));
+  border: 1px solid rgba(245, 166, 35, 0.38);
+  color: #ffcf7a;
+}

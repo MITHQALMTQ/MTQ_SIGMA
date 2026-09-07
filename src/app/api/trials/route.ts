@@ -1,0 +1,14 @@
+import { NextResponse } from "next/server";
+import { db } from "@/lib/db";
+
+export const dynamic = "force-dynamic";
+
+export async function GET(req: Request) {
+  const url = new URL(req.url);
+  const limit = Math.min(Number(url.searchParams.get("limit") ?? "50"), 200);
+  const trials = await db.pilotTrial.findMany({
+    orderBy: { createdAt: "desc" },
+    take: limit,
+  });
+  return NextResponse.json({ trials });
+}

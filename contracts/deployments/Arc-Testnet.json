@@ -1,0 +1,30 @@
+{
+  "chain": "Arc Testnet",
+  "chainId": 5042002,
+  "rpc": "https://rpc.testnet.arc.io",
+  "explorer": "https://testnet.arcscan.app",
+  "deployer": "0x3C3932F865892EFabE45892f453f81B64f6c8d8c",
+  "deployedAt": "2026-09-05T18:22:32.019Z",
+  "contracts": {
+    "MTQSigma": {
+      "address": "0x826b82F79FD6c5347cDC568B1d0A7918128B63c1",
+      "abi": "MTQSigma",
+      "tx": "0xd9accce91d487f76bda3c854ec0349debe775f87e32010ffefaa6540e2f9c45b"
+    },
+    "MockUSDC": {
+      "address": "0x334D14E7E39e1f02a60fc1169CdF7b0BEDE30dEb",
+      "abi": "MockUSDC",
+      "tx": "0xd383189a42caf814cd14b9c8212b9257e8fe00d3a02b1e6108a80ef90ef66363"
+    }
+  },
+  "genesis": {
+    "supply": "1000000",
+    "circulating": "0",
+    "reserveUsdc": "1100000"
+  },
+  "readBack": {
+    "gfb": "1.0",
+    "price": "1.0",
+    "totalSupply": "1000000.0"
+  }
+}

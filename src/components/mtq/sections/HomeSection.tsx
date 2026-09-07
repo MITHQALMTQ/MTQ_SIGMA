@@ -1,0 +1,391 @@
+// MTQΣ — Home Section
+// Hero (brand image background) · "What is MTQΣ?" 3 cards · Constitutional Separation
+// (wrapped in ClientOnly to avoid SVG float hydration mismatch) · live stats band
+// (GFB / Price / NAV / RR from /api/metrics) · 4 testnet cards (CANONICAL_MTQ_ADDRESSES)
+// · Brand principles · Honest status badge.
+//
+// Props: { onNavigate } — used by the two hero CTAs.
+
+"use client";
+
+import { useEffect, useRef, useState } from "react";
+import Image from "next/image";
+import { motion } from "framer-motion";
+import { Starfield, SectionHeading, Reveal, Panel, Pill, GlowDot, BrandPrinciples, Skeleton } from "@/components/mtq/primitives";
+import { ConstitutionalSeparation } from "@/components/mtq/ConstitutionalSeparation";
+import { BRAND_VOICE, BRAND_ASSETS, STATUS_COLORS } from "@/lib/mtq/brand";
+import { CANONICAL_MTQ_ADDRESSES } from "@/lib/mtq/contracts";
+import { fmtFixed, fmtUsdCompact, fmtRatio, shortAddr, copyToClipboard } from "@/components/mtq/format";
+import type { MetricsSnapshot } from "@/lib/mtq/engine";
+import type { SectionId } from "@/components/mtq/Navigation";
+import { toast } from "sonner";
+import { ArrowRight, Activity, Coins, Layers, Shield } from "lucide-react";
+
+/* ---------- ClientOnly — defers children until after mount (hydration-safe) ---------- */
+function ClientOnly({ children }: { children: React.ReactNode }) {
+  const [mounted, setMounted] = useState(false);
+  // eslint-disable-next-line react-hooks/set-state-in-effect
+  useEffect(() => setMounted(true), []);
+  if (!mounted) return null;
+  return <>{children}</>;
+}
+
+/* ---------- What is MTQΣ? — 3 cards ---------- */
+const WHAT_IS = [
+  {
+    icon: Activity,
+    eyebrow: "§2 · The Index",
+    title: "GFB Index",
+    body:
+      "A fixed, normalized basket of five currencies (USD 38.9% · EUR 27.8% · GBP 16.69% · JPY 11.11% · CNY 5.5%). The Index defines what one MTQΣ is intended to represent — global purchasing power.",
+  },
+  {
+    icon: Coins,
+    eyebrow: "§3 · The Token",
+    title: "MTQΣ Token",
+    body:
+      "An ERC-20 (and SPL) unit whose reference price equals the GFB Index. Minted against, and redeemed into, the reserve portfolio — never fiat-printed, never algorithmic.",
+  },
+  {
+    icon: Shield,
+    eyebrow: "§4 · The Reserve",
+    title: "Reserve Portfolio",
+    body:
+      "Audited collateral (stablecoins + tokenized gold) held at a 110% Reserve Ratio target. The reserve exists to collateralize the MTQΣ obligation — not to speculate.",
+  },
+];
+
+/* ---------- Live stats band (GFB / Price / NAV / RR) ---------- */
+function LiveStatsBand({ snapshot }: { snapshot: MetricsSnapshot | null }) {
+  const rrTxt = snapshot && Number.isFinite(snapshot.reserveRatio)
+    ? fmtRatio(snapshot.reserveRatio)
+    : "—";
+  const rrTone =
+    !snapshot || !Number.isFinite(snapshot.reserveRatio)
+      ? "text-mtqs-emerald"
+      : snapshot.reserveRatio >= 1.1
+      ? "text-mtqs-emerald"
+      : snapshot.reserveRatio >= 1.05
+      ? "text-mtqs-amber"
+      : "text-mtqs-rose";
+
+  const stats = [
+    { label: "GFB Index", value: snapshot ? fmtFixed(snapshot.gfbIndex, 4) : null, tone: "text-mtqs-gold-light" },
+    { label: "MTQ Price", value: snapshot ? `$${fmtFixed(snapshot.mtqPrice, 4)}` : null, tone: snapshot?.priceInBand ? "text-mtqs-emerald" : "text-mtqs-rose" },
+    { label: "Reserve NAV", value: snapshot ? fmtUsdCompact(snapshot.nav) : null, tone: "text-foreground" },
+    { label: "Reserve Ratio", value: snapshot ? rrTxt : null, tone: rrTone },
+  ];
+
+  return (
+    <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+      {stats.map((s) => (
+        <Panel key={s.label} className="p-4 sm:p-5">
+          <div className="flex items-center gap-1.5 mb-2">
+            <GlowDot color="gold" size="h-1.5 w-1.5" />
+            <span className="text-[0.6rem] uppercase tracking-[0.22em] text-muted-foreground/75">
+              {s.label}
+            </span>
+          </div>
+          {s.value ? (
+            <div className={`font-mono tabular-nums text-xl sm:text-2xl font-semibold ${s.tone}`}>
+              {s.value}
+            </div>
+          ) : (
+            <Skeleton className="h-7 w-24" />
+          )}
+        </Panel>
+      ))}
+    </div>
+  );
+}
+
+/* ---------- Testnet cards (4 canonical MTQΣ addresses) ---------- */
+function TestnetCards() {
+  const entries = Object.entries(CANONICAL_MTQ_ADDRESSES);
+  return (
+    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
+      {entries.map(([id, info]) => (
+        <Panel key={id} className="p-4 flex flex-col gap-2">
+          <div className="flex items-start justify-between gap-2">
+            <div className="min-w-0">
+              <div className="text-[0.6rem] uppercase tracking-[0.22em] text-muted-foreground/70">
+                {info.chain}
+              </div>
+              <div className="mtqs-display mtqs-gold-text text-base font-semibold leading-none mt-1">
+                MTQΣ
+              </div>
+            </div>
+            <Pill tone="gold" className="font-mono">cid {String(info.chainId)}</Pill>
+          </div>
+          <div className="font-mono text-[0.72rem] text-amber-200/90 break-all leading-relaxed">
+            {info.address}
+          </div>
+          <div className="mt-auto flex items-center justify-between pt-1">
+            <button
+              onClick={async (e) => {
+                e.preventDefault();
+                const ok = await copyToClipboard(info.address);
+                if (ok) toast.success(`Copied ${info.chain} MTQΣ address`, { description: shortAddr(info.address, 8, 6) });
+                else toast.error("Copy failed");
+              }}
+              className="text-[0.65rem] font-mono text-amber-200/70 hover:text-amber-200 transition"
+            >
+              copy
+            </button>
+            <a
+              href={info.explorer}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="text-[0.65rem] text-emerald-200/80 hover:text-emerald-200 transition"
+            >
+              explorer ↗
+            </a>
+          </div>
+        </Panel>
+      ))}
+    </div>
+  );
+}
+
+export function HomeSection({ onNavigate }: { onNavigate: (id: SectionId) => void }) {
+  const [snapshot, setSnapshot] = useState<MetricsSnapshot | null>(null);
+  const mountedRef = useRef(true);
+
+  useEffect(() => {
+    mountedRef.current = true;
+    let cancelled = false;
+    const poll = async () => {
+      try {
+        const res = await fetch("/api/metrics", { cache: "no-store" });
+        if (!res.ok) return;
+        const data = (await res.json()) as MetricsSnapshot;
+        if (!cancelled && mountedRef.current) setSnapshot(data);
+      } catch {
+        /* ignore — keep last good snapshot */
+      }
+    };
+    poll();
+    const id = setInterval(poll, 4000);
+    return () => {
+      cancelled = true;
+      mountedRef.current = false;
+      clearInterval(id);
+    };
+  }, []);
+
+  const status = snapshot?.status ?? "NORMAL";
+  const statusBrand = STATUS_COLORS[status] ?? STATUS_COLORS.NORMAL;
+
+  return (
+    <div className="space-y-16">
+      {/* ===== Hero ===== */}
+      <section className="relative" aria-labelledby="home-hero">
+        <div className="relative aspect-[16/9] sm:aspect-[21/9] lg:aspect-[24/9] w-full overflow-hidden rounded-2xl border border-mtqs-gold/15 mtqs-glow">
+          <Image
+            src={BRAND_ASSETS.hero}
+            alt="MTQΣ hero — the closed-loop monetary architecture visualised as a gold monolith on obsidian"
+            fill
+            sizes="100vw"
+            className="object-cover opacity-20"
+            priority
+          />
+          {/* Heavy overlays for legibility */}
+          <div className="absolute inset-0 bg-gradient-to-tr from-[#080a0c] via-[#080a0c]/85 to-[#080a0c]/40" />
+          <div className="absolute inset-0 bg-gradient-to-b from-[#080a0c]/30 via-transparent to-[#080a0c]/90" />
+          {/* Hero content */}
+          <div className="absolute inset-0 flex flex-col items-center justify-center text-center px-6 py-10">
+            <motion.div
+              initial={{ opacity: 0, y: 12 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.6, ease: [0.16, 1, 0.3, 1] }}
+              className="space-y-4"
+            >
+              <div className="text-[0.65rem] sm:text-xs uppercase tracking-[0.32em] text-mtqs-gold/75">
+                The Monetary Observatory
+              </div>
+              <h1 className="mtqs-display mtqs-gold-text text-5xl sm:text-7xl lg:text-8xl font-semibold leading-none">
+                MTQΣ
+              </h1>
+              <p className="mtqs-display text-base sm:text-xl text-amber-100/85 italic max-w-2xl mx-auto leading-relaxed">
+                {BRAND_VOICE.tagline}
+              </p>
+              <p className="text-[0.72rem] sm:text-sm text-muted-foreground/80 max-w-xl mx-auto leading-relaxed">
+                {BRAND_VOICE.coreObjective}
+              </p>
+              <div className="flex flex-wrap items-center justify-center gap-3 pt-2">
+                <button
+                  onClick={() => onNavigate("trial")}
+                  className="group inline-flex items-center gap-2 rounded-full border border-mtqs-gold/40 bg-mtqs-gold/10 px-5 py-2.5 text-sm font-medium text-mtqs-gold-light hover:bg-mtqs-gold/20 hover:border-mtqs-gold/60 transition"
+                >
+                  Start Trial
+                  <ArrowRight className="h-4 w-4 transition group-hover:translate-x-0.5" aria-hidden="true" />
+                </button>
+                <button
+                  onClick={() => onNavigate("dashboard")}
+                  className="inline-flex items-center gap-2 rounded-full border border-white/[0.12] bg-white/[0.04] px-5 py-2.5 text-sm font-medium text-foreground/85 hover:border-mtqs-gold/30 hover:text-foreground transition"
+                >
+                  View Dashboard
+                </button>
+              </div>
+            </motion.div>
+          </div>
+        </div>
+
+        {/* Brand principles under hero */}
+        <div className="mt-5 flex justify-center">
+          <BrandPrinciples />
+        </div>
+
+        {/* Honest status badge */}
+        <div className="mt-4 flex justify-center">
+          <div
+            className="inline-flex items-center gap-2 rounded-full border px-3.5 py-1.5 text-[0.72rem]"
+            style={{
+              color: statusBrand.color,
+              backgroundColor: statusBrand.bg,
+              borderColor: `${statusBrand.color}55`,
+            }}
+          >
+            <GlowDot
+              color={
+                status === "NORMAL"
+                  ? "emerald"
+                  : status === "CAUTION"
+                  ? "amber"
+                  : "rose"
+              }
+              size="h-1.5 w-1.5"
+            />
+            <span className="font-mono tabular-nums tracking-wider uppercase">
+              {statusBrand.label} · {BRAND_VOICE.statusDeclaration}
+            </span>
+          </div>
+        </div>
+
+        {/* sr-only landmark for accessibility */}
+        <h2 id="home-hero" className="sr-only">MTQΣ — Home</h2>
+      </section>
+
+      {/* ===== What is MTQΣ? ===== */}
+      <section aria-labelledby="home-what">
+        <SectionHeading eyebrow="§1.1 · The Three Pillars" title="What is MTQΣ?" />
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+          {WHAT_IS.map((c, i) => {
+            const Icon = c.icon;
+            return (
+              <Reveal key={c.title} delay={i * 0.05}>
+                <Panel className="p-5 sm:p-6 h-full flex flex-col gap-3">
+                  <div className="flex items-center gap-2.5">
+                    <div className="inline-flex items-center justify-center rounded-md border border-mtqs-gold/25 bg-mtqs-gold/10 p-2">
+                      <Icon className="h-4 w-4 text-mtqs-gold-light" aria-hidden="true" />
+                    </div>
+                    <span className="text-[0.6rem] uppercase tracking-[0.22em] text-mtqs-gold/75">
+                      {c.eyebrow}
+                    </span>
+                  </div>
+                  <h3 className="mtqs-display text-xl font-semibold text-foreground/95">{c.title}</h3>
+                  <p className="text-[0.78rem] text-muted-foreground/85 leading-relaxed">{c.body}</p>
+                </Panel>
+              </Reveal>
+            );
+          })}
+        </div>
+      </section>
+
+      {/* ===== Constitutional Separation (ClientOnly — hydration-safe) ===== */}
+      <section aria-labelledby="home-constitutional">
+        <SectionHeading
+          eyebrow="§1.1 · Signature Visual"
+          title="Constitutional Separation"
+          right={<Pill tone="gold">A · B · C</Pill>}
+        />
+        <Reveal>
+          <Panel className="p-5 sm:p-6">
+            <p className="mb-4 text-[0.78rem] text-muted-foreground/85 leading-relaxed max-w-2xl">
+              The GFB Index defines what one MTQΣ is intended to represent. The reserve
+              portfolio exists to collateralize that obligation. The two are constitutionally
+              separate: the reserve cannot dilute the index, and the index cannot be redefined
+              to mask a reserve shortfall.
+            </p>
+            <ClientOnly>
+              <ConstitutionalSeparation snapshot={snapshot} />
+            </ClientOnly>
+            <noscript>
+              <p className="text-[0.72rem] text-muted-foreground/70">
+                The Constitutional Separation diagram requires JavaScript to render.
+              </p>
+            </noscript>
+          </Panel>
+        </Reveal>
+      </section>
+
+      {/* ===== Live stats band ===== */}
+      <section aria-labelledby="home-stats">
+        <SectionHeading
+          eyebrow="Live · 4s poll"
+          title="Live Monetary State"
+          right={
+            <Pill tone={snapshot?.oraclePaused ? "rose" : "emerald"}>
+              <GlowDot color={snapshot?.oraclePaused ? "rose" : "emerald"} size="h-1.5 w-1.5" />
+              {snapshot?.oraclePaused ? "oracle paused" : "oracle live"}
+            </Pill>
+          }
+        />
+        <LiveStatsBand snapshot={snapshot} />
+      </section>
+
+      {/* ===== 4 testnet cards ===== */}
+      <section aria-labelledby="home-testnets">
+        <SectionHeading
+          eyebrow="Canonical Deployments"
+          title="MTQΣ on 4 Testnets"
+          right={
+            <button
+              onClick={() => onNavigate("contracts")}
+              className="inline-flex items-center gap-1.5 text-[0.72rem] text-mtqs-gold/80 hover:text-mtqs-gold-light transition"
+            >
+              Full registry
+              <ArrowRight className="h-3.5 w-3.5" aria-hidden="true" />
+            </button>
+          }
+        />
+        <TestnetCards />
+      </section>
+
+      {/* ===== Closing — explore call-out ===== */}
+      <section aria-labelledby="home-explore">
+        <Reveal>
+          <Panel variant="emerald" className="p-6 sm:p-8 text-center">
+            <div className="flex items-center justify-center gap-2 mb-3">
+              <Layers className="h-5 w-5 text-mtqs-emerald" aria-hidden="true" />
+              <h3 className="mtqs-display text-2xl font-semibold text-foreground/95">
+                Explore the closed-loop architecture
+              </h3>
+            </div>
+            <p className="text-[0.82rem] text-muted-foreground/85 leading-relaxed max-w-2xl mx-auto mb-5">
+              {BRAND_VOICE.designConstraint}. {BRAND_VOICE.statusDeclaration}. Every metric on this
+              site is computed live by the reference engine and reconciled against the blueprint.
+            </p>
+            <div className="flex flex-wrap items-center justify-center gap-2">
+              {([
+                { id: "dashboard", label: "Dashboard" },
+                { id: "docs", label: "Docs" },
+                { id: "investors", label: "Investors" },
+                { id: "tests", label: "Tests" },
+              ] as const).map((c) => (
+                <button
+                  key={c.id}
+                  onClick={() => onNavigate(c.id)}
+                  className="inline-flex items-center gap-1.5 rounded-full border border-white/[0.1] bg-white/[0.03] px-4 py-2 text-[0.78rem] font-medium text-foreground/85 hover:border-mtqs-gold/30 hover:text-foreground transition"
+                >
+                  {c.label}
+                  <ArrowRight className="h-3.5 w-3.5" aria-hidden="true" />
+                </button>
+              ))}
+            </div>
+          </Panel>
+        </Reveal>
+      </section>
+    </div>
+  );
+}

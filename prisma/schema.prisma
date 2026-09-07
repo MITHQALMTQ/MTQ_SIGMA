@@ -1,0 +1,52 @@
+// MTQΣ Pilot Command Center — Prisma schema
+// Stores pilot trial logs for auditability. No auth in pilot mode (anonymous trials).
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+model PilotTrial {
+  id        String   @id @default(cuid())
+  type      String   // "MINT" | "REDEEM"
+  chain     String   // "monad" | "arc" | "solana"
+  // Input
+  inputAmount  Float
+  inputSymbol  String   // "USDC" | "MTQ"
+  // Output
+  outputAmount Float
+  outputSymbol String   // "MTQ" | "BASKET"
+  // Market context at trial time
+  gfbIndex     Float
+  mtqPrice     Float
+  nav          Float
+  reserveRatio Float
+  lcr          Float
+  status       String   // ProtocolStatus
+  // Optional basket breakdown (JSON) for redemptions
+  basketJson   String?
+  // Result / notes
+  ok           Boolean  @default(true)
+  reason       String?
+  wallet       String?  // optional pilot wallet address
+  createdAt    DateTime @default(now())
+}
+
+model MetricSample {
+  id        String   @id @default(cuid())
+  gfbIndex  Float
+  mtqPrice  Float
+  nav       Float
+  reserveRatio Float
+  lcr       Float
+  status    String
+  vix       Float
+  dxy       Float
+  targetGold Float
+  bufferState String
+  createdAt DateTime @default(now())
+}

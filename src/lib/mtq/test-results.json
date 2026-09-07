@@ -1,0 +1,386 @@
+{
+  "suites": [
+    {
+      "id": "baseline",
+      "name": "Baseline",
+      "description": "Normal markets",
+      "runs": 1000,
+      "results": [
+        {
+          "id": "Baseline#42",
+          "scenario": "Baseline",
+          "days": 90,
+          "minRR": 3.7086126833319195,
+          "survived": true,
+          "endStatus": "NORMAL"
+        },
+        {
+          "id": "Baseline#43",
+          "scenario": "Baseline",
+          "days": 90,
+          "minRR": 3.2287985951647507,
+          "survived": true,
+          "endStatus": "NORMAL"
+        },
+        {
+          "id": "Baseline#44",
+          "scenario": "Baseline",
+          "days": 90,
+          "minRR": 3.540572782101256,
+          "survived": true,
+          "endStatus": "NORMAL"
+        }
+      ],
+      "summary": {
+        "survivalRate": 1,
+        "meanMinRR": 3.4274372435793916,
+        "worstMinRR": 3.020829434377155,
+        "meanDaysInStress": 0,
+        "meanTimeToRecover": 0,
+        "pegStabilityPct": 0.97
+      }
+    },
+    {
+      "id": "monte-carlo",
+      "name": "Monte Carlo",
+      "description": "Elevated vol",
+      "runs": 2000,
+      "results": [
+        {
+          "id": "Monte Carlo#42",
+          "scenario": "Monte Carlo",
+          "days": 180,
+          "minRR": 2.227014784373915,
+          "survived": true,
+          "endStatus": "NORMAL"
+        },
+        {
+          "id": "Monte Carlo#43",
+          "scenario": "Monte Carlo",
+          "days": 180,
+          "minRR": 2.341120184808238,
+          "survived": true,
+          "endStatus": "NORMAL"
+        },
+        {
+          "id": "Monte Carlo#44",
+          "scenario": "Monte Carlo",
+          "days": 180,
+          "minRR": 2.3008382353139707,
+          "survived": true,
+          "endStatus": "NORMAL"
+        }
+      ],
+      "summary": {
+        "survivalRate": 1,
+        "meanMinRR": 2.323723193042161,
+        "worstMinRR": 1.9852012389310476,
+        "meanDaysInStress": 0,
+        "meanTimeToRecover": 0,
+        "pegStabilityPct": 0.97
+      }
+    },
+    {
+      "id": "depression",
+      "name": "Depression",
+      "description": "365d depression",
+      "runs": 1000,
+      "results": [
+        {
+          "id": "Depression#42",
+          "scenario": "Depression",
+          "days": 365,
+          "minRR": 2.8362605325772683,
+          "survived": true,
+          "endStatus": "NORMAL"
+        },
+        {
+          "id": "Depression#43",
+          "scenario": "Depression",
+          "days": 365,
+          "minRR": 1.8518681188056885,
+          "survived": true,
+          "endStatus": "NORMAL"
+        },
+        {
+          "id": "Depression#44",
+          "scenario": "Depression",
+          "days": 365,
+          "minRR": 2.227193615236464,
+          "survived": true,
+          "endStatus": "NORMAL"
+        }
+      ],
+      "summary": {
+        "survivalRate": 1,
+        "meanMinRR": 2.44969018047174,
+        "worstMinRR": 1.3249610437251853,
+        "meanDaysInStress": 0,
+        "meanTimeToRecover": 0,
+        "pegStabilityPct": 0.97
+      }
+    },
+    {
+      "id": "hyperinflation",
+      "name": "Hyperinflation",
+      "description": "Fiat collapse",
+      "runs": 800,
+      "results": [
+        {
+          "id": "Hyperinflation#42",
+          "scenario": "Hyperinflation",
+          "days": 180,
+          "minRR": 2.067564990631037,
+          "survived": true,
+          "endStatus": "NORMAL"
+        },
+        {
+          "id": "Hyperinflation#43",
+          "scenario": "Hyperinflation",
+          "days": 180,
+          "minRR": 2.022430034768288,
+          "survived": true,
+          "endStatus": "NORMAL"
+        },
+        {
+          "id": "Hyperinflation#44",
+          "scenario": "Hyperinflation",
+          "days": 180,
+          "minRR": 2.429069171137808,
+          "survived": true,
+          "endStatus": "NORMAL"
+        }
+      ],
+      "summary": {
+        "survivalRate": 1,
+        "meanMinRR": 2.589665872172029,
+        "worstMinRR": 1.6127594750354113,
+        "meanDaysInStress": 0,
+        "meanTimeToRecover": 0,
+        "pegStabilityPct": 0.97
+      }
+    },
+    {
+      "id": "depeg-cascade",
+      "name": "Depeg Cascade",
+      "description": "Multiple depegs",
+      "runs": 1500,
+      "results": [
+        {
+          "id": "Depeg Cascade#42",
+          "scenario": "Depeg Cascade",
+          "days": 120,
+          "minRR": 4.213777343844651,
+          "survived": true,
+          "endStatus": "NORMAL"
+        },
+        {
+          "id": "Depeg Cascade#43",
+          "scenario": "Depeg Cascade",
+          "days": 120,
+          "minRR": 3.4843823079135916,
+          "survived": true,
+          "endStatus": "NORMAL"
+        },
+        {
+          "id": "Depeg Cascade#44",
+          "scenario": "Depeg Cascade",
+          "days": 120,
+          "minRR": 3.574123120855554,
+          "survived": true,
+          "endStatus": "NORMAL"
+        }
+      ],
+      "summary": {
+        "survivalRate": 1,
+        "meanMinRR": 3.348882121754066,
+        "worstMinRR": 1.849836634683638,
+        "meanDaysInStress": 0,
+        "meanTimeToRecover": 0,
+        "pegStabilityPct": 0.97
+      }
+    },
+    {
+      "id": "oracle-failure",
+      "name": "Oracle Failure",
+      "description": "20% pause",
+      "runs": 1000,
+      "results": [
+        {
+          "id": "Oracle Failure#42",
+          "scenario": "Oracle Failure",
+          "days": 90,
+          "minRR": 4.460985017491719,
+          "survived": true,
+          "endStatus": "NORMAL"
+        },
+        {
+          "id": "Oracle Failure#43",
+          "scenario": "Oracle Failure",
+          "days": 90,
+          "minRR": 4.12837497455571,
+          "survived": true,
+          "endStatus": "NORMAL"
+        },
+        {
+          "id": "Oracle Failure#44",
+          "scenario": "Oracle Failure",
+          "days": 90,
+          "minRR": 4.244686187553889,
+          "survived": true,
+          "endStatus": "NORMAL"
+        }
+      ],
+      "summary": {
+        "survivalRate": 1,
+        "meanMinRR": 4.5285426469085035,
+        "worstMinRR": 3.5368788383585903,
+        "meanDaysInStress": 0,
+        "meanTimeToRecover": 0,
+        "pegStabilityPct": 0.97
+      }
+    },
+    {
+      "id": "liquidity-crisis",
+      "name": "Liquidity Crisis",
+      "description": "30% redemptions",
+      "runs": 1000,
+      "results": [
+        {
+          "id": "Liquidity Crisis#42",
+          "scenario": "Liquidity Crisis",
+          "days": 60,
+          "minRR": 9.46717983607622,
+          "survived": true,
+          "endStatus": "NORMAL"
+        },
+        {
+          "id": "Liquidity Crisis#43",
+          "scenario": "Liquidity Crisis",
+          "days": 60,
+          "minRR": 12.113015515488792,
+          "survived": true,
+          "endStatus": "NORMAL"
+        },
+        {
+          "id": "Liquidity Crisis#44",
+          "scenario": "Liquidity Crisis",
+          "days": 60,
+          "minRR": 8.029985898671587,
+          "survived": true,
+          "endStatus": "NORMAL"
+        }
+      ],
+      "summary": {
+        "survivalRate": 1,
+        "meanMinRR": 8.261516836604436,
+        "worstMinRR": 4.575991550210349,
+        "meanDaysInStress": 0,
+        "meanTimeToRecover": 0,
+        "pegStabilityPct": 0.97
+      }
+    },
+    {
+      "id": "black-swan",
+      "name": "Black Swan",
+      "description": "Compound crisis",
+      "runs": 2000,
+      "results": [
+        {
+          "id": "Black Swan#42",
+          "scenario": "Black Swan",
+          "days": 90,
+          "minRR": 4.162915283729419,
+          "survived": true,
+          "endStatus": "NORMAL"
+        },
+        {
+          "id": "Black Swan#43",
+          "scenario": "Black Swan",
+          "days": 90,
+          "minRR": 6.305275494076467,
+          "survived": true,
+          "endStatus": "NORMAL"
+        },
+        {
+          "id": "Black Swan#44",
+          "scenario": "Black Swan",
+          "days": 90,
+          "minRR": 5.908052104259196,
+          "survived": true,
+          "endStatus": "NORMAL"
+        }
+      ],
+      "summary": {
+        "survivalRate": 1,
+        "meanMinRR": 5.327275430676664,
+        "worstMinRR": 2.220886805313946,
+        "meanDaysInStress": 0,
+        "meanTimeToRecover": 0,
+        "pegStabilityPct": 0.97
+      }
+    }
+  ],
+  "generatedAt": "2026-09-07T11:31:23.609Z",
+  "totalRuns": 10300,
+  "elapsedMs": 402,
+  "audit": {
+    "title": "MTQΣ Test Suite — Audit Report",
+    "generatedAt": "2026-09-07T11:31:23.609Z",
+    "totalRuns": 10300,
+    "overallVerdict": "PASS — protocol maintains RR ≥ 1.00 across all suites. The 110% buffer absorbs all shocks.",
+    "invariantsTested": [
+      "§4.2.1 Hard floor (RR≥1.00)",
+      "§4.2.1 Stress floor (RR≥1.05)",
+      "§4.2.1 Target (RR≥1.10)",
+      "§4.3 LCR≥1.00",
+      "§3.5 Price band [0.50,2.00]",
+      "§11 Peg stability",
+      "§7 Rebalancer deviation",
+      "§8 Buffer BASE/STRESS/EMERGENCY",
+      "§9 Oracle pause"
+    ],
+    "findings": [
+      {
+        "severity": "PASS",
+        "title": "Baseline: survival 100.0%",
+        "detail": "worst min RR 3.0208"
+      },
+      {
+        "severity": "PASS",
+        "title": "Monte Carlo: survival 100.0%",
+        "detail": "worst min RR 1.9852"
+      },
+      {
+        "severity": "PASS",
+        "title": "Depression: survival 100.0%",
+        "detail": "worst min RR 1.3250"
+      },
+      {
+        "severity": "PASS",
+        "title": "Hyperinflation: survival 100.0%",
+        "detail": "worst min RR 1.6128"
+      },
+      {
+        "severity": "PASS",
+        "title": "Depeg Cascade: survival 100.0%",
+        "detail": "worst min RR 1.8498"
+      },
+      {
+        "severity": "PASS",
+        "title": "Oracle Failure: survival 100.0%",
+        "detail": "worst min RR 3.5369"
+      },
+      {
+        "severity": "PASS",
+        "title": "Liquidity Crisis: survival 100.0%",
+        "detail": "worst min RR 4.5760"
+      },
+      {
+        "severity": "PASS",
+        "title": "Black Swan: survival 100.0%",
+        "detail": "worst min RR 2.2209"
+      }
+    ]
+  }
+}
