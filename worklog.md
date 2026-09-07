@@ -531,3 +531,44 @@ Stage Summary:
 - ✅ Screenshots: 4 taken (home, tests, investors, dashboard)
 - ✅ All 3 platforms connected: GitHub → Vercel → Turso
 - ⚠️ Tokens are in .env (gitignored) — rotate after session (transmitted via chat)
+
+---
+Task ID: Z1-Z7
+Agent: Orchestrator (COO + CTO)
+Task: Apple-style UI upgrade + verify Vercel deployment
+
+Work Log:
+- Verified current state: 9 sections, Navigation, 23 components, 9 lib files, 13 API routes, 6 brand assets all intact. Dev server 200, Vercel 200. Lint clean. Nothing deleted or rolled to old git.
+- APPLE-STYLE CSS: added 200+ lines of Apple design tokens to globals.css:
+  * .mtqs-glass (frosted glass: backdrop-blur 24px + saturate 180%)
+  * .mtqs-glass-gold, .mtqs-glass-emerald (colored frosted glass)
+  * .mtqs-card-apple (larger rounded 24px + blur 32px + saturate 200%)
+  * .mtqs-segmented (Apple segmented control background)
+  * .mtqs-nav-pill (active segment pill with shadow)
+  * .mtqs-btn-primary / .mtqs-btn-secondary (pill buttons, 980px border-radius)
+  * .mtqs-hover-lift (translateY -3px on hover + shadow)
+  * .mtqs-fade-in + .mtqs-stagger-1..5 (staggered entrance animation)
+  * .mtqs-gradient-border (mask-based gradient border)
+  * .mtqs-number (tabular-nums + letter-spacing)
+  * .mtqs-hero-text, .mtqs-hero-subtitle, .mtqs-section-title, .mtqs-body, .mtqs-caption
+  * .mtqs-spring (cubic-bezier 0.34, 1.56, 0.64, 1), .mtqs-spring-soft
+- TYPOGRAPHY: added Inter font (SF Pro equivalent) to layout.tsx as the primary body font (alongside Geist Sans + Geist Mono + Cormorant Garamond display).
+- NAVIGATION: rewrote Navigation.tsx with Apple segmented control (frosted glass background, spring layoutId pill indicator, staggered mobile grid entrance with spring physics).
+- PAGE TRANSITIONS: updated page.tsx section transitions to spring physics (stiffness 300, damping 28, mass 0.8) + scale 0.98 → 1 entrance.
+- PANEL UPGRADE: .mtqs-panel now uses frosted glass (backdrop-blur 24px + saturate 180% + border-radius 20px + hover shadow lift) instead of the old opaque obsidian.
+- LINT: clean (exit 0).
+- GIT: committed (28bd1f7) + pushed to GitHub. Vercel auto-deployed successfully.
+- VERCEL VERIFIED:
+  * Production URL: https://mtq-sigma.vercel.app → HTTP 200 ✓
+  * Title: "MTQΣ — The Monetary Observatory" ✓
+  * Home: hero MTQΣ + tagline + 9 nav links ✓
+  * Tests: PASS + Baseline ✓
+  * Apple glass: .mtqs-segmented ✓, .mtqs-glass ✓, backdrop-blur ✓
+  * 3 screenshots taken: /tmp/vercel-apple-home.png, /tmp/vercel-apple-tests.png, /tmp/vercel-apple-dashboard.png
+
+Stage Summary:
+- ✅ Apple-style UI applied: frosted glass panels, segmented nav with spring pill, Inter font (SF Pro equivalent), spring section transitions, staggered entrance animations, pill buttons, gradient borders, hover lift
+- ✅ GitHub pushed (commit 28bd1f7)
+- ✅ Vercel auto-deployed + verified (200, all sections render, Apple glass active)
+- ✅ Nothing deleted, nothing rolled to old git
+- ✅ Screenshots taken on Vercel production
