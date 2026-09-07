@@ -7,22 +7,31 @@ const globalForPrisma = globalThis as unknown as {
 }
 
 function createDb(): PrismaClient {
-  // If Turso env vars are present, use Turso (libSQL)
-  if (process.env.TURSO_DB_URL && process.env.TURSO_AUTH_TOKEN) {
-    const libsql = createClient({
-      url: process.env.TURSO_DB_URL,
-      authToken: process.env.TURSO_AUTH_TOKEN,
-    })
-    const adapter = new PrismaLibSql(libsql)
-    return new PrismaClient({ adapter, log: ['error'] })
+  const tursoUrl = process.env.TURSO_DB_URL || process.env.DATABASE_URL
+  const tursoToken = process.env.TURSO_AUTH_TOKEN
+
+  // If Turso env vars present AND we're in a runtime (not build/prerender), use Turso
+  if (tursoUrl && tursoToken && typeof window !== 'undefined' === false) {
+    try {
+      const libsql = createClient({
+        url: tursoUrl as string,
+        authToken: tursoToken as string,
+      })
+      const adapter = new PrismaLibSql(libsql)
+      return new PrismaClient({ adapter, log: ['error'] })
+    } catch {
+      // Fall back to local SQLite
+    }
   }
-  // Otherwise use local SQLite
+
+  // Local SQLite (for dev / build / fallback)
   return new PrismaClient({
-    log: process.env.NODE_ENV === 'development' ? ['error'] : ['error'],
+    log: ['error'],
     datasources: { db: { url: process.env.DATABASE_URL || "file:/home/z/my-project/db/custom.db" } },
   })
 }
 
+// Only create the client on first access (not during module load / build)
 export const db = globalForPrisma.prisma ?? createDb()
 
 if (process.env.NODE_ENV !== 'production') globalForPrisma.prisma = db
