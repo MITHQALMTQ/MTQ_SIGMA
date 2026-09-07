@@ -127,7 +127,7 @@ export const ARC_PILOT_V2: ChainInfo = {
   ],
 };
 
-export const ALL_CHAINS: ChainInfo[] = [MONAD_TESTNET, ARC_TESTNET, ARC_PILOT_V2, SOLANA_DEVNET];
+export const ALL_CHAINS: ChainInfo[] = [MONAD_TESTNET, ARC_TESTNET, ROBINHOOD_TESTNET, SOLANA_DEVNET];
 
 export function getChain(id: string): ChainInfo | undefined {
   return ALL_CHAINS.find((c) => c.id === id);
@@ -144,4 +144,31 @@ export const CANONICAL_MTQ_ADDRESSES: Record<string, { chain: string; chainId: n
   arc:       { chain: "Arc Testnet",              chainId: 5042002, address: "0x24203404B9b971C907e8Ced96106Fa74380d9897", name: "MTQΣ", symbol: "MTQ", decimals: 18, explorer: "https://testnet.arcscan.app/address/0x24203404B9b971C907e8Ced96106Fa74380d9897" },
   robinhood: { chain: "Robinhood Chain Testnet",  chainId: 46630,   address: "0xAF5B85658d074e071BbF392395a2ddA9B644C5A5", name: "MTQΣ", symbol: "MTQ", decimals: 18, explorer: "https://explorer.testnet.chain.robinhood.com/address/0xAF5B85658d074e071BbF392395a2ddA9B644C5A5" },
   solana:    { chain: "Solana Devnet",            chainId: "devnet", address: "2EaK5cQtGUVNyuw9kSsWVRNoL8dFf21cxX2YWRLSf3gY", name: "MTQΣ", symbol: "MTQ", decimals: 18, explorer: "https://explorer.solana.com/address/2EaK5cQtGUVNyuw9kSsWVRNoL8dFf21cxX2YWRLSf3gY" },
+};
+
+// Robinhood Chain Testnet — Chain ID 46630 (deployed 2026-09-05)
+export const ROBINHOOD_TESTNET: ChainInfo = {
+  id: "robinhood",
+  chainId: 46630,
+  label: "Robinhood Chain Testnet",
+  network: "Robinhood Chain Testnet",
+  rpcUrl: "https://rpc.testnet.chain.robinhood.com/rpc",
+  explorer: "https://explorer.testnet.chain.robinhood.com",
+  explorerAddrBase: "https://explorer.testnet.chain.robinhood.com/address/",
+  explorerTxBase: "https://explorer.testnet.chain.robinhood.com/tx/",
+  nativeCurrency: "ETH",
+  wallet: DEPLOYER_WALLET,
+  isEvm: true,
+  contracts: [
+    { name: "MTQΣ Token (AccessControl + Pausable)", symbol: "MTQToken.sol", address: "0xAF5B85658d074e071BbF392395a2ddA9B644C5A5", canonical: true, note: "name()='MTQΣ' • symbol='MTQ' • decimals=18 • ADMIN+MINTER+PAUSER on deployer • not paused • genesis 1,000,000 MTQ" },
+    { name: "Governance", symbol: "Governance.sol", address: "0x80FF03DAD374E1f2f5C110F355B7a448Aa732B56" },
+    { name: "Safe (Multi-Sig, 4/7)", symbol: "Safe.sol", address: "0xa3CE28A10854B375272D528EeC4295D6bcd75691" },
+    { name: "Algorithm Engine", symbol: "AlgorithmEngine.sol", address: "0x8C012fC945a2EEa9Fd25aCC8aCeadF180BDc9244" },
+    { name: "Reserve Vault", symbol: "ReserveVault.sol", address: "0x5929cBEb7d308b974B9F3Ff5272fD27813967d6e" },
+    { name: "Mint", symbol: "MintContract.sol", address: "0xeF3290d060249D05685617F8954F2B64d7A6D084", note: "Holds MINTER_ROLE on MTQ • funded 1,100,000 USDC" },
+    { name: "Redeem", symbol: "RedeemContract.sol", address: "0x3aCE703dc20c95381D425fceBbAC3AFA0B8Dac44" },
+    { name: "Oracle", symbol: "Oracle.sol", address: "0x02D9531A3ce1f47B38E4EA00b84a62d5C4fB6A9F" },
+    { name: "Takaful", symbol: "Takaful.sol", address: "0x1bbCd78E4DEF79b7a3B77242770cbAefAC816177" },
+    { name: "MockUSDC (pilot collateral)", symbol: "MockUSDC.sol", address: "0xFd2B8d176bf059287638Db30D02C6651dA02861e" },
+  ],
 };
