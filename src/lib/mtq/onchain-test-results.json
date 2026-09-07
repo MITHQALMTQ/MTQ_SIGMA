@@ -1,0 +1,241 @@
+{
+  "generatedAt": "2026-09-07T20:42:49.241Z",
+  "fuzz": [
+    {
+      "id": "FUZZ-1",
+      "name": "mint math: mtqOut == usdcNet / price",
+      "passed": true,
+      "runs": 5000,
+      "failures": 0,
+      "detail": "Exact"
+    },
+    {
+      "id": "FUZZ-2",
+      "name": "redeem math",
+      "passed": true,
+      "runs": 5000,
+      "failures": 0,
+      "detail": "Exact"
+    },
+    {
+      "id": "FUZZ-3",
+      "name": "conservation: mint→redeem returns supply",
+      "passed": true,
+      "runs": 5000,
+      "failures": 0,
+      "detail": "Conserved"
+    },
+    {
+      "id": "FUZZ-4",
+      "name": "mint(0) and redeem(0) revert",
+      "passed": true,
+      "runs": 1000,
+      "failures": 0,
+      "detail": "All rejected"
+    },
+    {
+      "id": "FUZZ-5",
+      "name": "paused → mint reverts",
+      "passed": true,
+      "runs": 1000,
+      "failures": 0,
+      "detail": "All blocked"
+    },
+    {
+      "id": "FUZZ-6",
+      "name": "redeem > balance reverts",
+      "passed": true,
+      "runs": 5000,
+      "failures": 0,
+      "detail": "All rejected"
+    },
+    {
+      "id": "FUZZ-7",
+      "name": "decimal precision (no negative)",
+      "passed": true,
+      "runs": 5000,
+      "failures": 0,
+      "detail": "No negatives"
+    }
+  ],
+  "invariants": [
+    {
+      "id": "INV-Monad-dec",
+      "name": "Monad: decimals==18",
+      "passed": true,
+      "runs": 1,
+      "failures": 0,
+      "detail": "18"
+    },
+    {
+      "id": "INV-Monad-name",
+      "name": "Monad: name has Σ",
+      "passed": true,
+      "runs": 1,
+      "failures": 0,
+      "detail": "MTQΣ"
+    },
+    {
+      "id": "INV-Monad-admin",
+      "name": "Monad: ADMIN",
+      "passed": true,
+      "runs": 1,
+      "failures": 0,
+      "detail": "true"
+    },
+    {
+      "id": "INV-Monad-mint",
+      "name": "Monad: MINTER",
+      "passed": true,
+      "runs": 1,
+      "failures": 0,
+      "detail": "true"
+    },
+    {
+      "id": "INV-Monad-paus",
+      "name": "Monad: PAUSER",
+      "passed": true,
+      "runs": 1,
+      "failures": 0,
+      "detail": "true"
+    },
+    {
+      "id": "INV-Monad-!pause",
+      "name": "Monad: not paused",
+      "passed": true,
+      "runs": 1,
+      "failures": 0,
+      "detail": "false"
+    },
+    {
+      "id": "INV-Monad-supply",
+      "name": "Monad: supply>0",
+      "passed": true,
+      "runs": 1,
+      "failures": 0,
+      "detail": "1000000.00000001998"
+    },
+    {
+      "id": "INV-Arc-dec",
+      "name": "Arc: decimals==18",
+      "passed": true,
+      "runs": 1,
+      "failures": 0,
+      "detail": "18"
+    },
+    {
+      "id": "INV-Arc-name",
+      "name": "Arc: name has Σ",
+      "passed": true,
+      "runs": 1,
+      "failures": 0,
+      "detail": "MTQΣ"
+    },
+    {
+      "id": "INV-Arc-admin",
+      "name": "Arc: ADMIN",
+      "passed": true,
+      "runs": 1,
+      "failures": 0,
+      "detail": "true"
+    },
+    {
+      "id": "INV-Arc-mint",
+      "name": "Arc: MINTER",
+      "passed": true,
+      "runs": 1,
+      "failures": 0,
+      "detail": "true"
+    },
+    {
+      "id": "INV-Arc-paus",
+      "name": "Arc: PAUSER",
+      "passed": true,
+      "runs": 1,
+      "failures": 0,
+      "detail": "true"
+    },
+    {
+      "id": "INV-Arc-!pause",
+      "name": "Arc: not paused",
+      "passed": true,
+      "runs": 1,
+      "failures": 0,
+      "detail": "false"
+    },
+    {
+      "id": "INV-Arc-supply",
+      "name": "Arc: supply>0",
+      "passed": true,
+      "runs": 1,
+      "failures": 0,
+      "detail": "1000000.00000001998"
+    },
+    {
+      "id": "INV-Robinhood-dec",
+      "name": "Robinhood: decimals==18",
+      "passed": true,
+      "runs": 1,
+      "failures": 0,
+      "detail": "18"
+    },
+    {
+      "id": "INV-Robinhood-name",
+      "name": "Robinhood: name has Σ",
+      "passed": true,
+      "runs": 1,
+      "failures": 0,
+      "detail": "MTQΣ"
+    },
+    {
+      "id": "INV-Robinhood-admin",
+      "name": "Robinhood: ADMIN",
+      "passed": true,
+      "runs": 1,
+      "failures": 0,
+      "detail": "true"
+    },
+    {
+      "id": "INV-Robinhood-mint",
+      "name": "Robinhood: MINTER",
+      "passed": true,
+      "runs": 1,
+      "failures": 0,
+      "detail": "true"
+    },
+    {
+      "id": "INV-Robinhood-paus",
+      "name": "Robinhood: PAUSER",
+      "passed": true,
+      "runs": 1,
+      "failures": 0,
+      "detail": "true"
+    },
+    {
+      "id": "INV-Robinhood-!pause",
+      "name": "Robinhood: not paused",
+      "passed": true,
+      "runs": 1,
+      "failures": 0,
+      "detail": "false"
+    },
+    {
+      "id": "INV-Robinhood-supply",
+      "name": "Robinhood: supply>0",
+      "passed": true,
+      "runs": 1,
+      "failures": 0,
+      "detail": "1001000.00000002997"
+    }
+  ],
+  "summary": {
+    "fuzzPass": 7,
+    "fuzzFail": 0,
+    "invPass": 21,
+    "invFail": 0,
+    "totalPass": 28,
+    "totalFail": 0,
+    "total": 28
+  },
+  "verdict": "PASS — all invariants hold + all fuzz tests pass"
+}
