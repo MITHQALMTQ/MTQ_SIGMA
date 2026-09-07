@@ -127,25 +127,6 @@ export const ARC_PILOT_V2: ChainInfo = {
   ],
 };
 
-export const ALL_CHAINS: ChainInfo[] = [MONAD_TESTNET, ARC_TESTNET, ROBINHOOD_TESTNET, SOLANA_DEVNET];
-
-export function getChain(id: string): ChainInfo | undefined {
-  return ALL_CHAINS.find((c) => c.id === id);
-}
-
-export function buildExplorerAddressUrl(chain: ChainInfo, address: string): string {
-  if (chain.explorerAddrBase) return chain.explorerAddrBase + address;
-  return chain.explorer;
-}
-
-// === SOURCE OF TRUTH: canonical MTQΣ token address per chain ===
-export const CANONICAL_MTQ_ADDRESSES: Record<string, { chain: string; chainId: number | string; address: string; name: string; symbol: string; decimals: number; explorer: string }> = {
-  monad:     { chain: "Monad Testnet",            chainId: 10143,   address: "0x0Ac20360234b4C988a19586CBe55733e18A5982f", name: "MTQΣ", symbol: "MTQ", decimals: 18, explorer: "https://testnet.monadscan.com/address/0x0Ac20360234b4C988a19586CBe55733e18A5982f" },
-  arc:       { chain: "Arc Testnet",              chainId: 5042002, address: "0x24203404B9b971C907e8Ced96106Fa74380d9897", name: "MTQΣ", symbol: "MTQ", decimals: 18, explorer: "https://testnet.arcscan.app/address/0x24203404B9b971C907e8Ced96106Fa74380d9897" },
-  robinhood: { chain: "Robinhood Chain Testnet",  chainId: 46630,   address: "0xAF5B85658d074e071BbF392395a2ddA9B644C5A5", name: "MTQΣ", symbol: "MTQ", decimals: 18, explorer: "https://explorer.testnet.chain.robinhood.com/address/0xAF5B85658d074e071BbF392395a2ddA9B644C5A5" },
-  solana:    { chain: "Solana Devnet",            chainId: "devnet", address: "2EaK5cQtGUVNyuw9kSsWVRNoL8dFf21cxX2YWRLSf3gY", name: "MTQΣ", symbol: "MTQ", decimals: 18, explorer: "https://explorer.solana.com/address/2EaK5cQtGUVNyuw9kSsWVRNoL8dFf21cxX2YWRLSf3gY" },
-};
-
 // Robinhood Chain Testnet — Chain ID 46630 (deployed 2026-09-05)
 export const ROBINHOOD_TESTNET: ChainInfo = {
   id: "robinhood",
@@ -172,3 +153,23 @@ export const ROBINHOOD_TESTNET: ChainInfo = {
     { name: "MockUSDC (pilot collateral)", symbol: "MockUSDC.sol", address: "0xFd2B8d176bf059287638Db30D02C6651dA02861e" },
   ],
 };
+export const ALL_CHAINS: ChainInfo[] = [MONAD_TESTNET, ARC_TESTNET, ROBINHOOD_TESTNET, SOLANA_DEVNET];
+
+export function getChain(id: string): ChainInfo | undefined {
+  return ALL_CHAINS.find((c) => c.id === id);
+}
+
+export function buildExplorerAddressUrl(chain: ChainInfo, address: string): string {
+  if (chain.explorerAddrBase) return chain.explorerAddrBase + address;
+  return chain.explorer;
+}
+
+// === SOURCE OF TRUTH: canonical MTQΣ token address per chain ===
+export const CANONICAL_MTQ_ADDRESSES: Record<string, { chain: string; chainId: number | string; address: string; name: string; symbol: string; decimals: number; explorer: string }> = {
+  monad:     { chain: "Monad Testnet",            chainId: 10143,   address: "0x0Ac20360234b4C988a19586CBe55733e18A5982f", name: "MTQΣ", symbol: "MTQ", decimals: 18, explorer: "https://testnet.monadscan.com/address/0x0Ac20360234b4C988a19586CBe55733e18A5982f" },
+  arc:       { chain: "Arc Testnet",              chainId: 5042002, address: "0x24203404B9b971C907e8Ced96106Fa74380d9897", name: "MTQΣ", symbol: "MTQ", decimals: 18, explorer: "https://testnet.arcscan.app/address/0x24203404B9b971C907e8Ced96106Fa74380d9897" },
+  robinhood: { chain: "Robinhood Chain Testnet",  chainId: 46630,   address: "0xAF5B85658d074e071BbF392395a2ddA9B644C5A5", name: "MTQΣ", symbol: "MTQ", decimals: 18, explorer: "https://explorer.testnet.chain.robinhood.com/address/0xAF5B85658d074e071BbF392395a2ddA9B644C5A5" },
+  solana:    { chain: "Solana Devnet",            chainId: "devnet", address: "2EaK5cQtGUVNyuw9kSsWVRNoL8dFf21cxX2YWRLSf3gY", name: "MTQΣ", symbol: "MTQ", decimals: 18, explorer: "https://explorer.solana.com/address/2EaK5cQtGUVNyuw9kSsWVRNoL8dFf21cxX2YWRLSf3gY" },
+};
+
+
