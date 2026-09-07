@@ -1,6 +1,6 @@
 {
   "framework": "nextjs",
-  "buildCommand": "bun run db:generate && next build",
+  "buildCommand": "next build",
   "installCommand": "bun install",
   "functions": {
     "src/app/api/**/route.ts": {
