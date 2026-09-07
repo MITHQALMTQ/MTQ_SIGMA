@@ -266,74 +266,6 @@ export function HomeSection({ onNavigate }: { onNavigate: (id: SectionId) => voi
         <h2 id="home-hero" className="sr-only">MTQΣ — Home</h2>
       </section>
 
-      {/* ===== What is MTQΣ? ===== */}
-      <section aria-labelledby="home-what">
-        <SectionHeading eyebrow="§1.1 · The Three Pillars" title="What is MTQΣ?" />
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-          {WHAT_IS.map((c, i) => {
-            const Icon = c.icon;
-            return (
-              <Reveal key={c.title} delay={i * 0.05}>
-                <Panel className="p-5 sm:p-6 h-full flex flex-col gap-3">
-                  <div className="flex items-center gap-2.5">
-                    <div className="inline-flex items-center justify-center rounded-md border border-mtqs-gold/25 bg-mtqs-gold/10 p-2">
-                      <Icon className="h-4 w-4 text-mtqs-gold-light" aria-hidden="true" />
-                    </div>
-                    <span className="text-[0.6rem] uppercase tracking-[0.22em] text-mtqs-gold/75">
-                      {c.eyebrow}
-                    </span>
-                  </div>
-                  <h3 className="mtqs-display text-xl font-semibold text-foreground/95">{c.title}</h3>
-                  <p className="text-[0.78rem] text-muted-foreground/85 leading-relaxed">{c.body}</p>
-                </Panel>
-              </Reveal>
-            );
-          })}
-        </div>
-      </section>
-
-      {/* ===== Constitutional Separation (ClientOnly — hydration-safe) ===== */}
-      <section aria-labelledby="home-constitutional">
-        <SectionHeading
-          eyebrow="§1.1 · Signature Visual"
-          title="Constitutional Separation"
-          right={<Pill tone="gold">A · B · C</Pill>}
-        />
-        <Reveal>
-          <Panel className="p-5 sm:p-6">
-            <p className="mb-4 text-[0.78rem] text-muted-foreground/85 leading-relaxed max-w-2xl">
-              The GFB Index defines what one MTQΣ is intended to represent. The reserve
-              portfolio exists to collateralize that obligation. The two are constitutionally
-              separate: the reserve cannot dilute the index, and the index cannot be redefined
-              to mask a reserve shortfall.
-            </p>
-            <ClientOnly>
-              <ConstitutionalSeparation snapshot={snapshot} />
-            </ClientOnly>
-            <noscript>
-              <p className="text-[0.72rem] text-muted-foreground/70">
-                The Constitutional Separation diagram requires JavaScript to render.
-              </p>
-            </noscript>
-          </Panel>
-        </Reveal>
-      </section>
-
-      {/* ===== Live stats band ===== */}
-      <section aria-labelledby="home-stats">
-        <SectionHeading
-          eyebrow="Live · 4s poll"
-          title="Live Monetary State"
-          right={
-            <Pill tone={snapshot?.oraclePaused ? "rose" : "emerald"}>
-              <GlowDot color={snapshot?.oraclePaused ? "rose" : "emerald"} size="h-1.5 w-1.5" />
-              {snapshot?.oraclePaused ? "oracle paused" : "oracle live"}
-            </Pill>
-          }
-        />
-        <LiveStatsBand snapshot={snapshot} />
-      </section>
-
       {/* ===== Tokenized Gold (PAXG + XAUT) — visible upfront ===== */}
       <section aria-labelledby="home-gold">
         <SectionHeading eyebrow="§4 · §8 · Bullion" title="Tokenized Gold Reserve" />
@@ -425,6 +357,75 @@ export function HomeSection({ onNavigate }: { onNavigate: (id: SectionId) => voi
           The §6 Adaptive Macro Engine adjusts the target ±3pp based on VIX/DXY z-scores.
           The §7 Rebalancing Engine trades toward the target with 24h direction lock + 1% slippage protection.
         </p>
+      </section>
+
+      
+      {/* ===== What is MTQΣ? ===== */}
+      <section aria-labelledby="home-what">
+        <SectionHeading eyebrow="§1.1 · The Three Pillars" title="What is MTQΣ?" />
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+          {WHAT_IS.map((c, i) => {
+            const Icon = c.icon;
+            return (
+              <Reveal key={c.title} delay={i * 0.05}>
+                <Panel className="p-5 sm:p-6 h-full flex flex-col gap-3">
+                  <div className="flex items-center gap-2.5">
+                    <div className="inline-flex items-center justify-center rounded-md border border-mtqs-gold/25 bg-mtqs-gold/10 p-2">
+                      <Icon className="h-4 w-4 text-mtqs-gold-light" aria-hidden="true" />
+                    </div>
+                    <span className="text-[0.6rem] uppercase tracking-[0.22em] text-mtqs-gold/75">
+                      {c.eyebrow}
+                    </span>
+                  </div>
+                  <h3 className="mtqs-display text-xl font-semibold text-foreground/95">{c.title}</h3>
+                  <p className="text-[0.78rem] text-muted-foreground/85 leading-relaxed">{c.body}</p>
+                </Panel>
+              </Reveal>
+            );
+          })}
+        </div>
+      </section>
+
+      {/* ===== Constitutional Separation (ClientOnly — hydration-safe) ===== */}
+      <section aria-labelledby="home-constitutional">
+        <SectionHeading
+          eyebrow="§1.1 · Signature Visual"
+          title="Constitutional Separation"
+          right={<Pill tone="gold">A · B · C</Pill>}
+        />
+        <Reveal>
+          <Panel className="p-5 sm:p-6">
+            <p className="mb-4 text-[0.78rem] text-muted-foreground/85 leading-relaxed max-w-2xl">
+              The GFB Index defines what one MTQΣ is intended to represent. The reserve
+              portfolio exists to collateralize that obligation. The two are constitutionally
+              separate: the reserve cannot dilute the index, and the index cannot be redefined
+              to mask a reserve shortfall.
+            </p>
+            <ClientOnly>
+              <ConstitutionalSeparation snapshot={snapshot} />
+            </ClientOnly>
+            <noscript>
+              <p className="text-[0.72rem] text-muted-foreground/70">
+                The Constitutional Separation diagram requires JavaScript to render.
+              </p>
+            </noscript>
+          </Panel>
+        </Reveal>
+      </section>
+
+      {/* ===== Live stats band ===== */}
+      <section aria-labelledby="home-stats">
+        <SectionHeading
+          eyebrow="Live · 4s poll"
+          title="Live Monetary State"
+          right={
+            <Pill tone={snapshot?.oraclePaused ? "rose" : "emerald"}>
+              <GlowDot color={snapshot?.oraclePaused ? "rose" : "emerald"} size="h-1.5 w-1.5" />
+              {snapshot?.oraclePaused ? "oracle paused" : "oracle live"}
+            </Pill>
+          }
+        />
+        <LiveStatsBand snapshot={snapshot} />
       </section>
 
       {/* ===== 4 testnet cards ===== */}
