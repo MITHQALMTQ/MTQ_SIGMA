@@ -48,14 +48,16 @@ function VaultDiagram({ snapshot }: { snapshot: MetricsSnapshot }) {
   const coreFrac = 0.90; // 90% core
   const bufferGoldRatio = BUFFER_GOLD[snapshot.bufferState] ?? BUFFER_GOLD_BASE;
 
-  // Per-asset breakdown for legend
+  // Per-asset breakdown for legend — gold split into PAXG + XAUT
+  const perIssuer = snapshot.perIssuer;
   const assets = [
     { k: "USD", v: r.usdNet, color: "#e8b964", token: "USDC" },
     { k: "EUR", v: r.eurNet, color: "#3ddc97", token: "EURC" },
     { k: "GBP", v: r.gbpNet, color: "#9fb0a3", token: "GBP₿" },
     { k: "JPY", v: r.jpyNet, color: "#c9a05a", token: "JPY₿" },
     { k: "CNY", v: r.cnyNet, color: "#7d9082", token: "CNY₿" },
-    { k: "XAU", v: r.goldNet, color: "#f5d27a", token: "PAXG" },
+    { k: "PAXG", v: perIssuer?.paxgUsd ?? r.goldNet / 2, color: "#f5d27a", token: "PAXG (Paxos)" },
+    { k: "XAUT", v: perIssuer?.xautUsd ?? r.goldNet / 2, color: "#e0c068", token: "XAUT (Tether)" },
   ];
   const total = assets.reduce((a, b) => a + b.v, 0) || 1;
 
@@ -286,13 +288,15 @@ export function ReserveVault({ snapshot }: { snapshot: MetricsSnapshot | null })
     );
   }
   const r = snapshot.reserve;
+  const perIssuer = snapshot.perIssuer;
   const assets = [
     { k: "USD", v: r.usdNet, color: "#e8b964", token: "USDC" },
     { k: "EUR", v: r.eurNet, color: "#3ddc97", token: "EURC" },
     { k: "GBP", v: r.gbpNet, color: "#9fb0a3", token: "GBP₿" },
     { k: "JPY", v: r.jpyNet, color: "#c9a05a", token: "JPY₿" },
     { k: "CNY", v: r.cnyNet, color: "#7d9082", token: "CNY₿" },
-    { k: "XAU", v: r.goldNet, color: "#f5d27a", token: "PAXG" },
+    { k: "PAXG", v: perIssuer?.paxgUsd ?? r.goldNet / 2, color: "#f5d27a", token: "PAXG (Paxos)" },
+    { k: "XAUT", v: perIssuer?.xautUsd ?? r.goldNet / 2, color: "#e0c068", token: "XAUT (Tether)" },
   ];
   const total = assets.reduce((a, b) => a + b.v, 0) || 1;
 

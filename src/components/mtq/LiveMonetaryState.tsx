@@ -151,7 +151,7 @@ export function LiveMonetaryState({ snapshot }: { snapshot: MetricsSnapshot | nu
                 <span className="font-mono">{fmtUsdCompact(snapshot.reserve.fiatNet)}</span>
               </div>
               <div className="flex justify-between text-[0.7rem] text-muted-foreground/80">
-                <span>gold net (PAXG)</span>
+                <span>gold net (PAXG + XAUT)</span>
                 <span className="font-mono">{fmtUsdCompact(snapshot.reserve.goldNet)}</span>
               </div>
               <div className="flex justify-between text-[0.7rem] text-muted-foreground/80">
