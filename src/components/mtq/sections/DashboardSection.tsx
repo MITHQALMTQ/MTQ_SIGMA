@@ -25,7 +25,7 @@ import { TreasurySweep } from "@/components/mtq/TreasurySweep";
 import { PriceEvents } from "@/components/mtq/PriceEvents";
 import { ContractRegistry } from "@/components/mtq/ContractRegistry";
 import { RiskStateMachine } from "@/components/mtq/RiskStateMachine";
-import { GfbBasket } from "@/components/mtq/GfbBasket";
+import { GfbBasket, GoldInReserve } from "@/components/mtq/GfbBasket";
 import { TrialLog, type PilotTrial } from "@/components/mtq/TrialLog";
 import { HonestStatus } from "@/components/mtq/HonestStatus";
 
@@ -369,6 +369,7 @@ export function DashboardSection() {
       {/* ===== 16 — GFB Basket ===== */}
       <Section id="basket" eyebrow="§2" title="GFB Basket Reference">
         <GfbBasket />
+        <GoldInReserve snapshot={snapshot} />
       </Section>
 
       {/* ===== 17 — Trial Log ===== */}

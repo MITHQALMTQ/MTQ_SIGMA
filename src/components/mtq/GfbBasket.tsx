@@ -5,6 +5,7 @@
 "use client";
 
 import { Panel, Reveal } from "./primitives";
+import { fmtUsdCompact, fmtFixed } from "./format";
 import {
   BASKET_TABLE,
   BASE_EUR_USD,
@@ -91,6 +92,43 @@ export function GfbBasket() {
           </div>
         </Panel>
       </Reveal>
+    </div>
+  );
+}
+
+// Gold in the Reserve (not in the GFB basket — gold is in the reserve portfolio)
+export function GoldInReserve({ snapshot }: { snapshot?: import("@/lib/mtq/engine").MetricsSnapshot | null }) {
+  if (!snapshot) return null;
+  const r = snapshot.reserve;
+  const perIssuer = snapshot.perIssuer;
+  return (
+    <div className="mt-4 rounded-lg border border-amber-400/20 bg-amber-400/[0.03] p-4">
+      <div className="text-[0.625rem] uppercase tracking-[0.25em] text-amber-300/80 mb-3">
+        §4 + §8 · Gold in the Reserve Portfolio (NOT in the GFB Index)
+      </div>
+      <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+        <div>
+          <div className="text-[0.7rem] text-muted-foreground/70">PAXG (Paxos)</div>
+          <div className="text-lg font-mono text-amber-200">{fmtUsdCompact(perIssuer?.paxgUsd ?? r.goldNet / 2)}</div>
+        </div>
+        <div>
+          <div className="text-[0.7rem] text-muted-foreground/70">XAUT (Tether)</div>
+          <div className="text-lg font-mono text-amber-200">{fmtUsdCompact(perIssuer?.xautUsd ?? r.goldNet / 2)}</div>
+        </div>
+        <div>
+          <div className="text-[0.7rem] text-muted-foreground/70">Gold Price</div>
+          <div className="text-lg font-mono text-amber-200">${fmtFixed(r.goldPrice, 0)}/oz</div>
+        </div>
+        <div>
+          <div className="text-[0.7rem] text-muted-foreground/70">Gold Weight</div>
+          <div className="text-lg font-mono text-amber-200">{(snapshot.observedGoldWeight * 100).toFixed(2)}%</div>
+        </div>
+      </div>
+      <p className="mt-3 text-[0.7rem] text-muted-foreground/60">
+        The GFB Index (above) is a 5-currency basket that defines the VALUE of MTQΣ.
+        Gold is NOT in the index — it's in the RESERVE PORTFOLIO that backs the token.
+        The reserve holds ~24% gold (PAXG + XAUT) as collateral, adjusted dynamically by the §6 Macro Engine + §8 Buffer.
+      </p>
     </div>
   );
 }

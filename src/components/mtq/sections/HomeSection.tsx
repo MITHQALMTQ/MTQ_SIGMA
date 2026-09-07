@@ -334,6 +334,99 @@ export function HomeSection({ onNavigate }: { onNavigate: (id: SectionId) => voi
         <LiveStatsBand snapshot={snapshot} />
       </section>
 
+      {/* ===== Tokenized Gold (PAXG + XAUT) — visible upfront ===== */}
+      <section aria-labelledby="home-gold">
+        <SectionHeading eyebrow="§4 · §8 · Bullion" title="Tokenized Gold Reserve" />
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+          {/* PAXG card */}
+          <Reveal delay={0}>
+            <Panel className="p-5">
+              <div className="flex items-center gap-2 mb-3">
+                <div className="w-10 h-10 rounded-full bg-amber-400/15 border border-amber-400/30 flex items-center justify-center">
+                  <span className="text-lg">🥇</span>
+                </div>
+                <div>
+                  <div className="text-sm font-semibold text-amber-200">PAXG</div>
+                  <div className="text-[0.65rem] text-muted-foreground/60">Paxos Gold · Tether</div>
+                </div>
+              </div>
+              <div className="text-2xl font-mono mtqs-gold-text">
+                {snapshot ? fmtUsdCompact(snapshot.perIssuer?.paxgUsd ?? (snapshot.reserve.goldNet / 2)) : "—"}
+              </div>
+              <div className="text-[0.7rem] text-muted-foreground/60 mt-1">
+                1 PAXG = 1 troy oz gold · {snapshot ? `$${fmtFixed(snapshot.reserve.goldPrice, 0)}` : "—"}/oz
+              </div>
+              <div className="mt-2 text-[0.7rem] text-muted-foreground/50">
+                Haircut: 1.0% · Issuer: Paxos
+              </div>
+            </Panel>
+          </Reveal>
+          {/* XAUT card */}
+          <Reveal delay={0.05}>
+            <Panel className="p-5">
+              <div className="flex items-center gap-2 mb-3">
+                <div className="w-10 h-10 rounded-full bg-amber-400/15 border border-amber-400/30 flex items-center justify-center">
+                  <span className="text-lg">🥇</span>
+                </div>
+                <div>
+                  <div className="text-sm font-semibold text-amber-200">XAUT</div>
+                  <div className="text-[0.65rem] text-muted-foreground/60">Tether Gold</div>
+                </div>
+              </div>
+              <div className="text-2xl font-mono mtqs-gold-text">
+                {snapshot ? fmtUsdCompact(snapshot.perIssuer?.xautUsd ?? (snapshot.reserve.goldNet / 2)) : "—"}
+              </div>
+              <div className="text-[0.7rem] text-muted-foreground/60 mt-1">
+                1 XAUT = 1 troy oz gold · {snapshot ? `$${fmtFixed(snapshot.reserve.goldPrice, 0)}` : "—"}/oz
+              </div>
+              <div className="mt-2 text-[0.7rem] text-muted-foreground/50">
+                Haircut: 1.0% · Issuer: Tether
+              </div>
+            </Panel>
+          </Reveal>
+          {/* Gold Weight gauge card */}
+          <Reveal delay={0.1}>
+            <Panel variant="emerald" className="p-5">
+              <div className="text-[0.625rem] uppercase tracking-[0.25em] text-muted-foreground/80 mb-3">Gold Weight (§6.5 + §8)</div>
+              <div className="grid grid-cols-2 gap-2">
+                <div>
+                  <div className="text-[0.65rem] text-muted-foreground/60">Observed</div>
+                  <div className="text-xl font-mono text-amber-200">{snapshot ? `${(snapshot.observedGoldWeight * 100).toFixed(2)}%` : "—"}</div>
+                </div>
+                <div>
+                  <div className="text-[0.65rem] text-muted-foreground/60">Target</div>
+                  <div className="text-xl font-mono text-emerald-200">{snapshot ? `${(snapshot.targetGoldWeight * 100).toFixed(2)}%` : "—"}</div>
+                </div>
+                <div>
+                  <div className="text-[0.65rem] text-muted-foreground/60">Buffer State</div>
+                  <div className="text-sm font-mono text-amber-200">{snapshot?.bufferState ?? "—"}</div>
+                </div>
+                <div>
+                  <div className="text-[0.65rem] text-muted-foreground/60">Buffer Au</div>
+                  <div className="text-sm font-mono text-amber-200">{snapshot ? `${(snapshot.bufferGoldRatio * 100).toFixed(1)}%` : "—"}</div>
+                </div>
+              </div>
+              <div className="mt-3 h-2 rounded-full bg-white/[0.05] overflow-hidden">
+                <div className="h-full bg-gradient-to-r from-amber-500/60 to-amber-300/80" style={{ width: `${(snapshot?.observedGoldWeight ?? 0) * 100 / 30 * 100}%` }} />
+              </div>
+              <div className="flex justify-between text-[0.6rem] text-muted-foreground/50 mt-1">
+                <span>22% floor</span>
+                <span>30% ceiling</span>
+              </div>
+              <div className="mt-2 text-[0.65rem] text-muted-foreground/60">
+                Total gold net: <span className="font-mono text-amber-200">{snapshot ? fmtUsdCompact(snapshot.reserve.goldNet) : "—"}</span>
+              </div>
+            </Panel>
+          </Reveal>
+        </div>
+        <p className="mt-3 text-[0.7rem] text-muted-foreground/60 max-w-3xl">
+          Gold is NOT in the GFB Index (§2.1 is a 5-currency basket). Gold is in the RESERVE PORTFOLIO (§4, §8.3):
+          the core reserve holds 20% gold, the 10% buffer holds 62.5% gold (BASE state) = 26.25% total.
+          The §6 Adaptive Macro Engine adjusts the target ±3pp based on VIX/DXY z-scores.
+          The §7 Rebalancing Engine trades toward the target with 24h direction lock + 1% slippage protection.
+        </p>
+      </section>
+
       {/* ===== 4 testnet cards ===== */}
       <section aria-labelledby="home-testnets">
         <SectionHeading
