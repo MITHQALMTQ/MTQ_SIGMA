@@ -5,7 +5,6 @@ import { Toaster } from "@/components/ui/toaster";
 
 import { Toaster as SonnerToaster } from "@/components/ui/sonner";
 
-export const dynamic = "force-dynamic";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
