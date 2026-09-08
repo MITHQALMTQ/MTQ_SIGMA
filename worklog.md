@@ -826,3 +826,90 @@ Stage Summary:
 - MASE ensemble (6 models) is documented and ready for implementation.
 - Reconciliation changes table (v1.2 → v1.0) is displayed in the Docs section.
 - Committed + pushed to GitHub. Vercel auto-deployed successfully.
+
+---
+Task ID: F5-F6
+Agent: fullstack-developer subagent
+Task: Wire the new MASE ensemble + MARP rebalancing + 4-state weight system into the engine's tick loop and expose the data to the UI
+
+Work Log:
+- Read worklog.md (Task ID E2-E3 completed the engine + UI migration to Master Blueprint v1.0 — 7-component Strategic Prior, gold-in-index, CHF added). The standalone modules `src/lib/mtq/mase.ts` (6 models, maseEnsemble, applyEnvelopes, smoothWeights, estimateVolatility, WeightVector type) and `src/lib/mtq/marp.ts` (marpDecision, computeUrgency, costBenefitGate, partialCorrection, no-trade zone, 6-level hierarchy) were already in place (committed in 5287ad0 "feat: implement MASE ensemble + MARP rebalancing protocol (v1.0)") but UNWIRED — the engine still used the legacy v1.2 single-engine θ ±3% path. This task wires them in.
+
+### engine.ts (ADD only — no removals, no rewrites)
+- Imports: added `ADMISSIBILITY_ENVELOPES, BASE_FIXINGS` from `./blueprint`; `maseEnsemble, applyEnvelopes, smoothWeights, COMPONENTS, type PriceData, type VolatilityData, type MarketRegime, type WeightVector, type Component` from `./mase`; `marpDecision, type MarpDecision` from `./marp`. All existing imports RETAINED.
+- ReserveState: added `maseSmoothed: WeightVector | null` (EMA prior — null at genesis → STRATEGIC_PRIOR fallback) and `maseLastAt: number`.
+- initReserveState: initialises `maseSmoothed: null`, `maseLastAt: 0`.
+- MetricsSnapshot: added four new fields per the task spec — `mase: { models, ensembleTarget }`, `weightStates: { prior, target, smoothed, execution }`, `marp: { decisions, totalTradeUsd }`, `envelopes: { component, lower, upper, current, status }[]`.
+- computeSnapshot: after the existing logic, calls `buildMaseSnapshot(s, fx, vals, nav, rr)` (a pure helper) and merges the returned `mase`, `weightStates`, `marp`, `envelopes` into the snapshot. NO state mutation — the snapshot is idempotent across multiple computeSnapshot calls within a single tick.
+- New helper functions (all added; nothing rewritten):
+  - `estimateVolsFromState(s)` — pilot vol estimates: per-asset baseline × VIX/18.5 (30 VIX ≈ doubles vols, 12 VIX ≈ halves).
+  - `detectRegime(vix, dxy, goldVol)` — 0=calm, 1=normal, 2=stress, 3=crisis. VIX thresholds <15/<22/<30/≥30. DXY extremes (<88 or >115) bump regime to ≥2.
+  - `buildPriceData(fx)` — `P_{i,t} / P_{i,0}` for all 7 components using `BASE_FIXINGS`.
+  - `buildObservedWeights(vals, nav)` — converts `reserveAssetValues` into a `WeightVector` (each net value / NAV).
+  - `buildMaseSnapshot(s, fx, vals, nav, rr)` — the pure helper that runs the full pipeline: MASE ensemble → apply envelopes → EMA-smooth toward constrained target (uses s.maseSmoothed as prev) → build observed execution weights → MARP per-component decisions → envelope status per component (ok/warn/breach with 10% band edge as the warn threshold).
+  - `advanceMase(s, fx)` — exported; the ONLY function that mutates `s.maseSmoothed`. Called ONCE per tick from the pilot-state tick loop, and ONCE at cold start in `ensureStore`, so the EMA advances exactly once per 4s tick regardless of how many computeSnapshot calls happen in between.
+
+### Design decision: where to persist the EMA smoothed weights
+- The task said "In computeSnapshot(), after the existing calculations, add: ... Call smoothWeights(prevSmoothed, constrained) for the smoothed weights". This is satisfied — `buildMaseSnapshot` (called from `computeSnapshot`) computes smoothed weights using `s.maseSmoothed` as the prev.
+- However, mutating `s.maseSmoothed` directly inside `computeSnapshot` would cause the EMA to advance multiple times per tick (pilot-state's tick loop calls computeSnapshot 2× per tick + 1× per `/api/metrics` poll), converging the EMA faster than intended.
+- Solution: `advanceMase(s, fx)` is the only mutator (called once per tick from the tick loop + once at cold start). `buildMaseSnapshot` is a pure read-only helper that recomputes target/smoothed/MARP/envelopes using `s.maseSmoothed` as prev — so multiple computeSnapshot calls within a single tick return identical `mase`, `weightStates`, `marp`, `envelopes` values (idempotent).
+
+### pilot-state.ts
+- Bumped `STATE_SCHEMA_VERSION` 7 → 8 (forces the singleton to rebuild with the new `maseSmoothed` + `maseLastAt` fields).
+- Imported `advanceMase` from `./engine`.
+- Called `advanceMase(state, fx)` in `ensureStore` right after `initReserveState` (primes the EMA at genesis so the very first snapshot has a non-null prev-smoothed).
+- Called `advanceMase(store.state, store.fx)` in the tick loop after `advanceMacro` and before `updatePegHealth` (so lastVix/lastDxy are fresh, and the first computeSnapshot of the tick reads the freshly-persisted smoothed weights as the EMA prior).
+
+### MaseEngine.tsx (NEW — ~340 lines)
+- 5 panels:
+  1. Header — MASE summary + regime badge (calm/normal/stress/crisis inferred from VIX/DXY) + MARP total trade USD pill.
+  2. §6/§7 Candidate Models — heatmap table of all 6 models × 7 components, with the equal-weight Ensemble Target row highlighted. Cells shaded by weight magnitude.
+  3. §2.3 Four-State Weights — table with 7 rows (USD/EUR/JPY/GBP/CNY/CHF/Gold) × 4 columns (Prior, Target, Smoothed, Execution) + a Δ Smooth→Exec deviation column (green/red when ≥0.5%). Footer shows the 4-state descriptions from `WEIGHT_STATE_DESCRIPTIONS`.
+  4. §8.1 Admissibility Envelopes — 7 cards (one per component) with bar viz: lower→upper bound range, gold tick for strategic prior, colored bar for current execution weight position. Status badge (in band / near edge / breach) with color-coded card border. Header counts (X in band, Y near edge, Z breach).
+  5. §10 MARP Decisions — table with 7 rows showing direction (buy/sell/hold), trade USD, urgency bar (0-100% colored by intensity), level badge (L1 no-trade zone / L2 low urgency / L3 sized / L4 cost-benefit fail / L5 turnover cap / L6 execute), and reason text. Footer row shows Σ total trade USD + max daily turnover reminder. Helper grid below explains the 6 levels.
+- Footer lineage strip: `prices → MASE 6 models → equal-weight ensemble → §8.1 envelopes → EMA smooth (λ=20%) → MARP per-component decision → execution (published)` with the honest note that MARP's "shouldTrade" decisions are advisory (not yet wired into the actual rebalance execution — that's a future task).
+
+### DashboardSection.tsx
+- Imported `MaseEngine`. Inserted a new `<Section id="mase" eyebrow="§6 · §7 · §8 · §10 · v1.0" title="MASE Ensemble + 4-State Weights + MARP" right={<Pill tone="gold">v1.0 production target</Pill>}>` between section #7 (Adaptive Macro Engine) and section #8 (Rebalancing Engine).
+
+### DocsSection.tsx
+- Added a "live in Dashboard" emerald pill to three section headers: Admissibility Envelopes (§8.1), Four-State Weights (§2.3), and MASE Candidate Models (§6/§7).
+- Updated the subtitle of each of those three RefTables to describe the live Dashboard data.
+- Added an emerald-bordered callout panel under the MASE Candidate Models table with a clickable `Dashboard` link (via `_onNavigate("dashboard")`) and a paragraph explaining what the new MASE section shows.
+
+### primitives.tsx
+- Added `"mase"` to the `SECTION_IDS` array (between `"macro"` and `"rebalance"`) so the nav anchor map includes the new section.
+
+### mini-services/mtq-feed/index.ts
+- Mirrored the `advanceMase` call: imported it, called it in `bootstrap()` (after `initReserveState`, before `computeSnapshot`), and called it in `tick()` (after `advanceMacro`, before `updatePegHealth`). This keeps the WS-feed's state in sync with the in-process engine's MASE EMA, so any client subscribed to the `metrics` broadcast also sees advancing smoothed weights.
+
+### Constraints honoured
+- DO NOT rewrite engine.ts — ADD to it: all existing exports, functions, fields, and the legacy §6/§7/§8 buffer/MARP path are RETAINED verbatim. Only ADDITIONS were made.
+- Keep the old macro engine code: the legacy `computeRawTargetTheta`, `computeRawTargetGoldWeight`, `computeTargetGoldWeight`, `evaluateRebalance`, `applyRebalanceTrade`, `bufferBaseGoldRatio`, `currentBufferGoldRatio`, `updateBufferState` etc. are all unchanged. The MacroEngine and RebalanceEngine UI sections still render the legacy `snapshot.macro` and `snapshot.rebalance` fields.
+- Bump STATE_SCHEMA_VERSION in pilot-state.ts: 7 → 8 (done).
+- Lint must be clean: `bun run lint` → exit 0.
+- Dev server must return 200: `GET / 200`, `GET /api/metrics 200` (verified).
+- No /api route files modified. No on-chain contracts (registry.ts, oracle.ts) modified. No test code written.
+
+### Verification (live /api/metrics)
+- mase models: 6 (minvar, erc, maxdiv, cvar, ppp, regime) ✓
+- weightStates: prior, target, smoothed, execution ✓
+- marp decisions: 7 (one per component) ✓
+- envelopes: 7 (one per component) ✓
+- Live sample: regime = Normal (VIX 19.05), envelopes 6 ok / 1 warn (CHF at 6.7% within 10% of the 7% upper bound) / 0 breach. MARP correctly identifies EUR (overweight vs smoothed target by 1.74pp) and CHF (overweight by 1.32pp) as sell candidates (~$9.9K + ~$7.5K = ~$17.5K total trade USD). The remaining 5 components are in no-trade or low-urgency zones.
+- MASE ensemble target (raw, pre-envelope): USD 30.6%, EUR 17.4%, JPY 10.3%, GBP 9.3%, CNY 8.0%, CHF 7.8%, Gold 16.5%. After `applyEnvelopes` clamps + renormalises: USD 30.2%, EUR 17.1%, JPY 10.2%, GBP 9.1%, CNY 6.9%, CHF 6.9%, Gold 19.7%. After EMA smoothing from prior: USD 27.6%, EUR 19.4%, JPY 9.2%, GBP 8.2%, CNY 5.4%, CHF 5.4%, Gold 24.7%.
+- Execution (observed) weights reflect the actual reserve composition (gold heavy at 25.2% because gold price appreciated from $2500 base to $4400 today; USD 25.4%; EUR 21.2%; etc.).
+
+### Outstanding for the next task
+- Wire MARP's "shouldTrade" decisions into the actual rebalance execution (currently MARP is advisory; the legacy §7 single-direction rebalance still executes).
+- Switch to adaptive ensemble weights (model-performance-driven) — pilot uses 1/6 equal weight.
+- Replace `estimateVolsFromState` (VIX-scaled baselines) with rolling covariance from real price history.
+- Physically separate the index gold from the reserve gold (the §14.1 mandatory separation — currently the same PAXG + XAUT holdings serve both roles).
+
+### Stage Summary
+- The MASE ensemble + MARP rebalancing + 4-state weight system is now WIRED into the engine's tick loop and EXPOSED to the UI.
+- The engine computes 6 candidate model weight vectors, blends them with equal weights into a single target, clamps to per-component admissibility envelopes, EMA-smooths toward the constrained target, and runs MARP per-component rebalancing decisions (6-level hierarchy: no-trade zone → urgency → partial correction → cost-benefit gate → turnover cap → execute).
+- The Dashboard renders a new "MASE Ensemble + 4-State Weights + MARP" section (between Adaptive Macro Engine and Rebalancing Engine) with 5 panels: candidate models heatmap, 4-state weight table, admissibility envelope status cards, MARP decisions table, lineage strip.
+- The Docs section now flags the MASE_MODELS, WEIGHT_STATE_DESCRIPTIONS, and ENVELOPES tables as "live in Dashboard" with a clickable link.
+- The legacy §6 macro engine (VIX/DXY → θ ±3%) and §7 single-direction rebalance are RETAINED in parallel as live pilot paths; MASE + MARP is the v1.0 production target. Both run so the pilot can A/B compare.
+- Committed + pushed to GitHub: 566a8a8 "feat: wire MASE + MARP + 4-state weights into engine + UI".
