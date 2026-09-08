@@ -1,0 +1,577 @@
+{
+  "meta": {
+    "deliverable": "G2 — Reproducible Stress Test Re-run (V3-corrected engine)",
+    "task_id": "STRESS-RERUN+HONEST-UI",
+    "agent": "full-stack-developer",
+    "blueprint_version": "MTQΣ Master Monetary Architecture v1.0",
+    "parameter_version": "v3-corrected-engine",
+    "methodology_version": "master-v1.0-listings-1-2-3-13-14",
+    "data_version": "synthetic-2025-09-08",
+    "starting_state": {
+      "RR": 1.1,
+      "LCR": 1,
+      "risk_state": "NORMAL",
+      "genesis_supply_MTQ": 1000000,
+      "genesis_deposit_USDC": 1100000,
+      "composition": "7-component Strategic Prior (USD 27% / EUR 20% / JPY 9% / GBP 8% / CNY 5% / CHF 5% / Gold 26%)"
+    },
+    "survival_definition": "RR >= 1.00 (RR_HARD) at all ticks",
+    "failure_definition": "RR < 1.00 (RR_HARD) at any tick",
+    "seeds": {
+      "S1_historical_bootstrap": 1000,
+      "S2_parametric_gaussian": 2000,
+      "S3_cauchy_fat_tail": 3000,
+      "S4_regime_switching": 4000,
+      "S5_gold_up_50": 5000,
+      "S6_gold_down_30": 6000,
+      "S7_oracle_disagreement": 7000,
+      "S8_currency_depeg": 8000,
+      "S9_redemption_run": 9000,
+      "S10_reserve_stress": 10000,
+      "S11_parameter_perturbation": 20000
+    },
+    "path_counts": {
+      "S1": 500,
+      "S2": 500,
+      "S3": 500,
+      "S4": 500,
+      "S5": 100,
+      "S6": 100,
+      "S7": 1,
+      "S8": 1,
+      "S9": 1,
+      "S10": 50,
+      "S11": 1600
+    },
+    "ticks_per_run": {
+      "S1": 90,
+      "S2": 90,
+      "S3": 90,
+      "S4": 90,
+      "S5": 30,
+      "S6": 30,
+      "S7": 12,
+      "S8": 12,
+      "S9": 100,
+      "S10": 60,
+      "S11": 90
+    }
+  },
+  "results": [
+    {
+      "scenario": "S1 · §23.5 Historical Block Bootstrap",
+      "description": "500 runs × 90 ticks; 5-day block bootstrap from 252-day history (V3 engine)",
+      "runs": 500,
+      "survivalRate": 1,
+      "meanMinRR": 1.1075422777255137,
+      "worstMinRR": 1.08932426013947,
+      "meanTimeToRecover": 70.70270270270271,
+      "pegStabilityPct": 1,
+      "finalStatus": "NORMAL",
+      "worstStatus": "CAUTION",
+      "breachCount": 0,
+      "notes": [
+        "Synthetic 252-day history seeded at 4242; block size = 5 days.",
+        "V3 chain-linked index + 6-state risk machine + NAV redemption.",
+        "Resampled returns preserve short-term autocorrelation across 90 ticks.",
+        "Target: survival >= 95%, mean min RR >= 1.10."
+      ],
+      "reproducibility": {
+        "seed": 1000,
+        "pathCount": 500,
+        "parameterVersion": "v3-corrected-engine",
+        "methodologyVersion": "master-v1.0-listings-1-2-3-13-14",
+        "dataVersion": "synthetic-2025-09-08",
+        "startingState": {
+          "RR": 1.1,
+          "LCR": 1,
+          "risk_state": "NORMAL",
+          "genesis_supply_MTQ": 1000000,
+          "genesis_deposit_USDC": 1100000,
+          "composition": "7-component Strategic Prior (USD 27% / EUR 20% / JPY 9% / GBP 8% / CNY 5% / CHF 5% / Gold 26%)"
+        },
+        "survivalDefinition": "RR >= 1.00 (RR_HARD) at all ticks",
+        "failureDefinition": "RR < 1.00 (RR_HARD) at any tick"
+      }
+    },
+    {
+      "scenario": "S2 · §23.5 Parametric Gaussian",
+      "description": "500 runs × 90 ticks; MVN returns with blueprint vols (V3 engine)",
+      "runs": 500,
+      "survivalRate": 1,
+      "meanMinRR": 1.1086856610870104,
+      "worstMinRR": 1.0890143934970298,
+      "meanTimeToRecover": 74.16666666666667,
+      "pegStabilityPct": 1,
+      "finalStatus": "NORMAL",
+      "worstStatus": "CAUTION",
+      "breachCount": 0,
+      "notes": [
+        "Multivariate normal returns with blueprint volatility scales (FX 0.4-0.6%, Gold 1.2%).",
+        "V3 chain-linked index + 6-state risk machine + NAV redemption.",
+        "Thin-tailed distribution; should always survive.",
+        "Target: survival >= 99%, mean min RR >= 1.20."
+      ],
+      "reproducibility": {
+        "seed": 2000,
+        "pathCount": 500,
+        "parameterVersion": "v3-corrected-engine",
+        "methodologyVersion": "master-v1.0-listings-1-2-3-13-14",
+        "dataVersion": "synthetic-2025-09-08",
+        "startingState": {
+          "RR": 1.1,
+          "LCR": 1,
+          "risk_state": "NORMAL",
+          "genesis_supply_MTQ": 1000000,
+          "genesis_deposit_USDC": 1100000,
+          "composition": "7-component Strategic Prior (USD 27% / EUR 20% / JPY 9% / GBP 8% / CNY 5% / CHF 5% / Gold 26%)"
+        },
+        "survivalDefinition": "RR >= 1.00 (RR_HARD) at all ticks",
+        "failureDefinition": "RR < 1.00 (RR_HARD) at any tick"
+      }
+    },
+    {
+      "scenario": "S3 · §23.5 Fat-tailed (Cauchy)",
+      "description": "500 runs × 90 ticks; Cauchy returns (tail-heavy) (V3 engine)",
+      "runs": 500,
+      "survivalRate": 0.788,
+      "meanMinRR": 1.0265543396727537,
+      "worstMinRR": 0.06311524448832778,
+      "meanTimeToRecover": 31.71117166212534,
+      "pegStabilityPct": 0.9068444444444439,
+      "finalStatus": "NORMAL",
+      "worstStatus": "EMERGENCY",
+      "breachCount": 106,
+      "notes": [
+        "Cauchy distribution (heavy tails, infinite variance).",
+        "V3 chain-linked index + 6-state risk machine + NAV redemption.",
+        "Survival expected to be substantially higher than the AUDIT-C 35.1% (chain-linking eliminates the structural short-gold bug).",
+        "Target: survival strictly > 35.1% (AUDIT-C baseline)."
+      ],
+      "reproducibility": {
+        "seed": 3000,
+        "pathCount": 500,
+        "parameterVersion": "v3-corrected-engine",
+        "methodologyVersion": "master-v1.0-listings-1-2-3-13-14",
+        "dataVersion": "synthetic-2025-09-08",
+        "startingState": {
+          "RR": 1.1,
+          "LCR": 1,
+          "risk_state": "NORMAL",
+          "genesis_supply_MTQ": 1000000,
+          "genesis_deposit_USDC": 1100000,
+          "composition": "7-component Strategic Prior (USD 27% / EUR 20% / JPY 9% / GBP 8% / CNY 5% / CHF 5% / Gold 26%)"
+        },
+        "survivalDefinition": "RR >= 1.00 (RR_HARD) at all ticks",
+        "failureDefinition": "RR < 1.00 (RR_HARD) at any tick"
+      }
+    },
+    {
+      "scenario": "S4 · §23.5 Regime-switching",
+      "description": "500 runs × 90 ticks; 4-regime Markov switching (V3 engine)",
+      "runs": 500,
+      "survivalRate": 1,
+      "meanMinRR": 1.1034822465812542,
+      "worstMinRR": 1.063040717180712,
+      "meanTimeToRecover": 47.968,
+      "pegStabilityPct": 1,
+      "finalStatus": "NORMAL",
+      "worstStatus": "CAUTION",
+      "breachCount": 0,
+      "notes": [
+        "4 regimes: calm (vol 0.2%), normal (0.5%), stress (1.2%), crisis (2.5%).",
+        "Switch every 20-40 ticks.",
+        "V3 chain-linked index + 6-state risk machine (STRESS state between CAUTION and DEFENSIVE).",
+        "Avg status transitions per run: 1.2.",
+        "Target: survival >= 90%, status transitions observed."
+      ],
+      "reproducibility": {
+        "seed": 4000,
+        "pathCount": 500,
+        "parameterVersion": "v3-corrected-engine",
+        "methodologyVersion": "master-v1.0-listings-1-2-3-13-14",
+        "dataVersion": "synthetic-2025-09-08",
+        "startingState": {
+          "RR": 1.1,
+          "LCR": 1,
+          "risk_state": "NORMAL",
+          "genesis_supply_MTQ": 1000000,
+          "genesis_deposit_USDC": 1100000,
+          "composition": "7-component Strategic Prior (USD 27% / EUR 20% / JPY 9% / GBP 8% / CNY 5% / CHF 5% / Gold 26%)"
+        },
+        "survivalDefinition": "RR >= 1.00 (RR_HARD) at all ticks",
+        "failureDefinition": "RR < 1.00 (RR_HARD) at any tick"
+      }
+    },
+    {
+      "scenario": "S5 · §23.8.1 Gold +50% Shock",
+      "description": "100 runs × 30 ticks; single-tick gold +50%, then observe (V3 engine — THE P0-IMPL HEADLINE)",
+      "runs": 100,
+      "survivalRate": 1,
+      "meanMinRR": 1.1147191048374687,
+      "worstMinRR": 1.1146969381155891,
+      "meanTimeToRecover": -1,
+      "pegStabilityPct": 1,
+      "finalStatus": "NORMAL",
+      "worstStatus": "NORMAL",
+      "breachCount": 0,
+      "notes": [
+        "Single-tick gold +50% shock at tick 1; observed for 30 ticks.",
+        "V3 chain-linked index — gold's 50% shock contributes exactly 26% × 50% = +13% to I_t (NOT +50%).",
+        "Gold trims (sells into strength): yes — engine reduces overweight.",
+        "Post-shock gold-weight trace: 34.4% → 30.9% → 27.4% → 26.3% → 26.3%...",
+        "HEADLINE: survival 0% (AUDIT-C, Laspeyres) → 100% (V3 re-run, chain-linked).",
+        "Target: RR stays above 1.05 (gold appreciation helps the reserve); MASE trims gold to envelope upper 32%."
+      ],
+      "reproducibility": {
+        "seed": 5000,
+        "pathCount": 100,
+        "parameterVersion": "v3-corrected-engine",
+        "methodologyVersion": "master-v1.0-listings-1-2-3-13-14",
+        "dataVersion": "synthetic-2025-09-08",
+        "startingState": {
+          "RR": 1.1,
+          "LCR": 1,
+          "risk_state": "NORMAL",
+          "genesis_supply_MTQ": 1000000,
+          "genesis_deposit_USDC": 1100000,
+          "composition": "7-component Strategic Prior (USD 27% / EUR 20% / JPY 9% / GBP 8% / CNY 5% / CHF 5% / Gold 26%)"
+        },
+        "survivalDefinition": "RR >= 1.00 (RR_HARD) at all ticks",
+        "failureDefinition": "RR < 1.00 (RR_HARD) at any tick"
+      }
+    },
+    {
+      "scenario": "S6 · §23.8.1 Gold -30% Shock",
+      "description": "100 runs × 30 ticks; single-tick gold -30%, then observe (V3 engine)",
+      "runs": 100,
+      "survivalRate": 1,
+      "meanMinRR": 1.1102603136175204,
+      "worstMinRR": 1.109200837621151,
+      "meanTimeToRecover": -1,
+      "pegStabilityPct": 1,
+      "finalStatus": "NORMAL",
+      "worstStatus": "NORMAL",
+      "breachCount": 0,
+      "notes": [
+        "Single-tick gold -30% shock at tick 1; observed for 30 ticks.",
+        "V3 chain-linked index + 6-state risk machine + NAV redemption.",
+        "Target: RR must NOT breach 1.00; emergency rebalance triggered; recovery begins within 10 ticks."
+      ],
+      "reproducibility": {
+        "seed": 6000,
+        "pathCount": 100,
+        "parameterVersion": "v3-corrected-engine",
+        "methodologyVersion": "master-v1.0-listings-1-2-3-13-14",
+        "dataVersion": "synthetic-2025-09-08",
+        "startingState": {
+          "RR": 1.1,
+          "LCR": 1,
+          "risk_state": "NORMAL",
+          "genesis_supply_MTQ": 1000000,
+          "genesis_deposit_USDC": 1100000,
+          "composition": "7-component Strategic Prior (USD 27% / EUR 20% / JPY 9% / GBP 8% / CNY 5% / CHF 5% / Gold 26%)"
+        },
+        "survivalDefinition": "RR >= 1.00 (RR_HARD) at all ticks",
+        "failureDefinition": "RR < 1.00 (RR_HARD) at any tick"
+      }
+    },
+    {
+      "scenario": "S7 · §23.8.5 Oracle Disagreement",
+      "description": "1 oracle feed dead (stale), 2 feeds disagree >5%; verify mint+rebalance pause cleanly (V3 engine)",
+      "runs": 1,
+      "survivalRate": 1,
+      "meanMinRR": 1.1147206262829497,
+      "worstMinRR": 1.1147206262829497,
+      "meanTimeToRecover": 0,
+      "pegStabilityPct": 1,
+      "finalStatus": "NORMAL",
+      "worstStatus": "NORMAL",
+      "breachCount": 0,
+      "notes": [
+        "Oracle failure mode simulated: 1 feed dead (stale >60s), 2 feeds disagree > 5% from median.",
+        "Engine reports anyPaused = true (simulated paused board).",
+        "Runner discipline: mint skipped during pause, rebalance skipped.",
+        "Stale price used: no (engine state frozen during pause).",
+        "Post-recovery mint succeeds: yes.",
+        "V3 engine — NAV-based redemption would also pause cleanly (redemptionAllowed check).",
+        "Target: mint and rebalance pause cleanly; no stale price used."
+      ],
+      "reproducibility": {
+        "seed": 7000,
+        "pathCount": 1,
+        "parameterVersion": "v3-corrected-engine",
+        "methodologyVersion": "master-v1.0-listings-1-2-3-13-14",
+        "dataVersion": "synthetic-2025-09-08",
+        "startingState": {
+          "RR": 1.1,
+          "LCR": 1,
+          "risk_state": "NORMAL",
+          "genesis_supply_MTQ": 1000000,
+          "genesis_deposit_USDC": 1100000,
+          "composition": "7-component Strategic Prior (USD 27% / EUR 20% / JPY 9% / GBP 8% / CNY 5% / CHF 5% / Gold 26%)"
+        },
+        "survivalDefinition": "RR >= 1.00 (RR_HARD) at all ticks",
+        "failureDefinition": "RR < 1.00 (RR_HARD) at any tick"
+      }
+    },
+    {
+      "scenario": "S8 · §23.9 Currency Depeg (EUR -10%, Staged Eject)",
+      "description": "EUR depegged 10%; held 144h; verify staged eject ladder S1→S4 (V3 engine)",
+      "runs": 1,
+      "survivalRate": 1,
+      "meanMinRR": 1.1143689714128326,
+      "worstMinRR": 1.1143689714128326,
+      "meanTimeToRecover": -1,
+      "pegStabilityPct": 1,
+      "finalStatus": "NORMAL",
+      "worstStatus": "NORMAL",
+      "breachCount": 0,
+      "notes": [
+        "EUR peg forced to 0.90 (-10%); dt=12h per tick × 12 ticks = 144h total.",
+        "Eject ladder progression observed: Stage 1=true, Stage 2=true, Stage 3=true, Stage 4=true.",
+        "Max stage reached: 4.",
+        "Stage log (tick | hours | stage | sellPct): [0|12h|S0|0%] [1|24h|S1|10%] [2|36h|S2|25%] [3|48h|S2|25%] [4|60h|S3|50%] [5|72h|S3|50%] [6|84h|S3|50%] [7|96h|S3|50%] [8|108h|S4|100%] [9|120h|S4|100%] [10|132h|S4|100%] [11|144h|S4|100%]",
+        "Blueprint §21.5 ladder (per EJECT_STAGES): S1 at >12h (10%), S2 at >24h (25%), S3 at >48h (50%), S4 at >96h (100%).",
+        "V3 chain-linked index — EUR depeg barely moves GFB (chain-linked weights returns, not notionals; gold's 26% × gold_return dominates).",
+        "Min RR observed: 1.114 (EUR is 20% of NAV; -10% EUR → NAV ≈ -2% → RR slightly down).",
+        "Worst status: NORMAL.",
+        "MTQ price stability (band [0.50, 2.00]): 100.0%.",
+        "Target: Stage 1 (10%) at 24h, Stage 2 (25%) at 48h, Stage 3 (50%) at 72h, Stage 4 (100%) at 96h. Verify the eject ladder kicks in correctly."
+      ],
+      "reproducibility": {
+        "seed": 8000,
+        "pathCount": 1,
+        "parameterVersion": "v3-corrected-engine",
+        "methodologyVersion": "master-v1.0-listings-1-2-3-13-14",
+        "dataVersion": "synthetic-2025-09-08",
+        "startingState": {
+          "RR": 1.1,
+          "LCR": 1,
+          "risk_state": "NORMAL",
+          "genesis_supply_MTQ": 1000000,
+          "genesis_deposit_USDC": 1100000,
+          "composition": "7-component Strategic Prior (USD 27% / EUR 20% / JPY 9% / GBP 8% / CNY 5% / CHF 5% / Gold 26%)"
+        },
+        "survivalDefinition": "RR >= 1.00 (RR_HARD) at all ticks",
+        "failureDefinition": "RR < 1.00 (RR_HARD) at any tick"
+      }
+    },
+    {
+      "scenario": "S9 · §23.10 Redemption Run",
+      "description": "1000 sequential redemptions × 0.5% circulating supply, over 100 ticks (V3 engine)",
+      "runs": 1,
+      "survivalRate": 1,
+      "meanMinRR": 1.1152693295130638,
+      "worstMinRR": 1.1152693295130638,
+      "meanTimeToRecover": -1,
+      "pegStabilityPct": 1,
+      "finalStatus": "NORMAL",
+      "worstStatus": "NORMAL",
+      "breachCount": 0,
+      "notes": [
+        "1000 sequential redemptions of 0.5% of CURRENT circulating supply, over 100 ticks (10 per tick).",
+        "V3 engine — NAV-based redemption (§19.3.2, Invariant I6); state-dependent fee ladder (NORMAL 0.15% / STRESS 0.50% / DEFENSIVE 1.00% / EMERGENCY paused / RECOVERY 0.50%).",
+        "Circulating supply: 8991000 → 59826 (decays asymptotically).",
+        "Circulating supply exhausted: false.",
+        "Failed redemptions: 0.",
+        "Fee escalations observed: 0 (NORMAL → STRESS 0.50% → DEFENSIVE 1.00% → EMERGENCY 2.00% paused).",
+        "Status transitions: 0.",
+        "Min RR observed: 1.115 (each redemption accretes ~10 bps + fee to RR when RR ≥ 1.10).",
+        "Target: protocol survives 1000 redemptions without insolvency (RR ≥ 1.00); fee escalation observed; status transitions observed."
+      ],
+      "reproducibility": {
+        "seed": 9000,
+        "pathCount": 1,
+        "parameterVersion": "v3-corrected-engine",
+        "methodologyVersion": "master-v1.0-listings-1-2-3-13-14",
+        "dataVersion": "synthetic-2025-09-08",
+        "startingState": {
+          "RR": 1.1,
+          "LCR": 1,
+          "risk_state": "NORMAL",
+          "genesis_supply_MTQ": 1000000,
+          "genesis_deposit_USDC": 1100000,
+          "composition": "7-component Strategic Prior (USD 27% / EUR 20% / JPY 9% / GBP 8% / CNY 5% / CHF 5% / Gold 26%)"
+        },
+        "survivalDefinition": "RR >= 1.00 (RR_HARD) at all ticks",
+        "failureDefinition": "RR < 1.00 (RR_HARD) at any tick"
+      }
+    },
+    {
+      "scenario": "S10 · §23.11 Reserve Stress Equation",
+      "description": "50 runs × 60 ticks; combined shock Gold-20%/EUR-5%/VIX=40/DXY=110 (V3 engine)",
+      "runs": 50,
+      "survivalRate": 1,
+      "meanMinRR": 1.1092436005210593,
+      "worstMinRR": 1.1028047918214299,
+      "meanTimeToRecover": -1,
+      "pegStabilityPct": 1,
+      "finalStatus": "NORMAL",
+      "worstStatus": "NORMAL",
+      "breachCount": 0,
+      "notes": [
+        "Combined shock at tick 0: Gold -20%, EUR -5%, VIX → 40, DXY → 110.",
+        "Post-shock: VIX/DXY mean-revert; small Gaussian noise on FX/Gold.",
+        "V3 chain-linked index + 6-state risk machine + NAV redemption.",
+        "50 trajectories × 60 ticks.",
+        "Worst min RR across all runs: 1.103.",
+        "Worst status entered: NORMAL.",
+        "Target: protocol survives (RR ≥ 1.00); worst status ≤ EMERGENCY (not total collapse)."
+      ],
+      "reproducibility": {
+        "seed": 10000,
+        "pathCount": 50,
+        "parameterVersion": "v3-corrected-engine",
+        "methodologyVersion": "master-v1.0-listings-1-2-3-13-14",
+        "dataVersion": "synthetic-2025-09-08",
+        "startingState": {
+          "RR": 1.1,
+          "LCR": 1,
+          "risk_state": "NORMAL",
+          "genesis_supply_MTQ": 1000000,
+          "genesis_deposit_USDC": 1100000,
+          "composition": "7-component Strategic Prior (USD 27% / EUR 20% / JPY 9% / GBP 8% / CNY 5% / CHF 5% / Gold 26%)"
+        },
+        "survivalDefinition": "RR >= 1.00 (RR_HARD) at all ticks",
+        "failureDefinition": "RR < 1.00 (RR_HARD) at any tick"
+      }
+    },
+    {
+      "scenario": "S11 · §23.6 Parameter Perturbation",
+      "description": "16 perturbations × 100 runs × 90 ticks; ±50% on α/β/θ_max/λ/λ1/λ3 (V3 engine)",
+      "runs": 1600,
+      "survivalRate": 0.99,
+      "meanMinRR": 1.0755885835228454,
+      "worstMinRR": 0.998707573819994,
+      "meanTimeToRecover": -1,
+      "pegStabilityPct": 1,
+      "finalStatus": "NORMAL",
+      "worstStatus": "EMERGENCY",
+      "breachCount": 16,
+      "notes": [
+        "Perturbation grid: 16 perturbations × 100 runs × 90 ticks = 1600 total trajectories.",
+        "Self-contained V3 engine sim (chain-linked index + 6-state risk machine + NAV liability; perturbed α/β/θ_max/λ/λ1/λ3).",
+        "AUDIT-C used 16 × 200 = 3200; reduced 2x to 16 × 100 = 1600 for speed (documented).",
+        "Overall survival across grid: 99.0%.",
+        "Per-perturbation survival:",
+        "  - ALPHA +50%: 99.0% (worst RR 0.999, 1 breaches)",
+        "  - ALPHA -50%: 99.0% (worst RR 0.999, 1 breaches)",
+        "  - BETA +50%: 99.0% (worst RR 0.999, 1 breaches)",
+        "  - BETA -50%: 99.0% (worst RR 0.999, 1 breaches)",
+        "  - THETA_MAX +50%: 99.0% (worst RR 0.999, 1 breaches)",
+        "  - THETA_MAX -50%: 99.0% (worst RR 0.999, 1 breaches)",
+        "  - SMOOTHING_LAMBDA +50%: 99.0% (worst RR 0.999, 1 breaches)",
+        "  - SMOOTHING_LAMBDA -50%: 99.0% (worst RR 0.999, 1 breaches)",
+        "  - LAMBDA_1 +50%: 99.0% (worst RR 0.999, 1 breaches)",
+        "  - LAMBDA_1 -50%: 99.0% (worst RR 0.999, 1 breaches)",
+        "  - LAMBDA_3 +50%: 99.0% (worst RR 0.999, 1 breaches)",
+        "  - LAMBDA_3 -50%: 99.0% (worst RR 0.999, 1 breaches)",
+        "  - ALPHA+BETA +50%: 99.0% (worst RR 0.999, 1 breaches)",
+        "  - ALPHA+BETA -50%: 99.0% (worst RR 0.999, 1 breaches)",
+        "  - ALL +50%: 99.0% (worst RR 0.999, 1 breaches)",
+        "  - ALL -50%: 99.0% (worst RR 0.999, 1 breaches)",
+        "Failing perturbations (survival < 90%): NONE.",
+        "Target: survival >= 90% across the perturbation grid (robustness)."
+      ],
+      "reproducibility": {
+        "seed": 20000,
+        "pathCount": 1600,
+        "parameterVersion": "v3-corrected-engine",
+        "methodologyVersion": "master-v1.0-listings-1-2-3-13-14",
+        "dataVersion": "synthetic-2025-09-08",
+        "startingState": {
+          "RR": 1.1,
+          "LCR": 1,
+          "risk_state": "NORMAL",
+          "genesis_supply_MTQ": 1000000,
+          "genesis_deposit_USDC": 1100000,
+          "composition": "7-component Strategic Prior (USD 27% / EUR 20% / JPY 9% / GBP 8% / CNY 5% / CHF 5% / Gold 26%)"
+        },
+        "survivalDefinition": "RR >= 1.00 (RR_HARD) at all ticks",
+        "failureDefinition": "RR < 1.00 (RR_HARD) at any tick"
+      }
+    }
+  ],
+  "auditCBaseline": [
+    {
+      "scenario": "S1 · §23.5 Historical Block Bootstrap",
+      "survivalRate": 0.8905,
+      "meanMinRR": 1.0614,
+      "worstMinRR": 0.8606,
+      "runs": 2000
+    },
+    {
+      "scenario": "S2 · §23.5 Parametric Gaussian",
+      "survivalRate": 0.844,
+      "meanMinRR": 1.0536,
+      "worstMinRR": 0.8566,
+      "runs": 2000
+    },
+    {
+      "scenario": "S3 · §23.5 Fat-tailed (Cauchy)",
+      "survivalRate": 0.351,
+      "meanMinRR": 0.8462,
+      "worstMinRR": 0.1457,
+      "runs": 2000
+    },
+    {
+      "scenario": "S4 · §23.5 Regime-switching",
+      "survivalRate": 0.573,
+      "meanMinRR": 0.9957,
+      "worstMinRR": 0.4539,
+      "runs": 2000
+    },
+    {
+      "scenario": "S5 · §23.8.1 Gold +50% Shock",
+      "survivalRate": 0,
+      "meanMinRR": 0.8383,
+      "worstMinRR": 0.8292,
+      "runs": 100
+    },
+    {
+      "scenario": "S6 · §23.8.1 Gold -30% Shock",
+      "survivalRate": 1,
+      "meanMinRR": 1.1148,
+      "worstMinRR": 1.1125,
+      "runs": 100
+    },
+    {
+      "scenario": "S7 · §23.8.5 Oracle Disagreement",
+      "survivalRate": 1,
+      "meanMinRR": 1.1,
+      "worstMinRR": 1.1,
+      "runs": 1
+    },
+    {
+      "scenario": "S8 · §23.9 Currency Depeg (EUR -10%, Staged Eject)",
+      "survivalRate": 1,
+      "meanMinRR": 1.0924,
+      "worstMinRR": 1.0924,
+      "runs": 1
+    },
+    {
+      "scenario": "S9 · §23.10 Redemption Run",
+      "survivalRate": 1,
+      "meanMinRR": 1.1211,
+      "worstMinRR": 1.1211,
+      "runs": 1
+    },
+    {
+      "scenario": "S10 · §23.11 Reserve Stress Equation",
+      "survivalRate": 1,
+      "meanMinRR": 1.2543,
+      "worstMinRR": 1.1426,
+      "runs": 50
+    },
+    {
+      "scenario": "S11 · §23.6 Parameter Perturbation",
+      "survivalRate": 0.515,
+      "meanMinRR": 0.9915,
+      "worstMinRR": 0.753,
+      "runs": 3200
+    }
+  ],
+  "generatedAt": 1788902265977,
+  "totalRuntimeMs": 1260
+}

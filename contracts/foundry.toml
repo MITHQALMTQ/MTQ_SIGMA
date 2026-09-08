@@ -1,0 +1,43 @@
+# ============================================================================
+#  MTQΣ V3 — Foundry configuration
+#  ----------------------------------------------------------------------------
+#  The protocol owner MUST install Foundry before this config takes effect:
+#
+#     curl -L https://foundry.paradigm.xyz | sh
+#     foundryup
+#     cd /path/to/repo/contracts
+#     forge install foundry-rs/forge-std --no-commit
+#     forge install OpenZeppelin/openzeppelin-contracts --no-commit
+#     forge test -vvv
+#
+#  This sandbox does NOT have Foundry installed (no `forge` binary), so the
+#  test file `contracts/MTQSigmaV2.t.sol` cannot be compiled here. The test
+#  file is delivered as source-ready and is intended to be run by the protocol
+#  owner in their own Foundry-equipped environment.
+# ============================================================================
+
+[profile.default]
+src = "."
+out = "foundry-out"
+libs = ["lib"]
+solc = "0.8.20"
+optimizer = true
+optimizer_runs = 200
+via_ir = true
+
+# Remappings: forge-std is the standard Foundry test library; OpenZeppelin
+# is referenced (as @openzeppelin) for optional ERC-20 helpers and for
+# consistency with the contract's inline subset of OZ patterns.
+remappings = [
+    "@openzeppelin/=lib/openzeppelin-contracts/",
+    "forge-std/=lib/forge-std/src/"
+]
+
+# Test configuration: longer timeout for the S5 stochastic fuzz tests
+# (they run 100 trajectories × 30 ticks each per seed).
+[profile.default.fuzz]
+runs = 256
+max_test_rejects = 65536
+
+[profile.ci]
+fuzz = { runs = 1024 }

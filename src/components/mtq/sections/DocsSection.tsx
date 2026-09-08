@@ -26,6 +26,7 @@ import { OnChainMatrix } from "@/components/mtq/OnChainMatrix";
 import { BlueprintQA } from "@/components/mtq/BlueprintQA";
 import { AuditFindings } from "@/components/mtq/AuditFindings";
 import { ProductionReadinessDashboard } from "@/components/mtq/ProductionReadinessDashboard";
+import { HonestStatus5Level } from "@/components/mtq/HonestStatus5Level";
 import {
   STRATEGIC_PRIOR_TABLE,
   ENVELOPES_TABLE,
@@ -168,6 +169,11 @@ export function DocsSection({
       {/* Production Readiness Dashboard (Deliverable J — §39J) — surfaces GREEN/AMBER/RED/BLOCKED for every subsystem */}
       <Reveal>
         <ProductionReadinessDashboard />
+      </Reveal>
+
+      {/* 5-Level Honest Status (Master Prompt §22 + §23) — 22 rows: 11 honest-status bits + 11 §25.5 validation gates */}
+      <Reveal>
+        <HonestStatus5Level />
       </Reveal>
 
       {/* Intro */}

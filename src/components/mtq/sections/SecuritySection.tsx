@@ -21,6 +21,7 @@ import { Panel, Reveal, Pill, GlowDot, SectionHeading } from "@/components/mtq/p
 import { OnChainMatrix } from "@/components/mtq/OnChainMatrix";
 import { AuditFindings } from "@/components/mtq/AuditFindings";
 import { ProductionReadinessDashboard } from "@/components/mtq/ProductionReadinessDashboard";
+import { HonestStatus5Level } from "@/components/mtq/HonestStatus5Level";
 import { DEPLOYER_WALLET, CANONICAL_MTQ_ADDRESSES } from "@/lib/mtq/contracts";
 import { BRAND_VOICE } from "@/lib/mtq/brand";
 import { shortAddr } from "@/components/mtq/format";
@@ -142,6 +143,11 @@ export function SecuritySection({ onNavigate: _onNavigate }: { onNavigate: (id: 
       {/* Production Readiness Dashboard (Deliverable J — §39J) — GREEN/AMBER/RED/BLOCKED for every subsystem */}
       <Reveal>
         <ProductionReadinessDashboard />
+      </Reveal>
+
+      {/* 5-Level Honest Status (Master Prompt §22 + §23) — 22 rows: 11 honest-status bits + 11 §25.5 validation gates */}
+      <Reveal>
+        <HonestStatus5Level />
       </Reveal>
 
       {/* Intro */}
