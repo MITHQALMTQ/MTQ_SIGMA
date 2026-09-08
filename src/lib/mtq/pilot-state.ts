@@ -7,6 +7,13 @@
 //   §11 eject ladder + §11.3 reintegration score, §7 rebalance, §8 buffer,
 //   §3.6 price events, §13.2 treasury sweep.
 //
+// P0-FIX (Master Reconciliation): the tick loop now also advances:
+//   - chain-linked index (advanceChainIndex every tick — §9.2 COO-16)
+//   - canonical 6-state risk machine (advanceRiskState every tick — §21.2)
+//     These two are persisted in s.chainIndex and s.riskState respectively
+//     so the chain-link continuity (G_t) and the RECOVERY 48h hysteresis
+//     survive across ticks.
+//
 // Why in-process: the sandbox reaps separately-spawned processes at the end of
 // the tool call that launched them. The Next.js dev server is the one managed,
 // persistent process — so the engine lives here for reliability.
@@ -23,6 +30,8 @@ import {
   updateBufferState,
   advanceMacro,
   advanceMase,
+  advanceChainIndex,
+  advanceRiskState,
   stepMacroSignals,
   updateReintegration,
   maybeTreasurySweep,
@@ -49,12 +58,17 @@ import {
 const TICK_MS = 4000;
 const SIM_TICK_HOURS = 0.25; // each tick simulates ~15 min of macro time
 // bump when ReserveState / PilotStore shape changes → singleton rebuilds.
-// v9: added `lastDailyVectorAt` + `lastOracleSampleAt` for Chapter 24 audit-trail
+// v9:  added `lastDailyVectorAt` + `lastOracleSampleAt` for Chapter 24 audit-trail
 //   persistence throttling (DailyStateVector / RebalancingDecision / OracleSample).
 // v10: §14.1 — added `indexPaxg` / `indexXaut` / `reservePaxg` / `reserveXaut` /
 //   `rebalancePath` to ReserveState (constitutional separation of index gold
 //   from reserve buffer gold + feature-flagged MARP execution path).
-const STATE_SCHEMA_VERSION = 10;
+// v11: P0-FIX-1 + P0-FIX-3 — added `chainIndex` (canonical chain-linked index
+//   state per §9.2 COO-16: I_t, G_t, prevWeights, prevPrices, baseDenominator)
+//   and `riskState` (canonical 6-state risk machine per §21.2: state,
+//   enteredAt, confirmationPeriodEnds for RECOVERY 48h hysteresis). The tick
+//   loop now advances both every tick.
+const STATE_SCHEMA_VERSION = 11;
 // §14.1 MARP execution feature flag — toggle to switch the rebalance execution
 // path. Default false (legacy §7 single-direction) for pilot stability; the
 // MARP per-component path is the v1.0 production target. The UI renders an
@@ -149,9 +163,23 @@ async function tick(store: PilotStore) {
   const stepped = stepMacroSignals({ vix: store.fx.VIX, dxy: store.fx.DXY });
   store.fx = { ...store.fx, VIX: stepped.vix, DXY: stepped.dxy };
   advanceMacro(store.state, stepped.vix, stepped.dxy, SIM_TICK_HOURS);
+  // P0-FIX-1: advance the canonical chain-linked index ONE step with the
+  // latest FX/gold prices (§9.2 COO-16). This MUST happen BEFORE advanceMase
+  // (which calls commitChainIndexWeights internally to commit any new
+  // MASE smoothed weights — preserving zero-artificial-return continuity)
+  // and BEFORE the first computeSnapshot (so the snapshot reads the fresh
+  // I_t as the MTQ price).
+  try {
+    advanceChainIndex(store.state, store.fx);
+  } catch (e) {
+    console.error('[mtq-pilot] chain index advance error:', e);
+  }
   // v1.0: advance MASE 4-state smoothed weights once per tick (after advanceMacro
   // so lastVix/lastDxy are fresh, before the first computeSnapshot so the
   // snapshot reads the freshly-persisted smoothed weights as the EMA prior).
+  // P0-FIX-1: advanceMase now also commits the new smoothed weights to the
+  // chain index (via commitChainIndexWeights) — this updates G_t (the
+  // cumulative chain-link factor) and prevWeights / prevPrices.
   advanceMase(store.state, store.fx);
   // §5/§11 peg health + eject ladder
   updatePegHealth(store.state, SIM_TICK_HOURS, store.fx);
@@ -272,6 +300,25 @@ async function tick(store: PilotStore) {
     nav: vals.nav,
     eurNet: vals.eurNet,
   });
+  // P0-FIX-3: advance the canonical 6-state risk machine (§21.2). Called
+  // AFTER the rebalance + concentration optimizer so the new state reflects
+  // the post-tick RR/LCR (the rebalance may have moved gold ↔ USD, changing
+  // the reserve ratio). This persists hysteresis (the RECOVERY 48h
+  // confirmation window) in s.riskState; the next computeSnapshot reads
+  // s.riskState.state as the canonical status.
+  try {
+    const postVals = reserveAssetValues(store.state, store.fx);
+    const postNav = postVals.nav;
+    const postPrice = postNav > 0 ? store.state.chainIndex.I_t : 1;
+    const postLiability = Math.max(0, (store.state.totalSupply - store.state.genesisReserve) * postPrice);
+    const postRr = postLiability > 0 ? postNav / postLiability : Infinity;
+    const postLcr = postLiability > 0
+      ? postVals.fiatNet / (postLiability * 0.25)
+      : Infinity;
+    advanceRiskState(store.state, postRr, postLcr, Date.now());
+  } catch (e) {
+    console.error('[mtq-pilot] risk state advance error:', e);
+  }
   // §13.2 treasury sweep (no fee revenue this tick; fee revenue added on trial)
   maybeTreasurySweep(store.state, 0);
   store.state.updatedAt = Date.now();

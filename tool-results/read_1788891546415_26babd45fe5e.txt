@@ -1,0 +1,702 @@
+  3284→9.1 Reference Basket Valuation
+  3285→
+  3286→  Weights are only half of the definition of MTQ Σ; the other half is
+  3287→  the equation that turns weights and prices into a published reference
+  3288→  value. This chapter specifies that equation — and the chain-link
+  3289→  machinery that keeps it honest when weights change [MS §73–§78,
+  3290→  COO-16–COO-18].
+  3291→
+  3292→Let W_{i,t} be the current weight of component i and P_{i,t} the
+  3293→reference price of asset i at time t [MS §73] — the canonical
+  3294→multi-source prices of Chapter 17, USD-quoted, with the gold price taken
+  3295→from the canonical gold feed of Section 17.4. The reference unit value
+  3296→can be represented as [MS §73]:
+  3297→
+  3298→NAV_(t) = G_(t) ∑_(i) W_(i,t) (P_(i,t))/(P_(i,0))
+  3299→
+  3300→where G_t is a transparent normalization factor [MS §73] and P_{i,0} are
+  3301→the immutable base-date fixings of the genesis snapshot (Section 3.4).
+  3302→The initial reference level can be set to a chosen institutional unit
+  3303→[MS §73]:
+  3304→
+  3305→NAV₀ = 1
+  3306→
+  3307→so that one unit of the reference index is worth 1.0000 at genesis; 'or
+  3308→another defined reference unit' [MS §73] is a publication constant,
+  3309→chosen once and never silently changed — a re-denomination would be a
+  3310→methodology-version event with full governance (Section 24.2), not a
+  3311→recalibration. This value is the I_t (NAV_t) variable of the core
+  3312→variable table (Section 2.5); the monetary price and liability machinery
+  3313→that consumes it — P_{MTQ,t} = I_t / I_{base} — is specified in Chapter
+  3314→18.
+  3315→
+  3316→The denomination should not be confused with a promise that MTQ Σ
+  3317→remains at a fixed market price [MS §73]. NAV_0 = 1 is a normalization
+  3318→choice, exactly like an index being set to 100 at its base date: it
+  3319→fixes where the series starts, not where it goes. The reference index is
+  3320→a weighted basket of currencies and gold, and it moves with its
+  3321→constituents; users minting at index value 1.12 receive fewer tokens per
+  3322→USD than users minting at 0.92 (Sections 3.5 and 19.2). Any
+  3323→communication that presents the denomination as a peg is a category
+  3324→error of the same kind as presenting the strategic prior as the
+  3325→composition (Section 3.1).
+  3326→
+  3327→One obligation is stated now and discharged across Sections 9.2 and 9.3:
+  3328→the aggregate form above — a weighted sum of price relatives with a
+  3329→normalization divisor — must be formally reconciled with the chain-link
+  3330→methodology during quantitative implementation [COO-17]. The
+  3331→reconciliation is not cosmetic: the aggregate form and the chain-linked
+  3332→recursion are different mathematical objects that must be made to
+  3333→produce one published I_t, and the divisor mechanism G_t is precisely
+  3334→where that reconciliation lives.
+  3335→
+  3336→  Fidelity note: this equation adapts the v1.2 normalized index formula
+  3337→  [BP §2.2] — a ratio of fixed-quantity basket values — to the adaptive
+  3338→  design: fixed quantities q_i are replaced by live weights W_{i,t}, and
+  3339→  the base-date denominator is replaced by the base fixings P_{i,0} plus
+  3340→  the divisor G_t. The full BP lineage and the adapted construction are
+  3341→  carried in Section 9.7.
+  3342→
+  3343→9.2 The Chain-Linked Index Calculation
+  3344→
+  3345→Because weights change, MTQ Σ should use a chain-link methodology rather
+  3346→than allowing arbitrary weight changes to create artificial returns [MS
+  3347→§74]. The problem is structural: any index defined directly as a
+  3348→weighted price aggregate would jump whenever the weights are re-set — a
+  3349→purely compositional event that has nothing to do with economic
+  3350→performance. A system whose 'return' contains rebalancing jumps is not a
+  3351→measurement instrument; it is an accounting artifact. The specification
+  3352→therefore defines the index by recursion. At rebalance time t [MS §74]:
+  3353→
+  3354→I_(t) = I_(t-1) ( ∑_(i) W_(i,t) (P_(i,t))/(P_(i,t-1)) )
+  3355→
+  3356→The COO review reconstructs the same recursion with the weights in force
+  3357→at the start of the period [COO-16] — the form in which the period
+  3358→return is a weighted average of price relatives:
+  3359→
+  3360→  I_(t) = I_(t-1) [ ∑_(i) W_(i,t-1) (P_(i,t))/(P_(i,t-1)) ]
+  3361→
+  3362→COO-16 calls this 'the biggest missing equation' of the original
+  3363→specification, and the label is accurate. First, it is the equation that
+  3364→defines how the reference value itself evolves: the weighting
+  3365→methodology of Chapters 5–7 is meaningless without a level equation to
+  3366→apply it to. Second, it structurally prevents weight changes from
+  3367→creating artificial returns: the return over any period is computed with
+  3368→the weights in force at the start of that period, so a weight change
+  3369→enters only future periods' returns and can never masquerade as a gain
+  3370→or a loss — precisely the property a reference unit needs. Third, it
+  3371→makes the contribution mathematics of Section 9.4 exact: each
+  3372→component's contribution is its start-of-period weight times its price
+  3373→relative, and the contributions sum to the index return by construction.
+  3374→Fourth, it is the computational core of the on-chain implementation
+  3375→(Listing 3, Section 9.8).
+  3376→
+  3377→The two written forms — W_{i,t} in the specification [MS §74], W_{i,t-1}
+  3378→in the review reconstruction [COO-16] — are the same equation under two
+  3379→conventions, and the operative convention is fixed per methodology
+  3380→version exactly like the signal-direction convention of Section 5.2:
+  3381→period returns are computed with the weights in force at the start of
+  3382→the period. Within a period that contains an accepted weight update, the
+  3383→weights in force are the pre-update weights; the update itself is
+  3384→neutralized by the divisor of Section 9.3 and begins governing returns
+  3385→from the next period. Listing 3 implements exactly this convention.
+  3386→Beyond the convention, the specification requires appropriate
+  3387→divisor/normalization methodology [MS §74]: between accepted updates the
+  3388→recursion runs with a fixed weight vector and the index is a pure
+  3389→weighted price-relative aggregate; at an accepted update, the chain-link
+  3390→adjustment of Section 9.3 preserves continuity. The index advances on
+  3391→the daily calculation cadence (Section 10.1) — daily calculation does
+  3392→not imply daily trading (invariant I11) — and every increment of the
+  3393→published series is independently recomputable from published data
+  3394→(Sections 24.1 and 24.3).
+  3395→
+  3396→9.3 The Chain-Link Adjustment at Rebalance
+  3397→
+  3398→At a rebalance, the basket changes composition. Let the pre-rebalance
+  3399→basket value be B_t^- and the post-rebalance basket value be B_t^+ [MS
+  3400→§75]. Set a chain-link factor [MS §75]:
+  3401→
+  3402→D_(t) = (B_(t)⁻)/(B_(t)⁺)
+  3403→
+  3404→and preserve continuity [MS §75]:
+  3405→
+  3406→  I_(t)⁺ = D_(t) · B_(t)⁺ = B_(t)⁻
+  3407→
+  3408→The clarifying point is what the divisor does: it rescales the index
+  3409→basis so that the rebalance itself produces no index jump. Immediately
+  3410→before the weight change, the index level equals B_t^-; immediately
+  3411→after, the new-basis computation B_t^+ is multiplied by D_t, and the
+  3412→product equals B_t^- by construction. Whatever numerical difference
+  3413→exists between valuing the current prices with the old composition and
+  3414→with the new composition is absorbed into the divisor rather than
+  3415→appearing as a return. 'This is crucial for a continuously evolving
+  3416→index' [MS §75]: an evolving index that did not chain-link would report
+  3417→phantom gains on every rebalance, and an auditor comparing published
+  3418→returns to constituent price moves would find unexplainable residuals —
+  3419→exactly the failure mode COO-16 was written to close.
+  3420→
+  3421→Both B_t^- and B_t^+ are valued at the same, post-move prices, so D_t
+  3422→isolates the pure compositional change. In the recursion of Section 9.2
+  3423→the neutrality is already structural — the weight change enters only
+  3424→future period returns — and D_t is the equivalent adjustment expressed
+  3425→in the value-aggregate form of Section 9.1. This is where the formal
+  3426→reconciliation obligation lands [COO-17]: the aggregate form NAV_t = G_t
+  3427→Σ_i W_{i,t} (P_{i,t}/P_{i,0}) and the chain-linked recursion must be
+  3428→made to produce one published I_t during quantitative implementation,
+  3429→and G_t is the natural home of the accumulated chain-link history — the
+  3430→cumulative product of the D_t factors, plus any re-normalization such as
+  3431→a constituency addition that changes the component set. The precise
+  3432→valuation basis of B_t^- and B_t^+ — raw USD values of the two
+  3433→compositions, or base-relative aggregates against the genesis fixings —
+  3434→is one of the conventions quantitative implementation must pin, because
+  3435→both bases deliver the same continuity guarantee but different numerical
+  3436→divisors; the pinned choice is published with the methodology version
+  3437→and tested in the validation program (Chapter 23).
+  3438→
+  3439→Every applied D_t is published: Listing 3 (Section 9.8) emits a
+  3440→ChainLinkAdjusted event carrying D_t, B_t^- and B_t^+ at each weight
+  3441→change, and the divisor series is part of the publication obligations
+  3442→(Section 24.3). One further honesty rule: the reference index measures
+  3443→the frictionless reference basket. Real rebalances executed by MARP
+  3444→incur execution costs (Chapters 10–11); those costs are never folded
+  3445→into the index level — they appear as the cost effect in the attribution
+  3446→of Section 9.5, so the gap between the reference unit and realized
+  3447→portfolio performance is always visible rather than hidden inside the
+  3448→divisor.
+  3449→
+  3450→  Reconciliation note [COO-17]: 'This needs to be formally reconciled
+  3451→  with the chain-link methodology during quantitative implementation.'
+  3452→  The deliverables are: (i) the pinned functional form of G_t; (ii) the
+  3453→  pinned valuation basis of B_t^- and B_t^+; and (iii) reconciliation
+  3454→  tests demonstrating that the aggregate form and the recursion produce
+  3455→  the identical published series, included in the validation program
+  3456→  (Chapter 23). Until pinned, both forms are carried side by side,
+  3457→  exactly as the source documents leave them.
+  3458→
+  3459→9.4 Contribution Mathematics — Gold and Currency
+  3460→
+  3461→Contribution mathematics answers the most basic question about any
+  3462→period: which component moved the index, and by how much? Gold's
+  3463→contribution to MTQ Σ return is [MS §76]:
+  3464→
+  3465→Contribution_(G) = W_(G,t-1) ( (P_(G,t))/(P_(G,t-1)) - 1 )
+  3466→
+  3467→Analogously for every currency component [MS §76]:
+  3468→
+  3469→Contribution_(i) = W_(i,t-1) ( (P_(i,t))/(P_(i,t-1)) - 1 )
+  3470→
+  3471→The start-of-period weight W_{i,t-1} is the same convention as the
+  3472→recursion of Section 9.2 — this is what makes the decomposition exact
+  3473→rather than approximate. As a concrete illustration: if gold's weight in
+  3474→force at the start of a period is 26% and the canonical gold price
+  3475→(Section 17.4) rises 3% over the period, gold's contribution is 0.26 ×
+  3476→0.03 = +0.78%, and no other term is needed to explain that portion of
+  3477→the index return. The period return of the reference index is the sum of
+  3478→contributions [MS §77]:
+  3479→
+  3480→R_(MTQ,t) = ∑_(i) Contribution_(i)
+  3481→
+  3482→subject to the chain-link/rebalance methodology [MS §77]. The qualifier
+  3483→is not decorative: in a period containing a rebalance, the divisor D_t
+  3484→of Section 9.3 guarantees that the compositional change contributes
+  3485→exactly zero, so the sum of contributions equals the published index
+  3486→return to the tick. This is the additivity property the attribution
+  3487→engine of Section 9.5 depends on: R_{MTQ,t} can be published as a sum of
+  3488→seven numbers, one per component, with nothing left over.
+  3489→
+  3490→Two honest observations belong in the record. First, prices are
+  3491→USD-quoted (Chapter 17), so the USD component's price relative
+  3492→P_{USD,t}/P_{USD,t-1} is identically 1: in USD-valuation terms the USD
+  3493→sleeve contributes no price return — its role in the index is allocation
+  3494→and diversification, and its presence shows up in the allocation and
+  3495→rebalancing effects of Section 9.5, not in the movement effect. Second,
+  3496→the gold contribution uses the canonical gold price of Section 17.4 —
+  3497→the multi-source quorum price, not any single venue's quote — so the
+  3498→contribution decomposition inherits the oracle system's independence
+  3499→guarantees (Section 17.3). Per-component contributions are published
+  3500→every period alongside the weights (Section 24.3).
+  3501→
+  3502→9.5 The Attribution Engine
+  3503→
+  3504→Every period, the protocol publishes the full decomposition of the
+  3505→reference index return [MS §78]:
+  3506→
+  3507→R_(MTQ) = R_(USD) + R_(EUR) + R_(JPY) + R_(GBP) + R_(CNY) + R_(CHF) +
+  3508→R_(Gold)
+  3509→
+  3510→where each R_i is the contribution of Section 9.4, plus four effects
+  3511→that separate what the market did from what the system did [MS §78]:
+  3512→
+  3513→Allocation effect. The value added or subtracted by the choice of
+  3514→weights, measured against a defined baseline — typically the strategic
+  3515→prior (Section 3.2) or the previous published basket. A positive
+  3516→allocation effect means the engine's deviations from the baseline were
+  3517→subsequently rewarded: components that were over-weighted outperformed,
+  3518→and components that were under-weighted underperformed. It is the
+  3519→primary evidence for whether adaptivity is earning its complexity, and
+  3520→it is the quantity the out-of-sample scoring discipline (Sections 7.6
+  3521→and 23.4) is designed to keep honest.
+  3522→
+  3523→Movement effect. The pure price movement of the constituents with
+  3524→weights held at their start-of-period values — the market's
+  3525→contribution, independent of any decision the system made. It equals the
+  3526→sum of the component contributions (Section 9.4) and answers the
+  3527→question of what the world did to the basket in the period. Separating
+  3528→movement from allocation shows how much of a period's outcome is
+  3529→environment and how much is methodology.
+  3530→
+  3531→Rebalancing effect. The consequence of the weight changes themselves:
+  3532→the divergence between valuing current prices with the old composition
+  3533→and with the new one — neutralized in the index level by the divisor D_t
+  3534→(Section 9.3) — together with any rebalancing premium or drag realized
+  3535→by MARP when it actually executes (Chapters 10–11). It isolates the
+  3536→cost-and-benefit of the system's own turnover, distinct from price
+  3537→movement. Because D_t forces the compositional jump to zero, a nonzero
+  3538→rebalancing effect in the published attribution reflects realized
+  3539→execution behavior, not index arithmetic.
+  3540→
+  3541→Cost effect. The friction of operating the system: spreads, slippage,
+  3542→fees, market impact and operational costs of the trades that rebalances
+  3543→required — the Cost_i decomposition of the MARP net-benefit test
+  3544→(Spread + Slippage + Fees + Impact + Operational, Section 10.8).
+  3545→Publishing it keeps the difference between the frictionless reference
+  3546→index and realized performance visible at all times. A persistent cost
+  3547→effect exceeding the allocation effect is the system's own signal that
+  3548→adaptivity is being over-traded — the same discipline the turnover
+  3549→penalty internalizes at optimization time (Section 7.3).
+  3550→
+  3551→  The system should be completely explainable. [MS §78]
+  3552→
+  3553→The COO review states the purpose plainly [COO-18]: the decomposition
+  3554→'allows everyone to see: was MTQ Σ movement caused by USD, EUR, gold, or
+  3555→the weighting algorithm?'. That question — market or methodology — is
+  3556→the question every auditor, user and regulator asks first about an
+  3557→adaptive unit, and the attribution engine answers it with arithmetic
+  3558→instead of narrative. Attribution is published every period together
+  3559→with the weights, contributions and divisors (Section 24.3); the
+  3560→attribution ledger is part of the permanent audit trail (Section 9.6,
+  3561→Chapter 24) and is reproducible from published data (Section 24.1).
+  3562→
+  3563→9.6 Genesis Verification and Audit Trail
+  3564→
+  3565→The base denominator of the index — the value that makes I_0 = 1.0000 —
+  3566→is the single most audited constant in the system: if it were wrong or
+  3567→mutable, every published level after it would be meaningless. The v1.2
+  3568→genesis verification machinery is carried forward essentially unchanged
+  3569→[BP §2.6]: to ensure the denominator is auditable and independently
+  3570→verifiable, the contract emits a genesis event once, during the genesis
+  3571→transaction, and provides a verification function that any external
+  3572→observer can call. The genesis snapshot itself — quantities and fixings
+  3573→— is specified in Section 3.4; this section specifies the verification
+  3574→layer on top of it.
+  3575→
+  3576→9.6.1 The Genesis Verification Event [BP §2.6.1]
+  3577→
+  3578→The event is emitted at the end of the genesis() function, immediately
+  3579→after the base denominator is assigned [BP §2.6.1]. The v1.2 form,
+  3580→reproduced as specified:
+  3581→
+  3582→  // v1.2 lineage [BP §2.6.1] — names retained for traceability.
+  3583→
+  3584→  event GenesisVerification(
+  3585→
+  3586→  uint256 indexed gfbBaseDenominator,
+  3587→
+  3588→  uint256 eurUsdBase,
+  3589→
+  3590→  uint256 gbpUsdBase,
+  3591→
+  3592→  uint256 jpyUsdBase,
+  3593→
+  3594→  uint256 cnyUsdBase,
+  3595→
+  3596→  uint256 timestamp
+  3597→
+  3598→  );
+  3599→
+  3600→Purpose [BP §2.6.1]: the event allows off-chain observers — auditors,
+  3601→indexers, explorers — to reconstruct the denominator and verify that it
+  3602→matches the hard-coded base fixings. Under v2.0 the event is extended to
+  3603→the seven-component basket and renamed GenesisVerified: the fields
+  3604→become indexBaseDenominator, eurUsdBase, gbpUsdBase, jpyUsdBase,
+  3605→cnyUsdBase, chfUsdBase, goldUsdBase and timestamp (Listing 3, Section
+  3606→9.8). The extension is mechanical — CHF and gold were added to the
+  3607→basket by the Modification Specification (Sections 3.3 and 3.4), so
+  3608→their base fixings join the event; the mechanism, the one-time emission
+  3609→and the reconstruction purpose are unchanged.
+  3610→
+  3611→9.6.2 Off-Chain Verification Function [BP §2.6.2]
+  3612→
+  3613→The v1.2 verification function, reproduced as specified (the dimensional
+  3614→conventions are the v1.2 ones; the v2.0 adaptation recomputes under the
+  3615→USD-equivalent notional convention of Section 3.4):
+  3616→
+  3617→  // v1.2 lineage [BP §2.6.2] — verifyGFBBase().
+  3618→
+  3619→  /**
+  3620→
+  3621→  * @dev Allows anyone to verify that the stored GFB_BASE_DENOMINATOR
+  3622→
+  3623→  * matches the base-date FX fixings defined in §2.3.
+  3624→
+  3625→  * @return true if the stored denominator equals the recomputed value.
+  3626→
+  3627→  */
+  3628→
+  3629→  function verifyGFBBase() external view returns (bool) {
+  3630→
+  3631→  uint256 recomputed = Q_USD * 1e18
+  3632→
+  3633→  + Q_EUR * BASE_EUR_USD
+  3634→
+  3635→  + Q_GBP * BASE_GBP_USD
+  3636→
+  3637→  + Q_JPY * BASE_JPY_USD
+  3638→
+  3639→  + Q_CNY * BASE_CNY_USD;
+  3640→
+  3641→  return recomputed == GFB_BASE_DENOMINATOR;
+  3642→
+  3643→  }
+  3644→
+  3645→Usage [BP §2.6.2]: anyone can call this function to confirm the
+  3646→denominator is correct; a false return means the genesis transaction was
+  3647→tampered with or the hard-coded base values are inconsistent. The v2.0
+  3648→adaptation — verifyGenesis() in Listing 3 — recomputes the base basket
+  3649→value from the genesis constants and additionally checks the calibration
+  3650→invariant of Section 3.4: the USD-equivalent genesis notionals sum to
+  3651→exactly 1.0000 per MTQ unit, which is what makes I_0 = 1.0000 exact. The
+  3652→deeper audit is off-chain, exactly as the blueprint intends: auditors
+  3653→take the GenesisVerified event fields, cross-check them against the
+  3654→published base-fixing table (Section 3.4) and the deployment record
+  3655→(Appendix D), and recompute the calibration independently. A mismatch
+  3656→between the event fields and the contract constants indicates a tampered
+  3657→or mis-deployed genesis transaction.
+  3658→
+  3659→9.6.3 Testnet Implementation Note [BP §2.6.3]
+  3660→
+  3661→On testnets (Arc, Monad, Solana Devnet), the deployer must emit the
+  3662→verification event manually after the genesis transaction by calling the
+  3663→internal _emitGenesisVerification() helper, so that the event is present
+  3664→in the testnet logs for audit testing [BP §2.6.3]. Listing 3 integrates
+  3665→the helper into genesis() directly, so a single call seeds the index and
+  3666→produces the event; the testnet deployment scripts, mock oracles and
+  3667→per-chain checklists are specified in Appendix D and are outside this
+  3668→chapter's scope.
+  3669→
+  3670→9.6.4 Developer Checklist [BP §2.6.4]
+  3671→
+  3672→  -----------------------------------------------------------------------
+  3673→  Step                                Description
+  3674→  ----------------------------------- -----------------------------------
+  3675→  1                                   Ensure verifyGenesis() is included
+  3676→                                      in the index contract.
+  3677→
+  3678→  2                                   Call _emitGenesisVerification() at
+  3679→                                      the end of genesis().
+  3680→
+  3681→  3                                   After deployment, call
+  3682→                                      verifyGenesis() to confirm the
+  3683→                                      denominator is correct.
+  3684→
+  3685→  4                                   Record the emitted event in the
+  3686→                                      deployment documentation for audit
+  3687→                                      trail.
+  3688→  -----------------------------------------------------------------------
+  3689→
+  3690→The checklist is carried verbatim from the blueprint with the v2.0
+  3691→function names substituted [BP §2.6.4]. The audit trail does not end at
+  3692→deployment: the genesis event is the first entry in a ledger that
+  3693→continues with every IndexUpdated and ChainLinkAdjusted event (Listing
+  3694→3), every published weight vector (Section 24.3) and every data version
+  3695→(Section 24.2), so the entire history of the index level from genesis to
+  3696→any current timestamp is reconstructible from public information.
+  3697→
+  3698→  Fidelity note [BP §2.6]: the v1.2 names — GenesisVerification event,
+  3699→  verifyGFBBase() function, GFB_BASE_DENOMINATOR constant — are retained
+  3700→  above as lineage; the v2.0 names are GenesisVerified, verifyGenesis()
+  3701→  and INDEX_BASE_DENOMINATOR, with CHF and gold fixings added to the
+  3702→  event. The mechanism is otherwise unchanged, including the one-time
+  3703→  emission rule and the manual testnet emission rule.
+  3704→
+  3705→9.7 Index Construction Details
+  3706→
+  3707→This section carries the v1.2 index construction machinery — the
+  3708→normalized formula, the base fixings, the oracle feed mapping and the
+  3709→reference/exposure separation — in the places where it remains
+  3710→authoritative, and marks the places where v2.0 changes the mathematics
+  3711→[BP §2.2, §2.3, §2.4, §2.5]. The fidelity change runs through all four
+  3712→subsections: the v1.2 index was a fixed-quantity basket (exactly the IMF
+  3713→SDR construction), while the v2.0 reference index I_t is weight-defined
+  3714→and chain-linked; quantities survive only as the immutable genesis
+  3715→snapshot of Section 3.4.
+  3716→
+  3717→9.7.1 The Normalized Index Formula [BP §2.2]
+  3718→
+  3719→The v1.2 construction ensures the index starts at exactly 1.0000 by
+  3720→dividing the current basket value by the base-date basket value [BP
+  3721→§2.2]:
+  3722→
+  3723→GFB_(t) = (q_(USD)· 1.00 + q_(EUR)· FX^(EUR/USD)_(t) + q_(GBP)·
+  3724→FX^(GBP/USD)_(t) + q_(JPY)· FX^(JPY/USD)_(t) + q_(CNY)·
+  3725→FX^(CNY/USD)_(t))/(q_(USD)· 1.00 + q_(EUR)· FX^(EUR/USD)_(base) +
+  3726→q_(GBP)· FX^(GBP/USD)_(base) + q_(JPY)· FX^(JPY/USD)_(base) + q_(CNY)·
+  3727→FX^(CNY/USD)_(base))
+  3728→
+  3729→where FX^{i/USD}_t is the spot price of currency i against the US Dollar
+  3730→at time t (source: Chainlink/Pyth, Chapter 17) and FX^{i/USD}_base is
+  3731→the spot price at the genesis timestamp, January 1, 2026, 00:00 UTC [BP
+  3732→§2.2]. The base-date calibration objective was to set the initial
+  3733→quantities q_i so that the index base equals 1.0000 — one MTQ unit
+  3734→started at exactly 1.00 USD-equivalent [BP §2.1].
+  3735→
+  3736→The v2.0 adaptation replaces fixed quantities with live weights and the
+  3737→base-value denominator with the base fixings plus a divisor:
+  3738→
+  3739→I_(t) = G_(t) ∑_(i) W_(i,t) (P_(i,t))/(P_(i,0)) (value-aggregate form,
+  3740→Section 9.1)
+  3741→
+  3742→with evolution governed by the chain-linked recursion of Section 9.2
+  3743→rather than by direct recomputation of the ratio. The denominator role
+  3744→of the v1.2 formula splits in two under v2.0: the immutable
+  3745→INDEX_BASE_DENOMINATOR (set at genesis from the Section 3.4 snapshot;
+  3746→Listing 3) anchors the normalization, and the divisor G_t absorbs
+  3747→everything that has happened since — the accumulated chain-link history
+  3748→of Section 9.3. This is why the reconciliation obligation [COO-17] of
+  3749→Section 9.3 is stated as a first-class deliverable and not a footnote.
+  3750→
+  3751→  Fidelity note: fixed quantities → weights. BP §2.1 defines the basket
+  3752→  as 'fixed notional quantities of five major currencies, exactly as the
+  3753→  IMF SDR basket is constructed' [BP §2.1]; the Modification
+  3754→  Specification supersedes this with the adaptive, MASE-weighted basket
+  3755→  of seven components (Section 3.1). The genesis snapshot (Section 3.4)
+  3756→  is the bridge: it is the one moment at which the fixed-quantity
+  3757→  picture is literally true, which is why it is immutable and why its
+  3758→  verification (Section 9.6) is permanent.
+  3759→
+  3760→9.7.2 Base-Date Fixings (Genesis Oracles) [BP §2.3]
+  3761→
+  3762→The denominator is computed once at contract deployment using hard-coded
+  3763→reference values. These are only used to normalize the index — they are
+  3764→not updated [BP §2.3]:
+  3765→
+  3766→  -----------------------------------------------------------------------
+  3767→  Currency Pair           Base FX Rate (Jan 1,    Source Reference
+  3768→                          2026)                   
+  3769→  ----------------------- ----------------------- -----------------------
+  3770→  EUR/USD                 1.05000                 Chainlink Base Feed
+  3771→
+  3772→  GBP/USD                 1.25000                 Chainlink Base Feed
+  3773→
+  3774→  JPY/USD                 0.00670                 Chainlink Base Feed
+  3775→
+  3776→  CNY/USD (CNH)           0.14000                 Chainlink Base Feed
+  3777→                                                  (Offshore Yuan)
+  3778→  -----------------------------------------------------------------------
+  3779→
+  3780→CNY note [BP §2.3]: the index uses the offshore Yuan (CNH) rate, which
+  3781→is freely tradeable; the on-chain asset representing CNY is resolved via
+  3782→the Asset Admission Registry (Chapter 15) — the index itself is
+  3783→currency-exposure defined, independent of the specific token issuer.
+  3784→Under v2.0 the fixing table gains two rows carried in the genesis
+  3785→snapshot of Section 3.4: CHF/USD = 1.13000 and the gold base fixing of
+  3786→USD 2,500.00 per reference gold unit. All six fixings are immutable
+  3787→constants in Listing 3 (BASE_EUR_USD through BASE_GOLD_USD) and are
+  3788→published in the GenesisVerified event (Section 9.6.1); the
+  3789→cross-reference for the complete table, including asset implementations
+  3790→and genesis notionals, is Section 3.4.
+  3791→
+  3792→9.7.3 On-Chain Oracle Feed Mapping [BP §2.4]
+  3793→
+  3794→The v1.2 contract fetched live FX rates from verified oracle
+  3795→aggregators, with a primary Chainlink feed, a Pyth fallback and a
+  3796→60-second staleness threshold per pair [BP §2.4]. The addresses below
+  3797→are the blueprint's Arbitrum Mainnet placeholders; they are replaced
+  3798→with the correct addresses for the target chain, and on testnets all
+  3799→feeds are mocks (Appendix D):
+  3800→
+  3801→  ---------------------------------------------------------------------------
+  3802→  Currency Pair     Primary Oracle        Fallback (Pyth)   Staleness
+  3803→                    (Chainlink)                             Threshold
+  3804→  ----------------- --------------------- ----------------- -----------------
+  3805→  EUR/USD           0x…EURUSD_Chainlink   0x…EURUSD_Pyth    60 seconds
+  3806→
+  3807→  GBP/USD           0x…GBPUSD_Chainlink   0x…GBPUSD_Pyth    60 seconds
+  3808→
+  3809→  JPY/USD           0x…JPYUSD_Chainlink   0x…JPYUSD_Pyth    60 seconds
+  3810→
+  3811→  CNY/USD           0x…CNYUSD_Chainlink   0x…CNYUSD_Pyth    60 seconds
+  3812→  ---------------------------------------------------------------------------
+  3813→
+  3814→Implementation rule [BP §2.4]: if the primary oracle is stale (no update
+  3815→within 60 seconds) or deviates more than 2.5% from the fallback, the
+  3816→contract reverts to the fallback; if both are stale or unavailable, the
+  3817→protocol pauses minting and rebalancing. Under v2.0 this machinery is
+  3818→superseded by the multi-source canonical oracle system of Chapter 17:
+  3819→the pair mapping extends to CHF/USD, the canonical gold price requires
+  3820→an independent-source quorum (Section 17.4), and the pause semantics are
+  3821→governed by the oracle safety rules (Sections 17.3–17.7) together with
+  3822→the crisis framework (Section 13.7). The mapping is summarized here for
+  3823→completeness of the index construction; Chapter 17 is authoritative for
+  3824→feed selection, deviation logic and failover.
+  3825→
+  3826→9.7.4 Derivative Asset Value and Exposure [BP §2.5]
+  3827→
+  3828→The reference index is a measurement object, not a mandate on holdings
+  3829→[BP §2.5]. The actual collateral held in the vault (USDC, EURC, PAXG and
+  3830→other admitted instruments, Chapter 15) does not need to match the
+  3831→basket weights; it is managed separately by the rebalancing engine —
+  3832→MARP under v2.0 (Chapters 10–11) — under the reserve architecture of
+  3833→Chapters 13–14. This is the two-system architecture of Section 2.4: the
+  3834→reference basket defines the unit, the reserve backs it, and MARP keeps
+  3835→the reserve tracking the reference within economically justified bounds
+  3836→rather than by mechanical replication.
+  3837→
+  3838→The v1.2 contract method getGFB() implemented the valuation: fetch live
+  3839→FX rates from the oracle aggregator; compute the numerator (current
+  3840→basket value) as the quantity-weighted sum; divide by the immutable
+  3841→GFB_BASE_DENOMINATOR computed once at deployment from the base fixings;
+  3842→and return the normalized value scaled to 1e18, so that 1.0000 is
+  3843→represented as 1e18 [BP §2.5]. Developer notes carried from the
+  3844→blueprint: the denominator is computed once at deployment using the base
+  3845→fixings of Section 9.7.2, and getPrice() returns 18-decimal prices per
+  3846→the oracle layer [BP §2.5]. Under v2.0, getGFB() is superseded by
+  3847→getIndex() of Listing 3 (Section 9.8), which computes the chain-linked
+  3848→level from live registry weights and canonical prices rather than from
+  3849→fixed quantities. The monetary-unit consumers of the index — the
+  3850→reference price, liability and circulating-supply getters (BP §3.1–§3.3)
+  3851→— belong to Chapter 18 and are cross-referenced there, not duplicated
+  3852→here.
+  3853→
+  3854→9.8 Smart Contract Implementation — Chain-Linked Index and Genesis
+  3855→Verification
+  3856→
+  3857→The contract below is the on-chain half of this chapter. It implements
+  3858→the recursion of Section 9.2 (the getIndex machinery requested by
+  3859→Listing 1, Section 2.7), records the chain-link adjustment of Section
+  3860→9.3, sets the immutable base denominator at genesis and emits the
+  3861→verification event of Section 9.6 — adapting the v1.2 genesis
+  3862→verification and base-denominator storage [BP §2.6, BP §3.3.1] to the
+  3863→adaptive design. Live weights are read from the MASE weight registry of
+  3864→Listing 2 (Section 7.7), so the index can never drift from the
+  3865→constitutionally verified weight state; prices are read from the
+  3866→canonical oracle layer (Chapter 17), including the quorum gold price of
+  3867→Section 17.4. The contract never re-solves anything on-chain: it is a
+  3868→chain-state machine whose every transition is checkable against the
+  3869→published formulas, whose every event is an audit-trail entry, and whose
+  3870→keeper role is permissionless so that no single actor controls when the
+  3871→index rolls forward. The monetary-unit machinery that consumes
+  3872→getIndex() — the reference price, liability and circulating-supply
+  3873→getters of BP §3.1–§3.3 — belongs to Chapter 18 and is not duplicated
+  3874→here.
+  3875→
+  3876→Listing 3 — Chain-linked index, base denominator and genesis
+  3877→verification (adapts BP §2.6 and §3.3.1)
+  3878→
+  3879→  // SPDX-License-Identifier: MIT
+  3880→
+  3881→  pragma solidity ^0.8.19;
+  3882→
+  3883→  /// @title MTQChainLinkIndex — the chain-linked reference index I_t
+  3884→  (v2.0).
+  3885→
+  3886→  /// @notice Adapts BP §2.6 (genesis verification) and BP §3.3.1 (base
+  3887→  denominator
+  3888→
+  3889→  /// and index getter) to the adaptive, chain-linked design of Chapter
+  3890→  9.
+  3891→
+  3892→  /// @dev Authoritative recursion (§9.2, COO-16):
+  3893→
+  3894→  /// I_t = I_{t-1} * [ sum_i W_{i,t-1} * P_{i,t} / P_{i,t-1} ]
+  3895→
+  3896→  /// Weights come from the MASE registry (Listing 2, §7.7); prices come
+  3897→  from
+  3898→
+  3899→  /// the canonical multi-source oracle layer (Chapter 17). The contract
+  3900→  is a
+  3901→
+  3902→  /// chain-state machine: it never re-solves the optimization on-chain.
+  3903→
+  3904→  contract MTQChainLinkIndex {
+  3905→
+  3906→  // ---- Component order (fixed at genesis; XAU = index 6; Listing 1
+  3907→  §2.7) ----
+  3908→
+  3909→  bytes3[7] public COMPONENTS =
+  3910→  ["USD","EUR","JPY","GBP","CNY","CHF","XAU"];
+  3911→
+  3912→  // ---- Genesis snapshot q_i: USD-equivalent notionals (§3.4, Listing
+  3913→  1 §2.7) ----
+  3914→
+  3915→  // SNAPSHOT ONLY. After genesis the basket evolves by weights, not
+  3916→
+  3917→  // quantities; these constants anchor the base denominator.
+  3918→
+  3919→  uint256 public constant Q_USD = 0.27e18;
+  3920→
+  3921→  uint256 public constant Q_EUR = 0.20e18;
+  3922→
+  3923→  uint256 public constant Q_JPY = 0.09e18;
+  3924→
+  3925→  uint256 public constant Q_GBP = 0.08e18;
+  3926→
+  3927→  uint256 public constant Q_CNY = 0.05e18;
+  3928→
+  3929→  uint256 public constant Q_CHF = 0.05e18;
+  3930→
+  3931→  uint256 public constant Q_GOLD = 0.26e18;
+  3932→
+  3933→  // ---- Base fixings: immutable normalization values (BP §2.3; §3.4)
+  3934→  ----
+  3935→
+  3936→  uint256 public constant BASE_EUR_USD = 1.0500e8; // 8 decimals
+  3937→  (Chainlink style)
+  3938→
+  3939→  uint256 public constant BASE_GBP_USD = 1.2500e8;
+  3940→
+  3941→  uint256 public constant BASE_JPY_USD = 0.0067e8;
+  3942→
+  3943→  uint256 public constant BASE_CNY_USD = 0.1400e8; // offshore CNH
+  3944→
+  3945→  uint256 public constant BASE_CHF_USD = 1.1300e8;
+  3946→
+  3947→  uint256 public constant BASE_GOLD_USD = 2500.00e8; // USD per
+  3948→  reference gold unit
+  3949→
+  3950→  // ---- The denominator for normalization, set at genesis (BP §3.3.1)
+  3951→  ----
+  3952→
+  3953→  // v1.2 name: GFB_BASE_DENOMINATOR. v2.0 name: INDEX_BASE_DENOMINATOR.
+  3954→
+  3955→  // Under the §3.4 convention the q_i are USD-equivalent notionals, so
+  3956→
+  3957→  // the base basket value is sum(q_i) = 1.0000e18 by calibration; it is
+  3958→
+  3959→  // computed explicitly (not assumed) so that it is auditable.
+  3960→
+  3961→  uint256 public immutable INDEX_BASE_DENOMINATOR;
+  3962→
+  3963→  // ---- Chain state: the authoritative recursion bookkeeping (§9.2)
+  3964→  ----
+  3965→
+  3966→  uint256 public indexValue; // I_t, 1e18 scale; 1.0000 = 1e18
+  3967→
+  3968→  uint256[7] public lastPrices; // P_{i,t-1}, 1e18-scale USD-quoted
+  3969→
+  3970→  uint256[7] public lastWeights; // W_{i,t-1} in force, 1e18 scale
+  3971→
+  3972→  uint256 public chainLinkDivisor; // cumulative product of D_t (§9.3),
+  3973→  1e18
+  3974→
+  3975→  uint256 public lastUpdate;
+  3976→
+  3977→  // ---- External dependencies ----
+  3978→
+  3979→  IMASEWeightRegistry public weightRegistry; // Listing 2 (§7.7)
+  3980→
+  3981→  IIndexOracle public oracle; // canonical prices (Chapter 17)
+  3982→
+  3983→  address public deployer;
+
+[showing lines 3284-3983 of 21228; use offset=3984 with limit to continue reading]

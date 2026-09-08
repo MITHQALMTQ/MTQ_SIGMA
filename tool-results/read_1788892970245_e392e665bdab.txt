@@ -1,0 +1,567 @@
+     1→// MTQΣ — Security Section
+     2→// 5 panels: Posture · Key management (EXPOSED badges) · Audit findings ·
+     3→// Regulatory (US / Sharia) · Disclaimers.
+     4→// Props: { onNavigate }.
+     5→
+     6→"use client";
+     7→
+     8→import { motion } from "framer-motion";
+     9→import {
+    10→  ShieldCheck,
+    11→  KeyRound,
+    12→  ClipboardCheck,
+    13→  Scale,
+    14→  FileWarning,
+    15→  AlertOctagon,
+    16→  CheckCircle2,
+    17→  XCircle,
+    18→  ArrowRight,
+    19→} from "lucide-react";
+    20→import { Panel, Reveal, Pill, GlowDot, SectionHeading } from "@/components/mtq/primitives";
+    21→import { OnChainMatrix } from "@/components/mtq/OnChainMatrix";
+    22→import { AuditFindings } from "@/components/mtq/AuditFindings";
+    23→import { DEPLOYER_WALLET, CANONICAL_MTQ_ADDRESSES } from "@/lib/mtq/contracts";
+    24→import { BRAND_VOICE } from "@/lib/mtq/brand";
+    25→import { shortAddr } from "@/components/mtq/format";
+    26→import type { SectionId } from "@/components/mtq/Navigation";
+    27→
+    28→/* ---------- Audit findings (from the Monte Carlo audit /api/tests) ---------- */
+    29→const AUDIT_FINDINGS = [
+    30→  {
+    31→    severity: "PASS",
+    32→    title: "Baseline — 1,000 runs",
+    33→    detail: "survival 100% · worst min RR 3.02",
+    34→  },
+    35→  {
+    36→    severity: "PASS",
+    37→    title: "Monte Carlo — 2,000 runs (elevated vol)",
+    38→    detail: "survival 100% · worst min RR 1.99",
+    39→  },
+    40→  {
+    41→    severity: "PASS",
+    42→    title: "Depression — 1,500 runs",
+    43→    detail: "survival 100% · worst min RR 1.33",
+    44→  },
+    45→  {
+    46→    severity: "PASS",
+    47→    title: "Hyperinflation — 1,500 runs",
+    48→    detail: "survival 100% · worst min RR 1.61",
+    49→  },
+    50→  {
+    51→    severity: "PASS",
+    52→    title: "Depeg Cascade — 1,500 runs",
+    53→    detail: "survival 100% · worst min RR 1.85",
+    54→  },
+    55→  {
+    56→    severity: "PASS",
+    57→    title: "Oracle Failure — 1,000 runs",
+    58→    detail: "survival 100% · worst min RR 3.54",
+    59→  },
+    60→  {
+    61→    severity: "PASS",
+    62→    title: "Liquidity Crisis — 1,000 runs",
+    63→    detail: "survival 100% · worst min RR 4.58",
+    64→  },
+    65→  {
+    66→    severity: "PASS",
+    67→    title: "Black Swan — 1,800 runs",
+    68→    detail: "survival 100% · worst min RR 2.22",
+    69→  },
+    70→];
+    71→
+    72→/* ---------- Invariants tested (from the audit) ---------- */
+    73→const INVARIANTS_TESTED = [
+    74→  "§4.2.1 Hard floor (RR≥1.00)",
+    75→  "§4.2.1 Stress floor (RR≥1.05)",
+    76→  "§4.2.1 Target (RR≥1.10)",
+    77→  "§4.3 LCR≥1.00",
+    78→  "§3.5 Price band [0.50,2.00]",
+    79→  "§11 Peg stability",
+    80→  "§7 Rebalancer deviation",
+    81→  "§8 Buffer BASE/STRESS/EMERGENCY",
+    82→  "§9 Oracle pause",
+    83→];
+    84→
+    85→/* ---------- EXPOSED badge (key management) ---------- */
+    86→function ExposedBadge({ label, value, exposed }: { label: string; value: string; exposed: boolean }) {
+    87→  return (
+    88→    <div
+    89→      className={`rounded-md border p-3 ${
+    90→        exposed
+    91→          ? "border-mtqs-rose/40 bg-mtqs-rose/[0.06]"
+    92→          : "border-mtqs-emerald/40 bg-mtqs-emerald/[0.06]"
+    93→      }`}
+    94→    >
+    95→      <div className="flex items-center justify-between gap-2 mb-1">
+    96→        <span className="text-[0.6rem] uppercase tracking-[0.18em] text-muted-foreground/75">
+    97→          {label}
+    98→        </span>
+    99→        {exposed ? (
+   100→          <Pill tone="rose">
+   101→            <AlertOctagon className="h-3 w-3" aria-hidden="true" />
+   102→            EXPOSED
+   103→          </Pill>
+   104→        ) : (
+   105→          <Pill tone="emerald">
+   106→            <CheckCircle2 className="h-3 w-3" aria-hidden="true" />
+   107→            secured
+   108→          </Pill>
+   109→        )}
+   110→      </div>
+   111→      <div className="font-mono text-[0.72rem] text-amber-200 break-all">{value}</div>
+   112→    </div>
+   113→  );
+   114→}
+   115→
+   116→export function SecuritySection({ onNavigate: _onNavigate }: { onNavigate: (id: SectionId) => void }) {
+   117→  const canonicalCount = Object.keys(CANONICAL_MTQ_ADDRESSES).length;
+   118→  const allPass = AUDIT_FINDINGS.every((f) => f.severity === "PASS");
+   119→
+   120→  return (
+   121→    <div className="space-y-12">
+   122→      <SectionHeading
+   123→        eyebrow="honest · security posture"
+   124→        title="Security — Posture, Keys, Audit, Regulatory"
+   125→        right={
+   126→          <Pill tone={allPass ? "emerald" : "rose"}>
+   127→            <GlowDot color={allPass ? "emerald" : "rose"} size="h-1.5 w-1.5" />
+   128→            {allPass ? "audit PASS" : "audit FAIL"}
+   129→          </Pill>
+   130→        }
+   131→      />
+   132→
+   133→      {/* On-Chain vs Off-Chain Implementation Matrix — near top of Security */}
+   134→      <OnChainMatrix />
+   135→
+   136→      {/* Top-Tier Audit Findings — second thing, so security-conscious readers see the verdict */}
+   137→      <Reveal>
+   138→        <AuditFindings />
+   139→      </Reveal>
+   140→
+   141→      {/* Intro */}
+   142→      <Reveal>
+   143→        <Panel className="p-5">
+   144→          <div className="flex items-start gap-3">
+   145→            <ShieldCheck className="h-5 w-5 text-mtqs-gold/80 mt-0.5 shrink-0" aria-hidden="true" />
+   146→            <p className="text-[0.82rem] text-muted-foreground/85 leading-relaxed">
+   147→              {BRAND_VOICE.statusDeclaration}. The security section is intentionally honest: it
+   148→              surfaces what is secured, what is exposed by the pilot design, what the Monte Carlo
+   149→              audit found, and the regulatory posture (US + Sharia). Nothing here is production-claim.
+   150→            </p>
+   151→          </div>
+   152→        </Panel>
+   153→      </Reveal>
+   154→
+   155→      {/* Panel 1 — Posture */}
+   156→      <section aria-labelledby="sec-posture">
+   157→        <div className="flex items-end justify-between gap-4 mb-4">
+   158→          <div>
+   159→            <div className="text-[0.6rem] uppercase tracking-[0.22em] text-mtqs-gold/75">01 · posture</div>
+   160→            <h3 className="mt-2 text-base font-semibold text-foreground/95">Security Posture</h3>
+   161→          </div>
+   162→          <Pill tone="amber">
+   163→            <GlowDot color="amber" size="h-1.5 w-1.5" />
+   164→            testnet · not production
+   165→          </Pill>
+   166→        </div>
+   167→        <Reveal>
+   168→          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
+   169→            <Panel className="p-4">
+   170→              <div className="text-[0.6rem] uppercase tracking-[0.18em] text-muted-foreground/75 mb-1">
+   171→                Deployment status
+   172→              </div>
+   173→              <div className="text-sm text-foreground/90 font-medium">
+   174→                {canonicalCount} canonical MTQΣ contracts live
+   175→              </div>
+   176→              <div className="mt-1 text-[0.7rem] text-muted-foreground/70 leading-relaxed">
+   177→                Monad · Arc · Robinhood · Solana testnets. Bytecode verified per chain in the
+   178→                Investor section.
+   179→              </div>
+   180→            </Panel>
+   181→            <Panel className="p-4">
+   182→              <div className="text-[0.6rem] uppercase tracking-[0.18em] text-muted-foreground/75 mb-1">
+   183→                Reference engine
+   184→              </div>
+   185→              <div className="text-sm text-foreground/90 font-medium">In-process · TypeScript</div>
+   186→              <div className="mt-1 text-[0.7rem] text-muted-foreground/70 leading-relaxed">
+   187→                The live dashboard runs the blueprint math in-process; it does not depend on testnet
+   188→                RPC for its monetary logic, so it is robust to RPC unreliability.
+   189→              </div>
+   190→            </Panel>
+   191→            <Panel className="p-4">
+   192→              <div className="text-[0.6rem] uppercase tracking-[0.18em] text-muted-foreground/75 mb-1">
+   193→                Attack surface
+   194→              </div>
+   195→              <div className="text-sm text-foreground/90 font-medium">Read-only GET API</div>
+   196→              <div className="mt-1 text-[0.7rem] text-muted-foreground/70 leading-relaxed">
+   197→                All public endpoints are GET. Mint/Redeem POST endpoints simulate; they do not move
+   198→                real testnet funds in the dashboard.
+   199→              </div>
+   200→            </Panel>
+   201→            <Panel className="p-4">
+   202→              <div className="text-[0.6rem] uppercase tracking-[0.18em] text-muted-foreground/75 mb-1">
+   203→                Constitution
+   204→              </div>
+   205→              <div className="text-sm text-foreground/90 font-medium">7/7 Multi-Sig · 90d timelock</div>
+   206→              <div className="mt-1 text-[0.7rem] text-muted-foreground/70 leading-relaxed">
+   207→                Basket quantities (qᵢ) change only via constitutional governance. Risk thresholds via
+   208→                Risk Council (4/7 · 24h). Emergency via Multi-Sig (4/7 · instant).
+   209→              </div>
+   210→            </Panel>
+   211→            <Panel className="p-4">
+   212→              <div className="text-[0.6rem] uppercase tracking-[0.18em] text-muted-foreground/75 mb-1">
+   213→                Oracle consensus
+   214→              </div>
+   215→              <div className="text-sm text-foreground/90 font-medium">3 sources · 3-of-3 valid</div>
+   216→              <div className="mt-1 text-[0.7rem] text-muted-foreground/70 leading-relaxed">
+   217→                Chainlink + Pyth + Chronicle per pair. Any deviation &gt; 2.5% or staleness &gt; 60s
+   218→                pauses mint + rebalance (§9.2).
+   219→              </div>
+   220→            </Panel>
+   221→            <Panel className="p-4">
+   222→              <div className="text-[0.6rem] uppercase tracking-[0.18em] text-muted-foreground/75 mb-1">
+   223→                Geopolitical eject
+   224→              </div>
+   225→              <div className="text-sm text-foreground/90 font-medium">Staged 10 / 25 / 50 / 100%</div>
+   226→              <div className="mt-1 text-[0.7rem] text-muted-foreground/70 leading-relaxed">
+   227→                Depeg &gt; 12h triggers staged liquidation of the affected currency; reintegration
+   228→                requires R_score &gt; 0.80 (§11.3).
+   229→              </div>
+   230→            </Panel>
+   231→          </div>
+   232→        </Reveal>
+   233→      </section>
+   234→
+   235→      {/* Panel 2 — Key management (EXPOSED badges) */}
+   236→      <section aria-labelledby="sec-keys">
+   237→        <div className="flex items-end justify-between gap-4 mb-4">
+   238→          <div>
+   239→            <div className="text-[0.6rem] uppercase tracking-[0.22em] text-mtqs-gold/75">02 · key management</div>
+   240→            <h3 className="mt-2 text-base font-semibold text-foreground/95">Key Management</h3>
+   241→          </div>
+   242→          <Pill tone="rose">
+   243→            <AlertOctagon className="h-3 w-3" aria-hidden="true" />
+   244→            pilot · key rotated post-session
+   245→          </Pill>
+   246→        </div>
+   247→        <Reveal>
+   248→          <Panel className="p-5">
+   249→            <div className="flex items-start gap-3 mb-4">
+   250→              <KeyRound className="h-5 w-5 text-mtqs-rose/80 mt-0.5 shrink-0" aria-hidden="true" />
+   251→              <p className="text-[0.78rem] text-muted-foreground/85 leading-relaxed">
+   252→                The pilot was deployed with a single deployer private key (held in .env, gitignored).
+   253→                For the pilot this is honestly exposed; for production the protocol requires a 4/7
+   254→                Multi-Sig (Safe) on every chain. The key was transmitted via chat and must be rotated
+   255→                after this session.
+   256→              </p>
+   257→            </div>
+   258→            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+   259→              <ExposedBadge
+   260→                label="Deployer wallet (pilot)"
+   261→                value={DEPLOYER_WALLET}
+   262→                exposed
+   263→              />
+   264→              <ExposedBadge
+   265→                label="Deployer private key"
+   266→                value="server-side .env (gitignored) · rotate post-session"
+   267→                exposed
+   268→              />
+   269→              <ExposedBadge
+   270→                label="Multi-Sig (production target)"
+   271→                value="Safe · 4/7 threshold · cold treasury"
+   272→                exposed={false}
+   273→              />
+   274→              <ExposedBadge
+   275→                label="Oracle keys"
+   276→                value="Chainlink + Pyth + Chronicle (3 independent operators)"
+   277→                exposed={false}
+   278→              />
+   279→            </div>
+   280→            <div className="mt-3 text-[0.68rem] text-muted-foreground/70 leading-relaxed">
+   281→              Production target: every role on every canonical MTQΣ contract (ADMIN, MINTER,
+   282→              PAUSER) is held by the 4/7 Safe, not by an EOA. The Investor Verification section reads
+   283→              on-chain role assignments live for each chain.
+   284→            </div>
+   285→          </Panel>
+   286→        </Reveal>
+   287→      </section>
+   288→
+   289→      {/* Panel 3 — Audit findings */}
+   290→      <section aria-labelledby="sec-audit">
+   291→        <div className="flex items-end justify-between gap-4 mb-4">
+   292→          <div>
+   293→            <div className="text-[0.6rem] uppercase tracking-[0.22em] text-mtqs-gold/75">03 · audit</div>
+   294→            <h3 className="mt-2 text-base font-semibold text-foreground/95">Monte Carlo Audit Findings</h3>
+   295→          </div>
+   296→          <Pill tone={allPass ? "emerald" : "rose"}>
+   297→            <ClipboardCheck className="h-3 w-3" aria-hidden="true" />
+   298→            10,300 runs · {AUDIT_FINDINGS.length} suites
+   299→          </Pill>
+   300→        </div>
+   301→        <Reveal>
+   302→          <Panel className="p-5">
+   303→            <div className="mb-4 rounded-md border border-mtqs-emerald/30 bg-mtqs-emerald/[0.06] p-3">
+   304→              <div className="text-[0.6rem] uppercase tracking-[0.22em] text-mtqs-emerald/85 mb-1">
+   305→                Overall verdict
+   306→              </div>
+   307→              <div className="font-mono text-sm text-[#6ff0c0]">
+   308→                PASS — protocol maintains RR ≥ 1.00 across all suites. The 110% buffer absorbs all shocks.
+   309→              </div>
+   310→            </div>
+   311→            <div className="mb-4">
+   312→              <div className="text-[0.6rem] uppercase tracking-[0.18em] text-mtqs-gold/75 mb-2">
+   313→                Invariants tested
+   314→              </div>
+   315→              <div className="flex flex-wrap gap-1.5">
+   316→                {INVARIANTS_TESTED.map((inv) => (
+   317→                  <span
+   318→                    key={inv}
+   319→                    className="inline-flex items-center gap-1 rounded-full border border-white/[0.08] bg-white/[0.02] px-2.5 py-1 text-[0.62rem] font-mono text-muted-foreground/85"
+   320→                  >
+   321→                    <CheckCircle2 className="h-2.5 w-2.5 text-mtqs-emerald" aria-hidden="true" />
+   322→                    {inv}
+   323→                  </span>
+   324→                ))}
+   325→              </div>
+   326→            </div>
+   327→            <div className="overflow-hidden rounded-md border border-white/[0.07]">
+   328→              <div className="max-h-72 overflow-y-auto mtqs-scroll">
+   329→                <table className="w-full text-[0.72rem]">
+   330→                  <thead className="bg-white/[0.02] text-muted-foreground/70 sticky top-0">
+   331→                    <tr>
+   332→                      <th className="text-left px-3 py-2 font-medium">Suite</th>
+   333→                      <th className="text-right px-3 py-2 font-medium">Result</th>
+   334→                    </tr>
+   335→                  </thead>
+   336→                  <tbody>
+   337→                    {AUDIT_FINDINGS.map((f, i) => (
+   338→                      <tr
+   339→                        key={f.title}
+   340→                        className={`border-t border-white/[0.05] ${i % 2 ? "bg-white/[0.01]" : ""}`}
+   341→                      >
+   342→                        <td className="px-3 py-2.5">
+   343→                          <div className="text-foreground/90">{f.title}</div>
+   344→                          <div className="text-[0.62rem] text-muted-foreground/60 mt-0.5 font-mono">
+   345→                            {f.detail}
+   346→                          </div>
+   347→                        </td>
+   348→                        <td className="px-3 py-2.5 text-right">
+   349→                          <Pill tone="emerald">
+   350→                            <CheckCircle2 className="h-3 w-3" aria-hidden="true" />
+   351→                            {f.severity}
+   352→                          </Pill>
+   353→                        </td>
+   354→                      </tr>
+   355→                    ))}
+   356→                  </tbody>
+   357→                </table>
+   358→              </div>
+   359→            </div>
+   360→            <div className="mt-3 flex items-center justify-between gap-2">
+   361→              <div className="text-[0.7rem] text-muted-foreground/70">
+   362→                Run the live suite yourself in the Tests section.
+   363→              </div>
+   364→              <button
+   365→                onClick={() => _onNavigate("tests")}
+   366→                className="inline-flex items-center gap-1.5 text-[0.75rem] text-mtqs-gold/85 hover:text-mtqs-gold-light transition"
+   367→              >
+   368→                Open Tests
+   369→                <ArrowRight className="h-3.5 w-3.5" aria-hidden="true" />
+   370→              </button>
+   371→            </div>
+   372→          </Panel>
+   373→        </Reveal>
+   374→      </section>
+   375→
+   376→      {/* Panel 4 — Regulatory (US / Sharia) */}
+   377→      <section aria-labelledby="sec-reg">
+   378→        <div className="flex items-end justify-between gap-4 mb-4">
+   379→          <div>
+   380→            <div className="text-[0.6rem] uppercase tracking-[0.22em] text-mtqs-gold/75">04 · regulatory</div>
+   381→            <h3 className="mt-2 text-base font-semibold text-foreground/95">Regulatory Posture (US + Sharia)</h3>
+   382→          </div>
+   383→          <Scale className="h-4 w-4 text-mtqs-gold/70" aria-hidden="true" />
+   384→        </div>
+   385→        <Reveal>
+   386→          <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+   387→            <Panel className="p-5">
+   388→              <div className="flex items-center gap-2 mb-2">
+   389→                <span className="text-[0.6rem] uppercase tracking-[0.22em] text-mtqs-gold/75">
+   390→                  United States
+   391→                </span>
+   392→              </div>
+   393→              <h4 className="text-sm font-semibold text-foreground/90 mb-2">US posture (pilot)</h4>
+   394→              <ul className="space-y-1.5 text-[0.74rem] text-muted-foreground/85 leading-relaxed">
+   395→                <li className="flex gap-2">
+   396→                  <XCircle className="h-3.5 w-3.5 text-mtqs-rose shrink-0 mt-0.5" aria-hidden="true" />
+   397→                  <span>Not a registered security. The pilot does not solicit US investment.</span>
+   398→                </li>
+   399→                <li className="flex gap-2">
+   400→                  <CheckCircle2 className="h-3.5 w-3.5 text-mtqs-emerald shrink-0 mt-0.5" aria-hidden="true" />
+   401→                  <span>OFAC / EU / UN sanctions compliance required for every reserve issuer (§5.2 #4).</span>
+   402→                </li>
+   403→                <li className="flex gap-2">
+   404→                  <CheckCircle2 className="h-3.5 w-3.5 text-mtqs-emerald shrink-0 mt-0.5" aria-hidden="true" />
+   405→                  <span>Issuer authorization + redemption right required (§5.2 #1-#2).</span>
+   406→                </li>
+   407→                <li className="flex gap-2">
+   408→                  <CheckCircle2 className="h-3.5 w-3.5 text-mtqs-emerald shrink-0 mt-0.5" aria-hidden="true" />
+   409→                  <span>Qualified custody required for tokenized gold (§5.2 #3).</span>
+   410→                </li>
+   411→                <li className="flex gap-2">
+   412→                  <AlertOctagon className="h-3.5 w-3.5 text-mtqs-amber shrink-0 mt-0.5" aria-hidden="true" />
+   413→                  <span>Production launch requires US counsel opinion + state money-transmitter analysis.</span>
+   414→                </li>
+   415→              </ul>
+   416→            </Panel>
+   417→
+   418→            <Panel className="p-5">
+   419→              <div className="flex items-center gap-2 mb-2">
+   420→                <span className="text-[0.6rem] uppercase tracking-[0.22em] text-mtqs-gold/75">
+   421→                  Sharia (design)
+   422→                </span>
+   423→              </div>
+   424→              <h4 className="text-sm font-semibold text-foreground/90 mb-2">Sharia posture (design)</h4>
+   425→              <ul className="space-y-1.5 text-[0.74rem] text-muted-foreground/85 leading-relaxed">
+   426→                <li className="flex gap-2">
+   427→                  <CheckCircle2 className="h-3.5 w-3.5 text-mtqs-emerald shrink-0 mt-0.5" aria-hidden="true" />
+   428→                  <span>Interest-free: MTQΣ is non-yield-bearing by design (no riba).</span>
+   429→                </li>
+   430→                <li className="flex gap-2">
+   431→                  <CheckCircle2 className="h-3.5 w-3.5 text-mtqs-emerald shrink-0 mt-0.5" aria-hidden="true" />
+   432→                  <span>Asset-backed: every MTQΣ is collateralized by audited reserve assets.</span>
+   433→                </li>
+   434→                <li className="flex gap-2">
+   435→                  <CheckCircle2 className="h-3.5 w-3.5 text-mtqs-emerald shrink-0 mt-0.5" aria-hidden="true" />
+   436→                  <span>Non-speculative: mint/redeem priced against the GFB Index, no leverage.</span>
+   437→                </li>
+   438→                <li className="flex gap-2">
+   439→                  <AlertOctagon className="h-3.5 w-3.5 text-mtqs-amber shrink-0 mt-0.5" aria-hidden="true" />
+   440→                  <span>
+   441→                    Independent Sharia review board certification is the explicit ask (F4
+   442→                    informational finding — see Docs).
+   443→                  </span>
+   444→                </li>
+   445→                <li className="flex gap-2">
+   446→                  <XCircle className="h-3.5 w-3.5 text-mtqs-rose shrink-0 mt-0.5" aria-hidden="true" />
+   447→                  <span>
+   448→                    The earlier draft&apos;s claim &ldquo;100% Halal / Fatwa-ready&rdquo; was removed (§15.1) and
+   449→                    replaced with &ldquo;designed for Sharia review.&rdquo;
+   450→                  </span>
+   451→                </li>
+   452→              </ul>
+   453→            </Panel>
+   454→          </div>
+   455→        </Reveal>
+   456→      </section>
+   457→
+   458→      {/* Panel 5 — Disclaimers */}
+   459→      <section aria-labelledby="sec-disclaim">
+   460→        <div className="flex items-end justify-between gap-4 mb-4">
+   461→          <div>
+   462→            <div className="text-[0.6rem] uppercase tracking-[0.22em] text-mtqs-gold/75">05 · disclaimers</div>
+   463→            <h3 className="mt-2 text-base font-semibold text-foreground/95">Disclaimers</h3>
+   464→          </div>
+   465→          <FileWarning className="h-4 w-4 text-mtqs-amber/80" aria-hidden="true" />
+   466→        </div>
+   467→        <Reveal>
+   468→          <Panel className="p-5">
+   469→            <ol className="space-y-2.5 text-[0.76rem] text-muted-foreground/85 leading-relaxed">
+   470→              <li className="flex gap-2">
+   471→                <span className="font-mono text-mtqs-gold/70 shrink-0">01.</span>
+   472→                <span>
+   473→                  <strong className="text-foreground/90">{BRAND_VOICE.statusDeclaration}.</strong>{" "}
+   474→                  The MTQΣ pilot is a faithful reference implementation of the blueprint math, not a
+   475→                  deployed production system.
+   476→                </span>
+   477→              </li>
+   478→              <li className="flex gap-2">
+   479→                <span className="font-mono text-mtqs-gold/70 shrink-0">02.</span>
+   480→                <span>
+   481→                  <strong className="text-foreground/90">Not a security.</strong> Nothing on this site
+   482→                  is an offer to sell or a solicitation to buy any security, token, or financial
+   483→                  instrument.
+   484→                </span>
+   485→              </li>
+   486→              <li className="flex gap-2">
+   487→                <span className="font-mono text-mtqs-gold/70 shrink-0">03.</span>
+   488→                <span>
+   489→                  <strong className="text-foreground/90">Not financial advice.</strong> The dashboard
+   490→                  is a reference for protocol engineers, not investment advice for token holders.
+   491→                </span>
+   492→              </li>
+   493→              <li className="flex gap-2">
+   494→                <span className="font-mono text-mtqs-gold/70 shrink-0">04.</span>
+   495→                <span>
+   496→                  <strong className="text-foreground/90">Testnet only.</strong> Canonical MTQΣ
+   497→                  contracts are deployed on testnets only ({canonicalCount} chains). Testnet tokens
+   498→                  have no monetary value.
+   499→                </span>
+   500→              </li>
+   501→              <li className="flex gap-2">
+   502→                <span className="font-mono text-mtqs-gold/70 shrink-0">05.</span>
+   503→                <span>
+   504→                  <strong className="text-foreground/90">Sharia — designed for review, not certified.</strong>{" "}
+   505→                  {BRAND_VOICE.designConstraint}. The F4 informational finding remains open until an
+   506→                  independent Sharia board certifies the design.
+   507→                </span>
+   508→              </li>
+   509→              <li className="flex gap-2">
+   510→                <span className="font-mono text-mtqs-gold/70 shrink-0">06.</span>
+   511→                <span>
+   512→                  <strong className="text-foreground/90">Past Monte Carlo results do not guarantee future resilience.</strong>{" "}
+   513→                  The 10,300-run audit is a design confidence signal; real-world stress may differ.
+   514→                </span>
+   515→              </li>
+   516→              <li className="flex gap-2">
+   517→                <span className="font-mono text-mtqs-gold/70 shrink-0">07.</span>
+   518→                <span>
+   519→                  <strong className="text-foreground/90">Key rotation.</strong> The pilot deployer
+   520→                  key ({shortAddr(DEPLOYER_WALLET, 8, 6)}) was transmitted via chat; rotate it after
+   521→                  this session. Production uses 4/7 Multi-Sig only.
+   522→                </span>
+   523→              </li>
+   524→              <li className="flex gap-2">
+   525→                <span className="font-mono text-mtqs-gold/70 shrink-0">08.</span>
+   526→                <span>
+   527→                  <strong className="text-foreground/90">Engine runs in-process.</strong> The live
+   528→                  dashboard computes the blueprint math in-process for robustness; it does not read
+   529→                  on-chain state from the canonical contracts. The Investor section reads on-chain
+   530→                  metadata (bytecode, name/symbol/decimals, roles) separately.
+   531→                </span>
+   532→              </li>
+   533→            </ol>
+   534→          </Panel>
+   535→        </Reveal>
+   536→      </section>
+   537→
+   538→      {/* Closing */}
+   539→      <Reveal>
+   540→        <Panel className="p-5 sm:p-6 text-center">
+   541→          <p className="text-[0.82rem] text-muted-foreground/85 leading-relaxed max-w-2xl mx-auto mb-4">
+   542→            Security posture is honestly disclosed: pilot-grade, key-rotation-pending, Sharia
+   543→            review-pending, audit-PASS. For the full reconciliation, see Docs; for live on-chain
+   544→            verification, see Investors.
+   545→          </p>
+   546→          <div className="flex flex-wrap items-center justify-center gap-2">
+   547→            <button
+   548→              onClick={() => _onNavigate("investors")}
+   549→              className="inline-flex items-center gap-1.5 rounded-full border border-white/[0.1] bg-white/[0.03] px-4 py-2 text-[0.78rem] font-medium text-foreground/85 hover:border-mtqs-gold/30 hover:text-foreground transition"
+   550→            >
+   551→              On-Chain Verification
+   552→              <ArrowRight className="h-3.5 w-3.5" aria-hidden="true" />
+   553→            </button>
+   554→            <button
+   555→              onClick={() => _onNavigate("docs")}
+   556→              className="inline-flex items-center gap-1.5 rounded-full border border-white/[0.1] bg-white/[0.03] px-4 py-2 text-[0.78rem] font-medium text-foreground/85 hover:border-mtqs-gold/30 hover:text-foreground transition"
+   557→            >
+   558→              Reconciliation Docs
+   559→              <ArrowRight className="h-3.5 w-3.5" aria-hidden="true" />
+   560→            </button>
+   561→          </div>
+   562→        </Panel>
+   563→      </Reveal>
+   564→    </div>
+   565→  );
+   566→}
+   567→

@@ -1,0 +1,1519 @@
+     1→# MTQΣ v1.0 — MASTER RECONCILIATION, REMEDIATION & PRODUCTION-READINESS IMPLEMENTATION PROMPT
+     2→
+     3→## ROLE
+     4→
+     5→Act simultaneously as:
+     6→
+     7→* Chief Technology Officer
+     8→* Chief Operating Officer / Project Manager
+     9→* Principal Smart-Contract Architect
+    10→* Quantitative Monetary-System Architect
+    11→* Protocol Security Architect
+    12→* Senior Solidity Engineer
+    13→* Quantitative Risk Engineer
+    14→* Treasury / Solvency Engineer
+    15→* Test Engineer
+    16→* Independent Audit Remediation Lead
+    17→* Documentation / Source-of-Truth Custodian
+    18→
+    19→You are implementing against the attached:
+    20→
+    21→**MTQΣ Master Monetary Architecture & Quantitative Specification v1.0**
+    22→
+    23→This document is the **current normative source of truth**.
+    24→
+    25→The Master document explicitly defines MTQΣ v1.0 as:
+    26→
+    27→**Candidate for Public Testing — Not Production-Authorized.**
+    28→
+    29→Do not convert the protocol to production merely because code compiles or tests pass. Production authorization remains a separate constitutional/validation outcome.
+    30→
+    31→---
+    32→
+    33→# 1. PRIMARY OBJECTIVE
+    34→
+    35→Perform a complete **implementation-fidelity reconciliation and remediation pass** across the MTQΣ system.
+    36→
+    37→The objective is NOT to blindly implement every finding from the previous third-party audit.
+    38→
+    39→Instead:
+    40→
+    41→1. Compare every audit finding against the current Master v1.0 source of truth.
+    42→2. Reject findings that describe superseded/older architecture when the current Master already contains the correction.
+    43→3. Preserve valid findings.
+    44→4. Discover additional inconsistencies between mathematical specification, Solidity implementation, module behavior, governance, state transitions, and economic logic.
+    45→5. Convert all valid findings into explicit implementation requirements.
+    46→6. Make the architecture mathematically closed.
+    47→7. Make the risk-state machine canonical and consistent across all modules.
+    48→8. Make the implementation faithfully enforce the current constitutional architecture.
+    49→9. Add deterministic tests proving the implementation.
+    50→10. Produce a final implementation-fidelity report and production-readiness report.
+    51→
+    52→Do NOT silently redesign MTQΣ.
+    53→
+    54→Do NOT return to the superseded fixed-weight v1.2 architecture.
+    55→
+    56→Do NOT reintroduce fixed composition.
+    57→
+    58→Do NOT replace the adaptive MASE methodology with manual governance-selected weights.
+    59→
+    60→Do NOT make redemption index-priced merely because that is easier to implement.
+    61→
+    62→Do NOT weaken the constitutional separation between reference basket, monetary unit, and reserve.
+    63→
+    64→---
+    65→
+    66→# 2. SOURCE-OF-TRUTH HIERARCHY
+    67→
+    68→Use this authority hierarchy:
+    69→
+    70→### Authority 1 — Master MTQΣ v1.0
+    71→
+    72→The attached Master v1.0 document is the current normative source.
+    73→
+    74→### Authority 2 — Explicit mathematical equations and invariants in the Master
+    75→
+    76→Where narrative is ambiguous, the explicit constitutional invariant and mathematical definition take priority.
+    77→
+    78→### Authority 3 — Normative Solidity implementation sections in the Master
+    79→
+    80→The Master includes Solidity listings for the core modules.
+    81→
+    82→### Authority 4 — Third-party audit
+    83→
+    84→The previously supplied audit is evidence of possible defects, NOT the normative source of truth.
+    85→
+    86→Every audit finding must therefore receive one classification:
+    87→
+    88→* CONFIRMED
+    89→* CONFIRMED BUT MODIFIED
+    90→* NOT APPLICABLE / SUPERSEDED
+    91→* UNPROVEN — REQUIRES DEPLOYED-CODE EVIDENCE
+    92→* NEW ISSUE DISCOVERED DURING RECONCILIATION
+    93→
+    94→---
+    95→
+    96→# 3. NON-NEGOTIABLE ARCHITECTURAL PRINCIPLES
+    97→
+    98→Preserve all existing constitutional principles.
+    99→
+   100→## 3.1 Constitutional separation
+   101→
+   102→Maintain:
+   103→
+   104→Reference Basket ≠ Monetary Unit ≠ Reserve Portfolio.
+   105→
+   106→The index defines the monetary reference.
+   107→
+   108→The MTQΣ token represents one unit of that reference.
+   109→
+   110→The reserve provides economic backing.
+   111→
+   112→Reserve composition must not silently redefine the reference basket.
+   113→
+   114→---
+   115→
+   116→# 4. FOUR WEIGHT STATES MUST REMAIN DISTINCT
+   117→
+   118→Maintain and enforce:
+   119→
+   120→* W^Prior = Strategic Prior
+   121→* W^Target = MASE mathematical target
+   122→* W^Smooth = stress/risk controlled transition
+   123→* W^Execution = actual economically justified execution decision
+   124→
+   125→Never collapse these into one variable conceptually or operationally.
+   126→
+   127→Never permit governance to directly set individual live weights.
+   128→
+   129→Governance changes methodology/rules/envelopes; it must not manually choose the daily numerical weight of USD, EUR, JPY, GBP, CNY, CHF or GOLD.
+   130→
+   131→The Master explicitly defines these as distinct states.
+   132→
+   133→---
+   134→
+   135→# 5. MASE WEIGHT REGISTRY
+   136→
+   137→Audit and verify the entire MASE pipeline.
+   138→
+   139→The registry must:
+   140→
+   141→1. Accept only authorized submissions.
+   142→2. Require weights to sum to 1.
+   143→3. Enforce positivity/non-negativity according to the normative rule.
+   144→4. Enforce constitutional admissibility envelopes.
+   145→5. Enforce maximum per-update weight velocity.
+   146→6. Apply stress-adaptive smoothing.
+   147→7. Store:
+   148→
+   149→   * live weights
+   150→   * target weights
+   151→   * methodology version
+   152→   * data version
+   153→   * update timestamp
+   154→8. Emit deterministic events.
+   155→9. Expose the exact state consumed by the index and MARP.
+   156→10. Maintain reproducibility.
+   157→
+   158→Prove that the index and MARP actually consume the registry's canonical live-weight state.
+   159→
+   160→No module may independently reconstruct or silently override the live weight vector.
+   161→
+   162→---
+   163→
+   164→# 6. P0 — CANONICAL INDEX MATHEMATICAL RECONCILIATION
+   165→
+   166→## Problem
+   167→
+   168→The Master contains both:
+   169→
+   170→1. the aggregate valuation representation; and
+   171→2. the chain-linked recursive representation.
+   172→
+   173→The architecture explicitly requires these to reconcile into one published index.
+   174→
+   175→This reconciliation must now be CLOSED mathematically and operationally.
+   176→
+   177→## Required implementation
+   178→
+   179→Define one canonical index:
+   180→
+   181→I_t
+   182→
+   183→and formally define:
+   184→
+   185→* P_i,t
+   186→* P_i,t-1
+   187→* W_i,t-1
+   188→* W_i,t
+   189→* B_t^-
+   190→* B_t^+
+   191→* D_t
+   192→* G_t
+   193→* INDEX_BASE_DENOMINATOR
+   194→
+   195→The production specification must explicitly state:
+   196→
+   197→### Period return
+   198→
+   199→The index return for each period must use the weights that were actually in force at the beginning of the period.
+   200→
+   201→Implement:
+   202→
+   203→I_t = I_(t-1) × Σ_i [W_(i,t-1) × (P_(i,t) / P_(i,t-1))]
+   204→
+   205→subject to the exact fixed-point implementation and normalization rules.
+   206→
+   207→### Weight-change neutrality
+   208→
+   209→A change in weights must not itself generate an artificial index return.
+   210→
+   211→At a rebalance:
+   212→
+   213→D_t = B_t^- / B_t^+
+   214→
+   215→and:
+   216→
+   217→I_t^+ = D_t × B_t^+ = B_t^-
+   218→
+   219→where the exact valuation convention for B_t^- and B_t^+ is permanently documented.
+   220→
+   221→## Critical requirement
+   222→
+   223→Do NOT merely calculate and emit a divisor.
+   224→
+   225→Prove mathematically and by tests that:
+   226→
+   227→* the rebalance itself creates zero artificial return;
+   228→* the recursive representation and aggregate representation reconcile;
+   229→* cumulative divisor history is consistent;
+   230→* published index history can be independently reconstructed from public inputs;
+   231→* the same result is obtained off-chain and on-chain within documented fixed-point tolerance.
+   232→
+   233→## Required tests
+   234→
+   235→Test:
+   236→
+   237→1. no weight change;
+   238→2. small weight change;
+   239→3. large permitted weight change;
+   240→4. simultaneous price movement and weight change;
+   241→5. extreme gold movement;
+   242→6. multiple consecutive weight changes;
+   243→7. no-trade-zone days;
+   244→8. weight changes occurring between daily index updates;
+   245→9. rounding boundary conditions;
+   246→10. divisor accumulation over long periods.
+   247→
+   248→No production authorization until the reconciliation is mathematically closed.
+   249→
+   250→---
+   251→
+   252→# 7. P0 — CANONICAL RISK-STATE ENGINE
+   253→
+   254→The Master defines exactly six protocol states:
+   255→
+   256→S1 NORMAL
+   257→S2 CAUTION
+   258→S3 STRESS
+   259→S4 DEFENSIVE
+   260→S5 EMERGENCY
+   261→S6 RECOVERY
+   262→
+   263→Create ONE canonical risk-state function.
+   264→
+   265→No module may independently implement its own divergent classification logic.
+   266→
+   267→Define the canonical state function using:
+   268→
+   269→* RR
+   270→* LCR
+   271→* previous state
+   272→* recovery direction
+   273→* recovery confirmation period
+   274→* required hysteresis
+   275→
+   276→The worse applicable solvency/liquidity condition must bind.
+   277→
+   278→## Mandatory state boundaries
+   279→
+   280→NORMAL:
+   281→
+   282→RR ≥ 1.10 and LCR ≥ 1.00
+   283→
+   284→CAUTION:
+   285→
+   286→1.05 ≤ RR < 1.10 and applicable LCR condition
+   287→
+   288→STRESS:
+   289→
+   290→1.02 ≤ RR < 1.05 and applicable LCR condition
+   291→
+   292→DEFENSIVE:
+   293→
+   294→1.00 ≤ RR < 1.02 and applicable LCR condition
+   295→
+   296→EMERGENCY:
+   297→
+   298→RR < 1.00
+   299→
+   300→RECOVERY:
+   301→
+   302→Only under the exact recovery conditions defined by the Master.
+   303→
+   304→## Mandatory behavior
+   305→
+   306→S1:
+   307→
+   308→* normal minting
+   309→* normal redemption
+   310→* normal rebalancing
+   311→
+   312→S2:
+   313→
+   314→* minting throttled
+   315→* increased urgency
+   316→
+   317→S3:
+   318→
+   319→* minting paused
+   320→* redemption fee 0.50%
+   321→* emergency rebalancing posture
+   322→
+   323→S4:
+   324→
+   325→* redemption throttled
+   326→* redemption fee 1.00%
+   327→* forced rebalancing posture
+   328→
+   329→S5:
+   330→
+   331→* redemption paused
+   332→* circuit breakers engaged
+   333→* emergency council process
+   334→
+   335→S6:
+   336→
+   337→* gradual restoration
+   338→* controlled minting
+   339→* incremental fee reduction
+   340→
+   341→## Canonical-state invariant
+   342→
+   343→For identical state inputs:
+   344→
+   345→# Reserve Engine status
+   346→
+   347→# Protocol State status
+   348→
+   349→# Minting status
+   350→
+   351→# Redemption status
+   352→
+   353→# MARP status
+   354→
+   355→# Monitoring status
+   356→
+   357→Published status
+   358→
+   359→Create automated invariant tests proving this.
+   360→
+   361→---
+   362→
+   363→# 8. GOVERNANCE — FOUR-LAYER ENFORCEMENT
+   364→
+   365→Preserve the four governance layers:
+   366→
+   367→### Constitutional
+   368→
+   369→7/7 Multi-Sig
+   370→90-day timelock
+   371→
+   372→### Monetary
+   373→
+   374→DAO
+   375→51%
+   376→48-hour timelock
+   377→
+   378→### Risk
+   379→
+   380→Risk Council
+   381→4/7
+   382→24-hour timelock
+   383→
+   384→### Emergency
+   385→
+   386→Emergency Council
+   387→4/7
+   388→instant action
+   389→
+   390→## Required work
+   391→
+   392→Audit every parameter and assign exactly one governance class.
+   393→
+   394→Create/enforce the canonical:
+   395→
+   396→Parameter → Governance Layer → Authority → Timelock → Envelope
+   397→
+   398→mapping.
+   399→
+   400→No unregistered parameter may be changed.
+   401→
+   402→No governance body may modify a parameter belonging to another governance layer.
+   403→
+   404→No Emergency authority may shorten Constitutional or Monetary timelocks.
+   405→
+   406→No DAO vote may directly set an individual basket weight.
+   407→
+   408→No Risk Council action may bypass Constitutional constraints.
+   409→
+   410→No Emergency Council action may silently alter policy parameters.
+   411→
+   412→---
+   413→
+   414→# 9. ON-CHAIN VS OFF-CHAIN GOVERNANCE
+   415→
+   416→For every governance rule, explicitly classify whether it is:
+   417→
+   418→* cryptographically enforced on-chain;
+   419→* enforced by a dedicated governance contract;
+   420→* enforced by multisig configuration;
+   421→* operationally enforced;
+   422→* documented only.
+   423→
+   424→Do NOT describe an operational process as "on-chain enforced" unless the contract actually enforces it.
+   425→
+   426→The 90-day Constitutional mechanism must be treated especially carefully.
+   427→
+   428→Produce an enforcement matrix proving the actual control boundary.
+   429→
+   430→---
+   431→
+   432→# 10. MARP — SIX-LEVEL HIERARCHY
+   433→
+   434→Preserve the six execution levels:
+   435→
+   436→Level 0 — Monitor
+   437→Level 1 — Natural Flow
+   438→Level 2 — Drift Trigger
+   439→Level 3 — Risk Trigger
+   440→Level 4 — Structural Change
+   441→Level 5 — Emergency
+   442→
+   443→The system must calculate daily but must NOT trade merely because the calendar changed.
+   444→
+   445→Every trade must pass the required execution gates.
+   446→
+   447→Maintain:
+   448→
+   449→* no-trade zone;
+   450→* dynamic threshold;
+   451→* partial rebalancing;
+   452→* natural-flow netting;
+   453→* urgency;
+   454→* cost-benefit gate;
+   455→* liquidity cap;
+   456→* turnover cap;
+   457→* slippage guard;
+   458→* direction lock;
+   459→* emergency override where constitutionally permitted.
+   460→
+   461→The Master explicitly requires economically justified trading.
+   462→
+   463→---
+   464→
+   465→# 11. MARP EXECUTION FIDELITY AUDIT
+   466→
+   467→Verify that `executeRebalance()` really enforces the complete hierarchy.
+   468→
+   469→The implementation must not reduce MARP to:
+   470→
+   471→"if deviation > threshold, trade."
+   472→
+   473→The real decision path must include:
+   474→
+   475→1. reserve state refresh;
+   476→2. current canonical target/live state;
+   477→3. observed composition;
+   478→4. dynamic no-trade zone;
+   479→5. state/crisis modifiers;
+   480→6. direction lock;
+   481→7. liquidity cap;
+   482→8. turnover cap;
+   483→9. execution-cost estimation;
+   484→10. urgency;
+   485→11. economic benefit;
+   486→12. minimum benefit margin;
+   487→13. slippage protection;
+   488→14. route validation;
+   489→15. trade execution;
+   490→16. post-trade reserve update;
+   491→17. event emission;
+   492→18. state reevaluation.
+   493→
+   494→Any skipped control must be explicitly documented and justified.
+   495→
+   496→---
+   497→
+   498→# 12. REDEMPTION — NAV IS AUTHORITATIVE
+   499→
+   500→Redemption must remain NAV-based.
+   501→
+   502→Implement exactly:
+   503→
+   504→NAV_t = V_net,t / S_circ,t
+   505→
+   506→RedeemValueUSD = Y × NAV_t
+   507→
+   508→Then deduct the state-dependent redemption fee.
+   509→
+   510→The default exit remains proportional release of the actual reserve composition.
+   511→
+   512→Do NOT substitute P_MTQ for NAV.
+   513→
+   514→Do NOT price redemption directly from the index.
+   515→
+   516→## However — NEW REQUIRED ECONOMIC CONTROL
+   517→
+   518→Because liabilities are denominated using:
+   519→
+   520→L_t = S_circ,t × P_MTQ,t
+   521→
+   522→while redemption uses:
+   523→
+   524→NAV_t,
+   525→
+   526→create a dedicated **Index/NAV Divergence Analysis**.
+   527→
+   528→Measure:
+   529→
+   530→NAV_per_M_TQ − P_MTQ
+   531→
+   532→and the relative divergence.
+   533→
+   534→Define:
+   535→
+   536→* monitoring thresholds;
+   537→* reporting requirements;
+   538→* stress scenarios;
+   539→* circuit behavior where required;
+   540→* economic consequences;
+   541→* governance ownership.
+   542→
+   543→Do not alter the constitutional pricing doctrine without explicit source-of-truth approval.
+   544→
+   545→---
+   546→
+   547→# 13. RESERVE RATIO AND SOLVENCY MODEL
+   548→
+   549→Preserve:
+   550→
+   551→RR_t = V_net,t / L_t
+   552→
+   553→with:
+   554→
+   555→V_net,t = reserve value after asset-specific haircuts
+   556→
+   557→and:
+   558→
+   559→L_t = circulating supply × P_MTQ,t
+   560→
+   561→Verify all scaling and decimal conversions.
+   562→
+   563→No gross reserve value may accidentally be used where net reserve value is required.
+   564→
+   565→No Genesis Reserve balance may accidentally become a circulating liability.
+   566→
+   567→No reserve asset may be counted twice.
+   568→
+   569→No reserve asset may be simultaneously treated as unavailable collateral and immediately liquid collateral.
+   570→
+   571→---
+   572→
+   573→# 14. LCR VALIDATION
+   574→
+   575→Verify:
+   576→
+   577→LCR_t = LiquidAssets_t / StressRedemptionDemand_t
+   578→
+   579→and document exactly:
+   580→
+   581→* what assets are liquid;
+   582→* which haircuts apply;
+   583→* stress-redemption assumption;
+   584→* time horizon;
+   585→* whether tokenized gold is liquid or zero-liquidity under the current rule;
+   586→* how stress demand changes across risk states.
+   587→
+   588→Test low-liquidity conditions independently of RR.
+   589→
+   590→A protocol can have high RR and poor liquidity; the state engine must correctly reflect this.
+   591→
+   592→---
+   593→
+   594→# 15. CFO — COMPLETE SCALE SOLVENCY MODEL
+   595→
+   596→Build a deterministic monetary-economics model for at least:
+   597→
+   598→* $1M
+   599→* $10M
+   600→* $100M
+   601→* $1B
+   602→* $10B
+   603→* $100B
+   604→
+   605→of circulating MTQΣ.
+   606→
+   607→For every scale simulate:
+   608→
+   609→1. minting;
+   610→2. redemption;
+   611→3. fee accrual;
+   612→4. reserve growth;
+   613→5. asset haircuts;
+   614→6. index movement;
+   615→7. NAV movement;
+   616→8. liability growth;
+   617→9. RR;
+   618→10. LCR;
+   619→11. state transition;
+   620→12. buffer consumption;
+   621→13. rebalancing;
+   622→14. reserve replenishment;
+   623→15. recovery.
+   624→
+   625→Do not assume that minting automatically reduces RR.
+   626→
+   627→Do not assume that minting automatically preserves RR.
+   628→
+   629→Calculate the exact post-mint economics according to the actual minting mechanics.
+   630→
+   631→Produce a closed-form explanation wherever possible.
+   632→
+   633→---
+   634→
+   635→# 16. RR DECAY / SCALE RISK
+   636→
+   637→Explicitly investigate whether the protocol tends toward:
+   638→
+   639→RR → 1.00
+   640→
+   641→under sustained growth.
+   642→
+   643→Reproduce or reject the previous audit's scale table rather than accepting it automatically.
+   644→
+   645→For each growth scenario identify:
+   646→
+   647→* starting RR;
+   648→* post-mint RR;
+   649→* fee effect;
+   650→* haircut effect;
+   651→* reserve growth effect;
+   652→* liability effect;
+   653→* reserve replenishment;
+   654→* rebalancing effect;
+   655→* resulting risk state.
+   656→
+   657→Determine the maximum sustainable supply under each modeled regime.
+   658→
+   659→Do not market any calculated sustainable-supply result as guaranteed.
+   660→
+   661→---
+   662→
+   663→# 17. DYNAMIC BUFFER
+   664→
+   665→Verify the buffer implementation against the Master.
+   666→
+   667→Preserve:
+   668→
+   669→* BASE;
+   670→* STRESS;
+   671→* EMERGENCY behavior;
+   672→* gradual transitions;
+   673→* gold/fiat buffer split;
+   674→* first-loss waterfall;
+   675→* emergency behavior;
+   676→* recovery hysteresis.
+   677→
+   678→Ensure:
+   679→
+   680→buffer target setting
+   681→
+   682→does not bypass:
+   683→
+   684→MARP execution controls.
+   685→
+   686→A buffer transition must define a target; it must not secretly become an uncontrolled market order.
+   687→
+   688→---
+   689→
+   690→# 18. ORACLE SECURITY
+   691→
+   692→Audit all oracle dependencies.
+   693→
+   694→For every oracle verify:
+   695→
+   696→* source;
+   697→* freshness;
+   698→* confidence;
+   699→* deviation;
+   700→* failover;
+   701→* stale behavior;
+   702→* quorum;
+   703→* source independence;
+   704→* degraded mode;
+   705→* circuit breaker.
+   706→
+   707→Gold must use the canonical multi-source model.
+   708→
+   709→Do not allow a single AMM or venue to become the canonical gold price.
+   710→
+   711→Test:
+   712→
+   713→* stale primary;
+   714→* stale fallback;
+   715→* source disagreement;
+   716→* oracle manipulation;
+   717→* simultaneous source failure;
+   718→* gold market dislocation;
+   719→* executable/reference divergence.
+   720→
+   721→---
+   722→
+   723→# 19. GOLD-SPECIFIC RISK
+   724→
+   725→Perform dedicated tests for:
+   726→
+   727→+50% gold shock
+   728→+25% gold shock
+   729→−10% gold shock
+   730→−20% gold shock
+   731→−30% gold shock
+   732→
+   733→Also test:
+   734→
+   735→* sudden gold liquidity reduction;
+   736→* tokenized-gold issuer failure;
+   737→* physical-gold custody interruption;
+   738→* gold oracle disagreement;
+   739→* gold/reference/executable price divergence.
+   740→
+   741→The previous audit's claim that a +50% gold shock causes catastrophic failure must be independently reproduced.
+   742→
+   743→Do not assume the audit result is correct.
+   744→
+   745→Do not assume it is incorrect.
+   746→
+   747→Produce a reproducible result with exact inputs and formulas.
+   748→
+   749→---
+   750→
+   751→# 20. CRITICAL INDEX/GOLD TEST
+   752→
+   753→One mandatory test is:
+   754→
+   755→### Scenario
+   756→
+   757→Gold starts at:
+   758→
+   759→$2,500
+   760→
+   761→Gold weight:
+   762→
+   763→26%
+   764→
+   765→Then gold rises:
+   766→
+   767→+50%
+   768→
+   769→while other basket components remain constant.
+   770→
+   771→Calculate and verify:
+   772→
+   773→* each component contribution;
+   774→* total reference-index return;
+   775→* index level;
+   776→* reserve NAV;
+   777→* liability;
+   778→* RR;
+   779→* LCR;
+   780→* risk state;
+   781→* buffer state;
+   782→* MARP response.
+   783→
+   784→The result must be consistent across:
+   785→
+   786→* mathematical model;
+   787→* off-chain reference engine;
+   788→* smart-contract implementation.
+   789→
+   790→The result must not depend on accidental fixed-base weighting.
+   791→
+   792→---
+   793→
+   794→# 21. SECURITY AUDIT REQUIREMENTS
+   795→
+   796→Independently inspect the implementation for:
+   797→
+   798→* reentrancy;
+   799→* authorization failures;
+   800→* privilege escalation;
+   801→* incorrect role separation;
+   802→* stale oracle use;
+   803→* oracle manipulation;
+   804→* integer overflow/underflow;
+   805→* precision loss;
+   806→* division-by-zero;
+   807→* rounding exploits;
+   808→* price manipulation;
+   809→* MEV;
+   810→* slippage attacks;
+   811→* denial of service;
+   812→* keeper abuse;
+   813→* emergency-council abuse;
+   814→* governance bypass;
+   815→* timelock bypass;
+   816→* parameter bypass;
+   817→* reserve accounting errors;
+   818→* double-counting;
+   819→* supply accounting errors;
+   820→* Genesis Reserve accounting errors;
+   821→* improper pause semantics;
+   822→* recovery-state abuse;
+   823→* state-transition manipulation.
+   824→
+   825→Every finding must identify:
+   826→
+   827→Severity
+   828→Location
+   829→Attack/Failure mechanism
+   830→Impact
+   831→Exploitability
+   832→Required remediation
+   833→Regression test
+   834→
+   835→---
+   836→
+   837→# 22. HONEST STATUS — NO OVERSTATEMENT
+   838→
+   839→The honest-status system must distinguish:
+   840→
+   841→### Architecture specified
+   842→
+   843→from:
+   844→
+   845→### Implemented
+   846→
+   847→from:
+   848→
+   849→### Tested
+   850→
+   851→from:
+   852→
+   853→### Independently audited
+   854→
+   855→from:
+   856→
+   857→### Production authorized
+   858→
+   859→Do NOT mark a feature as implemented merely because an interface, placeholder, comment, or function name exists.
+   860→
+   861→A status flag must mean the underlying capability actually works.
+   862→
+   863→Do NOT allow `getHonestStatus()` or equivalent functions to claim:
+   864→
+   865→* chain-linking implemented;
+   866→* MASE registry implemented;
+   867→* MARP implemented;
+   868→* DAO governance implemented;
+   869→* oracle architecture implemented;
+   870→* validation passed;
+   871→
+   872→unless the underlying requirement is actually evidenced.
+   873→
+   874→---
+   875→
+   876→# 23. HONEST-STATUS EVIDENCE MODEL
+   877→
+   878→Every implementation-status claim must map to evidence:
+   879→
+   880→Feature
+   881→→ Source section
+   882→→ Contract/module
+   883→→ Test suite
+   884→→ Test result
+   885→→ Artifact/version
+   886→→ Evidence hash
+   887→
+   888→Create an evidence registry.
+   889→
+   890→The final honest-status system must support at minimum:
+   891→
+   892→* feature status;
+   893→* validation-gate status;
+   894→* evidence hash;
+   895→* timestamp;
+   896→* implementation version;
+   897→* methodology version;
+   898→* data version.
+   899→
+   900→Do not use hexadecimal feature flags as marketing claims.
+   901→
+   902→If a feature is partially implemented, report:
+   903→
+   904→PARTIAL
+   905→
+   906→rather than TRUE.
+   907→
+   908→If it is specified but not implemented:
+   909→
+   910→SPECIFIED_ONLY
+   911→
+   912→If implemented but not validated:
+   913→
+   914→IMPLEMENTED_UNVALIDATED
+   915→
+   916→If independently verified:
+   917→
+   918→VALIDATED
+   919→
+   920→If approved for production:
+   921→
+   922→PRODUCTION_AUTHORIZED
+   923→
+   924→These statuses are conceptually preferable to binary claims where appropriate.
+   925→
+   926→Do not remove the existing honest-status architecture; improve its fidelity.
+   927→
+   928→---
+   929→
+   930→# 24. TESTING ARCHITECTURE
+   931→
+   932→Create a complete layered test suite.
+   933→
+   934→## Layer 1 — Unit tests
+   935→
+   936→Every formula and contract function.
+   937→
+   938→## Layer 2 — Module tests
+   939→
+   940→MASE
+   941→Index
+   942→Oracle
+   943→Reserve
+   944→Buffer
+   945→MARP
+   946→Mint
+   947→Redeem
+   948→Risk State
+   949→Governance
+   950→
+   951→## Layer 3 — Cross-module invariant tests
+   952→
+   953→Prove:
+   954→
+   955→* index uses canonical weights;
+   956→* MARP uses canonical target/live states;
+   957→* reserve uses canonical prices;
+   958→* liability uses canonical index price;
+   959→* redemption uses NAV;
+   960→* risk state uses canonical RR/LCR;
+   961→* governance permissions are correct.
+   962→
+   963→## Layer 4 — Economic tests
+   964→
+   965→Minting
+   966→Redemption
+   967→Growth
+   968→Fees
+   969→Reserve losses
+   970→Haircuts
+   971→Liquidity shocks
+   972→
+   973→## Layer 5 — adversarial tests
+   974→
+   975→Oracle failure
+   976→Governance attack
+   977→MEV
+   978→Slippage
+   979→State manipulation
+   980→Reentrancy
+   981→Authorization abuse
+   982→Rounding attack
+   983→
+   984→## Layer 6 — historical/backtest tests
+   985→
+   986→Use the formal validation methodology defined by Chapter 23.
+   987→
+   988→## Layer 7 — stochastic stress testing
+   989→
+   990→Monte Carlo
+   991→Fat tails
+   992→Regime switching
+   993→Correlation collapse
+   994→Liquidity collapse
+   995→Gold shocks
+   996→Stable-value failures
+   997→
+   998→---
+   999→
+  1000→# 25. REPRODUCIBLE STRESS TEST ENGINE
+  1001→
+  1002→The stress framework must publish:
+  1003→
+  1004→* scenario;
+  1005→* assumptions;
+  1006→* parameter version;
+  1007→* methodology version;
+  1008→* data version;
+  1009→* random seed;
+  1010→* starting state;
+  1011→* path count;
+  1012→* result;
+  1013→* survival definition;
+  1014→* failure definition.
+  1015→
+  1016→Never publish survival percentages without enough metadata to reproduce them.
+  1017→
+  1018→The previous audit results must therefore be independently reproducible before they become accepted project facts.
+  1019→
+  1020→---
+  1021→
+  1022→# 26. VALIDATION GATES
+  1023→
+  1024→Do not declare production readiness until the required validation gates are explicitly satisfied.
+  1025→
+  1026→Maintain the Master validation-gate architecture, including:
+  1027→
+  1028→* Smart Contract Audit
+  1029→* Independent Model Validation
+  1030→* Sharia Certification
+  1031→* Legal Opinion
+  1032→* Public Testnet Deployment
+  1033→* Penetration Testing
+  1034→* Institutional Review
+  1035→* Liquidity Bootstrapping
+  1036→* Governance Launch
+  1037→* Community Stress Test
+  1038→* Mainnet Deployment Approval
+  1039→
+  1040→A passing code test is NOT equivalent to production approval.
+  1041→
+  1042→A passing stress test is NOT equivalent to legal approval.
+  1043→
+  1044→A legal opinion is NOT equivalent to smart-contract security.
+  1045→
+  1046→Each gate remains independent.
+  1047→
+  1048→---
+  1049→
+  1050→# 27. IMPLEMENTATION-FIDELITY MATRIX
+  1051→
+  1052→Create a master table with one row for every material requirement.
+  1053→
+  1054→Columns:
+  1055→
+  1056→1. Requirement ID
+  1057→2. Master section
+  1058→3. Requirement
+  1059→4. Mathematical definition
+  1060→5. Contract/module
+  1061→6. Function
+  1062→7. Governance owner
+  1063→8. On-chain enforced?
+  1064→9. Test coverage
+  1065→10. Current status
+  1066→11. Evidence
+  1067→12. Audit finding reference
+  1068→13. Remediation
+  1069→14. Residual risk
+  1070→15. Production gate
+  1071→
+  1072→Every item must be classified.
+  1073→
+  1074→---
+  1075→
+  1076→# 28. THIRD-PARTY AUDIT RECONCILIATION TABLE
+  1077→
+  1078→Create a dedicated table:
+  1079→
+  1080→| Audit Finding | Current Master Status | Verdict | Reason | Required Action |
+  1081→| ------------- | --------------------- | ------- | ------ | --------------- |
+  1082→
+  1083→At minimum reconcile:
+  1084→
+  1085→### Audit P0-1
+  1086→
+  1087→"Chain-linking defect"
+  1088→
+  1089→Expected classification:
+  1090→
+  1091→**Not accepted as stated if current implementation faithfully matches Listing 3.**
+  1092→
+  1093→Instead investigate and close:
+  1094→
+  1095→**Canonical index/divisor reconciliation**
+  1096→
+  1097→### Audit P0-2
+  1098→
+  1099→"Redemption priced against P_MTQ"
+  1100→
+  1101→Expected classification:
+  1102→
+  1103→**Not accepted as stated against current Master.**
+  1104→
+  1105→Current Master explicitly defines NAV-based redemption.
+  1106→
+  1107→Instead investigate:
+  1108→
+  1109→**NAV vs P_MTQ divergence and economic consequences.**
+  1110→
+  1111→### Audit P0-3
+  1112→
+  1113→"STRESS state missing"
+  1114→
+  1115→Expected classification:
+  1116→
+  1117→**Not accepted as stated if current Master implementation is used.**
+  1118→
+  1119→Verify all six states and create a canonical state engine.
+  1120→
+  1121→### Audit P0-4
+  1122→
+  1123→"Only one governance layer"
+  1124→
+  1125→Expected classification:
+  1126→
+  1127→**Not accepted as stated if current GovernanceParameterRegistry and associated governance contracts are complete.**
+  1128→
+  1129→Verify actual deployed/on-chain enforcement separately from specification.
+  1130→
+  1131→### Audit honest-status finding
+  1132→
+  1133→Treat as:
+  1134→
+  1135→**Requires implementation/deployment evidence.**
+  1136→
+  1137→Do not accept or reject solely from prose.
+  1138→
+  1139→### Audit stress results
+  1140→
+  1141→Treat exact percentages as:
+  1142→
+  1143→**Unverified until independently reproduced.**
+  1144→
+  1145→---
+  1146→
+  1147→# 29. NO SILENT ARCHITECTURAL CHANGE
+  1148→
+  1149→Do not make any architectural modification that changes:
+  1150→
+  1151→* the meaning of MTQΣ;
+  1152→* PAR;
+  1153→* constitutional separation;
+  1154→* adaptive methodology principle;
+  1155→* NAV redemption doctrine;
+  1156→* reserve backing doctrine;
+  1157→* four governance layers;
+  1158→* six risk states;
+  1159→* chain-linked index principle;
+  1160→* honest-status principle;
+  1161→
+  1162→without explicitly documenting:
+  1163→
+  1164→Old Rule
+  1165→New Rule
+  1166→Reason
+  1167→Risk
+  1168→Impact
+  1169→Affected Contracts
+  1170→Affected Tests
+  1171→Source-of-Truth Version
+  1172→
+  1173→---
+  1174→
+  1175→# 30. FIXED-POINT / DECIMAL AUDIT
+  1176→
+  1177→Perform a complete mathematical precision review.
+  1178→
+  1179→Audit every operation involving:
+  1180→
+  1181→* 1e18;
+  1182→* oracle decimals;
+  1183→* USD values;
+  1184→* gold prices;
+  1185→* FX rates;
+  1186→* weights;
+  1187→* ratios;
+  1188→* fee percentages;
+  1189→* slippage;
+  1190→* NAV;
+  1191→* RR;
+  1192→* LCR;
+  1193→* index;
+  1194→* divisor;
+  1195→* supply.
+  1196→
+  1197→For every equation identify:
+  1198→
+  1199→* input scale;
+  1200→* internal scale;
+  1201→* output scale;
+  1202→* multiplication order;
+  1203→* division order;
+  1204→* rounding direction;
+  1205→* maximum rounding error.
+  1206→
+  1207→Create deterministic boundary tests.
+  1208→
+  1209→---
+  1210→
+  1211→# 31. SUPPLY ACCOUNTING AUDIT
+  1212→
+  1213→Verify:
+  1214→
+  1215→totalSupply
+  1216→circulatingSupply
+  1217→Genesis Reserve
+  1218→minting
+  1219→burning
+  1220→redemption
+  1221→reserve transfer
+  1222→
+  1223→are mathematically consistent.
+  1224→
+  1225→Prove:
+  1226→
+  1227→circulatingSupply
+  1228→
+  1229→never includes non-circulating Genesis Reserve holdings.
+  1230→
+  1231→Prove:
+  1232→
+  1233→liability
+  1234→
+  1235→never includes non-circulating Genesis Reserve tokens.
+  1236→
+  1237→---
+  1238→
+  1239→# 32. RESERVE ASSET REGISTRY
+  1240→
+  1241→Verify that production accounting does not remain hard-coded to only the genesis assets where the architecture requires registry-based extensibility.
+  1242→
+  1243→The Asset Admission Registry must become the source of truth for permitted reserve instruments where specified.
+  1244→
+  1245→For every admitted reserve instrument define:
+  1246→
+  1247→* asset ID;
+  1248→* issuer;
+  1249→* chain;
+  1250→* custody;
+  1251→* oracle;
+  1252→* liquidity classification;
+  1253→* haircut;
+  1254→* eligibility status;
+  1255→* concentration limit;
+  1256→* operational state.
+  1257→
+  1258→Any transitional genesis-specific implementation must be clearly labeled transitional and not misrepresented as fully generalized production behavior.
+  1259→
+  1260→---
+  1261→
+  1262→# 33. INDEX/RESERVE SEPARATION TEST
+  1263→
+  1264→Prove that:
+  1265→
+  1266→W_Index ≠ W_Reserve
+  1267→
+  1268→is allowed and intentional.
+  1269→
+  1270→Test:
+  1271→
+  1272→* different index weights and reserve weights;
+  1273→* reserve rebalancing;
+  1274→* gold reserve changes;
+  1275→* stablecoin composition changes.
+  1276→
+  1277→Verify that reserve changes do NOT automatically rewrite historical index methodology.
+  1278→
+  1279→Verify that index changes do NOT require mechanical replication of the reserve.
+  1280→
+  1281→---
+  1282→
+  1283→# 34. NATURAL-FLOW REBALANCING
+  1284→
+  1285→Preserve Level 1 natural-flow logic.
+  1286→
+  1287→Measure:
+  1288→
+  1289→* mint inflows;
+  1290→* redemption outflows;
+  1291→* fees;
+  1292→* yield/interest;
+  1293→* asset inflows/outflows.
+  1294→
+  1295→Compute:
+  1296→
+  1297→TradeNeeded_i = TargetGap_i − CF_i,t
+  1298→
+  1299→before executing market trades.
+  1300→
+  1301→Prove that the system does not perform an unnecessary market trade where natural flows sufficiently close the deviation.
+  1302→
+  1303→---
+  1304→
+  1305→# 35. ECONOMIC COST-BENEFIT GATE
+  1306→
+  1307→Verify:
+  1308→
+  1309→Cost_i =
+  1310→Spread_i
+  1311→+
+  1312→Slippage_i
+  1313→+
+  1314→Fees_i
+  1315→+
+  1316→Impact_i
+  1317→+
+  1318→OperationalCost_i
+  1319→
+  1320→and:
+  1321→
+  1322→NetBenefit_i =
+  1323→Benefit_i − Cost_i
+  1324→
+  1325→Trade only when the defined margin requirement is satisfied.
+  1326→
+  1327→The implementation must not execute simply because the portfolio is outside target.
+  1328→
+  1329→---
+  1330→
+  1331→# 36. EMERGENCY AUTHORITY
+  1332→
+  1333→Emergency powers must remain narrow.
+  1334→
+  1335→Verify that Emergency Council can perform only the actions explicitly authorized by the Master.
+  1336→
+  1337→Emergency authority must not become a backdoor to:
+  1338→
+  1339→* changing weights;
+  1340→* changing methodology;
+  1341→* lowering hard floors;
+  1342→* bypassing governance;
+  1343→* modifying historical index values;
+  1344→* rewriting accounting;
+  1345→* hiding evidence.
+  1346→
+  1347→Every emergency action must:
+  1348→
+  1349→* emit an event;
+  1350→* identify authority;
+  1351→* identify action;
+  1352→* identify timestamp;
+  1353→* preserve monitoring;
+  1354→* remain subject to recovery logic.
+  1355→
+  1356→---
+  1357→
+  1358→# 37. PRODUCTION READINESS CLASSIFICATION
+  1359→
+  1360→At the end, calculate separate scores for:
+  1361→
+  1362→1. Architectural completeness
+  1363→2. Mathematical completeness
+  1364→3. Smart-contract fidelity
+  1365→4. Security
+  1366→5. Economic sustainability
+  1367→6. Oracle resilience
+  1368→7. Risk-state correctness
+  1369→8. Governance enforcement
+  1370→9. Test coverage
+  1371→10. Reproducibility
+  1372→11. Transparency
+  1373→12. Legal/regulatory readiness
+  1374→13. Operational readiness
+  1375→14. Production authorization readiness
+  1376→
+  1377→Do not collapse everything into one score.
+  1378→
+  1379→Provide:
+  1380→
+  1381→### Architecture Score
+  1382→
+  1383→### Implementation Score
+  1384→
+  1385→### Security Score
+  1386→
+  1387→### Economic Score
+  1388→
+  1389→### Validation Score
+  1390→
+  1391→### Production Readiness Score
+  1392→
+  1393→---
+  1394→
+  1395→# 38. STOP CONDITIONS
+  1396→
+  1397→The implementation MUST remain:
+  1398→
+  1399→**NOT PRODUCTION AUTHORIZED**
+  1400→
+  1401→if any of the following remain unresolved:
+  1402→
+  1403→* canonical index reconciliation;
+  1404→* canonical risk-state inconsistency;
+  1405→* critical accounting error;
+  1406→* unbounded governance bypass;
+  1407→* critical oracle vulnerability;
+  1408→* critical redemption/minting inconsistency;
+  1409→* unresolved reserve insolvency path;
+  1410→* broken supply accounting;
+  1411→* critical security vulnerability;
+  1412→* unverifiable honest-status claims;
+  1413→* missing mandatory production validation evidence.
+  1414→
+  1415→---
+  1416→
+  1417→# 39. DELIVERABLES
+  1418→
+  1419→Produce all of the following.
+  1420→
+  1421→## A. Implementation Reconciliation Report
+  1422→
+  1423→Complete source-to-code mapping.
+  1424→
+  1425→## B. Audit Reconciliation Report
+  1426→
+  1427→Every third-party finding classified as:
+  1428→
+  1429→CONFIRMED
+  1430→MODIFIED
+  1431→SUPERSEDED
+  1432→UNPROVEN
+  1433→NEW
+  1434→
+  1435→## C. Mathematical Closure Report
+  1436→
+  1437→Especially:
+  1438→
+  1439→* index recursion;
+  1440→* divisor;
+  1441→* aggregate valuation;
+  1442→* NAV;
+  1443→* liability;
+  1444→* RR;
+  1445→* LCR;
+  1446→* state machine;
+  1447→* minting;
+  1448→* redemption;
+  1449→* buffer.
+  1450→
+  1451→## D. Canonical State Machine Specification
+  1452→
+  1453→One authoritative state function consumed by all modules.
+  1454→
+  1455→## E. Governance Enforcement Matrix
+  1456→
+  1457→Parameter → Layer → Authority → Timelock → Enforcement.
+  1458→
+  1459→## F. CFO Solvency Model
+  1460→
+  1461→At every required scale and stress condition.
+  1462→
+  1463→## G. Reproducible Stress-Test Package
+  1464→
+  1465→Including seeds and parameter/data versions.
+  1466→
+  1467→## H. Security Findings
+  1468→
+  1469→Severity-ranked with remediation and regression tests.
+  1470→
+  1471→## I. Honest Status Report
+  1472→
+  1473→No feature may be overstated.
+  1474→
+  1475→## J. Production Readiness Dashboard
+  1476→
+  1477→Clearly showing:
+  1478→
+  1479→GREEN
+  1480→AMBER
+  1481→RED
+  1482→BLOCKED
+  1483→
+  1484→for each subsystem.
+  1485→
+  1486→---
+  1487→
+  1488→# 40. FINAL COO DECISION RULE
+  1489→
+  1490→The objective is NOT:
+  1491→
+  1492→"make the audit report happy."
+  1493→
+  1494→The objective is:
+  1495→
+  1496→**make MTQΣ internally consistent, mathematically closed, economically survivable, secure, reproducible, honest, and faithfully implemented according to the current Master v1.0 source of truth.**
+  1497→
+  1498→Where the previous audit identifies an obsolete defect, do not reintroduce it.
+  1499→
+  1500→Where the audit identifies a real underlying risk, preserve and improve the finding.
+  1501→
+  1502→Where the Master itself contains an inconsistency, resolve it explicitly and version the resolution.
+  1503→
+  1504→Where evidence is missing, classify it as missing evidence rather than assuming success.
+  1505→
+  1506→Where the implementation is only partially complete, report PARTIAL.
+  1507→
+  1508→Where validation has not occurred, report UNVALIDATED.
+  1509→
+  1510→Where a requirement is specified but not enforced, report SPECIFIED-ONLY.
+  1511→
+  1512→Where production criteria are not met, keep the system **NOT PRODUCTION-AUTHORIZED**.
+  1513→
+  1514→The final implementation must be able to answer, deterministically and with evidence:
+  1515→
+  1516→> "What is MTQΣ doing right now, why is it doing it, which mathematical state produced that decision, which authority governs the rule, what reserves back it, what liabilities exist, what risks remain, and can an independent auditor reproduce the result?"
+  1517→
+  1518→No production authorization should be claimed unless that question can be answered from the system itself.
+  1519→

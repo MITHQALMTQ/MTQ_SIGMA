@@ -1,0 +1,200 @@
+- Final tokenomics score: 68/100 (Strong specification, weak implementation alignment, sustainability gap).
+- Top 3 tokenomics risks (executive): (1) RR decay — at ~$25M minted RR hits STRESS 1.05, at ~$110M RR ≈ 1.01, at ~$1B RR ≈ 1.002; no auto-rebalancing in the contract; (2) fee accounting mismatch with §20.4 — fees sit in reserveVault, inflating reported RR by 10–25 bps; (3) EMERGENCY redemption not paused — death spiral possible under combined USDC depeg + gold crash + oracle failure; blueprint §21.4 explicitly pauses redeem in S5 EMERGENCY, contract does not.
+- RR decay math (specific numbers, blueprint-intended design with fees → Operational Wallet, P_MTQ = 1.0):
+  * X = $1M minted  → RR = 2.1011
+  * X = $5M minted  → RR = 1.2202
+  * X = $10M minted → RR = 1.1101
+  * X = $11M minted → RR = 1.1001 (re-equilibrates at TARGET)
+  * X = $25M minted → RR = 1.0440 (STRESS, 5-state CAUTION; 6-state STRESS)
+  * X = $50M minted → RR = 1.0220
+  * X = $110M minted → RR = 1.0100 (5-state DEFENSIVE; 6-state DEFENSIVE)
+  * X = $1B minted  → RR = 1.0011 (approaching HARD floor)
+- No code modified — READ-ONLY audit. The audit-d-tokenomics.md report is the sole deliverable.
+- Outstanding (next actions for protocol owner): (1) wire Operational Wallet + Cold Treasury + sweep function into MTQSigmaV2.sol; (2) implement redemption pause in EMERGENCY + add the missing STRESS state for the 6-state machine; (3) implement getLCR() in MTQSigmaV2.sol; (4) fix BASE_CHF_USD = 1.13e18 in both the contract and the engine (currently 0.88); (5) make getHonestStatus() dynamic; (6) document the genesis distribution plan + the 7/7 Constitutional Multi-Sig signer selection process; (7) document the dynamic-mint-fee proposal (rising with inverse RR) to address F-RR-01.
+
+---
+Task ID: AUDIT-B
+Agent: general-purpose
+Task: Top-tier static security + tokenomics + 0x7FF audit of contracts/MTQSigmaV2.sol against the MTQΣ Master Monetary Architecture v1.0 blueprint
+
+Work Log:
+- Read prior worklog (Tasks 1–AI Features) to confirm scope, deployed contract addresses (v1.2 pilot at 0x826b82F79FD6c5347cDC568B1d0A7918128B63c1), and the v1.0 source-ready PENDING manifest.
+- Read the primary audit target end-to-end: contracts/MTQSigmaV2.sol (1057 lines, Solidity ^0.8.20, single-file no-import direct-deploy ERC-20). Cross-referenced contracts/MTQSigma.sol (v1.2 pilot, 345 lines), contracts/deployments/MTQSigmaV2-PENDING.json (43-line manifest), src/lib/mtq/blueprint.ts (272-line constants reference), and audit-work/blueprint-v1.0.txt (21,227-line extracted master blueprint).
+- Verified the canonical blueprint context for each audit-checklist item:
+  * §8.1 admissibility envelopes (blueprint-v1.0.txt lines 2922–2938): USD 23–32%, EUR 17–24%, JPY 7–12%, GBP 6–11%, CNY 3–7%, CHF 3–7%, Gold 20–32%. Contract constants at lines 226–232 match EXACTLY.
+  * §11.5.3 direction-lock override (lines 5188–5215): "overridden if the reserve ratio drops below 1.05 (Stress Mode) … solvency outranks anti-churn." Contract's executeRebalance (lines 624–631) implements the lock but NOT the override → CRITICAL finding C4.
+  * §22.3 four governance layers (lines 16703–16752): Constitutional 7/7 + 90d, Monetary DAO 51% + 48h, Risk 4/7 + 24h, Emergency 4/7 instant. Contract has only the Monetary 48h timelock (lines 300–324, 895–945) → CRITICAL finding C3, bit-9 overstated.
+  * §9.2/§9.3 chain-linked index (lines 4060–4140, especially line 4090 `updateIndex()` and line 3972 `chainLinkDivisor` "cumulative product of D_t"): the blueprint's recursive `I_t = I_{t-1} × Σ W_{i,t-1}·(P_{i,t}/P_{i,t-1})` form. Contract has only an immutable `GFB_BASE_DENOMINATOR` (line 182, set once in constructor at lines 364–372) and a fresh-eval `getGFB()` (lines 420–431) — a fixed-base Laspeyres index, not a chain-linked recursive index → CRITICAL finding C2, bit-3 overstated.
+  * §10.3 MARP 6-level hierarchy (lines 4507–4616): Levels 0–5 = Monitor / Natural Flow / Drift Trigger / Risk Trigger / Structural Change / Emergency. Contract's RebalanceTrade.level (line 256) is encoded as 1–6 (off-by-one) and is a free keeper-supplied input — the contract does NOT enforce the hierarchy gates → MEDIUM finding M2, contributes to bit-6 being overstated.
+  * §20.4 fee accrual (line 13338: "Fees accrue to the Operational Wallet") and line 14178 ("assets in the Operational Wallet and Cold Treasury are not counted toward the Reserve Ratio"). Contract commingles fees with collateral in a single reserveVault (line 473) → LOW finding L5.
+- Ran the audit checklist (14 sections, ~80 sub-items) covering ERC-20 correctness, inline AccessControl, Pausable, reentrancy (CEI per function), the IOracleAdapter try/catch + §9.2 staleness/confidence/deviation + §9.3 median(3)/average(2)/paused(<2) consensus, the MASE Weight Registry (commitWeights + admissibility envelopes + per-component consistency + sum-to-1 invariant), MARP executeRebalance (24h direction lock, daily turnover cap, 5pp tolerance, RR<1.05 override), mint/redeem (decimal scaling 1e12 both directions, status throttle, fee schedule), genesis + reserve (one-shot, collateral backing, vault zero-check, bootstrap overwrite), DAO timelock (queueChange/executeChange/cancelChange, parameter keys), getHonestStatus bit-by-bit, tokenomics (CFO view), gas/DoS, and upgradeability.
+- Compiled the contract: `npx solcjs contracts/MTQSigmaV2.sol --bin` → clean compile, single warning (Spurious Dragon 24KB limit exceeded without optimizer — 39,011 bytes; manifest correctly mandates runs=200 to fit ~22.6KB). No errors. No code was modified during the audit (READ-ONLY mode).
+- Wrote the audit report to /home/z/my-project/audit-work/audit-b-smart-contract.md (1198 lines).
+
+Stage Summary:
+- Findings: 30 total — 6 Critical, 8 High, 8 Medium, 6 Low, 5 Informational.
+- 0x7FF honesty verdict: of 11 claimed bits, 7 are truly implemented (bits 0, 1, 2, 5, 7, 8, 10) and 4 are OVERSTATED (bit 3 chainLinkedIndex — fixed-base not recursive; bit 4 maseWeightRegistry — stored but not consumed by getGFB(); bit 6 marpExecution — engine present but §10 6-level hierarchy not enforced and §11.5.3 RR<1.05 override missing; bit 9 daoGovernance — 1 of 4 layers only). Honest mask = 0x5A7, not 0x7FF. Strict interpretation (clearing bits 7/8 until registry/adapters are actually wired at deploy time) drops the honest mask to 0x427.
+- Top 3 critical findings: (C1) MASE weights committed via commitWeights but never consumed by getGFB() — the index always uses immutable Strategic Prior weights, breaking Invariant I3/I6; (C2) "chain-linked index" is actually a fixed-base index with no recursive I_t advance; (C4) executeRebalance missing §11.5.3 RR<1.05 direction-lock override — a solvency hazard under stress that traps the protocol away from its target exactly when correction matters most.
+- Other criticals: (C3) DAO governance implements only the Monetary 48h tier — missing Constitutional 90d, Risk 24h, Emergency instant; (C5) genesisMint(0) permanently locks the protocol at zero genesis (no require(amount > 0)); (C6) two colluding oracle adapters can pin any pair to 0 (no per-pair price floor, no require(p > 0) in commitFxRatesFromOracles).
+- Final score: 62/100 — Security 62, Tokenomics 68, Blueprint conformance 55, Honesty 36 (4/11 bits overstated). Contract is NOT production-authorized.
+- Remediation priority: C1 → C2 → C4 → C3 → C5 → C6 → H1 → H8 → H2 → H3 → H4 → H5 → H6 → H7. Minimum acceptable for public testnet: fix C5/H1/H3/H8/H4 and reduce the honest mask to 0x5A7 (so the contract is internally honest about what it implements, even though it's not yet a full v1.0 implementation).
+- Verification: report exists (wc -l = 1198 lines), header + executive summary confirmed, contract compiles cleanly under solc 0.8.20 with one Spurious Dragon warning (mitigated by optimizer runs=200 per manifest). No code modified.
+
+---
+Task ID: AUDIT-A
+Agent: general-purpose
+Task: Top-tier static code audit — TS engine vs v1.0 Master Blueprint, line-by-line (READ-ONLY, no code modified)
+
+Work Log:
+- Read worklog.md (1,441 lines) to understand prior work: Tasks 1–4 (architecture/engine/registry/foundation), 8 (frontend), P1-A/P1-B/P1-C (AI integration), and earlier audit (audit-d-tokenomics.md which already flagged CHF base fixing 0.88 vs 1.13 and the 5-vs-6-state issue).
+- Verified audit-work directory contains blueprint-v1.0.txt (21,227 lines, confirmed via wc -l) and blueprint-v1.2.txt (3,270 lines).
+- Read all 8 in-scope TS engine files in full:
+  * src/lib/mtq/blueprint.ts (272 lines)
+  * src/lib/mtq/engine.ts (1,836 lines — larger than task brief's stated 1,446)
+  * src/lib/mtq/mase.ts (290 lines)
+  * src/lib/mtq/marp.ts (155 lines)
+  * src/lib/mtq/oracle.ts (201 lines)
+  * src/lib/mtq/registry.ts (166 lines)
+  * src/lib/mtq/fx.ts (154 lines)
+  * src/lib/mtq/pilot-state.ts (382 lines)
+  (brand.ts skipped per task brief — not monetary. audit-trail.ts was read for §24.4 verification only — not in formal audit scope but called from pilot-state.ts.)
+- Extracted the authoritative blueprint v1.0 sections via Grep tool (no bash grep/find used): §2.6 Invariants (line 1328), §3.2 Strategic Prior (1813), §3.4 Genesis (1892), §5 MASE Input Signals (2196), §6 Candidate Models (2357), §7 Composite MASE (2513), §7.6 Adaptive Weights (2622), §8.1 Envelopes (2904), §9.2 Chain-Linked Index (3343), §10.3 MARP Hierarchy (4507), §11.2 Deviation (5017), §11.3 Trigger Conditions (5051), §11.5 Execution Constraints + Direction Lock (5145), §13.3 Gold Separation (7704), §14.1 NAV Haircuts (8100), §14.2 Three Floors (8204), §14.4 Gold-Cost Rule (8391), §16.2 Buffer States (9920), §16.4 First-Loss Waterfall (10076), §17.3 Oracle Validation (10933), §17.6 Gold Confidence (11149), §19.1 Mint/Redeem Doctrine (13082), §19.2.2/19.3.2 step-by-step (13173/13312), §21.2 Six Risk States (14989), §22.3 Four Governance Layers (16703), §24.4 Decision Log (18367), §25 Honest Status (18523).
+- Verified the 5 critical known findings from the task brief:
+  1. REDEMPTION PRICING CONTRADICTION: CONFIRMED — engine.ts:933 `grossUsd = inputMtq * price` prices redemption against P_MTQ (GFB index), NOT against NAV_t as required by §2.6 I6, §19.1, §19.3.2 Step 2, §25.4 Honest Status Table. The engine's REDEMPTION_POLICY justifies this as a "§3.4.2 vs §12.2 reconciliation" — but §3.4.2 of v1.0 contains no redemption-pricing doctrine (it's "Genesis Weight Initialization"). The engine appears to have carried over the v1.2 behavior (v1.2 blueprint line 433: `RedeemValueUSD = Y × P_{MTQ,t}`) and mis-attributed the contradiction. P0.
+  2. 5 vs 6 RISK STATES: CONFIRMED — engine.ts:464-470 `determineStatus` has only 5 branches (NORMAL/CAUTION/DEFENSIVE/EMERGENCY/RECOVERY); blueprint.ts:182-190 RISK_STATE_MACHINE table also has only 5 entries. The 1.02 ≤ RR < 1.05 range (S3 STRESS per §21.2) is collapsed into DEFENSIVE. §21.3 48h-sustained-confirmation transition logic entirely missing. P0.
+  3. ENSEMBLE WEIGHTS: CONFIRMED — mase.ts:215-217 `maseEnsemble` uses `1/models.length` equal weight; code comment explicitly says "In the pilot: equal-weight ensemble; Production: ensemble weights adapt based on model performance." §7.6 requires softmax of OOS performance scores. P1 (acknowledged deferral).
+  4. DIRECTION LOCK OVERRIDE: PARTIAL — legacy `evaluateRebalance` (engine.ts:519-524) CORRECTLY implements same-direction block + RR<1.05 override (`inStress = rr < RR_STRESS`). But the MARP path `applyMarpRebalance` (engine.ts:755-762) INVERTS the lock (blocks opposite-direction reaction instead of same-direction repetition) AND lacks the RR<1.05 override. Latent bug — MARP execution is feature-flagged off (USE_MARP_EXECUTION=false in pilot-state.ts:63). P1.
+  5. GOLD SEPARATION: CONFIRMED — engine.ts:140-176, 195-230 provides accounting split (indexPaxg/indexXaut vs reservePaxg/reserveXaut) + commitIndexGold() keeper function. But `buildMaseSnapshot` (engine.ts:1393-1416) uses the MASE gold target (smoothed) as the reserve gold rebalance target via marpDecision(observed, smoothed, …). §13.3 explicitly forbids: "the gold index weight is not a reserve target." Engines are NOT independent — accounting separation only. P1.
+- Additional findings beyond the 5 known:
+  * §9.2 chain-linked index NOT implemented — engine.ts:347-361 `computeGfbIndex` is a static Laspeyres-style aggregate using STRATEGIC_PRIOR; the recursive form `I_t = I_{t-1} × Σ W_{i,t-1} × P_{i,t}/P_{i,t-1}` and §9.3 chain-link divisor are both absent. MASE target weights never flow into the index. P1.
+  * §17.6 gold oracle confidence mathematics NOT implemented — oracle.ts outputs only `paused: boolean` + `spreadBps`; no `Confidence_G` score, no f(SourceAgreement, Freshness, Liquidity, Deviation, SourceCoverage) geometric aggregate, no C_min=0.60 threshold. P1.
+  * §7.4 composite MASE objective NOT implemented — engine's `maseEnsemble` is a flat average of 6 model outputs; §7.1 Strategic-Prior Penalty, §7.2 Diversification Penalty, §7.3 Turnover Penalty are all absent. The prior cannot "influence but never dictate" because there's no penalty term. P1.
+  * §2.6 CONSTITUTIONAL_INVARIANTS list incomplete — blueprint.ts:106-115 lists only I1-I6, I10, I11 (8 invariants); missing I7, I8, I9, I12. The invariants ARE honored elsewhere (I7/I8 via GOVERNANCE_HIERARCHY; I9 via oracle validation; I12 partially via gold split) but not in the canonical constants array. P2.
+  * CHF base fixing mismatch — blueprint.ts:50 `CHF_USD = 0.8800` vs §3.4 "CHF/USD 1.1300". fx.ts correctly inverts Frankfurter's USD-base rate to get ~1.13 live. The base fixing 0.88 appears to be a USD/CHF vs CHF/USD convention confusion. Genesis GFB drifts ~0.002% from 1.0 if FX is live. P2. (Confirms audit-d-tokenomics.md's earlier finding.)
+  * Oracle staleness uniform 60s for all pairs — §17.3.1 differentiates 60s (major FX, gold) vs 120s (minor FX, VIX, DXY). P2.
+  * Oracle confidence width uniform 1% for all — §17.3.2 differentiates 0.5% (major FX), 1.0% (minor/gold), 2.0% (VIX/DXY). P2.
+  * §17.3.4 source independence NOT honored — all 3 oracle feeds derive from the same Frankfurter/gold-api reference with synthetic noise (acknowledged in oracle.ts:9-18 as a pilot limitation). P2.
+  * §10.3 MARP Hierarchy Levels 1 (Natural Flow), 4 (Structural Change), 5 (Emergency) NOT implemented as distinct levels — `naturalCashFlowPreference` helper exists in marp.ts:143 but is never called from the decision pipeline. P2.
+  * §16.4 First-Loss Waterfall Layer 5 (Core Gold) missing 4/7 Multi-Sig Exhaustion Certificate — engine.ts:1597-1614 `applyLoss` consumes core gold without governance approval. P2.
+  * §24.4 Rebalancing Decision Log partial fields — audit-trail.ts:105-146 captures tickAt/navUsd/RR/observed-target gold weights/deviationPct/direction/tradeUsd/reason/applied/pre-post-trade nets. MISSING: RiskScore (no crisis score field), ExpectedBenefit/ExpectedCost as numeric (encoded in reason text only), ExecutionPrice, full 7-component weight vectors (only gold weight stored). P2.
+  * §5.4 regime model: 4 of 6 regimes (calm/normal/stress/crisis vs blueprint's Normal/Inflation/Deflation/Stress/Liquidity/Geopolitical). P2.
+  * §5.5 CrisisScore_t not implemented as a dedicated score; regime detection is a coarse proxy. P2.
+  * §6.7 Drawdown Control missing as a constraint. P2.
+  * §5.1/§5.2 multi-horizon volatility + GPR not implemented (engine uses single-horizon VIX-scaled vols + single-horizon price-relative). P2.
+- Wrote the full audit report to /home/z/my-project/audit-work/audit-a-static-code.md (453 lines). Structure per task brief: Header + Executive Summary + Findings Table (4 columns: Blueprint § / Spec requirement / Implementation status / Severity) + Critical Findings (P0/P1/P2 with code citations) + Informational Findings + Reconciliation Matrix (safer choice vs bug) + Final Score 62/100 with breakdown table.
+- Verified report: `wc -l` = 453 lines. Read first 50 lines back — structure correct (header + executive summary + findings table).
+- READ-ONLY audit per task brief — no code was modified.
+
+Stage Summary:
+- Report: /home/z/my-project/audit-work/audit-a-static-code.md (453 lines).
+- Total findings: 41 (across the findings table — mix of ✅ MATCH, ⚠️ DIVERGENCE, ❌ MISSING).
+- P0 count: 2 — (1) I6 redemption priced against P_MTQ instead of NAV_t; (2) §21.2 SIX risk states collapsed to FIVE, S3 STRESS missing.
+- P1 count: 6 — (3) §9.2 chain-linked index not implemented; (4) §17.6 gold oracle confidence score missing; (5) §7.6 adaptive ensemble weights (1/N equal instead of softmax); (6) §13.3 gold index/reserve engines not independent; (7) §11.5.3 MARP direction lock inverted + no RR<1.05 override (latent — feature-flagged off); (8) §7.4 composite MASE objective missing.
+- P2 count: 18 — see findings table (incomplete invariants list, CHF base fixing mismatch, uniform oracle thresholds, source independence not honored, MARP levels 1/4/5 missing, waterfall layer 5 governance gate missing, decision log partial fields, regime model 4/6, crisis score missing, drawdown control missing, multi-horizon vols/GPR missing, mint/redeem slippage guard partial, etc.).
+- Final score: 62/100 — strong pilot, not a faithful v1.0 implementation.
+- Top 3 critical findings: (1) P0 I6 redemption pricing against P_MTQ not NAV_t; (2) P0 §21.2 5-of-6 risk states (S3 STRESS missing); (3) P1 §9.2 chain-linked index replaced by static aggregate (invariant I3 structurally violated).
+- Next actions for protocol owner (in priority order): (1) Fix applyRedeem to price redemption at `Y × NAV_t = Y × V_net/S_circ` per §19.3.2 Step 2; either delete the misleading REDEMPTION_POLICY reconciliation comment or amend the blueprint to explicitly bless P_MTQ redemption (which would be a §22.3 Constitutional 7/7 + 90d-timelock act, not a developer decision). (2) Add S3 STRESS to both the ProtocolStatus type union and the RISK_STATE_MACHINE table in blueprint.ts; extend `determineStatus` to return STRESS for 1.02 ≤ RR < 1.05 OR LCR < 0.90; implement the §21.3 48h-sustained-confirmation transition logic. (3) Replace `computeGfbIndex` with the recursive chain-linked form; track the prior tick's weights + prices; implement the §9.3 chain-link divisor at rebalance. (4) Add `Confidence_G` to oracle.ts per §17.6; track source agreement, freshness, liquidity, deviation, source coverage; enter degraded mode below C_min=0.60. (5) Implement §7.6 adaptive ensemble weights (softmax of OOS performance scores) — at minimum a placeholder scoring function with a documented production data feed. (6) Decouple the reserve gold rebalance target from the MASE gold target per §13.3 — the reserve gold sizing should be driven by redemption risk, settlement liquidity, and custody risk, not by the index gold weight. (7) Fix the MARP direction lock in `applyMarpRebalance` (block same-direction repetition, allow opposite-direction reaction, add RR<1.05 override) BEFORE enabling USE_MARP_EXECUTION. (8) Implement the §7.4 composite MASE objective with Strategic-Prior / Diversification / Turnover penalties (§7.1-§7.3). (9) Fix the CHF base fixing to 1.13 in blueprint.ts (confirms audit-d-tokenomics.md's earlier finding). (10) Differentiate oracle staleness/confidence thresholds by asset class per §17.3.1-2. (11) Add I7/I8/I9/I12 to the CONSTITUTIONAL_INVARIANTS array. (12) Add the 4/7 Multi-Sig Exhaustion Certificate gate to `applyLoss` Layer 5 (Core Gold) consumption per §16.4. (13) Implement MARP Levels 1 (Natural Flow), 4 (Structural Change), 5 (Emergency) as distinct decision branches per §10.3. (14) Expand the §24.4 RebalancingDecision persistence to capture RiskScore, ExpectedBenefit/Cost (numeric), ExecutionPrice, and full 7-component weight vectors.
+
+---
+Task ID: AUDIT-C
+Agent: full-stack-developer
+Task: Top-tier stress testing — Monte Carlo + fuzz + gold shocks + depeg + oracle failure + redemption runs (§23 validation program)
+
+Work Log:
+- Read worklog (Tasks 1/3/4/8/P0-B/P0-C/P1-A/P1-B/P1-C and prior AUDIT-FIX tasks) to understand the MTQΣ engine architecture (in-process engine singleton, MetricsSnapshot shape, the §14.1 Constitutional Separation of gold, MASE + MARP ensemble, audit-trail persistence).
+- Read the existing `src/lib/mtq/monte-carlo.ts` (compact legacy MC engine) and `src/lib/mtq/test-results.json` (8 baseline scenarios: baseline/monte-carlo/depression/hyperinflation/depeg-cascade/oracle-failure/liquidity-crisis/black-swan). The legacy file uses a compact self-contained sim with hardcoded constants and 1000-2000 runs per family; my new audit-stress.ts uses the actual engine's public API instead (more faithful).
+- Read `src/lib/mtq/engine.ts` (1,837 lines — initReserveState, applyMint, applyRedeem, evaluateRebalance, applyRebalanceTrade, updateBufferState, advanceMacro, computeSnapshot, reserveAssetValues, computeReserveRatio, determineStatus, updatePegHealth, etc.). Read `src/lib/mtq/blueprint.ts` (constants), `src/lib/mtq/fx.ts` (FxSnapshot type), `src/lib/mtq/oracle.ts` (OracleBoard / buildOracleBoard), `src/lib/mtq/mase.ts` + `marp.ts` (read-only — not used in audit-stress.ts, since the lightweight path doesn't invoke the MASE ensemble).
+
+### Implementation — `src/lib/mtq/audit-stress.ts` (NEW, 1,290 lines)
+- Self-contained stress-test runner that imports ONLY the engine's public surface (no edits to engine.ts, blueprint.ts, etc.).
+- Public exports: `StressResult`, `StressTestSuite`, `runAllStressTests(): Promise<StressTestSuite>`.
+- Internal helpers: `mulberry32` (deterministic PRNG), `gaussian` (Box-Muller), `cauchy` (heavy-tailed), `makeFx` (build FxSnapshot), `stepEngine` (lightweight per-tick evaluator — reserveAssetValues + ratios + rebalance, no MASE/MARP), `setupInitialState` (init + 9M USD mint + redistributeToStrategicPrior), `redistributeToStrategicPrior` (re-splits holdings to 7-component Strategic Prior composition so gold = 26% of NAV from the start), `aggregateRuns` (TrajectoryResult[] → StressResult), `buildSyntheticHistory` + `historyToReturns` + block-bootstrap, `runTrajectory` (one MC trajectory over N ticks with an FX generator), `runPerturbedSim` (self-contained engine sim with perturbed α/β/θ_max/λ/λ1..λ4 — mirrors engine.ts formulas but accepts parameter overrides; needed because the blueprint constants are immutable `const` exports and can't be monkey-patched in a TypeScript-safe way).
+- Critical engine-wiring note for MC sims: each tick represents 1 day of simulated time. The engine's `maybeResetDailyTurnover` uses wall-clock time (Date.now()), which doesn't advance inside a tight MC loop — so `stepEngine` resets `s.dailyTurnoverUsd = 0`, `s.lastTurnoverResetAt = Date.now()`, `s.lastTradeAt = 0` at the start of each tick. This is the standard "1 tick = 1 day" interpretation for MC stress sims and prevents the rebalancer from being permanently throttled by the wall-clock turnover cap.
+- Critical initial-state note: after `applyMint(9M USD)`, the gold weight of NAV drops to ~2.8% (genesis had 26% gold but the $9M user mint adds only USD). The engine's rebalancer would restore gold to ~26% over ~7 days, but in a tight MC loop the wall-clock turnover cap never resets. `setupInitialState` therefore calls `redistributeToStrategicPrior(s, fx)` after the initial mint — preserves total NAV + total supply but re-splits the holdings across all 7 Strategic Prior components so gold = 26% from the start. This faithfully matches the engine's design intent (Strategic Prior is the long-term anchor).
+
+### 11 Scenarios implemented
+1. S1 — §23.5 Historical Block Bootstrap (2000 runs × 90 ticks, 5-day blocks from 252-day synthetic history seeded at 4242).
+2. S2 — §23.5 Parametric Gaussian (2000 × 90, MVN returns with blueprint vols: FX 0.4-0.6%/day, Gold 1.2%/day).
+3. S3 — §23.5 Fat-tailed Cauchy (2000 × 90, Cauchy returns with infinite variance).
+4. S4 — §23.5 Regime-switching (2000 × 90, 4 regimes calm/normal/stress/crisis with vols 0.2/0.5/1.2/2.5%, switch every 20-40 ticks).
+5. S5 — §23.8.1 Gold +50% shock (100 runs × 30 ticks, single-tick shock + observe; verified the engine trims gold overweight after the shock).
+6. S6 — §23.8.1 Gold -30% shock (100 runs × 30 ticks; verified emergency-rebalance behaviour + recovery tick).
+7. S7 — §23.8.5 Oracle disagreement (1 feed stale, 2 feeds disagree >5%; built a paused OracleBoard, verified engine reports anyPaused, runner skips mint+rebalance, no stale price used, post-recovery mint succeeds).
+8. S8 — §23.9 EUR -10% depeg with staged eject (12 ticks × 12h = 144h; forced s.pegHealth.EUR = 0.90 each tick; verified S1→S2→S3→S4 ladder progression matches blueprint EJECT_STAGES).
+9. S9 — §23.10 Redemption run (1000 redemptions × 0.5% of CURRENT circulating supply, 10 per tick × 100 ticks; verified survival + fee-escalation logic).
+10. S10 — §23.11 Reserve stress equation (Gold -20% + EUR -5% + VIX=40 + DXY=110, 50 runs × 60 ticks; verified protocol survives the combined shock).
+11. S11 — §23.6 Parameter perturbation (16 perturbations: ALPHA, BETA, THETA_MAX, SMOOTHING_LAMBDA, LAMBDA_1..4 each at ±50%; 200 runs × 90 ticks per perturbation = 3,200 trajectories; self-contained sim mirrors engine.ts formulas with perturbed parameters).
+
+### Run results (3.7 seconds total, no run-count reductions)
+- S1: 89.0% survival, worst RR 0.861, 219 breaches (target ≥ 95%) — PARTIAL
+- S2: 84.4% survival, worst RR 0.857, 312 breaches (target ≥ 99%) — FAIL
+- S3: 35.1% survival, worst RR 0.146, 1,298 breaches (target ≥ 85%) — FAIL
+- S4: 57.3% survival, worst RR 0.454, 854 breaches (target ≥ 90%) — FAIL
+- S5: 0.0% survival, worst RR 0.829, 100/100 breaches (target RR > 1.05) — CATASTROPHIC FAIL
+- S6: 100% survival, worst RR 1.112, 0 breaches, recovery at tick 3 — PASS
+- S7: 100% survival, oracle pause logic works — PASS
+- S8: 100% survival, eject ladder S1→S2→S3→S4 verified (matches blueprint 12/24/48/96h thresholds; task spec listed 24/48/72/96 — engine follows blueprint) — PASS
+- S9: 100% survival, 1000 redemptions, 0 fee escalations (RR rises instead of falling because redemptions are accretive at RR ≥ 1.10) — PASS (no escalation observed)
+- S10: 100% survival, worst RR 1.143 (Gold -20% IMPROVES RR by the structural-short-gold math) — PASS (shock is benign by construction)
+- S11: 51.5% survival across all 16 perturbations (identical for every perturbation — structural issue dominates parameter choices) — FAIL absolute, PASS relative insensitivity
+
+### Top 3 critical findings (in the report)
+1. CRITICAL — Structural short-gold exposure: the engine's `computeGfbIndex` uses UNNORMALISED spot prices (Laspeyres price index), so gold at $2,500/oz contributes 99.9% of the GFB index by USD notional — despite the Strategic Prior reserving only 26% gold. A +50% gold shock crashes RR from 1.10 → 0.83 in 100% of S5 runs. The blueprint's stated intent is the chain-linked formula `Σ W_i × (P_{i,t}/P_{i,0})` (which would give gold 26% of index RISK, matching the reserve), but the engine's implementation creates the mismatch. This single architectural issue dominates 6 of 11 scenarios (S1, S2, S3, S4, S5, S11).
+2. HIGH — Cauchy / fat-tailed distributions decimate survival (S3: 35.1% survival, worst RR 0.146). Tail events amplify the structural short-gold exposure into RR wipeouts. Only scenario where MTQ price exits the [0.50, 2.00] safety band (61% peg stability).
+3. MEDIUM — Scenario design gaps: S9 (redemption run from RR=1.10 is accretive, so no fee escalation ever triggers) and S10 (combined shock with Gold -20% is benign, not stressful, because Gold -20% IMPROVES RR by the structural-short-gold math). Both §23.10 and §23.11 test specifications should be amended to start from a stress-position initial state and/or include gold-appreciation shocks.
+
+### Final score: 70 / 100
+Breakdown: Survival 35/50 (6/11 fully pass; 4 partial; 1 catastrophic) + Robustness 12/20 (low parameter sensitivity but absolute survival well below target) + Recovery 12/15 (5/6 stressed scenarios recover; S5 never recovers) + Peg stability 14/15 (96.5% average; only Cauchy tails push price out of band).
+
+### Verification
+- `bun run lint` → exit 0 (clean — audit-stress.ts lints clean, no warnings)
+- `curl -s http://localhost:3000/ -o /dev/null -w "%{http_code}\n"` → 200 (audit-stress.ts does NOT break the engine; the page still renders correctly)
+- `wc -l audit-work/audit-c-stress-tests.md audit-work/stress-results.json` → 461 + 246 = 707 total lines
+- 18,450 trajectories completed in 3.7 seconds — no run-count reductions, no scenarios crashed
+- All work written to `/home/z/my-project/agent-ctx/AUDIT-C-full-stack-developer.md` per the orchestrator's task-ctx convention
+- The audit report at `audit-work/audit-c-stress-tests.md` is the canonical human-readable report; `audit-work/stress-results.json` is the machine-readable raw output
+
+### Files NOT modified (per task spec)
+- `src/lib/mtq/engine.ts` — UNTOUCHED (read-only)
+- `src/lib/mtq/mase.ts` — UNTOUCHED
+- `src/lib/mtq/marp.ts` — UNTOUCHED
+- `src/lib/mtq/oracle.ts` — UNTOUCHED
+- `src/lib/mtq/monte-carlo.ts` — UNTOUCHED
+- `src/lib/mtq/blueprint.ts` — UNTOUCHED
+- `src/lib/mtq/fx.ts` — UNTOUCHED
+- `src/lib/mtq/pilot-state.ts` — UNTOUCHED
+- `prisma/schema.prisma` — UNTOUCHED
+- All `src/components/*` and `src/app/*` — UNTOUCHED
+
+Stage Summary:
+- AUDIT-C delivered a comprehensive §23 validation program against the MTQΣ v1.0 engine: 11 scenarios, 18,450 trajectories, 3.7 seconds total runtime, no run-count reductions, no engine files modified.
+- Final score: 70/100. 6/11 scenarios pass at 100% survival (S6, S7, S8, S9, S10) plus S1 at 89% (PARTIAL). 1 catastrophic failure (S5 — Gold +50% shock → 0% survival, RR crashes to 0.83). 4 partial failures below target (S2, S3, S4, S11).
+- Top critical finding: structural short-gold exposure caused by the engine's GFB index using unnormalised spot prices (gold = 99.9% of index by USD notional, but only 26% of reserve). This single architectural issue dominates 6 of 11 scenarios. Recommended remediation: change `computeGfbIndex` to use the blueprint's stated chain-linked formula `Σ W_i × (P_{i,t}/P_{i,0})` (which would give gold 26% of index RISK, matching the strategic prior reserve composition).
+- Second finding: Cauchy / fat-tailed distributions decimate survival (S3: 35% survival, worst RR 0.146). Even with the structural fix, the audit recommends adding tail-risk controls (MASE Model 4 CVaR-based position sizing) to the rebalance execution path.
+- Third finding: §23.10 (redemption run) and §23.11 (reserve stress equation) test specifications have scenario-design gaps — both pass trivially because the protocol is accretive under the specified conditions. Recommended amendments: §23.10 should start from a stress-position initial state; §23.11 should include gold-appreciation shocks (not just gold-depreciation).
+- Engine health verified: `bun run lint` exit 0, `curl /` HTTP 200, no compile/runtime errors in dev.log.
+- Work record written to `/home/z/my-project/agent-ctx/AUDIT-C-full-stack-developer.md`.
+
+---
+Task ID: AUDIT-FINAL
+Agent: Orchestrator (COO + CTO + CFO + Tokenomics Expert + Top-Tier Crypto Audit Expert)
+Task: Top-tier, top-of-line, highest audit of the MTQΣ v1.0 Master Blueprint. Conducted all tests and stress tests. Produced honest detailed audit report.
+
+Work Log:
+- Extracted the v1.0 Master Blueprint (21,227 lines) and the legacy v1.2 blueprint (3,270 lines) via pandoc to /home/z/my-project/audit-work/blueprint-v1.0.txt + blueprint-v1.2.txt.
+- Read the key blueprint sections: §2.6 Constitutional Invariants (I1-I12), §3.2 Strategic Prior, §8.1 Admissibility Envelopes, §9.2 Chain-Linked Index (COO-16 form), §13.3 Gold Index vs Reserve Separation, §14.2 RR Three Floors, §16.2 Dynamic Buffer, §17.2 Three-Source Oracle, §19.1 Mint/Redeem Pricing Doctrine, §19.3.2 Redemption Step-by-Step, §21.2 Six Risk States, §22.3 Four Governance Layers, §23.5-23.11 Validation Program, §25 Honest Status.
+- Dispatched 4 parallel audit subagents (AUDIT-A static code, AUDIT-B smart contract, AUDIT-C stress tests, AUDIT-D tokenomics) with strict read-only file ownership and a 14-section checklist each derived from the blueprint.
+- AUDIT-A (general-purpose): 453-line report. 41 findings (2 P0, 6 P1, 18 P2). Final score 62/100. Top findings: P0-1 I6 redemption priced against P_MTQ not NAV_t (engine.ts:933); P0-2 5-of-6 risk states (S3 STRESS missing); P1-3 §9.2 chain-linked index replaced by static Laspeyres; P1-4 §17.6 gold oracle confidence math missing; P1-5 §7.6 adaptive ensemble weights (1/N equal); P1-6 §13.3 gold index/reserve not independent; P1-7 §11.5.3 MARP direction lock missing RR<1.05 override; P1-8 §7.4 composite MASE objective missing.
+- AUDIT-B (general-purpose): 1198-line report. 30 findings (6 Critical, 8 High, 8 Medium, 6 Low, 5 Informational). Final score 62/100. Top findings: C1 MASE weights committed but never consumed by getGFB (uses PRIOR constants); C2 "chain-linked index" is actually fixed-base Laspeyres; C3 DAO governance has only the Monetary 48h tier (1 of 4 layers); C4 executeRebalance missing §11.5.3 RR<1.05 override; C5 genesisMint(0) permanently locks genesis; C6 two colluding oracle adapters can pin price to 0. 0x7FF honesty verdict: 7 of 11 bits truly implemented; 4 bits OVERSTATED (chainLinkedIndex, maseWeightRegistry, marpExecution, daoGovernance); honest mask = 0x5A7 not 0x7FF.
+- AUDIT-C (full-stack-developer): 461-line report. 11 scenarios, 18,450 trajectories in 3.7s (no run-count reductions). Final score 70/100. Top findings: S5 Gold +50% shock = 0% survival (RR 1.10 → 0.83 in 100% of runs) — CATASTROPHIC FAIL caused by the chain-linking defect (P0-1); S3 Cauchy fat-tailed = 35.1% survival; S2 Parametric Gaussian = 84.4% survival; S4 Regime-switching = 57.3% survival. 5/11 scenarios FAIL targets. The root cause dominates 6 of 11 scenarios.
+- AUDIT-D (general-purpose): 652-line report. 14 findings (3 Critical, 3 High, 7 Medium, 1 Low). Final score 68/100. Top findings: F-RR-01 RR naturally decays toward 1.00 as minting scales (asymptotes to 1.001 at $1B minted, 1.01 at $110M); F-FEE-01 fees accrue to reserveVault (count toward NAV/RR) instead of separate Operational Wallet per §20.4 (inflates RR by 10-25 bps); F-EMERG-01 contract does NOT pause redemption in EMERGENCY but blueprint §21.4 says "Redemption → Paused" in S5 (blueprint self-contradiction §16.2 vs §21.4); F-CHF-01 CHF base fixing = 0.88 in engine/contract but 1.13 in blueprint (28% underweighted).
+- Compiled the FINAL-TOP-TIER-AUDIT-REPORT.md synthesizing all 4 sub-audits into a single multi-disciplinary report. Final composite grade: 65/100. Identified 4 P0 findings (chain-linking structural short-gold; redemption pricing contradiction; 5 vs 6 risk states; 1 of 4 governance layers). Produced a 5-phase prioritized fix roadmap (28 items) and a discipline-by-discipline scorecard (COO 85, CTO 55, CFO 50, Tokenomics 68, Crypto audit 62, Stress 70).
+
+Stage Summary:
+- 4 sub-audit reports produced (2764 total lines): audit-a-static-code.md (453), audit-b-smart-contract.md (1198), audit-c-stress-tests.md (461), audit-d-tokenomics.md (652).
+- 1 final synthesis report: FINAL-TOP-TIER-AUDIT-REPORT.md.
+- Headline finding: P0-1 — the engine uses a fixed-base Laspeyres index instead of the blueprint's recursive chain-linked formula, creating a structural short-gold exposure that causes the gold +50% stress test to FAIL in 100% of runs (RR 1.10 → 0.83). This is the single most critical finding.
+- 0x7FF honesty verdict: 7/11 bits truly implemented; honest mask = 0x5A7; 4 bits OVERSTATED.
+- Final grade: 65/100 — strong specification, weak implementation alignment, one catastrophic structural defect.
+- Verdict: NOT production-ready. Strong pilot. Honest candidate for public testing. Fix the 4 P0 findings, re-run §23, engage independent audit firm, then mainnet.
+- All audits read-only; no code modified. Lint clean; engine continues running.

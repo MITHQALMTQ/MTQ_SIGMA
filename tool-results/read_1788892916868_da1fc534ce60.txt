@@ -1,0 +1,2002 @@
+     1→// MTQΣ — Reference Monetary Engine
+     2→// TypeScript implementation of the MTQΣ Master Monetary Architecture v1.0.
+     3→// This is the single source of truth for the monetary math. Both the Next.js
+     4→// API layer and the live WebSocket feed service import from this module.
+     5→//
+     6→// v1.0 CHANGES (vs the legacy v1.2 engine):
+     7→//   - Basket is now the 7-component Strategic Prior (USD/EUR/JPY/GBP/CNY/CHF/Gold)
+     8→//     where Gold is a first-class index component (not just reserve collateral).
+     9→//   - computeGfbIndex() uses STRATEGIC_PRIOR with the chain-linked denominator
+    10→//     GFB_BASE_DENOMINATOR (which already includes CHF + Gold base fixings).
+    11→//   - CHF added as a first-class reserve asset (s.chf, fx.CHF_USD).
+    12→//   - The legacy §6/§7/§8 buffer/rebalance/MARP logic is retained verbatim for
+    13→//     now (it will be replaced by the MASE ensemble in a future task). The old
+    14→//     constants (BASE_GOLD_WEIGHT, GOLD_WEIGHT_LOWER/UPPER, ALPHA, BETA, ...)
+    15→//     are imported because that legacy code still references them; they are
+    16→//     marked SUPERSEDED in blueprint.ts.
+    17→//
+    18→// Sections implemented:
+    19→//   §2  GFB Index (chain-linked, 7 components incl. Gold + CHF)
+    20→//   §3  MTQ Reference Price + liability + safety band
+    21→//   §4  Reserve NAV (haircuts), Reserve Ratio, Liquidity Coverage Ratio, status
+    22→//   §6  Adaptive Macro Engine (VIX/DXY z-scores, EMA-smoothed target gold weight)
+    23→//   §7  Rebalancing Engine (cost-benefit, slippage, direction lock, turnover cap)
+    24→//   §8  Dynamic Buffer (BASE/STRESS/EMERGENCY, ramp, total target gold weight)
+    25→//   §11 Geopolitical Eject (staged ladder)
+    26→//   §12 Mint & Redemption (priced against the GFB Index)
+    27→//
+    28→// Honest reconciliation note (tokenomics, retained from v1.2 for the legacy
+    29→// buffer/MARP path):
+    30→//   §6 base gold weight 26.25% == §8 BASE total (0.20 core + 0.10×0.625 buffer).
+    31→//   We therefore unify: W_target = clamp( base_gold_from_buffer(RR) + θ_smoothed, 22%, 30% ).
+    32→//   In EMERGENCY the buffer base is already 30%, so θ cannot push it higher. ✓
+    33→
+    34→import {
+    35→  STRATEGIC_PRIOR,
+    36→  GFB_BASE_DENOMINATOR,
+    37→  ADMISSIBILITY_ENVELOPES,
+    38→  BASE_FIXINGS,
+    39→  PRICE_SAFETY_LOWER, PRICE_SAFETY_UPPER,
+    40→  MINT_FEE_BPS,
+    41→  HAIRCUTS,
+    42→  RR_TARGET, RR_STRESS, RR_HARD, LCR_TARGET, STRESS_REDEMPTION_RATE,
+    43→  ALPHA, BETA, THETA_MAX,
+    44→  BASE_GOLD_WEIGHT, GOLD_WEIGHT_LOWER, GOLD_WEIGHT_UPPER,
+    45→  SMOOTHING_LAMBDA, ROLLING_WINDOW_DAYS,
+    46→  VIX_MIN, VIX_MAX, DXY_MIN, DXY_MAX,
+    47→  SLIPPAGE_TOLERANCE, MAX_DAILY_TURNOVER, MAX_POOL_FRACTION, DIRECTION_LOCK_HOURS,
+    48→  LAMBDA_1, LAMBDA_2, LAMBDA_3, LAMBDA_4,
+    49→  BUFFER_SIZE, CORE_GOLD_WEIGHT, BUFFER_GOLD_BASE, BUFFER_GOLD_STRESS, BUFFER_GOLD_EMERGENCY, RAMP_DURATION_HOURS,
+    50→  EJECT_DEPEG_BAND_LOWER, EJECT_DEPEG_BAND_UPPER,
+    51→  PRICE_EVENT_THRESHOLD,
+    52→  REINTEGRATION_WEIGHTS, REINTEGRATION_THRESHOLD, REINTEGRATION_REPURCHASE_STAGES,
+    53→  TREASURY_SWEEP_THRESHOLD_USD, TREASURY_SWEEP_AUTHORITY,
+    54→  GOVERNANCE_LAYERS, PARAMETER_REGISTRY, type GovernanceLayerName,
+    55→  type ProtocolStatus,
+    56→  type FxRates,
+    57→} from "./blueprint";
+    58→import type { FxSnapshot } from "./fx";
+    59→import type { OracleBoard, OracleConsensus } from "./oracle";
+    60→import { computeConcentration, type AssetRecord, type ConcentrationReport } from "./registry";
+    61→import {
+    62→  maseEnsemble,
+    63→  applyEnvelopes,
+    64→  smoothWeights,
+    65→  smoothWeightsAdaptive,
+    66→  targetVelocity,
+    67→  COMPONENTS,
+    68→  type PriceData,
+    69→  type VolatilityData,
+    70→  type MarketRegime,
+    71→  type WeightVector,
+    72→  type Component,
+    73→} from "./mase";
+    74→import { marpDecision, type MarpDecision } from "./marp";
+    75→import {
+    76→  initChainIndex,
+    77→  advanceIndex,
+    78→  commitWeights,
+    79→  getMTQPrice,
+    80→  fxToPriceVector,
+    81→  strategicPriorToWeights,
+    82→  baseFixingsToPrices,
+    83→  type ChainIndexState,
+    84→} from "./chain-index";
+    85→import {
+    86→  determineState,
+    87→  mintThrottle,
+    88→  redeemFee,
+    89→  rebalanceUrgency,
+    90→  mintingAllowed,
+    91→  redemptionAllowed,
+    92→  stressLevel,
+    93→  type RiskState,
+    94→  type CanonicalState,
+    95→} from "./state-machine";
+    96→
+    97→export interface ReserveState {
+    98→  // Token-unit holdings (USD-denominated assets stored as their native units)
+    99→  usdc: number; // USDC units (1 USDC = $1)
+   100→  usdp: number; // USDP units (1 USDP = $1) — FIX: second USD issuer (Paxos)
+   101→  usdt: number; // USDT units (1 USDT = $1) — FIX: third USD issuer (Tether)
+   102→  eurc: number; // EURC units (1 EURC = €1 = FX_EUR/USD dollars)
+   103→  gbp: number; // GBP-token units
+   104→  jpy: number; // JPY-token units
+   105→  cny: number; // CNY-token units
+   106→  chf: number; // CHF-token units (NEW v1.0 — 5% strategic prior, 3-7% envelope)
+   107→  paxg: number; // PAXG units (1 PAXG = 1 troy oz gold = XAU_USD dollars)
+   108→  xaut: number; // XAUT units (1 XAUT = 1 troy oz gold) — FIX: second gold issuer (Tether)
+   109→
+   110→  // Supply
+   111→  totalSupply: number; // total MTQΣ minted (ERC-20 totalSupply)
+   112→  genesisReserve: number; // MTQΣ locked in Genesis Reserve Account (excluded from circulating)
+   113→
+   114→  // Adaptive macro engine state
+   115→  vixHistory: number[]; // rolling 90-day VIX samples
+   116→  dxyHistory: number[];
+   117→  smoothedGoldWeight: number; // EMA-smoothed target gold weight (fraction)
+   118→
+   119→  // Rebalancing engine state
+   120→  lastTradeDir: 0 | 1 | -1; // +1 buy gold, -1 sell gold
+   121→  lastTradeAt: number; // epoch ms
+   122→  dailyTurnoverUsd: number;
+   123→  lastTurnoverResetAt: number;
+   124→
+   125→  // Buffer ramp state
+   126→  bufferState: "BASE" | "STRESS" | "EMERGENCY";
+   127→  rampStartAt: number;
+   128→  rampFromRatio: number;
+   129→  rampToRatio: number;
+   130→
+   131→  // Geopolitical eject: per-asset peg health (1.0 = perfect peg)
+   132→  pegHealth: { USD: number; EUR: number; GBP: number; JPY: number; CNY: number };
+   133→  // How long (hours) each asset has been outside the depeg band
+   134→  depegHours: { USD: number; EUR: number; GBP: number; JPY: number; CNY: number };
+   135→  // Current eject stage per currency (0 = none)
+   136→  ejectStage: { USD: number; EUR: number; GBP: number; JPY: number; CNY: number };
+   137→
+   138→  // §11.3 Reintegration: per-currency reintegration score + repurchase stage
+   139→  reintegration: {
+   140→    [c in "USD" | "EUR" | "GBP" | "JPY" | "CNY"]: {
+   141→      timeInBand48h: number;  // fraction of last 48h inside [0.98,1.02]
+   142→      liquidityDepth: number; // normalised 0..1 (vs $1M threshold)
+   143→      oracleAgreement: number; // 0..1 (valid feeds / 3)
+   144→      volatility: number;    // 0..1 (higher = worse)
+   145→      score: number;         // R_score
+   146→      repurchaseStage: number; // 0=none, 1=25%, 2=50%, 3=100%
+   147→    };
+   148→  };
+   149→
+   150→  // §13.2 Treasury Sweep
+   151→  treasury: {
+   152→    hotWalletUsd: number;       // operational hot-wallet surplus stablecoins
+   153→    coldTreasuryUsd: number;    // swept cold-treasury balance
+   154→    lastSweepAt: number;
+   155→    lastSweepAmount: number;
+   156→    totalSwept: number;
+   157→  };
+   158→
+   159→  // §8.5 First-Loss Waterfall current layer (1..5) + cumulative consumed per layer
+   160→  waterfall: {
+   161→    currentLayer: 1 | 2 | 3 | 4 | 5;
+   162→    operationalSurplus: number; // USD available in layer 1
+   163→    consumed: { surplus: number; bufferFiat: number; bufferGold: number; coreFiat: number; coreGold: number };
+   164→  };
+   165→
+   166→  // §3.6 PriceUpdated event log (last N events at >0.5% change)
+   167→  priceEvents: { ts: number; oldPrice: number; newPrice: number; changePct: number }[];
+   168→  lastLoggedPrice: number;
+   169→
+   170→  // Last macro signal sample (for the stochastic walk)
+   171→  lastVix: number;
+   172→  lastDxy: number;
+   173→
+   174→  // v1.0 MASE 4-state weight system — previous tick's smoothed weights (EMA).
+   175→  // Null at genesis → first computeSnapshot falls back to STRATEGIC_PRIOR.
+   176→  // advanceMase() (called from the tick loop) updates this once per tick.
+   177→  maseSmoothed: WeightVector | null;
+   178→  maseLastAt: number;
+   179→
+   180→  // §14.1 Constitutional Separation — index gold vs reserve buffer gold.
+   181→  // The same PAXG + XAUT holdings on the legacy `paxg` / `xaut` fields are now
+   182→  // physically split (in the accounting) into:
+   183→  //   - indexPaxg + indexXaut  → gold LOCKED to back the index Gold weight
+   184→  //     (Strategic Prior 26%). Only changes when weights commit via
+   185→  //     `commitIndexGold()` (keeper-role equivalent). MARP cannot touch this.
+   186→  //   - reservePaxg + reserveXaut → gold in the reserve buffer that MARP
+   187→  //     rebalances (sells when gold overweight, buys when gold underweight).
+   188→  // The legacy `paxg` / `xaut` fields are retained as TOTALS
+   189→  // (= indexPaxg + reservePaxg and indexXaut + reserveXaut) so existing
+   190→  // readers continue to work unchanged.
+   191→  indexPaxg: number;
+   192→  indexXaut: number;
+   193→  reservePaxg: number;
+   194→  reserveXaut: number;
+   195→
+   196→  // §14.1 execution-path flag — which rebalance path is currently mutating state.
+   197→  // 'legacy' (default) = §7 single-direction rebalance; 'marp' = per-component MARP.
+   198→  // Driven by the USE_MARP_EXECUTION feature flag in pilot-state.ts::tick().
+   199→  // Exposed in the snapshot so the UI can render an A/B badge.
+   200→  rebalancePath: 'legacy' | 'marp';
+   201→
+   202→  // === P0-FIX-1: canonical chain-linked index state (Master Listing 3 / §9.2 COO-16) ===
+   203→  // The chain-linked index I_t replaces the legacy Laspeyres GFB index.
+   204→  // One per engine instance. The tick loop calls advanceIndex() every tick
+   205→  // (so I_t reflects the latest FX/gold prices) and commitWeights() on every
+   206→  // MASE weight update (so the index reflects the new strategic prior while
+   207→  // preserving zero-artificial-return continuity).
+   208→  chainIndex: ChainIndexState;
+   209→
+   210→  // === P0-FIX-3: canonical 6-state risk machine (Master Listing 13 / §21.2) ===
+   211→  // Persisted across ticks so the hysteresis (RECOVERY 48h confirmation)
+   212→  // survives. The tick loop calls determineState() once per tick with the
+   213→  // previous state and `now`. `state` is the canonical RiskState (6 states
+   214→  // incl. STRESS); the legacy `status` field on the snapshot maps 1:1 to it.
+   215→  riskState: {
+   216→    state: RiskState;
+   217→    enteredAt: number;            // epoch ms when the current state was entered
+   218→    confirmationPeriodEnds: number | null; // RECOVERY only — end of 48h window
+   219→  };
+   220→
+   221→  updatedAt: number;
+   222→}
+   223→
+   224→// --- Genesis initialisation (§13.1, v1.0 Master Blueprint) -----------------
+   225→// Protocol deposits $1,100,000 → buys the 7-component Strategic Prior basket
+   226→// (USD 27% · EUR 20% · JPY 9% · GBP 8% · CNY 5% · CHF 5% · Gold 26%) at oracle
+   227→// prices → mints 1,000,000 MTQΣ to the Genesis Reserve Account.
+   228→// RR = 1,100,000 / (1,000,000 × 1.00) = 1.10 (110%).
+   229→// Genesis supply is LOCKED (excluded from circulating supply).
+   230→//
+   231→// NOTE on Gold (v1.0): Gold is now BOTH in the GFB Index (26% strategic prior,
+   232→// 20-32% admissibility envelope) AND a reserve asset. The 26% gold portion of
+   233→// the genesis deposit IS the index gold. The legacy §8 buffer (core 20% +
+   234→// 10%×62.5% buffer = 26.25% total) is retained verbatim for the rebalance/MARP
+   235→// path — it will be replaced by the MASE ensemble + per-component admissibility
+   236→// envelopes in a future task.
+   237→export function initReserveState(goldPrice: number): ReserveState {
+   238→  const initialUsdDeposit = 1_100_000;
+   239→
+   240→  // v1.0: split the entire deposit across the 7 Strategic Prior components.
+   241→  // Each component's USD-equivalent notional = deposit × W^Prior_i. The
+   242→  // resulting portfolio is the genesis GFB basket; RR = deposit / supply = 1.10.
+   243→  const usdTotal  = initialUsdDeposit * STRATEGIC_PRIOR.USD;  // $297K
+   244→  const eurcUsd   = initialUsdDeposit * STRATEGIC_PRIOR.EUR;  // $220K
+   245→  const jpyUsd   = initialUsdDeposit * STRATEGIC_PRIOR.JPY;  //  $99K
+   246→  const gbpUsd   = initialUsdDeposit * STRATEGIC_PRIOR.GBP;  //  $88K
+   247→  const cnyUsd   = initialUsdDeposit * STRATEGIC_PRIOR.CNY;  //  $55K
+   248→  const chfUsd   = initialUsdDeposit * STRATEGIC_PRIOR.CHF;  //  $55K (NEW v1.0)
+   249→  const goldSpend = initialUsdDeposit * STRATEGIC_PRIOR.Gold; // $286K (Gold is now in the index)
+   250→
+   251→  // FIX: split USD across 3 issuers (USDC/Circle, USDP/Paxos, USDT/Tether) — 1/3 each
+   252→  const usdc = usdTotal / 3;
+   253→  const usdp = usdTotal / 3;
+   254→  const usdt = usdTotal / 3;
+   255→
+   256→  // Convert USD-equivalent fiat holdings into native token units (using the
+   257→  // base-date fixings so genesis lands at exactly GFB = 1.00).
+   258→  const eurc = eurcUsd / 1.05;            // € per $1.05 at base date
+   259→  const gbp  = gbpUsd / 1.25;             // £ per $1.25
+   260→  const jpy  = jpyUsd / 0.0067;           // ¥ per $0.0067
+   261→  const cny  = cnyUsd / 0.14;             // CNH per $0.14
+   262→  // P0-FIX: CHF base fixing is 1.13 (was 0.88 — was 28% underweighted). The
+   263→  // legacy `chfUsd / 0.88` produced ~28% MORE CHF tokens than the basket
+   264→  // intended; the corrected `chfUsd / 1.13` matches the Master Blueprint v1.0
+   265→  // and the canonical BASE_FIXINGS.CHF_USD used by the chain-linked index.
+   266→  const chf  = chfUsd / BASE_FIXINGS.CHF_USD;  // CHF per $1.13 (Master v1.0)
+   267→  // FIX: split gold across 2 issuers (PAXG/Paxos, XAUT/Tether) — 50/50
+   268→  const paxg = (goldSpend / goldPrice) * 0.5;
+   269→  const xaut = (goldSpend / goldPrice) * 0.5;
+   270→
+   271→  // §14.1 Constitutional Separation — split the genesis gold 50/50 between the
+   272→  // index vault (locked, backs the 26% Strategic Prior Gold weight) and the
+   273→  // reserve buffer (the gold MARP rebalances). 50/50 was chosen over the
+   274→  // "26% to index / 74% to reserve" alternative because:
+   275→  //   - At genesis the total gold IS exactly 26% of NAV (deposit × STRATEGIC_PRIOR.Gold).
+   276→  //     A 26/74 split would leave index gold at only ~6.8% of NAV — far below
+   277→  //     the 26% index weight it is supposed to back, which is misleading.
+   278→  //   - A 50/50 split gives both pools meaningful starting capital (13% of NAV
+   279→  //     each), so MARP has a real buffer to rebalance AND the index gold is a
+   280→  //     meaningful "core" position.
+   281→  // The split is an accounting concept; the underlying PAXG + XAUT tokens are
+   282→  // the same. commitIndexGold() (keeper-role equivalent) is the only way to
+   283→  // move gold between the two pools.
+   284→  const indexPaxg = paxg * 0.5;
+   285→  const indexXaut = xaut * 0.5;
+   286→  const reservePaxg = paxg - indexPaxg;
+   287→  const reserveXaut = xaut - indexXaut;
+   288→
+   289→  return {
+   290→    usdc,
+   291→    usdp,
+   292→    usdt,
+   293→    eurc, gbp, jpy, cny, chf,
+   294→    paxg,
+   295→    xaut,
+   296→    // §14.1 — index/reserve gold split (50/50 at genesis; index locked)
+   297→    indexPaxg,
+   298→    indexXaut,
+   299→    reservePaxg,
+   300→    reserveXaut,
+   301→    // §14.1 — default to legacy §7 rebalance path (USE_MARP_EXECUTION flag
+   302→    // in pilot-state.ts::tick() flips this to 'marp').
+   303→    rebalancePath: 'legacy',
+   304→    totalSupply: 1_000_000, // Genesis supply
+   305→    genesisReserve: 1_000_000, // locked
+   306→    vixHistory: seedHistory(18.5, 2.0, ROLLING_WINDOW_DAYS),
+   307→    dxyHistory: seedHistory(104.2, 2.5, ROLLING_WINDOW_DAYS),
+   308→    smoothedGoldWeight: BASE_GOLD_WEIGHT,
+   309→    lastTradeDir: 0,
+   310→    lastTradeAt: 0,
+   311→    dailyTurnoverUsd: 0,
+   312→    lastTurnoverResetAt: Date.now(),
+   313→    bufferState: "BASE",
+   314→    rampStartAt: 0,
+   315→    rampFromRatio: BUFFER_GOLD_BASE,
+   316→    rampToRatio: BUFFER_GOLD_BASE,
+   317→    pegHealth: { USD: 1, EUR: 1, GBP: 1, JPY: 1, CNY: 1 },
+   318→    depegHours: { USD: 0, EUR: 0, GBP: 0, JPY: 0, CNY: 0 },
+   319→    ejectStage: { USD: 0, EUR: 0, GBP: 0, JPY: 0, CNY: 0 },
+   320→    reintegration: {
+   321→      USD: { timeInBand48h: 1, liquidityDepth: 1, oracleAgreement: 1, volatility: 0.02, score: 0, repurchaseStage: 0 },
+   322→      EUR: { timeInBand48h: 1, liquidityDepth: 1, oracleAgreement: 1, volatility: 0.02, score: 0, repurchaseStage: 0 },
+   323→      GBP: { timeInBand48h: 1, liquidityDepth: 0.5, oracleAgreement: 0.66, volatility: 0.05, score: 0, repurchaseStage: 0 },
+   324→      JPY: { timeInBand48h: 1, liquidityDepth: 0.5, oracleAgreement: 0.66, volatility: 0.05, score: 0, repurchaseStage: 0 },
+   325→      CNY: { timeInBand48h: 1, liquidityDepth: 0.4, oracleAgreement: 0.66, volatility: 0.08, score: 0, repurchaseStage: 0 },
+   326→    },
+   327→    treasury: {
+   328→      hotWalletUsd: 5_000,    // below sweep threshold initially
+   329→      coldTreasuryUsd: 0,
+   330→      lastSweepAt: 0,
+   331→      lastSweepAmount: 0,
+   332→      totalSwept: 0,
+   333→    },
+   334→    waterfall: {
+   335→      currentLayer: 1,
+   336→      operationalSurplus: 0,
+   337→      consumed: { surplus: 0, bufferFiat: 0, bufferGold: 0, coreFiat: 0, coreGold: 0 },
+   338→    },
+   339→    priceEvents: [],
+   340→    lastLoggedPrice: 1.0,
+   341→    lastVix: 18.5,
+   342→    lastDxy: 104.2,
+   343→    // v1.0 MASE — null until first advanceMase() call; STRATEGIC_PRIOR used as fallback.
+   344→    maseSmoothed: null,
+   345→    maseLastAt: 0,
+   346→    // §14.1 — indexPaxg/indexXaut/reservePaxg/reserveXaut/rebalancePath are
+   347→    // initialised above (next to paxg/xaut where the split is computed).
+   348→    // === P0-FIX-1: canonical chain-linked index — init at genesis with the
+   349→    // Strategic Prior weights and the corrected BASE_FIXINGS (CHF=1.13).
+   350→    chainIndex: initChainIndex(
+   351→      GFB_BASE_DENOMINATOR,
+   352→      strategicPriorToWeights(STRATEGIC_PRIOR),
+   353→      baseFixingsToPrices(BASE_FIXINGS),
+   354→      Date.now(),
+   355→    ),
+   356→    // === P0-FIX-3: canonical 6-state risk machine — start in NORMAL at genesis.
+   357→    riskState: {
+   358→      state: "NORMAL" as RiskState,
+   359→      enteredAt: Date.now(),
+   360→      confirmationPeriodEnds: null,
+   361→    },
+   362→    updatedAt: Date.now(),
+   363→  };
+   364→}
+   365→
+   366→function seedHistory(mean: number, sd: number, n: number): number[] {
+   367→  const out: number[] = [];
+   368→  let last = mean;
+   369→  for (let i = 0; i < n; i++) {
+   370→    // simple mean-reverting walk
+   371→    const shock = (Math.random() - 0.5) * 2 * sd * 0.3;
+   372→    last = last + (mean - last) * 0.1 + shock;
+   373→    out.push(Math.max(0.01, last));
+   374→  }
+   375→  return out;
+   376→}
+   377→
+   378→// --- §14.1 Constitutional Separation helpers ---------------------------------
+   379→// Maintain the §14.1 invariant: paxg = indexPaxg + reservePaxg (and same for
+   380→// xaut). Index gold is LOCKED (only changes via commitIndexGold); reserve gold
+   381→// is the buffer MARP rebalances. These two helpers are the only sanctioned
+   382→// ways to keep the splits consistent after any mutation to total gold:
+   383→
+   384→/** Re-derive reserve gold from total − index (call after the legacy path or
+   385→ *  concentration optimizer mutates `s.paxg` / `s.xaut` directly). Index gold
+   386→ *  stays locked. */
+   387→export function syncReserveFromTotal(s: ReserveState): void {
+   388→  s.reservePaxg = Math.max(0, s.paxg - s.indexPaxg);
+   389→  s.reserveXaut = Math.max(0, s.xaut - s.indexXaut);
+   390→}
+   391→
+   392→/** Re-derive total gold from index + reserve (call after the MARP path mutates
+   393→ *  `s.reservePaxg` / `s.reserveXaut`). Index gold stays locked. */
+   394→export function syncTotalFromReserve(s: ReserveState): void {
+   395→  s.paxg = s.indexPaxg + Math.max(0, s.reservePaxg);
+   396→  s.xaut = s.indexXaut + Math.max(0, s.reserveXaut);
+   397→}
+   398→
+   399→/** §14.1 commitIndexGold — the keeper-role equivalent in the TS engine.
+   400→ *  Sets the index gold holdings (PAXG + XAUT) that back the Strategic Prior
+   401→ *  Gold weight (26%). Only this function may move gold between the index
+   402→ *  vault and the reserve buffer. Recomputes the totals via the §14.1 invariant
+   403→ *  (reserve = total − index). Emits an IndexGoldCommitted event-equivalent
+   404→ *  (console log — production should emit an on-chain event). */
+   405→export function commitIndexGold(
+   406→  s: ReserveState,
+   407→  indexPaxg: number,
+   408→  indexXaut: number,
+   409→): { indexPaxg: number; indexXaut: number; reservePaxg: number; reserveXaut: number; totalPaxg: number; totalXaut: number } {
+   410→  const safeIndexPaxg = Math.max(0, indexPaxg);
+   411→  const safeIndexXaut = Math.max(0, indexXaut);
+   412→  s.indexPaxg = safeIndexPaxg;
+   413→  s.indexXaut = safeIndexXaut;
+   414→  // Reserve = max(0, total − index) — never let reserve go negative even if
+   415→  // the keeper over-commits (log a warning in that case).
+   416→  if (s.paxg < safeIndexPaxg) {
+   417→    console.warn(`[mtq-engine] commitIndexGold: indexPaxg ${safeIndexPaxg.toFixed(4)} > total paxg ${s.paxg.toFixed(4)} — reserve went to 0; total bumped to match index.`);
+   418→    s.paxg = safeIndexPaxg;
+   419→  }
+   420→  if (s.xaut < safeIndexXaut) {
+   421→    console.warn(`[mtq-engine] commitIndexGold: indexXaut ${safeIndexXaut.toFixed(4)} > total xaut ${s.xaut.toFixed(4)} — reserve went to 0; total bumped to match index.`);
+   422→    s.xaut = safeIndexXaut;
+   423→  }
+   424→  syncReserveFromTotal(s);
+   425→  s.updatedAt = Date.now();
+   426→  console.log(`[mtq-engine] IndexGoldCommitted: indexPaxg=${s.indexPaxg.toFixed(4)}, indexXaut=${s.indexXaut.toFixed(4)}, reservePaxg=${s.reservePaxg.toFixed(4)}, reserveXaut=${s.reserveXaut.toFixed(4)}`);
+   427→  return {
+   428→    indexPaxg: s.indexPaxg,
+   429→    indexXaut: s.indexXaut,
+   430→    reservePaxg: s.reservePaxg,
+   431→    reserveXaut: s.reserveXaut,
+   432→    totalPaxg: s.paxg,
+   433→    totalXaut: s.xaut,
+   434→  };
+   435→}
+   436→
+   437→// --- §2 GFB Index (v1.0 — 7-component chain-linked) -------------------------
+   438→// GFB_t = Σ_i W^Prior_i × P_{i,t}  (then normalised by GFB_BASE_DENOMINATOR so
+   439→// GFB = 1.00 exactly at the base date). The 7 components are the Strategic
+   440→// Prior: USD, EUR, JPY, GBP, CNY, CHF, Gold. Gold is now a first-class index
+   441→// component (P_Gold = XAU_USD).
+   442→//
+   443→// DEPRECATED (P0-FIX-1): this is the LEGACY fixed-base Laspeyres index. It
+   444→// weights each component by its raw USD notional share (gold contributes
+   445→// 99.9% of the index by notional despite a 26% Strategic Prior weight), which
+   446→// creates a structural short-gold exposure that crashed the §23 validation
+   447→// program (S5: 0% survival, RR crashed to 0.83 in 100% of gold +50% runs).
+   448→//
+   449→// The CANONICAL chain-linked index lives in `src/lib/mtq/chain-index.ts`. The
+   450→// engine's `computeSnapshot` now uses `getMTQPrice(s.chainIndex)` (the
+   451→// chain-linked form) for both `gfbIndex` and `mtqPrice`. This legacy
+   452→// `computeGfbIndex` is RETAINED for backward compatibility with the
+   453→// standalone audit-stress.ts simulations (which need a pure function of fx,
+   454→// not the persisted chain index state).
+   455→export function computeGfbIndex(fx: Pick<FxRates, "EUR_USD" | "GBP_USD" | "JPY_USD" | "CNY_USD" | "CHF_USD" | "XAU_USD">): number {
+   456→  // Raw USD value of the basket at time t. USD is the unit of account (price 1.0);
+   457→  // every other component contributes its USD-equivalent via its FX rate.
+   458→  const numerator =
+   459→    STRATEGIC_PRIOR.USD  * 1.0 +
+   460→    STRATEGIC_PRIOR.EUR  * fx.EUR_USD +
+   461→    STRATEGIC_PRIOR.JPY  * fx.JPY_USD +
+   462→    STRATEGIC_PRIOR.GBP  * fx.GBP_USD +
+   463→    STRATEGIC_PRIOR.CNY  * fx.CNY_USD +
+   464→    STRATEGIC_PRIOR.CHF  * fx.CHF_USD +
+   465→    STRATEGIC_PRIOR.Gold * fx.XAU_USD;
+   466→  // Normalised: GFB_t = numerator / GFB_BASE_DENOMINATOR  (=1.0 at base date).
+   467→  // GFB_BASE_DENOMINATOR is the v1.0 chain-linked denominator (includes Gold
+   468→  // and CHF at base fixings — see blueprint.ts).
+   469→  return numerator / GFB_BASE_DENOMINATOR;
+   470→}
+   471→
+   472→// --- §3 MTQ Reference Price -------------------------------------------------
+   473→// Legacy helper: P_MTQ = GFB_t (since GFB_base is normalised to 1.0).
+   474→// DEPRECATED (P0-FIX-1): the canonical P_MTQ is `getMTQPrice(s.chainIndex)`
+   475→// from chain-index.ts. This helper is retained for backward compatibility.
+   476→export function computeMtqPrice(gfb: number): number {
+   477→  // P_MTQ = GFB_t / GFB_base, with GFB_base = 1.0 (normalised)
+   478→  return gfb;
+   479→}
+   480→
+   481→// === P0-FIX-1: Canonical chain-linked index helpers ===========================
+   482→// Advance the chain index one step with the latest FX/gold prices. MUTATES
+   483→// `s.chainIndex` (so the next computeSnapshot reads the fresh I_t). Called
+   484→// once per tick from the pilot-state tick loop AFTER fetching FX, BEFORE
+   485→// the first computeSnapshot.
+   486→export function advanceChainIndex(s: ReserveState, fx: FxRates): void {
+   487→  const prices = fxToPriceVector(fx);
+   488→  const result = advanceIndex(s.chainIndex, prices);
+   489→  s.chainIndex = result.state;
+   490→}
+   491→
+   492→// Commit the MASE smoothed weights to the chain index (called from
+   493→// advanceMase after the new smoothed weights are computed). Computes the
+   494→// divisor D_t = B_t^- / B_t^+ that preserves index continuity (zero
+   495→// artificial return), updates G_t, and updates prevWeights + prevPrices to
+   496→// the new weights and the current FX prices. MUTATES `s.chainIndex`.
+   497→export function commitChainIndexWeights(
+   498→  s: ReserveState,
+   499→  fx: FxRates,
+   500→  newWeights: WeightVector,
+   501→): { divisor: number; newG: number } {
+   502→  const weightsArr = COMPONENTS.map((c) => newWeights[c] ?? 0);
+   503→  const pricesArr = fxToPriceVector(fx);
+   504→  const r = commitWeights(s.chainIndex, weightsArr, pricesArr, Date.now());
+   505→  s.chainIndex = r.state;
+   506→  return { divisor: r.divisor, newG: r.newG };
+   507→}
+   508→
+   509→// The canonical MTQ reference price: P_MTQ = I_t × PAR (PAR = 1.0).
+   510→// Reads from the persisted chain index state (no mutation).
+   511→export function getMtqPriceFromState(s: ReserveState): number {
+   512→  return getMTQPrice(s.chainIndex);
+   513→}
+   514→
+   515→export function priceInSafetyBand(p: number): boolean {
+   516→  return p >= PRICE_SAFETY_LOWER && p <= PRICE_SAFETY_UPPER;
+   517→}
+   518→
+   519→// --- §4 Reserve NAV / RR / LCR ----------------------------------------------
+   520→// USD value of each holding (gross), then apply haircuts for NAV.
+   521→export function reserveAssetValues(s: ReserveState, fx: FxRates) {
+   522→  const usdGross = (s.usdc + s.usdp + s.usdt) * 1.0; // USDC + USDP + USDT combined
+   523→  const eurGross = s.eurc * fx.EUR_USD;
+   524→  const gbpGross = s.gbp * fx.GBP_USD;
+   525→  const jpyGross = s.jpy * fx.JPY_USD;
+   526→  const cnyGross = s.cny * fx.CNY_USD;
+   527→  const chfGross = s.chf * fx.CHF_USD; // NEW v1.0 — CHF is a first-class reserve component
+   528→  const fiatGross = usdGross + eurGross + gbpGross + jpyGross + cnyGross + chfGross;
+   529→
+   530→  // §4.1 Note on Gold: use the more conservative of reference vs executable.
+   531→  const goldRef = fx.XAU_USD;
+   532→  const goldExec = fx.XAU_USD * 0.995;
+   533→  const goldPrice = Math.min(goldRef, goldExec);
+   534→  const goldGross = (s.paxg + s.xaut) * goldPrice; // PAXG + XAUT combined
+   535→
+   536→  // Net values (after haircuts)
+   537→  const usdNet = usdGross * (1 - HAIRCUTS.USD);
+   538→  const eurNet = eurGross * (1 - HAIRCUTS.EUR);
+   539→  const gbpNet = gbpGross * (1 - HAIRCUTS.GBP);
+   540→  const jpyNet = jpyGross * (1 - HAIRCUTS.JPY);
+   541→  const cnyNet = cnyGross * (1 - HAIRCUTS.CNY);
+   542→  const chfNet = chfGross * (1 - HAIRCUTS.CHF); // NEW v1.0
+   543→  const goldNet = goldGross * (1 - HAIRCUTS.XAU);
+   544→
+   545→  const nav = usdNet + eurNet + gbpNet + jpyNet + cnyNet + chfNet + goldNet;
+   546→  const fiatNet = usdNet + eurNet + gbpNet + jpyNet + cnyNet + chfNet;
+   547→
+   548→  // Per-issuer breakdown (for concentration visualization)
+   549→  const usdcUsd = s.usdc * 1.0 * (1 - HAIRCUTS.USD);
+   550→  const usdpUsd = s.usdp * 1.0 * (1 - HAIRCUTS.USD);
+   551→  const usdtUsd = s.usdt * 1.0 * (1 - HAIRCUTS.USD);
+   552→  const paxgUsd = s.paxg * goldPrice * (1 - HAIRCUTS.XAU);
+   553→  const xautUsd = s.xaut * goldPrice * (1 - HAIRCUTS.XAU);
+   554→
+   555→  // §14.1 — index vs reserve gold split (USD net of haircut).
+   556→  // Index gold is locked (backs the 26% Strategic Prior Gold weight); reserve
+   557→  // gold is the buffer MARP rebalances. The total gold (= index + reserve) is
+   558→  // what serves the index weight for MASE/MARP observed-weight purposes.
+   559→  const indexPaxgUsd = s.indexPaxg * goldPrice * (1 - HAIRCUTS.XAU);
+   560→  const indexXautUsd = s.indexXaut * goldPrice * (1 - HAIRCUTS.XAU);
+   561→  const reservePaxgUsd = (s.reservePaxg >= 0 ? s.reservePaxg : Math.max(0, s.paxg - s.indexPaxg)) * goldPrice * (1 - HAIRCUTS.XAU);
+   562→  const reserveXautUsd = (s.reserveXaut >= 0 ? s.reserveXaut : Math.max(0, s.xaut - s.indexXaut)) * goldPrice * (1 - HAIRCUTS.XAU);
+   563→  const indexGoldNet = indexPaxgUsd + indexXautUsd;
+   564→  const reserveGoldNet = reservePaxgUsd + reserveXautUsd;
+   565→
+   566→  return {
+   567→    usdGross, eurGross, gbpGross, jpyGross, cnyGross, chfGross, fiatGross,
+   568→    goldGross, goldPrice,
+   569→    usdNet, eurNet, gbpNet, jpyNet, cnyNet, chfNet, goldNet,
+   570→    nav, fiatNet,
+   571→    usdcUsd, usdpUsd, usdtUsd, paxgUsd, xautUsd,
+   572→    // §14.1 gold split
+   573→    indexPaxgUsd, indexXautUsd, reservePaxgUsd, reserveXautUsd,
+   574→    indexGoldNet, reserveGoldNet,
+   575→  };
+   576→}
+   577→
+   578→export function circulatingSupply(s: ReserveState): number {
+   579→  return Math.max(0, s.totalSupply - s.genesisReserve);
+   580→}
+   581→
+   582→export function computeLiability(s: ReserveState, price: number): number {
+   583→  return circulatingSupply(s) * price;
+   584→}
+   585→
+   586→export function computeReserveRatio(nav: number, liability: number): number {
+   587→  if (liability <= 0) return Infinity; // no circulating supply → fully reserved
+   588→  return nav / liability;
+   589→}
+   590→
+   591→export function computeLcr(s: ReserveState, vals: { fiatNet: number }, price: number): number {
+   592→  const liquidAssets = vals.fiatNet; // stablecoins = 100% liquid; gold = 0%
+   593→  const circSupply = circulatingSupply(s);
+   594→  const stressDemand = circSupply * price * STRESS_REDEMPTION_RATE;
+   595→  if (stressDemand <= 0) return Infinity;
+   596→  return liquidAssets / stressDemand;
+   597→}
+   598→
+   599→// --- §4.2.2 Status determination (CANONICAL — 6-state per Master Listing 13) ---
+   600→// P0-FIX-3: the canonical classification lives in state-machine.ts. This
+   601→// function is a backward-compat wrapper that calls `determineState` with the
+   602→// engine's persisted riskState and returns just the state string. The full
+   603→// CanonicalState (with enteredAt, confirmationPeriodEnds, worseCondition) is
+   604→// returned by `advanceRiskState` and exposed on the snapshot.
+   605→//
+   606→// NOTE: this wrapper does NOT persist hysteresis state — it computes the
+   607→// state purely from the current RR/LCR. The tick loop uses `advanceRiskState`
+   608→// (which persists) for the authoritative state. This wrapper is for
+   609→// standalone calls (e.g., applyMint/applyRedeem internals) that need a
+   610→// state classification from current RR/LCR without mutating persisted state.
+   611→export function determineStatus(rr: number, lcr: number): ProtocolStatus {
+   612→  // Use a deterministic-state call (no hysteresis) — previous = "NORMAL" with
+   613→  // enteredAt = now means RECOVERY confirmation never completes from this
+   614→  // call alone; the persisted path (advanceRiskState) is the source of truth.
+   615→  // For pure-RR/LCR classification, this matches the Master Listing 13 worse-
+   616→  // condition-binds rule exactly.
+   617→  const prev: RiskState = "NORMAL";
+   618→  const cs = determineState(rr, lcr, prev, Date.now(), Date.now());
+   619→  return cs.state;
+   620→}
+   621→
+   622→// === P0-FIX-3: advance the canonical risk state (persists hysteresis) ========
+   623→// Called once per tick from the pilot-state tick loop AFTER the new RR/LCR
+   624→// are computed (post-rebalance, post-concentration-optimizer). Reads the
+   625→// previous state + enteredAt from s.riskState; writes the new state back.
+   626→// Returns the full CanonicalState (for the snapshot).
+   627→export function advanceRiskState(
+   628→  s: ReserveState,
+   629→  rr: number,
+   630→  lcr: number,
+   631→  now: number = Date.now(),
+   632→): CanonicalState {
+   633→  const cs = determineState(
+   634→    rr,
+   635→    lcr,
+   636→    s.riskState.state,
+   637→    s.riskState.enteredAt,
+   638→    now,
+   639→  );
+   640→  s.riskState = {
+   641→    state: cs.state,
+   642→    enteredAt: cs.enteredAt,
+   643→    confirmationPeriodEnds: cs.confirmationPeriodEnds,
+   644→  };
+   645→  return cs;
+   646→}
+   647→
+   648→// === P0-FIX-4: parameter → governance layer lookup ===========================
+   649→// Returns which of the 4 governance layers (CONSTITUTIONAL, MONETARY, RISK,
+   650→// EMERGENCY) owns a given parameter, plus the envelope (if any) and the
+   651→// immutable flag. Returns null for unknown parameters.
+   652→export function getParameterGovernance(key: string): {
+   653→  layer: GovernanceLayerName;
+   654→  immutable?: boolean;
+   655→  envelope?: readonly number[];
+   656→} | null {
+   657→  const entry = (PARAMETER_REGISTRY as Record<string, { layer: GovernanceLayerName; immutable?: boolean; envelope?: readonly number[] }>)[key];
+   658→  return entry ?? null;
+   659→}
+   660→
+   661→// --- §6 Adaptive Macro Engine -----------------------------------------------
+   662→function rollingStats(hist: number[]): { mean: number; sd: number } {
+   663→  const filled = hist.filter((x) => x > 0);
+   664→  if (filled.length === 0) return { mean: 0, sd: 0 };
+   665→  const mean = filled.reduce((a, b) => a + b, 0) / filled.length;
+   666→  const variance = filled.reduce((a, b) => a + (b - mean) * (b - mean), 0) / filled.length;
+   667→  return { mean, sd: Math.sqrt(variance) };
+   668→}
+   669→
+   670→export function computeZScores(s: ReserveState, vix: number, dxy: number) {
+   671→  const v = rollingStats(s.vixHistory);
+   672→  const d = rollingStats(s.dxyHistory);
+   673→  const eps = 1e-9;
+   674→  const zVix = v.sd > eps ? (vix - v.mean) / (v.sd + eps) : 0;
+   675→  const zDxy = d.sd > eps ? (dxy - d.mean) / (d.sd + eps) : 0;
+   676→  return { zVix, zDxy, vixMean: v.mean, vixSd: v.sd, dxyMean: d.mean, dxySd: d.sd };
+   677→}
+   678→
+   679→export function computeRawTargetTheta(zVix: number, zDxy: number): number {
+   680→  const theta = ALPHA * zVix + BETA * zDxy;
+   681→  return clampSym(theta, -THETA_MAX, THETA_MAX);
+   682→}
+   683→
+   684→export function computeRawTargetGoldWeight(zVix: number, zDxy: number): number {
+   685→  const theta = computeRawTargetTheta(zVix, zDxy);
+   686→  return clamp(BASE_GOLD_WEIGHT + theta, GOLD_WEIGHT_LOWER, GOLD_WEIGHT_UPPER);
+   687→}
+   688→
+   689→export function smoothGoldWeight(prev: number, target: number): number {
+   690→  if (prev <= 0) return target;
+   691→  return SMOOTHING_LAMBDA * target + (1 - SMOOTHING_LAMBDA) * prev;
+   692→}
+   693→
+   694→// --- §8 Dynamic Buffer -------------------------------------------------------
+   695→export function bufferBaseGoldRatio(rr: number): number {
+   696→  if (rr >= RR_TARGET) return BUFFER_GOLD_BASE; // 62.5% → total 26.25%
+   697→  if (rr >= RR_STRESS) return BUFFER_GOLD_STRESS; // 85% → total 28.5%
+   698→  return BUFFER_GOLD_EMERGENCY; // 100% → total 30%
+   699→}
+   700→
+   701→export function currentBufferGoldRatio(s: ReserveState): number {
+   702→  if (s.bufferState === "EMERGENCY") return BUFFER_GOLD_EMERGENCY;
+   703→  if (s.rampStartAt === 0) {
+   704→    return s.bufferState === "BASE" ? BUFFER_GOLD_BASE : BUFFER_GOLD_STRESS;
+   705→  }
+   706→  const elapsedH = (Date.now() - s.rampStartAt) / 3_600_000;
+   707→  if (elapsedH >= RAMP_DURATION_HOURS) return s.rampToRatio;
+   708→  const progress = elapsedH / RAMP_DURATION_HOURS;
+   709→  const from = s.rampFromRatio;
+   710→  const to = s.rampToRatio;
+   711→  return from + (to - from) * progress;
+   712→}
+   713→
+   714→export function bufferBaseFromRatio(rr: number): "BASE" | "STRESS" | "EMERGENCY" {
+   715→  if (rr >= RR_TARGET) return "BASE";
+   716→  if (rr >= RR_STRESS) return "STRESS";
+   717→  return "EMERGENCY";
+   718→}
+   719→
+   720→// Unified target gold weight (tokenomics reconciliation):
+   721→// W_target = clamp( buffer_base_gold(RR) + θ_smoothed , 22%, 30% )
+   722→export function computeTargetGoldWeight(s: ReserveState, rr: number): number {
+   723→  const bufferBase = currentBufferGoldRatio(s); // ∈ {0.625, ~0.85, 1.0} with ramp
+   724→  const baseFromBuffer = CORE_GOLD_WEIGHT + BUFFER_SIZE * bufferBase; // 0.20 + 0.10*b
+   725→  const target = baseFromBuffer + s.smoothedGoldWeight - BASE_GOLD_WEIGHT; // apply θ = smoothed - base
+   726→  return clamp(target, GOLD_WEIGHT_LOWER, GOLD_WEIGHT_UPPER);
+   727→}
+   728→
+   729→// --- §7 Rebalancing decision (simplified cost-benefit) ----------------------
+   730→export interface RebalanceDecision {
+   731→  shouldRebalance: boolean;
+   732→  direction: 0 | 1 | -1;
+   733→  observedGoldWeight: number;
+   734→  targetGoldWeight: number;
+   735→  deviation: number; // observed - target (signed)
+   736→  tradeUsd: number;
+   737→  reason: string;
+   738→}
+   739→
+   740→export function maybeResetDailyTurnover(s: ReserveState): void {
+   741→  if (Date.now() - s.lastTurnoverResetAt >= 86_400_000) {
+   742→    s.dailyTurnoverUsd = 0;
+   743→    s.lastTurnoverResetAt = Date.now();
+   744→  }
+   745→}
+   746→
+   747→export function evaluateRebalance(
+   748→  s: ReserveState,
+   749→  vals: { nav: number; goldNet: number; fiatNet: number },
+   750→  rr: number,
+   751→): RebalanceDecision {
+   752→  const nav = vals.nav;
+   753→  if (nav <= 0) {
+   754→    return { shouldRebalance: false, direction: 0, observedGoldWeight: 0, targetGoldWeight: 0, deviation: 0, tradeUsd: 0, reason: "NAV ≤ 0" };
+   755→  }
+   756→  const observed = vals.goldNet / nav;
+   757→  const target = computeTargetGoldWeight(s, rr);
+   758→  const deviation = observed - target;
+   759→
+   760→  if (Math.abs(deviation) < 0.005) {
+   761→    return { shouldRebalance: false, direction: 0, observedGoldWeight: observed, targetGoldWeight: target, deviation, tradeUsd: 0, reason: "Within tolerance (<0.5%)" };
+   762→  }
+   763→
+   764→  // Direction lock (overridden in stress)
+   765→  const inStress = rr < RR_STRESS;
+   766→  if (!inStress && Date.now() - s.lastTradeAt < DIRECTION_LOCK_HOURS * 3_600_000) {
+   767→    if ((deviation > 0 && s.lastTradeDir === -1) || (deviation < 0 && s.lastTradeDir === 1)) {
+   768→      return { shouldRebalance: false, direction: 0, observedGoldWeight: observed, targetGoldWeight: target, deviation, tradeUsd: 0, reason: "Direction lock (24h whipsaw guard)" };
+   769→    }
+   770→  }
+   771→
+   772→  // Trade sizing
+   773→  const surplusUsd = Math.abs(deviation) * nav;
+   774→  const poolDepth24h = 4_000_000; // assumed PAXG/USDC 24h depth for the pilot
+   775→  const maxByPool = MAX_POOL_FRACTION * poolDepth24h;
+   776→  let tradeUsd = Math.min(surplusUsd, maxByPool);
+   777→  maybeResetDailyTurnover(s);
+   778→  const remainingDaily = MAX_DAILY_TURNOVER * nav - s.dailyTurnoverUsd;
+   779→  if (tradeUsd > remainingDaily) tradeUsd = Math.max(0, remainingDaily);
+   780→
+   781→  // Cost-benefit (simplified): estimate cost ~ 0.1% slippage + $50 gas equiv
+   782→  const estCost = tradeUsd * 0.001 + 50;
+   783→  const benefit = Math.abs(deviation) * nav * LAMBDA_1 + (rr < RR_TARGET ? (1 / Math.max(rr, 0.5)) * nav * LAMBDA_3 : 0);
+   784→  const direction = deviation > 0 ? -1 : 1; // excess gold → sell; deficit → buy
+   785→
+   786→  if (benefit <= estCost) {
+   787→    return { shouldRebalance: false, direction: 0, observedGoldWeight: observed, targetGoldWeight: target, deviation, tradeUsd: 0, reason: `Cost (${estCost.toFixed(0)}) ≥ benefit (${benefit.toFixed(0)})` };
+   788→  }
+   789→  return { shouldRebalance: true, direction, observedGoldWeight: observed, targetGoldWeight: target, deviation, tradeUsd, reason: "Benefit > cost; executing" };
+   790→}
+   791→
+   792→// Apply a rebalance trade in USD terms (mutates state).
+   793→export function applyRebalanceTrade(s: ReserveState, decision: RebalanceDecision, goldPrice: number): void {
+   794→  if (!decision.shouldRebalance) return;
+   795→  const usd = decision.tradeUsd;
+   796→  if (decision.direction === -1) {
+   797→    // sell gold → buy USDC (simplified: convert to USDC)
+   798→    const goldUnits = usd / goldPrice;
+   799→    s.paxg = Math.max(0, s.paxg - goldUnits);
+   800→    // §14.1 — the sold gold comes from the RESERVE buffer (index gold is locked).
+   801→    // Maintain the invariant paxg = indexPaxg + reservePaxg.
+   802→    s.reservePaxg = Math.max(0, s.reservePaxg - goldUnits);
+   803→    s.usdc += usd;
+   804→  } else {
+   805→    // buy gold → spend USDC
+   806→    s.usdc = Math.max(0, s.usdc - usd);
+   807→    const goldUnits = usd / goldPrice;
+   808→    s.paxg += goldUnits;
+   809→    // §14.1 — the bought gold goes to the RESERVE buffer (index gold is locked).
+   810→    s.reservePaxg += goldUnits;
+   811→  }
+   812→  s.lastTradeDir = decision.direction;
+   813→  s.lastTradeAt = Date.now();
+   814→  s.dailyTurnoverUsd += usd;
+   815→  s.updatedAt = Date.now();
+   816→}
+   817→
+   818→// --- §14.1 + §10 MARP per-component rebalance execution ---------------------
+   819→// applyMarpRebalance() is the v1.0 production-target rebalance path. Unlike the
+   820→// legacy §7 single-direction `applyRebalanceTrade` (which only trades gold ↔
+   821→// USDC), this takes the per-component MarpDecision[] (output of marpDecision())
+   822→// and applies each "would-execute" trade to the RESERVE holdings — index gold
+   823→// is LOCKED per §14.1 and never touched here.
+   824→//
+   825→// Trade execution model (pilot):
+   826→//   - For non-USD components (EUR/JPY/GBP/CNY/CHF/Gold): each trade pairs with
+   827→//     USD as the unit of account. A "sell" of component X converts X → USD
+   828→//     (split 1/3 across USDC/USDP/USDT, respecting the §5.6 concentration
+   829→//     target). A "buy" of component X converts USD → X.
+   830→//   - For USD: each trade pairs with Gold (the other deep pool). A "sell" of
+   831→//     USD converts USD → Gold (split 50/50 PAXG/XAUT in the RESERVE buffer).
+   832→//     A "buy" of USD converts Gold → USD.
+   833→//   - For Gold: a "sell" reduces reservePaxg + reserveXaut (50/50); a "buy"
+   834→//     increases them. Index gold is never touched.
+   835→//
+   836→// Constraints enforced (§10):
+   837→//   - MAX_DAILY_TURNOVER (5% of NAV) — trades that would breach are skipped.
+   838→//   - DIRECTION_LOCK_HOURS (24h) — trades that reverse the last direction
+   839→//     within 24h are skipped (whipsaw guard).
+   840→//   - Only decisions with shouldTrade=true AND level>=6 are executed
+   841→//     (level 1-5 are advisory: no-trade zone / low urgency / cost-benefit
+   842→//     fail / turnover cap).
+   843→//
+   844→// Mutates: s.usdc/usdp/usdt, s.eurc/gbp/jpy/cny/chf, s.reservePaxg/reserveXaut
+   845→//          (and re-syncs s.paxg/xaut totals via the §14.1 invariant),
+   846→//          s.lastTradeDir/lastTradeAt, s.dailyTurnoverUsd, s.updatedAt.
+   847→// Index gold (s.indexPaxg, s.indexXaut) is NEVER touched.
+   848→export interface MarpExecDecision {
+   849→  shouldTrade: boolean;
+   850→  component: string;
+   851→  direction: string;
+   852→  tradeUsd: number;
+   853→  level: number;
+   854→}
+   855→
+   856→export interface MarpExecResult {
+   857→  appliedCount: number;
+   858→  skippedCount: number;
+   859→  totalTradeUsd: number;
+   860→  path: 'legacy' | 'marp';
+   861→  // Per-decision trace: which were applied vs skipped (and why).
+   862→  traces: { component: string; direction: string; tradeUsd: number; level: number; applied: boolean; skipReason?: string }[];
+   863→}
+   864→
+   865→export function applyMarpRebalance(
+   866→  s: ReserveState,
+   867→  fx: FxRates,
+   868→  decisions: MarpExecDecision[],
+   869→): MarpExecResult {
+   870→  let appliedCount = 0;
+   871→  let skippedCount = 0;
+   872→  let totalTradeUsd = 0;
+   873→  const traces: MarpExecResult['traces'] = [];
+   874→
+   875→  maybeResetDailyTurnover(s);
+   876→  const vals = reserveAssetValues(s, fx);
+   877→  const nav = vals.nav;
+   878→  if (nav <= 0) {
+   879→    // Nothing to do — surface a single skip trace for visibility.
+   880→    for (const d of decisions) {
+   881→      traces.push({ component: d.component, direction: d.direction, tradeUsd: d.tradeUsd, level: d.level, applied: false, skipReason: 'NAV ≤ 0' });
+   882→    }
+   883→    return { appliedCount: 0, skippedCount: decisions.length, totalTradeUsd: 0, path: 'marp', traces };
+   884→  }
+   885→  const goldPrice = vals.goldPrice;
+   886→
+   887→  for (const d of decisions) {
+   888→    // Level gate: only execute shouldTrade && level >= 6 decisions.
+   889→    if (!d.shouldTrade || d.level < 6) {
+   890→      skippedCount++;
+   891→      traces.push({ component: d.component, direction: d.direction, tradeUsd: d.tradeUsd, level: d.level, applied: false, skipReason: `level ${d.level} (advisory)` });
+   892→      continue;
+   893→    }
+   894→    let tradeUsd = d.tradeUsd;
+   895→    // Enforce MAX_DAILY_TURNOVER (5% of NAV)
+   896→    const remainingDaily = MAX_DAILY_TURNOVER * nav - s.dailyTurnoverUsd;
+   897→    if (tradeUsd > remainingDaily) {
+   898→      tradeUsd = Math.max(0, remainingDaily);
+   899→    }
+   900→    if (tradeUsd <= 0) {
+   901→      skippedCount++;
+   902→      traces.push({ component: d.component, direction: d.direction, tradeUsd: d.tradeUsd, level: d.level, applied: false, skipReason: 'daily turnover cap' });
+   903→      continue;
+   904→    }
+   905→    // Direction (+1 buy / -1 sell / 0 hold)
+   906→    const dir: 0 | 1 | -1 = d.direction === 'buy' ? 1 : d.direction === 'sell' ? -1 : 0;
+   907→    if (dir === 0) {
+   908→      skippedCount++;
+   909→      traces.push({ component: d.component, direction: d.direction, tradeUsd: d.tradeUsd, level: d.level, applied: false, skipReason: 'hold' });
+   910→      continue;
+   911→    }
+   912→    // Enforce DIRECTION_LOCK_HOURS (24h whipsaw guard)
+   913→    if (Date.now() - s.lastTradeAt < DIRECTION_LOCK_HOURS * 3_600_000) {
+   914→      if ((dir === 1 && s.lastTradeDir === -1) || (dir === -1 && s.lastTradeDir === 1)) {
+   915→        skippedCount++;
+   916→        traces.push({ component: d.component, direction: d.direction, tradeUsd: d.tradeUsd, level: d.level, applied: false, skipReason: 'direction lock (24h whipsaw guard)' });
+   917→        continue;
+   918→      }
+   919→    }
+   920→
+   921→    // Apply the trade to the RESERVE holdings.
+   922→    if (d.component === 'Gold') {
+   923→      // Gold ↔ USD. Split 50/50 across reservePaxg + reserveXaut.
+   924→      const goldUnits = tradeUsd / goldPrice;
+   925→      const half = goldUnits / 2;
+   926→      if (dir === -1) {
+   927→        // sell gold → USD
+   928→        s.reservePaxg = Math.max(0, s.reservePaxg - half);
+   929→        s.reserveXaut = Math.max(0, s.reserveXaut - half);
+   930→        const usdThird = tradeUsd / 3;
+   931→        s.usdc += usdThird;
+   932→        s.usdp += usdThird;
+   933→        s.usdt += usdThird;
+   934→      } else {
+   935→        // buy gold ← USD
+   936→        const usdThird = tradeUsd / 3;
+   937→        s.usdc = Math.max(0, s.usdc - usdThird);
+   938→        s.usdp = Math.max(0, s.usdp - usdThird);
+   939→        s.usdt = Math.max(0, s.usdt - usdThird);
+   940→        s.reservePaxg += half;
+   941→        s.reserveXaut += half;
+   942→      }
+   943→      // §14.1 — re-sync total paxg/xaut = index + reserve
+   944→      syncTotalFromReserve(s);
+   945→    } else if (d.component === 'USD') {
+   946→      // USD ↔ Gold. Split 50/50 across reservePaxg + reserveXaut.
+   947→      const goldUnits = tradeUsd / goldPrice;
+   948→      const half = goldUnits / 2;
+   949→      if (dir === -1) {
+   950→        // sell USD → gold
+   951→        const usdThird = tradeUsd / 3;
+   952→        s.usdc = Math.max(0, s.usdc - usdThird);
+   953→        s.usdp = Math.max(0, s.usdp - usdThird);
+   954→        s.usdt = Math.max(0, s.usdt - usdThird);
+   955→        s.reservePaxg += half;
+   956→        s.reserveXaut += half;
+   957→      } else {
+   958→        // buy USD ← gold
+   959→        s.reservePaxg = Math.max(0, s.reservePaxg - half);
+   960→        s.reserveXaut = Math.max(0, s.reserveXaut - half);
+   961→        const usdThird = tradeUsd / 3;
+   962→        s.usdc += usdThird;
+   963→        s.usdp += usdThird;
+   964→        s.usdt += usdThird;
+   965→      }
+   966→      // §14.1 — re-sync total paxg/xaut = index + reserve
+   967→      syncTotalFromReserve(s);
+   968→    } else {
+   969→      // Non-USD fiat component (EUR/JPY/GBP/CNY/CHF) ↔ USD.
+   970→      // Convert tradeUsd to native units via the FX rate.
+   971→      const fxRate =
+   972→        d.component === 'EUR' ? fx.EUR_USD :
+   973→        d.component === 'JPY' ? fx.JPY_USD :
+   974→        d.component === 'GBP' ? fx.GBP_USD :
+   975→        d.component === 'CNY' ? fx.CNY_USD :
+   976→        d.component === 'CHF' ? fx.CHF_USD : 1.0;
+   977→      const nativeUnits = tradeUsd / fxRate;
+   978→      const usdThird = tradeUsd / 3;
+   979→      if (dir === -1) {
+   980→        // sell component → USD
+   981→        if (d.component === 'EUR') s.eurc = Math.max(0, s.eurc - nativeUnits);
+   982→        else if (d.component === 'JPY') s.jpy = Math.max(0, s.jpy - nativeUnits);
+   983→        else if (d.component === 'GBP') s.gbp = Math.max(0, s.gbp - nativeUnits);
+   984→        else if (d.component === 'CNY') s.cny = Math.max(0, s.cny - nativeUnits);
+   985→        else if (d.component === 'CHF') s.chf = Math.max(0, s.chf - nativeUnits);
+   986→        s.usdc += usdThird;
+   987→        s.usdp += usdThird;
+   988→        s.usdt += usdThird;
+   989→      } else {
+   990→        // buy component ← USD
+   991→        s.usdc = Math.max(0, s.usdc - usdThird);
+   992→        s.usdp = Math.max(0, s.usdp - usdThird);
+   993→        s.usdt = Math.max(0, s.usdt - usdThird);
+   994→        if (d.component === 'EUR') s.eurc += nativeUnits;
+   995→        else if (d.component === 'JPY') s.jpy += nativeUnits;
+   996→        else if (d.component === 'GBP') s.gbp += nativeUnits;
+   997→        else if (d.component === 'CNY') s.cny += nativeUnits;
+   998→        else if (d.component === 'CHF') s.chf += nativeUnits;
+   999→      }
+  1000→    }
+  1001→
+  1002→    s.lastTradeDir = dir;
+  1003→    s.lastTradeAt = Date.now();
+  1004→    s.dailyTurnoverUsd += tradeUsd;
+  1005→    totalTradeUsd += tradeUsd;
+  1006→    appliedCount++;
+  1007→    traces.push({ component: d.component, direction: d.direction, tradeUsd, level: d.level, applied: true });
+  1008→  }
+  1009→
+  1010→  s.updatedAt = Date.now();
+  1011→  return { appliedCount, skippedCount, totalTradeUsd, path: 'marp', traces };
+  1012→}
+  1013→
+  1014→// --- §11 Geopolitical Eject -------------------------------------------------
+  1015→export function updatePegHealth(s: ReserveState, dtHours: number, fx: FxRates) {
+  1016→  // Simulated per-asset peg drift (honest: labelled as simulated in UI).
+  1017→  // Stablecoins should sit at 1.0; we apply a tiny mean-reverting shock.
+  1018→  const drift = (cur: number, amp: number) => {
+  1019→    const shock = (Math.random() - 0.5) * 2 * amp;
+  1020→    return Math.max(0.9, Math.min(1.1, cur + (1 - cur) * 0.05 + shock));
+  1021→  };
+  1022→  s.pegHealth.USD = drift(s.pegHealth.USD, 0.0005);
+  1023→  s.pegHealth.EUR = drift(s.pegHealth.EUR, 0.0008);
+  1024→  s.pegHealth.GBP = drift(s.pegHealth.GBP, 0.0012);
+  1025→  s.pegHealth.JPY = drift(s.pegHealth.JPY, 0.0012);
+  1026→  s.pegHealth.CNY = drift(s.pegHealth.CNY, 0.0018);
+  1027→
+  1028→  const currencies: (keyof typeof s.pegHealth)[] = ["USD", "EUR", "GBP", "JPY", "CNY"];
+  1029→  for (const c of currencies) {
+  1030→    const p = s.pegHealth[c];
+  1031→    const outside = p < EJECT_DEPEG_BAND_LOWER || p > EJECT_DEPEG_BAND_UPPER;
+  1032→    if (outside) {
+  1033→      s.depegHours[c] += dtHours;
+  1034→    } else {
+  1035→      s.depegHours[c] = Math.max(0, s.depegHours[c] - dtHours * 0.5);
+  1036→    }
+  1037→    // Staged ladder
+  1038→    const h = s.depegHours[c];
+  1039→    let stage = 0;
+  1040→    if (h > 48) stage = 3;
+  1041→    else if (h > 24) stage = 2;
+  1042→    else if (h > 12) stage = 1;
+  1043→    if (h > 96 || p < 0.9 || p > 1.1) stage = 4;
+  1044→    s.ejectStage[c] = stage;
+  1045→  }
+  1046→}
+  1047→
+  1048→// --- §12 Mint & Redemption --------------------------------------------------
+  1049→export interface MintResult {
+  1050→  ok: boolean;
+  1051→  reason?: string;
+  1052→  inputUsd: number;
+  1053→  feeUsd: number;
+  1054→  netUsd: number;
+  1055→  mtqPrice: number;
+  1056→  mtqMinted: number;
+  1057→  throttleFactor: number; // 1.0 normal, 0.5 caution, 0.25 recovery, 0 paused
+  1058→  newCirculatingSupply: number;
+  1059→  newReserveRatio: number;
+  1060→}
+  1061→
+  1062→export function applyMint(
+  1063→  s: ReserveState,
+  1064→  fx: FxRates,
+  1065→  status: ProtocolStatus,
+  1066→  inputUsd: number,
+  1067→): MintResult {
+  1068→  // P0-FIX-1: use the canonical chain-linked index for the MTQ price (the
+  1069→  // legacy Laspeyres form had a structural short-gold bug — see chain-index.ts).
+  1070→  const price = getMtqPriceFromState(s);
+  1071→  if (!priceInSafetyBand(price)) {
+  1072→    return { ok: false, reason: "MTQ price outside safety band (0.50–2.00 USD); minting paused by circuit breaker.", inputUsd, feeUsd: 0, netUsd: 0, mtqPrice: price, mtqMinted: 0, throttleFactor: 0, newCirculatingSupply: circulatingSupply(s), newReserveRatio: computeReserveRatio(reserveAssetValues(s, fx).nav, computeLiability(s, price)) };
+  1073→  }
+  1074→  // P0-FIX-3: use the canonical mint throttle / minting-allowed from
+  1075→  // state-machine.ts. STRESS now also pauses minting (previously only
+  1076→  // DEFENSIVE/EMERGENCY did). NORMAL=1.0, CAUTION=0.5, STRESS/DEFENSIVE/EMERGENCY=0 (paused), RECOVERY=0.25.
+  1077→  if (!mintingAllowed(status)) {
+  1078→    return { ok: false, reason: `${status}: minting paused by canonical Risk State Machine (§21.3).`, inputUsd, feeUsd: 0, netUsd: 0, mtqPrice: price, mtqMinted: 0, throttleFactor: 0, newCirculatingSupply: circulatingSupply(s), newReserveRatio: computeReserveRatio(reserveAssetValues(s, fx).nav, computeLiability(s, price)) };
+  1079→  }
+  1080→  const throttle = mintThrottle(status);
+  1081→  const feeUsd = inputUsd * (MINT_FEE_BPS / 10_000);
+  1082→  const netUsd = inputUsd - feeUsd;
+  1083→  const minted = (netUsd / price) * throttle;
+  1084→
+  1085→  // Mutate reserve: deposit USDC (split across 3 USD issuers per concentration policy),
+  1086→  // mint MTQ to user (circulating supply rises). The concentration rebalancer in the
+  1087→  // tick loop will re-optimize the split if any issuer exceeds 25%.
+  1088→  const usdThird = netUsd / 3;
+  1089→  s.usdc += usdThird;
+  1090→  s.usdp += usdThird;
+  1091→  s.usdt += usdThird;
+  1092→  s.treasury.hotWalletUsd += feeUsd; // fee revenue → hot wallet (§13.2 sweep target)
+  1093→  s.totalSupply += minted;
+  1094→  s.updatedAt = Date.now();
+  1095→
+  1096→  const vals = reserveAssetValues(s, fx);
+  1097→  const newRr = computeReserveRatio(vals.nav, computeLiability(s, price));
+  1098→  return {
+  1099→    ok: true,
+  1100→    inputUsd,
+  1101→    feeUsd,
+  1102→    netUsd,
+  1103→    mtqPrice: price,
+  1104→    mtqMinted: minted,
+  1105→    throttleFactor: throttle,
+  1106→    newCirculatingSupply: circulatingSupply(s),
+  1107→    newReserveRatio: newRr,
+  1108→  };
+  1109→}
+  1110→
+  1111→export interface RedeemBasket {
+  1112→  currency: string;
+  1113→  token: string;
+  1114→  usdValue: number;
+  1115→  nativeAmount: number;
+  1116→  weight: number;
+  1117→}
+  1118→
+  1119→export interface RedeemResult {
+  1120→  ok: boolean;
+  1121→  reason?: string;
+  1122→  inputMtq: number;
+  1123→  mtqPrice: number;
+  1124→  // P0-FIX-2: PRIMARY valuation is now NAV-based (per Master §19.3.2, Invariant I6).
+  1125→  // grossUsd = inputMtq × NAV_t, where NAV_t = V_net / circulatingSupply.
+  1126→  // The legacy §3.4.2 (index-priced) valuation is retained in auditGrossUsdIndex
+  1127→  // for comparison; the §12.2 (NAV-based) valuation is now the canonical settlement.
+  1128→  grossUsd: number;
+  1129→  feeBps: number;
+  1130→  feeUsd: number;
+  1131→  netUsd: number;
+  1132→  goldUsd: number;
+  1133→  goldPaxg: number;
+  1134→  basket: RedeemBasket[];
+  1135→  newCirculatingSupply: number;
+  1136→  newReserveRatio: number;
+  1137→  // P0-FIX-2: NAV_t used for settlement (V_net / circulatingSupply, fallback P_MTQ at genesis)
+  1138→  navPerMtq: number;
+  1139→  // Audit fields (retained from the legacy §3.4.2 vs §12.2 reconciliation)
+  1140→  auditNavPerToken: number;       // V_net / S (book value per MTQ) — same as navPerMtq
+  1141→  auditGrossUsdNav: number;      // Y × NAV_per_token (§12.2 — now the CANONICAL settlement)
+  1142→  auditGrossUsdIndex: number;    // Y × P_MTQ (§3.4.2 — now the AUDIT-ONLY alternative)
+  1143→  auditDeltaUsd: number;          // §12.2 − §3.4.2 (positive → NAV pays more than index)
+  1144→  auditNote: string;
+  1145→}
+  1146→
+  1147→export function applyRedeem(
+  1148→  s: ReserveState,
+  1149→  fx: FxRates,
+  1150→  status: ProtocolStatus,
+  1151→  inputMtq: number,
+  1152→): RedeemResult {
+  1153→  // P0-FIX-1: use the canonical chain-linked index for P_MTQ.
+  1154→  const price = getMtqPriceFromState(s);
+  1155→  const circ = circulatingSupply(s);
+  1156→  // Pre-settlement reserve values (used to compute NAV_t and the audit fields).
+  1157→  const vals0 = reserveAssetValues(s, fx);
+  1158→  // P0-FIX-2 (Master §19.3.2, Invariant I6): NAV-based redemption.
+  1159→  //   NAV_t = V_net / circulatingSupply; grossUsd = inputMtq × NAV_t
+  1160→  //
+  1161→  // Genesis fallback: at genesis (or any time circulatingSupply = 0), NAV_t
+  1162→  // is undefined (division by zero). We fall back to P_MTQ in this case:
+  1163→  //   - At genesis, there is no circulating MTQ to redeem (the inputMtq > circ
+  1164→  //     guard below catches this case explicitly).
+  1165→  //   - In practice the fallback is exercised only when the protocol has not
+  1166→  //     yet minted any circulating supply — the redemption would fail with
+  1167→  //     "insufficient supply" before reaching the NAV computation.
+  1168→  //   - After the first mint, circulating supply > 0 and NAV_t = V_net / S_circ
+  1169→  //     will be very high (e.g. $42/MTQ when RR = 2400%) — this is CORRECT:
+  1170→  //     redeeming 1 MTQ returns $42 worth of reserve, which IS the actual
+  1171→  //     value of the token. The Index/NAV divergence analysis (§12) surfaces
+  1172→  //     when this matters (e.g. when NAV_per_MTQ diverges from P_MTQ by >5%
+  1173→  //     → "monitor" status; >10% → "stress").
+  1174→  const navPerMtq = circ > 0 ? vals0.nav / circ : price;
+  1175→  // Honest audit fields (computed pre-settlement so they exist on the error path too).
+  1176→  // P0-FIX-2: the primary settlement now uses NAV (§12.2 — formerly audit-only).
+  1177→  // The legacy §3.4.2 (index-priced) is now the AUDIT-ONLY alternative.
+  1178→  const auditNavPerToken = navPerMtq;
+  1179→  const auditGrossUsdNav = inputMtq * navPerMtq;
+  1180→  const auditGrossUsdIndex = inputMtq * price;
+  1181→  const auditNote =
+  1182→    "P0-FIX-2 (Master §19.3.2, Invariant I6): redemption is now priced against " +
+  1183→    "NAV_t = V_net / circulatingSupply (the §12.2 form, formerly audit-only). " +
+  1184→    "The legacy §3.4.2 (redeem at P_MTQ) is now the AUDIT-ONLY alternative " +
+  1185→    "(auditGrossUsdIndex). At RR>100% the NAV pays redeemers MORE than the index " +
+  1186→    "price (auditDeltaUsd > 0), which IS the intent: the redeemer receives the " +
+  1187→    "actual book value of their token, not just the index-tracked price. The " +
+  1188→    "§12 Index/NAV divergence analysis surfaces when this gap becomes material " +
+  1189→    "(>5% monitor, >10% stress).";
+  1190→  if (inputMtq > circ) {
+  1191→    return { ok: false, reason: "Insufficient circulating supply for this redemption in pilot state.", inputMtq, mtqPrice: price, grossUsd: 0, feeBps: 0, feeUsd: 0, netUsd: 0, goldUsd: 0, goldPaxg: 0, basket: [], newCirculatingSupply: circ, newReserveRatio: computeReserveRatio(vals0.nav, computeLiability(s, price)), navPerMtq, auditNavPerToken, auditGrossUsdNav, auditGrossUsdIndex, auditDeltaUsd: auditGrossUsdNav - auditGrossUsdIndex, auditNote };
+  1192→  }
+  1193→  // P0-FIX-3: §21.4 — redemption is PAUSED in EMERGENCY (the reconciliation
+  1194→  // resolves the §16.2 vs §21.4 contradiction in favour of §21.4: pause).
+  1195→  if (!redemptionAllowed(status)) {
+  1196→    return { ok: false, reason: `${status}: redemption paused per §21.4 (canonical Risk State Machine).`, inputMtq, mtqPrice: price, grossUsd: 0, feeBps: 0, feeUsd: 0, netUsd: 0, goldUsd: 0, goldPaxg: 0, basket: [], newCirculatingSupply: circ, newReserveRatio: computeReserveRatio(vals0.nav, computeLiability(s, price)), navPerMtq, auditNavPerToken, auditGrossUsdNav, auditGrossUsdIndex, auditDeltaUsd: auditGrossUsdNav - auditGrossUsdIndex, auditNote };
+  1197→  }
+  1198→  // P0-FIX-3: state-dependent fee from the canonical 6-state risk machine.
+  1199→  // NORMAL/CAUTION 0.15% (15 bps), STRESS 0.50% (50 bps), DEFENSIVE 1.00%
+  1200→  // (100 bps), EMERGENCY 2.00% (200 bps), RECOVERY 0.50% (50 bps).
+  1201→  const feeFraction = redeemFee(status);
+  1202→  const feeBps = Math.round(feeFraction * 10_000);
+  1203→  // P0-FIX-2: grossUsd is now NAV-based (was index-based in the legacy engine).
+  1204→  const grossUsd = inputMtq * navPerMtq;
+  1205→  const feeUsd = grossUsd * feeFraction;
+  1206→  const netUsd = grossUsd - feeUsd;
+  1207→
+  1208→  // Release actual reserve composition proportionally (§12.2):
+  1209→  // gold portion = netUsd * W_target (legacy v1.2 buffer-derived target —
+  1210→  // retained until the MASE ensemble replaces it). fiat portion split per the
+  1211→  // 6 non-gold Strategic Prior components (USD/EUR/JPY/GBP/CNY/CHF) renormalised
+  1212→  // to the non-gold total.
+  1213→  const vals = reserveAssetValues(s, fx);
+  1214→  const rr = computeReserveRatio(vals.nav, computeLiability(s, price));
+  1215→  const wGold = computeTargetGoldWeight(s, rr);
+  1216→  const goldUsd = netUsd * wGold;
+  1217→  const fiatUsd = netUsd * (1 - wGold);
+  1218→  const goldPrice = vals.goldPrice;
+  1219→  const goldPaxg = goldUsd / goldPrice;
+  1220→
+  1221→  // v1.0: Strategic Prior weights for the 6 non-gold components, renormalised
+  1222→  // to the non-gold total (0.27 + 0.20 + 0.09 + 0.08 + 0.05 + 0.05 = 0.74).
+  1223→  const basketFiatTotal =
+  1224→    STRATEGIC_PRIOR.USD + STRATEGIC_PRIOR.EUR + STRATEGIC_PRIOR.JPY +
+  1225→    STRATEGIC_PRIOR.GBP + STRATEGIC_PRIOR.CNY + STRATEGIC_PRIOR.CHF;
+  1226→  const w = (k: keyof typeof STRATEGIC_PRIOR) => STRATEGIC_PRIOR[k] / basketFiatTotal;
+  1227→  const basket: RedeemBasket[] = [
+  1228→    { currency: "USD", token: "USDC", usdValue: fiatUsd * w("USD"), nativeAmount: fiatUsd * w("USD"), weight: STRATEGIC_PRIOR.USD },
+  1229→    { currency: "EUR", token: "EURC", usdValue: fiatUsd * w("EUR"), nativeAmount: (fiatUsd * w("EUR")) / fx.EUR_USD, weight: STRATEGIC_PRIOR.EUR },
+  1230→    { currency: "JPY", token: "JPY₿", usdValue: fiatUsd * w("JPY"), nativeAmount: (fiatUsd * w("JPY")) / fx.JPY_USD, weight: STRATEGIC_PRIOR.JPY },
+  1231→    { currency: "GBP", token: "GBP₿", usdValue: fiatUsd * w("GBP"), nativeAmount: (fiatUsd * w("GBP")) / fx.GBP_USD, weight: STRATEGIC_PRIOR.GBP },
+  1232→    { currency: "CNY", token: "CNY₿", usdValue: fiatUsd * w("CNY"), nativeAmount: (fiatUsd * w("CNY")) / fx.CNY_USD, weight: STRATEGIC_PRIOR.CNY },
+  1233→    { currency: "CHF", token: "CHF₿", usdValue: fiatUsd * w("CHF"), nativeAmount: (fiatUsd * w("CHF")) / fx.CHF_USD, weight: STRATEGIC_PRIOR.CHF }, // NEW v1.0
+  1234→  ];
+  1235→
+  1236→  // Mutate reserve: burn MTQ from circulating (reduce totalSupply), release assets
+  1237→  // USD released proportionally across USDC + USDP + USDT; gold across PAXG + XAUT
+  1238→  s.totalSupply -= inputMtq;
+  1239→  const usdRelease = basket[0].nativeAmount;
+  1240→  const usdThirdRelease = usdRelease / 3;
+  1241→  s.usdc = Math.max(0, s.usdc - usdThirdRelease);
+  1242→  s.usdp = Math.max(0, s.usdp - usdThirdRelease);
+  1243→  s.usdt = Math.max(0, s.usdt - usdThirdRelease);
+  1244→  s.eurc = Math.max(0, s.eurc - basket[1].nativeAmount);
+  1245→  s.jpy  = Math.max(0, s.jpy  - basket[2].nativeAmount);
+  1246→  s.gbp  = Math.max(0, s.gbp  - basket[3].nativeAmount);
+  1247→  s.cny  = Math.max(0, s.cny  - basket[4].nativeAmount);
+  1248→  s.chf  = Math.max(0, s.chf  - basket[5].nativeAmount); // NEW v1.0
+  1249→  // Gold released 50/50 PAXG + XAUT
+  1250→  const goldHalf = goldPaxg / 2;
+  1251→  s.paxg = Math.max(0, s.paxg - goldHalf);
+  1252→  s.xaut = Math.max(0, s.xaut - goldHalf);
+  1253→  // §14.1 — gold released to the redeemer comes from the RESERVE buffer first
+  1254→  // (index gold is locked). syncReserveFromTotal re-derives reserve = total − index
+  1255→  // so the invariant paxg = indexPaxg + reservePaxg is preserved.
+  1256→  syncReserveFromTotal(s);
+  1257→  s.treasury.hotWalletUsd += feeUsd; // fee revenue → hot wallet
+  1258→  s.updatedAt = Date.now();
+  1259→
+  1260→  const newVals = reserveAssetValues(s, fx);
+  1261→  const newRr = computeReserveRatio(newVals.nav, computeLiability(s, price));
+  1262→  return {
+  1263→    ok: true,
+  1264→    inputMtq,
+  1265→    mtqPrice: price,
+  1266→    grossUsd,
+  1267→    feeBps,
+  1268→    feeUsd,
+  1269→    netUsd,
+  1270→    goldUsd,
+  1271→    goldPaxg,
+  1272→    basket,
+  1273→    newCirculatingSupply: circulatingSupply(s),
+  1274→    newReserveRatio: newRr,
+  1275→    navPerMtq,
+  1276→    auditNavPerToken,
+  1277→    auditGrossUsdNav,
+  1278→    auditGrossUsdIndex,
+  1279→    auditDeltaUsd: auditGrossUsdNav - auditGrossUsdIndex,
+  1280→    auditNote,
+  1281→  };
+  1282→}
+  1283→
+  1284→// --- Aggregate snapshot -----------------------------------------------------
+  1285→export interface MetricsSnapshot {
+  1286→  fetchedAt: number;
+  1287→  source: string;
+  1288→  fx: FxSnapshot;
+  1289→  gfbIndex: number;
+  1290→  mtqPrice: number;
+  1291→  priceInBand: boolean;
+  1292→  reserve: {
+  1293→    usdNet: number; eurNet: number; gbpNet: number; jpyNet: number; cnyNet: number; chfNet: number; goldNet: number;
+  1294→    fiatNet: number; nav: number; goldPrice: number;
+  1295→    // §14.1 — index gold vs reserve buffer gold (USD net of haircut).
+  1296→    // goldNet = indexGoldNet + reserveGoldNet (TOTAL gold serves the index weight;
+  1297→    // only reserveGoldNet is MARP-rebalanced).
+  1298→    indexGoldNet: number;
+  1299→    reserveGoldNet: number;
+  1300→  };
+  1301→  liability: number;
+  1302→  nav: number;
+  1303→  reserveRatio: number;
+  1304→  lcr: number;
+  1305→  status: ProtocolStatus;
+  1306→  circulatingSupply: number;
+  1307→  totalSupply: number;
+  1308→  genesisReserve: number;
+  1309→  bufferState: ReserveState["bufferState"];
+  1310→  bufferGoldRatio: number;
+  1311→  targetGoldWeight: number;
+  1312→  observedGoldWeight: number;
+  1313→  macro: {
+  1314→    vix: number; dxy: number; zVix: number; zDxy: number;
+  1315→    vixMean: number; vixSd: number; dxyMean: number; dxySd: number;
+  1316→    rawTheta: number; rawTarget: number; smoothedTarget: number;
+  1317→  };
+  1318→  rebalance: RebalanceDecision;
+  1319→  pegHealth: ReserveState["pegHealth"];
+  1320→  ejectStage: ReserveState["ejectStage"];
+  1321→  // New sections (v2 — full blueprint coverage)
+  1322→  oracle: OracleBoard | null;
+  1323→  oraclePaused: boolean;
+  1324→  registry: AssetRecord[] | null;
+  1325→  concentration: ConcentrationReport[] | null;
+  1326→  reintegration: ReserveState["reintegration"];
+  1327→  treasury: ReserveState["treasury"];
+  1328→  waterfall: ReserveState["waterfall"];
+  1329→  priceEvents: ReserveState["priceEvents"];
+  1330→  // Brand v2: reconciliation + per-issuer holdings
+  1331→  reconciliation: ReconciliationFinding[];
+  1332→  redemptionPolicy: typeof REDEMPTION_POLICY;
+  1333→  perIssuer: { usdcUsd: number; usdpUsd: number; usdtUsd: number; eurcUsd: number; paxgUsd: number; xautUsd: number } | null;
+  1334→  // v1.0: MASE + 4-state weights + MARP
+  1335→  mase: {
+  1336→    models: { id: string; name: string; weights: Record<string, number> }[];
+  1337→    ensembleTarget: Record<string, number>;
+  1338→  } | null;
+  1339→  weightStates: {
+  1340→    prior: Record<string, number>;
+  1341→    target: Record<string, number>;
+  1342→    smoothed: Record<string, number>;
+  1343→    execution: Record<string, number>;
+  1344→  } | null;
+  1345→  marp: {
+  1346→    decisions: { shouldTrade: boolean; component: string; direction: string; tradeUsd: number; urgency: number; reason: string; level: number }[];
+  1347→    totalTradeUsd: number;
+  1348→  } | null;
+  1349→  // §14.1 — per-component MARP execution summary (read-only projection of what
+  1350→  // MARP WOULD do this tick; the actual mutation happens in applyMarpRebalance()
+  1351→  // only when USE_MARP_EXECUTION=true in pilot-state.ts). The UI shows this
+  1352→  // alongside the legacy §7 single-direction decision for A/B comparison.
+  1353→  marpExecution: {
+  1354→    appliedCount: number;     // # of decisions with shouldTrade && level >= 6
+  1355→    skippedCount: number;     // # of decisions skipped (no-trade zone / low urgency / cost-benefit fail / turnover cap / direction lock)
+  1356→    totalTradeUsd: number;    // Σ tradeUsd for the would-execute decisions
+  1357→    path: 'legacy' | 'marp';   // which execution path is currently mutating state (mirrors s.rebalancePath)
+  1358→  } | null;
+  1359→  // §14.1 — which rebalance execution path is currently active. Reads from
+  1360→  // s.rebalancePath (set by the feature flag in pilot-state.ts::tick()). The
+  1361→  // UI renders this as an A/B badge ("Legacy §7 active" / "MARP active").
+  1362→  rebalancePath: 'legacy' | 'marp';
+  1363→  envelopes: { component: string; lower: number; upper: number; current: number; status: "ok" | "warn" | "breach" }[];
+  1364→
+  1365→  // === P0-FIX-1: canonical chain-linked index (Master Listing 3 / §9.2 COO-16) ===
+  1366→  // The full chain index state — exposed so the UI / auditors can verify I_t,
+  1367→  // G_t, the prior weights/prices, and the baseDenominator. The MTQ price
+  1368→  // (mtqPrice / gfbIndex) is now derived from chainIndex.I_t, NOT from the
+  1369→  // legacy Laspeyres computeGfbIndex.
+  1370→  chainIndex: {
+  1371→    I_t: number;
+  1372→    G_t: number;
+  1373→    prevWeights: number[];     // [USD, EUR, JPY, GBP, CNY, CHF, Gold]
+  1374→    prevPrices: number[];      // [USD, EUR, JPY, GBP, CNY, CHF, Gold]
+  1375→    baseDenominator: number;
+  1376→    lastUpdate: number;
+  1377→  };
+  1378→
+  1379→  // === P0-FIX-3: canonical 6-state risk machine (Master Listing 13 / §21.2) ===
+  1380→  // The full canonical state — `state` is the same value as `status` above
+  1381→  // (kept for backward compat), plus the hysteresis fields (enteredAt,
+  1382→  // confirmationPeriodEnds) and the diagnostics (worseCondition, mintThrottle,
+  1383→  // redeemFeePct, rebalanceUrgency, mintingAllowed, redemptionAllowed).
+  1384→  riskState: RiskState;
+  1385→  riskStateEnteredAt: number;
+  1386→  riskStateConfirmationEnds: number | null;
+  1387→  riskStateWorseCondition: "rr" | "lcr" | "both" | "neither";
+  1388→  mintThrottle: number;
+  1389→  redeemFeePct: number;        // fraction, e.g. 0.0015 = 0.15%
+  1390→  rebalanceUrgency: number;
+  1391→  mintingAllowed: boolean;
+  1392→  redemptionAllowed: boolean;
+  1393→
+  1394→  // === P0-FIX-2: Index/NAV divergence analysis (Master §12) ===
+  1395→  // Monitor NAV_per_MTQ - P_MTQ. Flag if divergence > 5% (monitor), > 10% (stress).
+  1396→  // At RR > 100% the NAV exceeds the index price (the buffer surplus shows up as
+  1397→  // a higher NAV per token). This is the expected behaviour — the analysis
+  1398→  // surfaces when the gap becomes material enough to warrant attention.
+  1399→  indexNavDivergence: {
+  1400→    navPerMtq: number;         // V_net / S_circ (fallback P_MTQ at genesis)
+  1401→    pMtq: number;              // canonical chain-linked P_MTQ
+  1402→    divergence: number;        // NAV_per_MTQ - P_MTQ (signed)
+  1403→    divergencePct: number;     // |divergence| / P_MTQ × 100
+  1404→    threshold: number;         // 5% monitor / 10% stress — the active threshold
+  1405→    status: "normal" | "monitor" | "stress";
+  1406→  };
+  1407→
+  1408→  // === P0-FIX-4: 4 governance layers (Master Listing 14 / §22.3) ===
+  1409→  // The 4-layer hierarchy (CONSTITUTIONAL/MONETARY/RISK/EMERGENCY) with each
+  1410→  // layer's authority, timelock, and scope. Plus the parameter → layer
+  1411→  // registry (which layer owns which parameter, and the envelope where
+  1412→  // applicable). The TS reference exposes the metadata; the contract will
+  1413→  // implement the actual 4 timelocks.
+  1414→  governanceLayers: typeof GOVERNANCE_LAYERS;
+  1415→  parameterRegistry: typeof PARAMETER_REGISTRY;
+  1416→}
+  1417→
+  1418→export function computeSnapshot(s: ReserveState, fx: FxSnapshot, ctx?: { oracle?: OracleBoard | null; registry?: AssetRecord[] | null }): MetricsSnapshot {
+  1419→  // P0-FIX-1: the MTQ price comes from the canonical chain-linked index
+  1420→  // (state.chainIndex.I_t), NOT from the legacy Laspeyres computeGfbIndex.
+  1421→  // The legacy computeGfbIndex is retained as a deprecated export for the
+  1422→  // standalone audit-stress sims (which don't have persisted state).
+  1423→  const price = getMtqPriceFromState(s);
+  1424→  const gfb = price; // gfbIndex now mirrors the chain-linked I_t (P_MTQ = I_t × PAR = I_t)
+  1425→  const vals = reserveAssetValues(s, fx);
+  1426→  const nav = vals.nav;
+  1427→  const liability = computeLiability(s, price);
+  1428→  const rr = computeReserveRatio(nav, liability);
+  1429→  const lcr = computeLcr(s, vals, price);
+  1430→  // P0-FIX-3: the snapshot's `status` field comes from the PERSISTED canonical
+  1431→  // state (s.riskState.state) — this preserves the RECOVERY hysteresis (the
+  1432→  // 48h confirmation window). The legacy `determineStatus(rr, lcr)` is a
+  1433→  // stateless wrapper that doesn't preserve hysteresis.
+  1434→  const status: ProtocolStatus = s.riskState.state;
+  1435→  const canonicalState: RiskState = s.riskState.state;
+  1436→  // Canonical-state-derived policy fields (one source of truth).
+  1437→  const mintThrottleVal = mintThrottle(canonicalState);
+  1438→  const redeemFeePctVal = redeemFee(canonicalState);
+  1439→  const rebalanceUrgencyVal = rebalanceUrgency(canonicalState);
+  1440→  const mintingAllowedVal = mintingAllowed(canonicalState);
+  1441→  const redemptionAllowedVal = redemptionAllowed(canonicalState);
+  1442→  // P0-FIX-2: Index/NAV divergence analysis (§12).
+  1443→  // NAV_per_MTQ = V_net / circulatingSupply (fallback P_MTQ at genesis).
+  1444→  // divergence = NAV_per_MTQ - P_MTQ (signed).
+  1445→  // divergencePct = |divergence| / P_MTQ × 100.
+  1446→  // status = "normal" (<5%), "monitor" (5-10%), "stress" (>10%).
+  1447→  const circ = circulatingSupply(s);
+  1448→  const navPerMtq = circ > 0 ? nav / circ : price;
+  1449→  const divergence = navPerMtq - price;
+  1450→  const divergencePct = price > 0 ? (Math.abs(divergence) / price) * 100 : 0;
+  1451→  const divergenceStatus: "normal" | "monitor" | "stress" =
+  1452→    divergencePct > 10 ? "stress" :
+  1453→    divergencePct > 5  ? "monitor" :
+  1454→    "normal";
+  1455→  const divergenceThreshold = divergenceStatus === "stress" ? 10 : divergenceStatus === "monitor" ? 5 : 0;
+  1456→  const observedGold = nav > 0 ? vals.goldNet / nav : 0;
+  1457→  const targetGold = computeTargetGoldWeight(s, rr);
+  1458→  const z = computeZScores(s, fx.VIX, fx.DXY);
+  1459→  const rawTheta = computeRawTargetTheta(z.zVix, z.zDxy);
+  1460→  const rawTarget = clamp(BASE_GOLD_WEIGHT + rawTheta, GOLD_WEIGHT_LOWER, GOLD_WEIGHT_UPPER);
+  1461→  const decision = evaluateRebalance(s, vals, rr);
+  1462→
+  1463→  // Oracle + registry passed from the pilot-state tick (may be null on cold start)
+  1464→  const oracle = ctx?.oracle ?? null;
+  1465→  const registry = ctx?.registry ?? null;
+  1466→  let concentration: ConcentrationReport[] | null = null;
+  1467→  if (registry) {
+  1468→    // Per-asset (tokenAddress-keyed) holdings → correct issuer attribution.
+  1469→    // Uses the ACTUAL per-asset net values (post optimizer), not a theoretical
+  1470→    // split, so it reflects the §5.6 concentration optimizer's real allocation.
+  1471→    concentration = computeConcentration(registry, {
+  1472→      USDC: vals.usdcUsd ?? 0,
+  1473→      USDP: vals.usdpUsd ?? 0,
+  1474→      USDT: vals.usdtUsd ?? 0,
+  1475→      EURC: vals.eurNet, // EUR is single-issuer (EURC/Circle) until a 2nd EUR asset is admitted
+  1476→      GBP: vals.gbpNet, JPY: vals.jpyNet, CNY: vals.cnyNet,
+  1477→      PAXG: vals.paxgUsd ?? 0,
+  1478→      XAUT: vals.xautUsd ?? 0,
+  1479→    });
+  1480→  }
+  1481→
+  1482→  // --- v1.0 MASE + 4-state weights + MARP (computed fresh per snapshot, READ-ONLY) ---
+  1483→  // The previous tick's smoothed weights are stored in `s.maseSmoothed` (updated
+  1484→  // by `advanceMase()` in the tick loop). computeSnapshot uses that as the EMA
+  1485→  // prior — it does NOT mutate state, so multiple calls within a single tick
+  1486→  // return the same value (idempotent).
+  1487→  const maseData = buildMaseSnapshot(s, fx, vals, nav, rr);
+  1488→
+  1489→  return {
+  1490→    fetchedAt: fx.fetchedAt,
+  1491→    source: fx.source,
+  1492→    fx,
+  1493→    gfbIndex: gfb,
+  1494→    mtqPrice: price,
+  1495→    priceInBand: priceInSafetyBand(price),
+  1496→    reserve: {
+  1497→      usdNet: vals.usdNet, eurNet: vals.eurNet, gbpNet: vals.gbpNet, jpyNet: vals.jpyNet, cnyNet: vals.cnyNet,
+  1498→      chfNet: vals.chfNet,
+  1499→      goldNet: vals.goldNet, fiatNet: vals.fiatNet, nav: vals.nav, goldPrice: vals.goldPrice,
+  1500→      // §14.1 — index/reserve gold split
+  1501→      indexGoldNet: vals.indexGoldNet,
+  1502→      reserveGoldNet: vals.reserveGoldNet,
+  1503→    },
+  1504→    liability,
+  1505→    nav,
+  1506→    reserveRatio: rr,
+  1507→    lcr,
+  1508→    status,
+  1509→    circulatingSupply: circulatingSupply(s),
+  1510→    totalSupply: s.totalSupply,
+  1511→    genesisReserve: s.genesisReserve,
+  1512→    bufferState: s.bufferState,
+  1513→    bufferGoldRatio: currentBufferGoldRatio(s),
+  1514→    targetGoldWeight: targetGold,
+  1515→    observedGoldWeight: observedGold,
+  1516→    macro: {
+  1517→      vix: fx.VIX, dxy: fx.DXY,
+  1518→      zVix: z.zVix, zDxy: z.zDxy,
+  1519→      vixMean: z.vixMean, vixSd: z.vixSd, dxyMean: z.dxyMean, dxySd: z.dxySd,
+  1520→      rawTheta, rawTarget, smoothedTarget: s.smoothedGoldWeight,
+  1521→    },
+  1522→    rebalance: decision,
+  1523→    pegHealth: s.pegHealth,
+  1524→    ejectStage: s.ejectStage,
+  1525→    oracle,
+  1526→    oraclePaused: oracle?.anyPaused ?? false,
+  1527→    registry,
+  1528→    concentration,
+  1529→    reintegration: s.reintegration,
+  1530→    treasury: s.treasury,
+  1531→    waterfall: s.waterfall,
+  1532→    priceEvents: s.priceEvents,
+  1533→    reconciliation: getReconciliationFindings(s, { usdcUsd: vals.usdcUsd ?? 0, usdpUsd: vals.usdpUsd ?? 0, usdtUsd: vals.usdtUsd ?? 0, paxgUsd: vals.paxgUsd ?? 0, xautUsd: vals.xautUsd ?? 0, nav: vals.nav, eurNet: vals.eurNet }),
+  1534→    redemptionPolicy: REDEMPTION_POLICY,
+  1535→    perIssuer: { usdcUsd: vals.usdcUsd ?? 0, usdpUsd: vals.usdpUsd ?? 0, usdtUsd: vals.usdtUsd ?? 0, eurcUsd: vals.eurNet, paxgUsd: vals.paxgUsd ?? 0, xautUsd: vals.xautUsd ?? 0 },
+  1536→    // v1.0: MASE + 4-state weights + MARP + admissibility envelope status
+  1537→    mase: maseData.mase,
+  1538→    weightStates: maseData.weightStates,
+  1539→    marp: maseData.marp,
+  1540→    // §14.1 — per-component MARP execution summary (read-only projection of
+  1541→    // what MARP WOULD do this tick; the actual mutation happens in
+  1542→    // applyMarpRebalance() only when USE_MARP_EXECUTION=true).
+  1543→    marpExecution: maseData.marpExecution,
+  1544→    // §14.1 — which rebalance path is currently mutating state ('legacy' | 'marp').
+  1545→    rebalancePath: s.rebalancePath,
+  1546→    envelopes: maseData.envelopes,
+  1547→    // === P0-FIX-1: canonical chain-linked index state ===
+  1548→    chainIndex: {
+  1549→      I_t: s.chainIndex.I_t,
+  1550→      G_t: s.chainIndex.G_t,
+  1551→      prevWeights: s.chainIndex.prevWeights,
+  1552→      prevPrices: s.chainIndex.prevPrices,
+  1553→      baseDenominator: s.chainIndex.baseDenominator,
+  1554→      lastUpdate: s.chainIndex.lastUpdate,
+  1555→    },
+  1556→    // === P0-FIX-3: canonical 6-state risk machine ===
+  1557→    riskState: canonicalState,
+  1558→    riskStateEnteredAt: s.riskState.enteredAt,
+  1559→    riskStateConfirmationEnds: s.riskState.confirmationPeriodEnds,
+  1560→    riskStateWorseCondition:
+  1561→      // Derive the worseCondition from the current RR/LCR vs the state's bands.
+  1562→      // (The persisted state doesn't carry this; it's a snapshot diagnostic.)
+  1563→      determineState(rr, lcr, canonicalState, s.riskState.enteredAt, Date.now()).worseCondition,
+  1564→    mintThrottle: mintThrottleVal,
+  1565→    redeemFeePct: redeemFeePctVal,
+  1566→    rebalanceUrgency: rebalanceUrgencyVal,
+  1567→    mintingAllowed: mintingAllowedVal,
+  1568→    redemptionAllowed: redemptionAllowedVal,
+  1569→    // === P0-FIX-2: Index/NAV divergence analysis ===
+  1570→    indexNavDivergence: {
+  1571→      navPerMtq,
+  1572→      pMtq: price,
+  1573→      divergence,
+  1574→      divergencePct,
+  1575→      threshold: divergenceThreshold,
+  1576→      status: divergenceStatus,
+  1577→    },
+  1578→    // === P0-FIX-4: 4 governance layers + parameter registry ===
+  1579→    governanceLayers: GOVERNANCE_LAYERS,
+  1580→    parameterRegistry: PARAMETER_REGISTRY,
+  1581→  };
+  1582→}
+  1583→
+  1584→// --- §6/§7/§8.4/§10 v1.0 MASE + 4-state weights + MARP ---------------------
+  1585→// The Multi-Asset Stochastic Ensemble (§6/§7) runs 6 candidate models, blends
+  1586→// them into a single target weight vector, clamps to per-component
+  1587→// admissibility envelopes (§8.1), and EMA-smooths toward the constrained target
+  1588→// (§8.4). MARP (§10) then decides per-component whether the deviation between
+  1589→// the smoothed target and the observed execution weight justifies a trade
+  1590→// (urgency test → no-trade zone → cost-benefit gate → partial correction →
+  1591→// daily-turnover cap → execute).
+  1592→//
+  1593→// `advanceMase(s, fx)` is called ONCE per tick from the pilot-state tick loop.
+  1594→// It is the only function that mutates `s.maseSmoothed`. `buildMaseSnapshot()`
+  1595→// is a pure helper used by `computeSnapshot()` — it recomputes target/smoothed/
+  1596→// MARP from the current fx + vals using the persisted prev-smoothed as the EMA
+  1597→// prior, so multiple computeSnapshot calls within a single tick return the
+  1598→// same value (idempotent).
+  1599→
+  1600→interface MaseSnapshotData {
+  1601→  mase: NonNullable<MetricsSnapshot["mase"]>;
+  1602→  weightStates: NonNullable<MetricsSnapshot["weightStates"]>;
+  1603→  marp: NonNullable<MetricsSnapshot["marp"]>;
+  1604→  // §14.1 — read-only projection of what MARP WOULD do this tick.
+  1605→  marpExecution: NonNullable<MetricsSnapshot["marpExecution"]>;
+  1606→  envelopes: MetricsSnapshot["envelopes"];
+  1607→}
+  1608→
+  1609→/** Estimate per-component annualized volatility from the engine's macro state.
+  1610→ *  Pilot approximation: scale baseline vols by VIX / 18.5 (the "normal" VIX
+  1611→ *  baseline), so a 30 VIX roughly doubles estimated vols and a 12 VIX halves
+  1612→ *  them. Production should use a rolling covariance from real price history. */
+  1613→function estimateVolsFromState(s: ReserveState): VolatilityData {
+  1614→  const vix = s.lastVix > 0 ? s.lastVix : 18.5;
+  1615→  const f = vix / 18.5;
+  1616→  return {
+  1617→    USD: 0.05 * f,
+  1618→    EUR: 0.10 * f,
+  1619→    JPY: 0.12 * f,
+  1620→    GBP: 0.11 * f,
+  1621→    CNY: 0.09 * f,
+  1622→    CHF: 0.10 * f,
+  1623→    Gold: 0.15 * f,
+  1624→  };
+  1625→}
+  1626→
+  1627→/** Detect the market regime from VIX (primary) + DXY (secondary).
+  1628→ *  0 = calm, 1 = normal, 2 = stress, 3 = crisis.
+  1629→ *  VIX thresholds: <15 calm, <22 normal, <30 stress, ≥30 crisis.
+  1630→ *  DXY extremes (<88 or >115) bump the regime up to ≥ stress. */
+  1631→function detectRegime(vix: number, dxy: number, goldVol: number): MarketRegime {
+  1632→  let r: 0 | 1 | 2 | 3 = 1;
+  1633→  if (vix >= 30) r = 3;
+  1634→  else if (vix >= 22) r = 2;
+  1635→  else if (vix >= 15) r = 1;
+  1636→  else r = 0;
+  1637→  if ((dxy >= 115 || dxy <= 88) && r < 2) r = 2;
+  1638→  return { regime: r, vix, dxy, goldVol };
+  1639→}
+  1640→
+  1641→/** Build PriceData (P_{i,t} / P_{i,0}) from current FX rates + base fixings. */
+  1642→function buildPriceData(fx: Pick<FxRates, "EUR_USD" | "GBP_USD" | "JPY_USD" | "CNY_USD" | "CHF_USD" | "XAU_USD">): PriceData {
+  1643→  return {
+  1644→    USD: 1.0,
+  1645→    EUR: fx.EUR_USD / BASE_FIXINGS.EUR_USD,
+  1646→    JPY: fx.JPY_USD / BASE_FIXINGS.JPY_USD,
+  1647→    GBP: fx.GBP_USD / BASE_FIXINGS.GBP_USD,
+  1648→    CNY: fx.CNY_USD / BASE_FIXINGS.CNY_USD,
+  1649→    CHF: fx.CHF_USD / BASE_FIXINGS.CHF_USD,
+  1650→    Gold: fx.XAU_USD / BASE_FIXINGS.XAU_USD,
+  1651→  };
+  1652→}
+  1653→
+  1654→/** Build the observed execution-weight vector from the actual reserve composition.
+  1655→ *  §14.1 note: the Gold component's observed weight uses the TOTAL gold
+  1656→ *  (= indexPaxg + indexXaut + reservePaxg + reserveXaut, USD-net). Both the
+  1657→ *  index gold (locked) and the reserve gold (MARP-rebalanced) serve the
+  1658→ *  Strategic Prior Gold weight (26%) — but only the RESERVE gold is available
+  1659→ *  for MARP to rebalance. The index gold is locked and only changes when
+  1660→ *  commitIndexGold() is called (keeper-role equivalent). */
+  1661→function buildObservedWeights(
+  1662→  vals: ReturnType<typeof reserveAssetValues>,
+  1663→  nav: number,
+  1664→): WeightVector {
+  1665→  if (nav <= 0) {
+  1666→    return { USD: 0, EUR: 0, JPY: 0, GBP: 0, CNY: 0, CHF: 0, Gold: 0 };
+  1667→  }
+  1668→  return {
+  1669→    USD: vals.usdNet / nav,
+  1670→    EUR: vals.eurNet / nav,
+  1671→    JPY: vals.jpyNet / nav,
+  1672→    GBP: vals.gbpNet / nav,
+  1673→    CNY: vals.cnyNet / nav,
+  1674→    CHF: vals.chfNet / nav,
+  1675→    // §14.1 — gold weight = TOTAL gold (index + reserve) / NAV. Both pools
+  1676→    // back the 26% Strategic Prior Gold weight; only reserve is MARP-rebalanced.
+  1677→    Gold: vals.goldNet / nav,
+  1678→  };
+  1679→}
+  1680→
+  1681→/** Pure helper — computes the MASE + 4-state + MARP + envelope snapshot data.
+  1682→ *  Reads `s.maseSmoothed` (does NOT mutate). */
+  1683→function buildMaseSnapshot(
+  1684→  s: ReserveState,
+  1685→  fx: FxSnapshot,
+  1686→  vals: ReturnType<typeof reserveAssetValues>,
+  1687→  nav: number,
+  1688→  rr: number,
+  1689→): MaseSnapshotData {
+  1690→  const prices = buildPriceData(fx);
+  1691→  const vols = estimateVolsFromState(s);
+  1692→  const regime = detectRegime(s.lastVix > 0 ? s.lastVix : fx.VIX, s.lastDxy > 0 ? s.lastDxy : fx.DXY, vols.Gold);
+  1693→
+  1694→  // §6/§7 — MASE ensemble → 6 candidate models + target weight vector
+  1695→  const mase = maseEnsemble(vols, prices, null, regime);
+  1696→  // §8.1 — Constrain target to per-component admissibility envelopes
+  1697→  const constrained = applyEnvelopes(mase.target);
+  1698→  // §8.4 — EMA-smooth toward the constrained target (uses prev persisted as prior)
+  1699→  const prevSmoothed = s.maseSmoothed ?? (STRATEGIC_PRIOR as WeightVector);
+  1700→  const smoothed = smoothWeights(prevSmoothed, constrained);
+  1701→  // §2.3 — Execution = actual observed reserve composition
+  1702→  const observed = buildObservedWeights(vals, nav);
+  1703→
+  1704→  // §10 — MARP per-component rebalancing decision
+  1705→  const volsRecord: Record<Component, number> = {
+  1706→    USD: vols.USD, EUR: vols.EUR, JPY: vols.JPY, GBP: vols.GBP,
+  1707→    CNY: vols.CNY, CHF: vols.CHF, Gold: vols.Gold,
+  1708→  };
+  1709→  const marpDecisions: MarpDecision[] = marpDecision(observed, smoothed, nav, rr, volsRecord);
+  1710→  const totalTradeUsd = marpDecisions
+  1711→    .filter((d) => d.shouldTrade)
+  1712→    .reduce((a, d) => a + d.tradeUsd, 0);
+  1713→
+  1714→  // §14.1 — per-component MARP execution summary (READ-ONLY projection).
+  1715→  // appliedCount = # of decisions with shouldTrade && level >= 6 (would-execute).
+  1716→  // skippedCount  = # of decisions held back (no-trade zone / low urgency /
+  1717→  //                 cost-benefit fail / turnover cap / sub-level-6).
+  1718→  // totalTradeUsd = Σ tradeUsd for the would-execute decisions.
+  1719→  // path = which execution path is currently mutating state (mirrors s.rebalancePath).
+  1720→  // NOTE: this is what MARP WOULD do based on the current decisions. The actual
+  1721→  // mutation happens in applyMarpRebalance() only when USE_MARP_EXECUTION=true
+  1722→  // in pilot-state.ts. applyMarpRebalance may further skip decisions that
+  1723→  // breach MAX_DAILY_TURNOVER or DIRECTION_LOCK_HOURS at execution time.
+  1724→  const wouldExecute = marpDecisions.filter((d) => d.shouldTrade && d.level >= 6);
+  1725→  const marpExecution = {
+  1726→    appliedCount: wouldExecute.length,
+  1727→    skippedCount: marpDecisions.length - wouldExecute.length,
+  1728→    totalTradeUsd: wouldExecute.reduce((a, d) => a + d.tradeUsd, 0),
+  1729→    path: s.rebalancePath,
+  1730→  };
+  1731→
+  1732→  // §8.1 — Admissibility envelope status per component
+  1733→  // "warn" = within 10% of the band edge; "breach" = outside the envelope.
+  1734→  const envelopes = COMPONENTS.map((c) => {
+  1735→    const env = ADMISSIBILITY_ENVELOPES[c];
+  1736→    const current = observed[c];
+  1737→    const lower = env.lower;
+  1738→    const upper = env.upper;
+  1739→    const margin = (upper - lower) * 0.1;
+  1740→    let status: "ok" | "warn" | "breach" = "ok";
+  1741→    if (current < lower || current > upper) status = "breach";
+  1742→    else if (current < lower + margin || current > upper - margin) status = "warn";
+  1743→    return { component: c, lower, upper, current, status };
+  1744→  });
+  1745→
+  1746→  return {
+  1747→    mase: {
+  1748→      models: mase.models.map((m) => ({
+  1749→        id: m.id,
+  1750→        name: m.name,
+  1751→        weights: m.weights as Record<string, number>,
+  1752→      })),
+  1753→      ensembleTarget: mase.target as Record<string, number>,
+  1754→    },
+  1755→    weightStates: {
+  1756→      prior: STRATEGIC_PRIOR as Record<string, number>,
+  1757→      target: constrained as Record<string, number>,
+  1758→      smoothed: smoothed as Record<string, number>,
+  1759→      execution: observed as Record<string, number>,
+  1760→    },
+  1761→    marp: {
+  1762→      decisions: marpDecisions.map((d) => ({
+  1763→        shouldTrade: d.shouldTrade,
+  1764→        component: d.component,
+  1765→        direction: d.direction,
+  1766→        tradeUsd: d.tradeUsd,
+  1767→        urgency: d.urgency,
+  1768→        reason: d.reason,
+  1769→        level: d.level,
+  1770→      })),
+  1771→      totalTradeUsd,
+  1772→    },
+  1773→    // §14.1 — MARP execution summary (read-only projection; mirrors s.rebalancePath).
+  1774→    marpExecution,
+  1775→    envelopes,
+  1776→  };
+  1777→}
+  1778→
+  1779→/** Advance MASE state once per tick. Mutates `s.maseSmoothed` (EMA prior for
+  1780→ *  the next tick) and `s.chainIndex` (commits the new weights to preserve
+  1781→ *  zero-artificial-return continuity per Master §9.2 COO-16). Called from
+  1782→ *  the pilot-state tick loop, AFTER advanceMacro (so lastVix/lastDxy are
+  1783→ *  fresh) and BEFORE the first computeSnapshot of the tick (so the snapshot
+  1784→ *  reads the freshly-persisted smoothed weights).
+  1785→ *
+  1786→ *  P0-FIX-1 (chain-linking): the new smoothed weights are committed to the
+  1787→ *    chain index via commitChainIndexWeights(). This updates G_t (the
+  1788→ *    cumulative chain-link factor) and the prevWeights / prevPrices used by
+  1789→ *    the next advanceIndex() call. The divisor D_t = B_t^- / B_t^+ ensures
+  1790→ *    the rebalance creates ZERO artificial index return.
+  1791→ *
+  1792→ *  P0-FIX-3 + §8.4/§7.4 (velocity + stress-adaptive smoothing): the EMA
+  1793→ *    smoothing now uses smoothWeightsAdaptive() with the canonical risk
+  1794→ *    state's stress level and the target velocity (max component-wise |Δ|
+  1795→ *    between the previous smoothed and the new constrained target). In
+  1796→ *    stress states (STRESS/DEFENSIVE/EMERGENCY), the smoothing slows by 50%
+  1797→ *    to avoid chasing volatile prices. Fast target jumps (|Δ| > 5%) are
+  1798→ *    damped by up to 50% (whip-saw guard). */
+  1799→export function advanceMase(s: ReserveState, fx: FxRates): void {
+  1800→  const prices = buildPriceData(fx);
+  1801→  const vols = estimateVolsFromState(s);
+  1802→  const regime = detectRegime(
+  1803→    s.lastVix > 0 ? s.lastVix : fx.VIX,
+  1804→    s.lastDxy > 0 ? s.lastDxy : fx.DXY,
+  1805→    vols.Gold,
+  1806→  );
+  1807→  const mase = maseEnsemble(vols, prices, null, regime);
+  1808→  const constrained = applyEnvelopes(mase.target);
+  1809→  const prevSmoothed = s.maseSmoothed ?? (STRATEGIC_PRIOR as WeightVector);
+  1810→  // §8.4 + §7.4 — velocity + stress-adaptive smoothing.
+  1811→  const velocity = targetVelocity(prevSmoothed, constrained);
+  1812→  const sl = stressLevel(s.riskState.state);
+  1813→  s.maseSmoothed = smoothWeightsAdaptive(prevSmoothed, constrained, SMOOTHING_LAMBDA, velocity, sl);
+  1814→  s.maseLastAt = Date.now();
+  1815→  // P0-FIX-1 — commit the new smoothed weights to the chain index. This
+  1816→  // computes the divisor D_t = B_t^- / B_t^+ that preserves index continuity
+  1817→  // (zero artificial return), updates G_t, and updates prevWeights +
+  1818→  // prevPrices for the next advanceIndex() call. Wrapped in try/catch so a
+  1819→  // chain-index commit failure doesn't break the tick loop.
+  1820→  try {
+  1821→    commitChainIndexWeights(s, fx, s.maseSmoothed);
+  1822→  } catch (e) {
+  1823→    if (typeof console !== "undefined") console.error("[mtq-engine] chain index commit error:", e);
+  1824→  }
+  1825→}
+  1826→
+  1827→// --- helpers ----------------------------------------------------------------
+  1828→function clamp(v: number, lo: number, hi: number): number {
+  1829→  return Math.max(lo, Math.min(hi, v));
+  1830→}
+  1831→function clampSym(v: number, lo: number, hi: number): number {
+  1832→  return Math.max(lo, Math.min(hi, v));
+  1833→}
+  1834→
+  1835→// Advance macro history (call ~ every tick; dtHours is simulated elapsed)
+  1836→export function advanceMacro(s: ReserveState, vix: number, dxy: number, dtHours: number) {
+  1837→  const v = clamp(vix, VIX_MIN, VIX_MAX);
+  1838→  const d = clamp(dxy, DXY_MIN, DXY_MAX);
+  1839→  s.lastVix = v;
+  1840→  s.lastDxy = d;
+  1841→  s.vixHistory.push(v);
+  1842→  s.dxyHistory.push(d);
+  1843→  if (s.vixHistory.length > ROLLING_WINDOW_DAYS) s.vixHistory.shift();
+  1844→  if (s.dxyHistory.length > ROLLING_WINDOW_DAYS) s.dxyHistory.shift();
+  1845→  const vStats = rollingStats(s.vixHistory);
+  1846→  const dStats = rollingStats(s.dxyHistory);
+  1847→  const zVix = vStats.sd > 1e-9 ? (v - vStats.mean) / (vStats.sd + 1e-9) : 0;
+  1848→  const zDxy = dStats.sd > 1e-9 ? (d - dStats.mean) / (dStats.sd + 1e-9) : 0;
+  1849→  const rawTarget = computeRawTargetGoldWeight(zVix, zDxy);
+  1850→  s.smoothedGoldWeight = smoothGoldWeight(s.smoothedGoldWeight, rawTarget);
+  1851→}
+  1852→
+  1853→// Stochastic macro walk (honest: simulated pilot macro signals)
+  1854→export function stepMacroSignals(prev: { vix: number; dxy: number }): { vix: number; dxy: number } {
+  1855→  const vix = clamp(prev.vix + (Math.random() - 0.5) * 1.2 + (18 - prev.vix) * 0.02, VIX_MIN, VIX_MAX);
+  1856→  const dxy = clamp(prev.dxy + (Math.random() - 0.5) * 0.8 + (104 - prev.dxy) * 0.02, DXY_MIN, DXY_MAX);
+  1857→  return { vix, dxy };
+  1858→}
+  1859→
+  1860→// Update buffer state + ramp on RR change (call after metrics recompute)
+  1861→export function updateBufferState(s: ReserveState, rr: number) {
+  1862→  const newState = bufferBaseFromRatio(rr);
+  1863→  if (newState === s.bufferState) return;
+  1864→  if (newState === "EMERGENCY") {
+  1865→    s.bufferState = "EMERGENCY";
+  1866→    s.rampStartAt = 0;
+  1867→  } else {
+  1868→    s.rampStartAt = Date.now();
+  1869→    s.rampFromRatio = currentBufferGoldRatio(s);
+  1870→    s.rampToRatio = newState === "BASE" ? BUFFER_GOLD_BASE : BUFFER_GOLD_STRESS;
+  1871→    s.bufferState = newState;
+  1872→  }
+  1873→}
+  1874→
+  1875→// --- §11.3 Reintegration Score (Anti-Gaming) --------------------------------
+  1876→// R_score = w1·TimeInBand(48h) + w2·LiquidityDepth + w3·OracleAgreement + w4·(1−Volatility)
+  1877→// All inputs normalised to [0,1]; threshold >0.80 → staged re-purchase 25%→50%→100%.
+  1878→export function updateReintegration(
+  1879→  s: ReserveState,
+  1880→  board: OracleBoard | null,
+  1881→  dtHours: number,
+  1882→) {
+  1883→  const currencies: ("USD" | "EUR" | "GBP" | "JPY" | "CNY")[] = ["USD", "EUR", "GBP", "JPY", "CNY"];
+  1884→  for (const c of currencies) {
+  1885→    const r = s.reintegration[c];
+  1886→    // Time-in-band: increases when peg is inside [0.98,1.02]; decays when outside.
+  1887→    const inBand = s.pegHealth[c] >= EJECT_DEPEG_BAND_LOWER && s.pegHealth[c] <= EJECT_DEPEG_BAND_UPPER;
+  1888→    // dtHours is simulated elapsed; we approximate 48h window fraction.
+  1889→    if (inBand) {
+  1890→      r.timeInBand48h = Math.min(1, r.timeInBand48h + dtHours / 48);
+  1891→    } else {
+  1892→      r.timeInBand48h = Math.max(0, r.timeInBand48h - dtHours / 48);
+  1893→    }
+  1894→    // Liquidity depth: randomised around per-currency baseline (honest: simulated).
+  1895→    const base = c === "USD" ? 1.0 : c === "EUR" ? 0.95 : c === "CNY" ? 0.4 : 0.5;
+  1896→    r.liquidityDepth = clamp(base + (Math.random() - 0.5) * 0.1, 0, 1);
+  1897→    // Oracle agreement: valid feeds / 3 (from oracle board if present, else last known)
+  1898→    if (board) {
+  1899→      const pairMap: Record<string, string> = { USD: "—", EUR: "EUR/USD", GBP: "GBP/USD", JPY: "JPY/USD", CNY: "CNY/USD" };
+  1900→      const cons = board.pairs.find((p) => p.pair === pairMap[c]);
+  1901→      if (cons) {
+  1902→        r.oracleAgreement = cons.validCount / 3;
+  1903→        // Volatility from oracle spread (bps → fraction)
+  1904→        r.volatility = clamp(cons.spreadBps / 100, 0, 1);
+  1905→      }
+  1906→    }
+  1907→    // R_score
+  1908→    r.score =
+  1909→      REINTEGRATION_WEIGHTS.w1_TimeInBand * r.timeInBand48h +
+  1910→      REINTEGRATION_WEIGHTS.w2_LiquidityDepth * r.liquidityDepth +
+  1911→      REINTEGRATION_WEIGHTS.w3_OracleAgreement * r.oracleAgreement +
+  1912→      REINTEGRATION_WEIGHTS.w4_OneMinusVolatility * (1 - r.volatility);
+  1913→    // Repurchase staging: only for currencies that were previously ejected
+  1914→    if (s.ejectStage[c] > 0 && r.score > REINTEGRATION_THRESHOLD) {
+  1915→      r.repurchaseStage = Math.min(3, r.repurchaseStage + 1);
+  1916→      // As repurchase progresses, reduce eject stage
+  1917→      if (r.repurchaseStage >= 3) {
+  1918→        s.ejectStage[c] = Math.max(0, s.ejectStage[c] - 1);
+  1919→        if (s.ejectStage[c] === 0) r.repurchaseStage = 0;
+  1920→      }
+  1921→    } else if (r.score < REINTEGRATION_THRESHOLD * 0.6) {
+  1922→      r.repurchaseStage = 0;
+  1923→    }
+  1924→  }
+  1925→}
+  1926→
+  1927→// --- §13.2 Treasury Sweep ---------------------------------------------------
+  1928→// If hot-wallet surplus stablecoins > $10,000 → sweep excess to 4/7 Cold Treasury.
+  1929→export function maybeTreasurySweep(s: ReserveState, feeRevenueAddedUsd = 0) {
+  1930→  // Accumulate fee revenue into the hot wallet (operational surplus)
+  1931→  s.treasury.hotWalletUsd += feeRevenueAddedUsd;
+  1932→  if (s.treasury.hotWalletUsd > TREASURY_SWEEP_THRESHOLD_USD) {
+  1933→    const excess = s.treasury.hotWalletUsd - 5_000; // keep $5k operating float
+  1934→    if (excess > 0) {
+  1935→      s.treasury.hotWalletUsd -= excess;
+  1936→      s.treasury.coldTreasuryUsd += excess;
+  1937→      s.treasury.lastSweepAt = Date.now();
+  1938→      s.treasury.lastSweepAmount = excess;
+  1939→      s.treasury.totalSwept += excess;
+  1940→    }
+  1941→  }
+  1942→}
+  1943→
+  1944→// --- §8.5 First-Loss Waterfall ----------------------------------------------
+  1945→// 5 layers: (1) Operational Surplus → (2) Buffer Fiat → (3) Buffer Gold →
+  1946→// (4) Core Fiat → (5) Core Gold. Apply a loss; track consumed per layer.
+  1947→export function applyLoss(s: ReserveState, vals: { fiatNet: number; goldNet: number }, lossUsd: number) {
+  1948→  let remaining = lossUsd;
+  1949→  s.waterfall.consumed.surplus = 0; // reset for this loss event tracking is cumulative; we add
+  1950→  const layers = [
+  1951→    { name: "surplus", cap: () => s.treasury.hotWalletUsd + s.waterfall.operationalSurplus, consume: (amt: number) => {
+  1952→      const fromSurplus = Math.min(s.treasury.hotWalletUsd, amt);
+  1953→      s.treasury.hotWalletUsd -= fromSurplus;
+  1954→      s.waterfall.operationalSurplus -= Math.min(s.waterfall.operationalSurplus, amt - fromSurplus);
+  1955→      s.waterfall.consumed.surplus += amt;
+  1956→    } },
+  1957→    { name: "bufferFiat", cap: () => vals.fiatNet * 0.10 * (1 - currentBufferGoldRatio(s)), consume: (amt: number) => { s.waterfall.consumed.bufferFiat += amt; } },
+  1958→    { name: "bufferGold", cap: () => vals.goldNet * 0.10 * currentBufferGoldRatio(s), consume: (amt: number) => { s.waterfall.consumed.bufferGold += amt; } },
+  1959→    { name: "coreFiat", cap: () => vals.fiatNet * 0.80, consume: (amt: number) => { s.waterfall.consumed.coreFiat += amt; } },
+  1960→    { name: "coreGold", cap: () => vals.goldNet * 0.20, consume: (amt: number) => { s.waterfall.consumed.coreGold += amt; } },
+  1961→  ] as const;
+  1962→  for (let i = 0; i < layers.length && remaining > 0; i++) {
+  1963→    const layer = layers[i];
+  1964→    const cap = layer.cap();
+  1965→    const consumed = Math.min(cap, remaining);
+  1966→    layer.consume(consumed);
+  1967→    remaining -= consumed;
+  1968→    if (remaining > 0) s.waterfall.currentLayer = (i + 2) as 1 | 2 | 3 | 4 | 5;
+  1969→  }
+  1970→  if (remaining <= 0) s.waterfall.currentLayer = 1;
+  1971→}
+  1972→
+  1973→// --- §3.6 PriceUpdated events (0.5% change threshold) -----------------------
+  1974→export function maybePriceEvent(s: ReserveState, newPrice: number) {
+  1975→  if (s.lastLoggedPrice <= 0) { s.lastLoggedPrice = newPrice; return; }
+  1976→  const diff = Math.abs(newPrice - s.lastLoggedPrice);
+  1977→  const changePct = diff / s.lastLoggedPrice;
+  1978→  if (changePct >= PRICE_EVENT_THRESHOLD) {
+  1979→    s.priceEvents.unshift({ ts: Date.now(), oldPrice: s.lastLoggedPrice, newPrice, changePct });
+  1980→    if (s.priceEvents.length > 20) s.priceEvents.pop();
+  1981→    s.lastLoggedPrice = newPrice;
+  1982→  }
+  1983→}
+  1984→
+  1985→// --- §10.1 Quote-based execution (route quote simulation) -------------------
+  1986→export interface ExecQuote {
+  1987→  provider: "1inch" | "Paraswap";
+  1988→  oracleRate: number;
+  1989→  quoteRate: number;
+  1990→  bound: number;        // oracleRate × (1∓τ)
+  1991→  withinBound: boolean;
+  1992→  effectiveSlippageBps: number;
+  1993→  amountUsd: number;
+  1994→}
+  1995→export function simulateQuote(amountUsd: number, isBuyGold: boolean, oracleGoldPrice: number): ExecQuote {
+  1996→  const provider: "1inch" | "Paraswap" = Math.random() < 0.5 ? "1inch" : "Paraswap";
+  1997→  // Realistic small slippage ~0.05%–0.4%
+  1998→  const slip = 0.0005 + Math.random() * 0.0035;
+  1999→  const oracleRate = oracleGoldPrice;
+  2000→  const quoteRate = isBuyGold ? oracleRate * (1 + slip) : oracleRate * (1 - slip);
+
+[showing lines 1-2000 of 2191; use offset=2001 with limit to continue reading]

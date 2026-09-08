@@ -42,17 +42,23 @@ export const STRATEGIC_PRIOR_TABLE = [
 // === §3.4 Genesis Weight Initialization ===
 // At genesis, each component's USD-equivalent notional equals its strategic prior share.
 // Base-date fixings (immutable, used for chain-link normalization P_{i,0}).
+//
+// P0-FIX (Master Reconciliation audit, AUDIT-D F-CHF-01): CHF base fixing was
+// 0.88 in the legacy engine/contract but the Master Blueprint v1.0 specifies 1.13.
+// 0.88 USD/CHF understates CHF by ~28% (the Swiss franc is stronger than that).
+// Fixed to 1.13 to match the Master Blueprint exactly.
 export const BASE_FIXINGS = {
   EUR_USD: 1.0500,
   GBP_USD: 1.2500,
   JPY_USD: 0.0067,
   CNY_USD: 0.1400,
-  CHF_USD: 0.8800,   // ~0.88 USD per CHF
+  CHF_USD: 1.1300,   // ~1.13 USD per CHF (Master Blueprint v1.0 — was 0.88, +28% underweighted)
   XAU_USD: 2500.00,   // $2,500/oz at base date
 } as const;
 
 // Genesis GFB denominator (for chain-linked index normalization)
-// GFB_base = Σ W^Prior_i × P_{i,0} = 0.27×1 + 0.20×1.05 + 0.09×0.0067 + 0.08×1.25 + 0.05×0.14 + 0.05×0.88 + 0.26×2500
+// GFB_base = Σ W^Prior_i × P_{i,0} = 0.27×1 + 0.20×1.05 + 0.09×0.0067 + 0.08×1.25 + 0.05×0.14 + 0.05×1.13 + 0.26×2500
+// (CHF base fixing is now 1.13 per the Master Blueprint v1.0; was 0.88 in the legacy engine.)
 export const GFB_BASE_DENOMINATOR =
   STRATEGIC_PRIOR.USD * 1.0 +
   STRATEGIC_PRIOR.EUR * BASE_FIXINGS.EUR_USD +
@@ -120,9 +126,21 @@ export const HAIRCUTS = {
   CHF: 0.01,  XAU: 0.01,  T_BILL: 0.02,
 } as const;
 
-// === §19.2 Fees (carried from v1.2 — unchanged) ===
-export const MINT_FEE_BPS = 10;    // 0.10%
-export const REDEEM_FEE_BPS = 15; // 0.15%
+// === §19.2 Fees (carried from v1.2 + Master Listing 13 state-dependent fees) ===
+// The base mint/redeem fee bps are the NORMAL-state defaults. The canonical
+// 6-state risk machine (state-machine.ts) provides state-dependent overrides:
+//   NORMAL/CAUTION 0.15% (15 bps), STRESS 0.50% (50 bps),
+//   DEFENSIVE 1.00% (100 bps), EMERGENCY 2.00% (200 bps), RECOVERY 0.50% (50 bps).
+// REDEEM_FEE_STRESS / REDEEM_FEE_DEFENSIVE are separate constants per Listing 13
+// (the legacy engine only had a single REDEEM_FEE_BPS; the new state machine
+// requires the full ladder).
+export const MINT_FEE_BPS = 10;              // 0.10% (NORMAL state default)
+export const REDEEM_FEE_BPS = 15;           // 0.15% (NORMAL/CAUTION state default — legacy alias)
+export const REDEEM_FEE_NORMAL = 0.0015;     // 0.15% — NORMAL/CAUTION (per Listing 13)
+export const REDEEM_FEE_STRESS = 0.005;      // 0.50% — STRESS (per Listing 13)
+export const REDEEM_FEE_DEFENSIVE = 0.01;    // 1.00% — DEFENSIVE (per Listing 13)
+export const REDEEM_FEE_EMERGENCY = 0.02;     // 2.00% — EMERGENCY (per Listing 13)
+export const REDEEM_FEE_RECOVERY = 0.005;    // 0.50% — RECOVERY (per Listing 13)
 
 // === §3.5 Price Safety Band (circuit breakers — carried) ===
 export const PRICE_SAFETY_LOWER = 0.50;
@@ -170,7 +188,63 @@ export const EJECT_STAGES = [
   { stage: 4, sellPct: 1.00, condition: "Liquidity collapse OR issuer freeze" },
 ] as const;
 
-// === §14.2 Governance Hierarchy ===
+// === §22.3 Four Governance Layers (Master Listing 14 / §22.3) — P0-FIX-4 ===
+// The legacy engine only had the Monetary (48h DAO) layer. The Master Blueprint
+// specifies 4 governance layers, each with its own authority, timelock, and
+// scope. The TS reference exposes the layer metadata; the contract will
+// implement the actual 4 timelocks.
+export const GOVERNANCE_LAYERS = {
+  CONSTITUTIONAL: {
+    authority: "7/7 Multi-Sig",
+    timelock: 90 * 24 * 60 * 60 * 1000,  // 90 days
+    scope: "Immutable parameters (core architecture, envelopes, hard floors, liquidation staging)",
+  },
+  MONETARY: {
+    authority: "DAO Vote 51%",
+    timelock: 48 * 60 * 60 * 1000,  // 48 hours
+    scope: "RR target, fee structure, smoothing parameters",
+  },
+  RISK: {
+    authority: "Risk Council 4/7",
+    timelock: 24 * 60 * 60 * 1000,  // 24 hours
+    scope: "Haircuts, thresholds, eject parameters, LCR targets",
+  },
+  EMERGENCY: {
+    authority: "Emergency Council 4/7",
+    timelock: 0,  // instant
+    scope: "Pause operations, force rebalance, emergency eject",
+  },
+} as const;
+
+// Parameter → governance layer mapping (per §22.4)
+// Each parameter is owned by exactly one governance layer. Constitutional
+// parameters are immutable (cannot be changed post-genesis). The other 3
+// layers can change their parameters within an envelope (specified as a
+// [min, max] range in 1e18 equivalent units where applicable).
+export const PARAMETER_REGISTRY = {
+  PAR: { layer: "CONSTITUTIONAL", immutable: true },
+  RR_HARD_FLOOR: { layer: "CONSTITUTIONAL", immutable: true },
+  ADMISSIBILITY_ENVELOPES: { layer: "CONSTITUTIONAL", immutable: true },
+  RR_TARGET: { layer: "MONETARY", envelope: [1.05e18, 1.20e18] },
+  MINT_FEE_BPS: { layer: "MONETARY", envelope: [0, 100] },
+  REDEEM_FEE_NORMAL: { layer: "MONETARY", envelope: [0, 100] },
+  REDEEM_FEE_STRESS: { layer: "RISK", envelope: [0, 200] },
+  REDEEM_FEE_DEFENSIVE: { layer: "RISK", envelope: [0, 500] },
+  LCR_TARGET: { layer: "RISK", envelope: [0.8e18, 1.2e18] },
+  HAIRCUTS: { layer: "RISK" },
+  DEPEG_WINDOW: { layer: "RISK" },
+  // EMERGENCY actions
+  PAUSE_MINT: { layer: "EMERGENCY" },
+  PAUSE_REDEEM: { layer: "EMERGENCY" },
+  FORCE_REBALANCE: { layer: "EMERGENCY" },
+  EMERGENCY_EJECT: { layer: "EMERGENCY" },
+} as const;
+
+// Type alias for the governance layer names (used by engine.ts's
+// getParameterGovernance helper).
+export type GovernanceLayerName = keyof typeof GOVERNANCE_LAYERS;
+
+// === §14.2 Governance Hierarchy (legacy table, retained for the existing UI) ===
 export const GOVERNANCE_HIERARCHY = [
   { scope: "Constitutional (methodology, envelopes)", authority: "Multi-Sig (7/7)", timelock: "90 days" },
   { scope: "Monetary (fees, RR target)", authority: "DAO Vote (51%)", timelock: "48h" },
@@ -178,13 +252,25 @@ export const GOVERNANCE_HIERARCHY = [
   { scope: "Emergency (pause/eject)", authority: "Multi-Sig (4/7)", timelock: "Instant" },
 ] as const;
 
-// === §14.1 Risk State Machine ===
-export type ProtocolStatus = "NORMAL" | "CAUTION" | "DEFENSIVE" | "EMERGENCY" | "RECOVERY";
+// === §14.1 Risk State Machine (Master Listing 13 / §21.2 — 6 states) ===
+// P0-FIX-3: the legacy machine had only 5 states (NORMAL/CAUTION/DEFENSIVE/
+// EMERGENCY/RECOVERY); the Master Blueprint v1.0 Listing 13 specifies 6 states
+// with S3 STRESS between CAUTION and DEFENSIVE. This file now exports the full
+// 6-state ladder; the canonical classification logic lives in state-machine.ts
+// (one authoritative function consumed by ALL modules).
+//
+// STRESS is the new intermediate state (1.02 ≤ RR < 1.05 OR LCR < 0.90). It is
+// distinct from CAUTION (1.05 ≤ RR < 1.10) and DEFENSIVE (1.00 ≤ RR < 1.02):
+//   - In STRESS, minting is PAUSED (throttle = 0) and the redeem fee is 0.50%
+//     (vs CAUTION's 0.15% and DEFENSIVE's 1.00%).
+//   - Rebalance urgency is 0.8 (high — start emergency rebalancing preparations).
+export type ProtocolStatus = "NORMAL" | "CAUTION" | "STRESS" | "DEFENSIVE" | "EMERGENCY" | "RECOVERY";
 
 export const RISK_STATE_MACHINE = [
   { status: "NORMAL",    minting: "Allowed",            redemption: "Allowed",             rebalancing: "Active",            rrTarget: 1.10 },
   { status: "CAUTION",   minting: "Throttled (50%)",    redemption: "Allowed",             rebalancing: "Active (priority)", rrTarget: 1.08 },
-  { status: "DEFENSIVE", minting: "Paused",             redemption: "Allowed (Fee 0.5%)",  rebalancing: "Active (Emergency)",rrTarget: 1.05 },
+  { status: "STRESS",    minting: "Paused",            redemption: "Allowed (Fee 0.5%)",  rebalancing: "Active (Urgent)",   rrTarget: 1.05 }, // NEW §21.2 S3 STRESS
+  { status: "DEFENSIVE", minting: "Paused",             redemption: "Allowed (Fee 1.0%)",  rebalancing: "Active (Emergency)",rrTarget: 1.02 },
   { status: "EMERGENCY", minting: "Paused",             redemption: "Restricted (Fee 2%)", rebalancing: "Active (Force)",    rrTarget: 1.00 },
   { status: "RECOVERY",  minting: "Throttled (25%)",    redemption: "Allowed",             rebalancing: "Active",            rrTarget: 1.08 },
 ] as const;

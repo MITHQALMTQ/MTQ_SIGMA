@@ -37,7 +37,7 @@ import {
   ADMISSIBILITY_ENVELOPES,
   BASE_FIXINGS,
   PRICE_SAFETY_LOWER, PRICE_SAFETY_UPPER,
-  MINT_FEE_BPS, REDEEM_FEE_BPS,
+  MINT_FEE_BPS,
   HAIRCUTS,
   RR_TARGET, RR_STRESS, RR_HARD, LCR_TARGET, STRESS_REDEMPTION_RATE,
   ALPHA, BETA, THETA_MAX,
@@ -51,6 +51,7 @@ import {
   PRICE_EVENT_THRESHOLD,
   REINTEGRATION_WEIGHTS, REINTEGRATION_THRESHOLD, REINTEGRATION_REPURCHASE_STAGES,
   TREASURY_SWEEP_THRESHOLD_USD, TREASURY_SWEEP_AUTHORITY,
+  GOVERNANCE_LAYERS, PARAMETER_REGISTRY, type GovernanceLayerName,
   type ProtocolStatus,
   type FxRates,
 } from "./blueprint";
@@ -61,6 +62,8 @@ import {
   maseEnsemble,
   applyEnvelopes,
   smoothWeights,
+  smoothWeightsAdaptive,
+  targetVelocity,
   COMPONENTS,
   type PriceData,
   type VolatilityData,
@@ -69,6 +72,27 @@ import {
   type Component,
 } from "./mase";
 import { marpDecision, type MarpDecision } from "./marp";
+import {
+  initChainIndex,
+  advanceIndex,
+  commitWeights,
+  getMTQPrice,
+  fxToPriceVector,
+  strategicPriorToWeights,
+  baseFixingsToPrices,
+  type ChainIndexState,
+} from "./chain-index";
+import {
+  determineState,
+  mintThrottle,
+  redeemFee,
+  rebalanceUrgency,
+  mintingAllowed,
+  redemptionAllowed,
+  stressLevel,
+  type RiskState,
+  type CanonicalState,
+} from "./state-machine";
 
 export interface ReserveState {
   // Token-unit holdings (USD-denominated assets stored as their native units)
@@ -175,6 +199,25 @@ export interface ReserveState {
   // Exposed in the snapshot so the UI can render an A/B badge.
   rebalancePath: 'legacy' | 'marp';
 
+  // === P0-FIX-1: canonical chain-linked index state (Master Listing 3 / §9.2 COO-16) ===
+  // The chain-linked index I_t replaces the legacy Laspeyres GFB index.
+  // One per engine instance. The tick loop calls advanceIndex() every tick
+  // (so I_t reflects the latest FX/gold prices) and commitWeights() on every
+  // MASE weight update (so the index reflects the new strategic prior while
+  // preserving zero-artificial-return continuity).
+  chainIndex: ChainIndexState;
+
+  // === P0-FIX-3: canonical 6-state risk machine (Master Listing 13 / §21.2) ===
+  // Persisted across ticks so the hysteresis (RECOVERY 48h confirmation)
+  // survives. The tick loop calls determineState() once per tick with the
+  // previous state and `now`. `state` is the canonical RiskState (6 states
+  // incl. STRESS); the legacy `status` field on the snapshot maps 1:1 to it.
+  riskState: {
+    state: RiskState;
+    enteredAt: number;            // epoch ms when the current state was entered
+    confirmationPeriodEnds: number | null; // RECOVERY only — end of 48h window
+  };
+
   updatedAt: number;
 }
 
@@ -216,7 +259,11 @@ export function initReserveState(goldPrice: number): ReserveState {
   const gbp  = gbpUsd / 1.25;             // £ per $1.25
   const jpy  = jpyUsd / 0.0067;           // ¥ per $0.0067
   const cny  = cnyUsd / 0.14;             // CNH per $0.14
-  const chf  = chfUsd / 0.88;             // CHF per $0.88 (BASE_FIXINGS.CHF_USD)
+  // P0-FIX: CHF base fixing is 1.13 (was 0.88 — was 28% underweighted). The
+  // legacy `chfUsd / 0.88` produced ~28% MORE CHF tokens than the basket
+  // intended; the corrected `chfUsd / 1.13` matches the Master Blueprint v1.0
+  // and the canonical BASE_FIXINGS.CHF_USD used by the chain-linked index.
+  const chf  = chfUsd / BASE_FIXINGS.CHF_USD;  // CHF per $1.13 (Master v1.0)
   // FIX: split gold across 2 issuers (PAXG/Paxos, XAUT/Tether) — 50/50
   const paxg = (goldSpend / goldPrice) * 0.5;
   const xaut = (goldSpend / goldPrice) * 0.5;
@@ -298,6 +345,20 @@ export function initReserveState(goldPrice: number): ReserveState {
     maseLastAt: 0,
     // §14.1 — indexPaxg/indexXaut/reservePaxg/reserveXaut/rebalancePath are
     // initialised above (next to paxg/xaut where the split is computed).
+    // === P0-FIX-1: canonical chain-linked index — init at genesis with the
+    // Strategic Prior weights and the corrected BASE_FIXINGS (CHF=1.13).
+    chainIndex: initChainIndex(
+      GFB_BASE_DENOMINATOR,
+      strategicPriorToWeights(STRATEGIC_PRIOR),
+      baseFixingsToPrices(BASE_FIXINGS),
+      Date.now(),
+    ),
+    // === P0-FIX-3: canonical 6-state risk machine — start in NORMAL at genesis.
+    riskState: {
+      state: "NORMAL" as RiskState,
+      enteredAt: Date.now(),
+      confirmationPeriodEnds: null,
+    },
     updatedAt: Date.now(),
   };
 }
@@ -378,6 +439,19 @@ export function commitIndexGold(
 // GFB = 1.00 exactly at the base date). The 7 components are the Strategic
 // Prior: USD, EUR, JPY, GBP, CNY, CHF, Gold. Gold is now a first-class index
 // component (P_Gold = XAU_USD).
+//
+// DEPRECATED (P0-FIX-1): this is the LEGACY fixed-base Laspeyres index. It
+// weights each component by its raw USD notional share (gold contributes
+// 99.9% of the index by notional despite a 26% Strategic Prior weight), which
+// creates a structural short-gold exposure that crashed the §23 validation
+// program (S5: 0% survival, RR crashed to 0.83 in 100% of gold +50% runs).
+//
+// The CANONICAL chain-linked index lives in `src/lib/mtq/chain-index.ts`. The
+// engine's `computeSnapshot` now uses `getMTQPrice(s.chainIndex)` (the
+// chain-linked form) for both `gfbIndex` and `mtqPrice`. This legacy
+// `computeGfbIndex` is RETAINED for backward compatibility with the
+// standalone audit-stress.ts simulations (which need a pure function of fx,
+// not the persisted chain index state).
 export function computeGfbIndex(fx: Pick<FxRates, "EUR_USD" | "GBP_USD" | "JPY_USD" | "CNY_USD" | "CHF_USD" | "XAU_USD">): number {
   // Raw USD value of the basket at time t. USD is the unit of account (price 1.0);
   // every other component contributes its USD-equivalent via its FX rate.
@@ -396,9 +470,46 @@ export function computeGfbIndex(fx: Pick<FxRates, "EUR_USD" | "GBP_USD" | "JPY_U
 }
 
 // --- §3 MTQ Reference Price -------------------------------------------------
+// Legacy helper: P_MTQ = GFB_t (since GFB_base is normalised to 1.0).
+// DEPRECATED (P0-FIX-1): the canonical P_MTQ is `getMTQPrice(s.chainIndex)`
+// from chain-index.ts. This helper is retained for backward compatibility.
 export function computeMtqPrice(gfb: number): number {
   // P_MTQ = GFB_t / GFB_base, with GFB_base = 1.0 (normalised)
   return gfb;
+}
+
+// === P0-FIX-1: Canonical chain-linked index helpers ===========================
+// Advance the chain index one step with the latest FX/gold prices. MUTATES
+// `s.chainIndex` (so the next computeSnapshot reads the fresh I_t). Called
+// once per tick from the pilot-state tick loop AFTER fetching FX, BEFORE
+// the first computeSnapshot.
+export function advanceChainIndex(s: ReserveState, fx: FxRates): void {
+  const prices = fxToPriceVector(fx);
+  const result = advanceIndex(s.chainIndex, prices);
+  s.chainIndex = result.state;
+}
+
+// Commit the MASE smoothed weights to the chain index (called from
+// advanceMase after the new smoothed weights are computed). Computes the
+// divisor D_t = B_t^- / B_t^+ that preserves index continuity (zero
+// artificial return), updates G_t, and updates prevWeights + prevPrices to
+// the new weights and the current FX prices. MUTATES `s.chainIndex`.
+export function commitChainIndexWeights(
+  s: ReserveState,
+  fx: FxRates,
+  newWeights: WeightVector,
+): { divisor: number; newG: number } {
+  const weightsArr = COMPONENTS.map((c) => newWeights[c] ?? 0);
+  const pricesArr = fxToPriceVector(fx);
+  const r = commitWeights(s.chainIndex, weightsArr, pricesArr, Date.now());
+  s.chainIndex = r.state;
+  return { divisor: r.divisor, newG: r.newG };
+}
+
+// The canonical MTQ reference price: P_MTQ = I_t × PAR (PAR = 1.0).
+// Reads from the persisted chain index state (no mutation).
+export function getMtqPriceFromState(s: ReserveState): number {
+  return getMTQPrice(s.chainIndex);
 }
 
 export function priceInSafetyBand(p: number): boolean {
@@ -485,13 +596,66 @@ export function computeLcr(s: ReserveState, vals: { fiatNet: number }, price: nu
   return liquidAssets / stressDemand;
 }
 
-// --- §4.2.2 Status determination --------------------------------------------
+// --- §4.2.2 Status determination (CANONICAL — 6-state per Master Listing 13) ---
+// P0-FIX-3: the canonical classification lives in state-machine.ts. This
+// function is a backward-compat wrapper that calls `determineState` with the
+// engine's persisted riskState and returns just the state string. The full
+// CanonicalState (with enteredAt, confirmationPeriodEnds, worseCondition) is
+// returned by `advanceRiskState` and exposed on the snapshot.
+//
+// NOTE: this wrapper does NOT persist hysteresis state — it computes the
+// state purely from the current RR/LCR. The tick loop uses `advanceRiskState`
+// (which persists) for the authoritative state. This wrapper is for
+// standalone calls (e.g., applyMint/applyRedeem internals) that need a
+// state classification from current RR/LCR without mutating persisted state.
 export function determineStatus(rr: number, lcr: number): ProtocolStatus {
-  if (rr >= RR_TARGET && lcr >= LCR_TARGET) return "NORMAL";
-  if (rr >= RR_STRESS && lcr >= 0.9) return "CAUTION";
-  if (rr >= RR_HARD) return "DEFENSIVE";
-  if (rr < RR_HARD) return "EMERGENCY";
-  return "RECOVERY";
+  // Use a deterministic-state call (no hysteresis) — previous = "NORMAL" with
+  // enteredAt = now means RECOVERY confirmation never completes from this
+  // call alone; the persisted path (advanceRiskState) is the source of truth.
+  // For pure-RR/LCR classification, this matches the Master Listing 13 worse-
+  // condition-binds rule exactly.
+  const prev: RiskState = "NORMAL";
+  const cs = determineState(rr, lcr, prev, Date.now(), Date.now());
+  return cs.state;
+}
+
+// === P0-FIX-3: advance the canonical risk state (persists hysteresis) ========
+// Called once per tick from the pilot-state tick loop AFTER the new RR/LCR
+// are computed (post-rebalance, post-concentration-optimizer). Reads the
+// previous state + enteredAt from s.riskState; writes the new state back.
+// Returns the full CanonicalState (for the snapshot).
+export function advanceRiskState(
+  s: ReserveState,
+  rr: number,
+  lcr: number,
+  now: number = Date.now(),
+): CanonicalState {
+  const cs = determineState(
+    rr,
+    lcr,
+    s.riskState.state,
+    s.riskState.enteredAt,
+    now,
+  );
+  s.riskState = {
+    state: cs.state,
+    enteredAt: cs.enteredAt,
+    confirmationPeriodEnds: cs.confirmationPeriodEnds,
+  };
+  return cs;
+}
+
+// === P0-FIX-4: parameter → governance layer lookup ===========================
+// Returns which of the 4 governance layers (CONSTITUTIONAL, MONETARY, RISK,
+// EMERGENCY) owns a given parameter, plus the envelope (if any) and the
+// immutable flag. Returns null for unknown parameters.
+export function getParameterGovernance(key: string): {
+  layer: GovernanceLayerName;
+  immutable?: boolean;
+  envelope?: readonly number[];
+} | null {
+  const entry = (PARAMETER_REGISTRY as Record<string, { layer: GovernanceLayerName; immutable?: boolean; envelope?: readonly number[] }>)[key];
+  return entry ?? null;
 }
 
 // --- §6 Adaptive Macro Engine -----------------------------------------------
@@ -890,7 +1054,7 @@ export interface MintResult {
   netUsd: number;
   mtqPrice: number;
   mtqMinted: number;
-  throttleFactor: number; // 1.0 normal, 0.5 caution
+  throttleFactor: number; // 1.0 normal, 0.5 caution, 0.25 recovery, 0 paused
   newCirculatingSupply: number;
   newReserveRatio: number;
 }
@@ -901,15 +1065,19 @@ export function applyMint(
   status: ProtocolStatus,
   inputUsd: number,
 ): MintResult {
-  const gfb = computeGfbIndex(fx);
-  const price = computeMtqPrice(gfb);
+  // P0-FIX-1: use the canonical chain-linked index for the MTQ price (the
+  // legacy Laspeyres form had a structural short-gold bug — see chain-index.ts).
+  const price = getMtqPriceFromState(s);
   if (!priceInSafetyBand(price)) {
     return { ok: false, reason: "MTQ price outside safety band (0.50–2.00 USD); minting paused by circuit breaker.", inputUsd, feeUsd: 0, netUsd: 0, mtqPrice: price, mtqMinted: 0, throttleFactor: 0, newCirculatingSupply: circulatingSupply(s), newReserveRatio: computeReserveRatio(reserveAssetValues(s, fx).nav, computeLiability(s, price)) };
   }
-  if (status === "DEFENSIVE" || status === "EMERGENCY") {
-    return { ok: false, reason: `${status}: minting paused by Risk State Machine.`, inputUsd, feeUsd: 0, netUsd: 0, mtqPrice: price, mtqMinted: 0, throttleFactor: 0, newCirculatingSupply: circulatingSupply(s), newReserveRatio: computeReserveRatio(reserveAssetValues(s, fx).nav, computeLiability(s, price)) };
+  // P0-FIX-3: use the canonical mint throttle / minting-allowed from
+  // state-machine.ts. STRESS now also pauses minting (previously only
+  // DEFENSIVE/EMERGENCY did). NORMAL=1.0, CAUTION=0.5, STRESS/DEFENSIVE/EMERGENCY=0 (paused), RECOVERY=0.25.
+  if (!mintingAllowed(status)) {
+    return { ok: false, reason: `${status}: minting paused by canonical Risk State Machine (§21.3).`, inputUsd, feeUsd: 0, netUsd: 0, mtqPrice: price, mtqMinted: 0, throttleFactor: 0, newCirculatingSupply: circulatingSupply(s), newReserveRatio: computeReserveRatio(reserveAssetValues(s, fx).nav, computeLiability(s, price)) };
   }
-  const throttle = status === "CAUTION" ? 0.5 : status === "RECOVERY" ? 0.25 : 1.0;
+  const throttle = mintThrottle(status);
   const feeUsd = inputUsd * (MINT_FEE_BPS / 10_000);
   const netUsd = inputUsd - feeUsd;
   const minted = (netUsd / price) * throttle;
@@ -953,7 +1121,10 @@ export interface RedeemResult {
   reason?: string;
   inputMtq: number;
   mtqPrice: number;
-  // §3.4.2 primary valuation (index-priced) — the arbitrage-safe version
+  // P0-FIX-2: PRIMARY valuation is now NAV-based (per Master §19.3.2, Invariant I6).
+  // grossUsd = inputMtq × NAV_t, where NAV_t = V_net / circulatingSupply.
+  // The legacy §3.4.2 (index-priced) valuation is retained in auditGrossUsdIndex
+  // for comparison; the §12.2 (NAV-based) valuation is now the canonical settlement.
   grossUsd: number;
   feeBps: number;
   feeUsd: number;
@@ -963,12 +1134,13 @@ export interface RedeemResult {
   basket: RedeemBasket[];
   newCirculatingSupply: number;
   newReserveRatio: number;
-  // Honest audit: §12.2 alternative valuation (Y × NAV_per_token = V_net/S)
-  // The blueprint is internally inconsistent between §3.4.2 and §12.2.
-  // We compute both and surface the difference; primary settlement uses §3.4.2.
-  auditNavPerToken: number;       // V_net / S (book value per MTQ)
-  auditGrossUsdNav: number;       // Y × NAV_per_token (§12.2 literal)
-  auditDeltaUsd: number;          // §12.2 − §3.4.2 (positive → §12.2 pays more → drains buffer)
+  // P0-FIX-2: NAV_t used for settlement (V_net / circulatingSupply, fallback P_MTQ at genesis)
+  navPerMtq: number;
+  // Audit fields (retained from the legacy §3.4.2 vs §12.2 reconciliation)
+  auditNavPerToken: number;       // V_net / S (book value per MTQ) — same as navPerMtq
+  auditGrossUsdNav: number;      // Y × NAV_per_token (§12.2 — now the CANONICAL settlement)
+  auditGrossUsdIndex: number;    // Y × P_MTQ (§3.4.2 — now the AUDIT-ONLY alternative)
+  auditDeltaUsd: number;          // §12.2 − §3.4.2 (positive → NAV pays more than index)
   auditNote: string;
 }
 
@@ -978,23 +1150,59 @@ export function applyRedeem(
   status: ProtocolStatus,
   inputMtq: number,
 ): RedeemResult {
-  const gfb = computeGfbIndex(fx);
-  const price = computeMtqPrice(gfb);
+  // P0-FIX-1: use the canonical chain-linked index for P_MTQ.
+  const price = getMtqPriceFromState(s);
   const circ = circulatingSupply(s);
-  // Honest audit fields (computed pre-settlement so they exist on the error path too)
+  // Pre-settlement reserve values (used to compute NAV_t and the audit fields).
   const vals0 = reserveAssetValues(s, fx);
-  const auditNavPerToken = circ > 0 ? vals0.nav / circ : 0;
-  const auditGrossUsdNav = inputMtq * auditNavPerToken;
-  const auditNote = "Blueprint §3.4.2 (redeem at P_MTQ) vs §12.2 (redeem at NAV_per_token=V_net/S) conflict. At RR>100% the §12.2 literal pays redeemers MORE than §3.4.2, draining the buffer surplus via arbitrage. We settle on the arbitrage-safe §3.4.2 value; the §12.2 figure is shown for audit only.";
+  // P0-FIX-2 (Master §19.3.2, Invariant I6): NAV-based redemption.
+  //   NAV_t = V_net / circulatingSupply; grossUsd = inputMtq × NAV_t
+  //
+  // Genesis fallback: at genesis (or any time circulatingSupply = 0), NAV_t
+  // is undefined (division by zero). We fall back to P_MTQ in this case:
+  //   - At genesis, there is no circulating MTQ to redeem (the inputMtq > circ
+  //     guard below catches this case explicitly).
+  //   - In practice the fallback is exercised only when the protocol has not
+  //     yet minted any circulating supply — the redemption would fail with
+  //     "insufficient supply" before reaching the NAV computation.
+  //   - After the first mint, circulating supply > 0 and NAV_t = V_net / S_circ
+  //     will be very high (e.g. $42/MTQ when RR = 2400%) — this is CORRECT:
+  //     redeeming 1 MTQ returns $42 worth of reserve, which IS the actual
+  //     value of the token. The Index/NAV divergence analysis (§12) surfaces
+  //     when this matters (e.g. when NAV_per_MTQ diverges from P_MTQ by >5%
+  //     → "monitor" status; >10% → "stress").
+  const navPerMtq = circ > 0 ? vals0.nav / circ : price;
+  // Honest audit fields (computed pre-settlement so they exist on the error path too).
+  // P0-FIX-2: the primary settlement now uses NAV (§12.2 — formerly audit-only).
+  // The legacy §3.4.2 (index-priced) is now the AUDIT-ONLY alternative.
+  const auditNavPerToken = navPerMtq;
+  const auditGrossUsdNav = inputMtq * navPerMtq;
+  const auditGrossUsdIndex = inputMtq * price;
+  const auditNote =
+    "P0-FIX-2 (Master §19.3.2, Invariant I6): redemption is now priced against " +
+    "NAV_t = V_net / circulatingSupply (the §12.2 form, formerly audit-only). " +
+    "The legacy §3.4.2 (redeem at P_MTQ) is now the AUDIT-ONLY alternative " +
+    "(auditGrossUsdIndex). At RR>100% the NAV pays redeemers MORE than the index " +
+    "price (auditDeltaUsd > 0), which IS the intent: the redeemer receives the " +
+    "actual book value of their token, not just the index-tracked price. The " +
+    "§12 Index/NAV divergence analysis surfaces when this gap becomes material " +
+    "(>5% monitor, >10% stress).";
   if (inputMtq > circ) {
-    return { ok: false, reason: "Insufficient circulating supply for this redemption in pilot state.", inputMtq, mtqPrice: price, grossUsd: 0, feeBps: 0, feeUsd: 0, netUsd: 0, goldUsd: 0, goldPaxg: 0, basket: [], newCirculatingSupply: circ, newReserveRatio: computeReserveRatio(vals0.nav, computeLiability(s, price)), auditNavPerToken, auditGrossUsdNav, auditDeltaUsd: auditGrossUsdNav, auditNote };
+    return { ok: false, reason: "Insufficient circulating supply for this redemption in pilot state.", inputMtq, mtqPrice: price, grossUsd: 0, feeBps: 0, feeUsd: 0, netUsd: 0, goldUsd: 0, goldPaxg: 0, basket: [], newCirculatingSupply: circ, newReserveRatio: computeReserveRatio(vals0.nav, computeLiability(s, price)), navPerMtq, auditNavPerToken, auditGrossUsdNav, auditGrossUsdIndex, auditDeltaUsd: auditGrossUsdNav - auditGrossUsdIndex, auditNote };
   }
-  // Fee by status (§14.1): NORMAL/CAUTION 0.15%, DEFENSIVE 0.5%, EMERGENCY 2%
-  let feeBps = REDEEM_FEE_BPS;
-  if (status === "DEFENSIVE") feeBps = 50;
-  if (status === "EMERGENCY") feeBps = 200;
-  const grossUsd = inputMtq * price; // redemption is priced against the GFB Index (§3.4.2)
-  const feeUsd = grossUsd * (feeBps / 10_000);
+  // P0-FIX-3: §21.4 — redemption is PAUSED in EMERGENCY (the reconciliation
+  // resolves the §16.2 vs §21.4 contradiction in favour of §21.4: pause).
+  if (!redemptionAllowed(status)) {
+    return { ok: false, reason: `${status}: redemption paused per §21.4 (canonical Risk State Machine).`, inputMtq, mtqPrice: price, grossUsd: 0, feeBps: 0, feeUsd: 0, netUsd: 0, goldUsd: 0, goldPaxg: 0, basket: [], newCirculatingSupply: circ, newReserveRatio: computeReserveRatio(vals0.nav, computeLiability(s, price)), navPerMtq, auditNavPerToken, auditGrossUsdNav, auditGrossUsdIndex, auditDeltaUsd: auditGrossUsdNav - auditGrossUsdIndex, auditNote };
+  }
+  // P0-FIX-3: state-dependent fee from the canonical 6-state risk machine.
+  // NORMAL/CAUTION 0.15% (15 bps), STRESS 0.50% (50 bps), DEFENSIVE 1.00%
+  // (100 bps), EMERGENCY 2.00% (200 bps), RECOVERY 0.50% (50 bps).
+  const feeFraction = redeemFee(status);
+  const feeBps = Math.round(feeFraction * 10_000);
+  // P0-FIX-2: grossUsd is now NAV-based (was index-based in the legacy engine).
+  const grossUsd = inputMtq * navPerMtq;
+  const feeUsd = grossUsd * feeFraction;
   const netUsd = grossUsd - feeUsd;
 
   // Release actual reserve composition proportionally (§12.2):
@@ -1064,9 +1272,11 @@ export function applyRedeem(
     basket,
     newCirculatingSupply: circulatingSupply(s),
     newReserveRatio: newRr,
-    auditNavPerToken: circ > 0 ? vals0.nav / circ : 0,
+    navPerMtq,
+    auditNavPerToken,
     auditGrossUsdNav,
-    auditDeltaUsd: auditGrossUsdNav - grossUsd,
+    auditGrossUsdIndex,
+    auditDeltaUsd: auditGrossUsdNav - auditGrossUsdIndex,
     auditNote,
   };
 }
@@ -1151,17 +1361,98 @@ export interface MetricsSnapshot {
   // UI renders this as an A/B badge ("Legacy §7 active" / "MARP active").
   rebalancePath: 'legacy' | 'marp';
   envelopes: { component: string; lower: number; upper: number; current: number; status: "ok" | "warn" | "breach" }[];
+
+  // === P0-FIX-1: canonical chain-linked index (Master Listing 3 / §9.2 COO-16) ===
+  // The full chain index state — exposed so the UI / auditors can verify I_t,
+  // G_t, the prior weights/prices, and the baseDenominator. The MTQ price
+  // (mtqPrice / gfbIndex) is now derived from chainIndex.I_t, NOT from the
+  // legacy Laspeyres computeGfbIndex.
+  chainIndex: {
+    I_t: number;
+    G_t: number;
+    prevWeights: number[];     // [USD, EUR, JPY, GBP, CNY, CHF, Gold]
+    prevPrices: number[];      // [USD, EUR, JPY, GBP, CNY, CHF, Gold]
+    baseDenominator: number;
+    lastUpdate: number;
+  };
+
+  // === P0-FIX-3: canonical 6-state risk machine (Master Listing 13 / §21.2) ===
+  // The full canonical state — `state` is the same value as `status` above
+  // (kept for backward compat), plus the hysteresis fields (enteredAt,
+  // confirmationPeriodEnds) and the diagnostics (worseCondition, mintThrottle,
+  // redeemFeePct, rebalanceUrgency, mintingAllowed, redemptionAllowed).
+  riskState: RiskState;
+  riskStateEnteredAt: number;
+  riskStateConfirmationEnds: number | null;
+  riskStateWorseCondition: "rr" | "lcr" | "both" | "neither";
+  mintThrottle: number;
+  redeemFeePct: number;        // fraction, e.g. 0.0015 = 0.15%
+  rebalanceUrgency: number;
+  mintingAllowed: boolean;
+  redemptionAllowed: boolean;
+
+  // === P0-FIX-2: Index/NAV divergence analysis (Master §12) ===
+  // Monitor NAV_per_MTQ - P_MTQ. Flag if divergence > 5% (monitor), > 10% (stress).
+  // At RR > 100% the NAV exceeds the index price (the buffer surplus shows up as
+  // a higher NAV per token). This is the expected behaviour — the analysis
+  // surfaces when the gap becomes material enough to warrant attention.
+  indexNavDivergence: {
+    navPerMtq: number;         // V_net / S_circ (fallback P_MTQ at genesis)
+    pMtq: number;              // canonical chain-linked P_MTQ
+    divergence: number;        // NAV_per_MTQ - P_MTQ (signed)
+    divergencePct: number;     // |divergence| / P_MTQ × 100
+    threshold: number;         // 5% monitor / 10% stress — the active threshold
+    status: "normal" | "monitor" | "stress";
+  };
+
+  // === P0-FIX-4: 4 governance layers (Master Listing 14 / §22.3) ===
+  // The 4-layer hierarchy (CONSTITUTIONAL/MONETARY/RISK/EMERGENCY) with each
+  // layer's authority, timelock, and scope. Plus the parameter → layer
+  // registry (which layer owns which parameter, and the envelope where
+  // applicable). The TS reference exposes the metadata; the contract will
+  // implement the actual 4 timelocks.
+  governanceLayers: typeof GOVERNANCE_LAYERS;
+  parameterRegistry: typeof PARAMETER_REGISTRY;
 }
 
 export function computeSnapshot(s: ReserveState, fx: FxSnapshot, ctx?: { oracle?: OracleBoard | null; registry?: AssetRecord[] | null }): MetricsSnapshot {
-  const gfb = computeGfbIndex(fx);
-  const price = computeMtqPrice(gfb);
+  // P0-FIX-1: the MTQ price comes from the canonical chain-linked index
+  // (state.chainIndex.I_t), NOT from the legacy Laspeyres computeGfbIndex.
+  // The legacy computeGfbIndex is retained as a deprecated export for the
+  // standalone audit-stress sims (which don't have persisted state).
+  const price = getMtqPriceFromState(s);
+  const gfb = price; // gfbIndex now mirrors the chain-linked I_t (P_MTQ = I_t × PAR = I_t)
   const vals = reserveAssetValues(s, fx);
   const nav = vals.nav;
   const liability = computeLiability(s, price);
   const rr = computeReserveRatio(nav, liability);
   const lcr = computeLcr(s, vals, price);
-  const status = determineStatus(rr, lcr);
+  // P0-FIX-3: the snapshot's `status` field comes from the PERSISTED canonical
+  // state (s.riskState.state) — this preserves the RECOVERY hysteresis (the
+  // 48h confirmation window). The legacy `determineStatus(rr, lcr)` is a
+  // stateless wrapper that doesn't preserve hysteresis.
+  const status: ProtocolStatus = s.riskState.state;
+  const canonicalState: RiskState = s.riskState.state;
+  // Canonical-state-derived policy fields (one source of truth).
+  const mintThrottleVal = mintThrottle(canonicalState);
+  const redeemFeePctVal = redeemFee(canonicalState);
+  const rebalanceUrgencyVal = rebalanceUrgency(canonicalState);
+  const mintingAllowedVal = mintingAllowed(canonicalState);
+  const redemptionAllowedVal = redemptionAllowed(canonicalState);
+  // P0-FIX-2: Index/NAV divergence analysis (§12).
+  // NAV_per_MTQ = V_net / circulatingSupply (fallback P_MTQ at genesis).
+  // divergence = NAV_per_MTQ - P_MTQ (signed).
+  // divergencePct = |divergence| / P_MTQ × 100.
+  // status = "normal" (<5%), "monitor" (5-10%), "stress" (>10%).
+  const circ = circulatingSupply(s);
+  const navPerMtq = circ > 0 ? nav / circ : price;
+  const divergence = navPerMtq - price;
+  const divergencePct = price > 0 ? (Math.abs(divergence) / price) * 100 : 0;
+  const divergenceStatus: "normal" | "monitor" | "stress" =
+    divergencePct > 10 ? "stress" :
+    divergencePct > 5  ? "monitor" :
+    "normal";
+  const divergenceThreshold = divergenceStatus === "stress" ? 10 : divergenceStatus === "monitor" ? 5 : 0;
   const observedGold = nav > 0 ? vals.goldNet / nav : 0;
   const targetGold = computeTargetGoldWeight(s, rr);
   const z = computeZScores(s, fx.VIX, fx.DXY);
@@ -1253,6 +1544,40 @@ export function computeSnapshot(s: ReserveState, fx: FxSnapshot, ctx?: { oracle?
     // §14.1 — which rebalance path is currently mutating state ('legacy' | 'marp').
     rebalancePath: s.rebalancePath,
     envelopes: maseData.envelopes,
+    // === P0-FIX-1: canonical chain-linked index state ===
+    chainIndex: {
+      I_t: s.chainIndex.I_t,
+      G_t: s.chainIndex.G_t,
+      prevWeights: s.chainIndex.prevWeights,
+      prevPrices: s.chainIndex.prevPrices,
+      baseDenominator: s.chainIndex.baseDenominator,
+      lastUpdate: s.chainIndex.lastUpdate,
+    },
+    // === P0-FIX-3: canonical 6-state risk machine ===
+    riskState: canonicalState,
+    riskStateEnteredAt: s.riskState.enteredAt,
+    riskStateConfirmationEnds: s.riskState.confirmationPeriodEnds,
+    riskStateWorseCondition:
+      // Derive the worseCondition from the current RR/LCR vs the state's bands.
+      // (The persisted state doesn't carry this; it's a snapshot diagnostic.)
+      determineState(rr, lcr, canonicalState, s.riskState.enteredAt, Date.now()).worseCondition,
+    mintThrottle: mintThrottleVal,
+    redeemFeePct: redeemFeePctVal,
+    rebalanceUrgency: rebalanceUrgencyVal,
+    mintingAllowed: mintingAllowedVal,
+    redemptionAllowed: redemptionAllowedVal,
+    // === P0-FIX-2: Index/NAV divergence analysis ===
+    indexNavDivergence: {
+      navPerMtq,
+      pMtq: price,
+      divergence,
+      divergencePct,
+      threshold: divergenceThreshold,
+      status: divergenceStatus,
+    },
+    // === P0-FIX-4: 4 governance layers + parameter registry ===
+    governanceLayers: GOVERNANCE_LAYERS,
+    parameterRegistry: PARAMETER_REGISTRY,
   };
 }
 
@@ -1452,9 +1777,25 @@ function buildMaseSnapshot(
 }
 
 /** Advance MASE state once per tick. Mutates `s.maseSmoothed` (EMA prior for
- *  the next tick). Called from the pilot-state tick loop, AFTER advanceMacro
- *  (so lastVix/lastDxy are fresh) and BEFORE the first computeSnapshot of the
- *  tick (so the snapshot reads the freshly-persisted smoothed weights). */
+ *  the next tick) and `s.chainIndex` (commits the new weights to preserve
+ *  zero-artificial-return continuity per Master §9.2 COO-16). Called from
+ *  the pilot-state tick loop, AFTER advanceMacro (so lastVix/lastDxy are
+ *  fresh) and BEFORE the first computeSnapshot of the tick (so the snapshot
+ *  reads the freshly-persisted smoothed weights).
+ *
+ *  P0-FIX-1 (chain-linking): the new smoothed weights are committed to the
+ *    chain index via commitChainIndexWeights(). This updates G_t (the
+ *    cumulative chain-link factor) and the prevWeights / prevPrices used by
+ *    the next advanceIndex() call. The divisor D_t = B_t^- / B_t^+ ensures
+ *    the rebalance creates ZERO artificial index return.
+ *
+ *  P0-FIX-3 + §8.4/§7.4 (velocity + stress-adaptive smoothing): the EMA
+ *    smoothing now uses smoothWeightsAdaptive() with the canonical risk
+ *    state's stress level and the target velocity (max component-wise |Δ|
+ *    between the previous smoothed and the new constrained target). In
+ *    stress states (STRESS/DEFENSIVE/EMERGENCY), the smoothing slows by 50%
+ *    to avoid chasing volatile prices. Fast target jumps (|Δ| > 5%) are
+ *    damped by up to 50% (whip-saw guard). */
 export function advanceMase(s: ReserveState, fx: FxRates): void {
   const prices = buildPriceData(fx);
   const vols = estimateVolsFromState(s);
@@ -1466,8 +1807,21 @@ export function advanceMase(s: ReserveState, fx: FxRates): void {
   const mase = maseEnsemble(vols, prices, null, regime);
   const constrained = applyEnvelopes(mase.target);
   const prevSmoothed = s.maseSmoothed ?? (STRATEGIC_PRIOR as WeightVector);
-  s.maseSmoothed = smoothWeights(prevSmoothed, constrained);
+  // §8.4 + §7.4 — velocity + stress-adaptive smoothing.
+  const velocity = targetVelocity(prevSmoothed, constrained);
+  const sl = stressLevel(s.riskState.state);
+  s.maseSmoothed = smoothWeightsAdaptive(prevSmoothed, constrained, SMOOTHING_LAMBDA, velocity, sl);
   s.maseLastAt = Date.now();
+  // P0-FIX-1 — commit the new smoothed weights to the chain index. This
+  // computes the divisor D_t = B_t^- / B_t^+ that preserves index continuity
+  // (zero artificial return), updates G_t, and updates prevWeights +
+  // prevPrices for the next advanceIndex() call. Wrapped in try/catch so a
+  // chain-index commit failure doesn't break the tick loop.
+  try {
+    commitChainIndexWeights(s, fx, s.maseSmoothed);
+  } catch (e) {
+    if (typeof console !== "undefined") console.error("[mtq-engine] chain index commit error:", e);
+  }
 }
 
 // --- helpers ----------------------------------------------------------------

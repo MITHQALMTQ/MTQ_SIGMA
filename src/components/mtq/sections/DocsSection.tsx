@@ -25,6 +25,7 @@ import { HonestStatus } from "@/components/mtq/HonestStatus";
 import { OnChainMatrix } from "@/components/mtq/OnChainMatrix";
 import { BlueprintQA } from "@/components/mtq/BlueprintQA";
 import { AuditFindings } from "@/components/mtq/AuditFindings";
+import { ProductionReadinessDashboard } from "@/components/mtq/ProductionReadinessDashboard";
 import {
   STRATEGIC_PRIOR_TABLE,
   ENVELOPES_TABLE,
@@ -162,6 +163,11 @@ export function DocsSection({
       {/* Top-Tier Audit Findings — third thing, so visitors see the honest audit verdict immediately */}
       <Reveal>
         <AuditFindings />
+      </Reveal>
+
+      {/* Production Readiness Dashboard (Deliverable J — §39J) — surfaces GREEN/AMBER/RED/BLOCKED for every subsystem */}
+      <Reveal>
+        <ProductionReadinessDashboard />
       </Reveal>
 
       {/* Intro */}

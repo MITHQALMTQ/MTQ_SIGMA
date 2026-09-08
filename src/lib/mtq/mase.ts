@@ -240,8 +240,32 @@ export function applyEnvelopes(weights: WeightVector): WeightVector {
   return result;
 }
 
-// === Stress-Adaptive Smoothing (§8.4) ===
-// EMA smoothing toward the constrained target.
+// === Stress-Adaptive Smoothing (§8.4 + §7.4 velocity-aware) ===
+// EMA smoothing toward the constrained target. Two flavours:
+//
+// 1. smoothWeights(prev, target, lambda): the legacy 1-arg form — fixed lambda.
+//    Retained for backward compatibility (the engine's advanceMase previously
+//    called this directly).
+//
+// 2. smoothWeightsAdaptive(prev, target, lambda, velocity, stressLevel):
+//    the §8.4 + §7.4 velocity + stress-adaptive form. The effective lambda is
+//    dampened by:
+//      λ_eff = λ_base × (1 − velocityPenalty) × (1 − stressPenalty)
+//    where:
+//      velocityPenalty = clamp(|Δtarget|_max / velocityCap, 0, 0.5)
+//        → damp fast jumps (whip-saw guard). If the target weight jumped by
+//          more than `velocityCap` (default 5%) on any single component, we
+//          cut the smoothing step in half to avoid chasing a volatile signal.
+//      stressPenalty = 0.5 in STRESS/DEFENSIVE/EMERGENCY (move slower in
+//        crisis — don't chase volatile prices)
+//                     = 0.25 in CAUTION (move cautiously)
+//                     = 0    in NORMAL (move at full speed)
+//    In stress, we move SLOWER (more conservative) — the §8.4 spec says
+//    smoothing should be more aggressive in calm markets and more
+//    conservative in stressed markets, to avoid amplifying volatility.
+//
+// λ_eff is clamped to [0.02, 0.5] so we always make some progress (>= 2%)
+// but never overshoot (> 50% per step would be a jump, not smoothing).
 export function smoothWeights(
   prevSmoothed: WeightVector,
   target: WeightVector,
@@ -252,6 +276,38 @@ export function smoothWeights(
     result[c] = lambda * target[c] + (1 - lambda) * (prevSmoothed[c] ?? STRATEGIC_PRIOR[c]);
   }
   return result;
+}
+
+// Max component-wise |Δ| between prev and target. Used as the "velocity"
+// input to smoothWeightsAdaptive — a proxy for how fast the MASE target is
+// moving tick-over-tick.
+export function targetVelocity(prev: WeightVector, target: WeightVector): number {
+  let maxDelta = 0;
+  for (const c of COMPONENTS) {
+    const d = Math.abs((target[c] ?? 0) - (prev[c] ?? 0));
+    if (d > maxDelta) maxDelta = d;
+  }
+  return maxDelta;
+}
+
+// Velocity + stress-adaptive smoothing (§8.4 + §7.4).
+// `stressLevel` is 0-4 (NORMAL/CAUTION/STRESS/DEFENSIVE/EMERGENCY); RECOVERY
+// maps to 1 (CAUTION-speed). See module header for the full rationale.
+export function smoothWeightsAdaptive(
+  prevSmoothed: WeightVector,
+  target: WeightVector,
+  lambda: number = 0.20,
+  velocity: number = 0,        // max component-wise |Δtarget| (0..1)
+  stressLevel: number = 0,    // 0..4 (NORMAL..EMERGENCY)
+  velocityCap: number = 0.05, // |Δ| > 5% on any component → start dampening
+): WeightVector {
+  const velocityPenalty = Math.min(0.5, velocity / velocityCap);
+  const stressPenalty =
+    stressLevel >= 2 ? 0.5 :   // STRESS / DEFENSIVE / EMERGENCY → slow down 50%
+    stressLevel === 1 ? 0.25 : // CAUTION / RECOVERY → slow down 25%
+    0;                          // NORMAL → full speed
+  const lambdaEff = Math.max(0.02, Math.min(0.5, lambda * (1 - velocityPenalty) * (1 - stressPenalty)));
+  return smoothWeights(prevSmoothed, target, lambdaEff);
 }
 
 // === Helper: blend two weight vectors ===

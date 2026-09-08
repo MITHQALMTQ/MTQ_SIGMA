@@ -20,6 +20,7 @@ import {
 import { Panel, Reveal, Pill, GlowDot, SectionHeading } from "@/components/mtq/primitives";
 import { OnChainMatrix } from "@/components/mtq/OnChainMatrix";
 import { AuditFindings } from "@/components/mtq/AuditFindings";
+import { ProductionReadinessDashboard } from "@/components/mtq/ProductionReadinessDashboard";
 import { DEPLOYER_WALLET, CANONICAL_MTQ_ADDRESSES } from "@/lib/mtq/contracts";
 import { BRAND_VOICE } from "@/lib/mtq/brand";
 import { shortAddr } from "@/components/mtq/format";
@@ -136,6 +137,11 @@ export function SecuritySection({ onNavigate: _onNavigate }: { onNavigate: (id: 
       {/* Top-Tier Audit Findings — second thing, so security-conscious readers see the verdict */}
       <Reveal>
         <AuditFindings />
+      </Reveal>
+
+      {/* Production Readiness Dashboard (Deliverable J — §39J) — GREEN/AMBER/RED/BLOCKED for every subsystem */}
+      <Reveal>
+        <ProductionReadinessDashboard />
       </Reveal>
 
       {/* Intro */}
