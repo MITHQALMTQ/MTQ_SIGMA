@@ -1,0 +1,43 @@
+{
+  "chain": "Arc Testnet (pending)",
+  "chainId": 5042002,
+  "status": "SOURCE_READY_PENDING_DEPLOY",
+  "contract": "MTQSigmaV2",
+  "sourceFile": "contracts/MTQSigmaV2.sol",
+  "expectedAddress": null,
+  "deployTx": null,
+  "deployedAt": null,
+  "deployScript": "scripts/deploy.ts",
+  "constructorArgs": ["<MockUSDC address — to be filled at deploy time>"],
+  "honestStatusMask": "0x7FF",
+  "compilerSettings": {
+    "version": "0.8.20+",
+    "optimizer": { "enabled": true, "runs": 200 },
+    "note": "Optimizer MUST be enabled (runs=200) — without it the contract is ~39KB which exceeds the 24KB Spurious Dragon limit. With optimizer enabled it compiles to ~22.6KB (deployable)."
+  },
+  "postDeploySteps": [
+    "1. Deploy MockUSDC (or use the existing Arc Testnet MockUSDC at 0x334D14E7E39e1f02a60fc1169CdF7b0BEDE30dEb).",
+    "2. Deploy MTQSigmaV2 with constructorArgs = [usdcAddress].",
+    "3. fund the reserveVault (deployer by default) with USDC collateral for redemptions.",
+    "4. setGenesisReserve(g) if a dedicated genesis holder is desired.",
+    "5. genesisMint(amount) — one-shot, mints locked MTQ to the genesis reserve.",
+    "6. setReserveVault(v) — point to the actual Reserve Vault multisig.",
+    "7. setAssetRegistry(registry) — wire the §5 asset admission registry.",
+    "8. setOracleAdapter(0, chainlinkAdapter), setOracleAdapter(1, pythAdapter), setOracleAdapter(2, chronicleAdapter) — wire the §9 multi-source oracle adapters.",
+    "9. grantRole(KEEPER_ROLE, keeperMultisig) — wire the MARP keeper / risk-state machine operator.",
+    "10. grantRole(ORACLE_ROLE, oracleMultisig) — wire the oracle committee (if different from keeper).",
+    "11. grantRole(PAUSER_ROLE, pauserMultisig) — wire the emergency pauser.",
+    "12. grantRole(ADMIN_ROLE, daoTimelock) — wire the §14.2 DAO/multi-sig governance (recommended: transfer ADMIN_ROLE to a Safe / timelock contract and renounce deployer's DEFAULT_ADMIN_ROLE).",
+    "13. bootstrapReserveHoldings([usdHeld, eurHeld, jpyHeld, gbpHeld, cnyHeld, chfHeld, goldHeld]) — initialize the on-chain reserve mirror (1e18 USD per component).",
+    "14. commitWeights(target[7], smoothed[7], execution[7]) — first MASE weight commit (oracle/keeper); each weight must be within its admissibility envelope.",
+    "15. Once adapters are wired, commitFxRatesFromOracles() can replace setFxRates() as the live-FX path."
+  ],
+  "honestStatusExpected": {
+    "implementedMask": "0x7FF (all 11 v1.0 bits set)",
+    "blueprintMajor": 1,
+    "contractVersion": 1,
+    "bitEncoding": "bit0 basketHas7Components | bit1 goldIsFirstClassIndex | bit2 chfIsFirstClassIndex | bit3 chainLinkedIndex | bit4 maseWeightRegistry | bit5 admissibilityEnvelopes | bit6 marpExecution | bit7 assetRegistry | bit8 multiSourceOracle | bit9 daoGovernance | bit10 honestStatusExposed",
+    "complementOf": "v1.2 Pilot (0x826b82F79FD6c5347cDC568B1d0A7918128B63c1) returns 0x400 — V2's 0x7FF is the all-on complement"
+  },
+  "notes": "Full v1.0 Master Blueprint on-chain implementation. Source ready. Awaiting protocol-owner deployment (testnet ETH required). Once deployed, update src/lib/mtq/contracts.ts CANONICAL_MTQ_ADDRESSES.arc to the new address and retire the v1.2 Pilot v2 entry."
+}

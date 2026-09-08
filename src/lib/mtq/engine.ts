@@ -153,6 +153,28 @@ export interface ReserveState {
   maseSmoothed: WeightVector | null;
   maseLastAt: number;
 
+  // §14.1 Constitutional Separation — index gold vs reserve buffer gold.
+  // The same PAXG + XAUT holdings on the legacy `paxg` / `xaut` fields are now
+  // physically split (in the accounting) into:
+  //   - indexPaxg + indexXaut  → gold LOCKED to back the index Gold weight
+  //     (Strategic Prior 26%). Only changes when weights commit via
+  //     `commitIndexGold()` (keeper-role equivalent). MARP cannot touch this.
+  //   - reservePaxg + reserveXaut → gold in the reserve buffer that MARP
+  //     rebalances (sells when gold overweight, buys when gold underweight).
+  // The legacy `paxg` / `xaut` fields are retained as TOTALS
+  // (= indexPaxg + reservePaxg and indexXaut + reserveXaut) so existing
+  // readers continue to work unchanged.
+  indexPaxg: number;
+  indexXaut: number;
+  reservePaxg: number;
+  reserveXaut: number;
+
+  // §14.1 execution-path flag — which rebalance path is currently mutating state.
+  // 'legacy' (default) = §7 single-direction rebalance; 'marp' = per-component MARP.
+  // Driven by the USE_MARP_EXECUTION feature flag in pilot-state.ts::tick().
+  // Exposed in the snapshot so the UI can render an A/B badge.
+  rebalancePath: 'legacy' | 'marp';
+
   updatedAt: number;
 }
 
@@ -199,6 +221,24 @@ export function initReserveState(goldPrice: number): ReserveState {
   const paxg = (goldSpend / goldPrice) * 0.5;
   const xaut = (goldSpend / goldPrice) * 0.5;
 
+  // §14.1 Constitutional Separation — split the genesis gold 50/50 between the
+  // index vault (locked, backs the 26% Strategic Prior Gold weight) and the
+  // reserve buffer (the gold MARP rebalances). 50/50 was chosen over the
+  // "26% to index / 74% to reserve" alternative because:
+  //   - At genesis the total gold IS exactly 26% of NAV (deposit × STRATEGIC_PRIOR.Gold).
+  //     A 26/74 split would leave index gold at only ~6.8% of NAV — far below
+  //     the 26% index weight it is supposed to back, which is misleading.
+  //   - A 50/50 split gives both pools meaningful starting capital (13% of NAV
+  //     each), so MARP has a real buffer to rebalance AND the index gold is a
+  //     meaningful "core" position.
+  // The split is an accounting concept; the underlying PAXG + XAUT tokens are
+  // the same. commitIndexGold() (keeper-role equivalent) is the only way to
+  // move gold between the two pools.
+  const indexPaxg = paxg * 0.5;
+  const indexXaut = xaut * 0.5;
+  const reservePaxg = paxg - indexPaxg;
+  const reserveXaut = xaut - indexXaut;
+
   return {
     usdc,
     usdp,
@@ -206,6 +246,14 @@ export function initReserveState(goldPrice: number): ReserveState {
     eurc, gbp, jpy, cny, chf,
     paxg,
     xaut,
+    // §14.1 — index/reserve gold split (50/50 at genesis; index locked)
+    indexPaxg,
+    indexXaut,
+    reservePaxg,
+    reserveXaut,
+    // §14.1 — default to legacy §7 rebalance path (USE_MARP_EXECUTION flag
+    // in pilot-state.ts::tick() flips this to 'marp').
+    rebalancePath: 'legacy',
     totalSupply: 1_000_000, // Genesis supply
     genesisReserve: 1_000_000, // locked
     vixHistory: seedHistory(18.5, 2.0, ROLLING_WINDOW_DAYS),
@@ -248,6 +296,8 @@ export function initReserveState(goldPrice: number): ReserveState {
     // v1.0 MASE — null until first advanceMase() call; STRATEGIC_PRIOR used as fallback.
     maseSmoothed: null,
     maseLastAt: 0,
+    // §14.1 — indexPaxg/indexXaut/reservePaxg/reserveXaut/rebalancePath are
+    // initialised above (next to paxg/xaut where the split is computed).
     updatedAt: Date.now(),
   };
 }
@@ -262,6 +312,65 @@ function seedHistory(mean: number, sd: number, n: number): number[] {
     out.push(Math.max(0.01, last));
   }
   return out;
+}
+
+// --- §14.1 Constitutional Separation helpers ---------------------------------
+// Maintain the §14.1 invariant: paxg = indexPaxg + reservePaxg (and same for
+// xaut). Index gold is LOCKED (only changes via commitIndexGold); reserve gold
+// is the buffer MARP rebalances. These two helpers are the only sanctioned
+// ways to keep the splits consistent after any mutation to total gold:
+
+/** Re-derive reserve gold from total − index (call after the legacy path or
+ *  concentration optimizer mutates `s.paxg` / `s.xaut` directly). Index gold
+ *  stays locked. */
+export function syncReserveFromTotal(s: ReserveState): void {
+  s.reservePaxg = Math.max(0, s.paxg - s.indexPaxg);
+  s.reserveXaut = Math.max(0, s.xaut - s.indexXaut);
+}
+
+/** Re-derive total gold from index + reserve (call after the MARP path mutates
+ *  `s.reservePaxg` / `s.reserveXaut`). Index gold stays locked. */
+export function syncTotalFromReserve(s: ReserveState): void {
+  s.paxg = s.indexPaxg + Math.max(0, s.reservePaxg);
+  s.xaut = s.indexXaut + Math.max(0, s.reserveXaut);
+}
+
+/** §14.1 commitIndexGold — the keeper-role equivalent in the TS engine.
+ *  Sets the index gold holdings (PAXG + XAUT) that back the Strategic Prior
+ *  Gold weight (26%). Only this function may move gold between the index
+ *  vault and the reserve buffer. Recomputes the totals via the §14.1 invariant
+ *  (reserve = total − index). Emits an IndexGoldCommitted event-equivalent
+ *  (console log — production should emit an on-chain event). */
+export function commitIndexGold(
+  s: ReserveState,
+  indexPaxg: number,
+  indexXaut: number,
+): { indexPaxg: number; indexXaut: number; reservePaxg: number; reserveXaut: number; totalPaxg: number; totalXaut: number } {
+  const safeIndexPaxg = Math.max(0, indexPaxg);
+  const safeIndexXaut = Math.max(0, indexXaut);
+  s.indexPaxg = safeIndexPaxg;
+  s.indexXaut = safeIndexXaut;
+  // Reserve = max(0, total − index) — never let reserve go negative even if
+  // the keeper over-commits (log a warning in that case).
+  if (s.paxg < safeIndexPaxg) {
+    console.warn(`[mtq-engine] commitIndexGold: indexPaxg ${safeIndexPaxg.toFixed(4)} > total paxg ${s.paxg.toFixed(4)} — reserve went to 0; total bumped to match index.`);
+    s.paxg = safeIndexPaxg;
+  }
+  if (s.xaut < safeIndexXaut) {
+    console.warn(`[mtq-engine] commitIndexGold: indexXaut ${safeIndexXaut.toFixed(4)} > total xaut ${s.xaut.toFixed(4)} — reserve went to 0; total bumped to match index.`);
+    s.xaut = safeIndexXaut;
+  }
+  syncReserveFromTotal(s);
+  s.updatedAt = Date.now();
+  console.log(`[mtq-engine] IndexGoldCommitted: indexPaxg=${s.indexPaxg.toFixed(4)}, indexXaut=${s.indexXaut.toFixed(4)}, reservePaxg=${s.reservePaxg.toFixed(4)}, reserveXaut=${s.reserveXaut.toFixed(4)}`);
+  return {
+    indexPaxg: s.indexPaxg,
+    indexXaut: s.indexXaut,
+    reservePaxg: s.reservePaxg,
+    reserveXaut: s.reserveXaut,
+    totalPaxg: s.paxg,
+    totalXaut: s.xaut,
+  };
 }
 
 // --- §2 GFB Index (v1.0 — 7-component chain-linked) -------------------------
@@ -332,12 +441,26 @@ export function reserveAssetValues(s: ReserveState, fx: FxRates) {
   const paxgUsd = s.paxg * goldPrice * (1 - HAIRCUTS.XAU);
   const xautUsd = s.xaut * goldPrice * (1 - HAIRCUTS.XAU);
 
+  // §14.1 — index vs reserve gold split (USD net of haircut).
+  // Index gold is locked (backs the 26% Strategic Prior Gold weight); reserve
+  // gold is the buffer MARP rebalances. The total gold (= index + reserve) is
+  // what serves the index weight for MASE/MARP observed-weight purposes.
+  const indexPaxgUsd = s.indexPaxg * goldPrice * (1 - HAIRCUTS.XAU);
+  const indexXautUsd = s.indexXaut * goldPrice * (1 - HAIRCUTS.XAU);
+  const reservePaxgUsd = (s.reservePaxg >= 0 ? s.reservePaxg : Math.max(0, s.paxg - s.indexPaxg)) * goldPrice * (1 - HAIRCUTS.XAU);
+  const reserveXautUsd = (s.reserveXaut >= 0 ? s.reserveXaut : Math.max(0, s.xaut - s.indexXaut)) * goldPrice * (1 - HAIRCUTS.XAU);
+  const indexGoldNet = indexPaxgUsd + indexXautUsd;
+  const reserveGoldNet = reservePaxgUsd + reserveXautUsd;
+
   return {
     usdGross, eurGross, gbpGross, jpyGross, cnyGross, chfGross, fiatGross,
     goldGross, goldPrice,
     usdNet, eurNet, gbpNet, jpyNet, cnyNet, chfNet, goldNet,
     nav, fiatNet,
     usdcUsd, usdpUsd, usdtUsd, paxgUsd, xautUsd,
+    // §14.1 gold split
+    indexPaxgUsd, indexXautUsd, reservePaxgUsd, reserveXautUsd,
+    indexGoldNet, reserveGoldNet,
   };
 }
 
@@ -510,17 +633,218 @@ export function applyRebalanceTrade(s: ReserveState, decision: RebalanceDecision
     // sell gold → buy USDC (simplified: convert to USDC)
     const goldUnits = usd / goldPrice;
     s.paxg = Math.max(0, s.paxg - goldUnits);
+    // §14.1 — the sold gold comes from the RESERVE buffer (index gold is locked).
+    // Maintain the invariant paxg = indexPaxg + reservePaxg.
+    s.reservePaxg = Math.max(0, s.reservePaxg - goldUnits);
     s.usdc += usd;
   } else {
     // buy gold → spend USDC
     s.usdc = Math.max(0, s.usdc - usd);
     const goldUnits = usd / goldPrice;
     s.paxg += goldUnits;
+    // §14.1 — the bought gold goes to the RESERVE buffer (index gold is locked).
+    s.reservePaxg += goldUnits;
   }
   s.lastTradeDir = decision.direction;
   s.lastTradeAt = Date.now();
   s.dailyTurnoverUsd += usd;
   s.updatedAt = Date.now();
+}
+
+// --- §14.1 + §10 MARP per-component rebalance execution ---------------------
+// applyMarpRebalance() is the v1.0 production-target rebalance path. Unlike the
+// legacy §7 single-direction `applyRebalanceTrade` (which only trades gold ↔
+// USDC), this takes the per-component MarpDecision[] (output of marpDecision())
+// and applies each "would-execute" trade to the RESERVE holdings — index gold
+// is LOCKED per §14.1 and never touched here.
+//
+// Trade execution model (pilot):
+//   - For non-USD components (EUR/JPY/GBP/CNY/CHF/Gold): each trade pairs with
+//     USD as the unit of account. A "sell" of component X converts X → USD
+//     (split 1/3 across USDC/USDP/USDT, respecting the §5.6 concentration
+//     target). A "buy" of component X converts USD → X.
+//   - For USD: each trade pairs with Gold (the other deep pool). A "sell" of
+//     USD converts USD → Gold (split 50/50 PAXG/XAUT in the RESERVE buffer).
+//     A "buy" of USD converts Gold → USD.
+//   - For Gold: a "sell" reduces reservePaxg + reserveXaut (50/50); a "buy"
+//     increases them. Index gold is never touched.
+//
+// Constraints enforced (§10):
+//   - MAX_DAILY_TURNOVER (5% of NAV) — trades that would breach are skipped.
+//   - DIRECTION_LOCK_HOURS (24h) — trades that reverse the last direction
+//     within 24h are skipped (whipsaw guard).
+//   - Only decisions with shouldTrade=true AND level>=6 are executed
+//     (level 1-5 are advisory: no-trade zone / low urgency / cost-benefit
+//     fail / turnover cap).
+//
+// Mutates: s.usdc/usdp/usdt, s.eurc/gbp/jpy/cny/chf, s.reservePaxg/reserveXaut
+//          (and re-syncs s.paxg/xaut totals via the §14.1 invariant),
+//          s.lastTradeDir/lastTradeAt, s.dailyTurnoverUsd, s.updatedAt.
+// Index gold (s.indexPaxg, s.indexXaut) is NEVER touched.
+export interface MarpExecDecision {
+  shouldTrade: boolean;
+  component: string;
+  direction: string;
+  tradeUsd: number;
+  level: number;
+}
+
+export interface MarpExecResult {
+  appliedCount: number;
+  skippedCount: number;
+  totalTradeUsd: number;
+  path: 'legacy' | 'marp';
+  // Per-decision trace: which were applied vs skipped (and why).
+  traces: { component: string; direction: string; tradeUsd: number; level: number; applied: boolean; skipReason?: string }[];
+}
+
+export function applyMarpRebalance(
+  s: ReserveState,
+  fx: FxRates,
+  decisions: MarpExecDecision[],
+): MarpExecResult {
+  let appliedCount = 0;
+  let skippedCount = 0;
+  let totalTradeUsd = 0;
+  const traces: MarpExecResult['traces'] = [];
+
+  maybeResetDailyTurnover(s);
+  const vals = reserveAssetValues(s, fx);
+  const nav = vals.nav;
+  if (nav <= 0) {
+    // Nothing to do — surface a single skip trace for visibility.
+    for (const d of decisions) {
+      traces.push({ component: d.component, direction: d.direction, tradeUsd: d.tradeUsd, level: d.level, applied: false, skipReason: 'NAV ≤ 0' });
+    }
+    return { appliedCount: 0, skippedCount: decisions.length, totalTradeUsd: 0, path: 'marp', traces };
+  }
+  const goldPrice = vals.goldPrice;
+
+  for (const d of decisions) {
+    // Level gate: only execute shouldTrade && level >= 6 decisions.
+    if (!d.shouldTrade || d.level < 6) {
+      skippedCount++;
+      traces.push({ component: d.component, direction: d.direction, tradeUsd: d.tradeUsd, level: d.level, applied: false, skipReason: `level ${d.level} (advisory)` });
+      continue;
+    }
+    let tradeUsd = d.tradeUsd;
+    // Enforce MAX_DAILY_TURNOVER (5% of NAV)
+    const remainingDaily = MAX_DAILY_TURNOVER * nav - s.dailyTurnoverUsd;
+    if (tradeUsd > remainingDaily) {
+      tradeUsd = Math.max(0, remainingDaily);
+    }
+    if (tradeUsd <= 0) {
+      skippedCount++;
+      traces.push({ component: d.component, direction: d.direction, tradeUsd: d.tradeUsd, level: d.level, applied: false, skipReason: 'daily turnover cap' });
+      continue;
+    }
+    // Direction (+1 buy / -1 sell / 0 hold)
+    const dir: 0 | 1 | -1 = d.direction === 'buy' ? 1 : d.direction === 'sell' ? -1 : 0;
+    if (dir === 0) {
+      skippedCount++;
+      traces.push({ component: d.component, direction: d.direction, tradeUsd: d.tradeUsd, level: d.level, applied: false, skipReason: 'hold' });
+      continue;
+    }
+    // Enforce DIRECTION_LOCK_HOURS (24h whipsaw guard)
+    if (Date.now() - s.lastTradeAt < DIRECTION_LOCK_HOURS * 3_600_000) {
+      if ((dir === 1 && s.lastTradeDir === -1) || (dir === -1 && s.lastTradeDir === 1)) {
+        skippedCount++;
+        traces.push({ component: d.component, direction: d.direction, tradeUsd: d.tradeUsd, level: d.level, applied: false, skipReason: 'direction lock (24h whipsaw guard)' });
+        continue;
+      }
+    }
+
+    // Apply the trade to the RESERVE holdings.
+    if (d.component === 'Gold') {
+      // Gold ↔ USD. Split 50/50 across reservePaxg + reserveXaut.
+      const goldUnits = tradeUsd / goldPrice;
+      const half = goldUnits / 2;
+      if (dir === -1) {
+        // sell gold → USD
+        s.reservePaxg = Math.max(0, s.reservePaxg - half);
+        s.reserveXaut = Math.max(0, s.reserveXaut - half);
+        const usdThird = tradeUsd / 3;
+        s.usdc += usdThird;
+        s.usdp += usdThird;
+        s.usdt += usdThird;
+      } else {
+        // buy gold ← USD
+        const usdThird = tradeUsd / 3;
+        s.usdc = Math.max(0, s.usdc - usdThird);
+        s.usdp = Math.max(0, s.usdp - usdThird);
+        s.usdt = Math.max(0, s.usdt - usdThird);
+        s.reservePaxg += half;
+        s.reserveXaut += half;
+      }
+      // §14.1 — re-sync total paxg/xaut = index + reserve
+      syncTotalFromReserve(s);
+    } else if (d.component === 'USD') {
+      // USD ↔ Gold. Split 50/50 across reservePaxg + reserveXaut.
+      const goldUnits = tradeUsd / goldPrice;
+      const half = goldUnits / 2;
+      if (dir === -1) {
+        // sell USD → gold
+        const usdThird = tradeUsd / 3;
+        s.usdc = Math.max(0, s.usdc - usdThird);
+        s.usdp = Math.max(0, s.usdp - usdThird);
+        s.usdt = Math.max(0, s.usdt - usdThird);
+        s.reservePaxg += half;
+        s.reserveXaut += half;
+      } else {
+        // buy USD ← gold
+        s.reservePaxg = Math.max(0, s.reservePaxg - half);
+        s.reserveXaut = Math.max(0, s.reserveXaut - half);
+        const usdThird = tradeUsd / 3;
+        s.usdc += usdThird;
+        s.usdp += usdThird;
+        s.usdt += usdThird;
+      }
+      // §14.1 — re-sync total paxg/xaut = index + reserve
+      syncTotalFromReserve(s);
+    } else {
+      // Non-USD fiat component (EUR/JPY/GBP/CNY/CHF) ↔ USD.
+      // Convert tradeUsd to native units via the FX rate.
+      const fxRate =
+        d.component === 'EUR' ? fx.EUR_USD :
+        d.component === 'JPY' ? fx.JPY_USD :
+        d.component === 'GBP' ? fx.GBP_USD :
+        d.component === 'CNY' ? fx.CNY_USD :
+        d.component === 'CHF' ? fx.CHF_USD : 1.0;
+      const nativeUnits = tradeUsd / fxRate;
+      const usdThird = tradeUsd / 3;
+      if (dir === -1) {
+        // sell component → USD
+        if (d.component === 'EUR') s.eurc = Math.max(0, s.eurc - nativeUnits);
+        else if (d.component === 'JPY') s.jpy = Math.max(0, s.jpy - nativeUnits);
+        else if (d.component === 'GBP') s.gbp = Math.max(0, s.gbp - nativeUnits);
+        else if (d.component === 'CNY') s.cny = Math.max(0, s.cny - nativeUnits);
+        else if (d.component === 'CHF') s.chf = Math.max(0, s.chf - nativeUnits);
+        s.usdc += usdThird;
+        s.usdp += usdThird;
+        s.usdt += usdThird;
+      } else {
+        // buy component ← USD
+        s.usdc = Math.max(0, s.usdc - usdThird);
+        s.usdp = Math.max(0, s.usdp - usdThird);
+        s.usdt = Math.max(0, s.usdt - usdThird);
+        if (d.component === 'EUR') s.eurc += nativeUnits;
+        else if (d.component === 'JPY') s.jpy += nativeUnits;
+        else if (d.component === 'GBP') s.gbp += nativeUnits;
+        else if (d.component === 'CNY') s.cny += nativeUnits;
+        else if (d.component === 'CHF') s.chf += nativeUnits;
+      }
+    }
+
+    s.lastTradeDir = dir;
+    s.lastTradeAt = Date.now();
+    s.dailyTurnoverUsd += tradeUsd;
+    totalTradeUsd += tradeUsd;
+    appliedCount++;
+    traces.push({ component: d.component, direction: d.direction, tradeUsd, level: d.level, applied: true });
+  }
+
+  s.updatedAt = Date.now();
+  return { appliedCount, skippedCount, totalTradeUsd, path: 'marp', traces };
 }
 
 // --- §11 Geopolitical Eject -------------------------------------------------
@@ -718,6 +1042,10 @@ export function applyRedeem(
   const goldHalf = goldPaxg / 2;
   s.paxg = Math.max(0, s.paxg - goldHalf);
   s.xaut = Math.max(0, s.xaut - goldHalf);
+  // §14.1 — gold released to the redeemer comes from the RESERVE buffer first
+  // (index gold is locked). syncReserveFromTotal re-derives reserve = total − index
+  // so the invariant paxg = indexPaxg + reservePaxg is preserved.
+  syncReserveFromTotal(s);
   s.treasury.hotWalletUsd += feeUsd; // fee revenue → hot wallet
   s.updatedAt = Date.now();
 
@@ -754,6 +1082,11 @@ export interface MetricsSnapshot {
   reserve: {
     usdNet: number; eurNet: number; gbpNet: number; jpyNet: number; cnyNet: number; chfNet: number; goldNet: number;
     fiatNet: number; nav: number; goldPrice: number;
+    // §14.1 — index gold vs reserve buffer gold (USD net of haircut).
+    // goldNet = indexGoldNet + reserveGoldNet (TOTAL gold serves the index weight;
+    // only reserveGoldNet is MARP-rebalanced).
+    indexGoldNet: number;
+    reserveGoldNet: number;
   };
   liability: number;
   nav: number;
@@ -803,6 +1136,20 @@ export interface MetricsSnapshot {
     decisions: { shouldTrade: boolean; component: string; direction: string; tradeUsd: number; urgency: number; reason: string; level: number }[];
     totalTradeUsd: number;
   } | null;
+  // §14.1 — per-component MARP execution summary (read-only projection of what
+  // MARP WOULD do this tick; the actual mutation happens in applyMarpRebalance()
+  // only when USE_MARP_EXECUTION=true in pilot-state.ts). The UI shows this
+  // alongside the legacy §7 single-direction decision for A/B comparison.
+  marpExecution: {
+    appliedCount: number;     // # of decisions with shouldTrade && level >= 6
+    skippedCount: number;     // # of decisions skipped (no-trade zone / low urgency / cost-benefit fail / turnover cap / direction lock)
+    totalTradeUsd: number;    // Σ tradeUsd for the would-execute decisions
+    path: 'legacy' | 'marp';   // which execution path is currently mutating state (mirrors s.rebalancePath)
+  } | null;
+  // §14.1 — which rebalance execution path is currently active. Reads from
+  // s.rebalancePath (set by the feature flag in pilot-state.ts::tick()). The
+  // UI renders this as an A/B badge ("Legacy §7 active" / "MARP active").
+  rebalancePath: 'legacy' | 'marp';
   envelopes: { component: string; lower: number; upper: number; current: number; status: "ok" | "warn" | "breach" }[];
 }
 
@@ -859,6 +1206,9 @@ export function computeSnapshot(s: ReserveState, fx: FxSnapshot, ctx?: { oracle?
       usdNet: vals.usdNet, eurNet: vals.eurNet, gbpNet: vals.gbpNet, jpyNet: vals.jpyNet, cnyNet: vals.cnyNet,
       chfNet: vals.chfNet,
       goldNet: vals.goldNet, fiatNet: vals.fiatNet, nav: vals.nav, goldPrice: vals.goldPrice,
+      // §14.1 — index/reserve gold split
+      indexGoldNet: vals.indexGoldNet,
+      reserveGoldNet: vals.reserveGoldNet,
     },
     liability,
     nav,
@@ -896,6 +1246,12 @@ export function computeSnapshot(s: ReserveState, fx: FxSnapshot, ctx?: { oracle?
     mase: maseData.mase,
     weightStates: maseData.weightStates,
     marp: maseData.marp,
+    // §14.1 — per-component MARP execution summary (read-only projection of
+    // what MARP WOULD do this tick; the actual mutation happens in
+    // applyMarpRebalance() only when USE_MARP_EXECUTION=true).
+    marpExecution: maseData.marpExecution,
+    // §14.1 — which rebalance path is currently mutating state ('legacy' | 'marp').
+    rebalancePath: s.rebalancePath,
     envelopes: maseData.envelopes,
   };
 }
@@ -920,6 +1276,8 @@ interface MaseSnapshotData {
   mase: NonNullable<MetricsSnapshot["mase"]>;
   weightStates: NonNullable<MetricsSnapshot["weightStates"]>;
   marp: NonNullable<MetricsSnapshot["marp"]>;
+  // §14.1 — read-only projection of what MARP WOULD do this tick.
+  marpExecution: NonNullable<MetricsSnapshot["marpExecution"]>;
   envelopes: MetricsSnapshot["envelopes"];
 }
 
@@ -968,7 +1326,13 @@ function buildPriceData(fx: Pick<FxRates, "EUR_USD" | "GBP_USD" | "JPY_USD" | "C
   };
 }
 
-/** Build the observed execution-weight vector from the actual reserve composition. */
+/** Build the observed execution-weight vector from the actual reserve composition.
+ *  §14.1 note: the Gold component's observed weight uses the TOTAL gold
+ *  (= indexPaxg + indexXaut + reservePaxg + reserveXaut, USD-net). Both the
+ *  index gold (locked) and the reserve gold (MARP-rebalanced) serve the
+ *  Strategic Prior Gold weight (26%) — but only the RESERVE gold is available
+ *  for MARP to rebalance. The index gold is locked and only changes when
+ *  commitIndexGold() is called (keeper-role equivalent). */
 function buildObservedWeights(
   vals: ReturnType<typeof reserveAssetValues>,
   nav: number,
@@ -983,6 +1347,8 @@ function buildObservedWeights(
     GBP: vals.gbpNet / nav,
     CNY: vals.cnyNet / nav,
     CHF: vals.chfNet / nav,
+    // §14.1 — gold weight = TOTAL gold (index + reserve) / NAV. Both pools
+    // back the 26% Strategic Prior Gold weight; only reserve is MARP-rebalanced.
     Gold: vals.goldNet / nav,
   };
 }
@@ -1019,6 +1385,24 @@ function buildMaseSnapshot(
   const totalTradeUsd = marpDecisions
     .filter((d) => d.shouldTrade)
     .reduce((a, d) => a + d.tradeUsd, 0);
+
+  // §14.1 — per-component MARP execution summary (READ-ONLY projection).
+  // appliedCount = # of decisions with shouldTrade && level >= 6 (would-execute).
+  // skippedCount  = # of decisions held back (no-trade zone / low urgency /
+  //                 cost-benefit fail / turnover cap / sub-level-6).
+  // totalTradeUsd = Σ tradeUsd for the would-execute decisions.
+  // path = which execution path is currently mutating state (mirrors s.rebalancePath).
+  // NOTE: this is what MARP WOULD do based on the current decisions. The actual
+  // mutation happens in applyMarpRebalance() only when USE_MARP_EXECUTION=true
+  // in pilot-state.ts. applyMarpRebalance may further skip decisions that
+  // breach MAX_DAILY_TURNOVER or DIRECTION_LOCK_HOURS at execution time.
+  const wouldExecute = marpDecisions.filter((d) => d.shouldTrade && d.level >= 6);
+  const marpExecution = {
+    appliedCount: wouldExecute.length,
+    skippedCount: marpDecisions.length - wouldExecute.length,
+    totalTradeUsd: wouldExecute.reduce((a, d) => a + d.tradeUsd, 0),
+    path: s.rebalancePath,
+  };
 
   // §8.1 — Admissibility envelope status per component
   // "warn" = within 10% of the band edge; "breach" = outside the envelope.
@@ -1061,6 +1445,8 @@ function buildMaseSnapshot(
       })),
       totalTradeUsd,
     },
+    // §14.1 — MARP execution summary (read-only projection; mirrors s.rebalancePath).
+    marpExecution,
     envelopes,
   };
 }
@@ -1350,6 +1736,11 @@ export function rebalanceForConcentration(
   s.usdt = usdtGross;
   s.paxg = paxgGross;
   s.xaut = xautGross;
+  // §14.1 — concentration optimizer re-splits the TOTAL PAXG/XAUT pool across
+  // issuers; the index gold (locked) keeps its PAXG/XAUT split, so we re-derive
+  // the reserve split as (total − index). This preserves the invariant
+  // paxg = indexPaxg + reservePaxg (and same for xaut).
+  syncReserveFromTotal(s);
 
   const sharesAfter = {
     CIRCLE: (usdcGross * usdNetFactor + vals.eurNet) / nav,

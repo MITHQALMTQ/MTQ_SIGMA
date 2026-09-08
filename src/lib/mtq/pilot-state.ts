@@ -18,6 +18,7 @@ import {
   applyRedeem,
   evaluateRebalance,
   applyRebalanceTrade,
+  applyMarpRebalance,
   updatePegHealth,
   updateBufferState,
   advanceMacro,
@@ -32,14 +33,34 @@ import {
   type MetricsSnapshot,
   type MintResult,
   type RedeemResult,
+  type RebalanceDecision,
+  type MarpExecDecision,
 } from "./engine";
 import { fetchFxSnapshot, type FxSnapshot } from "./fx";
 import { buildOracleBoard, oracleFxRates, type OracleBoard } from "./oracle";
 import { genesisRegistry, type AssetRecord } from "./registry";
+import {
+  persistDailyStateVector,
+  persistRebalancingDecision,
+  persistOracleSamples,
+  persistMarpDecisions,
+} from "./audit-trail";
 
 const TICK_MS = 4000;
 const SIM_TICK_HOURS = 0.25; // each tick simulates ~15 min of macro time
-const STATE_SCHEMA_VERSION = 8; // bump when ReserveState shape changes → singleton rebuilds (v8: maseSmoothed + maseLastAt added per Master Blueprint v1.0 — MASE ensemble + 4-state weights + MARP)
+// bump when ReserveState / PilotStore shape changes → singleton rebuilds.
+// v9: added `lastDailyVectorAt` + `lastOracleSampleAt` for Chapter 24 audit-trail
+//   persistence throttling (DailyStateVector / RebalancingDecision / OracleSample).
+// v10: §14.1 — added `indexPaxg` / `indexXaut` / `reservePaxg` / `reserveXaut` /
+//   `rebalancePath` to ReserveState (constitutional separation of index gold
+//   from reserve buffer gold + feature-flagged MARP execution path).
+const STATE_SCHEMA_VERSION = 10;
+// §14.1 MARP execution feature flag — toggle to switch the rebalance execution
+// path. Default false (legacy §7 single-direction) for pilot stability; the
+// MARP per-component path is the v1.0 production target. The UI renders an
+// A/B badge so the pilot can compare both paths side-by-side. Flip to `true`
+// to activate the per-component MARP execution path.
+const USE_MARP_EXECUTION = false;
 
 interface PilotStore {
   state: ReserveState;
@@ -51,6 +72,10 @@ interface PilotStore {
   interval: NodeJS.Timeout | null;
   startedAt: number;
   tickCount: number;
+  // Chapter 24 audit-trail throttle timestamps (epoch ms). 0 = never persisted.
+  // Reset to 0 on schema rebuild so the first post-rebuild tick writes a row.
+  lastDailyVectorAt: number;
+  lastOracleSampleAt: number;
 }
 
 declare global {
@@ -89,6 +114,8 @@ async function ensureStore(): Promise<PilotStore> {
     interval: null,
     startedAt: Date.now(),
     tickCount: 0,
+    lastDailyVectorAt: 0,
+    lastOracleSampleAt: 0,
   };
   globalThis.__MTQ_PILOT__ = store;
   startLoop(store);
@@ -134,14 +161,102 @@ async function tick(store: PilotStore) {
   maybePriceEvent(store.state, store.state.lastVix > 0 ? computeSnapshot(store.state, store.fx, { oracle: store.oracle, registry: store.registry }).mtqPrice : 1);
   // §7 rebalance (skip if oracle paused — §9.3 requires pause on <2 valid feeds)
   const snap0 = computeSnapshot(store.state, store.fx, { oracle: store.oracle, registry: store.registry });
-  if (!store.oracle.anyPaused && !snap0.priceInBand === false) {
+  // Stash the (decision + pre/post-trade state) so the §24.2 audit row is
+  // written AFTER the tickCount increment — keeps all audit rows on the same
+  // tickCount value. `null` when no rebalance was evaluated this tick (oracle
+  // paused OR price outside band → no decision was made → nothing to log).
+  let rebalanceAudit:
+    | {
+        decision: RebalanceDecision;
+        navUsd: number;
+        reserveRatio: number;
+        observedGoldWeight: number;
+        targetGoldWeight: number;
+        deviationPct: number;
+        applied: boolean;
+        postTrade?: {
+          preGoldNet: number;
+          postGoldNet: number;
+          preFiatNet: number;
+          postFiatNet: number;
+          postReserveRatio: number;
+          postObservedGoldWeight: number;
+        };
+      }
+    | null = null;
+  // §14.1 — feature flag: choose between legacy §7 and new MARP execution path.
+  // Sets `store.state.rebalancePath` so the snapshot (and the UI A/B badge)
+  // reflect the active path. Idempotent per tick — the value only changes if
+  // USE_MARP_EXECUTION is recompiled (which triggers a singleton rebuild).
+  store.state.rebalancePath = USE_MARP_EXECUTION ? 'marp' : 'legacy';
+  if (USE_MARP_EXECUTION) {
+    // §14.1 + §10 MARP per-component execution (v1.0 production target).
+    // Index gold (s.indexPaxg + s.indexXaut) is LOCKED — only reserve gold
+    // (s.reservePaxg + s.reserveXaut) and the fiat pools are MARP-rebalanced.
+    // Apply inside try/catch so a MARP failure doesn't break the tick loop.
+    if (!store.oracle.anyPaused && snap0.priceInBand) {
+      try {
+        // Map the snapshot's trimmed marp.decisions to MarpExecDecision[]
+        // (applyMarpRebalance accepts the trimmed format).
+        const marpDecisions: MarpExecDecision[] = (snap0.marp?.decisions ?? []).map((d) => ({
+          shouldTrade: d.shouldTrade,
+          component: d.component,
+          direction: d.direction,
+          tradeUsd: d.tradeUsd,
+          level: d.level,
+        }));
+        const result = applyMarpRebalance(store.state, store.fx, marpDecisions);
+        if (result.appliedCount > 0) {
+          console.log(
+            `[mtq-pilot] MARP execution: ${result.appliedCount} applied, ` +
+            `${result.skippedCount} skipped, $${result.totalTradeUsd.toFixed(0)} total`,
+          );
+        }
+      } catch (e) {
+        console.error('[mtq-pilot] MARP execution error:', e);
+      }
+    }
+  } else if (!store.oracle.anyPaused && !snap0.priceInBand === false) {
     const decision = evaluateRebalance(
       store.state,
       { nav: snap0.nav, goldNet: snap0.reserve.goldNet, fiatNet: snap0.reserve.fiatNet },
       snap0.reserveRatio,
     );
+    const preGoldNet = snap0.reserve.goldNet;
+    const preFiatNet = snap0.reserve.fiatNet;
     if (decision.shouldRebalance) {
       applyRebalanceTrade(store.state, decision, store.fx.XAU_USD);
+      // Recompute post-trade snapshot for the audit-trail row.
+      const snapPost = computeSnapshot(store.state, store.fx, { oracle: store.oracle, registry: store.registry });
+      rebalanceAudit = {
+        decision,
+        navUsd: snap0.nav,
+        reserveRatio: snap0.reserveRatio,
+        observedGoldWeight: snap0.observedGoldWeight,
+        targetGoldWeight: snap0.targetGoldWeight,
+        deviationPct: Math.abs(decision.deviation) * 100,
+        applied: true,
+        postTrade: {
+          preGoldNet,
+          postGoldNet: snapPost.reserve.goldNet,
+          preFiatNet,
+          postFiatNet: snapPost.reserve.fiatNet,
+          postReserveRatio: snapPost.reserveRatio,
+          postObservedGoldWeight: snapPost.observedGoldWeight,
+        },
+      };
+    } else {
+      // Decision evaluated, but no trade executed — still log it (§24.2
+      // requires every rebalance decision, including the "no" ones).
+      rebalanceAudit = {
+        decision,
+        navUsd: snap0.nav,
+        reserveRatio: snap0.reserveRatio,
+        observedGoldWeight: snap0.observedGoldWeight,
+        targetGoldWeight: snap0.targetGoldWeight,
+        deviationPct: Math.abs(decision.deviation) * 100,
+        applied: false,
+      };
     }
   }
   // §8 buffer state
@@ -161,6 +276,46 @@ async function tick(store: PilotStore) {
   maybeTreasurySweep(store.state, 0);
   store.state.updatedAt = Date.now();
   store.tickCount += 1;
+
+  // --- Chapter 24 audit-trail persistence (logging-only; never breaks tick) ---
+  // §24.2 — RebalancingDecision (every evaluated decision, applied or not).
+  if (rebalanceAudit) {
+    try {
+      await persistRebalancingDecision(
+        store.tickCount,
+        rebalanceAudit.decision,
+        rebalanceAudit.navUsd,
+        rebalanceAudit.reserveRatio,
+        rebalanceAudit.observedGoldWeight,
+        rebalanceAudit.targetGoldWeight,
+        rebalanceAudit.deviationPct,
+        rebalanceAudit.applied,
+        rebalanceAudit.postTrade,
+      );
+    } catch (e) {
+      console.error("[audit-trail] persistRebalancingDecision:", e);
+    }
+  }
+  // §24.1 — DailyStateVector (throttled 30s; final post-tick snapshot).
+  try {
+    const finalSnap = computeSnapshot(store.state, store.fx, { oracle: store.oracle, registry: store.registry });
+    store.lastDailyVectorAt = await persistDailyStateVector(finalSnap, store.tickCount, store.lastDailyVectorAt);
+    // §10 + §24.2 — MARP per-component decisions (advisory rows; only when
+    // the snapshot actually has a marp block — true once advanceMase has run).
+    try {
+      await persistMarpDecisions(store.tickCount, finalSnap);
+    } catch (e) {
+      console.error("[audit-trail] persistMarpDecisions:", e);
+    }
+  } catch (e) {
+    console.error("[audit-trail] persistDailyStateVector:", e);
+  }
+  // §24.3 — OracleSample (throttled 30s; one row per pair, batched in a tx).
+  try {
+    store.lastOracleSampleAt = await persistOracleSamples(store.oracle, store.tickCount, store.lastOracleSampleAt);
+  } catch (e) {
+    console.error("[audit-trail] persistOracleSamples:", e);
+  }
 }
 
 export async function getSnapshot(): Promise<MetricsSnapshot> {

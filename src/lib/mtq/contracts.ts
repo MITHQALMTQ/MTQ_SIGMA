@@ -155,6 +155,47 @@ export const ROBINHOOD_TESTNET: ChainInfo = {
 };
 export const ALL_CHAINS: ChainInfo[] = [MONAD_TESTNET, ARC_TESTNET, ROBINHOOD_TESTNET, SOLANA_DEVNET];
 
+// === MTQΣ V2 — v1.0 Master Blueprint on-chain implementation ===
+// Source: contracts/MTQSigmaV2.sol (~1057 lines, Solidity ^0.8.20, compiles clean
+// with solcjs 0.8.36 + optimizer runs=200 → 22,627 bytes, deployable on Mainnet).
+// Honest status mask: 0x7FF (all 11 v1.0 bits set — see getHonestStatus() in the contract).
+// STATUS: SOURCE_READY_PENDING_DEPLOY — the protocol owner needs to run
+// scripts/deploy.ts with the new source path + optimizer enabled. Sandbox cannot deploy.
+export const MTQSIGMA_V2: {
+  status: "SOURCE_READY_PENDING_DEPLOY";
+  contract: "MTQSigmaV2";
+  sourceFile: string;
+  chainId: number;
+  honestStatusMask: string;
+  expectedAddress: null;
+  deployTx: null;
+  deployedAt: null;
+  features: string[];
+} = {
+  status: "SOURCE_READY_PENDING_DEPLOY",
+  contract: "MTQSigmaV2",
+  sourceFile: "contracts/MTQSigmaV2.sol",
+  chainId: 5042002,
+  honestStatusMask: "0x7FF",
+  expectedAddress: null,
+  deployTx: null,
+  deployedAt: null,
+  features: [
+    "§2  7-component Strategic Prior (USD/EUR/JPY/GBP/CNY/CHF/Gold) — Gold + CHF first-class",
+    "§3  Chain-linked GFB_BASE_DENOMINATOR (immutable, computed once)",
+    "§3  MTQ price + safety band 0.50-2.00 + circulating supply + liability",
+    "§5  Asset Admission Registry adapter interface",
+    "§8.1 On-chain MASE weight registry (target/smoothed/execution [7])",
+    "§8.1 Per-component admissibility envelopes (enforced on commit — reverts on breach)",
+    "§9  Multi-source oracle adapter (Chainlink/Pyth/Chronicle) with §9.2 validation + §9.3 consensus",
+    "§10 MARP keeper-executed rebalancing (RebalanceTrade[] with direction lock + turnover cap)",
+    "§12 Mint/Redeem priced against GFB (§3.4.2 canonical), status-throttled",
+    "§14.1 Risk state machine (5 states) — KEEPER_ROLE hook",
+    "§14.2 DAO/multi-sig governance with 48h timelock (queueChange/executeChange/cancelChange)",
+    "§25 getHonestStatus() returns (0x7FF, 1, 1, 'v1.0 Master Blueprint on-chain...')",
+  ],
+};
+
 export function getChain(id: string): ChainInfo | undefined {
   return ALL_CHAINS.find((c) => c.id === id);
 }
