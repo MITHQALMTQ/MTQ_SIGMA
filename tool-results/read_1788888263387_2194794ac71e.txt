@@ -1,0 +1,702 @@
+ 15000→  State          RR Range       LCR Range      Entry Trigger  Description
+ 15001→  -------------- -------------- -------------- -------------- ----------------
+ 15002→  NORMAL (S1)    RR ≥ 1.10      LCR ≥ 1.00     Immediate      Standard
+ 15003→                                               while both     operations. Full
+ 15004→                                               targets hold   mint, redeem,
+ 15005→                                                              and rebalancing.
+ 15006→
+ 15007→  CAUTION (S2)   1.05 ≤ RR <    LCR ≥ 0.90     Immediate on   Defensive
+ 15008→                 1.10                          RR < 1.10 or   posture. Minting
+ 15009→                                               LCR < 1.00     throttled to
+ 15010→                                                              50%. Rebalancing
+ 15011→                                                              urgency
+ 15012→                                                              increased.
+ 15013→
+ 15014→  STRESS (S3)    1.02 ≤ RR <    LCR ≥ 0.80     Immediate on   Significant
+ 15015→                 1.05                          RR < 1.05 or   stress. Minting
+ 15016→                                               LCR < 0.90     paused.
+ 15017→                                                              Redemption fee
+ 15018→                                                              raised to 0.50%.
+ 15019→                                                              Emergency
+ 15020→                                                              rebalancing
+ 15021→                                                              triggered.
+ 15022→
+ 15023→  DEFENSIVE (S4) 1.00 ≤ RR <    LCR ≥ 0.70     Immediate on   Severe stress.
+ 15024→                 1.02                          RR < 1.02 or   Redemptions
+ 15025→                                               LCR < 0.80     throttled (fee
+ 15026→                                                              1.00%).
+ 15027→                                                              Rebalancing
+ 15028→                                                              forced.
+ 15029→                                                              Governance
+ 15030→                                                              notified.
+ 15031→
+ 15032→  EMERGENCY (S5) RR < 1.00      Any            Immediate on   Existential.
+ 15033→                                               hard-floor     Redemptions
+ 15034→                                               breach         paused. Circuit
+ 15035→                                               (Invariant I2, breakers
+ 15036→                                               §2.6)          engaged. Council
+ 15037→                                                              emergency
+ 15038→                                                              session called.
+ 15039→
+ 15040→  RECOVERY (S6)  RR ≥ 1.05      LCR ≥ 0.90     From a more    Gradual
+ 15041→                 (rising)                      restrictive    restoration.
+ 15042→                                               state, after   Minting resumes
+ 15043→                                               48 h sustained at 25% capacity.
+ 15044→                                               confirmation   Fees reduced
+ 15045→                                                              incrementally.
+ 15046→  ----------------------------------------------------------------------------
+ 15047→
+ 15048→Two reading rules apply to the table. First, both metrics must qualify
+ 15049→for a state: NORMAL requires RR ≥ 1.10 and LCR ≥ 1.00 simultaneously, so
+ 15050→a liquidity shortfall alone can hold the protocol in CAUTION even while
+ 15051→the reserve ratio is comfortable — the worse of the two metrics is
+ 15052→always the binding constraint. Second, the EMERGENCY boundary is
+ 15053→constitutional: RR < 1.00 violates the hard floor of Invariant I2
+ 15054→(Section 2.6), which is why the S5 entry trigger is immediate and why
+ 15055→the hard floor itself is immutable in the parameter registry (Section
+ 15056→22.4).
+ 15057→
+ 15058→RECOVERY (S6) is the residual posture of the classifier: solvency at or
+ 15059→above the hard floor with ratios improving but not yet back to the
+ 15060→NORMAL thresholds. The formal classifier reaches it when the ratios fail
+ 15061→the DEFENSIVE liquidity test while solvency holds — for example, RR ≥
+ 15062→1.05 with LCR below 0.70 — or during a confirmed climb back from a
+ 15063→deeper state. Its action profile (25% minting throttle, 0.30% redemption
+ 15064→fee, increased rebalancing urgency) sits deliberately between CAUTION
+ 15065→and STRESS, which is also how the transition logic of Section 21.3 ranks
+ 15066→it.
+ 15067→
+ 15068→21.3 State Transition Logic
+ 15069→
+ 15070→State transitions obey one asymmetric rule [BP §14.2.2]. Movement toward
+ 15071→a more restrictive state (for example NORMAL → CAUTION) is immediate
+ 15072→upon breaching the threshold. Movement toward a less restrictive state
+ 15073→(for example STRESS → CAUTION) requires the protocol to remain above the
+ 15074→destination state's threshold continuously for 48 consecutive hours —
+ 15075→the recovery confirmation period. Degradation is fast; recovery is slow
+ 15076→and must be earned:
+ 15077→
+ 15078→NORMAL → CAUTION → STRESS → DEFENSIVE → EMERGENCY (immediate on breach)
+ 15079→
+ 15080→EMERGENCY → DEFENSIVE → STRESS → CAUTION → NORMAL (48 h sustained
+ 15081→confirmation per step)
+ 15082→
+ 15083→t_(confirm) ≥ 48 h (sustained, no breach)
+ 15084→
+ 15085→Each upward step requires the metrics to satisfy the destination state's
+ 15086→thresholds continuously for the confirmation period: 48 hours at RR ≥
+ 15087→1.10 to leave CAUTION into NORMAL, 48 hours at RR ≥ 1.05 to leave
+ 15088→STRESS, 48 hours at RR ≥ 1.02 to leave DEFENSIVE, and 48 hours at RR ≥
+ 15089→1.00 to leave EMERGENCY. The confirmation period is the control-plane
+ 15090→member of the protocol's anti-oscillation family — it composes with
+ 15091→constituency hysteresis (Section 4.7), stress-adaptive smoothing
+ 15092→(Section 8.4) and the rebalancing direction lock (Section 11.5), each of
+ 15093→which prevents oscillation at a different timescale. A noisy metric
+ 15094→sequence can therefore never flip the protocol between postures; the
+ 15095→worst it can do is hold the protocol in the more conservative state.
+ 15096→
+ 15097→The 48-hour constant is carried in the reference implementation as
+ 15098→RECOVERY_CONFIRMATION_PERIOD (Listing 13), alongside the immutable
+ 15099→RR_HARD_FLOOR of Invariant I2. The source parameter table classes the
+ 15100→confirmation period as a Monetary (DAO 51%) parameter while the
+ 15101→reference contract declares it immutable; this edition retains the
+ 15102→immutable constant as the conservative reading — a stricter governance
+ 15103→class than the table assigns — and flags the discrepancy for resolution
+ 15104→during deployment registration (Section 22.4).
+ 15105→
+ 15106→Operationally, updateState() runs after every mint, redeem, rebalance
+ 15107→and price update (the _updateState hook of Listing 13), so the state is
+ 15108→never stale by more than one state-relevant event. Because deterioration
+ 15109→is immediate and recovery is delayed, the machine is biased toward
+ 15110→conservatism by construction — exactly the bias an instrument whose
+ 15111→promise is purchasing-power protection should have.
+ 15112→
+ 15113→21.4 The State-Dependent Action Matrix
+ 15114→
+ 15115→Each state activates a coherent bundle of actions, so that the
+ 15116→protocol's fee schedule, execution posture, reserve objective and
+ 15117→communication cadence move together rather than independently [BP
+ 15118→§14.3]. The full matrix:
+ 15119→
+ 15120→  ---------------------------------------------------------------------------------------------------
+ 15121→  Action         S1 NORMAL    S2 CAUTION     S3 STRESS      S4 DEFENSIVE   S5          S6 RECOVERY
+ 15122→                                                                           EMERGENCY   
+ 15123→  -------------- ------------ -------------- -------------- -------------- ----------- --------------
+ 15124→  Minting        Allowed      50% throttle   Paused         Paused         Paused      25% throttle
+ 15125→
+ 15126→  Redemption     Allowed      Allowed        Allowed        Allowed        Paused      Allowed
+ 15127→                 (0.15%)      (0.15%)        (0.50%)        (1.00%)                    (0.30%)
+ 15128→
+ 15129→  Rebalancing    Active       Active         Active —       Active —       Paused      Active
+ 15130→                 (urgency 1)  (urgency 2)    emergency      forced                     (urgency 2)
+ 15131→                                             (urgency 3)    (urgency 4)                
+ 15132→
+ 15133→  RR Target      1.10         1.08           1.05           1.03           1.00        1.08
+ 15134→
+ 15135→  Sweep          $10,000      $10,000        $10,000        $10,000        Paused      $10,000
+ 15136→  Threshold                                                                            
+ 15137→
+ 15138→  Oracle         Standard     Dual-source    Dual-source,   Full           Quorum +    Dual-source
+ 15139→  Confirmation   validation   confirmation   tightened      multi-source   circuit     confirmation
+ 15140→                                             bounds         quorum         breakers    
+ 15141→
+ 15142→  Governance     Quarterly    Monthly        Weekly         Daily          Immediate   Weekly
+ 15143→  Notification                                                                         
+ 15144→  ---------------------------------------------------------------------------------------------------
+ 15145→
+ 15146→  The oracle-confirmation row is a v2.0 integration (Chapter 17 and
+ 15147→  Section 5.5): the v1.2 matrix rows — minting, redemption, rebalancing,
+ 15148→  RR target, sweep threshold and governance notification — are carried
+ 15149→  unchanged from BP §14.3.1, and the confirmation ladder is added so
+ 15150→  that price trust tightens exactly when solvency deteriorates.
+ 15151→
+ 15152→How to read the matrix. The redemption row is the state-dependent fee
+ 15153→schedule applied by the minting and redemption contracts (Chapter 19):
+ 15154→fees rise from 0.15% (S1–S2) to 0.50% (S3) and 1.00% (S4), redemptions
+ 15155→pause in S5, and S6 re-admits them at 0.30% — an anti-run circuit that
+ 15156→prices liquidity demand by the state that demands it. The rebalancing
+ 15157→row maps onto the MARP execution hierarchy (Section 10.3): urgency
+ 15158→levels 1–4 correspond to the normal, increased, emergency and forced
+ 15159→execution regimes, while S5 suspends routine rebalancing entirely;
+ 15160→council-directed execution (forceRebalance, Section 22.5; Level 5 of the
+ 15161→§10.3 hierarchy) remains the only discretionary path in EMERGENCY. The
+ 15162→RR-target row resets the reserve manager's objective ratio by state
+ 15163→(Chapters 13–14, Sections 14.4–14.5), and the sweep-threshold row
+ 15164→suspends treasury sweeps in S5 (Chapter 20).
+ 15165→
+ 15166→The communication row is the protocol's crisis voice. Governance
+ 15167→notification frequency rises from quarterly (S1) to immediate (S5), and
+ 15168→every state transition emits an on-chain event consumed by the
+ 15169→transparency layer (Chapter 24). Nothing about a crisis can be silent:
+ 15170→the state, the entry trigger, the applied actions and the recovery clock
+ 15171→are all public, machine-readable and archived — which is precisely what
+ 15172→the honest-status declaration (Section 25) requires.
+ 15173→
+ 15174→21.5 Geopolitical Eject — Staged Liquidation and Reintegration
+ 15175→
+ 15176→  The Geopolitical Eject module is the reserve-level emergency defence
+ 15177→  of the protocol: it protects the assets backing MTQ Σ from instruments
+ 15178→  that become unstable, de-pegged, frozen or sanctioned [BP §11.1].
+ 15179→  Where the risk state machine guards the protocol's solvency ratios,
+ 15180→  the eject module guards the quality of the individual reserve assets
+ 15181→  themselves.
+ 15182→
+ 15183→  When an asset becomes unreliable, exit slowly and intelligently. Never
+ 15184→  be a forced seller into a thin market.
+ 15185→
+ 15186→Unlike a simple sell-everything response, the module uses a staged
+ 15187→liquidation ladder that minimizes market impact and avoids crystallizing
+ 15188→losses during temporary dislocations, and a reintegration score that
+ 15189→prevents gaming on the way back in [BP §11.1]. The module depends on
+ 15190→three neighbors: the Asset Admission Registry for asset metadata
+ 15191→(Chapter 15), the oracle architecture for price feeds (Chapter 17), and
+ 15192→the execution layer for trade execution (Section 11.11). One boundary
+ 15193→must be stated crisply: liquidation proceeds are redeployed into
+ 15194→eligible reserve assets under the reserve rules (Chapters 13–15),
+ 15195→because the eject module protects solvency — it never participates in
+ 15196→secondary-market price support of the MTQ Σ token itself, which is
+ 15197→constitutionally forbidden (Invariant I12, Section 13.6).
+ 15198→
+ 15199→21.5.1 Purpose
+ 15200→
+ 15201→The module exists because reserve instruments — stablecoins above all —
+ 15202→carry issuer risk that the index layer cannot see. A reference weight of
+ 15203→5% CNY exposure is a monetary statement; the reserve instrument
+ 15204→implementing that exposure can still de-peg, freeze redemptions, or fall
+ 15205→under sanctions. The eject module is the emergency defence mechanism
+ 15206→that answers instrument-level unreliability: it detects the failure
+ 15207→(Section 21.5.2), exits it gradually (Section 21.5.3), re-admits it only
+ 15208→under accumulated evidence (Section 21.5.4), and bypasses all gradualism
+ 15209→when the issuer itself fails (Section 21.5.5) [BP §11.1].
+ 15210→
+ 15211→The design tension the module resolves is time. Selling 100% of a
+ 15212→distressed position at once converts a temporary dislocation into a
+ 15213→permanent loss and makes the protocol the forced seller that thin
+ 15214→markets punish. Selling too slowly converts a deteriorating position
+ 15215→into a solvency problem. The staged ladder prices that tension
+ 15216→explicitly: exit velocity increases with the duration of the distress
+ 15217→and with the deterioration of the reserve ratio, so the protocol sells
+ 15218→faster precisely when the evidence gets worse — and pauses when its own
+ 15219→selling starts moving the market against it (the 5% rule, Section
+ 15220→21.5.3).
+ 15221→
+ 15222→21.5.2 The De-peg Detector
+ 15223→
+ 15224→The protocol continuously monitors each stablecoin held in the reserve
+ 15225→against its fiat peg, using the oracle architecture (Chapter 17) [BP
+ 15226→§11.2]. Monitoring attaches to the currency code of the exposure: the
+ 15227→specific token implementations are resolved through the Asset Admission
+ 15228→Registry (Chapter 15), and every admitted instrument for a monitored
+ 15229→currency is checked independently. Gold is not part of this detector —
+ 15230→it has no peg; its source risk is handled instead by the canonical
+ 15231→multi-source price and its independent-source quorum (Chapter 17).
+ 15232→
+ 15233→Each stablecoin has an asset-specific peg band [BP §11.2.1]:
+ 15234→
+ 15235→  ---------------------------------------------------------------------------
+ 15236→  Asset                 Peg Band (Lower)  Peg Band (Upper)  Rationale
+ 15237→  --------------------- ----------------- ----------------- -----------------
+ 15238→  USDC, USDP            0.995             1.005             Extremely liquid;
+ 15239→                                                            tight band.
+ 15240→
+ 15241→  EURC                  0.995             1.005             Highly liquid;
+ 15242→                                                            tight band.
+ 15243→
+ 15244→  GBP                   0.990             1.010             Lower liquidity;
+ 15245→  (registry-resolved)                                       wider band.
+ 15246→
+ 15247→  JPY                   0.990             1.010             Lower liquidity;
+ 15248→  (registry-resolved)                                       wider band.
+ 15249→
+ 15250→  CNY                   0.985             1.015             Limited
+ 15251→  (registry-resolved,                                       liquidity; widest
+ 15252→  CNH)                                                      band.
+ 15253→  ---------------------------------------------------------------------------
+ 15254→
+ 15255→The band width tracks liquidity: the deepest markets (USDC, USDP, EURC)
+ 15256→admit a tight ±0.5% band because routine trading noise stays inside it,
+ 15257→while the less liquid currency implementations admit wider bands so that
+ 15258→ordinary illiquidity is not mistaken for a broken peg. The detector rule
+ 15259→is then [BP §11.2.1]:
+ 15260→
+ 15261→Unstable ⇔ ( P_(t) < band_(low) or P_(t) > band_(high) ) for more than
+ 15262→12 consecutive hours
+ 15263→
+ 15264→The 12-hour window is deliberately conservative: it prevents false
+ 15265→positives from temporary wicks and flash dislocations, which routinely
+ 15266→resolve within hours. The consecutive-hours requirement is equally
+ 15267→deliberate: the timer resets to zero the moment the price returns inside
+ 15268→the band, so an asset oscillating in and out of the band never
+ 15269→accumulates detector time. The detector function (isDepegged, Listing
+ 15270→13) implements exactly this logic — timer start on the first
+ 15271→outside-band observation, timer reset on return, flag after the window —
+ 15272→and the detection window and the bands themselves are Risk-Council
+ 15273→parameters in the parameter registry (Section 22.4).
+ 15274→
+ 15275→21.5.3 The Staged Liquidation Ladder
+ 15276→
+ 15277→Once a de-peg is confirmed, the protocol executes a staged liquidation
+ 15278→rather than selling 100% at once [BP §11.3]. Each stage sells an
+ 15279→additional fraction of the original position, and each stage's trigger
+ 15280→conditions escalate with elapsed distress time and with the protocol's
+ 15281→own reserve ratio:
+ 15282→
+ 15283→  -----------------------------------------------------------------------
+ 15284→  Stage             Cumulative Sell % Trigger Condition Action
+ 15285→  ----------------- ----------------- ----------------- -----------------
+ 15286→  Stage 1           10%               De-peg confirmed  Sell 10% of the
+ 15287→                                      for more than 12  asset
+ 15288→                                      hours             immediately.
+ 15289→
+ 15290→  Stage 2           25%               De-peg for more   Sell an
+ 15291→                                      than 24 hours OR  additional 15%
+ 15292→                                      RR < 1.08         (total 25%).
+ 15293→
+ 15294→  Stage 3           50%               De-peg for more   Sell an
+ 15295→                                      than 48 hours OR  additional 25%
+ 15296→                                      RR < 1.05         (total 50%).
+ 15297→
+ 15298→  Stage 4           100%              Issuer freeze     Sell the
+ 15299→                                      confirmed OR RR < remaining 50%
+ 15300→                                      1.02              (total 100%).
+ 15301→  -----------------------------------------------------------------------
+ 15302→
+ 15303→The ladder couples asset-level distress to protocol-level solvency: the
+ 15304→RR thresholds 1.08, 1.05 and 1.02 sit exactly at the state boundaries of
+ 15305→Section 21.2, so a de-pegging asset is liquidated faster precisely as
+ 15306→the protocol itself slides toward STRESS and DEFENSIVE. The cumulative
+ 15307→percentages (10% → 25% → 50% → 100%) are constitutional and immutable
+ 15308→(Section 22.4): the shape of the ladder is part of the promise that the
+ 15309→protocol will never dump a distressed position in one trade, while the
+ 15310→trigger conditions allow governance to tune sensitivity within that
+ 15311→fixed shape. One rule guards every stage transition [BP §11.3.1]: each
+ 15312→stage executes only if the previous stage's sell did not worsen the
+ 15313→deviation by more than 5%.
+ 15314→
+ 15315→The 5% rule formalizes the pause [BP §11.3.3]:
+ 15316→
+ 15317→next stage paused ⇔ (P_(stage start) - P_(t))/(P_(stage start)) > 5%
+ 15318→
+ 15319→If, during a staged liquidation, the asset price drops more than 5% from
+ 15320→the price at the start of the current stage, the protocol pauses the
+ 15321→next stage until the price stabilizes — no further drop for 24 hours.
+ 15322→The rule exists because the protocol's own selling can become the
+ 15323→market's problem: if each tranche moves the price against the next, the
+ 15324→ladder halts rather than chasing the price down. Exiting is thereby
+ 15325→bounded in both directions — never all at once, and never into a
+ 15326→collapsing tape. Sell execution itself runs through the execution layer
+ 15327→(Section 11.11), whose crisis-mode rules widen no-trade thresholds and
+ 15328→shrink execution sizes precisely when conditions are distressed (Section
+ 15329→13.7).
+ 15330→
+ 15331→21.5.4 The Reintegration Score (Anti-Gaming)
+ 15332→
+ 15333→An ejected asset is not automatically re-purchased when it returns to
+ 15334→its peg band [BP §11.4]. A naive band-triggered re-entry would be
+ 15335→gameable: an attacker with sufficient market power could push the price
+ 15336→back inside the band temporarily, trigger re-purchase at distressed
+ 15337→prices, and profit as the peg breaks again. The reintegration score
+ 15338→closes that attack surface by demanding sustained, multi-dimensional
+ 15339→evidence of genuine stability:
+ 15340→
+ 15341→  R_(score) = w₁ · TimeInBand + w₂ · LiquidityDepth + w₃ ·
+ 15342→  OracleAgreement + w₄ · (1 - Volatility)
+ 15343→
+ 15344→  -----------------------------------------------------------------------
+ 15345→  Component               Weight (w_i)            Description
+ 15346→  ----------------------- ----------------------- -----------------------
+ 15347→  TimeInBand              0.40                    Duration the asset has
+ 15348→                                                  traded within its peg
+ 15349→                                                  band (scaled 0–1;
+ 15350→                                                  maximum 7 days).
+ 15351→
+ 15352→  LiquidityDepth          0.25                    24-hour DEX volume
+ 15353→                                                  relative to the
+ 15354→                                                  protocol's holdings
+ 15355→                                                  (scaled 0–1).
+ 15356→
+ 15357→  OracleAgreement         0.20                    Agreement between the
+ 15358→                                                  three oracle sources
+ 15359→                                                  (scaled 0–1).
+ 15360→
+ 15361→  Volatility              0.15                    24-hour price
+ 15362→                                                  volatility (scaled 0–1,
+ 15363→                                                  higher = more volatile;
+ 15364→                                                  enters the score as 1 −
+ 15365→                                                  Volatility, so calm
+ 15366→                                                  markets score higher).
+ 15367→  -----------------------------------------------------------------------
+ 15368→
+ 15369→Time-in-band dominates (w_1 = 0.40) because persistence is the strongest
+ 15370→single evidence that a peg has genuinely healed; liquidity depth guards
+ 15371→against re-entering a market too thin to absorb the protocol's size;
+ 15372→oracle agreement (Chapter 17) requires the independent sources to
+ 15373→concur, defeating single-feed manipulation; and the volatility term
+ 15374→penalizes choppy in-band trading, which is stability in appearance only.
+ 15375→The component weights and the threshold are Risk-Council parameters
+ 15376→(Section 22.4); the score is evaluated by the re-entry function of
+ 15377→Listing 13, whose helper functions query oracle history and DEX volume
+ 15378→data [BP §11]. The re-entry threshold is:
+ 15379→
+ 15380→R_(score) ≥ 0.80
+ 15381→
+ 15382→A score at or above 0.80 means the asset is considered stable enough to
+ 15383→begin re-entry — but re-entry itself is staged, mirroring the
+ 15384→liquidation ladder in reverse [BP §11.4.3]:
+ 15385→
+ 15386→  -----------------------------------------------------------------------
+ 15387→  Stage                   Cumulative Buy %        Condition
+ 15388→  ----------------------- ----------------------- -----------------------
+ 15389→  1                       25%                     R_score ≥ 0.80
+ 15390→                                                  sustained for 24 hours
+ 15391→
+ 15392→  2                       50%                     R_score ≥ 0.85
+ 15393→                                                  sustained for 48 hours
+ 15394→
+ 15395→  3                       100%                    R_score ≥ 0.90
+ 15396→                                                  sustained for 72 hours
+ 15397→  -----------------------------------------------------------------------
+ 15398→
+ 15399→The reverse ladder is deliberately stricter than the exit ladder at
+ 15400→every step: it requires higher scores (0.80, 0.85, 0.90) sustained for
+ 15401→longer (24, 48, 72 hours) as the position size grows. The asymmetry is
+ 15402→the anti-gaming posture of the whole module — getting out is defensive
+ 15403→and starts small; getting back in is offensive and starts only under
+ 15404→accumulated evidence. Re-purchased amounts are executed through the same
+ 15405→execution layer (Section 11.11) and remain subject to the admission
+ 15406→rules of Chapter 15, so a fully reintegrated asset ends where it
+ 15407→started: an admitted, monitored reserve instrument.
+ 15408→
+ 15409→21.5.5 Special Cases — Issuer Freeze and Sanctions
+ 15410→
+ 15411→If an asset issuer freezes redemptions or is sanctioned, the protocol
+ 15412→bypasses the staged ladder entirely and executes immediate 100%
+ 15413→liquidation [BP §11.5]. The logic is that a freeze or sanctions event is
+ 15414→not a price dislocation that may heal — it is a structural impairment of
+ 15415→the instrument's redeemability and legality, and every hour of continued
+ 15416→holding concentrates legal and solvency risk. The staged ladder's
+ 15417→virtue, patience, would here be its vice.
+ 15418→
+ 15419→Freeze detection runs on two channels [BP §11.5.1]. On-chain, the
+ 15420→protocol watches for the asset's pause() or freeze() functions being
+ 15421→called, detected via event logs. Off-chain, an issuer announcement or
+ 15422→regulator action is reported through the governance oracle (Chapter 17)
+ 15423→and confirmed by the Risk Council. When either channel confirms, the
+ 15424→emergencyLiquidate function (Listing 13) sells the entire balance and
+ 15425→removes the asset from the Asset Admission Registry.
+ 15426→
+ 15427→Two safeguards discipline this strongest of powers. The function is
+ 15428→executable only by the Emergency Council — a 4/7 Multi-Sig with hardware
+ 15429→wallet requirements [BP §11] — and removal from the registry means that
+ 15430→re-admission can never occur through the reintegration score alone: a
+ 15431→frozen-then-unfrozen or delisted-then-relisted instrument must pass the
+ 15432→full admission process of Chapter 15 again, including eligibility,
+ 15433→custody and issuer-quality review. The special case is thus the one
+ 15434→place the protocol moves fast, and it pays for that speed with the
+ 15435→slowest possible path back in.
+ 15436→
+ 15437→21.6 Smart Contract Implementation — Risk State Machine and Eject
+ 15438→
+ 15439→The state machine and the eject module deploy as a single operations
+ 15440→contract: the states share the reserve-ratio feeds, the eject ladder's
+ 15441→triggers read the same RR used by the state classifier, and the
+ 15442→state-dependent actions (minting throttles, redemption fees, rebalancing
+ 15443→urgency) are applied through abstract hooks implemented by the minting
+ 15444→and redemption contracts (Chapter 19) and the MARP executor (Section
+ 15445→11.11) [BP §14.6]. updateState() is called after every mint, redeem,
+ 15446→rebalance and price update, and updateDepegStatus() runs on each price
+ 15447→update alongside it. Data hooks read the reserve valuation (Chapter 14),
+ 15448→the oracle layer (Chapter 17) and the asset registry (Chapter 15). The
+ 15449→governance addresses — dao, riskCouncil, emergencyCouncil and
+ 15450→constitutionalCouncil — are set at deployment [BP §14]. Parameter
+ 15451→updates arrive exclusively through the governance registry of Section
+ 15452→22.6, which enforces role checks and timelocks before dispatching here;
+ 15453→this contract additionally verifies that its caller is the governance
+ 15454→registry, so the two contracts form an authorization plane and an
+ 15455→execution plane that each check the other.
+ 15456→
+ 15457→Listing 13 — Risk state machine, state-dependent actions and staged
+ 15458→liquidation (adapts BP §14.6 and §11)
+ 15459→
+ 15460→  // SPDX-License-Identifier: MIT
+ 15461→
+ 15462→  pragma solidity ^0.8.19;
+ 15463→
+ 15464→  /// @notice Risk state machine, state-dependent actions and staged
+ 15465→  liquidation.
+ 15466→
+ 15467→  /// @dev Authorization plane for parameter updates lives in the
+ 15468→  governance
+ 15469→
+ 15470→  /// registry (Listing 14); this contract is the execution plane.
+ 15471→
+ 15472→  abstract contract RiskStateMachine {
+ 15473→
+ 15474→  // ============================================================
+ 15475→
+ 15476→  // 1. STATE DEFINITIONS (BP §14.6.1)
+ 15477→
+ 15478→  // ============================================================
+ 15479→
+ 15480→  enum ProtocolState { NORMAL, CAUTION, STRESS, DEFENSIVE, EMERGENCY,
+ 15481→  RECOVERY }
+ 15482→
+ 15483→  ProtocolState public currentState;
+ 15484→
+ 15485→  // State transition timestamps (for recovery confirmation)
+ 15486→
+ 15487→  mapping(ProtocolState => uint256) public stateEntryTime;
+ 15488→
+ 15489→  // ---- Constitutional parameters (immutable) ----
+ 15490→
+ 15491→  uint256 public constant RR_HARD_FLOOR = 1.00e18; // Invariant I2
+ 15492→  (§2.6)
+ 15493→
+ 15494→  uint256 public constant RECOVERY_CONFIRMATION_PERIOD = 48 hours; //
+ 15495→  §21.3
+ 15496→
+ 15497→  // ---- Monetary parameters (DAO-controlled via the registry, §22.6)
+ 15498→  ----
+ 15499→
+ 15500→  uint256 public rrTarget = 1.10e18;
+ 15501→
+ 15502→  uint256 public rrStressFloor = 1.05e18;
+ 15503→
+ 15504→  uint256 public mintFee = 0.001e18; // 0.10%; applied by Chapter 19
+ 15505→
+ 15506→  uint256 public redeemFeeNormal = 0.0015e18; // 0.15%
+ 15507→
+ 15508→  // ---- Risk parameters (Risk Council-controlled via the registry,
+ 15509→  §22.6) ----
+ 15510→
+ 15511→  uint256 public redeemFeeStress = 0.005e18; // 0.50%
+ 15512→
+ 15513→  uint256 public redeemFeeDefensive = 0.010e18; // 1.00%
+ 15514→
+ 15515→  uint256 public lcrTarget = 1.00e18;
+ 15516→
+ 15517→  uint256 public depegWindow = 12 hours; // §21.5.2; Risk Council (4/7)
+ 15518→
+ 15519→  // ---- Governance addresses (set at deployment) ----
+ 15520→
+ 15521→  address public dao; // DAO with 51% quorum
+ 15522→
+ 15523→  address public riskCouncil; // 4/7 Multi-Sig
+ 15524→
+ 15525→  address public emergencyCouncil; // 4/7 Multi-Sig, hardware wallets
+ 15526→
+ 15527→  address public constitutionalCouncil; // 7/7 Multi-Sig
+ 15528→
+ 15529→  address public governance; // GovernanceParameterRegistry (Listing 14)
+ 15530→
+ 15531→  // ============================================================
+ 15532→
+ 15533→  // 2. GEOPOLITICAL EJECT STATE (BP §11.6.1)
+ 15534→
+ 15535→  // ============================================================
+ 15536→
+ 15537→  // De-peg tracking
+ 15538→
+ 15539→  mapping(bytes3 => uint256) public depegStartTimes;
+ 15540→
+ 15541→  mapping(bytes3 => uint256) public liquidationStage; // 0 = not
+ 15542→  ejected, 1-4 = stage
+ 15543→
+ 15544→  mapping(bytes3 => uint256) public stageStartPrices;
+ 15545→
+ 15546→  mapping(bytes3 => uint256) public reintegrationStage; // 0 = none, 1-3
+ 15547→  = re-entry stage
+ 15548→
+ 15549→  // Peg bands (asset-specific; Risk-Council parameters, §21.5.2)
+ 15550→
+ 15551→  mapping(bytes3 => uint256) public pegLowerBand;
+ 15552→
+ 15553→  mapping(bytes3 => uint256) public pegUpperBand;
+ 15554→
+ 15555→  // Reintegration score thresholds and component weights (BP §11.6.1)
+ 15556→
+ 15557→  uint256 public constant REINTEGRATION_THRESHOLD = 0.80e18; // 80%
+ 15558→
+ 15559→  uint256 public constant WEIGHT_TIME_IN_BAND = 0.40e18;
+ 15560→
+ 15561→  uint256 public constant WEIGHT_LIQUIDITY = 0.25e18;
+ 15562→
+ 15563→  uint256 public constant WEIGHT_ORACLE_AGREEMENT = 0.20e18;
+ 15564→
+ 15565→  uint256 public constant WEIGHT_VOLATILITY = 0.15e18;
+ 15566→
+ 15567→  // ============================================================
+ 15568→
+ 15569→  // 3. EVENTS (BP §14.7 and §11.6.2)
+ 15570→
+ 15571→  // ============================================================
+ 15572→
+ 15573→  event StateTransition(ProtocolState indexed oldState, ProtocolState
+ 15574→  indexed newState, bool immediate, uint256 timestamp);
+ 15575→
+ 15576→  event MintingPaused(uint256 timestamp);
+ 15577→
+ 15578→  event MintingResumed(uint256 timestamp, uint256 throttlePercent);
+ 15579→
+ 15580→  event RedeemingPaused(uint256 timestamp);
+ 15581→
+ 15582→  event RedeemingResumed(uint256 timestamp);
+ 15583→
+ 15584→  event RebalancingPaused(uint256 timestamp);
+ 15585→
+ 15586→  event RebalancingResumed(uint256 timestamp);
+ 15587→
+ 15588→  event OperationsResumed(uint256 timestamp);
+ 15589→
+ 15590→  event RedemptionFeeUpdated(uint256 newFee, uint256 timestamp);
+ 15591→
+ 15592→  event DepegDetected(bytes3 indexed currencyCode, uint256 price,
+ 15593→  uint256 timestamp);
+ 15594→
+ 15595→  event LiquidationExecuted(bytes3 indexed currencyCode, uint256 amount,
+ 15596→  uint256 stage);
+ 15597→
+ 15598→  event ReintegrationScore(bytes3 indexed currencyCode, uint256 score,
+ 15599→  bool thresholdMet);
+ 15600→
+ 15601→  event ReintegrationExecuted(bytes3 indexed currencyCode, uint256
+ 15602→  amount, uint256 stage);
+ 15603→
+ 15604→  event EmergencyLiquidation(bytes3 indexed currencyCode, uint256
+ 15605→  amount);
+ 15606→
+ 15607→  modifier onlyEmergencyCouncil() { require(msg.sender ==
+ 15608→  emergencyCouncil, "Only Emergency Council"); _; }
+ 15609→
+ 15610→  modifier onlyGovernance() { require(msg.sender == governance, "Only
+ 15611→  governance registry"); _; }
+ 15612→
+ 15613→  constructor(address dao_, address riskCouncil_, address
+ 15614→  emergencyCouncil_, address constitutionalCouncil_, address
+ 15615→  governance_) {
+ 15616→
+ 15617→  dao = dao_;
+ 15618→
+ 15619→  riskCouncil = riskCouncil_;
+ 15620→
+ 15621→  emergencyCouncil = emergencyCouncil_;
+ 15622→
+ 15623→  constitutionalCouncil = constitutionalCouncil_;
+ 15624→
+ 15625→  governance = governance_;
+ 15626→
+ 15627→  }
+ 15628→
+ 15629→  // ============================================================
+ 15630→
+ 15631→  // 4. STATE UPDATE (BP §14.6.2)
+ 15632→
+ 15633→  // ============================================================
+ 15634→
+ 15635→  /// @dev Updates the protocol state based on current RR and LCR.
+ 15636→
+ 15637→  /// Called after every mint, redeem, rebalance, and price update.
+ 15638→
+ 15639→  function updateState() internal {
+ 15640→
+ 15641→  uint256 rr = getReserveRatio();
+ 15642→
+ 15643→  uint256 lcr = getLCR();
+ 15644→
+ 15645→  ProtocolState newState;
+ 15646→
+ 15647→  // Determine the target state based on RR and LCR
+ 15648→
+ 15649→  if (rr >= rrTarget && lcr >= lcrTarget) {
+ 15650→
+ 15651→  newState = ProtocolState.NORMAL;
+ 15652→
+ 15653→  } else if (rr >= rrStressFloor && lcr >= 0.90e18) {
+ 15654→
+ 15655→  newState = ProtocolState.CAUTION;
+ 15656→
+ 15657→  } else if (rr >= 1.02e18 && lcr >= 0.80e18) {
+ 15658→
+ 15659→  newState = ProtocolState.STRESS;
+ 15660→
+ 15661→  } else if (rr >= RR_HARD_FLOOR && lcr >= 0.70e18) {
+ 15662→
+ 15663→  newState = ProtocolState.DEFENSIVE;
+ 15664→
+ 15665→  } else if (rr < RR_HARD_FLOOR) {
+ 15666→
+ 15667→  newState = ProtocolState.EMERGENCY;
+ 15668→
+ 15669→  } else {
+ 15670→
+ 15671→  // RECOVERY: solvency at or above the hard floor but ratios not
+ 15672→
+ 15673→  // yet back to NORMAL thresholds (rising-RR residual case)
+ 15674→
+ 15675→  newState = ProtocolState.RECOVERY;
+ 15676→
+ 15677→  }
+ 15678→
+ 15679→  // State transition logic
+ 15680→
+ 15681→  if (newState != currentState) {
+ 15682→
+ 15683→  // Moving to a more restrictive state? Immediate.
+ 15684→
+ 15685→  if (isMoreRestrictive(newState, currentState)) {
+ 15686→
+ 15687→  transitionTo(newState, true);
+ 15688→
+ 15689→  } else {
+ 15690→
+ 15691→  // Moving to a less restrictive state? 48h confirmation.
+ 15692→
+ 15693→  if (block.timestamp - stateEntryTime[currentState] >=
+ 15694→  RECOVERY_CONFIRMATION_PERIOD) {
+ 15695→
+ 15696→  transitionTo(newState, false); // gradual recovery
+ 15697→
+ 15698→  } else {
+ 15699→
+
+[showing lines 15000-15699 of 21228; use offset=15700 with limit to continue reading]

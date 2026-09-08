@@ -1,0 +1,2002 @@
+     1→+-----------------------------------------------------------------------+
+     2→| M T Q S I G M A P R O T O C O L                                       |
+     3→|                                                                       |
+     4→| MTQ Σ                                                                 |
+     5→|                                                                       |
+     6→| Master Monetary Architecture & Quantitative Specification             |
+     7→|                                                                       |
+     8→| Version 1.0 — Master Edition                                          |
+     9→|                                                                       |
+    10→| Status: Candidate for Public Testing — Not Production-Authorized      |
+    11→|                                                                       |
+    12→| Issued: 2026-09-08                                                    |
+    13→|                                                                       |
+    14→|   Blueprint v1.2 · Modification Specification Baseline v1.0 · COO     |
+    15→|   Quantitative Review                                                 |
+    16→+-----------------------------------------------------------------------+
+    17→
+    18→Table of Contents
+    19→
+    20→1. Introduction and Document Control 1
+    21→
+    22→  1.1 Purpose and Scope 1
+    23→
+    24→  1.2 Intended Audience 2
+    25→
+    26→  1.3 Document Conventions 2
+    27→
+    28→  1.4 Version History 3
+    29→
+    30→  1.5 What Changed — Modification Summary 3
+    31→
+    32→  1.6 Reading Guide 4
+    33→
+    34→  1.7 Status Declaration 5
+    35→
+    36→2. Core Definitions, Variables and Constitutional Separation 5
+    37→
+    38→  2.1 The Constitutional Separation (Single Most Important Rule) 5
+    39→
+    40→  2.2 The Three Independent Mathematical Layers 6
+    41→
+    42→  2.3 The Four-State Weight Distinction 6
+    43→
+    44→  2.4 The Two-System Architecture: Reference Basket vs Reserve 7
+    45→
+    46→  2.5 Core Variables and Constants 8
+    47→
+    48→  2.6 Constitutional Invariants (Hard Rules) 8
+    49→
+    50→  2.7 Smart Contract Implementation — Core Variables and Weight Registry
+    51→  9
+    52→
+    53→  2.8 Sharia Compliance Roadmap (v1.2 → v2.0) 26
+    54→
+    55→  2.9 Summary of Developer-Facing Constants 27
+    56→
+    57→3. The Adaptive Reference Basket 27
+    58→
+    59→  3.1 The No-Fixed-Weighting Principle 27
+    60→
+    61→  3.2 Initial Strategic Prior 28
+    62→
+    63→  3.3 Gold as a First-Class Reference-Basket Component 29
+    64→
+    65→  3.4 Genesis Weight Initialization 30
+    66→
+    67→  3.5 Basket Size and Unit Economics 31
+    68→
+    69→4. The Currency Constituency Engine 31
+    70→
+    71→  4.1 Purpose and Design 31
+    72→
+    73→  4.2 Eligibility Scoring Model 31
+    74→
+    75→  4.2.1 Score Normalization 32
+    76→
+    77→  4.3 Institutional Data Sources 33
+    78→
+    79→  4.3.1 Reserve Relevance — IMF COFER 33
+    80→
+    81→  4.3.2 FX Liquidity and Market Relevance — BIS Triennial Survey 33
+    82→
+    83→  4.4 Initial Universe and Currency Decisions 34
+    84→
+    85→  4.5 Structural Score Construction 34
+    86→
+    87→  4.6 Constituency Transitions 35
+    88→
+    89→  4.7 Hysteresis (Anti-Oscillation) 35
+    90→
+    91→  4.8 SGTX-G Is Not Inherited Automatically 36
+    92→
+    93→5. MASE Input Signals and Regime Detection 36
+    94→
+    95→  5.1 Multi-Horizon Volatility 36
+    96→
+    97→  5.2 Gold-Relative Purchasing-Power Signal 37
+    98→
+    99→  5.3 Signal Standardization (Z-Scores) 38
+   100→
+   101→  5.4 The Regime Model 39
+   102→
+   103→  5.5 The Crisis-Risk Score 40
+   104→
+   105→6. Risk Estimation and Candidate Optimization Models 41
+   106→
+   107→  6.1 The Correlation Matrix 41
+   108→
+   109→  6.2 Covariance Shrinkage 41
+   110→
+   111→  6.3 Candidate Model 1 — Minimum Variance 42
+   112→
+   113→  6.4 Candidate Model 2 — Equal Risk Contribution (Risk Parity) 42
+   114→
+   115→  6.5 Candidate Model 3 — Maximum Diversification 43
+   116→
+   117→  6.6 Candidate Model 4 — Tail Risk (CVaR) 44
+   118→
+   119→  6.7 Drawdown Control 45
+   120→
+   121→  6.8 The Purchasing-Power Objective 45
+   122→
+   123→7. The Composite MASE Objective and Ensemble Architecture 46
+   124→
+   125→  7.1 Strategic-Prior Penalty (Soft Anchor) 46
+   126→
+   127→  7.2 Diversification (Concentration) Penalty 47
+   128→
+   129→  7.3 Turnover Penalty 48
+   130→
+   131→  7.4 The Full MASE Objective 49
+   132→
+   133→  7.5 The Ensemble Architecture 50
+   134→
+   135→  7.6 Adaptive Model Weights 50
+   136→
+   137→  7.7 Smart Contract Implementation — MASE Weight Verification and
+   138→  Registry 51
+   139→
+   140→8. Constitutional Constraints and Guardrails 68
+   141→
+   142→  8.1 Hard Bounds (Constitutional Admissibility Envelopes) 68
+   143→
+   144→  8.2 Dynamic Admissibility 69
+   145→
+   146→  8.3 The Weight-Velocity Constraint 70
+   147→
+   148→  8.4 Stress-Adaptive Smoothing 71
+   149→
+   150→  8.5 The Complete Constraint Set (Consolidated) 72
+   151→
+   152→9. Chain-Linked Index Valuation and Attribution 73
+   153→
+   154→  9.1 Reference Basket Valuation 73
+   155→
+   156→  9.2 The Chain-Linked Index Calculation 75
+   157→
+   158→  9.3 The Chain-Link Adjustment at Rebalance 76
+   159→
+   160→  9.4 Contribution Mathematics — Gold and Currency 77
+   161→
+   162→  9.5 The Attribution Engine 78
+   163→
+   164→  9.6 Genesis Verification and Audit Trail 79
+   165→
+   166→  9.6.1 The Genesis Verification Event [BP §2.6.1] 79
+   167→
+   168→  9.6.2 Off-Chain Verification Function [BP §2.6.2] 81
+   169→
+   170→  9.6.3 Testnet Implementation Note [BP §2.6.3] 83
+   171→
+   172→  9.6.4 Developer Checklist [BP §2.6.4] 83
+   173→
+   174→  9.7 Index Construction Details 84
+   175→
+   176→  9.7.1 The Normalized Index Formula [BP §2.2] 84
+   177→
+   178→  9.7.2 Base-Date Fixings (Genesis Oracles) [BP §2.3] 85
+   179→
+   180→  9.7.3 On-Chain Oracle Feed Mapping [BP §2.4] 86
+   181→
+   182→  9.7.4 Derivative Asset Value and Exposure [BP §2.5] 86
+   183→
+   184→  9.8 Smart Contract Implementation — Chain-Linked Index and Genesis
+   185→  Verification 87
+   186→
+   187→10. MARP: The Monetary Adaptive Rebalancing Protocol 118
+   188→
+   189→  10.1 Daily Calculation vs Actual Rebalancing 118
+   190→
+   191→  10.2 Rebalancing Urgency 119
+   192→
+   193→  10.3 The Rebalancing Hierarchy 120
+   194→
+   195→  Level 0 — Monitor 121
+   196→
+   197→  Level 1 — Natural Flow 121
+   198→
+   199→  Level 2 — Drift Trigger 121
+   200→
+   201→  Level 3 — Risk Trigger 121
+   202→
+   203→  Level 4 — Structural Change 122
+   204→
+   205→  Level 5 — Emergency 122
+   206→
+   207→  10.4 The No-Trade Zone 122
+   208→
+   209→  10.5 Dynamic No-Trade Thresholds 123
+   210→
+   211→  10.6 Partial Rebalancing 124
+   212→
+   213→  10.7 Natural Cash-Flow Rebalancing 125
+   214→
+   215→  10.8 The Cost-Benefit Gate 125
+   216→
+   217→  10.9 The Rebalancing Objective 126
+   218→
+   219→  10.10 Strategic Review Cadence and Dynamic Frequency 128
+   220→
+   221→11. Execution Mechanics: Deviations, Triggers and the MARP Contract 129
+   222→
+   223→  11.1 Observed and Target Weights 129
+   224→
+   225→  11.2 The Deviation 130
+   226→
+   227→  11.3 Dynamic Trigger Conditions 131
+   228→
+   229→  11.4 Trade Sizing — Liquidity-Sensitive 132
+   230→
+   231→  11.5 Execution Constraints and the Direction Lock 132
+   232→
+   233→  11.5.1 Slippage Guard 133
+   234→
+   235→  11.5.2 Maximum Daily Turnover 133
+   236→
+   237→  11.5.3 Direction Lock (Whipsaw Guard) 134
+   238→
+   239→  11.6 Integration with Regime and Crisis Signals 134
+   240→
+   241→  11.7 Event Emissions and Decision Logging 135
+   242→
+   243→  11.8 Summary of Developer-Facing Constants 136
+   244→
+   245→  11.9 Design of the On-Chain Execution Layer 137
+   246→
+   247→  11.10 Governance of Execution Parameters 137
+   248→
+   249→  11.11 Smart Contract Implementation — MARP Execution Engine 138
+   250→
+   251→12. Execution Optimization and Slippage Protection 203
+   252→
+   253→  12.1 Purpose 203
+   254→
+   255→  12.2 The Quote-Based Execution Model 205
+   256→
+   257→  12.2.1 The Quote Lifecycle 206
+   258→
+   259→  12.3 Two-Sided Slippage Bounds 207
+   260→
+   261→  12.3.1 Selling Gold (PAXG → USDC) 207
+   262→
+   263→  12.3.2 Buying Gold (USDC → PAXG) 207
+   264→
+   265→  12.3.3 Slippage Tolerance Table 208
+   266→
+   267→  12.4 Trade Sizing and Staged Execution 208
+   268→
+   269→  12.4.1 The Liquidity Cap 209
+   270→
+   271→  12.4.2 Staged Execution for Large Trades 209
+   272→
+   273→  12.5 The Minimum Profitability Guard 210
+   274→
+   275→  12.6 MEV Protection (Private Mempool Submission) 211
+   276→
+   277→  12.7 Gas Estimation and Cost Control 212
+   278→
+   279→  12.8 Smart Contract Implementation — Execution Protection 213
+   280→
+   281→  12.9 Event Emissions and Constants Summary 258
+   282→
+   283→13. Reserve Architecture, Coverage and Liquidity 259
+   284→
+   285→  13.1 The Reserve Architecture Design Principle 259
+   286→
+   287→  13.2 Reserve Coverage 260
+   288→
+   289→  13.2.1 What Counts: The Eligible Reserve 261
+   290→
+   291→  13.2.2 What Counts: Outstanding Obligations 261
+   292→
+   293→  13.2.3 How Much Is Enough 262
+   294→
+   295→  13.3 Gold Reserve and Gold Index Allocation Are Separate 262
+   296→
+   297→  13.4 Reserve Liquidity Coverage 263
+   298→
+   299→  13.4.1 What Counts as Immediately Liquid 264
+   300→
+   301→  13.4.2 Near-Term Obligations and Stress Redemption Demand 264
+   302→
+   303→  13.4.3 The Constitutional Floor and Breach Behavior 265
+   304→
+   305→  13.5 Strategic Gold Reserve Sizing 266
+   306→
+   307→  13.5.1 The Decision Inputs 266
+   308→
+   309→  13.5.2 Historical Input — the v1.2 Core-plus-Buffer Structure 267
+   310→
+   311→  13.5.3 Instrument Eligibility — Tokenized and Physical Gold 268
+   312→
+   313→  13.6 No Market-Price Support 268
+   314→
+   315→14. Reserve Valuation and Risk Management 270
+   316→
+   317→  14.1 Net Asset Value — Prudential Valuation 270
+   318→
+   319→  14.1.1 The Constitutional Haircut Table 271
+   320→
+   321→  14.2 The Reserve Ratio and Constitutional Tiers 271
+   322→
+   323→  14.2.1 The Three Floors 272
+   324→
+   325→  14.2.2 Status Determination 272
+   326→
+   327→  14.3 Tokenized and Physical Gold Instruments 273
+   328→
+   329→  14.4 Reserve Rebalancing and the Gold-Cost Rule 274
+   330→
+   331→  14.4.1 The Gold-Cost Rule 275
+   332→
+   333→  14.5 Crisis Mode 276
+   334→
+   335→  14.6 Smart Contract Implementation — Reserve Manager 277
+   336→
+   337→  14.6.1 The Contract 278
+   338→
+   339→  14.6.2 Event Emissions 304
+   340→
+   341→  14.6.3 Developer-Facing Constants 304
+   342→
+   343→15. The Asset Admission Registry 305
+   344→
+   345→  15.1 Purpose and Scope 305
+   346→
+   347→  15.2 The Eligibility Standard 306
+   348→
+   349→  15.3 Asset States 306
+   350→
+   351→  15.4 Registry Data Structures 307
+   352→
+   353→  15.4.1 Asset Record 307
+   354→
+   355→  15.4.2 Currency-to-Asset Mapping 308
+   356→
+   357→  15.5 Core Registry Functions 309
+   358→
+   359→  15.6 Concentration Limits and Chain Diversification 309
+   360→
+   361→  15.6.1 Issuer Concentration 309
+   362→
+   363→  15.6.2 Reserve Concentration by Asset 310
+   364→
+   365→  15.6.3 Currency Concentration 311
+   366→
+   367→  15.6.4 Chain Diversification Policy 312
+   368→
+   369→  15.7 Integration and Events 313
+   370→
+   371→  15.8 Smart Contract Implementation — Asset Admission Registry 314
+   372→
+   373→16. The Dynamic Buffer 336
+   374→
+   375→  16.1 Purpose 336
+   376→
+   377→  16.2 The Three Buffer States 337
+   378→
+   379→  16.3 Buffer Allocation and State Transitions 338
+   380→
+   381→  16.4 Buffer Consumption — The First-Loss Waterfall 340
+   382→
+   383→  16.4.1 Integration with the Rebalancing Engine 341
+   384→
+   385→  16.5 Smart Contract Implementation — Dynamic Buffer 343
+   386→
+   387→  16.5.1 The Contract 343
+   388→
+   389→  16.5.2 Developer-Facing Constants 380
+   390→
+   391→17. Oracle Architecture and the Canonical Gold Price 380
+   392→
+   393→  17.1 Purpose and Design Principles 380
+   394→
+   395→  17.2 The Three-Source Consensus Model 381
+   396→
+   397→  17.3 Validation Criteria 383
+   398→
+   399→  17.3.1 Timestamp Freshness 383
+   400→
+   401→  17.3.2 Confidence Interval (Pyth-Specific) 383
+   402→
+   403→  17.3.3 Deviation Circuit Breaker 384
+   404→
+   405→  17.3.4 Source Independence Check 384
+   406→
+   407→  17.4 The Gold Price Reference Unit and Canonical Gold Price 385
+   408→
+   409→  17.5 Price Aggregation Logic 386
+   410→
+   411→  17.6 Gold Oracle Confidence Mathematics 388
+   412→
+   413→  17.7 Oracle States and Degradation Modes 390
+   414→
+   415→  17.8 Staleness and Heartbeat Management 391
+   416→
+   417→  17.9 Cross-Source Correlation Detection 392
+   418→
+   419→  17.10 Asset-Specific Oracle Addresses 392
+   420→
+   421→  17.11 Contract State and Events 393
+   422→
+   423→  17.12 Smart Contract Implementation — Oracle Aggregator 394
+   424→
+   425→18. The Monetary Unit, Daily State Vector and Monitoring 446
+   426→
+   427→  18.1 The MTQ Reference Price and PAR 446
+   428→
+   429→  18.2 The Liability and Solvency Identity 447
+   430→
+   431→  18.3 The Full Daily State Vector 448
+   432→
+   433→  18.4 Price Sanity Checks, Circuit Breakers and Event Emissions 449
+   434→
+   435→  18.5 Smart Contract Implementation — Monetary Unit and State Vector
+   436→  450
+   437→
+   438→19. Minting and Redemption 478
+   439→
+   440→  19.1 Purpose and Pricing Doctrine 478
+   441→
+   442→  19.2 The Minting Flow 479
+   443→
+   444→  19.2.1 User Inputs 480
+   445→
+   446→  19.2.2 Step-by-Step Minting Process 480
+   447→
+   448→  19.3 The Redemption Flow 482
+   449→
+   450→  19.3.1 User Inputs 482
+   451→
+   452→  19.3.2 Step-by-Step Redemption Process 483
+   453→
+   454→  19.4 Slippage Guard Mathematics 485
+   455→
+   456→  19.4.1 Minting Slippage Guard 485
+   457→
+   458→  19.4.2 Redemption Slippage Guard (Single-Asset Router) 486
+   459→
+   460→  19.5 Smart Contract Implementation — mint() and redeem() 487
+   461→
+   462→  19.6 Critical Notes 518
+   463→
+   464→  19.6.1 Minting Does Not Create a 1:1 USD Peg 518
+   465→
+   466→  19.6.2 Redemption Releases the Full Basket 519
+   467→
+   468→  19.6.3 Atomicity Is On-Chain Only 519
+   469→
+   470→  19.6.4 Minimum Amounts 519
+   471→
+   472→  19.7 Summary of Developer-Facing Constants 519
+   473→
+   474→20. Genesis, Accounting and Treasury 520
+   475→
+   476→  20.1 The Genesis Event 520
+   477→
+   478→  20.1.1 Purpose of the Genesis Event 520
+   479→
+   480→  20.1.2 The Genesis Deposit 521
+   481→
+   482→  20.1.3 The Atomic Genesis Swap 522
+   483→
+   484→  20.1.4 The Genesis Mint 522
+   485→
+   486→  20.1.5 The Index Base Denominator 523
+   487→
+   488→  20.1.6 The Genesis Function 524
+   489→
+   490→  20.2 Accounting Separation — The Three Pools 525
+   491→
+   492→  20.3 The Treasury Sweep 525
+   493→
+   494→  20.3.1 The Sweep Threshold 526
+   495→
+   496→  20.3.2 The Sweep Function 526
+   497→
+   498→  20.3.3 Cold Treasury Security Requirements 526
+   499→
+   500→  20.4 Fee Accrual, Surplus and Reserve Replenishment 527
+   501→
+   502→  20.4.1 Operational Surplus and Reserve Replenishment 527
+   503→
+   504→  20.5 Smart Contract Implementation — Genesis and Treasury 528
+   505→
+   506→  20.5.1 Summary of Storage Variables 565
+   507→
+   508→  20.5.2 Event Summary 565
+   509→
+   510→  20.5.3 Deployment Notes (Summary) 565
+   511→
+   512→  20.6 Summary of Developer-Facing Constants 566
+   513→
+   514→21. The Risk State Machine, Crisis Execution and Emergency Actions 566
+   515→
+   516→  21.1 Purpose 566
+   517→
+   518→  21.2 The Six Risk States 567
+   519→
+   520→  21.3 State Transition Logic 568
+   521→
+   522→  21.4 The State-Dependent Action Matrix 569
+   523→
+   524→  21.5 Geopolitical Eject — Staged Liquidation and Reintegration 570
+   525→
+   526→  21.5.1 Purpose 570
+   527→
+   528→  21.5.2 The De-peg Detector 570
+   529→
+   530→  21.5.3 The Staged Liquidation Ladder 571
+   531→
+   532→  21.5.4 The Reintegration Score (Anti-Gaming) 572
+   533→
+   534→  21.5.5 Special Cases — Issuer Freeze and Sanctions 573
+   535→
+   536→  21.6 Smart Contract Implementation — Risk State Machine and Eject 574
+   537→
+   538→  21.6.1 Event Emissions 637
+   539→
+   540→  21.6.2 Developer-Facing Constants 637
+   541→
+   542→22. Governance 638
+   543→
+   544→  22.1 Constitutional Separation of the Algorithmic Layers 638
+   545→
+   546→  22.2 Governance Separation 639
+   547→
+   548→  22.3 The Four Governance Layers 640
+   549→
+   550→  22.4 The Parameter Registry and Authority Matrix 641
+   551→
+   552→  22.5 Emergency Actions 642
+   553→
+   554→  22.6 Smart Contract Implementation — Governance and Emergency
+   555→  Functions 643
+   556→
+   557→23. The Validation and Research Program (Production Precondition) 672
+   558→
+   559→  23.1 The Validation Methodology 672
+   560→
+   561→  23.2 The Historical Backtest 672
+   562→
+   563→  23.3 Walk-Forward Validation 673
+   564→
+   565→  23.4 Purged and Leakage-Controlled Validation 674
+   566→
+   567→  23.5 Monte Carlo Testing 675
+   568→
+   569→  23.6 Parameter Perturbation and Robustness Testing 676
+   570→
+   571→  23.7 The Model-Selection Criterion 677
+   572→
+   573→  23.8 Gold-Specific Stress Tests 677
+   574→
+   575→  23.8.1 Gold Price Shocks (+50%, +25%, −10%, −20%, −30%) 678
+   576→
+   577→  23.8.2 Sudden Gold-Market Liquidity Reduction 678
+   578→
+   579→  23.8.3 Tokenized-Gold Issuer Failure 679
+   580→
+   581→  23.8.4 Physical-Gold Custody Interruption 679
+   582→
+   583→  23.8.5 Oracle Disagreement 679
+   584→
+   585→  23.9 Currency-Specific Stress Tests 680
+   586→
+   587→  23.10 Stable-Value Asset Stress 680
+   588→
+   589→  23.11 The Reserve Stress Equation 681
+   590→
+   591→  23.12 Validation Gates and Production Preconditions 682
+   592→
+   593→24. Transparency, Reproducibility and Publication 682
+   594→
+   595→  24.1 Deterministic Reproducibility 683
+   596→
+   597→  24.2 Data, Model, Parameter and Oracle Versioning 683
+   598→
+   599→  24.3 Weight Publication 684
+   600→
+   601→  24.4 The Rebalancing Decision Log 684
+   602→
+   603→  24.5 The Final Live-Weight Equation 685
+   604→
+   605→25. Claims and Honest Status 687
+   606→
+   607→  25.1 Purpose — The Honesty Architecture 687
+   608→
+   609→  25.2 Claims Supported by the Specification 688
+   610→
+   611→  25.3 Claims NOT Supported by the Current Specification 688
+   612→
+   613→  25.4 The Honest Status Table 689
+   614→
+   615→  25.5 The Validation Gates 689
+   616→
+   617→  25.6 The Honest Messaging Guide 690
+   618→
+   619→  25.6.1 What to Say (Supported Claims) 690
+   620→
+   621→  25.6.2 What NOT to Say (Unsupported Claims) 690
+   622→
+   623→  25.7 Smart Contract Implementation — Honest Status 691
+   624→
+   625→26. Final Declarations and Architecture Summary 707
+   626→
+   627→  26.1 The Final Declaration 707
+   628→
+   629→  26.2 The Critical Distinction — Four Weight States 709
+   630→
+   631→  26.3 The Final Conceptual Flow 709
+   632→
+   633→  26.3.1 The End-to-End Data-Flow View 710
+   634→
+   635→  26.3.2 The Two-Engine Hierarchy View (COO-Approved Final Architecture)
+   636→  717
+   637→
+   638→  26.3.3 How the Two Views Relate 723
+   639→
+   640→  26.4 The Final Strategic Basket Statement 724
+   641→
+   642→  26.5 The COO-Approved Principles 725
+   643→
+   644→  26.5.1 The Rebalancing Principle 725
+   645→
+   646→  26.5.2 The Monetary Principle 725
+   647→
+   648→  26.6 Final Architecture Status — Locked and Not Locked 726
+   649→
+   650→  26.6.1 Locked Concepts 726
+   651→
+   652→  26.6.2 Not Locked — Must Be Quantitatively Validated 726
+   653→
+   654→  26.6.3 The Second Mathematical Layer (COO Final Conclusion) 726
+   655→
+   656→  26.7 The Final One-Sentence Definition 727
+   657→
+   658→  26.8 Complete Specification Summary and Source of Truth 728
+   659→
+   660→  26.8.1 Complete Specification Summary Table 728
+   661→
+   662→  26.8.2 Final Honest Status Declaration 728
+   663→
+   664→  26.8.3 The Single Source of Truth 729
+   665→
+   666→  26.8.4 Final Project Information 729
+   667→
+   668→Appendix A — Glossary of Symbols and Terms 730
+   669→
+   670→  A.1 Symbols 730
+   671→
+   672→  A.2 Terms 730
+   673→
+   674→Appendix B — Deployment Checklist 730
+   675→
+   676→  B.1 Phase 0 — Environment and Prerequisites 731
+   677→
+   678→  B.2 Phase 1 — Roles and Addresses 732
+   679→
+   680→  B.3 Phase 2 — Oracle Configuration 733
+   681→
+   682→  B.4 Phase 3 — Contract Deployment and Genesis 734
+   683→
+   684→  B.5 Phase 4 — Weight Registry Initialization 735
+   685→
+   686→  B.6 Phase 5 — Post-Deployment Verification 736
+   687→
+   688→Appendix C — Worked Examples 738
+   689→
+   690→  C.1 Example 1 — Normal Operating Day (No-Trade Zone) 739
+   691→
+   692→  C.2 Example 2 — Moderate Deviation (Partial Rebalancing) 739
+   693→
+   694→  C.3 Example 3 — Natural-Flow Rebalancing 741
+   695→
+   696→  C.4 Example 4 — Cost-Gate Rejection 741
+   697→
+   698→  C.5 Example 5 — Gold Adaptive Shift 742
+   699→
+   700→Appendix D — Testnet Deployment Specifics 743
+   701→
+   702→  D.1 Target Chains 743
+   703→
+   704→  D.2 Genesis Verification on Testnet (Manual Emission) 743
+   705→
+   706→  D.3 Mock Oracles, Mock Assets and the Mock Aggregator 746
+   707→
+   708→  D.4 Asset-Specific Oracle Address Table 746
+   709→
+   710→  D.5 Testnet Honest-Status Declaration 748
+   711→
+   712→  D.6 Testnet Verification Sequence 749
+   713→
+   714→Appendix E — Source Lineage Cross-Reference 750
+   715→
+   716→  E.1 Lineage Map 750
+   717→
+   718→  E.2 Using the Lineage Map 751
+   719→
+   720→Note: This Table of Contents is generated via field codes. To ensure
+   721→page number accuracy after editing, please right-click the TOC and
+   722→select "Update Field".
+   723→
+   724→1. Introduction and Document Control
+   725→
+   726→1.1 Purpose and Scope
+   727→
+   728→  This document — MTQ Σ — Master Monetary Architecture & Quantitative
+   729→  Specification v1.0 — is the consolidated, single source of truth for
+   730→  the MTQ Σ (Mithqal Sigma) protocol. It merges three source documents
+   731→  into one master edition: the operational Source-of-Truth Blueprint
+   732→  v1.2 — Final Closed-Loop Monetary Architecture (Testnet Edition); the
+   733→  Consolidated Final Modification Specification — Baseline v1.0, which
+   734→  replaces the fixed-quantity basket with a transparent, adaptive,
+   735→  multi-model stability engine; and the COO Quantitative Review, which
+   736→  adds the second mathematical layer (index valuation and chain-linking,
+   737→  complete risk mathematics, adaptive ensemble mathematics, execution
+   738→  economics, liquidity mathematics, stress mathematics and audit
+   739→  mathematics). Every rule, invariant, formula, constant, smart-contract
+   740→  function, table and worked example from all three sources is carried
+   741→  forward in this edition; content is modified only where the
+   742→  Modification Specification or the COO Review explicitly supersedes the
+   743→  v1.2 design. Because the architecture is no longer a modification of a
+   744→  historical design but an original mathematical system, this edition is
+   745→  issued as the Master Monetary Architecture & Quantitative
+   746→  Specification v1.0 [COO-27].
+   747→
+   748→The scope of this blueprint covers the complete monetary stack: the
+   749→definition of the reference basket and its candidate universe; the
+   750→currency constituency engine; the MASE (Multi-model Adaptive Stability
+   751→Engine) weighting methodology; constitutional constraints and
+   752→guardrails; chain-linked index valuation; the MARP (Monetary Adaptive
+   753→Rebalancing Protocol) execution layer; the reserve architecture,
+   754→collateralization and liquidity coverage rules; the multi-source oracle
+   755→system and canonical gold price; minting, redemption, genesis and
+   756→treasury operations; the governance and risk state machine; the
+   757→validation and research program; and the transparency, publication and
+   758→audit-trail obligations. Testnet deployment specifics (mock oracles,
+   759→mock assets, mock aggregator and live testnet addresses) are preserved
+   760→in Appendix D without modification.
+   761→
+   762→Out of scope are the marketing narrative, any performance projections,
+   763→and any claim not derivable from the equations and logic in this
+   764→document. Section 25 (Claims and Honest Status) is binding: no numerical
+   765→weight, corridor or performance figure may be presented as final until
+   766→it survives the full validation program defined in Chapter 23.
+   767→
+   768→1.2 Intended Audience
+   769→
+   770→The blueprint is written for two audiences simultaneously, and the text
+   771→is organized so that each audience can navigate it independently:
+   772→
+   773→-   Developers and auditors — smart-contract logic, storage variables,
+   774→    constants, revert conditions, event emissions, deployment checklists
+   775→    and verification commands (Chapters 2, 9, 11, 14–22 and Appendices
+   776→    B, D, E).
+   777→
+   778→-   Monetary researchers and users — the mechanics of purchasing-power
+   779→    representation, adaptive weighting, rebalancing economics and honest
+   780→    status declarations (Chapters 3–13, 23–26).
+   781→
+   782→Governance bodies (Constitutional Council, DAO, Risk Council, Emergency
+   783→Council) should treat Chapters 8, 22 and 25 as their primary references,
+   784→because these chapters define exactly which parameters each layer may
+   785→and may not change.
+   786→
+   787→1.3 Document Conventions
+   788→
+   789→-   Weight notation. W_t denotes the live weight vector at time t;
+   790→    W^{Prior} denotes the strategic prior; W^{Target}, W^{Smooth} and
+   791→    W^{Execution} denote the intermediate states defined in Section 2.3.
+   792→    Percentages expressed as decimals (e.g. 0.27 = 27%).
+   793→
+   794→-   Governance tags. Every tunable parameter carries a governance class:
+   795→    Constitutional (7/7 Multi-Sig + 90-day timelock), Monetary (DAO
+   796→    51% + 48-hour timelock), Risk (Risk Council 4/7 + 24-hour timelock),
+   797→    or Emergency (Emergency Council 4/7, instant).
+   798→
+   799→-   Status flags. Statements marked LOCKED are architectural invariants
+   800→    of v2.0. Statements marked NOT LOCKED are pending the quantitative
+   801→    validation program (Chapter 23) and must not be quoted as final
+   802→    results.
+   803→
+   804→-   Verification quotes. Solidity code is normative for behavior; prose
+   805→    is normative for intent. Where a discrepancy exists, the discrepancy
+   806→    is flagged as a Fidelity Note and resolved under the governance
+   807→    process.
+   808→
+   809→-   Cross-references. Sections are referenced as §N.M; source lineage is
+   810→    referenced as [BP §x] (Blueprint v1.2) or [MS §x] (Modification
+   811→    Specification v1.0) so that any statement can be traced to its
+   812→    origin.
+   813→
+   814→1.4 Version History
+   815→
+   816→  -------------------------------------------------------------------------------------
+   817→  Version           Date              Status                  Change Summary
+   818→  ----------------- ----------------- ----------------------- -------------------------
+   819→  v1.0              2026 (archived)   Superseded              Initial fixed-quantity
+   820→                                                              GFB basket, fixed 30-day
+   821→                                                              transitions, SGTX-G gold
+   822→                                                              token concept,
+   823→                                                              single-market gold price
+   824→                                                              source.
+   825→
+   826→  v1.1              2026 (archived)   Superseded              Closed-loop accounting
+   827→                                                              reconciliation; audit
+   828→                                                              points incorporated.
+   829→
+   830→  v1.2              2026-09-04        Superseded              Final closed-loop testnet
+   831→                                                              edition: three-layer
+   832→                                                              constitutional
+   833→                                                              separation, reserve
+   834→                                                              NAV/RR/LCR, asset
+   835→                                                              registry, macro engine
+   836→                                                              (VIX/DXY z-scores),
+   837→                                                              cost-aware rebalancing,
+   838→                                                              dynamic buffer,
+   839→                                                              three-source oracles,
+   840→                                                              geopolitical eject,
+   841→                                                              genesis/treasury,
+   842→                                                              six-state risk machine,
+   843→                                                              honest status
+   844→                                                              declaration. All 76 audit
+   845→                                                              points reconciled.
+   846→
+   847→  v2.0              2026-09-08        Superseded              Integrated Modification
+   848→                                      (intermediate)          Specification Baseline
+   849→                                                              v1.0: adaptive MASE
+   850→                                                              weighting replaces fixed
+   851→                                                              quantities; strategic
+   852→                                                              prior (USD 27 / EUR 20 /
+   853→                                                              JPY 9 / GBP 8 / CNY 5 /
+   854→                                                              CHF 5 / Gold 26) becomes
+   855→                                                              a soft anchor, not a
+   856→                                                              definition; gold becomes
+   857→                                                              a first-class component
+   858→                                                              with an independent
+   859→                                                              allocation model;
+   860→                                                              constituency engine with
+   861→                                                              hysteresis added; MARP
+   862→                                                              execution layer with
+   863→                                                              no-trade zones, urgency
+   864→                                                              scoring, partial
+   865→                                                              rebalancing and natural
+   866→                                                              cash-flow preference;
+   867→                                                              canonical multi-source
+   868→                                                              gold price replaces any
+   869→                                                              single-market source;
+   870→                                                              validation and research
+   871→                                                              program becomes a
+   872→                                                              constitutional
+   873→                                                              precondition; weight
+   874→                                                              publication, decision
+   875→                                                              logs and reproducibility
+   876→                                                              obligations added.
+   877→
+   878→  Master v1.0       2026-09-08        CURRENT — Candidate for MTQ Σ — Master Monetary
+   879→                                      public testing, not     Architecture &
+   880→                                      production-authorized   Quantitative
+   881→                                                              Specification v1.0
+   882→                                                              [COO-27]: merges
+   883→                                                              Blueprint v1.2 +
+   884→                                                              Modification
+   885→                                                              Specification Baseline
+   886→                                                              v1.0 + the COO
+   887→                                                              Quantitative Review (28
+   888→                                                              items). Adds the second
+   889→                                                              mathematical layer:
+   890→                                                              complete weight-state
+   891→                                                              distinction enforced
+   892→                                                              after every basket
+   893→                                                              statement; currency-score
+   894→                                                              normalization;
+   895→                                                              multi-horizon risk and
+   896→                                                              robust covariance
+   897→                                                              notation; explicit ERC,
+   898→                                                              VaR and
+   899→                                                              maximum-diversification
+   900→                                                              objectives; the full MASE
+   901→                                                              constraint set;
+   902→                                                              chain-linked index
+   903→                                                              valuation with divisor
+   904→                                                              continuity (the
+   905→                                                              previously missing index
+   906→                                                              equation);
+   907→                                                              NAV/reference-value
+   908→                                                              reconciliation;
+   909→                                                              attribution engine;
+   910→                                                              reserve
+   911→                                                              liquidity-coverage
+   912→                                                              mathematics; gold-oracle
+   913→                                                              confidence mathematics;
+   914→                                                              the full stress suite
+   915→                                                              (gold, currency,
+   916→                                                              correlation-collapse,
+   917→                                                              reserve);
+   918→                                                              leakage-controlled
+   919→                                                              validation; parameter
+   920→                                                              robustness testing; and
+   921→                                                              data/model/oracle
+   922→                                                              versioning with decision
+   923→                                                              identifiers.
+   924→  -------------------------------------------------------------------------------------
+   925→
+   926→1.5 What Changed — Modification Summary
+   927→
+   928→The Modification Specification and the COO Quantitative Review
+   929→reorganize the architecture around one central principle: MTQ Σ promises
+   930→a fixed methodology, not a fixed composition. The following table maps
+   931→every architectural modification applied by this edition; Appendix E
+   932→provides the complete section-by-section cross-reference.
+   933→
+   934→  --------------------------------------------------------------------------------------
+   935→  #              Area           Prior v1.2         This Edition (Master   Source
+   936→                                (Superseded)       v1.0)                  
+   937→  -------------- -------------- ------------------ ---------------------- --------------
+   938→  M1             Basket         Fixed notional     Adaptive weight vector MS §1–4
+   939→                 definition     quantities q_i     W_t over a candidate   
+   940→                                (USD 0.3890, EUR   universe; gold is a    
+   941→                                0.2780, GBP        first-class component; 
+   942→                                0.1669, JPY        weights recalculated   
+   943→                                0.1111, CNY        daily by MASE.         
+   944→                                0.0550); no gold                          
+   945→                                in index.                                 
+   946→
+   947→  M2             Percentages    27/20/9/8/5/5/26   Reclassified as        MS §2, §3, §25
+   948→                                style numbers      Strategic Prior — a    
+   949→                                treated as         soft stabilizing       
+   950→                                composition        anchor with a          
+   951→                                targets.           deviation penalty;     
+   952→                                                   live weights differ in 
+   953→                                                   general.               
+   954→
+   955→  M3             Gold mechanics Gold factor        Old factor retained    MS §4, §14
+   956→                                S_i·K_i modifying  only as an input       
+   957→                                currency weights;  signal; gold receives  
+   958→                                gold weight        an independent         
+   959→                                adjusted ±3% by    adaptive allocation    
+   960→                                VIX/DXY z-scores   W_{G,t}^{Target} with  
+   961→                                around a 26.25%    its own objective      
+   962→                                base.              inputs.                
+   963→
+   964→  M4             Constituency   Fixed              Eligibility engine Q_i MS §5, §7, §45
+   965→                                five-currency set  over an expandable     
+   966→                                (plus gold as      universe with          
+   967→                                collateral).       entry/exit hysteresis; 
+   968→                                                   GBP, CHF, CAD, AUD,    
+   969→                                                   SGD are all            
+   970→                                                   algorithmically        
+   971→                                                   decided.               
+   972→
+   973→  M5             Weighting      Adaptive Macro     MASE: ensemble of      MS §17–30
+   974→                 engine         Engine (single     minimum-variance, ERC, 
+   975→                                gold-weight        max-diversification,   
+   976→                                adjustment).       CVaR, purchasing-power 
+   977→                                                   and regime models with 
+   978→                                                   adaptive ensemble      
+   979→                                                   weights.               
+   980→
+   981→  M6             Constraints    Gold weight        Constitutional         MS §31–34
+   982→                                clamped 22–30%;    admissibility          
+   983→                                fixed hard bands.  envelopes per          
+   984→                                                   component              
+   985→                                                   (validation-stage),    
+   986→                                                   dynamic admissibility, 
+   987→                                                   weight-velocity limits 
+   988→                                                   and stress-adaptive    
+   989→                                                   smoothing.             
+   990→
+   991→  M7             Rebalancing    Trigger +          MARP doctrine:         MS §35–45
+   992→                                cost-benefit trade calculate daily, trade 
+   993→                                execution with     only on justified      
+   994→                                direction lock.    urgency; no-trade      
+   995→                                                   zones, dynamic         
+   996→                                                   thresholds, partial    
+   997→                                                   corrections, natural   
+   998→                                                   cash-flow preference,  
+   999→                                                   six-level hierarchy.   
+  1000→
+  1001→  M8             Gold price     SGTX-G own-market  Canonical multi-source MS §53–56
+  1002→                 source         price; PAXG/LBMA   gold price with robust 
+  1003→                                min for NAV.       median aggregation,    
+  1004→                                                   confidence scoring,    
+  1005→                                                   degraded mode and      
+  1006→                                                   independent-source     
+  1007→                                                   quorum; no single AMM  
+  1008→                                                   as canonical source.   
+  1009→
+  1010→  M9             Reserve gold   26% gold reference Gold reserve and gold  MS §46, §49,
+  1011→                                tied to reserve    index allocations are  §50
+  1012→                                structure (core    mandatorily separate;  
+  1013→                                20% + buffer).     reserve gold sized by  
+  1014→                                                   obligations,           
+  1015→                                                   liquidity, custody and 
+  1016→                                                   redemption risk — not  
+  1017→                                                   by index weight.       
+  1018→
+  1019→  M10            Validation     Backtest figures   Those figures are not  MS §79–89
+  1020→                                from prior         evidence for MTQ Σ; a  
+  1021→                                architecture       full new research      
+  1022→                                quoted (≈5.21%     program (backtest from 
+  1023→                                volatility, −4.1%  2010, walk-forward,    
+  1024→                                MDD).              purged CV, Monte       
+  1025→                                                   Carlo, perturbation,   
+  1026→                                                   stress suite) is a     
+  1027→                                                   production             
+  1028→                                                   precondition.          
+  1029→
+  1030→  M11            Transparency   Genesis            Full weight            MS §92–95
+  1031→                                verification and   publication with       
+  1032→                                metric events.     source data and        
+  1033→                                                   methodology version,   
+  1034→                                                   rebalancing decision   
+  1035→                                                   logs, deterministic    
+  1036→                                                   reproducibility and    
+  1037→                                                   data/model/oracle      
+  1038→                                                   versioning.            
+  1039→
+  1040→  M12            SGTX-G         1-gram physical    Not inherited          MS §57
+  1041→                                gold token concept automatically; any     
+  1042→                                inherited from     MTQ-native gold        
+  1043→                                prior project.     instrument must be     
+  1044→                                                   designed under MTQ Σ's 
+  1045→                                                   own legal and monetary 
+  1046→                                                   architecture; SGTX-G   
+  1047→                                                   remains historical     
+  1048→                                                   design input only.     
+  1049→
+  1050→  M13            Mathematical   Architecture       Second mathematical    COO Review
+  1051→                 completion     described with     layer added            items 1–26
+  1052→                 layer          formulas stated    throughout:            
+  1053→                                informally or      chain-linked index     
+  1054→                                omitted (index     continuity and divisor 
+  1055→                                evolution, VaR     adjustment (§9.2–9.3); 
+  1056→                                definition, ERC    NAV reference-value    
+  1057→                                objective,         equation (§9.1);       
+  1058→                                execution          attribution            
+  1059→                                economics,         mathematics            
+  1060→                                liquidity          (§9.4–9.5); VaR/CVaR   
+  1061→                                coverage, stress   formal definitions     
+  1062→                                and audit          (§6.6); explicit ERC   
+  1063→                                mathematics).      objective (§6.4);      
+  1064→                                                   execution cost and     
+  1065→                                                   net-benefit equations  
+  1066→                                                   (§10.8); dynamic       
+  1067→                                                   no-trade-band          
+  1068→                                                   mathematics (§10.5);   
+  1069→                                                   reserve liquidity      
+  1070→                                                   coverage ratio         
+  1071→                                                   (§13.4); gold-oracle   
+  1072→                                                   confidence function    
+  1073→                                                   (§17.6); full stress   
+  1074→                                                   suite with reserve     
+  1075→                                                   stress equation        
+  1076→                                                   (§23.8–23.11); leakage 
+  1077→                                                   controls and parameter 
+  1078→                                                   robustness testing     
+  1079→                                                   (§23.4, §23.6);        
+  1080→                                                   versioned audit        
+  1081→                                                   records (§24.2).       
+  1082→  --------------------------------------------------------------------------------------
+  1083→
+  1084→1.6 Reading Guide
+  1085→
+  1086→The document is organized in ten parts that follow the data flow of the
+  1087→system. Readers new to MTQ Σ should read in order:
+  1088→
+  1089→1.  Part I (Chapters 1–2) — vocabulary, constitutional separation and
+  1090→    the four weight states. Everything else depends on these
+  1091→    definitions.
+  1092→
+  1093→2.  Part II (Chapters 3–4) — what the basket is, which currencies are
+  1094→    eligible, and how membership is decided.
+  1095→
+  1096→3.  Part III (Chapters 5–7) — how MASE computes weights from data.
+  1097→
+  1098→4.  Part IV (Chapters 8–9) — the guardrails and how the index is valued.
+  1099→
+  1100→5.  Part V (Chapters 10–12) — when and how the system actually trades.
+  1101→
+  1102→6.  Parts VI–VIII (Chapters 13–21) — reserve, oracles and user-facing
+  1103→    operations.
+  1104→
+  1105→7.  Parts IX–X (Chapters 22–26) — governance, validation, transparency
+  1106→    and final declarations.
+  1107→
+  1108→Developers implementing smart contracts may start from Chapter 2.7, then
+  1109→jump to the contract sections of Chapters 9.8, 11.11, 14.6, 15.8, 16.5,
+  1110→17.12, 18.5, 19.5, 20.5, 21.6 and 22.6, using Appendix B as the
+  1111→deployment checklist and Appendix D for testnet specifics.
+  1112→
+  1113→1.7 Status Declaration
+  1114→
+  1115→  MTQ Σ v2.0 is a CANDIDATE FOR PUBLIC TESTING. It is NOT
+  1116→  production-authorized. All live weights, corridors, thresholds and
+  1117→  model coefficients in this document are either constitutional
+  1118→  envelopes or validation-stage research values. No numerical weighting
+  1119→  percentage may be described as the final optimal weight until it
+  1120→  survives the complete MTQ Σ research program defined in Chapter 23.
+  1121→  This declaration is binding and is enforced on-chain by the
+  1122→  honest-status functions in Section 25.7.
+  1123→
+  1124→2. Core Definitions, Variables and Constitutional Separation
+  1125→
+  1126→2.1 The Constitutional Separation (Single Most Important Rule)
+  1127→
+  1128→MTQ Σ strictly separates three concepts that are frequently conflated in
+  1129→other monetary architectures. The separation is constitutional: it
+  1130→cannot be waived by any governance layer.
+  1131→
+  1132→  -----------------------------------------------------------------------
+  1133→  Layer             Concept           Definition        Role
+  1134→  ----------------- ----------------- ----------------- -----------------
+  1135→  (A)               The Reference     A pure            Defines the unit
+  1136→                    Basket (adaptive  mathematical      of account.
+  1137→                    index)            definition of     
+  1138→                                      global purchasing 
+  1139→                                      power, computed   
+  1140→                                      from transparent, 
+  1141→                                      auditable inputs  
+  1142→                                      and adaptive      
+  1143→                                      weights.          
+  1144→
+  1145→  (B)               The Monetary Unit A token           The transferable
+  1146→                    (MTQ Σ token)     representing a    instrument.
+  1147→                                      claim to one unit 
+  1148→                                      of the reference  
+  1149→                                      basket.           
+  1150→
+  1151→  (C)               The Reserve       Assets held to    Provides the
+  1152→                    Portfolio         back that         economic backing.
+  1153→                    (collateral)      obligation.       
+  1154→  -----------------------------------------------------------------------
+  1155→
+  1156→  The Index defines the value. The Reserve backs the token. The token is
+  1157→  a liability, not an index itself.
+  1158→
+  1159→This separation ensures that the monetary policy (the reference basket)
+  1160→is independent of the collateral composition (the reserve portfolio);
+  1161→that changes to reserve assets do not automatically change the
+  1162→definition of the unit; and that the protocol can evolve its collateral
+  1163→without changing its monetary reference. In v2.0 the separation gains a
+  1164→second dimension: the reference basket itself is adaptive, so the
+  1165→definition of the unit is a methodology rather than a fixed quantity
+  1166→table — which is precisely why the methodology must itself be
+  1167→constitutionally fixed (Invariant I3, Section 2.6).
+  1168→
+  1169→2.2 The Three Independent Mathematical Layers
+  1170→
+  1171→The v2.0 architecture adds an internal separation of algorithmic powers,
+  1172→so that no single algorithm silently controls the whole system [MS §90].
+  1173→Three layers answer three different questions and are validated,
+  1174→governed and audited independently:
+  1175→
+  1176→  -----------------------------------------------------------------------
+  1177→  Layer             Engine            Question Answered Primary Chapters
+  1178→  ----------------- ----------------- ----------------- -----------------
+  1179→  Layer 1           Constituency      Who is eligible?  Chapter 4
+  1180→                    Engine            (Which currencies 
+  1181→                                      and gold qualify  
+  1182→                                      for the active    
+  1183→                                      basket)           
+  1184→
+  1185→  Layer 2           MASE —            How much weight?  Chapters 5–7
+  1186→                    Multi-model       (What target      
+  1187→                    Adaptive          weight does each  
+  1188→                    Stability Engine  eligible          
+  1189→                                      component         
+  1190→                                      receive)          
+  1191→
+  1192→  Layer 3           MARP / Reserve    When and how do   Chapters 10–16
+  1193→                    Engine            we execute?       
+  1194→                                      (Which            
+  1195→                                      corrections are   
+  1196→                                      worth trading,    
+  1197→                                      and how is the    
+  1198→                                      reserve managed)  
+  1199→  -----------------------------------------------------------------------
+  1200→
+  1201→Layer boundaries are enforced by governance: the Risk Council approves
+  1202→methodology and eligibility rules for each layer, but no governance body
+  1203→may manually set an individual weight (Section 22.4). Each layer
+  1204→publishes its own versioned outputs (Section 24.2), so an auditor can
+  1205→attribute any change in W_t to exactly one layer.
+  1206→
+  1207→2.3 The Four-State Weight Distinction
+  1208→
+  1209→The single most common misreading of an adaptive basket is to conflate
+  1210→the prior with the live weight. v2.0 therefore elevates the distinction
+  1211→between four weight states to a definitional rule [MS §97]:
+  1212→
+  1213→  ---------------------------------------------------------------------------
+  1214→  State             Symbol            Meaning           Produced By
+  1215→  ----------------- ----------------- ----------------- ---------------------
+  1216→  Strategic Prior   W^{Prior}         Long-term         Research program;
+  1217→                                      starting          governance-approved
+  1218→                                      preference; a     methodology version.
+  1219→                                      soft stabilizing  
+  1220→                                      anchor only.      
+  1221→
+  1222→  Target            W^{Target}        Current           MASE ensemble
+  1223→                                      mathematical      (Chapter 7).
+  1224→                                      optimum before    
+  1225→                                      constraints are   
+  1226→                                      applied.          
+  1227→
+  1228→  Smoothed          W^{Smooth}        Risk-controlled   Stress-adaptive
+  1229→                                      transition toward smoothing (Section
+  1230→                                      the constrained   8.4).
+  1231→                                      target.           
+  1232→
+  1233→  Execution         W^{Execution}     Actual trade      MARP (Chapters
+  1234→                                      decision after    10–11).
+  1235→                                      cost, liquidity   
+  1236→                                      and reserve       
+  1237→                                      testing.          
+  1238→  ---------------------------------------------------------------------------
+  1239→
+  1240→W^(StrategicPrior) ≠ W^(Target) ≠ W^(Smoothed) ≠ W^(Execution)
+  1241→
+  1242→These four states are not equivalent, and none of them is the published
+  1243→definition of the unit. The published live weight W_t^{Live} is the
+  1244→execution state that has actually been applied. This distinction
+  1245→eliminates the danger of accidentally recreating a fixed-weight basket:
+  1246→even if the target happens to equal the prior for many days, the system
+  1247→state remains adaptive because the path from data to decision is what is
+  1248→constitutional, not the destination.
+  1249→
+  1250→2.4 The Two-System Architecture: Reference Basket vs Reserve
+  1251→
+  1252→Within the constitutional separation, MTQ Σ consists of two
+  1253→mathematically related but operationally separate systems [MS §1]. The
+  1254→Reference Basket defines what one unit of MTQ Σ represents; the Reserve
+  1255→Architecture determines which eligible assets are actually held to
+  1256→satisfy MTQ Σ obligations, liquidity and collateral requirements. Their
+  1257→compositions are deliberately decoupled:
+  1258→
+  1259→W^(Index) ≠ W^(Reserve)
+  1260→
+  1261→in general. A 27% USD reference weight does not obligate the reserve to
+  1262→hold 27% USD-denominated assets; the reserve is sized by redemption
+  1263→risk, liquidity and collateral requirements (Chapter 13). The initial
+  1264→candidate universe of the reference basket is:
+  1265→
+  1266→U = {USD, EUR, JPY, GBP, CNY, CHF, CAD, AUD, SGD, …, GOLD}
+  1267→
+  1268→The initial core candidates are \{USD, EUR, JPY, GBP, CNY, CHF, GOLD\},
+  1269→but membership is not permanently fixed — the Constituency Engine
+  1270→(Chapter 4) admits and retires components according to measurable
+  1271→eligibility criteria with hysteresis, never by discretionary decree.
+  1272→
+  1273→2.5 Core Variables and Constants
+  1274→
+  1275→  --------------------------------------------------------------------------
+  1276→  Symbol            Meaning           Value / Definition   Constraints
+  1277→  ----------------- ----------------- -------------------- -----------------
+  1278→  PAR               The unit of       PAR = 1.00           Constant, never
+  1279→                    account for MTQ Σ basket-unit          changes
+  1280→
+  1281→  W_t               Live weight       Produced by the      Recalculated
+  1282→                    vector of the     MASE/MARP pipeline   daily; changes
+  1283→                    reference basket  (§26.1)              only through
+  1284→                                                           constitutional
+  1285→                                                           rules
+  1286→
+  1287→  W^{Prior}         Strategic prior   USD 27%, EUR 20%,    Soft anchor;
+  1288→                    vector            JPY 9%, GBP 8%, CNY  deviation
+  1289→                                      5%, CHF 5%, Gold 26% penalized, not
+  1290→                                                           enforced
+  1291→
+  1292→  P_{i,t}           Reference price   Live oracle data     Observable
+  1293→                    of component i    (Chapter 17)         on-chain;
+  1294→                    (vs USD) at time                       multi-source
+  1295→                    t                                      validated
+  1296→
+  1297→  I_t (NAV_t)       USD value of the  G_t · Σ_i W_{i,t} ·  Chain-linked;
+  1298→                    chain-linked      (P_{i,t}/P_{i,0})    normalized to
+  1299→                    reference index                        1.00 at genesis
+  1300→
+  1301→  P_{MTQ,t}         USD price of 1    I_t / I_base         Normalized to
+  1302→                    MTQ Σ                                  1.00 at base date
+  1303→
+  1304→  V_{net,t}         Net Asset Value   Σ_j Q_{j,t} ·        Haircut applied
+  1305→                    of the reserve    P_{j,t} · (1 − H_j)  (§14.1)
+  1306→                    (USD)                                  
+  1307→
+  1308→  S_t               Total MTQ Σ       Dynamic              S_t = Minted −
+  1309→                    supply                                 Burned
+  1310→
+  1311→  L_t               Total liability   S_{circ,t} ×         Denominated in
+  1312→                    (USD)             P_{MTQ,t}            USD-equivalent
+  1313→
+  1314→  RR_t              Reserve Ratio     V_{net,t} / L_t      Target 1.10,
+  1315→                                                           Stress 1.05, Hard
+  1316→                                                           1.00
+  1317→
+  1318→  LCR_t             Liquidity         LiquidAssets_t /     Target ≥ 1.00
+  1319→                    Coverage Ratio    StressRedemption_t   
+  1320→  --------------------------------------------------------------------------
+  1321→
+  1322→Quantities q_i (fixed notional amounts per genesis weight) are retained
+  1323→only as genesis initialization data: at the base date the basket is
+  1324→seeded so that each component's USD-equivalent notional equals its
+  1325→strategic prior share, which makes I_0 = 1.0000 exactly. After genesis,
+  1326→the basket evolves by weights, not by fixed quantities (Chapter 9).
+  1327→
+  1328→2.6 Constitutional Invariants (Hard Rules)
+  1329→
+  1330→The following invariants are constitutional — they cannot be changed
+  1331→without a 7/7 Constitutional Multi-Sig vote and a 90-day timelock.
+  1332→Invariant I3 is rewritten by the Modification Specification and is the
+  1333→keystone of v2.0.
+  1334→
+  1335→  -----------------------------------------------------------------------
+  1336→  Invariant               Description             Enforced By
+  1337→  ----------------------- ----------------------- -----------------------
+  1338→  I1                      PAR = 1.00 basket-unit  §18.1
+  1339→                          is immutable.           
+  1340→
+  1341→  I2                      RR_t ≥ 1.00 at all      §14.2, §22
+  1342→                          times.                  
+  1343→
+  1344→  I3 (REVISED)            The reference basket is §3, §7, §8, §9
+  1345→                          governed by a FIXED,    
+  1346→                          PUBLISHED, AUDITABLE    
+  1347→                          METHODOLOGY, not by     
+  1348→                          fixed weights. Live     
+  1349→                          weights are computed by 
+  1350→                          MASE under              
+  1351→                          constitutional          
+  1352→                          constraints; the        
+  1353→                          methodology changes     
+  1354→                          only through            
+  1355→                          constitutional          
+  1356→                          governance.             
+  1357→
+  1358→  I4                      V_{net,t} is always     §14.1
+  1359→                          calculated with         
+  1360→                          asset-specific          
+  1361→                          haircuts.               
+  1362→
+  1363→  I5                      Minting is always       §19.2
+  1364→                          priced against          
+  1365→                          P_{MTQ,t} (the adaptive 
+  1366→                          index), never against a 
+  1367→                          fixed USD peg.          
+  1368→
+  1369→  I6                      Redemption is always    §19.3
+  1370→                          priced against NAV_t,   
+  1371→                          never against a fixed   
+  1372→                          USD peg.                
+  1373→
+  1374→  I7                      The protocol is         §22.3
+  1375→                          governed by a layered   
+  1376→                          hierarchy               
+  1377→                          (Constitutional,        
+  1378→                          Monetary, Risk,         
+  1379→                          Emergency).             
+  1380→
+  1381→  I8                      No single actor can     §22.3–22.4
+  1382→                          unilaterally change     
+  1383→                          monetary policy, risk   
+  1384→                          parameters, or          
+  1385→                          emergency controls; no  
+  1386→                          governance body may set 
+  1387→                          individual live weights 
+  1388→                          by discretion.          
+  1389→
+  1390→  I9                      All oracle prices must  §17.3–17.7
+  1391→                          pass timestamp,         
+  1392→                          confidence, and         
+  1393→                          deviation checks; the   
+  1394→                          canonical gold price    
+  1395→                          requires an             
+  1396→                          independent-source      
+  1397→                          quorum.                 
+  1398→
+  1399→  I10                     The protocol must be    §25
+  1400→                          honest about its        
+  1401→                          status; validation-gate 
+  1402→                          status is published     
+  1403→                          on-chain.               
+  1404→
+  1405→  I11 (NEW)               Daily calculation does  §10.1
+  1406→                          not imply daily         
+  1407→                          trading; trading        
+  1408→                          requires an             
+  1409→                          economically justified  
+  1410→                          trigger under MARP      
+  1411→                          rules.                  
+  1412→
+  1413→  I12 (NEW)               Gold reference          §13.3, §13.6
+  1414→                          allocation and gold     
+  1415→                          reserve allocation are  
+  1416→                          separate; no reserve    
+  1417→                          asset may be used for   
+  1418→                          secondary-market price  
+  1419→                          support.                
+  1420→  -----------------------------------------------------------------------
+  1421→
+  1422→2.7 Smart Contract Implementation — Core Variables and Weight Registry
+  1423→
+  1424→The v1.2 core contract hardcoded fixed quantities Q_USD … Q_CNY. Under
+  1425→v2.0 those constants become the genesis snapshot, and the live state
+  1426→moves to an Adaptive Weight Registry: an on-chain store of the current
+  1427→published weights, the methodology version that produced them, and the
+  1428→enforcement bounds. Weights are updated through a governed submission
+  1429→path (MASE outputs are computed off-chain from published data and
+  1430→verified on-chain against constitutional envelopes), keeping gas costs
+  1431→bounded while preserving auditability. The full MASE verification
+  1432→contract is specified in Section 7.7; the MARP execution contract in
+  1433→Section 11.11.
+  1434→
+  1435→Listing 1 — Core variables, constitutional constants and the adaptive
+  1436→weight registry (replaces BP §1.5 constants block)
+  1437→
+  1438→  // SPDX-License-Identifier: MIT
+  1439→
+  1440→  pragma solidity ^0.8.19;
+  1441→
+  1442→  contract MTQSigma {
+  1443→
+  1444→  // ============================================================
+  1445→
+  1446→  // 1. CORE VARIABLES
+  1447→
+  1448→  // ============================================================
+  1449→
+  1450→  // ---- Constitutional Constants (Immutable) ----
+  1451→
+  1452→  // The PAR constant (1.00 basket-unit)
+  1453→
+  1454→  uint256 public constant PAR = 1e18; // 1.00 basket-unit
+  1455→
+  1456→  // Genesis quantities (q_i) — SNAPSHOT ONLY, used to seed I_0 = 1.0000
+  1457→
+  1458→  // Strategic prior: USD 27%, EUR 20%, JPY 9%, GBP 8%, CNY 5%, CHF 5%,
+  1459→  GOLD 26%
+  1460→
+  1461→  uint256 public constant Q_USD = 0.27e18;
+  1462→
+  1463→  uint256 public constant Q_EUR = 0.20e18;
+  1464→
+  1465→  uint256 public constant Q_JPY = 0.09e18;
+  1466→
+  1467→  uint256 public constant Q_GBP = 0.08e18;
+  1468→
+  1469→  uint256 public constant Q_CNY = 0.05e18;
+  1470→
+  1471→  uint256 public constant Q_CHF = 0.05e18;
+  1472→
+  1473→  uint256 public constant Q_GOLD = 0.26e18;
+  1474→
+  1475→  // Base FX rates (set at genesis, immutable) — normalization fixings
+  1476→
+  1477→  uint256 public constant BASE_EUR_USD = 1.0500e8; // 8 decimals
+  1478→  (Chainlink style)
+  1479→
+  1480→  uint256 public constant BASE_GBP_USD = 1.2500e8;
+  1481→
+  1482→  uint256 public constant BASE_JPY_USD = 0.0067e8;
+  1483→
+  1484→  uint256 public constant BASE_CNY_USD = 0.1400e8;
+  1485→
+  1486→  uint256 public constant BASE_CHF_USD = 1.1300e8;
+  1487→
+  1488→  // Base gold fixing (USD per reference gold unit) — set at genesis
+  1489→
+  1490→  uint256 public constant BASE_GOLD_USD = 2500.00e8;
+  1491→
+  1492→  // ---- Constitutional Floors (Immutable) ----
+  1493→
+  1494→  uint256 public constant RR_HARD_FLOOR = 1.00e18; // 100%
+  1495→
+  1496→  uint256 public constant RECOVERY_CONFIRMATION_PERIOD = 48 hours;
+  1497→
+  1498→  // ---- Monetary Parameters (DAO-Controlled) ----
+  1499→
+  1500→  uint256 public rrTarget = 1.10e18; // 110%
+  1501→
+  1502→  uint256 public rrStressFloor = 1.05e18; // 105%
+  1503→
+  1504→  uint256 public mintFee = 0.001e18; // 0.10%
+  1505→
+  1506→  uint256 public redeemFeeNormal = 0.0015e18; // 0.15%
+  1507→
+  1508→  // ---- Risk Parameters (Risk Council-Controlled) ----
+  1509→
+  1510→  uint256 public redeemFeeStress = 0.005e18; // 0.50%
+  1511→
+  1512→  uint256 public redeemFeeDefensive = 0.010e18; // 1.00%
+  1513→
+  1514→  uint256 public lcrTarget = 1.00e18;
+  1515→
+  1516→  // ---- State Variables ----
+  1517→
+  1518→  uint256 public totalSupply;
+  1519→
+  1520→  uint256 public circulatingSupply;
+  1521→
+  1522→  struct ReserveState {
+  1523→
+  1524→  uint256 fiatValue; // USD value of all stablecoins (gross)
+  1525→
+  1526→  uint256 goldValue; // USD value of gold holdings (gross)
+  1527→
+  1528→  uint256 liquidValue; // USD value of stablecoins only (net)
+  1529→
+  1530→  }
+  1531→
+  1532→  ReserveState public reserveState;
+  1533→
+  1534→  // ---- ADAPTIVE WEIGHT REGISTRY (v2.0 core state) ----
+  1535→
+  1536→  // Component identifiers (order fixed at genesis; GOLD is index 6)
+  1537→
+  1538→  bytes3[7] public COMPONENTS =
+  1539→  ["USD","EUR","JPY","GBP","CNY","CHF","XAU"];
+  1540→
+  1541→  struct WeightState {
+  1542→
+  1543→  uint256[7] weights; // live weights, 1e18 scale, sum = 1e18
+  1544→
+  1545→  bytes32 methodologyVersion;// keccak256 of the MASE methodology hash
+  1546→
+  1547→  bytes32 dataVersion; // keccak256 of the input-data snapshot hash
+  1548→
+  1549→  uint256 updatedAt; // timestamp of last accepted update
+  1550→
+  1551→  }
+  1552→
+  1553→  WeightState public liveWeights;
+  1554→
+  1555→  // Constitutional admissibility envelopes (validation-stage research
+  1556→  values;
+  1557→
+  1558→  // see §8.1 — NOT fixed weighting targets)
+  1559→
+  1560→  uint256[7] public LOWER_BOUND = [0.23e18, 0.17e18, 0.07e18, 0.06e18,
+  1561→  0.03e18, 0.03e18, 0.20e18];
+  1562→
+  1563→  uint256[7] public UPPER_BOUND = [0.32e18, 0.24e18, 0.12e18, 0.11e18,
+  1564→  0.07e18, 0.07e18, 0.32e18];
+  1565→
+  1566→  // Maximum per-update weight velocity |w_{i,t} - w_{i,t-1}| (Risk
+  1567→  Council)
+  1568→
+  1569→  uint256[7] public MAX_VELOCITY = [0.005e18, 0.005e18, 0.003e18,
+  1570→  0.003e18, 0.002e18, 0.002e18, 0.005e18];
+  1571→
+  1572→  // ---- Governance Addresses ----
+  1573→
+  1574→  address public dao;
+  1575→
+  1576→  address public riskCouncil; // 4/7 Multi-Sig
+  1577→
+  1578→  address public emergencyCouncil; // 4/7 Multi-Sig
+  1579→
+  1580→  address public constitutionalCouncil; // 7/7 Multi-Sig
+  1581→
+  1582→  // ============================================================
+  1583→
+  1584→  // 2. GETTER FUNCTIONS
+  1585→
+  1586→  // ============================================================
+  1587→
+  1588→  /// @dev Returns the current MTQ Reference Price in USD.
+  1589→
+  1590→  function getMTQPrice() public view returns (uint256) {
+  1591→
+  1592→  uint256 indexValue = getIndex(); // I_t scaled to 1e18
+  1593→
+  1594→  return (indexValue * 1e18) / INDEX_BASE_DENOMINATOR;
+  1595→
+  1596→  }
+  1597→
+  1598→  /// @dev Returns the total USD liability (circulating supply × price).
+  1599→
+  1600→  function getLiability() public view returns (uint256) {
+  1601→
+  1602→  uint256 circSupply = getCirculatingSupply();
+  1603→
+  1604→  uint256 price = getMTQPrice();
+  1605→
+  1606→  return (circSupply * price) / 1e18;
+  1607→
+  1608→  }
+  1609→
+  1610→  /// @dev Returns the Net Asset Value (NAV) in USD.
+  1611→
+  1612→  function getNAV() public view returns (uint256) {
+  1613→
+  1614→  return reserveState.fiatValue + reserveState.goldValue;
+  1615→
+  1616→  }
+  1617→
+  1618→  /// @dev Returns the Reserve Ratio (RR) scaled to 1e18.
+  1619→
+  1620→  function getReserveRatio() public view returns (uint256) {
+  1621→
+  1622→  uint256 nav = getNAV();
+  1623→
+  1624→  uint256 liability = getLiability();
+  1625→
+  1626→  return (nav * 1e18) / liability;
+  1627→
+  1628→  }
+  1629→
+  1630→  /// @dev Returns the Liquidity Coverage Ratio (LCR) scaled to 1e18.
+  1631→
+  1632→  function getLCR() public view returns (uint256) {
+  1633→
+  1634→  uint256 liquidAssets = reserveState.liquidValue;
+  1635→
+  1636→  uint256 price = getMTQPrice();
+  1637→
+  1638→  uint256 circSupply = getCirculatingSupply();
+  1639→
+  1640→  uint256 stressDemand = (circSupply * price / 1e18) * 25 / 100;
+  1641→
+  1642→  return (liquidAssets * 1e18) / stressDemand;
+  1643→
+  1644→  }
+  1645→
+  1646→  /// @dev Returns the circulating supply (excluding Genesis Reserve).
+  1647→
+  1648→  function getCirculatingSupply() public view returns (uint256) {
+  1649→
+  1650→  return totalSupply - balanceOf(genesisReserveAddress);
+  1651→
+  1652→  }
+  1653→
+  1654→  // ============================================================
+  1655→
+  1656→  // 3. HONEST STATUS (TESTNET)
+  1657→
+  1658→  // ============================================================
+  1659→
+  1660→  /// @dev Returns the honest status of the protocol (testnet-specific).
+  1661→
+  1662→  /// On testnet, all oracles and assets are SIMULATED.
+  1663→
+  1664→  /// Production authorization is NOT granted.
+  1665→
+  1666→  function getHonestStatus() public pure returns (string memory) {
+  1667→
+  1668→  return "MTQ Sigma v2.0-testnet — ADAPTIVE BLUEPRINT. DEPLOYED ON ARC /
+  1669→  MONAD / SOLANA DEVNET. NOT PRODUCTION-AUTHORIZED. All oracles and
+  1670→  assets are SIMULATED for testing purposes. Live weights are
+  1671→  validation-stage values.";
+  1672→
+  1673→  }
+  1674→
+  1675→  }
+  1676→
+  1677→  Fidelity note (inherited from v1.2, resolved in v2.0): the genesis
+  1678→  quantities now include CHF and GOLD, matching the seven-component
+  1679→  strategic prior. INDEX_BASE_DENOMINATOR and getIndex() are defined in
+  1680→  Chapter 9 (chain-linked index). The genesis reserve address is the
+  1681→  mutable, governance-controlled variable introduced in BP §13.7.1.
+  1682→
+  1683→2.8 Sharia Compliance Roadmap (v1.2 → v2.0)
+  1684→
+  1685→The MTQ Σ protocol is designed with Sharia principles in mind (no riba,
+  1686→no speculation, asset-backed, non-interest-bearing reserve instruments).
+  1687→However, formal certification is not yet obtained. The following steps
+  1688→are required before any Sharia-compliant claim can be made:
+  1689→
+  1690→  -----------------------------------------------------------------------
+  1691→  Phase                   Timeline                Action
+  1692→  ----------------------- ----------------------- -----------------------
+  1693→  1                       Q4 2026                 Engage an independent
+  1694→                                                  Sharia advisory firm
+  1695→                                                  with AAOIFI-qualified
+  1696→                                                  scholars.
+  1697→
+  1698→  2                       Q1 2027                 Complete a full review
+  1699→                                                  of all reserve assets
+  1700→                                                  (USDC, EURC, PAXG, XAUT
+  1701→                                                  and any successor
+  1702→                                                  instruments admitted
+  1703→                                                  under Chapter 15) and
+  1704→                                                  their custody
+  1705→                                                  structures.
+  1706→
+  1707→  3                       Q2 2027                 Publish a fatwa
+  1708→                                                  confirming the
+  1709→                                                  protocol's compliance
+  1710→                                                  or identify necessary
+  1711→                                                  changes.
+  1712→
+  1713→  4                       Q3 2027                 Implement any required
+  1714→                                                  changes (e.g.,
+  1715→                                                  replacing USDC with a
+  1716→                                                  Sharia-certified
+  1717→                                                  stablecoin).
+  1718→
+  1719→  5                       Q4 2027                 Update the honest
+  1720→                                                  status to reflect the
+  1721→                                                  certification.
+  1722→  -----------------------------------------------------------------------
+  1723→
+  1724→  Until Phase 5 is complete, MTQ Σ is NOT certified as Sharia-compliant.
+  1725→  The adaptive-weighting change does not alter this roadmap; it widens
+  1726→  the review scope, because MASE inputs (COFER shares, BIS turnover,
+  1727→  volatility, purchasing-power signals) are all non-interest market
+  1728→  observables, while reserve instrument eligibility remains governed by
+  1729→  Chapter 15.
+  1730→
+  1731→2.9 Summary of Developer-Facing Constants
+  1732→
+  1733→  -------------------------------------------------------------------------
+  1734→  Parameter         Symbol              Value             Governance
+  1735→  ----------------- ------------------- ----------------- -----------------
+  1736→  PAR               PAR                 1.00 basket-unit  Constitutional
+  1737→                                                          (immutable)
+  1738→
+  1739→  RR Target         RR_target           1.10              DAO Vote (51%)
+  1740→
+  1741→  RR Stress Floor   RR_stress           1.05              DAO Vote (51%)
+  1742→
+  1743→  RR Hard Floor     RR_hard             1.00              Constitutional
+  1744→                                                          (immutable)
+  1745→
+  1746→  Mint Fee          F_mint              0.10%             DAO Vote (51%)
+  1747→
+  1748→  Redeem Fee        F_redeem            0.15%             DAO Vote (51%)
+  1749→  (Normal)                                                
+  1750→
+  1751→  LCR Target        LCR_target          1.00              Risk Council
+  1752→                                                          (4/7)
+  1753→
+  1754→  Recovery          —                   48 hours          DAO Vote (51%)
+  1755→  Confirmation                                            
+  1756→  Period                                                  
+  1757→
+  1758→  Genesis           Q_*                 Strategic prior   Constitutional
+  1759→  quantities q_i                        snapshot          (immutable)
+  1760→
+  1761→  Admissibility     LOWER/UPPER_BOUND   See §8.1          Constitutional
+  1762→  envelopes                                               envelope; Risk
+  1763→                                                          Council may
+  1764→                                                          tighten
+  1765→
+  1766→  Max weight        MAX_VELOCITY        See §8.3          Risk Council
+  1767→  velocity                                                (4/7)
+  1768→  -------------------------------------------------------------------------
+  1769→
+  1770→This section is the foundation for all subsequent chapters. At
+  1771→deployment, set the dao, riskCouncil, emergencyCouncil and
+  1772→constitutionalCouncil addresses; ensure the genesis reserve address is
+  1773→set to a dedicated 4/7 Multi-Sig (Chapter 20); and initialize the weight
+  1774→registry with the strategic prior and genesis data-version hashes. The
+  1775→constitutional invariants in Section 2.6 are immutable and cannot be
+  1776→changed without a 7/7 Multi-Sig vote and a 90-day timelock.
+  1777→
+  1778→3. The Adaptive Reference Basket
+  1779→
+  1780→3.1 The No-Fixed-Weighting Principle
+  1781→
+  1782→  MTQ Σ must not be defined as a fixed percentage table. The single most
+  1783→  important architectural rule of v2.0 is that composition is an output
+  1784→  of transparent mathematics, never an input [MS §2].
+  1785→
+  1786→A statement such as the one below is categorically not a definition of
+  1787→MTQ Σ:
+  1788→
+  1789→MTQ Σ ≠ { USD=27%, EUR=20%, JPY=9%, GBP=8%, CNY=5%, CHF=5%, Gold=26% }
+  1790→
+  1791→Those numbers are only W^{StrategicPrior} — starting priors used to
+  1792→stabilize the optimization process and to provide a transparent initial
+  1793→reference. They are soft anchors subject to a deviation penalty (Section
+  1794→7.1), not targets to be hit. The live system computes:
+  1795→
+  1796→W_(t)^(Live) = MASE(Data_(t), W^(Prior), Risk_(t), Macro_(t), PP_(t),
+  1797→Liquidity_(t), Cost_(t))
+  1798→
+  1799→and therefore, in general:
+  1800→
+  1801→W_(t)^(Live) ≠ W^(StrategicPrior)
+  1802→
+  1803→Three consequences follow. First, any communication that quotes a
+  1804→percentage as the composition of MTQ Σ is definitionally wrong; only the
+  1805→published W_t series (Section 24.3) describes composition. Second, the
+  1806→strategic prior table is versioned research data — if the research
+  1807→program revises the prior, the change flows through governance as a new
+  1808→methodology version, not as a silent redefinition. Third, stability of
+  1809→the unit is achieved by bounding how fast weights may move (Chapter 8)
+  1810→and by the smoothing and execution gates (Chapters 8 and 10), not by
+  1811→freezing the weights themselves.
+  1812→
+  1813→3.2 Initial Strategic Prior
+  1814→
+  1815→The current research prior — the starting point for the optimizer and
+  1816→the genesis snapshot — is [MS §3]:
+  1817→
+  1818→  -----------------------------------------------------------------------
+  1819→  Component                           Initial Strategic Prior
+  1820→  ----------------------------------- -----------------------------------
+  1821→  USD                                 27%
+  1822→
+  1823→  EUR                                 20%
+  1824→
+  1825→  JPY                                 9%
+  1826→
+  1827→  GBP                                 8%
+  1828→
+  1829→  CNY                                 5%
+  1830→
+  1831→  CHF                                 5%
+  1832→
+  1833→  Gold                                26%
+  1834→
+  1835→  Total                               100%
+  1836→  -----------------------------------------------------------------------
+  1837→
+  1838→  Strategic Prior — NOT Fixed Weight. The final quantitative system may
+  1839→  produce materially different weights.
+  1840→
+  1841→  W^(Prior) ≠ W^(Target) ≠ W^(Smooth) ≠ W^(Execution)
+  1842→
+  1843→That inequality is deliberately repeated directly beneath the prior
+  1844→table, because it is the single most important correction in the entire
+  1845→architecture [COO Review, opening item]. The published starting basket
+  1846→above is W^{Prior} — a research input and a soft anchor. It is
+  1847→categorically not W_t, the live weight vector: the live system computes
+  1848→W_t^{Target} = MASE(Data_t) and then applies constraints, smoothing and
+  1849→execution testing before any weight becomes effective (the four states
+  1850→are defined in §2.3). One equation, placed exactly where the numbers are
+  1851→quoted, prevents the most damaging future misreading — the accidental
+  1852→recreation of a fixed-weight basket in the mind of a reader, a regulator
+  1853→or a marketing page.
+  1854→
+  1855→The prior was derived from the intersection of reserve relevance, trade
+  1856→and payment usage, liquidity depth and diversification contribution
+  1857→across the candidate universe; the derivation data are published with
+  1858→the methodology version. The prior enters the MASE objective only
+  1859→through the StrategicDrift penalty term (Section 7.1), so it influences
+  1860→but never dictates. If validation (Chapter 23) shows that a different
+  1861→prior produces a more robust optimum, the prior itself is re-derived and
+  1862→re-published — the definition of the unit never wavers because the unit
+  1863→is the methodology.
+  1864→
+  1865→3.3 Gold as a First-Class Reference-Basket Component
+  1866→
+  1867→Gold is a full member of the reference basket with its own adaptive
+  1868→allocation W_{Gold,t} [MS §4]. It is not a multiplier applied to
+  1869→currencies and not merely a reserve asset. The historical architecture
+  1870→used a gold factor of the form:
+  1871→
+  1872→W_(i,raw) = S_(i) · K_(i)
+  1873→
+  1874→where the gold factor modified individual currency weights. Under v2.0
+  1875→that mechanism is retained only as one input signal to the new engine;
+  1876→gold itself now receives an independent adaptive allocation. Gold's
+  1877→target allocation is a function of its own characteristics [MS §14]:
+  1878→
+  1879→W_(G,t)^(Target) = f(StrategicPrior_(G), RiskContribution_(G),
+  1880→Diversification_(G), Inflation_(G), Crisis_(G), Liquidity_(G),
+  1881→PurchasingPower_(G))
+  1882→
+  1883→rather than a constant. Gold remains strategically valuable because its
+  1884→diversification behavior can become particularly useful under stress —
+  1885→gold correlations to fiat currencies tend to shift in crisis regimes —
+  1886→but those correlations are dynamic rather than permanently fixed, which
+  1887→is exactly why the allocation must be adaptive rather than
+  1888→constitutional. The gold weight bounds in Section 8.1 (20–32% envelope)
+  1889→are validation-stage admissibility ranges for this component, not
+  1890→weighting targets.
+  1891→
+  1892→3.4 Genesis Weight Initialization
+  1893→
+  1894→At the genesis timestamp (January 1, 2026, 00:00 UTC in the v1.2
+  1895→deployment; the testnet equivalents are listed in Appendix D), the
+  1896→basket is seeded with USD-equivalent notionals equal to the strategic
+  1897→prior, so that the index starts at exactly 1.0000. The genesis snapshot
+  1898→is immutable and serves two purposes: it fixes the base fixings used for
+  1899→chain-link normalization, and it provides the initial condition for the
+  1900→weight-velocity constraints.
+  1901→
+  1902→  ---------------------------------------------------------------------------
+  1903→  Component         Asset Implementation  Genesis Notional  Genesis Weight
+  1904→                                          (per 1 MTQ unit)  
+  1905→  ----------------- --------------------- ----------------- -----------------
+  1906→  USD               USDC (Circle)         0.2700            27.00%
+  1907→
+  1908→  EUR               EURC (Circle)         0.2000 (at        20.00%
+  1909→                                          EUR/USD 1.0500)   
+  1910→
+  1911→  JPY               Registry-resolved     0.0900 (at        9.00%
+  1912→                    (CNH-quoted)          JPY/USD 0.0067)   
+  1913→
+  1914→  GBP               Registry-resolved     0.0800 (at        8.00%
+  1915→                                          GBP/USD 1.2500)   
+  1916→
+  1917→  CNY               Registry-resolved     0.0500 (at        5.00%
+  1918→                    (offshore CNH)        CNY/USD 0.1400)   
+  1919→
+  1920→  CHF               Registry-resolved     0.0500 (at        5.00%
+  1921→                                          CHF/USD 1.1300)   
+  1922→
+  1923→  Gold              PAXG / XAUT           0.2600 (at USD    26.00%
+  1924→                    (registry-resolved)   2,500 per         
+  1925→                                          reference unit)   
+  1926→
+  1927→  Total             —                     1.0000            100.00%
+  1928→  ---------------------------------------------------------------------------
+  1929→
+  1930→Base date fixings are hard-coded reference values used only to normalize
+  1931→the index; they are never updated. CNY exposure uses the offshore Yuan
+  1932→(CNH) rate, which is freely tradeable; the on-chain asset representing
+  1933→CNY is resolved via the Asset Admission Registry (Chapter 15) — the
+  1934→index itself is currency-exposure defined, independent of the specific
+  1935→token issuer. CHF is quoted against USD with its own base fixing. The
+  1936→genesis verification event and off-chain verification function for the
+  1937→base denominator are specified in Section 9.6.
+  1938→
+  1939→  Implementation rule: the genesis quantities are expressed in
+  1940→  USD-equivalent units at the base date. For example, q_EUR = 0.2000
+  1941→  means the basket initially contained a fixed amount of EUR worth
+  1942→  $0.2000 on the base date. After genesis, weights (not quantities) are
+  1943→  the live state; drift in weights is corrected by MARP only when
+  1944→  economically justified (Chapter 10).
+  1945→
+  1946→3.5 Basket Size and Unit Economics
+  1947→
+  1948→One unit of MTQ Σ represents one unit of the reference index I_t, which
+  1949→is normalized to 1.00 at genesis. The denomination is a normalization
+  1950→choice, not a price promise: the denomination does not imply that MTQ Σ
+  1951→remains at a fixed market price, because the index — a weighted basket
+  1952→of currencies and gold — moves with its constituents. Users minting at
+  1953→index value 1.12 receive fewer tokens per USD than users minting at
+  1954→0.92, which is the purchasing-power-equivalence behavior specified in
+  1955→Chapter 19.
+  1956→
+  1957→4. The Currency Constituency Engine
+  1958→
+  1959→4.1 Purpose and Design
+  1960→
+  1961→The Constituency Engine is Layer 1 of the three-layer architecture
+  1962→(Section 2.2). MTQ Σ maintains an eligible universe and independently
+  1963→decides which currencies qualify for the active basket [MS §5].
+  1964→Membership is an algorithmic property with hysteresis, so the system can
+  1965→admit a rising currency (for example, a future reserve-eligible issuer)
+  1966→or retire a deteriorating one without discretionary intervention and
+  1967→without thrashing at the boundary. The engine is evaluated on the
+  1968→strategic review cadence (quarterly by default; see Section 10.10) and
+  1969→on structural-change events.
+  1970→
+  1971→4.2 Eligibility Scoring Model
+  1972→
+  1973→For every candidate currency i, the engine computes a composite
+  1974→eligibility score Q_i from six positive and two negative components [MS
+  1975→§5]:
+  1976→
+  1977→  Q_(i) = a_(R) R_(i) + a_(T) T_(i) + a_(L) L_(i) + a_(S) S_(i) + a_(D)
+  1978→  D_(i) + a_(C) C_(i) - a_(G) G_(i) - a_(X) X_(i)
+  1979→
+  1980→  -----------------------------------------------------------------------
+  1981→  Component               Symbol                  Measured Property
+  1982→  ----------------------- ----------------------- -----------------------
+  1983→  Reserve relevance       R_i                     Share and persistence
+  1984→                                                  of currency i in global
+  1985→                                                  official reserves (IMF
+  1986→                                                  COFER).
+  1987→
+  1988→  Trade / payment         T_i                     International trade
+  1989→  relevance                                       invoicing, payment
+  1990→                                                  usage and cross-border
+  1991→                                                  settlement volume.
+  1992→
+  1993→  Market liquidity        L_i                     FX turnover, market
+  1994→                                                  depth, bid-ask spread
+  1995→                                                  quality, settlement
+  1996→                                                  availability.
+  1997→
+  1998→  Stability               S_i                     Multi-horizon
+  1999→  characteristics                                 volatility and
+  2000→                                                  purchasing-power
+
+[showing lines 1-2000 of 21228; use offset=2001 with limit to continue reading]

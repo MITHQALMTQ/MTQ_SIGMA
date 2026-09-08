@@ -1,0 +1,3270 @@
+MTQ Σ — THE GLOBAL PURCHASING POWER UNIT
+
+Source of Truth Blueprint v1.2 — Final Closed-Loop Monetary Architecture
+
+Version: Σ-v1.2 (FINAL CLOSED-LOOP)
+Date: 2026-09-03
+Status: CANDIDATE FOR PUBLIC TESTING — NOT PRODUCTION-AUTHORIZED
+Core Design Objective: "The GFB Index defines what one MTQ Σ is intended
+to represent. The reserve portfolio exists to collateralize that
+obligation."
+Design Constraint: Designed for Sharia review (interest-free,
+asset-backed, non-speculative).
+Audience: Developers (smart contract logic) & Users (mechanics &
+purchasing power)
+
+Table of Contents
+
+1.  Core Variables, Definitions & Constitutional Separation
+
+2.  The Formal GFB Index Mathematical Specification
+
+3.  MTQ Reference Price & Liability (The Monetary Unit)
+
+4.  Reserve NAV, Collateralization & Liquidity Coverage
+
+5.  The Asset Admission Registry (Eligible Reserve Assets)
+
+6.  The Adaptive Macro Engine (Regime Detection)
+
+7.  The Rebalancing Engine (Dynamic Optimization)
+
+8.  The Dynamic Buffer (Base, Stress & Emergency Layers)
+
+9.  Oracle Architecture (Multi-Source, Timestamp & Confidence)
+
+10. Execution & Slippage Protection (Two-Sided Bounds)
+
+11. Geopolitical Eject (Staged Liquidation) & Reintegration Score
+
+12. Minting & Redemption (Priced Against the GFB Index)
+
+13. Genesis Event, Accounting & Treasury Sweep
+
+14. Governance & Risk State Machine
+
+15. Updated Claims & Honest Status Declaration
+
+16. Final Declaration
+
+1. Core Variables, Definitions & Constitutional Separation
+
+1.1 The Constitutional Separation (Single Most Important Rule)
+
+This blueprint strictly separates three concepts that are often
+conflated:
+
+-   (A) The Reference Index (GFB): A pure mathematical definition of
+    global purchasing power.
+
+-   (B) The Monetary Unit (MTQ Σ): A token representing a claim to one
+    GFB-Unit.
+
+-   (C) The Reserve Portfolio (Collateral): Assets held to back that
+    obligation.
+
+Rule: The Index defines the value. The Reserve backs the token. The
+token is a liability, not an index itself.
+
+1.2 Core Variables & Constants
+
+  ------------------------------------------------------------------------------------------------------------------------------------------
+  Symbol               Meaning           Value / Definition                                               Constraints
+  -------------------- ----------------- ---------------------------------------------------------------- ----------------------------------
+  PARPAR               The unit of       PAR=1.00 GFB-UnitPAR=1.00 GFB-Unit                               Constant, never changes
+                       account for MTQ Σ                                                                  
+
+  qiqi​                 Fixed quantity of See §2.1                                                         Defined at base date (fixed)
+                       currency ii in                                                                     
+                       the basket                                                                         
+
+  FXi/USD,tFXi/USD,t​   Exchange rate of  Live market data                                                 Observable on-chain
+                       currency ii vs.                                                                    
+                       USD                                                                                
+
+  GFBtGFBt​             USD value of the  ∑iqi⋅FXi/USD,t∑i​qi​⋅FXi/USD,t​                                     Calculated
+                       GFB Index at                                                                       
+                       time tt                                                                            
+
+  PMTQ,tPMTQ,t​         USD price of 1    GFBt/GFBbaseGFBt​/GFBbase​                                         Normalized to 1.00 at base
+                       MTQ Σ                                                                              
+
+  Vnet,tVnet,t​         Net Asset Value   ∑jQj⋅Pj⋅(1−Hj)∑j​Qj​⋅Pj​⋅(1−Hj​)                                     Haircut applied
+                       of the reserve                                                                     
+                       (USD)                                                                              
+
+  StSt​                 Total MTQ Σ       Dynamic                                                          St=Minted−BurnedSt​=Minted−Burned
+                       supply                                                                             
+
+  LtLt​                 Total Liability   St×PMTQ,tSt​×PMTQ,t​                                               Denominated in USD-equivalent
+                       (USD)                                                                              
+
+  RRtRRt​               Reserve Ratio     Vnet,t/LtVnet,t​/Lt​                                               Target 1.101.10, Stress 1.051.05,
+                                                                                                          Hard 1.001.00
+
+  LCRtLCRt​             Liquidity         LiquidAssetst/StressRedemptiontLiquidAssetst​/StressRedemptiont​   Target ≥1.00≥1.00
+                       Coverage Ratio                                                                     
+  ------------------------------------------------------------------------------------------------------------------------------------------
+
+2. The Formal GFB Index Mathematical Specification
+
+2.1 Fixed Currency Quantities (The Basket)
+
+To provide an unambiguous, reproducible monetary anchor, the GFB Index
+is constructed using fixed notional quantities of five major currencies,
+exactly as the IMF SDR basket is constructed.
+
+Base Date: January 1, 2026, 00:00 UTC (the genesis timestamp).
+Calibration Objective: Set the initial quantities qiqi​ so
+that GFBbase=1.0000GFBbase​=1.0000 (i.e., the index starts at exactly
+1.00 USD‑equivalent).
+
+2.1.1 The Fixed Quantity Table
+
+These quantities are immutable except by constitutional governance
+(7‑of‑7 Multi‑Sig, 90‑day timelock). They define the basket size per 1
+MTQ unit.
+
+  --------------------------------------------------------------------------
+  Currency   Asset Implementation   Fixed Quantity      Base Weight
+                                    (qiqi​)              (derived)
+  ---------- ---------------------- ------------------- --------------------
+  USD        USDC (Circle)          0.3890              38.90%
+
+  EUR        EURC (Circle)          0.2780              27.80%
+
+  GBP        Registry‑Resolved (see 0.1669              16.69%
+             §5)                                        
+
+  JPY        Registry‑Resolved (see 0.1111              11.11%
+             §5)                                        
+
+  CNY        Registry‑Resolved (see 0.0550              5.50%
+             §5)                                        
+
+  Total      —                      1.0000              100.00%
+  --------------------------------------------------------------------------
+
+Critical Implementation Rule:
+The quantities qiqi​ are expressed in USD‑equivalent units at the base
+date.
+For example: qEUR=0.2780qEUR​=0.2780 means the basket contains a fixed
+amount of EUR that was worth $0.2780 on the base date. This is
+a fixed‑quantity basket; weights will drift naturally as FX rates move.
+
+2.2 The GFB Index Formula (Normalised)
+
+To ensure the index starts at exactly 1.0000, we divide the current
+basket value by the base‑date basket value.
+
+GFBt=qUSD⋅1.00+qEUR⋅FXEUR/USD,t+qGBP⋅FXGBP/USD,t+qJPY⋅FXJPY/USD,t+qCNY⋅FXCNY/USD,tqUSD⋅1.00+qEUR⋅FXEUR/USD,base+qGBP⋅FXGBP/USD,base+qJPY⋅FXJPY/USD,base+qCNY⋅FXCNY/USD,baseGFBt​=qUSD​⋅1.00+qEUR​⋅FXEUR/USD,base​+qGBP​⋅FXGBP/USD,base​+qJPY​⋅FXJPY/USD,base​+qCNY​⋅FXCNY/USD,base​qUSD​⋅1.00+qEUR​⋅FXEUR/USD,t​+qGBP​⋅FXGBP/USD,t​+qJPY​⋅FXJPY/USD,t​+qCNY​⋅FXCNY/USD,t​​
+
+Where:
+
+-   FXi/USD,tFXi/USD,t​ = the spot price of currency ii against the US
+    Dollar at time tt (source: Chainlink/Pyth).
+
+-   FXi/USD,baseFXi/USD,base​ = the spot price on January 1, 2026, 00:00
+    UTC.
+
+2.3 Base Date Fixings (Genesis Oracles)
+
+The denominator is computed once at contract deployment using the
+following hard‑coded reference values. These are only used to normalise
+the index — they are not updated.
+
+  ------------------------------------------------------------------------
+  Currency Pair   Base FX Rate (Jan 1,      Source Reference
+                  2026)                     
+  --------------- ------------------------- ------------------------------
+  EUR/USD         1.05000                   Chainlink Base Feed
+
+  GBP/USD         1.25000                   Chainlink Base Feed
+
+  JPY/USD         0.00670                   Chainlink Base Feed
+
+  CNY/USD (CNH)   0.14000                   Chainlink Base Feed (Offshore
+                                            Yuan)
+  ------------------------------------------------------------------------
+
+CNY Note: The index uses the offshore Yuan (CNH) rate, which is freely
+tradeable. The on‑chain asset representing CNY will be resolved via the
+Asset Admission Registry (§5) — the index itself is currency‑exposure
+defined, independent of the specific token issuer.
+
+2.4 On‑Chain Oracle Feed Mapping
+
+The contract fetches the live FX rates from the following verified
+oracle aggregators.
+These addresses are for Arbitrum Mainnet; replace with the correct
+addresses for your target chain.
+
+  -------------------------------------------------------------------------
+  Currency    Primary Oracle          Fallback Oracle     Staleness
+  Pair        (Chainlink)             (Pyth)              Threshold
+  ----------- ----------------------- ------------------- -----------------
+  EUR/USD     0x...EURUSD_Chainlink   0x...EURUSD_Pyth    60 seconds
+
+  GBP/USD     0x...GBPUSD_Chainlink   0x...GBPUSD_Pyth    60 seconds
+
+  JPY/USD     0x...JPYUSD_Chainlink   0x...JPYUSD_Pyth    60 seconds
+
+  CNY/USD     0x...CNYUSD_Chainlink   0x...CNYUSD_Pyth    60 seconds
+  -------------------------------------------------------------------------
+
+Implementation Rule:
+If the primary oracle is stale (no update within 60s) or deviates > 2.5%
+from the fallback, the contract reverts to the fallback. If both are
+stale or unavailable, the protocol pauses minting and rebalancing (see
+§9).
+
+2.5 Derivative Asset Value (Exposure)
+
+The GFB Index is a reference index. The actual collateral held in the
+vault (USDC, EURC, PAXG, etc.) does not need to match the basket weights
+— it is managed separately by the Rebalancing Engine (§7).
+
+Smart Contract Method:
+
+solidity
+
+function getGFB() external view returns (uint256) {
+
+uint256 numerator = Q_USD * 1e18 +
+
+Q_EUR * getPrice(EUR_USD) +
+
+Q_GBP * getPrice(GBP_USD) +
+
+Q_JPY * getPrice(JPY_USD) +
+
+Q_CNY * getPrice(CNY_USD);
+
+uint256 denominator = Q_USD * 1e18 +
+
+Q_EUR * BASE_EUR_USD +
+
+Q_GBP * BASE_GBP_USD +
+
+Q_JPY * BASE_JPY_USD +
+
+Q_CNY * BASE_CNY_USD;
+
+return (numerator * 1e18) / denominator;
+
+}
+
+3. MTQ Reference Price & Liability (The Monetary Unit)
+
+This section defines the USD‑equivalent value of 1 MTQ Σ at any moment,
+and the total USD‑denominated liability that the reserve must
+collateralise.
+
+It establishes the core relationship that enforces the “Not a Dollar”
+principle: the price of MTQ moves with the GFB Index, not with a fixed
+1:1 USD peg.
+
+3.1 The MTQ Reference Price Formula
+
+The Reference Price of 1 MTQ Σ at time tt is defined as the normalised
+GFB Index value.
+
+PMTQ,t=GFBtGFBbasePMTQ,t​=GFBbase​GFBt​​
+
+Where:
+
+-   GFBtGFBt​ = Current GFB Index value (USD‑equivalent, as defined in
+    §2).
+
+-   GFBbaseGFBbase​ = GFB Index value at the Genesis Date (January 1,
+    2026, 00:00 UTC).
+
+Interpretation:
+
+-   If GFBt=1.12GFBt​=1.12, then 1 MTQ=$1.121 MTQ=$1.12.
+
+-   If GFBt=0.92GFBt​=0.92, then 1 MTQ=$0.921 MTQ=$0.92.
+
+-   If GFBt=1.00GFBt​=1.00, then 1 MTQ=$1.001 MTQ=$1.00.
+
+Constitutional Invariant: The contract does not contain any function to
+set PMTQ,tPMTQ,t​ directly. The price is entirely derived from the
+on‑chain oracle data via the GFB formula. This prevents any manual
+manipulation of the token price.
+
+3.2 The Liability (USD‑Denominated Collateral Requirement)
+
+The total liability of the protocol is the total USD value of all
+circulating MTQ Σ tokens.
+
+Lt=Scirc,t×PMTQ,tLt​=Scirc,t​×PMTQ,t​
+
+Where:
+
+-   Scirc,tScirc,t​ = Circulating Supply of MTQ Σ (tokens held by users,
+    excluding the Genesis Reserve Account and protocol‑owned locked
+    balances).
+
+-   PMTQ,tPMTQ,t​ = The MTQ Reference Price (from §3.1).
+
+Critical Distinction — Total Supply vs. Circulating Supply:
+
+-   totalSupply() (ERC‑20) includes the Genesis Reserve locked in the
+    protocol vault.
+
+-   circulatingSupply is used for liability calculations. The Genesis
+    Reserve is a protocol asset, not a user liability. It is excluded
+    from Scirc,tScirc,t​ to prevent the protocol from collateralising its
+    own locked tokens.
+
+The Liability Check: The Reserve Ratio is computed as:
+
+RRt=Vnet,tLtRRt​=Lt​Vnet,t​​
+
+This means the reserve must always be at least 1.10×Lt1.10×Lt​ (110%
+collateralised).
+
+3.3 Smart Contract Implementation
+
+3.3.1 Storage Constants (Deployed at Genesis)
+
+solidity
+
+// The denominator for normalisation (set at genesis)
+
+uint256 public immutable GFB_BASE_DENOMINATOR;
+
+// The fixed quantities q_i (set at genesis, immutable)
+
+uint256 public constant Q_USD = 0.3890e18; // 18 decimals
+
+uint256 public constant Q_EUR = 0.2780e18;
+
+uint256 public constant Q_GBP = 0.1669e18;
+
+uint256 public constant Q_JPY = 0.1111e18;
+
+uint256 public constant Q_CNY = 0.0550e18;
+
+// Base FX rates (set at genesis, immutable)
+
+uint256 public constant BASE_EUR_USD = 1.0500e8; // 8 decimals
+(Chainlink style)
+
+uint256 public constant BASE_GBP_USD = 1.2500e8;
+
+uint256 public constant BASE_JPY_USD = 0.0067e8;
+
+uint256 public constant BASE_CNY_USD = 0.1400e8;
+
+3.3.2 Getter Functions
+
+solidity
+
+/**
+
+* @dev Returns the current MTQ Reference Price in USD, with 18 decimals.
+
+* Example: 1.12e18 means 1 MTQ = $1.12.
+
+*/
+
+function getMTQPrice() public view returns (uint256) {
+
+uint256 gfb = getGFB(); // Returns GFB_t scaled to 1e18 (from Section 2)
+
+return (gfb * 1e18) / GFB_BASE_DENOMINATOR;
+
+}
+
+/**
+
+* @dev Returns the total USD liability (circulating supply × price).
+
+*/
+
+function getLiability() public view returns (uint256) {
+
+uint256 circSupply = getCirculatingSupply(); // Excludes Genesis Reserve
+
+uint256 price = getMTQPrice();
+
+return (circSupply * price) / 1e18;
+
+}
+
+3.3.3 Circulating Supply Tracking
+
+solidity
+
+/**
+
+* @dev Total supply minus the Genesis Reserve Account balance.
+
+*/
+
+function getCirculatingSupply() public view returns (uint256) {
+
+uint256 total = totalSupply();
+
+uint256 genesisReserve = balanceOf(GENESIS_RESERVE_ADDRESS);
+
+return total - genesisReserve;
+
+}
+
+3.4 Integration with Minting & Redemption
+
+3.4.1 Minting (Priced against the Index)
+
+When a user mints by depositing XX USDC:
+
+MTQminted=X×(1−0.001)PMTQ,tMTQminted​=PMTQ,t​X×(1−0.001)​
+
+Example: If PMTQ,t=1.12PMTQ,t​=1.12, depositing 1,000 USDC
+yields 1,000×0.999/1.12≈892.861,000×0.999/1.12≈892.86 MTQ.
+The user receives fewer tokens when the GFB Index is high, reinforcing
+the “purchasing power” claim.
+
+3.4.2 Redemption (Priced against the Index)
+
+When a user burns YY MTQ:
+
+RedeemValueUSD=Y×PMTQ,tRedeemValueUSD​=Y×PMTQ,t​
+
+The user receives the proportional basket of assets
+worth RedeemValue×(1−0.0015)RedeemValue×(1−0.0015) after the redemption
+fee.
+
+3.5 Price Sanity Checks (Circuit Breakers)
+
+To protect against oracle manipulation or extreme market dislocation,
+the contract enforces a price band:
+
+0.50≤PMTQ,t≤2.000.50≤PMTQ,t​≤2.00
+
+If PMTQ,tPMTQ,t​ falls outside this range:
+
+-   PAUSE_MINT and PAUSE_REBALANCE are automatically triggered.
+
+-   Redemption remains allowed (users can exit at the prevailing price).
+
+-   Governance (4‑of‑7 Multi‑Sig) must manually resume operations after
+    investigation.
+
+Implementation Guard:
+
+solidity
+
+function getMTQPriceWithGuard() public view returns (uint256) {
+
+uint256 price = getMTQPrice();
+
+require(price >= 0.50e18 && price <= 2.00e18, "MTQ: Price out of safety
+band");
+
+return price;
+
+}
+
+3.6 Event Emission (Auditability)
+
+The contract emits a PriceUpdated event whenever the GFB Index changes
+by more than 0.5% (to avoid log spam).
+
+solidity
+
+event PriceUpdated(uint256 indexed oldPrice, uint256 indexed newPrice,
+uint256 timestamp);
+
+uint256 private _lastLoggedPrice;
+
+function _updatePrice() internal {
+
+uint256 newPrice = getMTQPrice();
+
+uint256 diff = (newPrice > _lastLoggedPrice) ? newPrice -
+_lastLoggedPrice : _lastLoggedPrice - newPrice;
+
+if (diff > (_lastLoggedPrice / 200)) { // 0.5% change
+
+emit PriceUpdated(_lastLoggedPrice, newPrice, block.timestamp);
+
+_lastLoggedPrice = newPrice;
+
+}
+
+}
+
+3.7 Summary of Developer‑Facing Constants
+
+  ----------------------------------------------------------------------------
+  Constant            Symbol                    Value             Set At
+  ------------------- ------------------------- ----------------- ------------
+  GFB Base            GFB_BASE_DENOMINATOR      Computed from     Genesis
+  Denominator                                   §2.3              
+
+  Price Safety Lower  PRICE_SAFETY_LOWER        0.50e18           Immutable
+
+  Price Safety Upper  PRICE_SAFETY_UPPER        2.00e18           Immutable
+
+  Genesis Reserve     GENESIS_RESERVE_ADDRESS   0x...             Deployment
+  Address                                                         
+  ----------------------------------------------------------------------------
+
+4. Reserve NAV, Collateralization & Liquidity Coverage
+
+This section defines how the protocol measures the actual value of its
+reserve, how it calculates the collateral buffer, and how it
+ensures immediate liquidity to meet redemption requests.
+
+It establishes the three core health metrics:
+
+-   NAV (Net Asset Value): The prudential value of all reserve assets
+    after applying safety haircuts.
+
+-   RR (Reserve Ratio): The solvency buffer (target 110%).
+
+-   LCR (Liquidity Coverage Ratio): The short-term liquidity buffer
+    (target ≥ 100%).
+
+4.1 Net Asset Value (NAV) — Prudential Reserve Valuation
+
+The protocol does not use the gross market value of assets to determine
+solvency. Instead, it applies a haircut to each asset class to account
+for settlement risk, custody risk, and potential depeg or slippage
+during liquidation.
+
+Vnet,t=∑j=1n(Qj,t×Pj,t×(1−Hj))Vnet,t​=j=1∑n​(Qj,t​×Pj,t​×(1−Hj​))
+
+Where:
+
+-   Qj,tQj,t​ = Quantity of reserve asset jj (e.g., 10,000 USDC, 1.5
+    PAXG).
+
+-   Pj,tPj,t​ = Current USD price of asset jj (from the Oracle consensus,
+    §9).
+
+-   HjHj​ = Fixed haircut (safety discount) for asset jj.
+
+Note on Gold: The protocol uses the more conservative of the two gold
+prices for NAV calculation:
+
+-   Pgold,referencePgold,reference​ (LBMA spot)
+    vs Pgold,executablePgold,executable​ (PAXG market price).
+
+-   Pj,t=min⁡(Preference,Pexecutable)Pj,t​=min(Preference​,Pexecutable​) to
+    avoid overvaluing gold during thin liquidity.
+
+4.1.1 Constitutional Haircut Table
+
+These haircuts are immutable by default but can be adjusted by the Risk
+Council (4-of-7, 24h timelock) if the risk profile of an asset changes
+materially.
+
+  ------------------------------------------------------------------------------
+  Asset Class  Asset Example       Haircut     Rationale
+                                   (HjHj​)      
+  ------------ ------------------- ----------- ---------------------------------
+  USD          USDC, USDP          0.5%        Extremely liquid; regulated;
+  Stablecoin                                   minimal depeg risk.
+
+  EUR          EURC                0.7%        Highly liquid; slightly lower
+  Stablecoin                                   market depth than USDC.
+
+  GBP          Registry‑Resolved   1.0%        Lower on-chain liquidity; higher
+  Stablecoin                                   conversion friction.
+
+  JPY          Registry‑Resolved   1.0%        Lower on-chain liquidity; higher
+  Stablecoin                                   conversion friction.
+
+  CNY          Registry‑Resolved   1.5%        Limited liquidity; offshore
+  Stablecoin                                   market constraints.
+
+  Tokenized    PAXG, XAUT          1.0%        Custody spread (0.5%) + DEX
+  Gold                                         slippage (0.5%) on sale.
+
+  Tokenized    BUIDL (if approved) 2.0%        Interest rate risk; redemption
+  T‑Bills                                      delay risk.
+  ------------------------------------------------------------------------------
+
+Implementation Rule: When a new asset is added via the Registry (§5),
+its haircut must be approved simultaneously by the Risk Council.
+
+4.2 Collateral Requirement (Reserve Ratio — RR)
+
+The Reserve Ratio is the primary solvency metric. It ensures that the
+total USD value of the vault (net of haircuts) is sufficient to cover
+the total USD liability.
+
+RRt=Vnet,tLtRRt​=Lt​Vnet,t​​
+
+Where:
+
+-   Vnet,tVnet,t​ = Net Asset Value (from §4.1).
+
+-   LtLt​ = Total Liability (Scirc,t×PMTQ,tScirc,t​×PMTQ,t​, from §3.2).
+
+4.2.1 Constitutional Tiers (The Three Floors)
+
+The protocol operates with three distinct thresholds to trigger
+progressively stricter actions.
+
+  ---------------------------------------------------------------------------------------
+  Tier        Symbol             Value         Operational Meaning
+  ----------- ------------------ ------------- ------------------------------------------
+  TARGET      RRtargetRRtarget​   1.10 (110%)   Normal operating buffer. Protocol aims to
+                                               stay at or above this.
+
+  STRESS      RRstressRRstress​   1.05 (105%)   Defensive posture: minting throttled;
+  FLOOR                                        rebalancing prioritised.
+
+  HARD        RRhardRRhard​       1.00 (100%)   Must never breach. If breached,
+  SOLVENCY                                     redemptions are paused, and the protocol
+  FLOOR                                        enters Emergency Recovery.
+  ---------------------------------------------------------------------------------------
+
+4.2.2 Status Determination
+
+The protocol computes the current status based on
+the RR_t and LCR_t (see §4.3) values to drive the State Machine (§14).
+
+  ------------------------------------------------------------------------------------------------
+  Status      RR Range                   LCR Requirement    Actions
+  ----------- -------------------------- ------------------ --------------------------------------
+  NORMAL      RR≥1.10RR≥1.10             LCR≥1.00LCR≥1.00   Standard operations; full mint/redeem.
+
+  CAUTION     1.05≤RR<1.101.05≤RR<1.10   LCR≥0.90LCR≥0.90   Minting throttled to 50%; rebalancing
+                                                            urgency increased.
+
+  DEFENSIVE   1.00≤RR<1.051.00≤RR<1.05   Any                Minting paused; redemption fee
+                                                            increased to 0.5%; emergency
+                                                            rebalancing triggered.
+
+  EMERGENCY   RR<1.00RR<1.00             Any                Redemptions paused; circuit breakers
+                                                            engaged; governance notified
+                                                            immediately.
+
+  RECOVERY    RR≥1.05RR≥1.05 (rising)    LCR≥0.95LCR≥0.95   Gradual restoration of minting and
+                                                            standard fees.
+  ------------------------------------------------------------------------------------------------
+
+4.3 Liquidity Coverage Ratio (LCR)
+
+Solvency (RR ≥ 100%) does not guarantee liquidity. A vault can be fully
+solvent but hold assets that cannot be sold quickly enough to meet a
+sudden surge in redemptions. The LCR addresses this.
+
+LCRt=Liquid AssetstStress Redemption DemandtLCRt​=Stress Redemption Demandt​Liquid Assetst​​
+
+4.3.1 Definition of Liquid Assets
+
+Liquid Assets are defined as the portion of the reserve that can be
+settled within 24 hours without incurring excessive slippage (> 0.5%).
+
+-   Stablecoins (USDC, EURC, etc.) are considered 100% liquid.
+
+-   Tokenized Gold (PAXG) is considered 0% liquid for LCR purposes (gold
+    markets can be closed on weekends; DEX liquidity can evaporate).
+
+-   BUIDL / Tokenized T‑Bills are considered 0% liquid unless explicitly
+    approved by the Risk Council.
+
+Formula:
+
+Liquid Assetst=∑j∈StablecoinsQj,t×Pj,t×(1−Hj)Liquid Assetst​=j∈Stablecoins∑​Qj,t​×Pj,t​×(1−Hj​)
+
+4.3.2 Definition of Stress Redemption Demand
+
+The Stress Redemption Demand is the estimated total USD value that could
+be redeemed within a 30‑day stress period.
+
+Stress Redemption Demandt=Scirc,t×PMTQ,t×0.25Stress Redemption Demandt​=Scirc,t​×PMTQ,t​×0.25
+
+Assumption: Under extreme market conditions, up to 25% of the
+circulating supply could be redeemed within 30 days. This is a
+conservative assumption based on historical stablecoin depeg scenarios.
+
+4.3.3 LCR Constitutional Floor
+
+LCRt≥1.00LCRt​≥1.00
+
+If LCRt<1.00LCRt​<1.00:
+
+-   The protocol enters DEFENSIVE mode.
+
+-   Rebalancing is re‑routed to increase the liquid asset
+    allocation (sell gold for stablecoins) until LCR returns above 1.00.
+
+-   Minting is paused until LCR recovers.
+
+4.4 Smart Contract Implementation
+
+4.4.1 Immutable Constants (Haircuts)
+
+solidity
+
+// Haircuts scaled to 1e18 (e.g., 0.5% = 0.005e18)
+
+uint256 public constant HAIRCUT_USDC = 0.005e18;
+
+uint256 public constant HAIRCUT_EURC = 0.007e18;
+
+uint256 public constant HAIRCUT_GBP = 0.010e18;
+
+uint256 public constant HAIRCUT_JPY = 0.010e18;
+
+uint256 public constant HAIRCUT_CNY = 0.015e18;
+
+uint256 public constant HAIRCUT_PAXG = 0.010e18;
+
+// Constitutional Floor Constants
+
+uint256 public constant RR_TARGET = 1.10e18;
+
+uint256 public constant RR_STRESS = 1.05e18;
+
+uint256 public constant RR_HARD = 1.00e18;
+
+uint256 public constant LCR_TARGET = 1.00e18;
+
+uint256 public constant STRESS_REDEMPTION_RATE = 0.25e18; // 25%
+
+4.4.2 Reserve Manager (Core State)
+
+solidity
+
+struct ReserveState {
+
+uint256 fiatValue; // USD value of all stablecoins (gross)
+
+uint256 goldValue; // USD value of PAXG (gross)
+
+uint256 liquidValue; // USD value of stablecoins only (net)
+
+}
+
+ReserveState public reserveState;
+
+function updateReserveState() internal {
+
+// Fetch asset balances and oracle prices
+
+uint256 usdcBalance = IERC20(USDC).balanceOf(address(this));
+
+uint256 eurcBalance = IERC20(EURC).balanceOf(address(this));
+
+uint256 paxgBalance = IERC20(PAXG).balanceOf(address(this));
+
+uint256 usdcPrice = getPrice(USDC);
+
+uint256 eurcPrice = getPrice(EURC);
+
+uint256 paxgPrice = getMinGoldPrice(); // min(reference, executable)
+
+uint256 grossFiat = usdcBalance * usdcPrice / 1e18 + eurcBalance *
+eurcPrice / 1e18;
+
+uint256 grossGold = paxgBalance * paxgPrice / 1e18;
+
+// Apply haircuts
+
+uint256 netFiat = grossFiat * (1e18 - HAIRCUT_USDC) / 1e18;
+
+// Note: For simplicity, using a weighted average haircut for
+stablecoins.
+
+// In production, sum individual net values.
+
+uint256 netGold = grossGold * (1e18 - HAIRCUT_PAXG) / 1e18;
+
+reserveState.fiatValue = grossFiat;
+
+reserveState.goldValue = grossGold;
+
+reserveState.liquidValue = netFiat; // Stablecoins are liquid
+
+}
+
+4.4.3 Getter Functions
+
+solidity
+
+/**
+
+* @dev Returns the Net Asset Value (NAV) in USD, 18 decimals.
+
+*/
+
+function getNAV() public view returns (uint256) {
+
+return reserveState.fiatValue + reserveState.goldValue; // Simplified;
+use weighted average
+
+}
+
+/**
+
+* @dev Returns the Reserve Ratio (RR) scaled to 1e18.
+
+*/
+
+function getReserveRatio() public view returns (uint256) {
+
+uint256 nav = getNAV();
+
+uint256 liability = getLiability(); // From Section 3
+
+return (nav * 1e18) / liability;
+
+}
+
+/**
+
+* @dev Returns the Liquidity Coverage Ratio (LCR) scaled to 1e18.
+
+*/
+
+function getLCR() public view returns (uint256) {
+
+uint256 liquidAssets = reserveState.liquidValue;
+
+uint256 price = getMTQPrice();
+
+uint256 circSupply = getCirculatingSupply();
+
+uint256 stressDemand = (circSupply * price / 1e18) *
+STRESS_REDEMPTION_RATE / 1e18;
+
+return (liquidAssets * 1e18) / stressDemand;
+
+}
+
+/**
+
+* @dev Returns the current protocol status as a string.
+
+*/
+
+function getProtocolStatus() public view returns (string memory) {
+
+uint256 rr = getReserveRatio();
+
+uint256 lcr = getLCR();
+
+if (rr >= RR_TARGET && lcr >= LCR_TARGET) return "NORMAL";
+
+if (rr >= RR_STRESS && lcr >= 0.90e18) return "CAUTION";
+
+if (rr >= RR_HARD) return "DEFENSIVE";
+
+if (rr < RR_HARD) return "EMERGENCY";
+
+return "RECOVERY";
+
+}
+
+4.4.4 Modifiers (Enforcing Safe Access)
+
+solidity
+
+modifier onlyIfSolvent() {
+
+require(getReserveRatio() >= RR_HARD, "MTQ: Insolvent - operations
+paused");
+
+_;
+
+}
+
+modifier onlyIfLiquid() {
+
+require(getLCR() >= LCR_TARGET, "MTQ: Illiquid - minting paused");
+
+_;
+
+}
+
+// Used for minting
+
+function mint(uint256 amount) external onlyIfSolvent onlyIfLiquid {
+
+// Minting logic
+
+}
+
+4.5 Event Emissions for Monitoring
+
+solidity
+
+event ReserveMetricsUpdated(
+
+uint256 indexed nav,
+
+uint256 indexed reserveRatio,
+
+uint256 indexed liquidityRatio,
+
+string status
+
+);
+
+function _publishMetrics() internal {
+
+uint256 nav = getNAV();
+
+uint256 rr = getReserveRatio();
+
+uint256 lcr = getLCR();
+
+emit ReserveMetricsUpdated(nav, rr, lcr, getProtocolStatus());
+
+}
+
+4.6 Summary of Developer‑Facing Constants
+
+  -----------------------------------------------------------------------------
+  Constant         Symbol                   Value           Scope
+  ---------------- ------------------------ --------------- -------------------
+  USDC Haircut     HAIRCUT_USDC             0.005e18 (0.5%) Immutable (Risk
+                                                            Council)
+
+  EURC Haircut     HAIRCUT_EURC             0.007e18 (0.7%) Immutable (Risk
+                                                            Council)
+
+  GBP/JPY/CNY      HAIRCUT_OTHER            0.010e18 /      Immutable (Risk
+  Haircut                                   0.015e18        Council)
+
+  Gold Haircut     HAIRCUT_PAXG             0.010e18 (1.0%) Immutable (Risk
+                                                            Council)
+
+  RR Target        RR_TARGET                1.10e18 (110%)  Constitutional (7/7
+                                                            Multi‑Sig)
+
+  RR Stress Floor  RR_STRESS                1.05e18 (105%)  Risk Council (4/7)
+
+  RR Hard Floor    RR_HARD                  1.00e18 (100%)  Constitutional
+                                                            (immutable)
+
+  Stress           STRESS_REDEMPTION_RATE   0.25e18 (25%)   Risk Council (4/7)
+  Redemption Rate                                           
+  -----------------------------------------------------------------------------
+
+5. Asset Admission Registry (Eligible Reserve Assets)
+
+5.1 Purpose
+
+The Asset Admission Registry is the canonical source of truth for which
+on‑chain assets are eligible to be held in the Reserve Vault. It
+decouples the reference index (currencies) from the implementation
+assets (stablecoins, gold tokens, etc.), allowing the protocol to adapt
+to changes in the stablecoin ecosystem without rebuilding the core
+monetary logic.
+
+The registry is used by:
+
+-   The Minting Engine to know which assets to buy when a user deposits
+    a single stablecoin.
+
+-   The Rebalancing Engine to know which assets are eligible for
+    trading.
+
+-   The Risk State Machine to determine if an asset should be ejected.
+
+5.2 Eligibility Standard
+
+An asset must satisfy ALL eight criteria to be admitted as an eligible
+reserve asset. These criteria are enforced by the Risk Council (4‑of‑7
+Multi‑Sig) before an asset is added.
+
+  ------------------------------------------------------------------------------
+  #   Criterion       Description                         Verification Method
+  --- --------------- ----------------------------------- ----------------------
+  1   Issuer          The issuer is a regulated entity or Regulatory
+      Authorization   subject to an enforceable legal     registration number;
+                      framework.                          legal opinion on file.
+
+  2   Redemption      The holder has a verifiable right   Public attestations;
+      Right           to redeem the token at par (for     smart contract audit
+                      stablecoins) or for physical gold.  confirms redeem
+                                                          function.
+
+  3   Custody         Underlying assets (for gold) are    Custodian attestation;
+      Structure       audited, segregated, and held by a  independent audit
+                      qualified custodian.                report.
+
+  4   Sanctions       Issuer complies with OFAC, EU, and  Sanctions compliance
+      Policy          UN sanctions lists.                 statement; no known
+                                                          enforcement actions.
+
+  5   Smart Contract  The token contracts have been       Audit report; no
+      Audit           audited by a top‑tier firm (e.g.,   critical
+                      CertiK, Hacken) within the last 12  vulnerabilities.
+                      months.                             
+
+  6   Liquidity       The asset has a 24‑hour on‑chain    On‑chain volume data
+      Minimum         trading volume of at                (7‑day rolling
+                      least $1,000,000 on major DEXs.     average).
+
+  7   Oracle          At least two independent price      Oracle addresses
+      Availability    feeds (Chainlink, Pyth, Chronicle)  registered in the
+                      provide a reliable price.           system; feeds are
+                                                          live.
+
+  8   Concentration   No single issuer can represent more Calculated during
+      Limit           than 30% of the total reserve       rebalancing; enforced
+                      value.                              by the Risk Engine.
+  ------------------------------------------------------------------------------
+
+Note: The registry does not automatically admit assets. Each addition
+requires a governance proposal and a 48‑hour timelock (4‑of‑7 Risk
+Council approval) to ensure thorough review.
+
+5.3 Asset States
+
+Each registered asset exists in one of four states:
+
+  ---------------------------------------------------------------------------
+  State        Action                            Trigger
+  ------------ --------------------------------- ----------------------------
+  ACTIVE       The asset is eligible for         Default state after
+               purchase, rebalancing, and        admission.
+               collateral.                       
+
+  WATCH        No new purchases; existing        Triggered when a criterion
+               holdings are maintained.          is about to fail (e.g.,
+                                                 liquidity drops below $1M
+                                                 for 3 days).
+
+  RESTRICTED   The asset cannot be used for new  Triggered when a criterion
+               collateral; the protocol will     is violated (e.g., issuer is
+               sell it during the next           sanctioned).
+               rebalancing cycle.                
+
+  EJECTED      The protocol sells 100% of the    Triggered when the asset is
+               asset via the staged liquidation  confirmed de‑pegged or
+               ladder (§11).                     issuer redemption is frozen.
+  ---------------------------------------------------------------------------
+
+5.4 Registry Data Structures
+
+5.4.1 Asset Record
+
+solidity
+
+struct AssetRecord {
+
+bytes3 currencyCode; // e.g., "USD", "EUR", "GBP", "JPY", "CNY", "XAU"
+(for gold)
+
+address tokenAddress; // The on‑chain token address
+
+string name; // Human‑readable name (e.g., "USDC", "PAXG")
+
+uint256 haircut; // Asset‑specific haircut (1e18 scale)
+
+uint256 liquidityThreshold; // Minimum 24h volume in USD (1e18 scale)
+
+uint256 admissionDate; // Timestamp of when the asset was added
+
+AssetState state; // Current state (enum)
+
+bool isStablecoin; // True if fiat‑pegged, false for gold/commodities
+
+bytes32 issuerId; // Hash of issuer identifier (for concentration
+tracking)
+
+}
+
+5.4.2 Currency‑to‑Asset Mapping
+
+To support the GFB Index, the registry maintains a mapping from currency
+code to the active token address. This allows the index to
+reference getAssetForCurrency("EUR") and always get the current
+canonical asset.
+
+solidity
+
+mapping(bytes3 => address) public currencyToAsset;
+
+Genesis Mapping:
+Set at deployment:
+
+  ----------------------------------------------------------------------------
+  Currency   Initial Asset           Why
+  Code                               
+  ---------- ----------------------- -----------------------------------------
+  USD        USDC (Circle)           Largest regulated USD stablecoin.
+
+  EUR        EURC (Circle)           Largest regulated EUR stablecoin.
+
+  GBP        TBD                     Will be set once a suitable regulated GBP
+             (governance‑approved)   stablecoin emerges.
+
+  JPY        TBD                     Will be set once a suitable regulated JPY
+             (governance‑approved)   stablecoin emerges.
+
+  CNY        TBD                     Will be set once a suitable regulated CNY
+             (governance‑approved)   stablecoin emerges (offshore CNH).
+  ----------------------------------------------------------------------------
+
+5.5 Core Functions
+
+5.5.1 Add Asset (Governance‑Only)
+
+solidity
+
+function addAsset(
+
+bytes3 currencyCode,
+
+address tokenAddress,
+
+string memory name,
+
+uint256 haircut,
+
+uint256 liquidityThreshold,
+
+bool isStablecoin,
+
+bytes32 issuerId
+
+) external onlyRiskCouncil {
+
+require(currencyToAsset[currencyCode] == address(0), "Asset already
+exists");
+
+require(tokenAddress != address(0), "Invalid address");
+
+require(haircut >= 0.005e18 && haircut <= 0.10e18, "Haircut out of
+bounds");
+
+require(liquidityThreshold >= 0.5e18, "Liquidity threshold too low");
+
+AssetRecord memory newAsset = AssetRecord({
+
+currencyCode: currencyCode,
+
+tokenAddress: tokenAddress,
+
+name: name,
+
+haircut: haircut,
+
+liquidityThreshold: liquidityThreshold,
+
+admissionDate: block.timestamp,
+
+state: AssetState.ACTIVE,
+
+isStablecoin: isStablecoin,
+
+issuerId: issuerId
+
+});
+
+assets.push(newAsset);
+
+currencyToAsset[currencyCode] = tokenAddress;
+
+emit AssetAdded(currencyCode, tokenAddress, name);
+
+}
+
+5.5.2 Update Asset State (Risk Council)
+
+solidity
+
+function updateAssetState(bytes3 currencyCode, AssetState newState)
+external onlyRiskCouncil {
+
+uint256 index = getAssetIndex(currencyCode);
+
+assets[index].state = newState;
+
+emit AssetStateChanged(currencyCode, newState);
+
+}
+
+5.5.3 Get Asset for Currency
+
+solidity
+
+function getAssetForCurrency(bytes3 currencyCode) public view returns
+(address) {
+
+address token = currencyToAsset[currencyCode];
+
+require(token != address(0), "Currency not supported");
+
+return token;
+
+}
+
+5.5.4 Get Asset Record
+
+solidity
+
+function getAssetRecord(bytes3 currencyCode) public view returns
+(AssetRecord memory) {
+
+uint256 index = getAssetIndex(currencyCode);
+
+return assets[index];
+
+}
+
+5.5.5 List Active Assets
+
+solidity
+
+function getActiveAssets() public view returns (AssetRecord[] memory) {
+
+uint256 count = 0;
+
+for (uint256 i = 0; i < assets.length; i++) {
+
+if (assets[i].state == AssetState.ACTIVE) count++;
+
+}
+
+AssetRecord[] memory active = new AssetRecord[](count);
+
+uint256 idx = 0;
+
+for (uint256 i = 0; i < assets.length; i++) {
+
+if (assets[i].state == AssetState.ACTIVE) {
+
+active[idx] = assets[i];
+
+idx++;
+
+}
+
+}
+
+return active;
+
+}
+
+5.6 Concentration Limits
+
+To prevent over‑reliance on a single issuer (e.g., Circle), the protocol
+enforces:
+
+Value of assets issued by issueriTotal Reserve Value≤30%Total Reserve ValueValue of assets issued by issueri​​≤30%
+
+Enforcement: The Rebalancing Engine (§7) checks this constraint before
+executing any trade that would increase exposure to an issuer that
+already exceeds 25% of the reserve. If a trade would breach 30%, it is
+blocked.
+
+Governance Override: A 4‑of‑7 Risk Council vote can temporarily raise
+the limit to 35% during a liquidity crisis, but this requires a 24h
+timelock and public disclosure.
+
+5.7 Chain Diversification Policy
+
+To minimise blockchain‑specific risk (e.g., L2 downtime, bridge
+exploits), the protocol follows these rules:
+
+-   Primary Chain: The Reserve Vault holds assets only on the mainnet of
+    the deployed chain (e.g., Arbitrum, Ethereum).
+
+-   No Wrapped Assets: The protocol does not hold wrapped versions of
+    assets that are native to another chain (e.g., wormhole USDC). Only
+    the native token (e.g., native USDC on Arbitrum) is allowed.
+
+-   Canonical Token Preference: For each asset, the Asset Admission
+    Registry must specify the canonical token address for the deployed
+    chain. The protocol does not accept alternative bridges.
+
+-   Chain‑Specific Risk: If the Risk Council determines that the
+    deployed chain poses elevated risk (e.g., repeated sequencer
+    failures), it may pause minting and rebalancing until the issue is
+    resolved.
+
+Registry Enforcement:
+
+solidity
+
+// A flag to indicate if the asset is the canonical version for this
+chain
+
+bool public constant IS_CANONICAL = true; // Hardcoded; new assets must
+be canonical
+
+5.8 Integration with the GFB Index
+
+The GFB Index (§2) uses the currency exposure, not the token address.
+The registry provides the mapping so that the rebalancing engine knows
+which actual token to buy to achieve the index weights.
+
+Minting Flow (Simplified):
+
+1.  User deposits USDC.
+
+2.  The contract calls getAssetForCurrency("EUR") to get the current
+    EURC address.
+
+3.  The atomic swap uses that address to buy EURC.
+
+Rebalancing Flow:
+
+1.  The engine determines the target weights (e.g., 27.8% EUR exposure).
+
+2.  It calls getAssetForCurrency("EUR") to know which token to buy/sell.
+
+5.9 Event Emissions
+
+solidity
+
+event AssetAdded(bytes3 indexed currencyCode, address indexed
+tokenAddress, string name);
+
+event AssetStateChanged(bytes3 indexed currencyCode, AssetState
+newState);
+
+event AssetRemoved(bytes3 indexed currencyCode);
+
+event AssetUpdated(bytes3 indexed currencyCode, string field, uint256
+newValue);
+
+5.10 Summary of Developer‑Facing Constants
+
+  ------------------------------------------------------------------------
+  Parameter                   Value           Governance
+  --------------------------- --------------- ----------------------------
+  Max Issuer Concentration    30%             Constitutional (Risk
+                                              Council)
+
+  Min 24h Volume              $1,000,000      Risk Council (4/7)
+
+  Haircut Range               0.5% – 10%      Risk Council (4/7)
+
+  Timelock for Asset Changes  48 hours        Constitution (7/7)
+  ------------------------------------------------------------------------
+
+Summary of Insertion Instructions
+
+  -------------------------------------------------------------------------
+  Action       Details
+  ------------ ------------------------------------------------------------
+  Replace      Replace the entire existing Section 5 in the blueprint with
+               this module.
+
+  Dependency   This section is referenced by the Minting (§12) and
+               Rebalancing (§7) engines.
+
+  Developer    At genesis, the registry must be initialised with the base
+  Action       assets (USDC, EURC) and the placeholder addresses for GBP,
+               JPY, CNY (which will be set later via governance).
+
+  Security     The onlyRiskCouncil modifier must be implemented using a
+               4‑of‑7 Multi‑Sig contract (e.g., Gnosis Safe).
+  -------------------------------------------------------------------------
+
+This module provides a complete, production‑ready asset registry that
+decouples the monetary index from the implementation assets, enforces
+concentration limits, and supports chain‑specific safety.
+
+6. The Adaptive Macro Engine (Regime Detection)
+
+6.1 Purpose
+
+The Adaptive Macro Engine detects changes in global market conditions
+and adjusts the target gold weight of the reserve portfolio accordingly.
+This ensures the protocol is:
+
+-   More defensive during high‑volatility or dollar‑strength regimes
+    (increasing gold allocation).
+
+-   More neutral during stable, low‑volatility regimes (reverting to the
+    base allocation).
+
+The engine is non‑discretionary: it uses objective, on‑chain observable
+data (VIX and DXY) transformed into standardized z‑scores. There is no
+human subjectivity in the adjustment.
+
+6.2 Input Signals (On‑Chain Oracle Data)
+
+The engine uses two primary market signals:
+
+  ----------------------------------------------------------------------------------
+  Signal   Symbol     Source      Description
+  -------- ---------- ----------- --------------------------------------------------
+  VIX      VIXtVIXt​   Chainlink / CBOE Volatility Index (market fear gauge). Higher
+                      Pyth        values indicate stress.
+
+  DXY      DXYtDXYt​   Chainlink / US Dollar Index (strength of USD against a basket
+                      Pyth        of major currencies). Higher values indicate
+                                  dollar strength.
+  ----------------------------------------------------------------------------------
+
+Frequency: Both signals are updated every 60 seconds via the oracle
+architecture (§9). The engine uses the latest validated prices.
+
+Fallback: If either feed is stale or unavailable, the engine uses
+the last known good value and flags a WATCH status. If both feeds are
+unavailable for > 5 minutes, the engine freezes the target weight at its
+last computed value and triggers PAUSE_REBALANCE.
+
+6.3 Standardized Signals (Z‑Scores)
+
+To make the two signals economically comparable, the engine transforms
+them into standardized z‑scores using rolling 90‑day means and standard
+deviations.
+
+6.3.1 Rolling Statistics
+
+μVIX,t=190∑i=089VIXt−iμVIX,t​=901​i=0∑89​VIXt−i​σVIX,t=189∑i=089(VIXt−i−μVIX,t)2σVIX,t​=891​i=0∑89​(VIXt−i​−μVIX,t​)2​
+
+Similarly for DXY.
+
+Note: The rolling window is 90 calendar days (~66 trading days) to
+capture medium‑term market regimes while smoothing out daily noise.
+
+6.3.2 Z‑Score Calculation
+
+ztVIX=VIXt−μVIX,tσVIX,t+ϵztVIX​=σVIX,t​+ϵVIXt​−μVIX,t​​ztDXY=DXYt−μDXY,tσDXY,t+ϵztDXY​=σDXY,t​+ϵDXYt​−μDXY,t​​
+
+Where ϵ=10−9ϵ=10−9 prevents division by zero.
+
+Interpretation:
+
+-   z=0z=0 → Signal is at its 90‑day average (neutral).
+
+-   z=+2z=+2 → Signal is two standard deviations above average (extreme
+    stress / strong dollar).
+
+-   z=−2z=−2 → Signal is two standard deviations below average (calm /
+    weak dollar).
+
+6.4 The Gold Weight Adjustment
+
+The adjustment to the target gold weight is a linear combination of the
+two standardized signals, capped to prevent extreme allocation shifts.
+
+θt=clip(α⋅ztVIX+β⋅ztDXY,−θmax,+θmax)θt​=clip(α⋅ztVIX​+β⋅ztDXY​,−θmax​,+θmax​)
+
+Where:
+
+-   α=0.15α=0.15 — Sensitivity to volatility (VIX).
+
+-   β=0.10β=0.10 — Sensitivity to dollar strength (DXY).
+
+-   θmax=0.03θmax​=0.03 — Maximum shift of ±3 percentage points from the
+    base weight.
+
+Rationale for Coefficients:
+
+-   VIX is more directly linked to gold demand (flight to safety), so it
+    receives a higher weight (0.15 vs 0.10).
+
+-   The caps prevent the gold weight from moving more than ±3% in a
+    single adjustment cycle, ensuring stability.
+
+6.5 The Dynamic Target Gold Weight
+
+The base target gold weight
+is Wgoldbase=0.2625Wgoldbase​=0.2625 (26.25%), derived from the portfolio
+optimisation in §4.
+
+Wgold,ttarget=Wgoldbase+θtWgold,ttarget​=Wgoldbase​+θt​Wfiat,ttarget=1−Wgold,ttargetWfiat,ttarget​=1−Wgold,ttarget​
+
+Constitutional Constraint: The target gold weight is bounded to prevent
+extreme allocations:
+
+0.22≤Wgold,ttarget≤0.300.22≤Wgold,ttarget​≤0.30
+
+-   Lower Bound (22%): Ensures the protocol maintains a minimum gold
+    hedge even during extreme calm.
+
+-   Upper Bound (30%): Prevents over‑exposure to gold volatility.
+
+Enforcement: If the computed target exceeds these bounds, it is clamped
+to the bound. This is a hard constraint, not a recommendation.
+
+6.6 Smoothing (Anti‑Oscillation)
+
+To prevent the target weight from changing too rapidly (which would
+cause frequent, costly rebalancing), the engine applies an exponential
+moving average (EMA) to the target weight:
+
+Wgold,tsmoothed=λ⋅Wgold,ttarget+(1−λ)⋅Wgold,t−1smoothedWgold,tsmoothed​=λ⋅Wgold,ttarget​+(1−λ)⋅Wgold,t−1smoothed​
+
+Where:
+
+-   λ=0.20λ=0.20 — Smoothing factor (20% weight to the new target, 80%
+    to the previous smoothed value).
+
+-   Result: The target weight changes gradually over ~5‑7 days, avoiding
+    whipsaw rebalancing.
+
+Implementation Note: The smoothing is applied off‑chain in the keeper
+bot, or on‑chain via a state variable updated daily. The contract
+exposes the raw target and the smoothed target separately for
+transparency.
+
+6.7 Smart Contract Implementation
+
+6.7.1 Storage Variables
+
+solidity
+
+// Rolling window parameters
+
+uint256 public constant WINDOW_DAYS = 90;
+
+uint256 public constant WINDOW_SECONDS = WINDOW_DAYS * 24 * 3600;
+
+// Coefficients
+
+uint256 public constant ALPHA = 0.15e18; // 15% (1e18 scale)
+
+uint256 public constant BETA = 0.10e18; // 10%
+
+uint256 public constant THETA_MAX = 0.03e18; // ±3%
+
+// Base weight
+
+uint256 public constant BASE_GOLD_WEIGHT = 0.2625e18; // 26.25%
+
+// Smoothing factor
+
+uint256 public constant SMOOTHING_LAMBDA = 0.20e18; // 20%
+
+// Last computed values
+
+uint256 public lastSmoothedGoldWeight;
+
+uint256 public lastVIX;
+
+uint256 public lastDXY;
+
+uint256 public lastUpdateTime;
+
+// Rolling history (for z‑score calculation)
+
+uint256[WINDOW_DAYS] public vixHistory;
+
+uint256[WINDOW_DAYS] public dxyHistory;
+
+uint256 public historyIndex;
+
+6.7.2 Core Logic
+
+solidity
+
+/**
+
+* @dev Updates the rolling history with the latest VIX and DXY values.
+
+* Called by the keeper bot every hour (or via `update()` function).
+
+*/
+
+function updateSignals(uint256 vix, uint256 dxy) external {
+
+// Validate inputs (must be within plausible range)
+
+require(vix >= 10e18 && vix <= 80e18, "VIX out of range");
+
+require(dxy >= 80e18 && dxy <= 120e18, "DXY out of range");
+
+// Store in rolling history
+
+vixHistory[historyIndex] = vix;
+
+dxyHistory[historyIndex] = dxy;
+
+historyIndex = (historyIndex + 1) % WINDOW_DAYS;
+
+lastVIX = vix;
+
+lastDXY = dxy;
+
+lastUpdateTime = block.timestamp;
+
+// Compute new target weight
+
+uint256 newTarget = computeTargetGoldWeight();
+
+uint256 smoothed = smoothTarget(newTarget);
+
+lastSmoothedGoldWeight = smoothed;
+
+emit SignalsUpdated(vix, dxy, newTarget, smoothed);
+
+}
+
+/**
+
+* @dev Computes the target gold weight based on current signals.
+
+* Returns the raw target (before smoothing) in 1e18 scale.
+
+*/
+
+function computeTargetGoldWeight() public view returns (uint256) {
+
+// Calculate rolling mean and std dev for VIX
+
+(uint256 meanVIX, uint256 stdVIX) = calculateRollingStats(vixHistory);
+
+// Calculate rolling mean and std dev for DXY
+
+(uint256 meanDXY, uint256 stdDXY) = calculateRollingStats(dxyHistory);
+
+// Z‑scores (avoid division by zero)
+
+uint256 zVIX = (stdVIX > 0) ? (lastVIX - meanVIX) * 1e18 / stdVIX : 0;
+
+uint256 zDXY = (stdDXY > 0) ? (lastDXY - meanDXY) * 1e18 / stdDXY : 0;
+
+// Adjustment theta
+
+uint256 theta = (ALPHA * zVIX / 1e18) + (BETA * zDXY / 1e18);
+
+// Clamp theta to [-THETA_MAX, +THETA_MAX]
+
+if (theta > THETA_MAX) theta = THETA_MAX;
+
+if (theta < -THETA_MAX) theta = -THETA_MAX; // Note: need signed integer
+handling
+
+// Target weight = base + theta
+
+uint256 target = BASE_GOLD_WEIGHT + theta;
+
+// Clamp to [22%, 30%]
+
+if (target > 0.30e18) target = 0.30e18;
+
+if (target < 0.22e18) target = 0.22e18;
+
+return target;
+
+}
+
+/**
+
+* @dev Applies EMA smoothing to the target weight.
+
+*/
+
+function smoothTarget(uint256 newTarget) public view returns (uint256) {
+
+uint256 previous = lastSmoothedGoldWeight;
+
+if (previous == 0) return newTarget; // First update
+
+return (SMOOTHING_LAMBDA * newTarget / 1e18) + ((1e18 -
+SMOOTHING_LAMBDA) * previous / 1e18);
+
+}
+
+/**
+
+* @dev Calculates rolling mean and standard deviation.
+
+*/
+
+function calculateRollingStats(uint256[WINDOW_DAYS] storage history)
+internal view returns (uint256 mean, uint256 stdDev) {
+
+uint256 sum = 0;
+
+uint256 count = 0;
+
+for (uint256 i = 0; i < WINDOW_DAYS; i++) {
+
+if (history[i] > 0) {
+
+sum += history[i];
+
+count++;
+
+}
+
+}
+
+if (count == 0) return (0, 0);
+
+mean = sum / count;
+
+uint256 variance = 0;
+
+for (uint256 i = 0; i < WINDOW_DAYS; i++) {
+
+if (history[i] > 0) {
+
+uint256 diff = history[i] > mean ? history[i] - mean : mean -
+history[i];
+
+variance += (diff * diff) / count;
+
+}
+
+}
+
+stdDev = sqrt(variance);
+
+return (mean, stdDev);
+
+}
+
+/**
+
+* @dev Simple integer square root (Babylonian method).
+
+*/
+
+function sqrt(uint256 x) internal pure returns (uint256) {
+
+if (x == 0) return 0;
+
+uint256 z = (x + 1) / 2;
+
+uint256 y = x;
+
+while (z < y) {
+
+y = z;
+
+z = (x / z + z) / 2;
+
+}
+
+return y;
+
+}
+
+6.7.3 Getter Functions
+
+solidity
+
+/**
+
+* @dev Returns the current smoothed target gold weight.
+
+*/
+
+function getTargetGoldWeight() public view returns (uint256) {
+
+return lastSmoothedGoldWeight;
+
+}
+
+/**
+
+* @dev Returns the current raw target gold weight (before smoothing).
+
+*/
+
+function getRawTargetGoldWeight() public view returns (uint256) {
+
+return computeTargetGoldWeight();
+
+}
+
+/**
+
+* @dev Returns the current z‑scores for VIX and DXY.
+
+*/
+
+function getZScores() public view returns (uint256 zVIX, uint256 zDXY) {
+
+(uint256 meanVIX, uint256 stdVIX) = calculateRollingStats(vixHistory);
+
+(uint256 meanDXY, uint256 stdDXY) = calculateRollingStats(dxyHistory);
+
+zVIX = (stdVIX > 0) ? (lastVIX - meanVIX) * 1e18 / stdVIX : 0;
+
+zDXY = (stdDXY > 0) ? (lastDXY - meanDXY) * 1e18 / stdDXY : 0;
+
+return (zVIX, zDXY);
+
+}
+
+6.8 Integration with the Rebalancing Engine
+
+The Rebalancing Engine (§7) uses the smoothed target gold weight as
+its primary reference for computing deviations and executing trades.
+
+Flow:
+
+1.  getTargetGoldWeight() returns the smoothed target (e.g., 27.1%).
+
+2.  The Rebalancing Engine calculates the observed gold weight.
+
+3.  Deviation = observed - target.
+
+4.  If deviation exceeds the dynamic threshold (§7), a rebalance is
+    triggered.
+
+Note: The Rebalancing Engine does not use the raw target directly, as
+the smoothed target prevents oscillation.
+
+6.9 Edge Cases & Safety Guards
+
+  -----------------------------------------------------------------------
+  Scenario       Action
+  -------------- --------------------------------------------------------
+  Oracle feed    Use last known value; flag WATCH; if stale > 5 minutes,
+  stale          pause rebalancing.
+
+  Historical     Use available data; z‑score is approximate until 90 days
+  window not     of data is collected.
+  full           
+
+  Extreme VIX (> Clamp the z‑score to the maximum observed in the rolling
+  80)            window (prevents extreme outliers from causing massive
+                 shifts).
+
+  DXY feed       Set ztDXY=0ztDXY​=0 (neutral) until the feed recovers.
+  unavailable    
+  -----------------------------------------------------------------------
+
+6.10 Event Emissions
+
+solidity
+
+event SignalsUpdated(
+
+uint256 indexed vix,
+
+uint256 indexed dxy,
+
+uint256 rawTarget,
+
+uint256 smoothedTarget
+
+);
+
+event TargetWeightChanged(
+
+uint256 indexed oldTarget,
+
+uint256 indexed newTarget,
+
+uint256 timestamp
+
+);
+
+6.11 Summary of Developer‑Facing Constants
+
+  ------------------------------------------------------------------------
+  Parameter           Symbol        Value         Governance
+  ------------------- ------------- ------------- ------------------------
+  VIX Sensitivity     αα            0.15          Risk Council (4/7)
+
+  DXY Sensitivity     ββ            0.10          Risk Council (4/7)
+
+  Max Adjustment      θmaxθmax​      ±3%           Risk Council (4/7)
+
+  Smoothing Factor    λλ            0.20          Risk Council (4/7)
+
+  Rolling Window      —             90 days       Constitutional
+                                                  (immutable)
+
+  Gold Weight Bounds  —             22% – 30%     Constitutional
+                                                  (immutable)
+  ------------------------------------------------------------------------
+
+7. The Rebalancing Engine (Dynamic Optimization)
+
+7.1 Purpose
+
+The Rebalancing Engine is the execution layer of the monetary policy. It
+monitors the reserve portfolio, compares it against the target weights
+(from Section 6), and executes trades to bring the portfolio back into
+alignment.
+
+Unlike a fixed‑threshold system, this engine uses a dynamic,
+cost‑sensitive decision process. It only rebalances when the expected
+benefit of reducing deviation exceeds the estimated cost of execution
+(gas, slippage, and market impact). This minimises unnecessary churn and
+preserves the protocol's operational surplus.
+
+Key Features:
+
+-   Dynamic Threshold: The trigger adapts to market volatility and
+    liquidity.
+
+-   Cost‑Benefit Optimisation: Trades are sized to maximise net benefit.
+
+-   Liquidity‑Aware Sizing: Trade sizes are capped by pool depth to
+    avoid slippage.
+
+-   Direction Lock (Whipsaw Guard): Prevents immediate reversal of
+    trades to avoid gas waste.
+
+7.2 Core Variables (Observed vs. Target)
+
+7.2.1 Observed Weights
+
+The engine first computes the current observed weight of gold in the
+reserve:
+
+Wgold,tobs=Vgold,tVnet,tWgold,tobs​=Vnet,t​Vgold,t​​
+
+Where:
+
+-   Vgold,tVgold,t​ = USD value of all gold holdings (PAXG, etc.) in the
+    vault.
+
+-   Vnet,tVnet,t​ = Total Net Asset Value (from Section 4.1).
+
+7.2.2 Target Weights
+
+The engine retrieves the smoothed target gold weight from the Adaptive
+Macro Engine (Section 6):
+
+Wgold,ttarget=getTargetGoldWeight()(from §6.7)Wgold,ttarget​=getTargetGoldWeight()(from §6.7)Wfiat,ttarget=1−Wgold,ttargetWfiat,ttarget​=1−Wgold,ttarget​
+
+7.2.3 The Deviation
+
+Δt=Wgold,tobs−Wgold,ttargetΔt​=Wgold,tobs​−Wgold,ttarget​
+
+-   If Δt>0Δt​>0 → The vault has excess gold (sell gold, buy fiat).
+
+-   If Δt<0Δt​<0 → The vault has deficient gold (sell fiat, buy gold).
+
+7.3 The Multi‑Objective Cost Function
+
+Instead of using a fixed threshold (e.g., 2.25%), the engine evaluates
+a composite cost functionJ(ΔW)J(ΔW) that balances four objectives:
+
+J(ΔW)=λ1⋅Deviation2+λ2⋅Cost+λ3⋅Urgency+λ4⋅TurnoverJ(ΔW)=λ1​⋅Deviation2+λ2​⋅Cost+λ3​⋅Urgency+λ4​⋅Turnover
+
+Where:
+
+  -------------------------------------------------------------------------------------------------------
+  Term         Formula                                Purpose                               
+  ------------ -------------------------------------- ------------------- ----------------- -------------
+  Deviation²   (Wobs−Wtarget−ΔW)2(Wobs−Wtarget−ΔW)2   Measures how much                     
+                                                      deviation remains                     
+                                                      after the trade.                      
+
+  Cost         ( \text{Spread} \times                 \Delta W            + \text{FixedGas} Execution
+                                                                          )                 cost
+                                                                                            (slippage +
+                                                                                            gas).
+
+  Urgency      1RRtRRt​1​ if RRt<1.10RRt​<1.10, else 00  Penalises deviation                   
+                                                      when the reserve                      
+                                                      ratio is low.                         
+
+  Turnover     (                                      \Delta W            )                 Penalises
+                                                                                            excessive
+                                                                                            trading
+                                                                                            volume.
+  -------------------------------------------------------------------------------------------------------
+
+Coefficients (Governance‑Controlled):
+
+  ------------------------------------------------------------------------
+  Symbol      Value        Description
+  ----------- ------------ -----------------------------------------------
+  λ1λ1​        0.40         Prioritises accuracy (reduce deviation).
+
+  λ2λ2​        0.30         Prioritises cost efficiency.
+
+  λ3λ3​        0.20         Prioritises solvency during stress.
+
+  λ4λ4​        0.10         Penalises excessive turnover.
+  ------------------------------------------------------------------------
+
+The engine searches for the optimal trade size ΔW∗ΔW∗ that
+minimises J(ΔW)J(ΔW).
+
+7.4 The Dynamic Trigger Condition
+
+The engine executes a rebalance if and only if the marginal benefit of
+reducing deviation exceeds the marginal cost:
+
+∂J∂ΔW>ExecutionCostestimated∂ΔW∂J​>ExecutionCostestimated​
+
+ExecutionCost is estimated as:
+
+ExecutionCost=GasPrice×GasUnits+Slippage(∣ΔW∣)ExecutionCost=GasPrice×GasUnits+Slippage(∣ΔW∣)
+
+In practice: The engine simulates the trade at the current oracle price,
+applies the pool‑specific slippage curve, and computes the net benefit.
+If the net benefit is positive (i.e., the reduction in deviation is
+worth the gas and slippage), the trade is executed.
+
+7.5 Trade Sizing (Liquidity‑Sensitive)
+
+To avoid moving the market against itself, the trade size is dynamically
+capped by the available pool depth:
+
+TradeSizemax=min⁡(∣Δt∣×Vnet,t, 0.10×PoolDepth24h)TradeSizemax​=min(∣Δt​∣×Vnet,t​, 0.10×PoolDepth24h​)
+
+Where:
+
+-   ∣Δt∣×Vnet,t∣Δt​∣×Vnet,t​ = The absolute surplus value to rebalance (in
+    USD).
+
+-   PoolDepth24hPoolDepth24h​ = The 24‑hour rolling average liquidity of
+    the primary DEX pool (e.g., PAXG/USDC).
+
+-   The 10% cap ensures the protocol never consumes more than 10% of the
+    pool's daily volume in a single trade, preventing excessive
+    slippage.
+
+If the required rebalance exceeds the cap, the engine executes multiple
+staged trades over several days (spreading the execution cost).
+
+7.6 Execution Constraints
+
+7.6.1 Slippage Guard
+
+All trades are executed via a DEX aggregator (1inch, Paraswap)
+with both‑sided slippage protection:
+
+-   When Selling Gold:
+
+ExecRate≥OracleRate×(1−τ)ExecRate≥OracleRate×(1−τ)
+
+-   When Buying Gold:
+
+ExecRate≤OracleRate×(1+τ)ExecRate≤OracleRate×(1+τ)
+
+Where τ=0.01τ=0.01 (1%, adjustable by the Risk Council).
+
+7.6.2 Maximum Daily Turnover
+
+To prevent excessive trading, the engine enforces a maximum daily
+turnover of 5% of the total reserve value. If the required rebalance
+exceeds this, the remaining amount is deferred to the next day.
+
+7.6.3 Direction Lock (Whipsaw Guard)
+
+To prevent oscillation (selling gold one day, buying it back the next),
+the engine implements a 24‑hour direction lock:
+
+-   If the engine sold gold in the last 24 hours, it cannot sell gold
+    again (but it can buy gold if the deviation reverses direction).
+
+-   If the engine bought gold in the last 24 hours, it cannot buy gold
+    again (but it can sell gold).
+
+Exception: The direction lock is overridden if the Reserve Ratio drops
+below 1.05 (Stress Mode). In that case, the engine may reverse direction
+regardless of the lock to protect solvency.
+
+7.7 Integration with the Adaptive Macro Engine
+
+The Rebalancing Engine uses the smoothed target gold weight from Section
+6 as its primary reference.
+
+Flow:
+
+1.  getTargetGoldWeight() (from §6.7) returns the smoothed target (e.g.,
+    27.1%).
+
+2.  The engine computes Δt=Wobs−WtargetΔt​=Wobs−Wtarget.
+
+3.  It then evaluates J(ΔW)J(ΔW) and determines the optimal trade.
+
+4.  The trade is executed through the DEX aggregator.
+
+Note: The engine recalculates the target every time it evaluates a
+rebalance. If the target changed since the last evaluation, the engine
+adapts immediately.
+
+7.8 Smart Contract Implementation
+
+7.8.1 Constants & State Variables
+
+solidity
+
+// Objective function coefficients (1e18 scale)
+
+uint256 public constant LAMBDA_1 = 0.40e18; // Deviation
+
+uint256 public constant LAMBDA_2 = 0.30e18; // Cost
+
+uint256 public constant LAMBDA_3 = 0.20e18; // Urgency
+
+uint256 public constant LAMBDA_4 = 0.10e18; // Turnover
+
+// Slippage tolerance
+
+uint256 public constant SLIPPAGE_TOLERANCE = 0.01e18; // 1%
+
+// Daily turnover cap (5% of NAV)
+
+uint256 public constant MAX_DAILY_TURNOVER = 0.05e18; // 5%
+
+// Max trade size as fraction of pool depth
+
+uint256 public constant MAX_POOL_FRACTION = 0.10e18; // 10%
+
+// Direction lock duration
+
+uint256 public constant DIRECTION_LOCK_DURATION = 24 hours;
+
+// Last trade metadata
+
+struct LastTrade {
+
+uint256 timestamp;
+
+int256 direction; // +1 for buy, -1 for sell, 0 for none
+
+}
+
+LastTrade public lastTrade;
+
+// Daily turnover tracking
+
+uint256 public dailyTurnover; // USD value traded today
+
+uint256 public lastTurnoverReset;
+
+7.8.2 Core Logic
+
+solidity
+
+/**
+
+* @dev Evaluates whether a rebalance is needed and executes it if
+profitable.
+
+* Called by the keeper bot (or via `executeRebalance()` function).
+
+*/
+
+function executeRebalance() external {
+
+// 1. Update state
+
+updateReserveState(); // From §4.4.2
+
+uint256 nav = getNAV();
+
+uint256 rr = getReserveRatio();
+
+uint256 targetGold = getTargetGoldWeight(); // From §6.7
+
+// 2. Compute observed gold weight
+
+uint256 goldValue = reserveState.goldValue;
+
+uint256 observedGold = (goldValue * 1e18) / nav;
+
+// 3. Compute deviation
+
+int256 deviation = int256(observedGold) - int256(targetGold);
+
+if (deviation == 0) return; // Perfectly balanced
+
+// 4. Direction lock check (except in stress mode)
+
+if (rr >= 1.05e18) {
+
+if (block.timestamp - lastTrade.timestamp < DIRECTION_LOCK_DURATION) {
+
+if ((deviation > 0 && lastTrade.direction == -1) ||
+
+(deviation < 0 && lastTrade.direction == 1)) {
+
+return; // Locked in same direction
+
+}
+
+}
+
+}
+
+// 5. Compute optimal trade size (simplified: use the deviation)
+
+uint256 surplusValue = abs(deviation) * nav / 1e18;
+
+// 6. Cap by liquidity
+
+uint256 poolDepth = getPoolDepth(PAXG_USDC_POOL);
+
+uint256 maxTrade = (poolDepth * MAX_POOL_FRACTION) / 1e18;
+
+if (surplusValue > maxTrade) surplusValue = maxTrade;
+
+// 7. Cap by daily turnover
+
+resetDailyTurnover();
+
+if (surplusValue > (nav * MAX_DAILY_TURNOVER / 1e18) - dailyTurnover) {
+
+surplusValue = (nav * MAX_DAILY_TURNOVER / 1e18) - dailyTurnover;
+
+}
+
+// 8. Estimate costs
+
+uint256 estimatedCost = estimateExecutionCost(surplusValue, deviation >
+0);
+
+uint256 urgency = (rr < 1.10e18) ? (1e18 / rr) : 0;
+
+// 9. Compute net benefit (objective function improvement)
+
+uint256 currentDeviation = abs(deviation);
+
+uint256 newDeviation = abs(deviation - (int256(surplusValue) * 1e18 /
+int256(nav)));
+
+uint256 benefit = (currentDeviation - newDeviation) * LAMBDA_1 / 1e18;
+
+benefit += urgency * LAMBDA_3 / 1e18;
+
+uint256 costTerm = estimatedCost * LAMBDA_2 / 1e18;
+
+// 10. Execute if beneficial
+
+if (benefit > costTerm) {
+
+// Execute the trade
+
+if (deviation > 0) {
+
+// Sell gold
+
+uint256 sellAmount = (surplusValue * 1e18) / getGoldPrice();
+
+sellGold(sellAmount);
+
+lastTrade.direction = -1;
+
+} else {
+
+// Buy gold
+
+uint256 buyAmount = (surplusValue * 1e18) / getGoldPrice();
+
+buyGold(buyAmount);
+
+lastTrade.direction = 1;
+
+}
+
+lastTrade.timestamp = block.timestamp;
+
+dailyTurnover += surplusValue;
+
+emit RebalanceExecuted(block.timestamp, deviation, surplusValue,
+estimatedCost);
+
+}
+
+}
+
+/**
+
+* @dev Estimates execution cost (gas + slippage) for a trade.
+
+*/
+
+function estimateExecutionCost(uint256 amount, bool isSell) internal
+view returns (uint256) {
+
+// Simplified: 0.1% of trade value + $50 gas
+
+uint256 slippage = amount / 1000; // 0.1% assumed
+
+uint256 gas = 50e18; // $50 in wei (simplified)
+
+return slippage + gas;
+
+}
+
+/**
+
+* @dev Resets daily turnover counter if a new day has started.
+
+*/
+
+function resetDailyTurnover() internal {
+
+if (block.timestamp >= lastTurnoverReset + 1 days) {
+
+dailyTurnover = 0;
+
+lastTurnoverReset = block.timestamp;
+
+}
+
+}
+
+7.8.3 DEX Integration
+
+solidity
+
+/**
+
+* @dev Executes a sell order for gold via a DEX aggregator.
+
+*/
+
+function sellGold(uint256 amount) internal {
+
+// Check slippage guard
+
+uint256 oraclePrice = getGoldPrice();
+
+uint256 minOutput = (amount * oraclePrice / 1e18) * (1e18 -
+SLIPPAGE_TOLERANCE) / 1e18;
+
+// Execute swap via aggregator (1inch, Paraswap)
+
+bytes memory data = aggregator.encodeSwapData(PAXG, USDC, amount,
+minOutput, address(this), block.timestamp + 300);
+
+(bool success, ) = aggregator.call(data);
+
+require(success, "Sell failed");
+
+}
+
+7.9 Event Emissions
+
+solidity
+
+event RebalanceExecuted(
+
+uint256 indexed timestamp,
+
+int256 deviation,
+
+uint256 amount,
+
+uint256 estimatedCost
+
+);
+
+event RebalanceSkipped(
+
+uint256 indexed timestamp,
+
+int256 deviation,
+
+string reason
+
+);
+
+event DailyTurnoverReset(
+
+uint256 indexed timestamp,
+
+uint256 previousTurnover
+
+);
+
+7.10 Summary of Developer‑Facing Constants
+
+  ------------------------------------------------------------------------
+  Parameter       Symbol   Value           Governance
+  --------------- -------- --------------- -------------------------------
+  Lambda 1        λ1λ1​     0.40            Risk Council (4/7)
+  (Deviation)                              
+
+  Lambda 2 (Cost) λ2λ2​     0.30            Risk Council (4/7)
+
+  Lambda 3        λ3λ3​     0.20            Risk Council (4/7)
+  (Urgency)                                
+
+  Lambda 4        λ4λ4​     0.10            Risk Council (4/7)
+  (Turnover)                               
+
+  Slippage        ττ       1%              Risk Council (4/7)
+  Tolerance                                
+
+  Max Daily       —        5% of NAV       Risk Council (4/7)
+  Turnover                                 
+
+  Max Pool        —        10% of 24h      Risk Council (4/7)
+  Fraction                 volume          
+
+  Direction Lock  —        24 hours        Immutable (Risk Council can
+                                           override in stress)
+  ------------------------------------------------------------------------
+
+Summary of Insertion Instructions
+
+  -------------------------------------------------------------------------
+  Action       Details
+  ------------ ------------------------------------------------------------
+  Replace      Replace the entire existing Section 7 in the blueprint with
+               this module.
+
+  Dependency   Requires Section 4 (Reserve NAV), Section 6 (Target
+               Weights), Section 9 (Oracles), and Section 10 (Execution).
+
+  Developer    The executeRebalance() function must be called by a keeper
+  Action       bot at least once per hour (or on significant market moves).
+               The gas estimation should be calibrated to the target chain.
+
+  Security     The aggregator address must be a trusted, audited DEX
+               aggregator. The contract must
+               include onlyApprovedAggregator modifiers to prevent
+               malicious router calls.
+  -------------------------------------------------------------------------
+
+8. The Dynamic Buffer (Base, Stress & Emergency Layers)
+
+8.1 Purpose
+
+The Dynamic Buffer is the multi‑layer safety cushion that sits on top of
+the 100% core reserve. It absorbs market volatility, provides a first
+line of defence against devaluation, and adjusts its composition based
+on the current health of the protocol (Reserve Ratio).
+
+The buffer is not a separate vault — it is an accounting construct that
+distinguishes:
+
+-   Core Reserve: The 100% liability coverage (sacred, never touched for
+    profit).
+
+-   Buffer Reserve: The additional 10% excess collateral that is
+    actively managed to protect the peg.
+
+The buffer has three distinct layers, each with a different gold/fiat
+split, triggered by the Reserve Ratio:
+
+8.2 The Three Buffer States
+
+  ----------------------------------------------------------------------------------------------
+  State       RR Range                   Buffer Gold    Buffer   Description
+                                         Ratio          Fiat     
+                                         (BgoldBgold​)   Ratio    
+  ----------- -------------------------- -------------- -------- -------------------------------
+  BASE        RR≥1.10RR≥1.10             62.5%          37.5%    Normal operations. Buffer is
+  (Normal)                                                       62.5% gold, 37.5% fiat. This is
+                                                                 the optimal split derived from
+                                                                 simulations (Pareto‑frontier).
+
+  STRESS      1.05≤RR<1.101.05≤RR<1.10   85%            15%      Defensive posture. Buffer
+                                                                 shifts heavily to gold to
+                                                                 protect against further
+                                                                 devaluation. Minting is
+                                                                 throttled (50% capacity).
+
+  EMERGENCY   RR<1.05RR<1.05             100%           0%       Maximum defence. Buffer is 100%
+                                                                 gold. Minting is paused.
+                                                                 Emergency rebalancing is
+                                                                 triggered. Redemption is still
+                                                                 allowed (with increased fee).
+  ----------------------------------------------------------------------------------------------
+
+Key Clarification: "100% gold" means the entire 10% buffer is held in
+gold. The total reserve gold weight is then:
+
+Wgoldtotal=Wgoldcore+(0.10×Bgold)Wgoldtotal​=Wgoldcore​+(0.10×Bgold​)
+
+-   In BASE (62.5% buffer
+    gold): Wgoldtotal=0.20+(0.10×0.625)=26.25%Wgoldtotal​=0.20+(0.10×0.625)=26.25%.
+
+-   In STRESS (85% buffer
+    gold): Wgoldtotal=0.20+(0.10×0.85)=28.5%Wgoldtotal​=0.20+(0.10×0.85)=28.5%.
+
+-   In EMERGENCY (100% buffer
+    gold): Wgoldtotal=0.20+(0.10×1.00)=30.0%Wgoldtotal​=0.20+(0.10×1.00)=30.0%.
+
+This is the maximum gold exposure (30%). The buffer never makes the
+reserve 100% gold.
+
+8.3 Buffer Allocation Formula
+
+The total reserve is decomposed as:
+
+Vnet,t=Vcore,t+Vbuffer,tVnet,t​=Vcore,t​+Vbuffer,t​
+
+Where:
+
+-   Vcore,t=Scirc,t×PMTQ,tVcore,t​=Scirc,t​×PMTQ,t​ — The 100% liability
+    coverage (always exactly equal to liabilities).
+
+-   Vbuffer,t=0.10×Scirc,t×PMTQ,tVbuffer,t​=0.10×Scirc,t​×PMTQ,t​ — The 10%
+    excess collateral.
+
+The Buffer Split:
+
+Vbuffer,gold,t=Vbuffer,t×Bgold(RRt)Vbuffer,gold,t​=Vbuffer,t​×Bgold​(RRt​)Vbuffer,fiat,t=Vbuffer,t×(1−Bgold(RRt))Vbuffer,fiat,t​=Vbuffer,t​×(1−Bgold​(RRt​))
+
+Where Bgold(RRt)Bgold​(RRt​) is determined by the state table in §8.2.
+
+Total Gold Holding:
+
+Vgold,total,t=Vcore,gold,t+Vbuffer,gold,tVgold,total,t​=Vcore,gold,t​+Vbuffer,gold,t​
+
+Where: Vcore,gold,t=0.20×Vcore,tVcore,gold,t​=0.20×Vcore,t​ (20% of the
+core is always gold).
+
+8.4 State Transition Logic
+
+The buffer state is re‑evaluated every time the Reserve Ratio is
+updated (i.e., after every mint, redeem, rebalance, or price update).
+
+Transition Rules:
+
+  ------------------------------------------------------------------------
+  From → To    Trigger               Action
+  ------------ --------------------- -------------------------------------
+  BASE →       RR<1.10RR<1.10        Buffer gold ratio increases from
+  STRESS                             62.5% to 85% over 24 hours (linear
+                                     ramp to avoid sudden market impact).
+
+  STRESS →     RR≥1.10RR≥1.10 for 24 Buffer gold ratio decreases from 85%
+  BASE         consecutive hours     to 62.5% over 24 hours.
+
+  STRESS →     RR<1.05RR<1.05        Buffer gold ratio jumps to
+  EMERGENCY                          100% immediately. Minting paused.
+                                     Emergency rebalance triggered.
+
+  EMERGENCY →  RR≥1.05RR≥1.05 for 48 Buffer gold ratio decreases from 100%
+  STRESS       consecutive hours     to 85%. Minting resumes at 50%
+                                     capacity.
+
+  EMERGENCY →  RR≥1.10RR≥1.10 for 48 Buffer gold ratio decreases from 100%
+  BASE         consecutive hours     to 62.5%. Minting resumes at 100%
+                                     capacity.
+  ------------------------------------------------------------------------
+
+Ramping: To avoid market impact, transitions between BASE and STRESS
+are ramped linearly over 24 hours. This allows the rebalancing engine to
+execute small trades gradually rather than a single large trade.
+
+Example Ramp (BASE → STRESS):
+
+-   At t=0t=0: Bgold=0.625Bgold​=0.625
+
+-   At t=24ht=24h: Bgold=0.85Bgold​=0.85
+
+-   The target is updated every
+    hour: Bgold,t=0.625+(0.85−0.625)×t24Bgold,t​=0.625+(0.85−0.625)×24t​
+
+8.5 Buffer Consumption (First‑Loss Waterfall)
+
+The buffer exists to be consumed before the core reserve in a crisis.
+The protocol defines a first‑loss waterfall for absorbing losses:
+
+  ------------------------------------------------------------------------
+  Layer         Asset             Purpose
+  ------------- ----------------- ----------------------------------------
+  1.            Fee revenue       Absorbs small, temporary deviations.
+  Operational                     
+  Surplus                         
+
+  2. Buffer     37.5% / 15% of    Absorbs medium‑sized losses (stablecoin
+  Fiat          buffer            depegs).
+
+  3. Buffer     62.5% / 85% /     Absorbs larger losses (gold market
+  Gold          100% of buffer    corrections).
+
+  4. Core Fiat  80% of core       Absorbs severe losses (last line before
+                                  gold).
+
+  5. Core Gold  20% of core       Absolute last resort. Protected by
+                                  Exhaustion Certificate (requires 4/7
+                                  Multi‑Sig).
+  ------------------------------------------------------------------------
+
+When a loss occurs (e.g., a stablecoin depegs by 1%):
+
+1.  The loss is first deducted from the Operational Surplus (fee
+    revenue).
+
+2.  If surplus is insufficient, the loss is deducted from the Buffer
+    Fiat (stablecoins).
+
+3.  If buffer fiat is insufficient, the loss is deducted from the Buffer
+    Gold.
+
+4.  If buffer gold is insufficient, the loss is deducted from the Core
+    Fiat.
+
+5.  If core fiat is insufficient, the loss is deducted from the Core
+    Gold (requires governance approval).
+
+This waterfall ensures the core reserve is protected for as long as
+possible.
+
+8.6 Integration with the Rebalancing Engine
+
+The Rebalancing Engine (§7) uses the effective total weights computed
+from the buffer state:
+
+Wgold,total,ttarget=0.20+(0.10×Bgold(RRt))Wgold,total,ttarget​=0.20+(0.10×Bgold​(RRt​))Wfiat,total,ttarget=0.80+(0.10×(1−Bgold(RRt)))Wfiat,total,ttarget​=0.80+(0.10×(1−Bgold​(RRt​)))
+
+These values are used as the targetGoldWeight in Section 7.2.2.
+
+Flow:
+
+1.  The Reserve Ratio is updated.
+
+2.  The buffer state is evaluated (BASE / STRESS / EMERGENCY).
+
+3.  The total target gold weight is computed.
+
+4.  The Rebalancing Engine compares observed vs. target and executes
+    trades if needed.
+
+This tight coupling ensures the buffer is automatically rebalanced as
+the protocol's health changes.
+
+8.7 Smart Contract Implementation
+
+8.7.1 Constants
+
+solidity
+
+// Buffer constants
+
+uint256 public constant BUFFER_SIZE = 0.10e18; // 10% of liability
+
+uint256 public constant CORE_GOLD_WEIGHT = 0.20e18; // 20% of core is
+gold
+
+// Buffer state thresholds
+
+uint256 public constant RR_BASE_THRESHOLD = 1.10e18;
+
+uint256 public constant RR_STRESS_THRESHOLD = 1.05e18;
+
+// Buffer gold ratios for each state
+
+uint256 public constant BUFFER_GOLD_BASE = 0.625e18; // 62.5%
+
+uint256 public constant BUFFER_GOLD_STRESS = 0.85e18; // 85%
+
+uint256 public constant BUFFER_GOLD_EMERGENCY = 1.00e18; // 100%
+
+// Ramp duration (seconds)
+
+uint256 public constant RAMP_DURATION = 24 hours;
+
+// State tracking
+
+enum BufferState { BASE, STRESS, EMERGENCY }
+
+BufferState public currentBufferState;
+
+// Ramp tracking
+
+uint256 public rampStartTime;
+
+uint256 public rampStartGoldRatio;
+
+uint256 public rampTargetGoldRatio;
+
+8.7.2 Core Logic
+
+solidity
+
+/**
+
+* @dev Updates the buffer state based on the current Reserve Ratio.
+
+* Called after every mint, redeem, rebalance, or price update.
+
+*/
+
+function updateBufferState() internal {
+
+uint256 rr = getReserveRatio(); // From §4.4.3
+
+BufferState newState;
+
+if (rr >= RR_BASE_THRESHOLD) {
+
+newState = BufferState.BASE;
+
+} else if (rr >= RR_STRESS_THRESHOLD) {
+
+newState = BufferState.STRESS;
+
+} else {
+
+newState = BufferState.EMERGENCY;
+
+}
+
+// Handle state transitions
+
+if (newState != currentBufferState) {
+
+if (newState == BufferState.EMERGENCY) {
+
+// Immediate transition to EMERGENCY
+
+currentBufferState = newState;
+
+rampStartTime = 0; // No ramp for emergency
+
+emit BufferStateChanged(newState, "EMERGENCY", block.timestamp);
+
+// Pause minting
+
+pauseMinting();
+
+// Trigger emergency rebalance (force gold target to 30%)
+
+triggerEmergencyRebalance();
+
+} else {
+
+// Ramp between BASE and STRESS
+
+rampStartTime = block.timestamp;
+
+rampStartGoldRatio = getCurrentBufferGoldRatio();
+
+rampTargetGoldRatio = (newState == BufferState.BASE) ? BUFFER_GOLD_BASE
+: BUFFER_GOLD_STRESS;
+
+currentBufferState = newState;
+
+emit BufferStateChanged(newState, "RAMPING", block.timestamp);
+
+}
+
+}
+
+}
+
+/**
+
+* @dev Returns the current buffer gold ratio (considering ramps).
+
+*/
+
+function getCurrentBufferGoldRatio() public view returns (uint256) {
+
+if (currentBufferState == BufferState.EMERGENCY) {
+
+return BUFFER_GOLD_EMERGENCY;
+
+}
+
+if (rampStartTime == 0) {
+
+return (currentBufferState == BufferState.BASE) ? BUFFER_GOLD_BASE :
+BUFFER_GOLD_STRESS;
+
+}
+
+// Check if ramp is complete
+
+if (block.timestamp >= rampStartTime + RAMP_DURATION) {
+
+return rampTargetGoldRatio;
+
+}
+
+// Compute progress (0 to 1)
+
+uint256 elapsed = block.timestamp - rampStartTime;
+
+uint256 progress = (elapsed * 1e18) / RAMP_DURATION;
+
+// Interpolate
+
+uint256 diff = (rampTargetGoldRatio > rampStartGoldRatio) ?
+
+rampTargetGoldRatio - rampStartGoldRatio :
+
+rampStartGoldRatio - rampTargetGoldRatio;
+
+uint256 adjustment = (diff * progress) / 1e18;
+
+return (rampTargetGoldRatio > rampStartGoldRatio) ?
+
+rampStartGoldRatio + adjustment :
+
+rampStartGoldRatio - adjustment;
+
+}
+
+/**
+
+* @dev Returns the total target gold weight (core + buffer).
+
+* This is the value used by the Rebalancing Engine (§7).
+
+*/
+
+function getTotalTargetGoldWeight() public view returns (uint256) {
+
+uint256 bufferGoldRatio = getCurrentBufferGoldRatio();
+
+return CORE_GOLD_WEIGHT + (BUFFER_SIZE * bufferGoldRatio / 1e18);
+
+}
+
+/**
+
+* @dev Returns the total target fiat weight.
+
+*/
+
+function getTotalTargetFiatWeight() public view returns (uint256) {
+
+return 1e18 - getTotalTargetGoldWeight();
+
+}
+
+/**
+
+* @dev Emergency function to force the buffer to 100% gold (Emergency
+State).
+
+* Only callable by 4/7 Multi-Sig.
+
+*/
+
+function forceEmergencyBuffer() external onlyEmergencyCouncil {
+
+currentBufferState = BufferState.EMERGENCY;
+
+rampStartTime = 0;
+
+pauseMinting();
+
+triggerEmergencyRebalance();
+
+emit BufferStateChanged(BufferState.EMERGENCY, "FORCED",
+block.timestamp);
+
+}
+
+8.7.3 Buffer Consumption (First‑Loss Waterfall)
+
+solidity
+
+/**
+
+* @dev Applies a loss to the buffer using the first‑loss waterfall.
+
+* Called when a loss is detected (e.g., stablecoin depeg, oracle
+correction).
+
+*/
+
+function applyLoss(uint256 lossAmount) internal {
+
+uint256 remainingLoss = lossAmount;
+
+// 1. Consume operational surplus (fee revenue)
+
+uint256 surplus = getOperationalSurplus();
+
+if (surplus > 0) {
+
+uint256 consumed = (surplus >= remainingLoss) ? remainingLoss : surplus;
+
+remainingLoss -= consumed;
+
+consumeSurplus(consumed);
+
+if (remainingLoss == 0) return;
+
+}
+
+// 2. Consume buffer fiat
+
+uint256 bufferFiat = getBufferFiatValue();
+
+if (bufferFiat > 0) {
+
+uint256 consumed = (bufferFiat >= remainingLoss) ? remainingLoss :
+bufferFiat;
+
+remainingLoss -= consumed;
+
+consumeBufferFiat(consumed);
+
+if (remainingLoss == 0) return;
+
+}
+
+// 3. Consume buffer gold
+
+uint256 bufferGold = getBufferGoldValue();
+
+if (bufferGold > 0) {
+
+uint256 consumed = (bufferGold >= remainingLoss) ? remainingLoss :
+bufferGold;
+
+remainingLoss -= consumed;
+
+consumeBufferGold(consumed);
+
+if (remainingLoss == 0) return;
+
+}
+
+// 4. Consume core fiat (emergency)
+
+uint256 coreFiat = getCoreFiatValue();
+
+if (coreFiat > 0) {
+
+uint256 consumed = (coreFiat >= remainingLoss) ? remainingLoss :
+coreFiat;
+
+remainingLoss -= consumed;
+
+consumeCoreFiat(consumed);
+
+if (remainingLoss == 0) return;
+
+}
+
+// 5. Consume core gold (requires governance approval)
+
+if (remainingLoss > 0) {
+
+requireGovernanceApprovalForCoreGoldConsumption(remainingLoss);
+
+consumeCoreGold(remainingLoss);
+
+}
+
+}
+
+8.7.4 Event Emissions
+
+solidity
+
+event BufferStateChanged(
+
+BufferState indexed newState,
+
+string action,
+
+uint256 timestamp
+
+);
+
+event BufferRampUpdated(
+
+uint256 indexed startRatio,
+
+uint256 indexed targetRatio,
+
+uint256 progress
+
+);
+
+event BufferConsumed(
+
+string layer,
+
+uint256 amount,
+
+uint256 remainingLoss
+
+);
+
+8.8 Summary of Developer‑Facing Constants
+
+  --------------------------------------------------------------------------
+  Parameter          Symbol                  Value        Governance
+  ------------------ ----------------------- ------------ ------------------
+  Buffer Size        BUFFER_SIZE             10% of       Constitutional
+                                             liability    (immutable)
+
+  Core Gold Weight   CORE_GOLD_WEIGHT        20%          Constitutional
+                                                          (immutable)
+
+  Buffer Gold (BASE) BUFFER_GOLD_BASE        62.5%        Risk Council (4/7)
+
+  Buffer Gold        BUFFER_GOLD_STRESS      85%          Risk Council (4/7)
+  (STRESS)                                                
+
+  Buffer Gold        BUFFER_GOLD_EMERGENCY   100%         Risk Council (4/7)
+  (EMERGENCY)                                             
+
+  BASE Threshold     RR_BASE_THRESHOLD       1.10         Constitutional
+                                                          (immutable)
+
+  STRESS Threshold   RR_STRESS_THRESHOLD     1.05         Constitutional
+                                                          (immutable)
+
+  Ramp Duration      RAMP_DURATION           24 hours     Risk Council (4/7)
+  --------------------------------------------------------------------------
+
+9. Oracle Architecture (Multi-Source, Timestamp & Confidence)
+
+9.1 Price Fetching & Validation
+
+For each asset, the contract queries three sources:
+
+1.  Chainlink (Primary).
+
+2.  Pyth Network (High-frequency).
+
+3.  Chronicle Protocol (Verifiable).
+
+9.2 The Validation Criteria
+
+The contract does not simply take the median. It applies:
+
+1.  Timestamp: Only prices updated within the last 60 seconds are valid.
+
+2.  Staleness Threshold: If a feed is stale, it is discarded.
+
+3.  Confidence Interval: The confidence interval width must be < 1% of
+    the price.
+
+4.  Deviation: Any feed deviating by > 2.5% from the median is discarded
+    (not 5%, as PAXG can be more volatile).
+
+9.3 Median with Confidence Weighting
+
+If all three feeds are valid:
+
+Pfinal=Median(P1,P2,P3)Pfinal​=Median(P1​,P2​,P3​)
+
+If only two are valid, use the average. If fewer than two, pause minting
+and rebalancing.
+
+10. Execution & Slippage Protection (Two-Sided Bounds)
+
+10.1 The Quote-Based Execution (No Spot Assumption)
+
+Before executing a swap, the contract fetches a route quote from the
+aggregator (1inch/Paraswap).
+
+10.2 Two-Sided Slippage Bounds
+
+For Selling Gold (PAXG → USDC):
+
+Exec_Rate≥Oracle_Rate×(1−τ)Exec_Rate≥Oracle_Rate×(1−τ)
+
+For Buying Gold (USDC → PAXG):
+
+Exec_Rate≤Oracle_Rate×(1+τ)Exec_Rate≤Oracle_Rate×(1+τ)
+
+Where τ=0.01τ=0.01 (1% tolerance, adjustable by governance).
+
+Failure Condition: If the quote violates these bounds, the transaction
+reverts (atomicity).
+
+10.3 Dynamic Trade Sizing
+
+Trade size is not fixed at 15%. It is a function of liquidity:
+
+TradeSize=min⁡(Deviation×Vgross, 0.10×PoolDepth24h)TradeSize=min(Deviation×Vgross​, 0.10×PoolDepth24h​)
+
+This prevents the protocol from sliding the market.
+
+11. Geopolitical Eject (Staged Liquidation) & Reintegration Score
+
+11.1 The Detector (Peg Stability)
+
+If an asset (e.g., EURC) trades outside the 0.98−1.020.98−1.02 band
+for > 12 hours.
+
+11.2 Staged Liquidation (Not 100%)
+
+Instead of selling 100% instantly, the protocol executes a ladder:
+
+  -----------------------------------------------------------------------
+  Stage    Sell %      Condition
+  -------- ----------- --------------------------------------------------
+  1        10%         Depeg detected > 12h
+
+  2        25%         Depeg > 24h OR RR < 1.08
+
+  3        50%         Depeg > 48h OR RR < 1.05
+
+  4        100%        Liquidity collapses OR issuer freeze confirmed
+  -----------------------------------------------------------------------
+
+Rule: Each stage executes only if the previous stage's sell did not
+worsen the deviation.
+
+11.3 Reintegration Score (Anti-Gaming)
+
+The asset is re-purchased only when a score exceeds a threshold:
+
+Rscore=w1⋅TimeInBand48h+w2⋅LiquidityDepth+w3⋅OracleAgreement+w4⋅(1−Volatility)Rscore​=w1​⋅TimeInBand48h​+w2​⋅LiquidityDepth+w3​⋅OracleAgreement+w4​⋅(1−Volatility)
+
+If Rscore>0.80Rscore​>0.80, the protocol stages the re-purchase (25% →
+50% → 100%).
+
+12. Minting & Redemption (Priced Against the GFB Index)
+
+12.1 Minting Logic (Fixed the "Not a Dollar" Contradiction)
+
+1.  User deposits XX USDC.
+
+2.  Fee: Xnet=X×(1−0.001)Xnet​=X×(1−0.001).
+
+3.  The Mint Calculation (Crucial Fix):
+
+MTQminted=XnetPMTQ,tMTQminted​=PMTQ,t​Xnet​​
+
+If PMTQ,t=1.12PMTQ,t​=1.12, the user gets X/1.12X/1.12 MTQ. This
+mathematically enforces the index valuation.
+
+12.2 Redemption Logic (Full Basket)
+
+User burns YY MTQ.
+
+1.  Calculate Redemption
+    Value: Value=Y×NAVtValue=Y×NAVt​ (Where NAVt=Vnet,t/StNAVt​=Vnet,t​/St​).
+
+2.  Fee: Deduct 0.15%.
+
+3.  Release Assets: The protocol releases the exact proportional basket:
+
+    -   38.9% USDC
+
+    -   27.8% EURC
+
+    -   16.7% GBP₿
+
+    -   11.1% JPY₿
+
+    -   5.6% CNY₿
+
+    -   Plus proportional PAXG.
+
+Optional Router: If the user wants only USDC, a DEX router swaps the
+basket for USDC (with slippage protection).
+
+13. Genesis Event, Accounting & Treasury Sweep
+
+13.1 Genesis Event (Corrected Math)
+
+To launch the vault:
+
+1.  Deposit: Protocol deposits $1,100,000$1,100,000 USDC into the vault.
+
+2.  Swap: The contract buys the basket ($880,000) + PAXG ($220,000) at
+    the oracle price.
+
+3.  Mint: The contract mints 1,000,000 MTQ Σ (this is the Genesis
+    Supply).
+
+4.  Reserve
+    Ratio: RR=1,100,000/(1,000,000×1.00)=1.10RR=1,100,000/(1,000,000×1.00)=1.10 (110%).
+
+The Burn Address: The Genesis MTQ is sent to a Genesis Reserve
+Account (a separate smart contract). This supply is excluded from
+circulating supply calculations for S_t but included in totalSupply for
+ERC-20. We explicitly track circulatingSupply for monetary policy.
+
+13.2 Treasury Sweep
+
+If the operational wallet (hot wallet) holds > $10,000 in surplus
+stablecoins, they are swept to a 4/7 Multi-Sig Cold Treasury.
+
+14. Governance & Risk State Machine
+
+14.1 The Risk State Machine
+
+  -------------------------------------------------------------------------
+  State       Minting        Redemption        Rebalancing       RR Target
+  ----------- -------------- ----------------- ----------------- ----------
+  NORMAL      Allowed        Allowed           Active            1.10
+
+  STRESS      Throttled      Allowed           Active (Gold buy) 1.08
+              (50%)                                              
+
+  DEFENSIVE   Paused         Allowed (Fee      Active            1.05
+                             0.5%)             (Emergency)       
+
+  EMERGENCY   Paused         Restricted (Fee   Active (Force)    1.00
+                             2%)                                 
+
+  RECOVERY    Throttled      Allowed           Active            1.08
+              (25%)                                              
+  -------------------------------------------------------------------------
+
+14.2 Governance Hierarchy
+
+  ------------------------------------------------------------------------
+  Parameter                        Authority               Timelock
+  -------------------------------- ----------------------- ---------------
+  Constitutional (GFB q_i)         Multi-Sig (7/7)         90 days
+
+  Monetary (RR Target, Fees)       DAO Vote (51%)          48h
+
+  Risk (Thresholds, Haircuts)      Risk Council (4/7)      24h
+
+  Emergency (Pause/Eject)          Multi-Sig (4/7)         Instant
+  ------------------------------------------------------------------------
+
+15. Updated Claims & Honest Status Declaration
+
+15.1 Removed Claims (Until Proven)
+
+-   "100% Halal / Fatwa-ready" → Replaced with "Designed for Sharia
+    review."
+
+-   "94/100 Utility Score" → Removed. (Not mathematically demonstrated.)
+
+-   "σNAV = 4.34%" → Removed. (Replaced with design target.)
+
+-   "Crisis-Proof" → Removed. (Replaced with "designed to resist
+    depeg.")
+
+-   "1 MTQ = 1 Big Mac" → Removed. (Replaced with "targets global
+    purchasing power index.")
+
+-   "Optimal" → Removed. (Replaced with "candidate parameterization.")
+
+15.2 Honest Status Table
+
+  -----------------------------------------------------------------------
+  Metric                  Current State
+  ----------------------- -----------------------------------------------
+  Conceptual Architecture Solid
+
+  Mathematical            Fixed in v1.2 (Dimensionally coherent)
+  Consistency             
+
+  Mint/Redemption         Fixed (Priced against GFB)
+
+  Oracle Architecture     Specified (Timestamp + Confidence)
+
+  Geopolitical Eject      Staged (10/25/50/100%)
+
+  Sharia Status           Designed for Sharia review (Independent review
+                          required)
+
+  Production              NO (Candidate for testnet)
+  Authorization           
+  -----------------------------------------------------------------------
+
+16. Final Declaration
+
+MTQ Σ v1.2 is a closed-loop monetary architecture.
+
+-   The GFB Index (fixed currency quantities) defines the reference
+    value.
+
+-   The Reserve NAV collateralizes the token.
+
+-   Minting is priced against the GFB Index, breaking the 1:1 USD peg.
+
+-   Redemption is priced against NAV and releases the full proportional
+    basket.
+
+-   The Oracle, Eject, and Rebalancing engines are now mathematically
+    consistent.
+
+This is not yet production-authorized. It is a candidate for testnet
+validation.
+
+The GFB Index defines what one MTQ Σ is intended to represent. The
+reserve portfolio exists to collateralize that obligation.
