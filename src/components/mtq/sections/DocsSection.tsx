@@ -24,6 +24,7 @@ import { RiskStateMachine } from "@/components/mtq/RiskStateMachine";
 import { HonestStatus } from "@/components/mtq/HonestStatus";
 import { OnChainMatrix } from "@/components/mtq/OnChainMatrix";
 import { BlueprintQA } from "@/components/mtq/BlueprintQA";
+import { AuditFindings } from "@/components/mtq/AuditFindings";
 import {
   STRATEGIC_PRIOR_TABLE,
   ENVELOPES_TABLE,
@@ -156,6 +157,11 @@ export function DocsSection({
       {/* AI Blueprint Q&A — second thing, so visitors can ask questions about the matrix above */}
       <Reveal>
         <BlueprintQA />
+      </Reveal>
+
+      {/* Top-Tier Audit Findings — third thing, so visitors see the honest audit verdict immediately */}
+      <Reveal>
+        <AuditFindings />
       </Reveal>
 
       {/* Intro */}

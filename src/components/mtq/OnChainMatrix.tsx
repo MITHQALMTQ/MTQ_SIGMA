@@ -177,9 +177,9 @@ const ROWS: MatrixRow[] = [
   {
     num: 19,
     component: "getHonestStatus() on-chain view",
-    onChain: { status: "on-chain", text: "v1.2 pilot: 0x400 · V2: 0x7FF (pending)" },
+    onChain: { status: "on-chain", text: "v1.2 pilot: 0x400 · V2: 0x5A7 (audit-verified)" },
     tsEngine: { status: "n/a", text: "n/a (on-chain view)" },
-    notes: "v1.2 pilot deployed returns 0x400; V2 source returns 0x7FF (all 11 bits). Same bit encoding",
+    notes: "v1.2 pilot deployed returns 0x400. V2 source claims 0x7FF but audit verified only 0x5A7 (7 of 11 bits truly implemented — 4 bits overstated: chainLinkedIndex, maseWeightRegistry, marpExecution, daoGovernance). See AuditFindings panel.",
   },
   {
     num: 20,
