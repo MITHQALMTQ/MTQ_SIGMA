@@ -913,3 +913,35 @@ Work Log:
 - The Docs section now flags the MASE_MODELS, WEIGHT_STATE_DESCRIPTIONS, and ENVELOPES tables as "live in Dashboard" with a clickable link.
 - The legacy §6 macro engine (VIX/DXY → θ ±3%) and §7 single-direction rebalance are RETAINED in parallel as live pilot paths; MASE + MARP is the v1.0 production target. Both run so the pilot can A/B compare.
 - Committed + pushed to GitHub: 566a8a8 "feat: wire MASE + MARP + 4-state weights into engine + UI".
+
+---
+Task ID: F1-F7 (COMPLETED)
+Agent: Orchestrator + full-stack-developer subagent
+Task: Implement MASE ensemble + MARP protocol + 4-state weights + wire into engine + UI
+
+Work Log:
+- Created src/lib/mtq/mase.ts: MASE ensemble engine with 6 candidate models (Minimum Variance, Equal Risk Contribution, Maximum Diversification, CVaR/Tail Risk, Purchasing-Power, Regime-Adaptive), ensemble combination, admissibility envelope enforcement, stress-adaptive smoothing, volatility estimation.
+- Created src/lib/mtq/marp.ts: MARP rebalancing protocol with 6-level decision hierarchy (no-trade zone → urgency test → partial correction → cost-benefit gate → daily turnover cap → execute), natural cash-flow preference.
+- Updated engine.ts: added mase/weightStates/marp/envelopes to MetricsSnapshot, buildMaseSnapshot() helper, advanceMase() state mutator, detectRegime(), buildPriceData(), buildObservedWeights().
+- Updated pilot-state.ts: bumped STATE_SCHEMA_VERSION to 8, advanceMase() called in bootstrap + tick loop.
+- Created src/components/mtq/MaseEngine.tsx: 5-panel component showing MASE candidate models heatmap, 4-state weight table (Prior/Target/Smoothed/Execution), admissibility envelope cards with bar viz, MARP decisions table with urgency bars.
+- Added MaseEngine to DashboardSection (between MacroEngine and RebalanceEngine).
+- Updated DocsSection with live data callouts.
+
+VERIFIED (dev + Vercel):
+- MASE models: 6 ✓
+- Weight states: 4 (prior, target, smoothed, execution) ✓
+- MARP decisions: 7 (one per component) ✓
+- MARP total trade: $59,364 ✓
+- Envelopes: 7 (CHF at "warn" near boundary, all others "ok") ✓
+- Dashboard: MASE + weight states + envelopes + MARP all visible ✓
+- Vercel: 200, 0 errors ✓
+- Lint: clean ✓
+
+Stage Summary:
+- MASE ensemble engine: FULLY IMPLEMENTED (6 models, ensemble combination, envelope enforcement, smoothing)
+- MARP rebalancing protocol: FULLY IMPLEMENTED (6-level hierarchy, urgency, cost-benefit, partial corrections)
+- 4-state weight system: FULLY IMPLEMENTED (Prior, Target, Smoothed, Execution — all computed live)
+- Per-component admissibility envelopes: FULLY ENFORCED (7 components, CHF at warn boundary)
+- UI: MaseEngine component on Dashboard showing all live data
+- The pilot now implements the core v1.0 Master Blueprint architecture: adaptive basket, MASE ensemble, MARP protocol, 4-state weights, gold in index, CHF, envelopes.
