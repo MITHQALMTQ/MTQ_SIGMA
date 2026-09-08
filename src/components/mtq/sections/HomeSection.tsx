@@ -272,7 +272,7 @@ export function HomeSection({ onNavigate }: { onNavigate: (id: SectionId) => voi
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
           {/* PAXG card — GOLD TINTED */}
           <Reveal delay={0}>
-            <div className="p-5 rounded-[20px]" style={{ background: 'linear-gradient(135deg, rgba(232,185,100,0.25) 0%, rgba(232,185,100,0.08) 40%, rgba(20,20,24,0.7) 100%)', border: '1px solid rgba(232,185,100,0.4)', boxShadow: '0 0 20px rgba(232,185,100,0.1)' }}>
+            <div className="p-5 rounded-[20px]" style={{ background: 'rgba(232,185,100,0.15)', border: '1px solid rgba(232,185,100,0.4)', boxShadow: '0 0 20px rgba(232,185,100,0.1)' }}>
               <div className="flex items-center gap-2 mb-3">
                 <div className="w-10 h-10 rounded-full flex items-center justify-center" style={{ background: 'linear-gradient(135deg, #f5d27a, #e8b964)', boxShadow: '0 0 12px rgba(232,185,100,0.3)' }}>
                   <span className="text-lg">🥇</span>
@@ -295,7 +295,7 @@ export function HomeSection({ onNavigate }: { onNavigate: (id: SectionId) => voi
           </Reveal>
           {/* XAUT card — GOLD TINTED */}
           <Reveal delay={0.05}>
-            <div className="p-5 rounded-[20px]" style={{ background: 'linear-gradient(135deg, rgba(208,160,79,0.22) 0%, rgba(208,160,79,0.06) 40%, rgba(20,20,24,0.7) 100%)', border: '1px solid rgba(208,160,79,0.35)', boxShadow: '0 0 20px rgba(208,160,79,0.08)' }}>
+            <div className="p-5 rounded-[20px]" style={{ background: 'rgba(208,160,79,0.13)', border: '1px solid rgba(208,160,79,0.35)', boxShadow: '0 0 20px rgba(208,160,79,0.08)' }}>
               <div className="flex items-center gap-2 mb-3">
                 <div className="w-10 h-10 rounded-full flex items-center justify-center" style={{ background: 'linear-gradient(135deg, #e0c068, #d4a44f)', boxShadow: '0 0 12px rgba(208,160,79,0.3)' }}>
                   <span className="text-lg">🥇</span>
