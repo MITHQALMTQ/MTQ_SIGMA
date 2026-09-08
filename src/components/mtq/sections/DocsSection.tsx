@@ -22,6 +22,7 @@ import { Panel, Reveal, Pill, GlowDot, SectionHeading } from "@/components/mtq/p
 import { GfbBasket } from "@/components/mtq/GfbBasket";
 import { RiskStateMachine } from "@/components/mtq/RiskStateMachine";
 import { HonestStatus } from "@/components/mtq/HonestStatus";
+import { OnChainMatrix } from "@/components/mtq/OnChainMatrix";
 import {
   STRATEGIC_PRIOR_TABLE,
   ENVELOPES_TABLE,
@@ -147,6 +148,9 @@ export function DocsSection({
           </Pill>
         }
       />
+
+      {/* On-Chain vs Off-Chain Implementation Matrix — FIRST thing in Docs */}
+      <OnChainMatrix />
 
       {/* Intro */}
       <Reveal>

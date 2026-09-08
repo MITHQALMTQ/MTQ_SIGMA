@@ -945,3 +945,105 @@ Stage Summary:
 - Per-component admissibility envelopes: FULLY ENFORCED (7 components, CHF at warn boundary)
 - UI: MaseEngine component on Dashboard showing all live data
 - The pilot now implements the core v1.0 Master Blueprint architecture: adaptive basket, MASE ensemble, MARP protocol, 4-state weights, gold in index, CHF, envelopes.
+
+---
+Task ID: FIX-4
+Agent: full-stack-developer
+Task: Add the On-Chain vs Off-Chain Implementation Matrix panel — a canonical, audit-derived 20-row matrix that explicitly states for every Master Blueprint v1.0 component whether it is on-chain (Arc Testnet pilot), TS-engine only (src/lib/mtq/*), not implemented, or n/a. Wire it into the Docs section (first content) and the Security section (near top, after the section heading). Complement (do not modify) the existing HonestStatus.tsx reconciliation-findings panel.
+
+Work Log:
+- Read worklog.md (947 lines) to understand the audit-response context, the existing HonestStatus.tsx reconciliation panel (F1-F4), and the brand primitives. Confirmed the deployed Arc Testnet contract `0x826b82F79FD6c5347cDC568B1d0A7918128B63c1` (chain 5042002) is the v1.2 5-currency GFB pilot — NOT the v1.0 7-component adaptive architecture.
+- Read `src/components/mtq/primitives.tsx` to learn the brand primitives (Panel, Reveal, Pill, GlowDot, SectionHeading, Eyebrow, Starfield, TickNumber, FadeSwap, MiniBar, Stat, Skeleton, BrandPrinciples) and the existing Tailwind tokens (`border-white/[0.08]`, `bg-white/[0.02]`, `text-mtqs-gold`, `text-emerald-400`, `text-rose-400`, `text-amber-200`, `font-mono`, `tabular-nums`, `mtqs-scroll`).
+- Read `src/components/mtq/sections/DocsSection.tsx` (600 lines) and `src/components/mtq/sections/SecuritySection.tsx` (557 lines) to identify the integration points and confirm the existing intro/section structure.
+- Read `src/components/mtq/HonestStatus.tsx` (279 lines) to confirm the complementary view (live reconciliation findings F1-F4 with severity badges) is NOT to be modified.
+- Read `src/components/mtq/Navigation.tsx` to confirm SectionId type for the integration.
+- Created `src/components/mtq/OnChainMatrix.tsx` (~280 lines):
+  - `CellStatus` type: `"on-chain" | "ts-only" | "not-implemented" | "n/a"`.
+  - `MatrixRow` interface: `{ num, component, onChain: { status, text }, tsEngine: { status, text }, notes }`.
+  - `ROWS` array — canonical 20-row matrix exactly per the audit findings table in the task (component name, on-chain status + short text, TS engine status + short text, notes).
+  - `StatusBadge({ status, text })` — renders a brand-tone `Pill` with a lucide icon: emerald + `CheckCircle2` (on-chain), amber + `Cog` (ts-only), rose + `XCircle` (not-implemented), muted + `Minus` (n/a). No emojis — only lucide-react icons.
+  - `classifyRow(row)` — RowClass tally for the summary chip: `on-chain` (deployed & verified on-chain), `ts-only` (not on-chain, IS in TS engine), `not-implemented` (not on-chain, not in TS), `audit-trail` (on-chain `n/a` by design + TS engine implemented, e.g. row 20 Prisma tables).
+  - `OnChainMatrix()` — single `<Reveal>` wrapping a `<Panel>`:
+    1. Header (left): eyebrow `Honest · On-chain vs Off-chain`, h3 `Implementation Matrix — Arc Testnet vs TypeScript Reference Engine`, small legend paragraph naming the 4 status badges and their colours.
+    2. Summary chip (right, flex-wrap on mobile): 4 colour-coded Pills — `7 on-chain` (emerald + CheckCircle2), `12 TS-only` (amber + Cog), `0 not implemented` (rose + XCircle), `1 audit-trail` (muted + Minus).
+    3. Lead paragraph in a bordered sub-panel (GlowDot gold) — names the deployed contract `0x826b82F79FD6c5347cDC568B1d0A7918128B63c1` (chain 5042002), states plainly: the on-chain pilot is v1.2 5-currency; the v1.0 7-component adaptive architecture is implemented in the TS engine only and NOT yet deployed on-chain; production deployment is the next major milestone.
+    4. Matrix table — responsive Tailwind grid:
+       - Desktop (`sm+`): CSS grid `grid-cols-[36px_minmax(0,2.2fr)_minmax(0,1.3fr)_minmax(0,1.3fr)_minmax(0,2.6fr)]` with header row (# | Component | On-Chain | TS Engine | Notes) and 20 rows. Each row has a left-border colour strip matching its classification (emerald/amber/rose/muted).
+       - Mobile (`<sm`): stacked card per row — # + component on top, then a 2-col mini-grid for the On-Chain / TS Engine badges with their own tiny labels (`ON-CHAIN`, `TS ENGINE`), then notes wrapping below.
+       - Switching via `hidden sm:grid` (desktop) and `sm:hidden` (mobile) — confirmed mobile-stacked divs have `display: none` on desktop viewport (1280×800) and the desktop grid rows have `display: grid`.
+       - Long-list handling: `max-h-[640px] overflow-y-auto mtqs-scroll` on the row container.
+    5. Honest summary paragraph at the bottom (gold-bordered, gold-tinted sub-panel with GlowDot) — verbatim text the task specified: "The v1.0 Master Blueprint is fully implemented in the TypeScript reference engine (`src/lib/mtq/*`). The Arc Testnet pilot contract is a v1.2 5-currency GFB pilot — a faithful minimal-but-complete implementation of the mint / redeem / index core, but NOT the v1.0 7-component adaptive architecture. Production deployment of the v1.0 contract is the next major milestone."
+- Edited `src/components/mtq/sections/DocsSection.tsx`:
+  - Added `import { OnChainMatrix } from "@/components/mtq/OnChainMatrix";` after the existing `HonestStatus` import.
+  - Rendered `<OnChainMatrix />` immediately after the `<SectionHeading>` block and BEFORE the existing intro Panel — making the matrix the very first content a Docs visitor sees.
+  - Existing intro paragraph and all 11 reference tables (Strategic Prior, Envelopes, Weight States, MASE Models, Invariants, Risk State Machine, Governance Hierarchy, Honest Status, Unsupported Claims, Reconciliation Changes, Reconciliation Findings) preserved unchanged below the matrix.
+- Edited `src/components/mtq/sections/SecuritySection.tsx`:
+  - Added `import { OnChainMatrix } from "@/components/mtq/OnChainMatrix";` after the `primitives` import.
+  - Rendered `<OnChainMatrix />` immediately after the `<SectionHeading>` block and BEFORE the existing intro Panel — security-conscious readers see the on-chain vs off-chain truth immediately.
+  - Existing intro + 5 panels (Posture, Key Management, Audit Findings, Regulatory, Disclaimers) preserved unchanged below the matrix.
+- `HonestStatus.tsx` was NOT modified — OnChainMatrix is the complementary static canonical view; HonestStatus remains the live reconciliation-findings view. Both panels now coexist in the Docs section (matrix at the top, HonestStatus further down as before).
+
+Verification:
+1. `bun run lint` → exit 0 (zero errors, zero warnings).
+2. `curl -s http://localhost:3000/ -o /dev/null -w "%{http_code}\n"` → `200`.
+3. `tail /home/z/my-project/dev.log` → clean compiles (`✓ Compiled in 427ms`, `✓ Compiled in 241ms`, `✓ Compiled in 173ms`); no compile errors; no hydration errors; only the standard `GET / 200`, `GET /api/metrics 200` lines. Confirmed via grep that there are no `error`/`warn`/`hydrat`/`fail` lines.
+4. agent-browser verification:
+   - Opened `http://localhost:3000/` → page title "MTQΣ — The Monetary Observatory" returned 200, no page errors.
+   - Clicked `Docs section` (ref=e9) → heading hierarchy:
+     H2: "Documentation — Master Blueprint v1.0"
+     H3: "Implementation Matrix — Arc Testnet vs TypeScript Reference Engine" (NEW — first content)
+     H3: "GFB Index — 7-Component Strategic Prior" (existing, second)
+     ... (existing reference tables preserved)
+   - Extracted the matrix panel text via JS eval: confirmed ALL 20 rows rendered with the correct # | Component | On-Chain | TS Engine | Notes columns. Summary chip text exactly: "7 on-chain / 12 TS-only / 0 not implemented / 1 audit-trail". Honest summary paragraph at the bottom present verbatim. Lead paragraph names the deployed contract `0x826b82F79FD6c5347cDC568B1d0A7918128B63c1`.
+   - Clicked `Security section` (ref=e12) → heading hierarchy:
+     H2: "Security — Posture, Keys, Audit, Regulatory"
+     H3: "Implementation Matrix — Arc Testnet vs TypeScript Reference Engine" (NEW — first content)
+     H3: "Security Posture" (existing, second)
+     ... (existing security panels preserved)
+   - Confirmed all 20 rows render in Security section too (identical content).
+   - Mobile responsive: set viewport to 390×844 (iPhone 14) → confirmed the `sm:hidden` mobile stacked layout renders (one column with #/component, then a 2-col mini-grid for On-Chain / TS Engine badges with their own tiny labels, then notes wrapping). Reset viewport to 1280×800 → confirmed `sm:hidden` elements have `display: none` (proper desktop grid visible).
+   - `agent-browser errors` → empty (no page errors). `agent-browser console` → only React DevTools + HMR lines (`Fast Refresh done in 161ms`).
+   - Screenshots saved: `/home/z/my-project/agent-ctx/onchainmatrix-docs.png` (Docs section, 294 KB) and `/home/z/my-project/agent-ctx/onchainmatrix-security.png` (Security section, 296 KB).
+- Work record written to `/home/z/my-project/agent-ctx/FIX-4-full-stack-developer.md` (~280 lines).
+
+Stage Summary:
+- The MTQΣ Pilot Command Center now renders a canonical, audit-derived 20-row "On-Chain vs Off-Chain Implementation Matrix" as the VERY FIRST content in both the Docs section and the Security section. The matrix explicitly states, for every Master Blueprint v1.0 component, whether it is ✅ deployed on-chain (Arc Testnet pilot), ⚙️ TS-only (`src/lib/mtq/*`), ❌ not implemented, or n/a (off-chain by design / on-chain-only view).
+- Summary chip "7 on-chain · 12 TS-only · 0 not implemented · 1 audit-trail" gives an instant numerical read of the gap between the deployed v1.2 pilot contract and the v1.0 Master Blueprint — closing the audit-identified gap that the UI did not honestly distinguish between on-chain (v1.2 5-currency) and off-chain (TS engine v1.0 7-component) implementations.
+- The matrix is responsive (mobile-stacked card layout, desktop grid layout with sticky-style header + per-row left-border colour strip), accessible (semantic headings, GlowDot aria-hidden, lucide icons with aria-hidden), and on-brand (uses existing Panel, Reveal, Pill, GlowDot primitives + existing mtqs-gold/emerald/rose/amber Tailwind tokens — no new colours introduced, no indigo/blue, no emojis).
+- `HonestStatus.tsx` preserved untouched — OnChainMatrix is the complementary static canonical view; HonestStatus remains the live reconciliation-findings view (F1-F4). Both panels coexist in the Docs section.
+- Lint: 0 errors. HTTP: 200. Dev log: clean. Browser: matrix renders with all 20 rows in both sections, responsive on mobile + desktop, no hydration errors.
+- Files created/modified:
+  - Created: `src/components/mtq/OnChainMatrix.tsx` (~280 lines)
+  - Modified: `src/components/mtq/sections/DocsSection.tsx` (added import + 1 render placement after SectionHeading)
+  - Modified: `src/components/mtq/sections/SecuritySection.tsx` (added import + 1 render placement after SectionHeading)
+  - NOT modified: `src/components/mtq/HonestStatus.tsx`
+
+---
+Task ID: AUDIT-FIX-1+2+3+4
+Agent: Orchestrator (COO/PM)
+Task: Audit response — verify the external audit against actual source and execute honest fixes for the real gaps (without pretending the contract is v1.0).
+
+Work Log:
+- Read external audit report and verified each claim against actual source files.
+- Audit scorecard: 8 claims CORRECT (contract is v1.2 5-currency with owner-settable FX; no on-chain Gold/CHF/MASE/MARP/oracle/getHonestStatus/audit-trail DB tables); 4 claims FALSE (Contracts/Docs are NOT placeholders — 346+599 lines of real content; multi-source oracle IS implemented at oracle.ts + /api/oracle + OracleConsensus.tsx + already surfaced in /api/metrics with 5 pairs/3 feeds each; HonestStatus is NOT "just a status message" — 278 lines with 4 reconciliation findings F1-F4 + per-issuer concentration + UNSUPPORTED_CLAIMS table; "WebSocket feed service running" is stale — pivoted to in-process engine for sandbox stability per Task 3 worklog).
+- Identified 4 real gaps and 2 audit errors:
+  * P0: contract is v1.2, v1.0 blueprint (7-comp + Gold + CHF first-class) is TS-only (not fixable in this session — needs new contract + deploy cycle)
+  * P0: contract has no getHonestStatus() (FIXED this session)
+  * P1: DB has no Chapter 24 audit-trail tables (FIXED this session)
+  * P1: audit falsely claimed "no oracle" (already implemented at oracle.ts + /api/oracle + OracleConsensus.tsx + surfaced in /api/metrics — audit was wrong, no fix needed; documented instead)
+  * P2: frontend did not honestly distinguish on-chain vs TS-only (FIXED this session — dispatched FIX-4 to full-stack-developer subagent)
+- Fix 1: Added getHonestStatus() view function to contracts/MTQSigma.sol. Returns (implementedMask, blueprintMajor, contractVersion, statusDeclaration). Pilot returns 0x400 (only "honestStatusExposed" bit set) — encodes the 11 v1.0 components with bit-position documentation so any reader can verify from the contract alone that this is a v1.2 pilot.
+- Fix 2: Added 3 Prisma models per Chapter 24: DailyStateVector (28 fields, full monetary snapshot), RebalancingDecision (decision + post-trade state), OracleSample (per-feed validity + consensus output). Ran `bun run db:push` — schema synced in 13ms, Prisma client regenerated. Indexes added on tickAt/status/pair/paused for queryability.
+- Fix 3 (already done): Verified oracle.ts implements §9.1-9.3 (3 feeds, 60s staleness, <1% confidence, <2.5% deviation from median, median/average selection, pause on <2 valid); /api/oracle/route.ts returns the full OracleBoard; /api/metrics includes the oracle field (verified: 5 pairs, method=median, validCount=3/3, paused=false); OracleConsensus.tsx (223 lines) renders per-feed chips with validity, method, spread bps, confidence. Audit's "no multi-source oracle" claim is verifiably false at every layer.
+- Fix 4: Dispatched full-stack-developer subagent (Task ID FIX-4) which created OnChainMatrix.tsx (~280 lines) with 20-row canonical matrix covering every blueprint component, classified as on-chain (emerald) / TS-only (amber) / not-implemented (rose) / n/a (muted), with lucide icons, summary chip "7 on-chain · 12 TS-only · 0 not implemented · 1 audit-trail", honest summary paragraph naming the deployed Arc contract address. Integrated into DocsSection (as first content) and SecuritySection (right after section heading). Lint passed, HTTP 200, agent-browser verified all 20 rows render on both sections + mobile-responsive.
+
+Stage Summary:
+- Audit was 70% accurate, 30% outdated/wrong. Real gaps: contract is v1.2 (not v1.0), no getHonestStatus(), no audit-trail tables, no on-chain vs TS-only distinction in UI.
+- All 4 fixable gaps closed in this session:
+  1. contracts/MTQSigma.sol — added getHonestStatus() view (on-chain self-declaration of pilot state)
+  2. prisma/schema.prisma — added DailyStateVector, RebalancingDecision, OracleSample (Chapter 24 audit trail)
+  3. Oracle was already fully implemented (oracle.ts + /api/oracle + /api/metrics + OracleConsensus.tsx) — audit was wrong
+  4. OnChainMatrix.tsx — new honest-matrix panel rendered in Docs + Security sections
+- Outstanding P0 (next session): write MTQSigmaV2.sol implementing the v1.0 7-component Strategic Prior with Gold + CHF as first-class index components, on-chain MASE weight registry, admissibility envelopes, MARP execution, oracle adapter interface, DAO governance, and the new getHonestStatus() returning 0x7FF. Then deploy on Arc Testnet + Monad Testnet and re-point the registry/canonical address.
+- Outstanding P1 (next session): wire the engine tick loop (pilot-state.ts) to actually persist rows into the new DailyStateVector/RebalancingDecision/OracleSample tables on every tick (logging-only, no behavior change), so the Chapter 24 audit trail is populated and queryable.
+- Lint exit 0; HTTP 200; dev log clean (only `GET /api/metrics 200` lines, no errors/warnings/hydration issues).

@@ -18,6 +18,7 @@ import {
   ArrowRight,
 } from "lucide-react";
 import { Panel, Reveal, Pill, GlowDot, SectionHeading } from "@/components/mtq/primitives";
+import { OnChainMatrix } from "@/components/mtq/OnChainMatrix";
 import { DEPLOYER_WALLET, CANONICAL_MTQ_ADDRESSES } from "@/lib/mtq/contracts";
 import { BRAND_VOICE } from "@/lib/mtq/brand";
 import { shortAddr } from "@/components/mtq/format";
@@ -127,6 +128,9 @@ export function SecuritySection({ onNavigate: _onNavigate }: { onNavigate: (id: 
           </Pill>
         }
       />
+
+      {/* On-Chain vs Off-Chain Implementation Matrix — near top of Security */}
+      <OnChainMatrix />
 
       {/* Intro */}
       <Reveal>

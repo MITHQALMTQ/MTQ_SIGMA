@@ -262,6 +262,39 @@ contract MTQSigma {
         _mint(genesisReserve, amount);
         genesisReserveBalance = amount;
     }
+
+    // --- §25 Honest Status (on-chain self-declaration) ---
+    // Returns a packed self-description of what THIS contract implements vs what
+    // the v1.0 Master Blueprint requires. This is the on-chain equivalent of the
+    // frontend HonestStatus panel — it lets any reader verify, from the contract
+    // alone, that this is a v1.2 pilot and which v1.0 components are NOT on-chain.
+    //
+    // Encoding (all values are 0/1 booleans packed as uint256):
+    //   bit 0  basketHas7Components       (0 = 5-currency v1.2 pilot; 1 = 7-comp v1.0 with Gold+CHF)
+    //   bit 1  goldIsFirstClassIndex      (0 = gold is reserve-only;       1 = gold is in the index)
+    //   bit 2  chfIsFirstClassIndex       (0 = no CHF;                     1 = CHF in the index)
+    //   bit 3  chainLinkedIndex          (0 = recomputed each call;       1 = divisor / continuity)
+    //   bit 4  maseWeightRegistry        (0 = no on-chain weight store;  1 = MASE outputs committed)
+    //   bit 5  admissibilityEnvelopes    (0 = no on-chain bounds;         1 = per-component bounds enforced)
+    //   bit 6  marpExecution             (0 = no on-chain rebalance;     1 = auto-rebalance present)
+    //   bit 7  assetRegistry             (0 = hardcoded assets;          1 = registry contract)
+    //   bit 8  multiSourceOracle          (0 = owner-set FX;              1 = Chainlink/Pyth/Chronicle adapter)
+    //   bit 9  daoGovernance              (0 = owner-only;                1 = DAO/multi-sig + timelock)
+    //   bit 10 honestStatusExposed        (1 = this function exists)
+    //
+    // Pilot (this contract) returns: 0x400 (only bit 10 set).
+    // Production v1.0 target:        0x7FF (all 11 bits set).
+    function getHonestStatus() external pure returns (
+        uint256 implementedMask,
+        uint8  blueprintMajor,
+        uint8  contractVersion,
+        string memory statusDeclaration
+    ) {
+        implementedMask = 0x400; // only bit 10 (honestStatusExposed) — see encoding above
+        blueprintMajor = 1;       // Master Monetary Architecture v1.0 is the source of truth
+        contractVersion = 0;      // 0 = v1.2 pilot (5-currency); 1 = v1.0 (7-component) — not yet deployed
+        statusDeclaration = "PILOT v1.2 (5-currency GFB). v1.0 Master Blueprint (7-component incl. Gold+CHF, MASE, MARP, multi-source oracle, DAO) is implemented in TypeScript only. NOT production-authorized.";
+    }
 }
 
 /// @title MockUSDC — test collateral (ERC-20, 6 decimals, free-mint for pilot)
