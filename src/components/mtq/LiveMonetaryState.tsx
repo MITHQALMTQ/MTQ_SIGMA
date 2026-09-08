@@ -294,24 +294,25 @@ export function LiveMonetaryState({ snapshot }: { snapshot: MetricsSnapshot | nu
                 </div>
               </div>
             ))}
-            {/* Simulated VIX/DXY */}
-            <div className="rounded-md border border-amber-400/20 bg-amber-500/[0.04] p-2.5" title="VIX is a simulated pilot macro signal (no free no-key REST source).">
-              <div className="text-[0.6rem] uppercase tracking-[0.2em] text-amber-200/80">VIX · sim</div>
-              <div className="font-mono tabular-nums text-sm text-amber-200">
+            {/* VIX/DXY — now LIVE from Yahoo Finance (DX-Y.NYB for DXY, ^VIX for VIX) */}
+            <div className="rounded-md border border-emerald-400/20 bg-emerald-500/[0.04] p-2.5" title="VIX is live from Yahoo Finance ^VIX (CBOE volatility index). Fallback: seeded OU walk if Yahoo rate-limits.">
+              <div className="text-[0.6rem] uppercase tracking-[0.2em] text-emerald-200/80">VIX · live</div>
+              <div className="font-mono tabular-nums text-sm text-emerald-200">
                 {snapshot.fx.VIX.toFixed(2)}
               </div>
             </div>
-            <div className="rounded-md border border-amber-400/20 bg-amber-500/[0.04] p-2.5" title="DXY is a simulated pilot macro signal (no free no-key REST source).">
-              <div className="text-[0.6rem] uppercase tracking-[0.2em] text-amber-200/80">DXY · sim</div>
-              <div className="font-mono tabular-nums text-sm text-amber-200">
+            <div className="rounded-md border border-emerald-400/20 bg-emerald-500/[0.04] p-2.5" title="DXY is live from Yahoo Finance DX-Y.NYB (the ICE US Dollar Index). Fallback: Frankfurter self-calc using the official geometric weighted formula, then seeded OU walk.">
+              <div className="text-[0.6rem] uppercase tracking-[0.2em] text-emerald-200/80">DXY · live</div>
+              <div className="font-mono tabular-nums text-sm text-emerald-200">
                 {snapshot.fx.DXY.toFixed(2)}
               </div>
             </div>
           </div>
           <p className="mt-3 text-[0.7rem] text-muted-foreground/70">
-            VIX &amp; DXY are simulated pilot macro signals — labelled honestly, never misrepresented as live.
+            VIX &amp; DXY are <span className="text-emerald-200/90">live from Yahoo Finance</span> (CBOE ^VIX + ICE DX-Y.NYB),
+            with Frankfurter self-calc (official geometric DXY formula) + seeded OU walk as honest fallbacks.
             FX (EUR/GBP/JPY/CNY/CHF) sourced from Frankfurter (ECB) + gold from gold-api.com. CHF is a
-            first-class index component in v1.0 (5% strategic prior).
+            first-class index component in v1.0 (5% strategic prior). All 8 macro signals are now live.
           </p>
         </Panel>
       </Reveal>

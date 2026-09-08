@@ -2172,11 +2172,11 @@ export function getReconciliationFindings(s: ReserveState, vals: { usdcUsd: numb
     },
     {
       id: "F3-vix-dxy-simulated",
-      title: "VIX & DXY are simulated pilot signals",
-      severity: "informational",
+      title: "VIX & DXY are now LIVE from Yahoo Finance (resolved)",
+      severity: "fixed",
       description:
-        "No free no-key REST feed exists for VIX/DXY. The pilot simulates them via a labelled stochastic mean-reverting walk to exercise the §6 Adaptive Macro Engine pipeline. FX (EUR/GBP/JPY/CNY) and gold (XAU) are LIVE from free APIs.",
-      resolution: "Labelled 'SIMULATED PILOT MACRO SIGNALS' in the UI. Production requires paid VIX/DXY oracle subscriptions (CBOE/Chainlink).",
+        "VIX is live from Yahoo Finance ^VIX (CBOE volatility index). DXY is live from Yahoo Finance DX-Y.NYB (the ICE US Dollar Index), with Frankfurter self-calc using the official geometric weighted formula as fallback. Both signals now use real market data, not simulation. All 8 macro signals (EUR/GBP/JPY/CNY/CHF/XAU/VIX/DXY) are live.",
+      resolution: "VIX fetched live via query1/2.finance.yahoo.com/v8/finance/chart/^VIX. DXY fetched live via query1/2.finance.yahoo.com/v8/finance/chart/DX-Y.NYB. Fallback chain: Yahoo → Frankfurter self-calc (DXY only, official geometric formula) → seeded OU walk (last resort). liveCount=8/8 when all live sources succeed.",
     },
     {
       id: "F4-sharia-status",

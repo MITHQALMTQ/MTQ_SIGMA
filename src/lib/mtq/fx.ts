@@ -137,7 +137,7 @@ function simulatedDxy(now: number): number {
 
 // --- Live sources ---------------------------------------------------------
 
-async function fetchFrankfurter(): Promise<Partial<FxSnapshot>> {
+async function fetchFrankfurter(): Promise<{ fx: Partial<FxSnapshot>; raw?: Record<string, number> }> {
   const urls = [
     "https://api.frankfurter.dev/v1/latest?base=USD",
     "https://api.frankfurter.app/v1/latest?base=USD",
@@ -164,13 +164,15 @@ async function fetchFrankfurter(): Promise<Partial<FxSnapshot>> {
       const CHF_USD = r.CHF ? 1 / Number(r.CHF) : undefined;
       if (EUR_USD && GBP_USD && JPY_USD && CNY_USD) {
         // CHF is optional — fall back to cache/default if the feed omits it.
-        return { EUR_USD, GBP_USD, JPY_USD, CNY_USD, ...(CHF_USD ? { CHF_USD } : {}) };
+        const fx: Partial<FxSnapshot> = { EUR_USD, GBP_USD, JPY_USD, CNY_USD, ...(CHF_USD ? { CHF_USD } : {}) };
+        // Return the raw rates map for the DXY self-calc fallback (needs CAD + SEK + CHF).
+        return { fx, raw: r as Record<string, number> };
       }
     } catch {
       // try next
     }
   }
-  return {};
+  return { fx: {} };
 }
 
 async function fetchGold(): Promise<number | undefined> {
@@ -234,23 +236,91 @@ async function fetchLiveVix(): Promise<number | undefined> {
   return undefined;
 }
 
+// --- Live DXY (ICE US Dollar Index) ---
+// Primary: Yahoo Finance ^DX-Y.NYB (the ICE US Dollar Index futures ticker).
+//   Returns the canonical DXY the financial world references.
+// Fallback: Frankfurter self-calc using the official geometric weighted formula
+//   DXY = 50.14348112 × EURUSD^-0.576 × USDJPY^0.136 × GBPUSD^-0.119
+//                          × USDCAD^0.091 × USDSEK^0.042 × USDCHF^0.036
+//   Requires CAD + SEK + CHF from Frankfurter (which it provides).
+// Last resort: seeded OU walk (simulatedDxy) — honest fallback, clearly labeled.
+async function fetchLiveDxy(frankfurterRates?: Record<string, number>): Promise<number | undefined> {
+  // Primary: Yahoo Finance DX-Y.NYB
+  const yahooUrls = [
+    "https://query1.finance.yahoo.com/v8/finance/chart/DX-Y.NYB?interval=1d&range=1d",
+    "https://query2.finance.yahoo.com/v8/finance/chart/DX-Y.NYB?interval=1d&range=1d",
+  ];
+  for (const url of yahooUrls) {
+    try {
+      const ctrl = new AbortController();
+      const t = setTimeout(() => ctrl.abort(), 6000);
+      const res = await fetch(url, {
+        signal: ctrl.signal,
+        headers: { "User-Agent": "Mozilla/5.0 (MTQ-Pilot/1.0)" },
+      });
+      clearTimeout(t);
+      if (!res.ok) continue;
+      const data = await res.json();
+      const meta = data?.chart?.result?.[0]?.meta;
+      if (!meta) continue;
+      const dxy =
+        typeof meta.regularMarketPrice === "number" ? meta.regularMarketPrice :
+        typeof meta.chartPreviousClose === "number" ? meta.chartPreviousClose :
+        undefined;
+      // DXY has historically been in [70, 130]. Reject anything outside [50, 150].
+      if (dxy !== undefined && dxy > 50 && dxy < 150) return dxy;
+    } catch {
+      // try next
+    }
+  }
+  // Fallback: Frankfurter self-calc using the official DXY formula.
+  // Frankfurter returns USD->target rates (e.g., 1 USD = r.EUR euros).
+  // The DXY formula uses the inverse (USD per 1 unit of currency) for EUR/GBP,
+  // and the direct rate (foreign per 1 USD) for JPY/CAD/SEK/CHF.
+  if (frankfurterRates) {
+    try {
+      const r = frankfurterRates;
+      if (r.EUR && r.JPY && r.GBP && r.CAD && r.SEK && r.CHF) {
+        const eurusd = 1 / Number(r.EUR);  // USD per 1 EUR
+        const usdjpy = Number(r.JPY);       // JPY per 1 USD
+        const gbpusd = 1 / Number(r.GBP);   // USD per 1 GBP
+        const usdcad = Number(r.CAD);       // CAD per 1 USD
+        const usdsek = Number(r.SEK);       // SEK per 1 USD
+        const usdchf = Number(r.CHF);       // CHF per 1 USD
+        const dxy =
+          50.14348112 *
+          Math.pow(eurusd, -0.576) *
+          Math.pow(usdjpy, 0.136) *
+          Math.pow(gbpusd, -0.119) *
+          Math.pow(usdcad, 0.091) *
+          Math.pow(usdsek, 0.042) *
+          Math.pow(usdchf, 0.036);
+        if (dxy > 50 && dxy < 150) return dxy;
+      }
+    } catch {
+      // fall through to last resort
+    }
+  }
+  return undefined;
+}
+
 export async function fetchFxSnapshot(force = false): Promise<FxSnapshot> {
   const now = Date.now();
   if (cache && !force && now - cacheTime < CACHE_TTL_MS) {
     return cache;
   }
 
-  const fx = await fetchFrankfurter();
+  const { fx, raw } = await fetchFrankfurter();
   const gold = await fetchGold();
   const liveVix = await fetchLiveVix();
+  const liveDxy = await fetchLiveDxy(raw);
 
   // VIX: live (Yahoo) → simulated seeded walk → DEFAULTS (last resort)
   const VIX = liveVix ?? simulatedVix(now);
-  // DXY: simulated seeded walk (no live source found)
-  const DXY = simulatedDxy(now);
+  // DXY: live (Yahoo DX-Y.NYB) → Frankfurter self-calc (official formula) → simulated seeded walk
+  const DXY = liveDxy ?? simulatedDxy(now);
 
-  // Count of live signals (max 7 — DXY is always simulated until a live source
-  // is wired in; if Yahoo succeeds, VIX counts as live).
+  // Count of live signals (max 8 — all of EUR/GBP/JPY/CNY/CHF/XAU/VIX/DXY can be live).
   const liveCount =
     (fx.EUR_USD ? 1 : 0) +
     (fx.GBP_USD ? 1 : 0) +
@@ -258,20 +328,22 @@ export async function fetchFxSnapshot(force = false): Promise<FxSnapshot> {
     (fx.CNY_USD ? 1 : 0) +
     (fx.CHF_USD ? 1 : 0) +
     (gold ? 1 : 0) +
-    (liveVix ? 1 : 0);
+    (liveVix ? 1 : 0) +
+    (liveDxy ? 1 : 0);
 
   // Source string — honestly labels which signals are live vs simulated.
   const liveBits: string[] = [];
   if (fx.EUR_USD && fx.GBP_USD && fx.JPY_USD && fx.CNY_USD) liveBits.push("Frankfurter ECB");
   if (gold) liveBits.push("gold-api");
   if (liveVix) liveBits.push("Yahoo ^VIX");
+  if (liveDxy) liveBits.push("Yahoo DX-Y.NYB (or Frankfurter self-calc)");
   const simBits: string[] = [];
   if (!liveVix) simBits.push("VIX");
-  simBits.push("DXY");
+  if (!liveDxy) simBits.push("DXY");
   const source =
     (liveBits.length > 0
       ? `Live (${liveBits.join(" + ")})`
-      : "Cached / fallback") + ` + simulated ${simBits.join("/")}`;
+      : "Cached / fallback") + (simBits.length > 0 ? ` + simulated ${simBits.join("/")}` : "");
 
   const snapshot: FxSnapshot = {
     EUR_USD: fx.EUR_USD ?? cache?.EUR_USD ?? DEFAULTS.EUR_USD,
