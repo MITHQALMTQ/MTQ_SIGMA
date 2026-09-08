@@ -681,3 +681,53 @@ LIVE VALUES (from /api/metrics):
 - Gold price: $4,391/oz (live from gold-api.com)
 - Gold weight: 24.16% of NAV (target: 26.59%)
 - Buffer state: BASE (62.5% buffer gold ratio)
+
+---
+Task ID: E1
+Agent: Orchestrator (COO + CTO + tokenomics + economics + banking + geopolitical)
+Task: Read new Master Blueprint v1.0 line by line; full audit vs current implementation; plan all gaps
+
+Work Log:
+- Extracted MTQSigma_Master_Monetary_Architecture_TechnicalDoc_v1.0_2026-09-08.docx (21,227 lines).
+- Read line by line: version history, modification summary (M1-M13), core definitions, constitutional separation, four-state weights, strategic prior, gold as first-class component, MASE ensemble, constituency engine, chain-linked index, MARP, constitutional constraints/envelopes, gold price, reserve separation, validation program, claims, honest status.
+- The new v1.0 Master blueprint is a FUNDAMENTAL architectural change from v1.2. It supersedes ALL prior versions (v1.0 archived, v1.1 archived, v1.2 superseded by v2.0 which is issued as Master v1.0).
+
+FULL AUDIT — 13 major gap areas:
+
+1. BASKET (MAJOR): v1.2 fixed q_i (5 currencies, no gold) → v1.0 adaptive W_t (7 components: USD/EUR/JPY/GBP/CNY/CHF/Gold). Gold is now IN the index. CHF added. Strategic prior: USD 27%, EUR 20%, JPY 9%, GBP 8%, CNY 5%, CHF 5%, Gold 26%.
+
+2. WEIGHT STATES (MAJOR): v1.2 single target → v1.0 four states: Strategic Prior (soft anchor), Target (MASE output), Smoothed (stress-adaptive), Execution (MARP trade decision). W^Prior ≠ W^Target ≠ W^Smooth ≠ W^Execution.
+
+3. MASE ENSEMBLE (MAJOR): v1.2 single macro engine (VIX/DXY → θ ±3%) → v1.0 MASE: ensemble of 5+ models (minimum-variance, ERC/risk-parity, max-diversification, CVaR/tail-risk, purchasing-power, regime) with adaptive ensemble weights.
+
+4. GOLD IN INDEX (MAJOR): v1.2 gold NOT in GFB Index → v1.0 gold IS in the index as first-class component with independent adaptive allocation W_{G,t}^Target = f(prior, risk, diversification, inflation, crisis, liquidity, purchasing-power). Envelope: 20-32%.
+
+5. CONSTITUENCY ENGINE (MAJOR): v1.2 fixed 5 currencies → v1.0 eligibility engine Q_i over expandable universe (CHF, CAD, AUD, SGD algorithmically decided via IMF COFER + BIS Triennial scoring).
+
+6. CHAIN-LINKED INDEX (MODERATE): v1.2 simple normalization → v1.0 chain-linked: NAV_t = G_t × Σ W_{i,t} × (P_{i,t}/P_{i,0}) with divisor adjustment G_t for weight changes.
+
+7. MARP (MAJOR): v1.2 simple trigger + 24h direction lock → v1.0 MARP: daily calculation vs actual rebalancing, urgency test, no-trade zones, cost-benefit gate, partial corrections, natural cash-flow preference, 6-level hierarchy.
+
+8. ENVELOPES (MAJOR): v1.2 gold clamped 22-30% → v1.0 per-component admissibility envelopes: USD 23-32%, EUR 17-24%, JPY 7-12%, GBP 6-11%, CNY 3-7%, CHF 3-7%, Gold 20-32%. Dynamic admissibility + weight-velocity limits.
+
+9. GOLD PRICE (MODERATE): v1.2 PAXG/LBMA min → v1.0 canonical multi-source gold price (robust median, confidence scoring, degraded mode, independent-source quorum).
+
+10. RESERVE VS INDEX GOLD (MAJOR): v1.2 reserve gold = core 20% + buffer 10%×62.5% → v1.0 reserve gold and index gold are MANDATORILY SEPARATE. Reserve gold sized by obligations/liquidity/custody/redemption risk, NOT by index weight.
+
+11. VALIDATION (MAJOR): v1.2 Monte Carlo 10,300 runs → v1.0 full research program: backtest from 2010, walk-forward, purged CV, Monte Carlo, perturbation, stress suite — production precondition.
+
+12. TRANSPARENCY (MODERATE): v1.2 genesis verification → v1.0 full weight publication with source data, methodology version, rebalancing decision logs, deterministic reproducibility.
+
+13. CHF (MINOR): v1.2 no CHF → v1.0 CHF is 5% strategic prior, 3-7% envelope, first-class component.
+
+IMPLEMENTATION PLAN:
+- Phase 1: Update blueprint.ts constants (strategic prior, envelopes, CHF, gold-in-index)
+- Phase 2: Rewrite engine.ts (adaptive weights, MASE, chain-linked index, 4-state weights, MARP)
+- Phase 3: Update UI components (show gold IN index, 4 weight states, MASE models, envelopes, CHF)
+- Phase 4: Update tests (validation program, new stress suite)
+- Phase 5: Update contracts + deploy
+
+Stage Summary:
+- The new Master Blueprint v1.0 is a FUNDAMENTAL redesign. The v1.2 implementation must be substantially rewritten.
+- 13 major gap areas identified. Gold is now IN the index (not just the reserve). The basket is adaptive (not fixed). MASE replaces the macro engine. MARP replaces simple rebalancing. CHF is added. 4-state weight system replaces single target.
+- The old v1.2 blueprint is SUPERSEDED — all references to fixed q_i, 5-currency basket, no-gold-in-index, 22-30% gold band must be removed.
