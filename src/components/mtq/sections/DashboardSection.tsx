@@ -16,6 +16,7 @@ import { OracleConsensus } from "@/components/mtq/OracleConsensus";
 import { AssetRegistry } from "@/components/mtq/AssetRegistry";
 import { ReserveVault } from "@/components/mtq/ReserveVault";
 import { MacroEngine } from "@/components/mtq/MacroEngine";
+import { MaseEngine } from "@/components/mtq/MaseEngine";
 import { RebalanceEngine } from "@/components/mtq/RebalanceEngine";
 import { MintSimulator } from "@/components/mtq/MintSimulator";
 import { RedeemSimulator } from "@/components/mtq/RedeemSimulator";
@@ -301,6 +302,21 @@ export function DashboardSection() {
       {/* ===== 7 — Adaptive Macro Engine ===== */}
       <Section id="macro" eyebrow="§6" title="Adaptive Macro Engine">
         <MacroEngine snapshot={snapshot} />
+      </Section>
+
+      {/* ===== 7b — MASE Ensemble + 4-State Weights + MARP (v1.0) ===== */}
+      <Section
+        id="mase"
+        eyebrow="§6 · §7 · §8 · §10 · v1.0"
+        title="MASE Ensemble + 4-State Weights + MARP"
+        right={
+          <Pill tone="gold">
+            <GlowDot color="gold" size="h-1.5 w-1.5" />
+            v1.0 production target
+          </Pill>
+        }
+      >
+        <MaseEngine snapshot={snapshot} />
       </Section>
 
       {/* ===== 8 — Rebalancing Engine ===== */}

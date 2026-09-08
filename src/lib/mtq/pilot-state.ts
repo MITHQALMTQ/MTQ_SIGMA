@@ -21,6 +21,7 @@ import {
   updatePegHealth,
   updateBufferState,
   advanceMacro,
+  advanceMase,
   stepMacroSignals,
   updateReintegration,
   maybeTreasurySweep,
@@ -38,7 +39,7 @@ import { genesisRegistry, type AssetRecord } from "./registry";
 
 const TICK_MS = 4000;
 const SIM_TICK_HOURS = 0.25; // each tick simulates ~15 min of macro time
-const STATE_SCHEMA_VERSION = 7; // bump when ReserveState shape changes → singleton rebuilds (v7: chf field added per Master Blueprint v1.0)
+const STATE_SCHEMA_VERSION = 8; // bump when ReserveState shape changes → singleton rebuilds (v8: maseSmoothed + maseLastAt added per Master Blueprint v1.0 — MASE ensemble + 4-state weights + MARP)
 
 interface PilotStore {
   state: ReserveState;
@@ -69,6 +70,11 @@ async function ensureStore(): Promise<PilotStore> {
   }
   const fx = await fetchFxSnapshot(true);
   const state = initReserveState(fx.XAU_USD);
+  // v1.0: prime MASE smoothed weights at genesis so the first snapshot has a
+  // non-null prev-smoothed for the EMA. Without this the very first snapshot
+  // would fall back to STRATEGIC_PRIOR and the smoothed weights would jump
+  // one tick earlier than intended.
+  advanceMase(state, fx);
   const registry = genesisRegistry();
   const oracle = buildOracleBoard({
     EUR_USD: fx.EUR_USD, GBP_USD: fx.GBP_USD, JPY_USD: fx.JPY_USD, CNY_USD: fx.CNY_USD, XAU_USD: fx.XAU_USD,
@@ -116,6 +122,10 @@ async function tick(store: PilotStore) {
   const stepped = stepMacroSignals({ vix: store.fx.VIX, dxy: store.fx.DXY });
   store.fx = { ...store.fx, VIX: stepped.vix, DXY: stepped.dxy };
   advanceMacro(store.state, stepped.vix, stepped.dxy, SIM_TICK_HOURS);
+  // v1.0: advance MASE 4-state smoothed weights once per tick (after advanceMacro
+  // so lastVix/lastDxy are fresh, before the first computeSnapshot so the
+  // snapshot reads the freshly-persisted smoothed weights as the EMA prior).
+  advanceMase(store.state, store.fx);
   // §5/§11 peg health + eject ladder
   updatePegHealth(store.state, SIM_TICK_HOURS, store.fx);
   // §11.3 reintegration score

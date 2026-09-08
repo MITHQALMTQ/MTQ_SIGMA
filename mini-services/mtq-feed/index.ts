@@ -32,6 +32,7 @@ import {
   updatePegHealth,
   updateBufferState,
   advanceMacro,
+  advanceMase,
   stepMacroSignals,
   type ReserveState,
   type MetricsSnapshot,
@@ -50,6 +51,9 @@ async function bootstrap() {
   const fx0 = await fetchFxSnapshot(true);
   lastFx = fx0;
   state = initReserveState(fx0.XAU_USD);
+  // v1.0: prime MASE smoothed weights at genesis so the first snapshot has a
+  // non-null prev-smoothed for the EMA (mirrors the Next.js in-process engine).
+  advanceMase(state, fx0);
   const s = computeSnapshot(state, fx0);
   console.log(
     `[mtq-feed] bootstrapped gold=${fx0.XAU_USD.toFixed(2)} gfb=${s.gfbIndex.toFixed(4)} price=${s.mtqPrice.toFixed(4)} rr=${s.reserveRatio.toFixed(3)}`,
@@ -68,6 +72,10 @@ async function tick() {
     const stepped = stepMacroSignals({ vix: lastFx.VIX, dxy: lastFx.DXY });
     lastFx = { ...lastFx, VIX: stepped.vix, DXY: stepped.dxy };
     advanceMacro(state, stepped.vix, stepped.dxy, SIM_TICK_HOURS);
+    // v1.0: advance MASE smoothed weights once per tick (after advanceMacro so
+    // lastVix/lastDxy are fresh, before computeSnapshot so the snapshot reads
+    // the freshly-persisted smoothed weights as the EMA prior).
+    advanceMase(state, lastFx);
     updatePegHealth(state, SIM_TICK_HOURS, lastFx);
     const snap0 = computeSnapshot(state, lastFx);
     const decision = evaluateRebalance(

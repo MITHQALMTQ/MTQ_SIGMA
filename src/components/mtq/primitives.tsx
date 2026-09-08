@@ -360,6 +360,7 @@ export const SECTION_IDS = [
   "registry",
   "vault",
   "macro",
+  "mase",
   "rebalance",
   "mint",
   "redeem",

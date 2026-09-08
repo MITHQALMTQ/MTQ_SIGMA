@@ -201,12 +201,18 @@ export function DocsSection({
             <div className="text-[0.6rem] uppercase tracking-[0.22em] text-mtqs-gold/75">§8.1 · Admissibility</div>
             <h3 className="mt-2 text-base font-semibold text-foreground/95">Per-Component Admissibility Envelopes</h3>
           </div>
-          <Pill tone="gold">hard bounds</Pill>
+          <div className="flex items-center gap-2">
+            <Pill tone="emerald">
+              <GlowDot color="emerald" size="h-1.5 w-1.5" />
+              live in Dashboard
+            </Pill>
+            <Pill tone="gold">hard bounds</Pill>
+          </div>
         </div>
         <Reveal>
           <RefTable
             title="Admissibility Envelopes (§8.1)"
-            subtitle="No MASE optimizer output may cross these per-component hard bounds. The prior sits inside every envelope."
+            subtitle="No MASE optimizer output may cross these per-component hard bounds. The prior sits inside every envelope. The Dashboard's MASE section now shows the live status of each component's execution weight against its envelope (ok / near edge / breach)."
             headers={["Component", "Lower Bound", "Upper Bound", "Strategic Prior"]}
             rows={ENVELOPES_TABLE.map((row) => [
               <span key="component" className="font-mono text-amber-200">{row.component}</span>,
@@ -225,12 +231,18 @@ export function DocsSection({
             <div className="text-[0.6rem] uppercase tracking-[0.22em] text-mtqs-gold/75">§2.3 · Weight States</div>
             <h3 className="mt-2 text-base font-semibold text-foreground/95">Four-State Weight Distinction</h3>
           </div>
-          <Pill tone="gold">W^Prior ≠ W^Target ≠ W^Smooth ≠ W^Execution</Pill>
+          <div className="flex items-center gap-2">
+            <Pill tone="emerald">
+              <GlowDot color="emerald" size="h-1.5 w-1.5" />
+              live in Dashboard
+            </Pill>
+            <Pill tone="gold">W^Prior ≠ W^Target ≠ W^Smooth ≠ W^Execution</Pill>
+          </div>
         </div>
         <Reveal>
           <RefTable
             title="Four-State Weight System (§2.3)"
-            subtitle="Each published weight W_t is the EXECUTION weight (I6) — never the target or smoothed weight."
+            subtitle="Each published weight W_t is the EXECUTION weight (I6) — never the target or smoothed weight. The Dashboard's MASE section now renders the live 4-state table per component (USD/EUR/JPY/GBP/CNY/CHF/Gold), with the smoothed→execution deviation flagged in green/red."
             headers={["State", "Symbol", "Meaning", "Produced By"]}
             rows={WEIGHT_STATE_DESCRIPTIONS.map((row) => [
               <span key="state" className="font-mono font-semibold text-amber-200">{row.state}</span>,
@@ -249,12 +261,18 @@ export function DocsSection({
             <div className="text-[0.6rem] uppercase tracking-[0.22em] text-mtqs-gold/75">§6 / §7 · MASE</div>
             <h3 className="mt-2 text-base font-semibold text-foreground/95">MASE Candidate Models</h3>
           </div>
-          <Pill tone="gold">6-model ensemble</Pill>
+          <div className="flex items-center gap-2">
+            <Pill tone="emerald">
+              <GlowDot color="emerald" size="h-1.5 w-1.5" />
+              live in Dashboard
+            </Pill>
+            <Pill tone="gold">6-model ensemble</Pill>
+          </div>
         </div>
         <Reveal>
           <RefTable
             title="MASE Ensemble (§6 / §7)"
-            subtitle="The Multi-Asset Stochastic Ensemble runs candidate models and combines them with adaptive weights. The legacy single-engine (VIX/DXY → θ ±3%) is retained as the live pilot path; MASE is the v1.0 production target."
+            subtitle="The Multi-Asset Stochastic Ensemble runs 6 candidate models and combines them with equal weights (pilot) / adaptive weights (production target). The Dashboard's 'MASE Ensemble + 4-State Weights + MARP' section now shows these models' live weight vectors, the equal-weight ensemble target, the per-component admissibility envelope status, the four-state weight distinction (Prior → Target → Smoothed → Execution), and the per-component MARP rebalancing decisions."
             headers={["ID", "Model", "Description"]}
             rows={MASE_MODELS.map((row) => [
               <span key="id" className="font-mono text-amber-200">{row.id}</span>,
@@ -262,6 +280,31 @@ export function DocsSection({
               <span key="desc" className="text-muted-foreground/85">{row.desc}</span>,
             ])}
           />
+        </Reveal>
+        <Reveal delay={0.05}>
+          <div className="mt-4">
+            <Panel className="p-4 border-emerald-400/20">
+              <div className="flex items-start gap-3">
+                <ArrowRight className="h-4 w-4 text-mtqs-emerald/80 mt-0.5 shrink-0" aria-hidden="true" />
+                <div>
+                  <div className="text-sm font-semibold text-foreground/90 mb-1">Live MASE data now in the Dashboard</div>
+                  <p className="text-[0.78rem] text-muted-foreground/85 leading-relaxed">
+                    The <button
+                      onClick={() => _onNavigate("dashboard")}
+                      className="font-mono text-mtqs-emerald/90 hover:text-mtqs-emerald underline-offset-2 hover:underline"
+                    >
+                      Dashboard
+                    </button> now renders a dedicated <span className="text-amber-200/90 font-medium">MASE Ensemble + 4-State Weights + MARP</span> section
+                    (between the Adaptive Macro Engine and the Rebalancing Engine) showing the live output of all 6 candidate models,
+                    the equal-weight ensemble target, the four-state weight table (W<sup>Prior</sup> → W<sup>Target</sup> → W<sup>Smooth</sup> → W<sup>Execution</sup>),
+                    the per-component admissibility envelope status (ok / warn / breach), and the MARP per-component rebalancing decisions
+                    (direction, trade USD, urgency, level, reason). The legacy §6 single-engine (VIX/DXY → θ ±3%) and §7 single-direction
+                    rebalance are retained in parallel as live pilot paths; MASE + MARP is the v1.0 production target.
+                  </p>
+                </div>
+              </div>
+            </Panel>
+          </div>
         </Reveal>
       </section>
 

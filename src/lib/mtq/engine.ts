@@ -34,6 +34,8 @@
 import {
   STRATEGIC_PRIOR,
   GFB_BASE_DENOMINATOR,
+  ADMISSIBILITY_ENVELOPES,
+  BASE_FIXINGS,
   PRICE_SAFETY_LOWER, PRICE_SAFETY_UPPER,
   MINT_FEE_BPS, REDEEM_FEE_BPS,
   HAIRCUTS,
@@ -55,6 +57,18 @@ import {
 import type { FxSnapshot } from "./fx";
 import type { OracleBoard, OracleConsensus } from "./oracle";
 import { computeConcentration, type AssetRecord, type ConcentrationReport } from "./registry";
+import {
+  maseEnsemble,
+  applyEnvelopes,
+  smoothWeights,
+  COMPONENTS,
+  type PriceData,
+  type VolatilityData,
+  type MarketRegime,
+  type WeightVector,
+  type Component,
+} from "./mase";
+import { marpDecision, type MarpDecision } from "./marp";
 
 export interface ReserveState {
   // Token-unit holdings (USD-denominated assets stored as their native units)
@@ -132,6 +146,12 @@ export interface ReserveState {
   // Last macro signal sample (for the stochastic walk)
   lastVix: number;
   lastDxy: number;
+
+  // v1.0 MASE 4-state weight system — previous tick's smoothed weights (EMA).
+  // Null at genesis → first computeSnapshot falls back to STRATEGIC_PRIOR.
+  // advanceMase() (called from the tick loop) updates this once per tick.
+  maseSmoothed: WeightVector | null;
+  maseLastAt: number;
 
   updatedAt: number;
 }
@@ -225,6 +245,9 @@ export function initReserveState(goldPrice: number): ReserveState {
     lastLoggedPrice: 1.0,
     lastVix: 18.5,
     lastDxy: 104.2,
+    // v1.0 MASE — null until first advanceMase() call; STRATEGIC_PRIOR used as fallback.
+    maseSmoothed: null,
+    maseLastAt: 0,
     updatedAt: Date.now(),
   };
 }
@@ -765,6 +788,22 @@ export interface MetricsSnapshot {
   reconciliation: ReconciliationFinding[];
   redemptionPolicy: typeof REDEMPTION_POLICY;
   perIssuer: { usdcUsd: number; usdpUsd: number; usdtUsd: number; eurcUsd: number; paxgUsd: number; xautUsd: number } | null;
+  // v1.0: MASE + 4-state weights + MARP
+  mase: {
+    models: { id: string; name: string; weights: Record<string, number> }[];
+    ensembleTarget: Record<string, number>;
+  } | null;
+  weightStates: {
+    prior: Record<string, number>;
+    target: Record<string, number>;
+    smoothed: Record<string, number>;
+    execution: Record<string, number>;
+  } | null;
+  marp: {
+    decisions: { shouldTrade: boolean; component: string; direction: string; tradeUsd: number; urgency: number; reason: string; level: number }[];
+    totalTradeUsd: number;
+  } | null;
+  envelopes: { component: string; lower: number; upper: number; current: number; status: "ok" | "warn" | "breach" }[];
 }
 
 export function computeSnapshot(s: ReserveState, fx: FxSnapshot, ctx?: { oracle?: OracleBoard | null; registry?: AssetRecord[] | null }): MetricsSnapshot {
@@ -801,6 +840,13 @@ export function computeSnapshot(s: ReserveState, fx: FxSnapshot, ctx?: { oracle?
       XAUT: vals.xautUsd ?? 0,
     });
   }
+
+  // --- v1.0 MASE + 4-state weights + MARP (computed fresh per snapshot, READ-ONLY) ---
+  // The previous tick's smoothed weights are stored in `s.maseSmoothed` (updated
+  // by `advanceMase()` in the tick loop). computeSnapshot uses that as the EMA
+  // prior — it does NOT mutate state, so multiple calls within a single tick
+  // return the same value (idempotent).
+  const maseData = buildMaseSnapshot(s, fx, vals, nav, rr);
 
   return {
     fetchedAt: fx.fetchedAt,
@@ -846,7 +892,196 @@ export function computeSnapshot(s: ReserveState, fx: FxSnapshot, ctx?: { oracle?
     reconciliation: getReconciliationFindings(s, { usdcUsd: vals.usdcUsd ?? 0, usdpUsd: vals.usdpUsd ?? 0, usdtUsd: vals.usdtUsd ?? 0, paxgUsd: vals.paxgUsd ?? 0, xautUsd: vals.xautUsd ?? 0, nav: vals.nav, eurNet: vals.eurNet }),
     redemptionPolicy: REDEMPTION_POLICY,
     perIssuer: { usdcUsd: vals.usdcUsd ?? 0, usdpUsd: vals.usdpUsd ?? 0, usdtUsd: vals.usdtUsd ?? 0, eurcUsd: vals.eurNet, paxgUsd: vals.paxgUsd ?? 0, xautUsd: vals.xautUsd ?? 0 },
+    // v1.0: MASE + 4-state weights + MARP + admissibility envelope status
+    mase: maseData.mase,
+    weightStates: maseData.weightStates,
+    marp: maseData.marp,
+    envelopes: maseData.envelopes,
   };
+}
+
+// --- §6/§7/§8.4/§10 v1.0 MASE + 4-state weights + MARP ---------------------
+// The Multi-Asset Stochastic Ensemble (§6/§7) runs 6 candidate models, blends
+// them into a single target weight vector, clamps to per-component
+// admissibility envelopes (§8.1), and EMA-smooths toward the constrained target
+// (§8.4). MARP (§10) then decides per-component whether the deviation between
+// the smoothed target and the observed execution weight justifies a trade
+// (urgency test → no-trade zone → cost-benefit gate → partial correction →
+// daily-turnover cap → execute).
+//
+// `advanceMase(s, fx)` is called ONCE per tick from the pilot-state tick loop.
+// It is the only function that mutates `s.maseSmoothed`. `buildMaseSnapshot()`
+// is a pure helper used by `computeSnapshot()` — it recomputes target/smoothed/
+// MARP from the current fx + vals using the persisted prev-smoothed as the EMA
+// prior, so multiple computeSnapshot calls within a single tick return the
+// same value (idempotent).
+
+interface MaseSnapshotData {
+  mase: NonNullable<MetricsSnapshot["mase"]>;
+  weightStates: NonNullable<MetricsSnapshot["weightStates"]>;
+  marp: NonNullable<MetricsSnapshot["marp"]>;
+  envelopes: MetricsSnapshot["envelopes"];
+}
+
+/** Estimate per-component annualized volatility from the engine's macro state.
+ *  Pilot approximation: scale baseline vols by VIX / 18.5 (the "normal" VIX
+ *  baseline), so a 30 VIX roughly doubles estimated vols and a 12 VIX halves
+ *  them. Production should use a rolling covariance from real price history. */
+function estimateVolsFromState(s: ReserveState): VolatilityData {
+  const vix = s.lastVix > 0 ? s.lastVix : 18.5;
+  const f = vix / 18.5;
+  return {
+    USD: 0.05 * f,
+    EUR: 0.10 * f,
+    JPY: 0.12 * f,
+    GBP: 0.11 * f,
+    CNY: 0.09 * f,
+    CHF: 0.10 * f,
+    Gold: 0.15 * f,
+  };
+}
+
+/** Detect the market regime from VIX (primary) + DXY (secondary).
+ *  0 = calm, 1 = normal, 2 = stress, 3 = crisis.
+ *  VIX thresholds: <15 calm, <22 normal, <30 stress, ≥30 crisis.
+ *  DXY extremes (<88 or >115) bump the regime up to ≥ stress. */
+function detectRegime(vix: number, dxy: number, goldVol: number): MarketRegime {
+  let r: 0 | 1 | 2 | 3 = 1;
+  if (vix >= 30) r = 3;
+  else if (vix >= 22) r = 2;
+  else if (vix >= 15) r = 1;
+  else r = 0;
+  if ((dxy >= 115 || dxy <= 88) && r < 2) r = 2;
+  return { regime: r, vix, dxy, goldVol };
+}
+
+/** Build PriceData (P_{i,t} / P_{i,0}) from current FX rates + base fixings. */
+function buildPriceData(fx: Pick<FxRates, "EUR_USD" | "GBP_USD" | "JPY_USD" | "CNY_USD" | "CHF_USD" | "XAU_USD">): PriceData {
+  return {
+    USD: 1.0,
+    EUR: fx.EUR_USD / BASE_FIXINGS.EUR_USD,
+    JPY: fx.JPY_USD / BASE_FIXINGS.JPY_USD,
+    GBP: fx.GBP_USD / BASE_FIXINGS.GBP_USD,
+    CNY: fx.CNY_USD / BASE_FIXINGS.CNY_USD,
+    CHF: fx.CHF_USD / BASE_FIXINGS.CHF_USD,
+    Gold: fx.XAU_USD / BASE_FIXINGS.XAU_USD,
+  };
+}
+
+/** Build the observed execution-weight vector from the actual reserve composition. */
+function buildObservedWeights(
+  vals: ReturnType<typeof reserveAssetValues>,
+  nav: number,
+): WeightVector {
+  if (nav <= 0) {
+    return { USD: 0, EUR: 0, JPY: 0, GBP: 0, CNY: 0, CHF: 0, Gold: 0 };
+  }
+  return {
+    USD: vals.usdNet / nav,
+    EUR: vals.eurNet / nav,
+    JPY: vals.jpyNet / nav,
+    GBP: vals.gbpNet / nav,
+    CNY: vals.cnyNet / nav,
+    CHF: vals.chfNet / nav,
+    Gold: vals.goldNet / nav,
+  };
+}
+
+/** Pure helper — computes the MASE + 4-state + MARP + envelope snapshot data.
+ *  Reads `s.maseSmoothed` (does NOT mutate). */
+function buildMaseSnapshot(
+  s: ReserveState,
+  fx: FxSnapshot,
+  vals: ReturnType<typeof reserveAssetValues>,
+  nav: number,
+  rr: number,
+): MaseSnapshotData {
+  const prices = buildPriceData(fx);
+  const vols = estimateVolsFromState(s);
+  const regime = detectRegime(s.lastVix > 0 ? s.lastVix : fx.VIX, s.lastDxy > 0 ? s.lastDxy : fx.DXY, vols.Gold);
+
+  // §6/§7 — MASE ensemble → 6 candidate models + target weight vector
+  const mase = maseEnsemble(vols, prices, null, regime);
+  // §8.1 — Constrain target to per-component admissibility envelopes
+  const constrained = applyEnvelopes(mase.target);
+  // §8.4 — EMA-smooth toward the constrained target (uses prev persisted as prior)
+  const prevSmoothed = s.maseSmoothed ?? (STRATEGIC_PRIOR as WeightVector);
+  const smoothed = smoothWeights(prevSmoothed, constrained);
+  // §2.3 — Execution = actual observed reserve composition
+  const observed = buildObservedWeights(vals, nav);
+
+  // §10 — MARP per-component rebalancing decision
+  const volsRecord: Record<Component, number> = {
+    USD: vols.USD, EUR: vols.EUR, JPY: vols.JPY, GBP: vols.GBP,
+    CNY: vols.CNY, CHF: vols.CHF, Gold: vols.Gold,
+  };
+  const marpDecisions: MarpDecision[] = marpDecision(observed, smoothed, nav, rr, volsRecord);
+  const totalTradeUsd = marpDecisions
+    .filter((d) => d.shouldTrade)
+    .reduce((a, d) => a + d.tradeUsd, 0);
+
+  // §8.1 — Admissibility envelope status per component
+  // "warn" = within 10% of the band edge; "breach" = outside the envelope.
+  const envelopes = COMPONENTS.map((c) => {
+    const env = ADMISSIBILITY_ENVELOPES[c];
+    const current = observed[c];
+    const lower = env.lower;
+    const upper = env.upper;
+    const margin = (upper - lower) * 0.1;
+    let status: "ok" | "warn" | "breach" = "ok";
+    if (current < lower || current > upper) status = "breach";
+    else if (current < lower + margin || current > upper - margin) status = "warn";
+    return { component: c, lower, upper, current, status };
+  });
+
+  return {
+    mase: {
+      models: mase.models.map((m) => ({
+        id: m.id,
+        name: m.name,
+        weights: m.weights as Record<string, number>,
+      })),
+      ensembleTarget: mase.target as Record<string, number>,
+    },
+    weightStates: {
+      prior: STRATEGIC_PRIOR as Record<string, number>,
+      target: constrained as Record<string, number>,
+      smoothed: smoothed as Record<string, number>,
+      execution: observed as Record<string, number>,
+    },
+    marp: {
+      decisions: marpDecisions.map((d) => ({
+        shouldTrade: d.shouldTrade,
+        component: d.component,
+        direction: d.direction,
+        tradeUsd: d.tradeUsd,
+        urgency: d.urgency,
+        reason: d.reason,
+        level: d.level,
+      })),
+      totalTradeUsd,
+    },
+    envelopes,
+  };
+}
+
+/** Advance MASE state once per tick. Mutates `s.maseSmoothed` (EMA prior for
+ *  the next tick). Called from the pilot-state tick loop, AFTER advanceMacro
+ *  (so lastVix/lastDxy are fresh) and BEFORE the first computeSnapshot of the
+ *  tick (so the snapshot reads the freshly-persisted smoothed weights). */
+export function advanceMase(s: ReserveState, fx: FxRates): void {
+  const prices = buildPriceData(fx);
+  const vols = estimateVolsFromState(s);
+  const regime = detectRegime(
+    s.lastVix > 0 ? s.lastVix : fx.VIX,
+    s.lastDxy > 0 ? s.lastDxy : fx.DXY,
+    vols.Gold,
+  );
+  const mase = maseEnsemble(vols, prices, null, regime);
+  const constrained = applyEnvelopes(mase.target);
+  const prevSmoothed = s.maseSmoothed ?? (STRATEGIC_PRIOR as WeightVector);
+  s.maseSmoothed = smoothWeights(prevSmoothed, constrained);
+  s.maseLastAt = Date.now();
 }
 
 // --- helpers ----------------------------------------------------------------
