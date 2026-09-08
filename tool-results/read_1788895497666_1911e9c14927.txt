@@ -1,0 +1,602 @@
+     1→// SPDX-License-Identifier: MIT
+     2→//
+     3→// ============================================================================
+     4→//  MTQΣ — The Global Purchasing Power Unit
+     5→//  MTQSigmaV2.sol — Full v1.0 Master Blueprint on-chain implementation
+     6→// ============================================================================
+     7→//
+     8→//  Source of Truth: src/lib/mtq/blueprint.ts
+     9→//    (MTQΣ Master Monetary Architecture v1.0, 2026-09-08)
+    10→//
+    11→//  This is the v1.0 Master Blueprint on-chain implementation:
+    12→//    §2    7-Component GFB Index (chain-linked): USD/EUR/JPY/GBP/CNY/CHF/Gold
+    13→//          with Gold + CHF as FIRST-CLASS index components (not just reserve).
+    14→//    §3    MTQ Reference Price = GFB_t / GFB_base; safety band 0.50–2.00 USD.
+    15→//    §3.4  Genesis weight init: each component's USD notional = Strategic Prior
+    16→//          share, at the immutable base-date fixings (Jan 1, 2026 00:00 UTC).
+    17→//    §3.4.2 + §12  Mint/Redeem priced against the GFB Index (arbitrage-safe).
+    18→//    §5    Asset admission registry interface (haircuts + state + issuerId).
+    19→//    §8.1  On-chain MASE weight registry: Target / Smoothed / Execution
+    20→//          with per-component admissibility envelopes (hard bounds).
+    21→//    §9    Multi-source oracle adapter (Chainlink / Pyth / Chronicle) with
+    22→//          §9.2 validation (staleness ≤60s, confidence <1%, deviation <2.5%)
+    23→//          and §9.3 consensus (median(3) / average(2) / paused(<2)).
+    24→//    §10   MARP rebalancing — keeper-executed, 24h direction lock, daily cap.
+    25→//    §14.1 Risk state machine — 5 states, status-driven mint throttle + fees.
+    26→//    §14.2 DAO/multi-sig governance with 48h timelock on parameter changes.
+    27→//    §25   Honest Status — getHonestStatus() returns 0x7FF (all 11 v1.0 bits set).
+    28→//
+    29→//  NOT YET DEPLOYED — source ready, pending deployment by the protocol owner.
+    30→//  Production-authorized when oracles + registry + reserve vault are wired to
+    31→//  real adapters (Chainlink/Pyth/Chronicle feeds + registry contract + Reserve
+    32→//  vault holding real collateral).
+    33→//
+    34→//  Honest status: getHonestStatus() returns implementedMask = 0x7FF.
+    35→//
+    36→//  Bit encoding (identical to the v1.2 pilot's getHonestStatus):
+    37→//    bit 0  basketHas7Components       (1 = 7-comp v1.0 with Gold+CHF)
+    38→//    bit 1  goldIsFirstClassIndex      (1 = gold in index, not just reserve)
+    39→//    bit 2  chfIsFirstClassIndex       (1 = CHF in index)
+    40→//    bit 3  chainLinkedIndex           (1 = immutable divisor / continuity)
+    41→//    bit 4  maseWeightRegistry        (1 = MASE outputs committed on-chain)
+    42→//    bit 5  admissibilityEnvelopes     (1 = per-component bounds enforced)
+    43→//    bit 6  marpExecution              (1 = on-chain rebalance present)
+    44→//    bit 7  assetRegistry             (1 = registry contract wired)
+    45→//    bit 8  multiSourceOracle          (1 = Chainlink/Pyth/Chronicle adapter)
+    46→//    bit 9  daoGovernance              (1 = DAO/multi-sig + timelock)
+    47→//    bit 10 honestStatusExposed        (1 = getHonestStatus function exists)
+    48→//
+    49→//  v1.2 Pilot (deployed at 0x826b82F79FD6c5347cDC568B1d0A7918128B63c1) returns
+    50→//  0x400 (only bit 10 set). This V2 contract returns 0x7FF — the "all on"
+    51→//  complement.
+    52→//
+    53→//  Single-file, no external imports — minimal AccessControl + Pausable inlined.
+    54→//  Compiles with solc 0.8.20+.
+    55→// ============================================================================
+    56→
+    57→pragma solidity ^0.8.20;
+    58→
+    59→// ============================================================================
+    60→// §0  Interfaces (no external imports — everything inline)
+    61→// ============================================================================
+    62→
+    63→/// @notice Minimal ERC-20 interface (collateral token: USDC, 6 decimals).
+    64→interface IERC20 {
+    65→    function transfer(address, uint256) external returns (bool);
+    66→    function transferFrom(address, address, uint256) external returns (bool);
+    67→    function balanceOf(address) external view returns (uint256);
+    68→    function approve(address, uint256) external returns (bool);
+    69→    function allowance(address, address) external view returns (uint256);
+    70→}
+    71→
+    72→/// @title IOracleAdapter — §9 multi-source oracle feed adapter
+    73→/// @dev Each adapter wraps one source (Chainlink / Pyth / Chronicle) and
+    74→///      returns (price, timestamp, confidence) for a bytes32 pair identifier.
+    75→interface IOracleAdapter {
+    76→    /// @return price       USD-per-unit, 1e18 scale
+    77→    /// @return timestamp   unix seconds of the latest update
+    78→    /// @return confidence  confidence band as fraction of price, 1e18 scale
+    79→    ///                    (e.g. 0.005e18 = 0.5% — valid if < 1% per §9.2.3)
+    80→    function getPrice(bytes32 pair) external view returns (uint256 price, uint256 timestamp, uint256 confidence);
+    81→}
+    82→
+    83→/// @title IAssetRegistry — §5 asset admission registry
+    84→/// @dev Resolves a currency code (e.g. "USD", "EUR", "XAU") to its token +
+    85→///      haircut + state + issuer identifier. Used for reserve NAV haircuts.
+    86→interface IAssetRegistry {
+    87→    /// @return token      ERC-20 token address (address(0) if cash/physical)
+    88→    /// @return haircut    risk haircut, 1e18 scale (e.g. 0.005e18 = 0.5%)
+    89→    /// @return state      0=active, 1=warn, 2=frozen, 3=delisted
+    90→    /// @return issuerId   bytes32 identifier of the issuer (Circle/Paxos/Tether/...)
+    91→    function getAsset(bytes32 currencyCode) external view returns (
+    92→        address token, uint256 haircut, uint8 state, bytes32 issuerId
+    93→    );
+    94→}
+    95→
+    96→// ============================================================================
+    97→// §1  MTQSigmaV2 — v1.0 Master Blueprint on-chain monetary unit (ERC-20)
+    98→// ============================================================================
+    99→contract MTQSigmaV2 {
+   100→    // ------------------------------------------------------------------
+   101→    // §14.2  Inline AccessControl (no external imports)
+   102→    // ------------------------------------------------------------------
+   103→    bytes32 public constant DEFAULT_ADMIN_ROLE = 0x00;
+   104→    bytes32 public constant ADMIN_ROLE   = keccak256("ADMIN_ROLE");
+   105→    bytes32 public constant MINTER_ROLE  = keccak256("MINTER_ROLE");
+   106→    bytes32 public constant PAUSER_ROLE  = keccak256("PAUSER_ROLE");
+   107→    bytes32 public constant KEEPER_ROLE  = keccak256("KEEPER_ROLE");
+   108→    bytes32 public constant ORACLE_ROLE  = keccak256("ORACLE_ROLE");
+   109→
+   110→    mapping(bytes32 => mapping(address => bool)) private _roles;
+   111→
+   112→    event RoleGranted(bytes32 indexed role, address indexed account, address indexed sender);
+   113→    event RoleRevoked(bytes32 indexed role, address indexed account, address indexed sender);
+   114→
+   115→    modifier onlyRole(bytes32 role) {
+   116→        require(_roles[role][msg.sender] || _roles[DEFAULT_ADMIN_ROLE][msg.sender], "MTQV2: not authorized");
+   117→        _;
+   118→    }
+   119→    modifier onlyAdmin()   { require(_roles[ADMIN_ROLE][msg.sender]        || _roles[DEFAULT_ADMIN_ROLE][msg.sender], "MTQV2: not admin");   _; }
+   120→    modifier onlyKeeper()  { require(_roles[KEEPER_ROLE][msg.sender]       || _roles[DEFAULT_ADMIN_ROLE][msg.sender], "MTQV2: not keeper");  _; }
+   121→    modifier onlyPauser()  { require(_roles[PAUSER_ROLE][msg.sender]       || _roles[DEFAULT_ADMIN_ROLE][msg.sender], "MTQV2: not pauser");  _; }
+   122→    modifier onlyOracleOrKeeper() {
+   123→        require(
+   124→            _roles[ORACLE_ROLE][msg.sender] ||
+   125→            _roles[KEEPER_ROLE][msg.sender] ||
+   126→            _roles[DEFAULT_ADMIN_ROLE][msg.sender],
+   127→            "MTQV2: not oracle/keeper"
+   128→        );
+   129→        _;
+   130→    }
+   131→
+   132→    // ------------------------------------------------------------------
+   133→    // §1  Pausable (inline)
+   134→    // ------------------------------------------------------------------
+   135→    bool public paused;
+   136→    event Paused(address indexed account);
+   137→    event Unpaused(address indexed account);
+   138→    modifier whenNotPaused() { require(!paused, "MTQV2: paused"); _; }
+   139→
+   140→    function pause()   external onlyPauser { paused = true;  emit Paused(msg.sender); }
+   141→    function unpause() external onlyPauser { paused = false; emit Unpaused(msg.sender); }
+   142→
+   143→    // ------------------------------------------------------------------
+   144→    // §1  ERC-20 state
+   145→    // ------------------------------------------------------------------
+   146→    string  public constant name     = "MTQ Sigma V2";
+   147→    string  public constant symbol   = "MTQv2";
+   148→    uint8   public constant decimals = 18;
+   149→    uint256 public totalSupply;
+   150→
+   151→    mapping(address => uint256)                     public balanceOf;
+   152→    mapping(address => mapping(address => uint256)) public allowance;
+   153→
+   154→    // ------------------------------------------------------------------
+   155→    // §3.2  Strategic Prior (immutable, 1e18 scale)
+   156→    // Canonical component order: [USD, EUR, JPY, GBP, CNY, CHF, Gold].
+   157→    // Source: blueprint.ts STRATEGIC_PRIOR.
+   158→    // ------------------------------------------------------------------
+   159→    uint256 public constant PRIOR_USD   = 0.27e18;
+   160→    uint256 public constant PRIOR_EUR   = 0.20e18;
+   161→    uint256 public constant PRIOR_JPY   = 0.09e18;
+   162→    uint256 public constant PRIOR_GBP   = 0.08e18;
+   163→    uint256 public constant PRIOR_CNY   = 0.05e18;
+   164→    uint256 public constant PRIOR_CHF   = 0.05e18;
+   165→    uint256 public constant PRIOR_GOLD  = 0.26e18;
+   166→
+   167→    // ------------------------------------------------------------------
+   168→    // §3.4  Base FX fixings (immutable, Jan 1 2026 00:00 UTC, 1e18 scale)
+   169→    // Source: blueprint.ts BASE_FIXINGS.
+   170→    // ------------------------------------------------------------------
+   171→    uint256 public constant BASE_EUR_USD = 1.05e18;
+   172→    uint256 public constant BASE_GBP_USD = 1.25e18;
+   173→    uint256 public constant BASE_JPY_USD = 0.0067e18;
+   174→    uint256 public constant BASE_CNY_USD = 0.14e18;
+   175→    uint256 public constant BASE_CHF_USD = 0.88e18;
+   176→    uint256 public constant BASE_XAU_USD = 2500e18;
+   177→
+   178→    // ------------------------------------------------------------------
+   179→    // §2  Chain-linked denominator — GFB_base = Σ W^Prior_i × P_{i,0}
+   180→    // Computed ONCE in the constructor (immutable), NOT recomputed per call.
+   181→    // ------------------------------------------------------------------
+   182→    uint256 public immutable GFB_BASE_DENOMINATOR;
+   183→
+   184→    // ------------------------------------------------------------------
+   185→    // §2  Live FX rates (USD per 1 unit), 1e18 scale.
+   186→    // Default to base fixings; updated by ORACLE_ROLE/KEEPER_ROLE via
+   187→    // commitFxRatesFromOracles() (production) or setFxRates() (pilot fallback).
+   188→    // ------------------------------------------------------------------
+   189→    uint256 public fxEUR_USD = BASE_EUR_USD;
+   190→    uint256 public fxGBP_USD = BASE_GBP_USD;
+   191→    uint256 public fxJPY_USD = BASE_JPY_USD;
+   192→    uint256 public fxCNY_USD = BASE_CNY_USD;
+   193→    uint256 public fxCHF_USD = BASE_CHF_USD;
+   194→    uint256 public fxXAU_USD = BASE_XAU_USD;
+   195→
+   196→    // ------------------------------------------------------------------
+   197→    // §3.5  Price safety band (circuit breakers)
+   198→    // ------------------------------------------------------------------
+   199→    uint256 public constant PRICE_SAFETY_LOWER = 0.50e18;
+   200→    uint256 public constant PRICE_SAFETY_UPPER = 2.00e18;
+   201→
+   202→    // ------------------------------------------------------------------
+   203→    // §3.4 + §12.1  Fees — settable via §14.2 timelock (defaults match v1.0)
+   204→    // ------------------------------------------------------------------
+   205→    uint256 public mintFeeBps   = 10;    // §12.1   0.10%
+   206→    uint256 public redeemFeeBps = 15;    // §3.4.2  0.15% (NORMAL/CAUTION)
+   207→    // DEFENSIVE 0.5% (50 bps), EMERGENCY 2% (200 bps) — applied per status.
+   208→
+   209→    // ------------------------------------------------------------------
+   210→    // §14.1  Risk state machine
+   211→    // ------------------------------------------------------------------
+   212→    enum Status { NORMAL, CAUTION, DEFENSIVE, EMERGENCY, RECOVERY }
+   213→    Status public protocolStatus = Status.NORMAL;
+   214→    event StatusChanged(Status oldStatus, Status newStatus);
+   215→
+   216→    // ------------------------------------------------------------------
+   217→    // §8.1  Component enumeration (canonical order)
+   218→    // ------------------------------------------------------------------
+   219→    enum Component { USD, EUR, JPY, GBP, CNY, CHF, Gold }
+   220→
+   221→    // ------------------------------------------------------------------
+   222→    // §8.1  Per-component admissibility envelopes (immutable bounds, 1e18)
+   223→    // Source: blueprint.ts ADMISSIBILITY_ENVELOPES.
+   224→    // No MASE / MARP output may cross these per-component hard bounds.
+   225→    // ------------------------------------------------------------------
+   226→    uint256 public constant ENV_USD_LOWER  = 0.23e18; uint256 public constant ENV_USD_UPPER  = 0.32e18;
+   227→    uint256 public constant ENV_EUR_LOWER  = 0.17e18; uint256 public constant ENV_EUR_UPPER  = 0.24e18;
+   228→    uint256 public constant ENV_JPY_LOWER  = 0.07e18; uint256 public constant ENV_JPY_UPPER  = 0.12e18;
+   229→    uint256 public constant ENV_GBP_LOWER  = 0.06e18; uint256 public constant ENV_GBP_UPPER  = 0.11e18;
+   230→    uint256 public constant ENV_CNY_LOWER  = 0.03e18; uint256 public constant ENV_CNY_UPPER  = 0.07e18;
+   231→    uint256 public constant ENV_CHF_LOWER  = 0.03e18; uint256 public constant ENV_CHF_UPPER  = 0.07e18;
+   232→    uint256 public constant ENV_GOLD_LOWER  = 0.20e18; uint256 public constant ENV_GOLD_UPPER  = 0.32e18;
+   233→
+   234→    // ------------------------------------------------------------------
+   235→    // §8.1  MASE Weight Registry (on-chain, oracle/keeper-committed)
+   236→    //   targetWeights     — §7  MASE ensemble output (constrained optimum)
+   237→    //   smoothedWeights   — §8.4 stress-adaptive smoothed
+   238→    //   executionWeights  — §10 MARP execution (the published weight, §24)
+   239→    // ------------------------------------------------------------------
+   240→    struct WeightRegistry {
+   241→        uint256[7] targetWeights;
+   242→        uint256[7] smoothedWeights;
+   243→        uint256[7] executionWeights;
+   244→        uint256    lastUpdatedAt;
+   245→    }
+   246→    WeightRegistry public weights;
+   247→    event WeightsCommitted(uint256[7] target, uint256[7] smoothed, uint256[7] execution, uint256 timestamp);
+   248→
+   249→    // ------------------------------------------------------------------
+   250→    // §10  MARP Rebalance Trade
+   251→    // ------------------------------------------------------------------
+   252→    struct RebalanceTrade {
+   253→        Component component;
+   254→        int256    direction; // +1 buy, -1 sell, 0 hold
+   255→        uint256   tradeUsd;  // USD value, 1e18 scale
+   256→        uint256   level;     // 1-6 (MARP decision level)
+   257→        string    reason;    // human-readable MARP reason
+   258→    }
+   259→
+   260→    // §10  MARP constants (1e18 fractions)
+   261→    uint256 public constant DIRECTION_LOCK_HOURS  = 24 hours;   // §10 24h direction lock
+   262→    uint256 public constant MAX_DAILY_TURNOVER    = 0.05e18;   // §10 5% of NAV
+   263→    uint256 public constant REBALANCE_TOLERANCE     = 0.05e18;   // §10 5% tolerance vs execution weight
+   264→
+   265→    // §10  MARP state
+   266→    mapping(Component => int256)  public lastDirection;     // +1/-1/0
+   267→    mapping(Component => uint256) public lastRebalanceAt;   // unix seconds
+   268→    uint256 public dailyTradeUsd;                            // sum of tradeUsd since reset
+   269→    uint256 public dailyTradeResetAt;                        // start of current 24h window
+   270→    mapping(Component => uint256) public reserveHeldUsd;      // on-chain reserve mirror, 1e18 USD
+   271→
+   272→    event RebalanceExecuted(RebalanceTrade[] trades, uint256 timestamp);
+   273→
+   274→    // ------------------------------------------------------------------
+   275→    // §9  Oracle adapters + pair identifiers + consensus params
+   276→    // ------------------------------------------------------------------
+   277→    IOracleAdapter public chainlinkAdapter;
+   278→    IOracleAdapter public pythAdapter;
+   279→    IOracleAdapter public chronicleAdapter;
+   280→    event OracleAdapterSet(uint8 indexed source, address indexed adapter, address indexed setter);
+   281→
+   282→    bytes32 public constant PAIR_EUR_USD = keccak256("EUR/USD");
+   283→    bytes32 public constant PAIR_GBP_USD = keccak256("GBP/USD");
+   284→    bytes32 public constant PAIR_JPY_USD = keccak256("JPY/USD");
+   285→    bytes32 public constant PAIR_CNY_USD = keccak256("CNY/USD");
+   286→    bytes32 public constant PAIR_CHF_USD = keccak256("CHF/USD");
+   287→    bytes32 public constant PAIR_XAU_USD = keccak256("XAU/USD");
+   288→
+   289→    // §9.2  Validation thresholds
+   290→    uint256 public constant ORACLE_STALENESS_SEC     = 60;       // §9.2.1 ≤60s
+   291→    uint256 public constant ORACLE_CONFIDENCE_MAX    = 0.01e18;  // §9.2.3 <1% of price
+   292→    uint256 public constant ORACLE_DEVIATION_MAX_BPS = 250;      // §9.2.4 <2.5% (250 bps)
+   293→
+   294→    // ------------------------------------------------------------------
+   295→    // §5  Asset admission registry
+   296→    // ------------------------------------------------------------------
+   297→    IAssetRegistry public assetRegistry;
+   298→    event AssetRegistrySet(address indexed registry, address indexed setter);
+   299→
+   300→    // ------------------------------------------------------------------
+   301→    // §14.2  DAO / Multi-Sig Governance Timelock (48h on parameter changes)
+   302→    // ------------------------------------------------------------------
+   303→    uint256 public constant TIMELOCK_DELAY = 48 hours; // §5.10 / §14.2 monetary tier
+   304→
+   305→    struct ParameterChange {
+   306→        bytes32  key;
+   307→        uint256  newValue;
+   308→        uint256  queuedAt;
+   309→        uint256  executesAt;
+   310→        bool     executed;
+   311→    }
+   312→    mapping(bytes32 => ParameterChange) public paramChanges;
+   313→
+   314→    // Trackable parameter keys
+   315→    bytes32 public constant PARAM_MINT_FEE_BPS         = keccak256("PARAM_MINT_FEE_BPS");
+   316→    bytes32 public constant PARAM_REDEEM_FEE_BPS       = keccak256("PARAM_REDEEM_FEE_BPS");
+   317→    bytes32 public constant PARAM_RESERVE_RATIO_TARGET = keccak256("PARAM_RESERVE_RATIO_TARGET");
+   318→
+   319→    // Default reserve ratio target = 110% (RR_TARGET per blueprint.ts)
+   320→    uint256 public reserveRatioTarget = 1.10e18;
+   321→
+   322→    event ParameterQueued(bytes32 indexed key, uint256 newValue, uint256 executesAt);
+   323→    event ParameterExecuted(bytes32 indexed key, uint256 newValue, uint256 timestamp);
+   324→    event ParameterCancelled(bytes32 indexed key, uint256 timestamp);
+   325→
+   326→    // ------------------------------------------------------------------
+   327→    // §12 + §13  Genesis + reserve accounting
+   328→    // ------------------------------------------------------------------
+   329→    address  public genesisReserve;          // locked MTQ excluded from circulating supply
+   330→    uint256  public genesisReserveBalance;   // total MTQ held by genesis reserve
+   331→    address  public reserveVault;            // holds USDC collateral + fees
+   332→    IERC20   public usdc;                    // collateral token (6 decimals)
+   333→    bool     public genesisDone;             // one-shot guard
+   334→
+   335→    // ------------------------------------------------------------------
+   336→    // Events — full set (§3.6, §12, §14.1, §8.1, §10, §9, §5, §14.2)
+   337→    // ------------------------------------------------------------------
+   338→    event Transfer(address indexed from, address indexed to, uint256 value);
+   339→    event Approval(address indexed owner, address indexed spender, uint256 value);
+   340→    event Mint(address indexed user, uint256 usdcIn, uint256 feeUsd, uint256 mtqMinted, uint256 price);
+   341→    event Redeem(address indexed user, uint256 mtqIn, uint256 feeUsd, uint256 usdcOut, uint256 price);
+   342→    event PriceUpdated(uint256 oldPrice, uint256 newPrice);
+   343→
+   344→    // ==================================================================
+   345→    // Constructor
+   346→    // ==================================================================
+   347→    constructor(address _usdc) {
+   348→        // §14.2  Inline AccessControl: deployer gets DEFAULT_ADMIN_ROLE + all
+   349→        // operational roles so the contract is immediately functional. The
+   350→        // deployer can then grant roles to keeper / oracle / pauser multisigs
+   351→        // and renounce the operational roles once the DAO is wired.
+   352→        _grantRole(DEFAULT_ADMIN_ROLE, msg.sender);
+   353→        _grantRole(ADMIN_ROLE,         msg.sender);
+   354→        _grantRole(PAUSER_ROLE,        msg.sender);
+   355→        _grantRole(KEEPER_ROLE,        msg.sender);
+   356→        _grantRole(ORACLE_ROLE,        msg.sender);
+   357→        // MINTER_ROLE not granted by default — public mint() is open.
+   358→
+   359→        usdc           = IERC20(_usdc);
+   360→        reserveVault   = msg.sender;       // deployer acts as reserve vault until reset
+   361→        genesisReserve = address(this);    // contract self-holds genesis reserve
+   362→
+   363→        // §2  GFB_base = Σ W^Prior_i × P_{i,0}  (chain-linked, immutable)
+   364→        GFB_BASE_DENOMINATOR = (
+   365→              PRIOR_USD
+   366→            + PRIOR_EUR * BASE_EUR_USD / 1e18
+   367→            + PRIOR_JPY * BASE_JPY_USD / 1e18
+   368→            + PRIOR_GBP * BASE_GBP_USD / 1e18
+   369→            + PRIOR_CNY * BASE_CNY_USD / 1e18
+   370→            + PRIOR_CHF * BASE_CHF_USD / 1e18
+   371→            + PRIOR_GOLD * BASE_XAU_USD / 1e18
+   372→        );
+   373→    }
+   374→
+   375→    // ==================================================================
+   376→    // §1  ERC-20 core
+   377→    // ==================================================================
+   378→    function transfer(address to, uint256 amount) external returns (bool) {
+   379→        _transfer(msg.sender, to, amount);
+   380→        return true;
+   381→    }
+   382→    function approve(address spender, uint256 amount) external returns (bool) {
+   383→        allowance[msg.sender][spender] = amount;
+   384→        emit Approval(msg.sender, spender, amount);
+   385→        return true;
+   386→    }
+   387→    function transferFrom(address from, address to, uint256 amount) external returns (bool) {
+   388→        uint256 allowed = allowance[from][msg.sender];
+   389→        if (allowed != type(uint256).max) {
+   390→            require(allowed >= amount, "MTQV2: insufficient allowance");
+   391→            allowance[from][msg.sender] = allowed - amount;
+   392→        }
+   393→        _transfer(from, to, amount);
+   394→        return true;
+   395→    }
+   396→    function _transfer(address from, address to, uint256 amount) internal {
+   397→        require(balanceOf[from] >= amount, "MTQV2: insufficient balance");
+   398→        balanceOf[from] -= amount;
+   399→        balanceOf[to]   += amount;
+   400→        emit Transfer(from, to, amount);
+   401→    }
+   402→    function _mint(address to, uint256 amount) internal {
+   403→        totalSupply   += amount;
+   404→        balanceOf[to] += amount;
+   405→        emit Transfer(address(0), to, amount);
+   406→    }
+   407→    function _burn(address from, uint256 amount) internal {
+   408→        require(balanceOf[from] >= amount, "MTQV2: burn exceeds balance");
+   409→        balanceOf[from] -= amount;
+   410→        totalSupply     -= amount;
+   411→        emit Transfer(from, address(0), amount);
+   412→    }
+   413→
+   414→    // ==================================================================
+   415→    // §2  7-Component GFB Index (chain-linked)
+   416→    //   GFB_t = Σ W^Prior_i × P_i,t  /  GFB_base
+   417→    //   where GFB_base = Σ W^Prior_i × P_{i,0}  (immutable, set in constructor)
+   418→    //   Includes CHF and Gold as FIRST-CLASS index components.
+   419→    // ==================================================================
+   420→    function getGFB() public view returns (uint256) {
+   421→        uint256 numerator = (
+   422→              PRIOR_USD
+   423→            + PRIOR_EUR * fxEUR_USD / 1e18
+   424→            + PRIOR_JPY * fxJPY_USD / 1e18
+   425→            + PRIOR_GBP * fxGBP_USD / 1e18
+   426→            + PRIOR_CNY * fxCNY_USD / 1e18
+   427→            + PRIOR_CHF * fxCHF_USD / 1e18
+   428→            + PRIOR_GOLD * fxXAU_USD / 1e18
+   429→        );
+   430→        return numerator * 1e18 / GFB_BASE_DENOMINATOR;
+   431→    }
+   432→
+   433→    // ==================================================================
+   434→    // §3.1  MTQ Reference Price = GFB_t / GFB_base (1 MTQ = 1 basket-unit)
+   435→    // ==================================================================
+   436→    function getMTQPrice() public view returns (uint256) {
+   437→        return getGFB();
+   438→    }
+   439→
+   440→    /// @dev §3.5 Price-safety guard. Reverts if price is outside [0.50, 2.00].
+   441→    function getMTQPriceWithGuard() public view returns (uint256) {
+   442→        uint256 price = getMTQPrice();
+   443→        require(price >= PRICE_SAFETY_LOWER && price <= PRICE_SAFETY_UPPER, "MTQV2: price out of safety band");
+   444→        return price;
+   445→    }
+   446→
+   447→    /// @dev §3.3 Circulating supply = totalSupply − genesisReserveBalance.
+   448→    function getCirculatingSupply() public view returns (uint256) {
+   449→        return totalSupply - genesisReserveBalance;
+   450→    }
+   451→
+   452→    /// @dev §3.2 Liability (USD, 1e18) = circulatingSupply × price / 1e18.
+   453→    function getLiability() public view returns (uint256) {
+   454→        return getCirculatingSupply() * getMTQPrice() / 1e18;
+   455→    }
+   456→
+   457→    // ==================================================================
+   458→    // §3.4.2 + §12.1  Mint — priced against the GFB Index
+   459→    //   Pull USDC (6 dec), fee 0.10%, MTQ minted = netUsd18 × 1e18 / price.
+   460→    //   Throttled by status: NORMAL 100%, CAUTION 50%, RECOVERY 25%,
+   461→    //   DEFENSIVE/EMERGENCY paused.
+   462→    // ==================================================================
+   463→    function mint(uint256 usdcAmount) external whenNotPaused returns (uint256 minted) {
+   464→        require(usdcAmount > 0, "MTQV2: zero amount");
+   465→        require(
+   466→            protocolStatus != Status.DEFENSIVE && protocolStatus != Status.EMERGENCY,
+   467→            "MTQV2: mint paused by risk state"
+   468→        );
+   469→
+   470→        uint256 price = getMTQPriceWithGuard();
+   471→
+   472→        // Pull USDC from minter to reserve vault (6 decimals).
+   473→        require(usdc.transferFrom(msg.sender, reserveVault, usdcAmount), "MTQV2: USDC pull failed");
+   474→
+   475→        // §12.1  0.10% fee (configurable via timelock)
+   476→        uint256 feeUsd = usdcAmount * mintFeeBps / 10000;
+   477→        uint256 netUsd = usdcAmount - feeUsd;
+   478→        // Scale 6-dec USDC → 18-dec USD value, then divide by 18-dec price.
+   479→        uint256 netUsd18  = netUsd * 1e12;
+   480→        uint256 grossMint = netUsd18 * 1e18 / price;
+   481→
+   482→        // §14.1  Throttle by status
+   483→        uint256 throttle = 1e18;
+   484→        if (protocolStatus == Status.CAUTION)  throttle = 0.50e18;
+   485→        if (protocolStatus == Status.RECOVERY) throttle = 0.25e18;
+   486→        minted = grossMint * throttle / 1e18;
+   487→
+   488→        _mint(msg.sender, minted);
+   489→        emit Mint(msg.sender, usdcAmount, feeUsd, minted, price);
+   490→    }
+   491→
+   492→    // ==================================================================
+   493→    // §3.4.2 + §12.2  Redeem — priced against the GFB Index (arbitrage-safe)
+   494→    //   Burn MTQ, grossUsd18 = mtq × price / 1e18, fee by status:
+   495→    //   NORMAL/CAUTION 0.15%, DEFENSIVE 0.5%, EMERGENCY 2%, net → USDC 6 dec,
+   496→    //   released from reserve vault.
+   497→    // ==================================================================
+   498→    function redeem(uint256 mtqAmount) external whenNotPaused returns (uint256 usdcOut) {
+   499→        require(mtqAmount > 0, "MTQV2: zero amount");
+   500→        require(balanceOf[msg.sender] >= mtqAmount, "MTQV2: insufficient balance");
+   501→
+   502→        uint256 price = getMTQPrice();
+   503→
+   504→        // §14.1  Fee by status
+   505→        uint256 feeBps = redeemFeeBps;
+   506→        if (protocolStatus == Status.DEFENSIVE) feeBps = 50;   // 0.5%
+   507→        if (protocolStatus == Status.EMERGENCY) feeBps = 200; // 2.0%
+   508→
+   509→        uint256 grossUsd18 = mtqAmount * price / 1e18;
+   510→        uint256 feeUsd18   = grossUsd18 * feeBps / 10000;
+   511→        uint256 netUsd18   = grossUsd18 - feeUsd18;
+   512→        usdcOut            = netUsd18 / 1e12; // 18-dec → 6-dec USDC
+   513→
+   514→        _burn(msg.sender, mtqAmount);
+   515→        // Release USDC from reserve vault to minter (vault must approve this contract).
+   516→        require(usdc.transferFrom(reserveVault, msg.sender, usdcOut), "MTQV2: USDC release failed");
+   517→        emit Redeem(msg.sender, mtqAmount, feeUsd18 / 1e12, usdcOut, price);
+   518→    }
+   519→
+   520→    // ==================================================================
+   521→    // §14.1  Risk state machine — KEEPER_ROLE (MARP-keeper hook)
+   522→    // ==================================================================
+   523→    function setProtocolStatus(Status s) external onlyKeeper {
+   524→        emit StatusChanged(protocolStatus, s);
+   525→        protocolStatus = s;
+   526→    }
+   527→
+   528→    // ==================================================================
+   529→    // §8.1  Admissibility envelope helpers (pure)
+   530→    // ==================================================================
+   531→    function envelopeLower(Component c) public pure returns (uint256) {
+   532→        if (c == Component.USD)  return ENV_USD_LOWER;
+   533→        if (c == Component.EUR)  return ENV_EUR_LOWER;
+   534→        if (c == Component.JPY)  return ENV_JPY_LOWER;
+   535→        if (c == Component.GBP)  return ENV_GBP_LOWER;
+   536→        if (c == Component.CNY)  return ENV_CNY_LOWER;
+   537→        if (c == Component.CHF)  return ENV_CHF_LOWER;
+   538→        return ENV_GOLD_LOWER;
+   539→    }
+   540→    function envelopeUpper(Component c) public pure returns (uint256) {
+   541→        if (c == Component.USD)  return ENV_USD_UPPER;
+   542→        if (c == Component.EUR)  return ENV_EUR_UPPER;
+   543→        if (c == Component.JPY)  return ENV_JPY_UPPER;
+   544→        if (c == Component.GBP)  return ENV_GBP_UPPER;
+   545→        if (c == Component.CNY)  return ENV_CNY_UPPER;
+   546→        if (c == Component.CHF)  return ENV_CHF_UPPER;
+   547→        return ENV_GOLD_UPPER;
+   548→    }
+   549→    function _assertEnvelope(Component c, uint256 w) internal pure {
+   550→        uint256 lo = envelopeLower(c);
+   551→        uint256 hi = envelopeUpper(c);
+   552→        require(w >= lo && w <= hi, "MTQV2: weight outside envelope");
+   553→    }
+   554→
+   555→    // ==================================================================
+   556→    // §8.1  On-Chain MASE Weight Registry — commit (oracle/keeper only)
+   557→    //   Validates each weight against its per-component admissibility envelope
+   558→    //   (hard bounds) — reverts on envelope breach.
+   559→    // ==================================================================
+   560→    function commitWeights(
+   561→        uint256[7] calldata target,
+   562→        uint256[7] calldata smoothed,
+   563→        uint256[7] calldata execution
+   564→    ) external onlyOracleOrKeeper {
+   565→        for (uint8 i = 0; i < 7; i++) {
+   566→            Component c = Component(i);
+   567→            _assertEnvelope(c, target[i]);
+   568→            _assertEnvelope(c, smoothed[i]);
+   569→            _assertEnvelope(c, execution[i]);
+   570→            weights.targetWeights[i]    = target[i];
+   571→            weights.smoothedWeights[i] = smoothed[i];
+   572→            weights.executionWeights[i] = execution[i];
+   573→        }
+   574→        weights.lastUpdatedAt = block.timestamp;
+   575→        emit WeightsCommitted(target, smoothed, execution, block.timestamp);
+   576→    }
+   577→
+   578→    /// @notice Current weight registry (target/smoothed/execution + lastUpdatedAt).
+   579→    function getWeights() external view returns (
+   580→        uint256[7] memory target,
+   581→        uint256[7] memory smoothed,
+   582→        uint256[7] memory execution,
+   583→        uint256 lastUpdatedAt
+   584→    ) {
+   585→        return (weights.targetWeights, weights.smoothedWeights, weights.executionWeights, weights.lastUpdatedAt);
+   586→    }
+   587→
+   588→    /// @notice One component's (target, smoothed, execution) tuple.
+   589→    function getWeight(Component c) external view returns (
+   590→        uint256 target, uint256 smoothed, uint256 execution
+   591→    ) {
+   592→        uint256 idx = uint256(c);
+   593→        return (weights.targetWeights[idx], weights.smoothedWeights[idx], weights.executionWeights[idx]);
+   594→    }
+   595→
+   596→    // ==================================================================
+   597→    // §10  MARP Rebalancing Execution — keeper-callable
+   598→    //   For each trade: validates it moves toward the latest committed
+   599→    //   executionWeight within a 5% tolerance, enforces 24h direction lock,
+   600→    //   validates total daily trade USD ≤ 5% of NAV, and updates reserve
+
+[showing lines 1-600 of 1058; use offset=601 with limit to continue reading]

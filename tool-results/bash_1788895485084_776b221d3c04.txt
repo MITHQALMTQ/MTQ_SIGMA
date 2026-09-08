@@ -1,0 +1,873 @@
+22. Governance
+
+22.1 Constitutional Separation of the Algorithmic Layers
+
+  The architecture has three independent mathematical layers, and their
+  independence is constitutional: each layer is governed, validated and
+  audited separately, so that no single algorithm can silently control
+  the system [MS §90].
+
+  This prevents one algorithm from silently controlling everything.
+
+Layer 1 is the Constituency Engine, and it answers one question: who is
+eligible? (Chapter 4). Its domain is the candidate universe — which
+currencies and gold qualify for the active basket — decided by the
+eligibility score Q_i with entry and exit hysteresis. Its boundary is
+equally narrow: it may never assign a weight, execute a trade or hold an
+asset; it only admits and retires members. Layer 2 is MASE, the
+Multi-model Adaptive Stability Engine, and it answers the question: how
+much weight? (Chapters 5–7). Its domain is the target weight vector for
+the eligible members, produced by the ensemble under the composite
+objective. Its boundary: it weighs only what Layer 1 has admitted, and
+it never executes anything — its output is a target, not a trade. Layer
+3 is the MARP / Reserve Engine, and it answers the question: when and
+how do we execute? (Chapters 10–16). Its domain is execution decisions
+and reserve management. Its boundary: it moves toward Layer 2's targets,
+within Layer 1's membership, under the reserve rules — it never
+redefines the target or the membership. The summary table of Section 2.2
+carries the same three layers with their primary chapters.
+
+  -----------------------------------------------------------------------
+  Layer             Question          Primary Output    Governed and
+                                                        Audited Via
+  ----------------- ----------------- ----------------- -----------------
+  Layer 1 —         Who is eligible?  The active basket Eligibility
+  Constituency                        membership        methodology and
+  Engine                                                thresholds (Risk
+                                                        class, §22.4);
+                                                        audited by
+                                                        re-running the
+                                                        published scoring
+                                                        (Chapter 4).
+
+  Layer 2 — MASE    How much weight?  The target weight Fixed published
+                                      vector W^{Target} methodology
+                                                        (Invariant I3)
+                                                        and
+                                                        constitutional
+                                                        envelopes;
+                                                        audited by
+                                                        deterministic
+                                                        reproduction
+                                                        (§7.7, Chapter
+                                                        24).
+
+  Layer 3 — MARP /  When and how do   Execution         Execution and
+  Reserve Engine    we execute?       decisions and the reserve
+                                      reserve portfolio parameters (Risk
+                                                        class); audited
+                                                        via decision logs
+                                                        and reserve
+                                                        reporting
+                                                        (Chapters 10–16,
+                                                        Chapter 24).
+  -----------------------------------------------------------------------
+
+Independent governance means each layer has its own parameter classes in
+the parameter registry (Section 22.4), its own version stream (Section
+24.2) and its own validation tests in the research program (Chapter 23).
+Independent audit means each layer's outputs are reproducible from its
+own published inputs — an auditor can attribute any change in the live
+weight vector to exactly one layer (Section 2.2). The separation is also
+the containment strategy: a faulty optimizer cannot admit a broken
+currency, because Layer 1's eligibility gate stands in front of it; a
+faulty executor cannot chase a bad target, because MARP's justification
+gates (Chapter 10) stand between target and trade; and a compromised
+data feed cannot silently reweight the basket, because the oracle layer
+(Chapter 17) and the registry's envelope checks (Section 7.7) bound what
+any single input can do.
+
+22.2 Governance Separation
+
+Governance in MTQ Σ approves rules, never outcomes [MS §91]. The
+governance bodies may approve six categories of change:
+
+-   Methodology — the published, versioned methodology that defines how
+    weights are computed (Invariant I3); methodology changes are
+    constitutional and follow the 90-day process.
+
+-   Parameter envelopes — the admissible bounds within which tunable
+    parameters may move (Section 22.4); the envelope itself is
+    constitutional, while the value inside it follows the layer's own
+    path.
+
+-   Eligible data providers — which institutional and oracle sources may
+    feed the engines (Chapters 4 and 17).
+
+-   Eligible reserve instruments — which tokens and instruments may back
+    the unit (Chapter 15).
+
+-   Risk thresholds — the solvency, liquidity and eject thresholds of
+    Chapter 21.
+
+-   Emergency rules — the emergency action set and its authorization
+    (Sections 22.5–22.6).
+
+What no governance body may do — on any layer, under any quorum, in any
+state — is manually set an individual live weight on a discretionary
+basis [MS §91]:
+
+Governance → {rules} Governance not→ W_(USD,t), W_(Gold,t)
+
+This is Invariant I8 (Section 2.6): no governance body may set
+individual live weights by discretion. The prohibition is structural,
+not merely legalistic. Live weights enter the system through exactly one
+door — the MASE submission path of Section 7.7 — which verifies the data
+version, the methodology hash, the constitutional envelopes, the
+velocity limits and the smoothing rule before a vector can become live.
+To set a weight by hand, a governance body would have to counterfeit an
+entire data-and-methodology pipeline, in public, against a contract that
+checks every property it can verify on-chain. Discretionary weights
+would also destroy the two properties the unit is built on:
+reproducibility (Section 24.1 — an auditor could no longer re-derive the
+live vector from published inputs) and the fixed-methodology promise
+itself (Invariant I3).
+
+The boundary has a precise shape: governance can change the rules of the
+game — the methodology, the envelopes, the thresholds — but never the
+score of a particular game. A Risk Council that dislikes the live CHF
+weight may tighten the CHF envelope (a constitutional action),
+commission a methodology revision (also constitutional), or wait for the
+data to move; it may not type a number into the registry and make it
+live. This is what distinguishes an algorithmic monetary architecture
+from a managed one, and it is the reason Invariants I7 and I8 point at
+Sections 22.3 and 22.4 as their enforcement.
+
+22.3 The Four Governance Layers
+
+All protocol authority is partitioned into four layers, ordered by how
+fundamental the change is and how much consensus it requires [BP
+§14.4.1]. The deeper the layer, the more signatures and the more time a
+change demands:
+
+  ---------------------------------------------------------------------------------
+  Layer            Scope               Authority      Timelock       Quorum
+  ---------------- ------------------- -------------- -------------- --------------
+  Constitutional   Immutable           7/7 Multi-Sig  90 days        7/7
+                   parameters (core                                  
+                   architecture,                                     
+                   constitutional                                    
+                   envelopes, hard                                   
+                   floors, liquidation                               
+                   staging; the v1.2                                 
+                   GFB-quantity                                      
+                   immutability is                                   
+                   superseded by the                                 
+                   fixed-methodology                                 
+                   invariant I3)                                     
+
+  Monetary         RR target, fee      DAO Vote       48 hours       51%
+                   structure,                                        
+                   smoothing                                         
+                   parameters                                        
+
+  Risk             Haircuts,           Risk Council   24 hours       4/7
+                   thresholds, eject   (4/7)                         
+                   parameters, LCR                                   
+                   targets                                           
+
+  Emergency        Pause operations,   Emergency      Instant        4/7
+                   force rebalance,    Council (4/7)                 
+                   emergency eject                                   
+  ---------------------------------------------------------------------------------
+
+Reading the table: Constitutional authority (a 7/7 Multi-Sig with a
+90-day timelock) covers the immutable core — the architecture, the
+constitutional envelopes, the hard floors, the fixed methodology and the
+liquidation ladder's shape. Monetary authority (DAO vote, 51% quorum,
+48-hour timelock) covers the monetary-policy parameters: the RR targets,
+the fee structure and the smoothing parameters. Risk authority (Risk
+Council, 4/7 with a 24-hour timelock) covers the technical risk
+parameters: haircuts, thresholds, eject parameters and LCR targets.
+Emergency authority (Emergency Council, 4/7, instant) covers only the
+pause/eject/rebalance action set of Section 22.5 — the one layer that
+trades deliberation for speed, and pays for it with the narrowest scope
+in the system.
+
+The layering implements Invariant I7 (Section 2.6): the protocol is
+governed by a layered hierarchy, and no layer can reach into another's
+domain. The timelocks themselves are constitutional (Section 22.4): the
+Emergency Council cannot shorten the monetary timelock, and the DAO
+cannot raise a constitutional change through a 51% vote. The councils
+are distinct bodies with distinct keys — the Risk Council and the
+Emergency Council operate separate 4/7 Multi-Sigs, both with hardware
+wallet requirements, so that compromising one signers set does not yield
+both authorities. Every action on every layer emits events and is
+published (Chapter 24); the layer boundaries are exactly what Invariants
+I7 and I8 reference from Section 2.6.
+
+22.4 The Parameter Registry and Authority Matrix
+
+Every tunable parameter in the protocol is registered — with its
+identifier, its governance layer, its current value and its admissible
+envelope — in a single on-chain parameter registry [BP §14.4.2]. The
+registry is the normative answer to the question of who may change what:
+an update path exists if and only if the parameter is registered, and
+the layer of the record determines which body, which quorum and which
+timelock govern the change. Unregistered parameters fail closed — the
+governance contract of Listing 14 reverts on any update to an unknown
+parameter identifier — so new parameters must be deliberately registered
+(a constitutional action) before they can ever be touched.
+
+-   Registration declares the parameter identifier, its layer
+    (Constitutional, Monetary, Risk or Emergency), its initial value and
+    its envelope in, max]; registration and envelope changes follow
+    the constitutional process with the 90-day timelock.
+
+-   Envelope discipline: proposed values must lie inside the registered
+    envelope at proposal time, and are re-checked at execution time and
+    again on arrival at the operations contract — three independent
+    checks, so a stale or manipulated proposal cannot bypass the bounds.
+
+-   Timelock discipline: monetary changes execute only after 48 hours,
+    risk changes only after 24 hours, and the Risk Council may veto a
+    monetary proposal inside its timelock window (Section 22.6).
+
+-   Audit trail: every registration, proposal, execution and veto emits
+    an event and is versioned with the data and methodology versions
+    (Section 24.2), so the complete parameter history is reconstructable
+    after the fact.
+
+The consolidated authority matrix below merges the registry table of BP
+§14.4.2 with the constants tables of the preceding chapters; it is the
+single normative reference for parameter governance across the protocol:
+
+  -----------------------------------------------------------------------------------
+  Parameter         Layer            Default Value    Authority        Defined In
+  ----------------- ---------------- ---------------- ---------------- --------------
+  RR Hard Floor     Constitutional   1.00             Constitutional   §21.2
+                                                      (immutable)      (Invariant I2)
+
+  Timelock —        Constitutional   48 hours         Constitutional   §22.3
+  Monetary                                            (immutable)      
+
+  Timelock — Risk   Constitutional   24 hours         Constitutional   §22.3
+                                                      (immutable)      
+
+  Timelock —        Constitutional   90 days          Constitutional   §22.3
+  Constitutional                                      (immutable)      
+
+  Liquidation       Constitutional   10% / 25% / 50%  Constitutional   §21.5.3
+  Stages 1–4                         / 100%           (immutable)      
+  (cumulative)                                                         
+
+  Reintegration     Constitutional   25% → 50% → 100% Constitutional   §21.5.4
+  Staging                                             (immutable)      
+
+  Admissibility     Constitutional   Section 8.1      7/7 Multi-Sig +  Ch. 8
+  envelopes (per                     values           90-day timelock  
+  component)                                                           
+
+  RR Target         Monetary         1.10             DAO Vote (51%)   §21.2
+
+  RR Stress Floor   Monetary         1.05             DAO Vote (51%)   §21.2
+
+  Recovery          Monetary         48 hours         DAO Vote (51%)   §21.3
+  Confirmation                                                         
+  Period                                                               
+
+  Mint Fee          Monetary         0.10%            DAO Vote (51%)   Ch. 19
+
+  Redeem Fee        Monetary         0.15%            DAO Vote (51%)   Ch. 19
+  (Normal)                                                             
+
+  Sweep Threshold   Monetary         $10,000          DAO Vote (51%)   Ch. 20
+
+  Smoothing         Monetary         0.50 / 0.75      DAO Vote (51%)   §8.4
+  parameters (ρ                                                        
+  normal / stress)                                                     
+
+  Redeem Fee        Risk             0.50%            Risk Council     §21.4
+  (Stress)                                            (4/7)            
+
+  Redeem Fee        Risk             1.00%            Risk Council     §21.4
+  (Defensive)                                         (4/7)            
+
+  LCR Target        Risk             1.00             Risk Council     §21.2, Ch. 14
+                                                      (4/7)            
+
+  Slippage          Risk             1.0%             Risk Council     §10.8
+  Tolerance                                           (4/7)            
+
+  Buffer Gold (BASE Risk             62.5% / 85% /    Risk Council     Ch. 13
+  / STRESS /                         100%             (4/7)            
+  EMERGENCY)                                                           
+
+  De-peg Detection  Risk             12 hours         Risk Council     §21.5.2
+  Window                                              (4/7)            
+
+  Peg Bands         Risk             ±0.5%; ±1.0%;    Risk Council     §21.5.2
+  (USDC/USDP, EURC;                  ±1.5%            (4/7)            
+  GBP, JPY; CNY)                                                       
+
+  Reintegration     Risk             0.80             Risk Council     §21.5.4
+  Threshold                                           (4/7)            
+
+  Reintegration     Risk             0.40 / 0.25 /    Risk Council     §21.5.4
+  Score Weights                      0.20 / 0.15      (4/7)            
+  (w_1–w_4)                                                            
+
+  Weight-velocity   Risk             Section 8.3      Risk Council     Ch. 8
+  limits                             values           (4/7)            
+
+  MASE objective    Risk             Section 7.4      Risk Council     Ch. 7
+  coefficients (λ                    values (within   (4/7)            
+  vector)                            envelopes)                        
+
+  Crisis-score      Risk             Section 5.5      Risk Council     Ch. 5
+  scaling (k,                        values           (4/7)            
+  threshold)                                                           
+
+  Eligibility       Risk             Per methodology  Risk Council     Ch. 4
+  coefficients and                   version          (4/7)            
+  thresholds (a_k,                                                     
+  Q_min, Q_entry,                                                      
+  Q_exit)                                                              
+
+  Hysteresis        Risk             Bounded below by Risk Council     §4.7
+  dead-band width                    constitutional   (4/7)            
+                                     minimum                           
+
+  Oracle deviation, Risk             Chapter 17       Risk Council     Ch. 17
+  staleness and                      values           (4/7)            
+  confirmation                                                         
+  thresholds                                                           
+  -----------------------------------------------------------------------------------
+
+Rows with constitutional authority are immutable in the reference
+implementation: the liquidation ladder's cumulative percentages, the
+reintegration staging, the hard floor RR = 1.00 and the three timelocks
+cannot be changed by any on-chain path — they require redeployment
+through the constitutional process. Rows marked Monetary and Risk are
+live-updatable through the proposal paths of Listing 14. Parameters
+introduced by later chapters — validation outputs of Chapter 23,
+publication intervals of Chapter 24 — are registered at deployment under
+the same rules; the matrix is closed under the registry, and any
+parameter not listed here has no update path at all. The Emergency layer
+deliberately registers actions rather than parameters: the emergency
+action set itself is constitutional, so the fastest authority in the
+system cannot create new knobs to turn.
+
+  The buffer-gold rows are carried from BP §14.4.2 for the reserve-side
+  gold overlay. Under v2.0 the reserve gold allocation is sized
+  independently of the reference-basket weight (Invariant I12, §13.3),
+  so these parameters govern reserve posture only, never index
+  composition.
+
+22.5 Emergency Actions
+
+The Emergency layer holds the protocol's fastest powers, and every one
+of them is a verb — pause, force, eject, resume — rather than a setting
+[BP §14.5]. Emergency authority can never change a parameter, never set
+a weight and never amend the constitution; it can only halt or force the
+operations the state machine would otherwise run:
+
+  --------------------------------------------------------------------------
+  Action               Description       Trigger           Authority
+  -------------------- ----------------- ----------------- -----------------
+  pauseMinting()       Stops all new     RR < 1.05         Automatic +
+                       minting           (automatic) OR    Council
+                                         Council decision  
+
+  pauseRedeeming()     Stops all         EMERGENCY state + Council (4/7)
+                       redemptions       Council vote      
+                       (extreme cases                      
+                       only)                               
+
+  forceRebalance()     Executes an       EMERGENCY state   Council (4/7)
+                       immediate                           
+                       rebalance                           
+
+  emergencyEject()     Immediately       Issuer freeze     Council (4/7)
+                       ejects a          confirmed         
+                       de-pegged asset                     
+
+  resumeOperations()   Restores normal   Recovery          Council (4/7)
+                       operations        confirmed         
+  --------------------------------------------------------------------------
+
+The trigger column shows the two-speed design. The first pause — minting
+at RR < 1.05 — is automatic: the state machine applies it the moment
+STRESS is entered (Section 21.4), so the protocol's first defensive move
+does not wait for humans. The remaining actions are council-triggered,
+because they trade user-facing continuity against risk in ways that
+require judgment. Pausing redemptions is the most drastic user-facing
+action in the system and requires the EMERGENCY state plus a council
+vote. A forced rebalance is a discretionary override of the MARP
+doctrine's justification gates and corresponds to Level 5 of the
+execution hierarchy (Section 10.3). The emergency eject bypasses the
+staged liquidation ladder and executes through emergencyLiquidate
+(Section 21.6) when an issuer freeze is confirmed. And resumeOperations
+is deliberately blocked while the state machine is still in EMERGENCY:
+recovery, not decree, must end an existential state.
+
+Checks and balances. Every emergency action requires the 4/7 Emergency
+Council Multi-Sig with hardware wallet requirements, emits an on-chain
+event, and is reported through the transparency layer (Chapter 24) and
+the honest-status declaration (Section 25). The oracle layer's circuit
+breakers (Chapter 17) engage automatically in EMERGENCY, so price-trust
+failures and solvency failures brake together. The state machine
+continues to run underneath the council's actions: an emergency pause
+does not freeze RR/LCR reporting, state transitions or the recovery
+clock, so the council cannot use a pause to obscure the condition it is
+pausing about. Emergency power, in short, is instant but narrow,
+recorded, and reversible only by recovery — the exact trade the
+four-layer hierarchy of Section 22.3 is designed to force.
+
+22.6 Smart Contract Implementation — Governance and Emergency Functions
+
+The governance registry is the authorization plane of the protocol [BP
+§14.6.4–14.6.5]. It owns the parameter registry and the proposal flow:
+the DAO proposes and executes monetary changes across a 48-hour
+timelock, the Risk Council owns the 24-hour risk path and holds a veto
+over monetary proposals inside their window, the Constitutional Council
+registers parameters and their envelopes, and the Emergency Council
+dispatches the pause, force and resume actions of Section 22.5. Every
+executed update is forwarded to the operations contract of Listing 13
+through the IOperations interface, and the operations contract
+re-verifies its caller before applying the value — authorization and
+execution each check the other. The emergency eject is the single
+exception to the dispatch pattern: emergencyLiquidate is signed directly
+by the Emergency Council on the operations contract (Section 21.6),
+exactly as in the source module. The onlyDAO modifier is implemented by
+a DAO contract with 51% quorum, and the emergency modifier by a 4/7
+Multi-Sig with hardware wallet requirements [BP §14].
+
+Listing 14 — Governance parameter registry and emergency functions
+(adapts BP §14.6.4-14.6.5)
+
+  // SPDX-License-Identifier: MIT
+
+  pragma solidity ^0.8.19;
+
+  /// @notice Governance parameter registry and emergency functions.
+
+  /// @dev Authorization plane: role checks, timelocks and the parameter
+
+  /// registry. The operations contract (Listing 13) is the execution
+
+  /// plane and re-checks caller identity on arrival.
+
+  contract GovernanceParameterRegistry {
+
+  // ============================================================
+
+  // 1. GOVERNANCE LAYERS (BP §14.4.1)
+
+  // ============================================================
+
+  enum ParameterLayer { CONSTITUTIONAL, MONETARY, RISK, EMERGENCY }
+
+  struct ParameterRecord {
+
+  ParameterLayer layer; // governance class (I7/I8, §2.6)
+
+  uint256 value; // current live value
+
+  uint256 minValue; // admissible envelope, lower bound
+
+  uint256 maxValue; // admissible envelope, upper bound
+
+  bool registered;
+
+  }
+
+  struct Proposal {
+
+  uint256 value;
+
+  address proposer;
+
+  uint256 timestamp;
+
+  bool executed;
+
+  }
+
+  // ---- Timelocks (constitutional, immutable; BP §14.8) ----
+
+  uint256 public constant TIMELOCK_MONETARY = 48 hours;
+
+  uint256 public constant TIMELOCK_RISK = 24 hours;
+
+  uint256 public constant TIMELOCK_CONSTITUTIONAL = 90 days; // enforced
+  by the 7/7 process
+
+  // ---- Governance addresses (set at deployment) ----
+
+  address public dao; // DAO with 51% quorum
+
+  address public riskCouncil; // 4/7 Multi-Sig
+
+  address public emergencyCouncil; // 4/7 Multi-Sig, hardware wallets
+
+  address public constitutionalCouncil; // 7/7 Multi-Sig
+
+  // ---- Registry and proposals ----
+
+  mapping(bytes32 => ParameterRecord) public parameterRegistry;
+
+  mapping(bytes32 => Proposal) public proposals;
+
+  // ---- Execution plane (risk state machine, Listing 13) ----
+
+  address public ops;
+
+  // ============================================================
+
+  // 2. EVENTS (BP §14.7)
+
+  // ============================================================
+
+  event ParameterRegistered(bytes32 indexed parameterId, ParameterLayer
+  layer, uint256 value, uint256 minValue, uint256 maxValue, uint256
+  timestamp);
+
+  event ParameterProposed(bytes32 indexed parameterId, uint256 newValue,
+  uint256 timestamp);
+
+  event ParameterExecuted(bytes32 indexed parameterId, uint256 newValue,
+  uint256 timestamp);
+
+  event ParameterVetoed(bytes32 indexed parameterId, uint256 timestamp);
+
+  event MintingPaused(uint256 timestamp);
+
+  event MintingResumed(uint256 timestamp);
+
+  event RedeemingPaused(uint256 timestamp);
+
+  event RedeemingResumed(uint256 timestamp);
+
+  event RebalancingForced(uint256 timestamp);
+
+  event OperationsResumed(uint256 timestamp);
+
+  modifier onlyDAO() { require(msg.sender == dao, "Only DAO"); _; }
+
+  modifier onlyRiskCouncil() { require(msg.sender == riskCouncil, "Only
+  Risk Council"); _; }
+
+  modifier onlyEmergencyCouncil() { require(msg.sender ==
+  emergencyCouncil, "Only Emergency Council"); _; }
+
+  modifier onlyConstitutionalCouncil() { require(msg.sender ==
+  constitutionalCouncil, "Only Constitutional Council"); _; }
+
+  constructor(address dao_, address riskCouncil_, address
+  emergencyCouncil_, address constitutionalCouncil_, address ops_) {
+
+  dao = dao_;
+
+  riskCouncil = riskCouncil_;
+
+  emergencyCouncil = emergencyCouncil_;
+
+  constitutionalCouncil = constitutionalCouncil_;
+
+  ops = ops_;
+
+  }
+
+  // ============================================================
+
+  // 3. PARAMETER REGISTRATION (Constitutional; §22.4)
+
+  // ============================================================
+
+  /// @dev Registers a tunable parameter with its governance class and
+
+  /// admissible envelope. Unregistered parameters cannot be updated
+
+  /// (fail-closed). Envelope changes are constitutional actions with
+
+  /// the 90-day timelock enforced by the multi-sig process.
+
+  function registerParameter(
+
+  bytes32 parameterId,
+
+  ParameterLayer layer,
+
+  uint256 value,
+
+  uint256 minValue,
+
+  uint256 maxValue
+
+  ) external onlyConstitutionalCouncil {
+
+  require(minValue <= value && value <= maxValue, "Value outside
+  envelope");
+
+  parameterRegistry[parameterId] = ParameterRecord({
+
+  layer: layer,
+
+  value: value,
+
+  minValue: minValue,
+
+  maxValue: maxValue,
+
+  registered: true
+
+  });
+
+  emit ParameterRegistered(parameterId, layer, value, minValue,
+  maxValue, block.timestamp);
+
+  }
+
+  // ============================================================
+
+  // 4. MONETARY PARAMETER PATH (DAO 51% + 48h; BP §14.6.4)
+
+  // ============================================================
+
+  /// @dev Proposes a monetary parameter change (DAO).
+
+  function proposeMonetaryParameter(bytes32 parameterId, uint256
+  newValue) external onlyDAO {
+
+  require(parameterRegistry[parameterId].registered, "Unknown
+  parameter");
+
+  require(parameterRegistry[parameterId].layer ==
+  ParameterLayer.MONETARY, "Not a monetary parameter");
+
+  require(newValue >= parameterRegistry[parameterId].minValue, "Below
+  envelope");
+
+  require(newValue <= parameterRegistry[parameterId].maxValue, "Above
+  envelope");
+
+  proposals[parameterId] = Proposal({
+
+  value: newValue,
+
+  proposer: msg.sender,
+
+  timestamp: block.timestamp,
+
+  executed: false
+
+  });
+
+  emit ParameterProposed(parameterId, newValue, block.timestamp);
+
+  }
+
+  /// @dev Executes a monetary parameter change after the 48h timelock.
+
+  function executeMonetaryParameter(bytes32 parameterId) external
+  onlyDAO {
+
+  Proposal memory proposal = proposals[parameterId];
+
+  require(proposal.timestamp > 0, "No proposal");
+
+  require(block.timestamp >= proposal.timestamp + TIMELOCK_MONETARY,
+  "Timelock not met");
+
+  require(!proposal.executed, "Already executed");
+
+  // Update the parameter
+
+  updateParameter(parameterId, proposal.value);
+
+  proposals[parameterId].executed = true;
+
+  emit ParameterExecuted(parameterId, proposal.value, block.timestamp);
+
+  }
+
+  /// @dev Vetoes a monetary parameter change (Risk Council, within the
+
+  /// timelock window).
+
+  function vetoMonetaryParameter(bytes32 parameterId) external
+  onlyRiskCouncil {
+
+  require(proposals[parameterId].timestamp > 0, "No proposal");
+
+  require(block.timestamp < proposals[parameterId].timestamp +
+  TIMELOCK_MONETARY, "Timelock expired");
+
+  delete proposals[parameterId];
+
+  emit ParameterVetoed(parameterId, block.timestamp);
+
+  }
+
+  // ============================================================
+
+  // 5. RISK PARAMETER PATH (Risk Council 4/7 + 24h; extends BP §14.6.4)
+
+  // ============================================================
+
+  /// @dev Proposes a risk parameter change (Risk Council).
+
+  function proposeRiskParameter(bytes32 parameterId, uint256 newValue)
+  external onlyRiskCouncil {
+
+  require(parameterRegistry[parameterId].registered, "Unknown
+  parameter");
+
+  require(parameterRegistry[parameterId].layer == ParameterLayer.RISK,
+  "Not a risk parameter");
+
+  require(newValue >= parameterRegistry[parameterId].minValue, "Below
+  envelope");
+
+  require(newValue <= parameterRegistry[parameterId].maxValue, "Above
+  envelope");
+
+  proposals[parameterId] = Proposal({
+
+  value: newValue,
+
+  proposer: msg.sender,
+
+  timestamp: block.timestamp,
+
+  executed: false
+
+  });
+
+  emit ParameterProposed(parameterId, newValue, block.timestamp);
+
+  }
+
+  /// @dev Executes a risk parameter change after the 24h timelock.
+
+  function executeRiskParameter(bytes32 parameterId) external
+  onlyRiskCouncil {
+
+  Proposal memory proposal = proposals[parameterId];
+
+  require(proposal.timestamp > 0, "No proposal");
+
+  require(block.timestamp >= proposal.timestamp + TIMELOCK_RISK,
+  "Timelock not met");
+
+  require(!proposal.executed, "Already executed");
+
+  updateParameter(parameterId, proposal.value);
+
+  proposals[parameterId].executed = true;
+
+  emit ParameterExecuted(parameterId, proposal.value, block.timestamp);
+
+  }
+
+  // ============================================================
+
+  // 6. PARAMETER DISPATCH
+
+  // ============================================================
+
+  /// @dev Writes the accepted value to the registry and forwards it to
+  the
+
+  /// operations contract (Listing 13). The envelope is re-checked on
+
+  /// arrival; unregistered parameters fail closed.
+
+  function updateParameter(bytes32 parameterId, uint256 newValue)
+  internal {
+
+  ParameterRecord storage record = parameterRegistry[parameterId];
+
+  require(record.registered, "Unknown parameter");
+
+  require(newValue >= record.minValue && newValue <= record.maxValue,
+  "Outside envelope");
+
+  record.value = newValue;
+
+  IOperations(ops).applyParameter(parameterId, newValue);
+
+  }
+
+  // ============================================================
+
+  // 7. EMERGENCY FUNCTIONS (Emergency Council 4/7, instant; BP §14.6.5)
+
+  // ============================================================
+
+  /// @dev Pauses minting (Emergency Council).
+
+  function pauseMinting() external onlyEmergencyCouncil {
+
+  IOperations(ops).pauseMinting();
+
+  emit MintingPaused(block.timestamp);
+
+  }
+
+  /// @dev Pauses redemptions (Emergency Council; extreme cases only).
+
+  function pauseRedeeming() external onlyEmergencyCouncil {
+
+  IOperations(ops).pauseRedeeming();
+
+  emit RedeemingPaused(block.timestamp);
+
+  }
+
+  /// @dev Executes an immediate forced rebalance (Emergency Council).
+
+  function forceRebalance() external onlyEmergencyCouncil {
+
+  IOperations(ops).forceRebalance();
+
+  emit RebalancingForced(block.timestamp);
+
+  }
+
+  /// @dev Resumes operations (Emergency Council; blocked while the
+  state
+
+  /// machine is in EMERGENCY, see Listing 13).
+
+  function resumeOperations() external onlyEmergencyCouncil {
+
+  IOperations(ops).resumeOperations();
+
+  emit OperationsResumed(block.timestamp);
+
+  }
+
+  }
+
+  interface IOperations {
+
+  function applyParameter(bytes32 parameterId, uint256 value) external;
+
+  function pauseMinting() external;
+
+  function pauseRedeeming() external;
+
+  function forceRebalance() external;
+
+  function resumeOperations() external;
+
+  }
+
+  Fidelity note: Listing 14 adapts BP §14.6.4–§14.6.5. The v1.2 listing
+  referenced a parameterRegistry mapping, a ParameterLayer enum,
+  proposals and an updateParameter dispatcher without declaring them;
+  they are declared here as part of the Section 22.4 registry design.
+  Additions beyond the source: parameter registration with envelope
+  bounds (constitutional), the Risk-Council parameter path with its
+  24-hour timelock, and the pauseRedeeming and forceRebalance entry
+  points from the §14.5 emergency-action table. The monetary path —
+  propose, execute after the 48-hour timelock, Risk-Council veto within
+  the window — is carried verbatim modulo the added envelope checks.
+  Because the governance functions and the state machine are presented
+  as separate contracts across Chapters 21 and 22, the emergency
+  functions dispatch through the IOperations interface to Listing 13,
+  which re-checks caller identity on arrival; emergencyLiquidate (the
+  emergency eject) remains directly authorized on the operations
+  contract by the Emergency Council, as in BP §11.5.2. All numeric

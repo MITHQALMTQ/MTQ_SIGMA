@@ -1,0 +1,502 @@
+ 16500→  Redeem Fee         Risk              0.50%             Risk Council
+ 16501→  (Stress)                                               (4/7)
+ 16502→
+ 16503→  Redeem Fee         Risk              1.00%             Risk Council
+ 16504→  (Defensive)                                            (4/7)
+ 16505→
+ 16506→  Recovery           Monetary          48 hours          DAO Vote (51%)
+ 16507→  Confirmation                                           
+ 16508→  Period                                                 
+ 16509→
+ 16510→  Timelock           Constitutional    48 hours          Constitutional
+ 16511→  (Monetary)                                             (immutable)
+ 16512→
+ 16513→  Timelock (Risk)    Constitutional    24 hours          Constitutional
+ 16514→                                                         (immutable)
+ 16515→
+ 16516→  Timelock           Constitutional    90 days           Constitutional
+ 16517→  (Constitutional)                                       (immutable)
+ 16518→
+ 16519→  De-peg Detection   Risk              12 hours          Risk Council
+ 16520→  Window                                                 (4/7)
+ 16521→
+ 16522→  USDC / USDP / EURC Risk              ±0.5%             Risk Council
+ 16523→  Peg Band                                               (4/7)
+ 16524→
+ 16525→  GBP / JPY Peg Band Risk              ±1.0%             Risk Council
+ 16526→                                                         (4/7)
+ 16527→
+ 16528→  CNY Peg Band       Risk              ±1.5%             Risk Council
+ 16529→                                                         (4/7)
+ 16530→
+ 16531→  Liquidation Stages Constitutional    10% / 25% / 50% / Constitutional
+ 16532→  1–4 (cumulative)                     100%              (immutable)
+ 16533→
+ 16534→  Reintegration      Risk              0.80              Risk Council
+ 16535→  Threshold                                              (4/7)
+ 16536→
+ 16537→  Reintegration      Constitutional    25% → 50% → 100%  Constitutional
+ 16538→  Staging                                                (immutable)
+ 16539→  ------------------------------------------------------------------------
+ 16540→
+ 16541→One discrepancy is carried honestly rather than silently resolved: the
+ 16542→source tables class the 48-hour recovery confirmation period as a
+ 16543→Monetary (DAO) parameter, while the reference implementation declares it
+ 16544→as an immutable constant. This edition retains the immutable constant as
+ 16545→the conservative reading — a stricter governance class than the table
+ 16546→assigns — and flags the mismatch for resolution during deployment
+ 16547→registration (Section 22.4).
+ 16548→
+ 16549→  Fidelity note: Listing 13 adapts BP §14.6.1–§14.6.3, the §14.7 events
+ 16550→  and the §11.6 eject module. The v1.2 detector combined timer
+ 16551→  bookkeeping inside a view function (which cannot write state); it is
+ 16552→  cleaned here into a stateful updateDepegStatus plus a pure isDepegged
+ 16553→  view. The restrictiveness ordering (isMoreRestrictive) was left to the
+ 16554→  developer in v1.2 and is supplied here, with RECOVERY ranked between
+ 16555→  CAUTION and STRESS to match its action profile. The 5% pause rule is
+ 16556→  wired into the stage gate — v1.2 defined isPriceStable but never
+ 16557→  called it — and stage-start prices are recorded after each executed
+ 16558→  stage; the 24-hour stabilization hold is enforced by the keeper
+ 16559→  re-evaluation cadence. The de-peg detection window is promoted from a
+ 16560→  hard-coded 12 hours to a registry-governed parameter (default 12
+ 16561→  hours, Risk Council), while the 24- and 48-hour stage durations remain
+ 16562→  fixed as in the source. Fixed-point arithmetic in the reintegration
+ 16563→  score is cleaned to use the declared constant weights, and peg bands
+ 16564→  are set through the governance entry point rather than hard-coded. All
+ 16565→  numeric values — states, thresholds, fees, ladder percentages, score
+ 16566→  weights and timelocks — are carried unchanged from BP §14 and BP §11.
+ 16567→
+ 16568→22. Governance
+ 16569→
+ 16570→22.1 Constitutional Separation of the Algorithmic Layers
+ 16571→
+ 16572→  The architecture has three independent mathematical layers, and their
+ 16573→  independence is constitutional: each layer is governed, validated and
+ 16574→  audited separately, so that no single algorithm can silently control
+ 16575→  the system [MS §90].
+ 16576→
+ 16577→  This prevents one algorithm from silently controlling everything.
+ 16578→
+ 16579→Layer 1 is the Constituency Engine, and it answers one question: who is
+ 16580→eligible? (Chapter 4). Its domain is the candidate universe — which
+ 16581→currencies and gold qualify for the active basket — decided by the
+ 16582→eligibility score Q_i with entry and exit hysteresis. Its boundary is
+ 16583→equally narrow: it may never assign a weight, execute a trade or hold an
+ 16584→asset; it only admits and retires members. Layer 2 is MASE, the
+ 16585→Multi-model Adaptive Stability Engine, and it answers the question: how
+ 16586→much weight? (Chapters 5–7). Its domain is the target weight vector for
+ 16587→the eligible members, produced by the ensemble under the composite
+ 16588→objective. Its boundary: it weighs only what Layer 1 has admitted, and
+ 16589→it never executes anything — its output is a target, not a trade. Layer
+ 16590→3 is the MARP / Reserve Engine, and it answers the question: when and
+ 16591→how do we execute? (Chapters 10–16). Its domain is execution decisions
+ 16592→and reserve management. Its boundary: it moves toward Layer 2's targets,
+ 16593→within Layer 1's membership, under the reserve rules — it never
+ 16594→redefines the target or the membership. The summary table of Section 2.2
+ 16595→carries the same three layers with their primary chapters.
+ 16596→
+ 16597→  -----------------------------------------------------------------------
+ 16598→  Layer             Question          Primary Output    Governed and
+ 16599→                                                        Audited Via
+ 16600→  ----------------- ----------------- ----------------- -----------------
+ 16601→  Layer 1 —         Who is eligible?  The active basket Eligibility
+ 16602→  Constituency                        membership        methodology and
+ 16603→  Engine                                                thresholds (Risk
+ 16604→                                                        class, §22.4);
+ 16605→                                                        audited by
+ 16606→                                                        re-running the
+ 16607→                                                        published scoring
+ 16608→                                                        (Chapter 4).
+ 16609→
+ 16610→  Layer 2 — MASE    How much weight?  The target weight Fixed published
+ 16611→                                      vector W^{Target} methodology
+ 16612→                                                        (Invariant I3)
+ 16613→                                                        and
+ 16614→                                                        constitutional
+ 16615→                                                        envelopes;
+ 16616→                                                        audited by
+ 16617→                                                        deterministic
+ 16618→                                                        reproduction
+ 16619→                                                        (§7.7, Chapter
+ 16620→                                                        24).
+ 16621→
+ 16622→  Layer 3 — MARP /  When and how do   Execution         Execution and
+ 16623→  Reserve Engine    we execute?       decisions and the reserve
+ 16624→                                      reserve portfolio parameters (Risk
+ 16625→                                                        class); audited
+ 16626→                                                        via decision logs
+ 16627→                                                        and reserve
+ 16628→                                                        reporting
+ 16629→                                                        (Chapters 10–16,
+ 16630→                                                        Chapter 24).
+ 16631→  -----------------------------------------------------------------------
+ 16632→
+ 16633→Independent governance means each layer has its own parameter classes in
+ 16634→the parameter registry (Section 22.4), its own version stream (Section
+ 16635→24.2) and its own validation tests in the research program (Chapter 23).
+ 16636→Independent audit means each layer's outputs are reproducible from its
+ 16637→own published inputs — an auditor can attribute any change in the live
+ 16638→weight vector to exactly one layer (Section 2.2). The separation is also
+ 16639→the containment strategy: a faulty optimizer cannot admit a broken
+ 16640→currency, because Layer 1's eligibility gate stands in front of it; a
+ 16641→faulty executor cannot chase a bad target, because MARP's justification
+ 16642→gates (Chapter 10) stand between target and trade; and a compromised
+ 16643→data feed cannot silently reweight the basket, because the oracle layer
+ 16644→(Chapter 17) and the registry's envelope checks (Section 7.7) bound what
+ 16645→any single input can do.
+ 16646→
+ 16647→22.2 Governance Separation
+ 16648→
+ 16649→Governance in MTQ Σ approves rules, never outcomes [MS §91]. The
+ 16650→governance bodies may approve six categories of change:
+ 16651→
+ 16652→-   Methodology — the published, versioned methodology that defines how
+ 16653→    weights are computed (Invariant I3); methodology changes are
+ 16654→    constitutional and follow the 90-day process.
+ 16655→
+ 16656→-   Parameter envelopes — the admissible bounds within which tunable
+ 16657→    parameters may move (Section 22.4); the envelope itself is
+ 16658→    constitutional, while the value inside it follows the layer's own
+ 16659→    path.
+ 16660→
+ 16661→-   Eligible data providers — which institutional and oracle sources may
+ 16662→    feed the engines (Chapters 4 and 17).
+ 16663→
+ 16664→-   Eligible reserve instruments — which tokens and instruments may back
+ 16665→    the unit (Chapter 15).
+ 16666→
+ 16667→-   Risk thresholds — the solvency, liquidity and eject thresholds of
+ 16668→    Chapter 21.
+ 16669→
+ 16670→-   Emergency rules — the emergency action set and its authorization
+ 16671→    (Sections 22.5–22.6).
+ 16672→
+ 16673→What no governance body may do — on any layer, under any quorum, in any
+ 16674→state — is manually set an individual live weight on a discretionary
+ 16675→basis [MS §91]:
+ 16676→
+ 16677→Governance → {rules} Governance not→ W_(USD,t), W_(Gold,t)
+ 16678→
+ 16679→This is Invariant I8 (Section 2.6): no governance body may set
+ 16680→individual live weights by discretion. The prohibition is structural,
+ 16681→not merely legalistic. Live weights enter the system through exactly one
+ 16682→door — the MASE submission path of Section 7.7 — which verifies the data
+ 16683→version, the methodology hash, the constitutional envelopes, the
+ 16684→velocity limits and the smoothing rule before a vector can become live.
+ 16685→To set a weight by hand, a governance body would have to counterfeit an
+ 16686→entire data-and-methodology pipeline, in public, against a contract that
+ 16687→checks every property it can verify on-chain. Discretionary weights
+ 16688→would also destroy the two properties the unit is built on:
+ 16689→reproducibility (Section 24.1 — an auditor could no longer re-derive the
+ 16690→live vector from published inputs) and the fixed-methodology promise
+ 16691→itself (Invariant I3).
+ 16692→
+ 16693→The boundary has a precise shape: governance can change the rules of the
+ 16694→game — the methodology, the envelopes, the thresholds — but never the
+ 16695→score of a particular game. A Risk Council that dislikes the live CHF
+ 16696→weight may tighten the CHF envelope (a constitutional action),
+ 16697→commission a methodology revision (also constitutional), or wait for the
+ 16698→data to move; it may not type a number into the registry and make it
+ 16699→live. This is what distinguishes an algorithmic monetary architecture
+ 16700→from a managed one, and it is the reason Invariants I7 and I8 point at
+ 16701→Sections 22.3 and 22.4 as their enforcement.
+ 16702→
+ 16703→22.3 The Four Governance Layers
+ 16704→
+ 16705→All protocol authority is partitioned into four layers, ordered by how
+ 16706→fundamental the change is and how much consensus it requires [BP
+ 16707→§14.4.1]. The deeper the layer, the more signatures and the more time a
+ 16708→change demands:
+ 16709→
+ 16710→  ---------------------------------------------------------------------------------
+ 16711→  Layer            Scope               Authority      Timelock       Quorum
+ 16712→  ---------------- ------------------- -------------- -------------- --------------
+ 16713→  Constitutional   Immutable           7/7 Multi-Sig  90 days        7/7
+ 16714→                   parameters (core                                  
+ 16715→                   architecture,                                     
+ 16716→                   constitutional                                    
+ 16717→                   envelopes, hard                                   
+ 16718→                   floors, liquidation                               
+ 16719→                   staging; the v1.2                                 
+ 16720→                   GFB-quantity                                      
+ 16721→                   immutability is                                   
+ 16722→                   superseded by the                                 
+ 16723→                   fixed-methodology                                 
+ 16724→                   invariant I3)                                     
+ 16725→
+ 16726→  Monetary         RR target, fee      DAO Vote       48 hours       51%
+ 16727→                   structure,                                        
+ 16728→                   smoothing                                         
+ 16729→                   parameters                                        
+ 16730→
+ 16731→  Risk             Haircuts,           Risk Council   24 hours       4/7
+ 16732→                   thresholds, eject   (4/7)                         
+ 16733→                   parameters, LCR                                   
+ 16734→                   targets                                           
+ 16735→
+ 16736→  Emergency        Pause operations,   Emergency      Instant        4/7
+ 16737→                   force rebalance,    Council (4/7)                 
+ 16738→                   emergency eject                                   
+ 16739→  ---------------------------------------------------------------------------------
+ 16740→
+ 16741→Reading the table: Constitutional authority (a 7/7 Multi-Sig with a
+ 16742→90-day timelock) covers the immutable core — the architecture, the
+ 16743→constitutional envelopes, the hard floors, the fixed methodology and the
+ 16744→liquidation ladder's shape. Monetary authority (DAO vote, 51% quorum,
+ 16745→48-hour timelock) covers the monetary-policy parameters: the RR targets,
+ 16746→the fee structure and the smoothing parameters. Risk authority (Risk
+ 16747→Council, 4/7 with a 24-hour timelock) covers the technical risk
+ 16748→parameters: haircuts, thresholds, eject parameters and LCR targets.
+ 16749→Emergency authority (Emergency Council, 4/7, instant) covers only the
+ 16750→pause/eject/rebalance action set of Section 22.5 — the one layer that
+ 16751→trades deliberation for speed, and pays for it with the narrowest scope
+ 16752→in the system.
+ 16753→
+ 16754→The layering implements Invariant I7 (Section 2.6): the protocol is
+ 16755→governed by a layered hierarchy, and no layer can reach into another's
+ 16756→domain. The timelocks themselves are constitutional (Section 22.4): the
+ 16757→Emergency Council cannot shorten the monetary timelock, and the DAO
+ 16758→cannot raise a constitutional change through a 51% vote. The councils
+ 16759→are distinct bodies with distinct keys — the Risk Council and the
+ 16760→Emergency Council operate separate 4/7 Multi-Sigs, both with hardware
+ 16761→wallet requirements, so that compromising one signers set does not yield
+ 16762→both authorities. Every action on every layer emits events and is
+ 16763→published (Chapter 24); the layer boundaries are exactly what Invariants
+ 16764→I7 and I8 reference from Section 2.6.
+ 16765→
+ 16766→22.4 The Parameter Registry and Authority Matrix
+ 16767→
+ 16768→Every tunable parameter in the protocol is registered — with its
+ 16769→identifier, its governance layer, its current value and its admissible
+ 16770→envelope — in a single on-chain parameter registry [BP §14.4.2]. The
+ 16771→registry is the normative answer to the question of who may change what:
+ 16772→an update path exists if and only if the parameter is registered, and
+ 16773→the layer of the record determines which body, which quorum and which
+ 16774→timelock govern the change. Unregistered parameters fail closed — the
+ 16775→governance contract of Listing 14 reverts on any update to an unknown
+ 16776→parameter identifier — so new parameters must be deliberately registered
+ 16777→(a constitutional action) before they can ever be touched.
+ 16778→
+ 16779→-   Registration declares the parameter identifier, its layer
+ 16780→    (Constitutional, Monetary, Risk or Emergency), its initial value and
+ 16781→    its envelope [min, max]; registration and envelope changes follow
+ 16782→    the constitutional process with the 90-day timelock.
+ 16783→
+ 16784→-   Envelope discipline: proposed values must lie inside the registered
+ 16785→    envelope at proposal time, and are re-checked at execution time and
+ 16786→    again on arrival at the operations contract — three independent
+ 16787→    checks, so a stale or manipulated proposal cannot bypass the bounds.
+ 16788→
+ 16789→-   Timelock discipline: monetary changes execute only after 48 hours,
+ 16790→    risk changes only after 24 hours, and the Risk Council may veto a
+ 16791→    monetary proposal inside its timelock window (Section 22.6).
+ 16792→
+ 16793→-   Audit trail: every registration, proposal, execution and veto emits
+ 16794→    an event and is versioned with the data and methodology versions
+ 16795→    (Section 24.2), so the complete parameter history is reconstructable
+ 16796→    after the fact.
+ 16797→
+ 16798→The consolidated authority matrix below merges the registry table of BP
+ 16799→§14.4.2 with the constants tables of the preceding chapters; it is the
+ 16800→single normative reference for parameter governance across the protocol:
+ 16801→
+ 16802→  -----------------------------------------------------------------------------------
+ 16803→  Parameter         Layer            Default Value    Authority        Defined In
+ 16804→  ----------------- ---------------- ---------------- ---------------- --------------
+ 16805→  RR Hard Floor     Constitutional   1.00             Constitutional   §21.2
+ 16806→                                                      (immutable)      (Invariant I2)
+ 16807→
+ 16808→  Timelock —        Constitutional   48 hours         Constitutional   §22.3
+ 16809→  Monetary                                            (immutable)      
+ 16810→
+ 16811→  Timelock — Risk   Constitutional   24 hours         Constitutional   §22.3
+ 16812→                                                      (immutable)      
+ 16813→
+ 16814→  Timelock —        Constitutional   90 days          Constitutional   §22.3
+ 16815→  Constitutional                                      (immutable)      
+ 16816→
+ 16817→  Liquidation       Constitutional   10% / 25% / 50%  Constitutional   §21.5.3
+ 16818→  Stages 1–4                         / 100%           (immutable)      
+ 16819→  (cumulative)                                                         
+ 16820→
+ 16821→  Reintegration     Constitutional   25% → 50% → 100% Constitutional   §21.5.4
+ 16822→  Staging                                             (immutable)      
+ 16823→
+ 16824→  Admissibility     Constitutional   Section 8.1      7/7 Multi-Sig +  Ch. 8
+ 16825→  envelopes (per                     values           90-day timelock  
+ 16826→  component)                                                           
+ 16827→
+ 16828→  RR Target         Monetary         1.10             DAO Vote (51%)   §21.2
+ 16829→
+ 16830→  RR Stress Floor   Monetary         1.05             DAO Vote (51%)   §21.2
+ 16831→
+ 16832→  Recovery          Monetary         48 hours         DAO Vote (51%)   §21.3
+ 16833→  Confirmation                                                         
+ 16834→  Period                                                               
+ 16835→
+ 16836→  Mint Fee          Monetary         0.10%            DAO Vote (51%)   Ch. 19
+ 16837→
+ 16838→  Redeem Fee        Monetary         0.15%            DAO Vote (51%)   Ch. 19
+ 16839→  (Normal)                                                             
+ 16840→
+ 16841→  Sweep Threshold   Monetary         $10,000          DAO Vote (51%)   Ch. 20
+ 16842→
+ 16843→  Smoothing         Monetary         0.50 / 0.75      DAO Vote (51%)   §8.4
+ 16844→  parameters (ρ                                                        
+ 16845→  normal / stress)                                                     
+ 16846→
+ 16847→  Redeem Fee        Risk             0.50%            Risk Council     §21.4
+ 16848→  (Stress)                                            (4/7)            
+ 16849→
+ 16850→  Redeem Fee        Risk             1.00%            Risk Council     §21.4
+ 16851→  (Defensive)                                         (4/7)            
+ 16852→
+ 16853→  LCR Target        Risk             1.00             Risk Council     §21.2, Ch. 14
+ 16854→                                                      (4/7)            
+ 16855→
+ 16856→  Slippage          Risk             1.0%             Risk Council     §10.8
+ 16857→  Tolerance                                           (4/7)            
+ 16858→
+ 16859→  Buffer Gold (BASE Risk             62.5% / 85% /    Risk Council     Ch. 13
+ 16860→  / STRESS /                         100%             (4/7)            
+ 16861→  EMERGENCY)                                                           
+ 16862→
+ 16863→  De-peg Detection  Risk             12 hours         Risk Council     §21.5.2
+ 16864→  Window                                              (4/7)            
+ 16865→
+ 16866→  Peg Bands         Risk             ±0.5%; ±1.0%;    Risk Council     §21.5.2
+ 16867→  (USDC/USDP, EURC;                  ±1.5%            (4/7)            
+ 16868→  GBP, JPY; CNY)                                                       
+ 16869→
+ 16870→  Reintegration     Risk             0.80             Risk Council     §21.5.4
+ 16871→  Threshold                                           (4/7)            
+ 16872→
+ 16873→  Reintegration     Risk             0.40 / 0.25 /    Risk Council     §21.5.4
+ 16874→  Score Weights                      0.20 / 0.15      (4/7)            
+ 16875→  (w_1–w_4)                                                            
+ 16876→
+ 16877→  Weight-velocity   Risk             Section 8.3      Risk Council     Ch. 8
+ 16878→  limits                             values           (4/7)            
+ 16879→
+ 16880→  MASE objective    Risk             Section 7.4      Risk Council     Ch. 7
+ 16881→  coefficients (λ                    values (within   (4/7)            
+ 16882→  vector)                            envelopes)                        
+ 16883→
+ 16884→  Crisis-score      Risk             Section 5.5      Risk Council     Ch. 5
+ 16885→  scaling (k,                        values           (4/7)            
+ 16886→  threshold)                                                           
+ 16887→
+ 16888→  Eligibility       Risk             Per methodology  Risk Council     Ch. 4
+ 16889→  coefficients and                   version          (4/7)            
+ 16890→  thresholds (a_k,                                                     
+ 16891→  Q_min, Q_entry,                                                      
+ 16892→  Q_exit)                                                              
+ 16893→
+ 16894→  Hysteresis        Risk             Bounded below by Risk Council     §4.7
+ 16895→  dead-band width                    constitutional   (4/7)            
+ 16896→                                     minimum                           
+ 16897→
+ 16898→  Oracle deviation, Risk             Chapter 17       Risk Council     Ch. 17
+ 16899→  staleness and                      values           (4/7)            
+ 16900→  confirmation                                                         
+ 16901→  thresholds                                                           
+ 16902→  -----------------------------------------------------------------------------------
+ 16903→
+ 16904→Rows with constitutional authority are immutable in the reference
+ 16905→implementation: the liquidation ladder's cumulative percentages, the
+ 16906→reintegration staging, the hard floor RR = 1.00 and the three timelocks
+ 16907→cannot be changed by any on-chain path — they require redeployment
+ 16908→through the constitutional process. Rows marked Monetary and Risk are
+ 16909→live-updatable through the proposal paths of Listing 14. Parameters
+ 16910→introduced by later chapters — validation outputs of Chapter 23,
+ 16911→publication intervals of Chapter 24 — are registered at deployment under
+ 16912→the same rules; the matrix is closed under the registry, and any
+ 16913→parameter not listed here has no update path at all. The Emergency layer
+ 16914→deliberately registers actions rather than parameters: the emergency
+ 16915→action set itself is constitutional, so the fastest authority in the
+ 16916→system cannot create new knobs to turn.
+ 16917→
+ 16918→  The buffer-gold rows are carried from BP §14.4.2 for the reserve-side
+ 16919→  gold overlay. Under v2.0 the reserve gold allocation is sized
+ 16920→  independently of the reference-basket weight (Invariant I12, §13.3),
+ 16921→  so these parameters govern reserve posture only, never index
+ 16922→  composition.
+ 16923→
+ 16924→22.5 Emergency Actions
+ 16925→
+ 16926→The Emergency layer holds the protocol's fastest powers, and every one
+ 16927→of them is a verb — pause, force, eject, resume — rather than a setting
+ 16928→[BP §14.5]. Emergency authority can never change a parameter, never set
+ 16929→a weight and never amend the constitution; it can only halt or force the
+ 16930→operations the state machine would otherwise run:
+ 16931→
+ 16932→  --------------------------------------------------------------------------
+ 16933→  Action               Description       Trigger           Authority
+ 16934→  -------------------- ----------------- ----------------- -----------------
+ 16935→  pauseMinting()       Stops all new     RR < 1.05         Automatic +
+ 16936→                       minting           (automatic) OR    Council
+ 16937→                                         Council decision  
+ 16938→
+ 16939→  pauseRedeeming()     Stops all         EMERGENCY state + Council (4/7)
+ 16940→                       redemptions       Council vote      
+ 16941→                       (extreme cases                      
+ 16942→                       only)                               
+ 16943→
+ 16944→  forceRebalance()     Executes an       EMERGENCY state   Council (4/7)
+ 16945→                       immediate                           
+ 16946→                       rebalance                           
+ 16947→
+ 16948→  emergencyEject()     Immediately       Issuer freeze     Council (4/7)
+ 16949→                       ejects a          confirmed         
+ 16950→                       de-pegged asset                     
+ 16951→
+ 16952→  resumeOperations()   Restores normal   Recovery          Council (4/7)
+ 16953→                       operations        confirmed         
+ 16954→  --------------------------------------------------------------------------
+ 16955→
+ 16956→The trigger column shows the two-speed design. The first pause — minting
+ 16957→at RR < 1.05 — is automatic: the state machine applies it the moment
+ 16958→STRESS is entered (Section 21.4), so the protocol's first defensive move
+ 16959→does not wait for humans. The remaining actions are council-triggered,
+ 16960→because they trade user-facing continuity against risk in ways that
+ 16961→require judgment. Pausing redemptions is the most drastic user-facing
+ 16962→action in the system and requires the EMERGENCY state plus a council
+ 16963→vote. A forced rebalance is a discretionary override of the MARP
+ 16964→doctrine's justification gates and corresponds to Level 5 of the
+ 16965→execution hierarchy (Section 10.3). The emergency eject bypasses the
+ 16966→staged liquidation ladder and executes through emergencyLiquidate
+ 16967→(Section 21.6) when an issuer freeze is confirmed. And resumeOperations
+ 16968→is deliberately blocked while the state machine is still in EMERGENCY:
+ 16969→recovery, not decree, must end an existential state.
+ 16970→
+ 16971→Checks and balances. Every emergency action requires the 4/7 Emergency
+ 16972→Council Multi-Sig with hardware wallet requirements, emits an on-chain
+ 16973→event, and is reported through the transparency layer (Chapter 24) and
+ 16974→the honest-status declaration (Section 25). The oracle layer's circuit
+ 16975→breakers (Chapter 17) engage automatically in EMERGENCY, so price-trust
+ 16976→failures and solvency failures brake together. The state machine
+ 16977→continues to run underneath the council's actions: an emergency pause
+ 16978→does not freeze RR/LCR reporting, state transitions or the recovery
+ 16979→clock, so the council cannot use a pause to obscure the condition it is
+ 16980→pausing about. Emergency power, in short, is instant but narrow,
+ 16981→recorded, and reversible only by recovery — the exact trade the
+ 16982→four-layer hierarchy of Section 22.3 is designed to force.
+ 16983→
+ 16984→22.6 Smart Contract Implementation — Governance and Emergency Functions
+ 16985→
+ 16986→The governance registry is the authorization plane of the protocol [BP
+ 16987→§14.6.4–14.6.5]. It owns the parameter registry and the proposal flow:
+ 16988→the DAO proposes and executes monetary changes across a 48-hour
+ 16989→timelock, the Risk Council owns the 24-hour risk path and holds a veto
+ 16990→over monetary proposals inside their window, the Constitutional Council
+ 16991→registers parameters and their envelopes, and the Emergency Council
+ 16992→dispatches the pause, force and resume actions of Section 22.5. Every
+ 16993→executed update is forwarded to the operations contract of Listing 13
+ 16994→through the IOperations interface, and the operations contract
+ 16995→re-verifies its caller before applying the value — authorization and
+ 16996→execution each check the other. The emergency eject is the single
+ 16997→exception to the dispatch pattern: emergencyLiquidate is signed directly
+ 16998→by the Emergency Council on the operations contract (Section 21.6),
+ 16999→exactly as in the source module. The onlyDAO modifier is implemented by
+
+[showing lines 16500-16999 of 21228; use offset=17000 with limit to continue reading]
