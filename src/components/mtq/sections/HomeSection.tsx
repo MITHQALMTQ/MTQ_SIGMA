@@ -37,7 +37,7 @@ const WHAT_IS = [
     eyebrow: "§2 · The Index",
     title: "GFB Index",
     body:
-      "A fixed, normalized basket of five currencies (USD 38.9% · EUR 27.8% · GBP 16.69% · JPY 11.11% · CNY 5.5%). The Index defines what one MTQΣ is intended to represent — global purchasing power.",
+      "A 7-component Strategic Prior basket (USD 27% · EUR 20% · JPY 9% · GBP 8% · CNY 5% · CHF 5% · Gold 26%). Gold is a first-class index component (20-32% admissibility envelope). The Index defines what one MTQΣ is intended to represent — global purchasing power.",
   },
   {
     icon: Coins,
@@ -51,7 +51,7 @@ const WHAT_IS = [
     eyebrow: "§4 · The Reserve",
     title: "Reserve Portfolio",
     body:
-      "Audited collateral (stablecoins + tokenized gold) held at a 110% Reserve Ratio target. The reserve exists to collateralize the MTQΣ obligation — not to speculate.",
+      "Audited collateral (stablecoins + tokenized gold) held at a 110% Reserve Ratio target. The reserve exists to collateralize the MTQΣ obligation — not to speculate. In v1.0, index gold and reserve gold are mandatorily separate.",
   },
 ];
 
@@ -268,7 +268,7 @@ export function HomeSection({ onNavigate }: { onNavigate: (id: SectionId) => voi
 
       {/* ===== Tokenized Gold (PAXG + XAUT) — visible upfront ===== */}
       <section aria-labelledby="home-gold">
-        <SectionHeading eyebrow="§4 · §8 · Bullion" title="Tokenized Gold Reserve" />
+        <SectionHeading eyebrow="§3.2 + §4 + §8 · Bullion" title="Tokenized Gold — in BOTH the Index and the Reserve" />
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
           {/* PAXG card — GOLD TINTED */}
           <Reveal delay={0}>
@@ -319,7 +319,7 @@ export function HomeSection({ onNavigate }: { onNavigate: (id: SectionId) => voi
           {/* Gold Weight gauge card */}
           <Reveal delay={0.1}>
             <Panel variant="emerald" className="p-5">
-              <div className="text-[0.625rem] uppercase tracking-[0.25em] text-muted-foreground/80 mb-3">Gold Weight (§6.5 + §8)</div>
+              <div className="text-[0.625rem] uppercase tracking-[0.25em] text-muted-foreground/80 mb-3">Gold Weight (§6.5 + §8, legacy buffer path)</div>
               <div className="grid grid-cols-2 gap-2">
                 <div>
                   <div className="text-[0.65rem] text-muted-foreground/60">Observed</div>
@@ -342,8 +342,8 @@ export function HomeSection({ onNavigate }: { onNavigate: (id: SectionId) => voi
                 <div className="h-full bg-gradient-to-r from-amber-500/60 to-amber-300/80" style={{ width: `${(snapshot?.observedGoldWeight ?? 0) * 100 / 30 * 100}%` }} />
               </div>
               <div className="flex justify-between text-[0.6rem] text-muted-foreground/50 mt-1">
-                <span>22% floor</span>
-                <span>30% ceiling</span>
+                <span>20% envelope floor</span>
+                <span>32% envelope ceiling</span>
               </div>
               <div className="mt-2 text-[0.65rem] text-muted-foreground/60">
                 Total gold net: <span className="font-mono text-amber-200">{snapshot ? fmtUsdCompact(snapshot.reserve.goldNet) : "—"}</span>
@@ -352,10 +352,16 @@ export function HomeSection({ onNavigate }: { onNavigate: (id: SectionId) => voi
           </Reveal>
         </div>
         <p className="mt-3 text-[0.7rem] text-muted-foreground/60 max-w-3xl">
-          Gold is NOT in the GFB Index (§2.1 is a 5-currency basket). Gold is in the RESERVE PORTFOLIO (§4, §8.3):
-          the core reserve holds 20% gold, the 10% buffer holds 62.5% gold (BASE state) = 26.25% total.
-          The §6 Adaptive Macro Engine adjusts the target ±3pp based on VIX/DXY z-scores.
-          The §7 Rebalancing Engine trades toward the target with 24h direction lock + 1% slippage protection.
+          Gold is in <span className="text-amber-200/90 font-medium">BOTH</span> the GFB Index (26% strategic prior,
+          20-32% admissibility envelope per §8.1) <span className="italic">and</span> the reserve portfolio
+          (§4, §8.3). In v1.0 these two roles are <span className="text-amber-200/90 font-medium">mandatorily
+          separate</span> per §14.1: the index gold defines what 1 MTQ represents (purchasing power); the
+          reserve gold is sized by obligations, liquidity, custody, and redemption risk — not by the
+          index weight. The pilot's current state uses the same physical PAXG + XAUT holdings for
+          both roles (the legacy §6/§7/§8 buffer path retained until the MASE ensemble replaces it);
+          a future task will physically separate them. The §6 Adaptive Macro Engine adjusts the
+          target ±3pp based on VIX/DXY z-scores; the §7 Rebalancing Engine trades toward the target
+          with 24h direction lock + 1% slippage protection.
         </p>
       </section>
 

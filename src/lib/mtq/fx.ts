@@ -23,6 +23,7 @@ export interface FxSnapshot {
   GBP_USD: number;
   JPY_USD: number;
   CNY_USD: number;
+  CHF_USD: number; // NEW v1.0 — CHF is now a first-class index component (5% prior)
   XAU_USD: number;
   VIX: number;
   DXY: number;
@@ -37,6 +38,7 @@ const DEFAULTS: Omit<FxSnapshot, "fetchedAt" | "source" | "degraded"> = {
   GBP_USD: 1.27,
   JPY_USD: 0.0066,
   CNY_USD: 0.139,
+  CHF_USD: 0.88, // ~0.88 USD per CHF (matches BASE_FIXINGS.CHF_USD in blueprint v1.0)
   XAU_USD: 2650,
   VIX: 18.5,
   DXY: 104.2,
@@ -71,8 +73,13 @@ async function fetchFrankfurter(): Promise<Partial<FxSnapshot>> {
       const GBP_USD = r.GBP ? 1 / Number(r.GBP) : undefined;
       const JPY_USD = r.JPY ? 1 / Number(r.JPY) : undefined;
       const CNY_USD = r.CNY ? 1 / Number(r.CNY) : undefined;
+      // NEW v1.0: CHF added as a first-class index component. ECB/Frankfurter
+      // publishes CHF reference rates — Swiss franc is in the ECB's reference
+      // currency list. We invert the same way (USD per 1 CHF = 1 / r.CHF).
+      const CHF_USD = r.CHF ? 1 / Number(r.CHF) : undefined;
       if (EUR_USD && GBP_USD && JPY_USD && CNY_USD) {
-        return { EUR_USD, GBP_USD, JPY_USD, CNY_USD };
+        // CHF is optional — fall back to cache/default if the feed omits it.
+        return { EUR_USD, GBP_USD, JPY_USD, CNY_USD, ...(CHF_USD ? { CHF_USD } : {}) };
       }
     } catch {
       // try next
@@ -123,6 +130,7 @@ export async function fetchFxSnapshot(force = false): Promise<FxSnapshot> {
     GBP_USD: fx.GBP_USD ?? cache?.GBP_USD ?? DEFAULTS.GBP_USD,
     JPY_USD: fx.JPY_USD ?? cache?.JPY_USD ?? DEFAULTS.JPY_USD,
     CNY_USD: fx.CNY_USD ?? cache?.CNY_USD ?? DEFAULTS.CNY_USD,
+    CHF_USD: fx.CHF_USD ?? cache?.CHF_USD ?? DEFAULTS.CHF_USD,
     XAU_USD: gold ?? cache?.XAU_USD ?? DEFAULTS.XAU_USD,
     VIX: clamp(VIX, VIX_MIN, VIX_MAX),
     DXY: clamp(DXY, DXY_MIN, DXY_MAX),

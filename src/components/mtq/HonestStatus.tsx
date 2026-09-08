@@ -1,10 +1,11 @@
-// MTQΣ — Honest Status Declaration (§15) + Honest Audit Findings
+// MTQΣ — Honest Status Declaration (§25, v1.0 Master) + Honest Audit Findings
 // Brand v2: shows ALL 4 reconciliation findings (F1 redemption price
 // contradiction = fixed, F2 genesis issuer concentration breach = fixed,
 // F3 VIX/DXY simulated = informational, F4 Sharia not certified =
 // informational) with severity-coded badges (fixed=emerald, outstanding=amber,
-// informational=neutral). Also renders HONEST_STATUS, REMOVED_CLAIMS, and the
-// canonical redemption policy text from snapshot.redemptionPolicy.
+// informational=neutral). Also renders HONEST_STATUS, UNSUPPORTED_CLAIMS
+// (v1.0 — replaces the legacy v1.2 REMOVED_CLAIMS table), and the canonical
+// redemption policy text from snapshot.redemptionPolicy.
 //
 // The Honest Audit panel now leads with the brand voice (sovereign, calm,
 // collateralized) — no longer rose-only. Both findings F1 + F2 are surfaced as
@@ -14,7 +15,7 @@
 
 import { motion } from "framer-motion";
 import { Panel, Reveal, Pill, GlowDot } from "./primitives";
-import { HONEST_STATUS, REMOVED_CLAIMS } from "@/lib/mtq/blueprint";
+import { HONEST_STATUS, UNSUPPORTED_CLAIMS } from "@/lib/mtq/blueprint";
 import { BRAND_VOICE } from "@/lib/mtq/brand";
 import { fmtUsd } from "./format";
 import type { MetricsSnapshot, ReconciliationFinding } from "@/lib/mtq/engine";
@@ -139,7 +140,7 @@ export function HonestStatus({ snapshot }: { snapshot: MetricsSnapshot | null })
             <GlowDot color="gold" size="h-3 w-3" className="mt-1" />
             <div>
               <div className="text-base font-semibold text-foreground/95 mb-1">
-                MTQΣ v1.2 — {BRAND_VOICE.statusDeclaration}
+                MTQΣ v1.0 (Master Blueprint) — {BRAND_VOICE.statusDeclaration}
               </div>
               <p className="text-[0.82rem] text-muted-foreground/85 leading-relaxed">
                 {BRAND_VOICE.coreObjective} The system is {BRAND_VOICE.designConstraint.toLowerCase()}.
@@ -224,43 +225,52 @@ export function HonestStatus({ snapshot }: { snapshot: MetricsSnapshot | null })
         </Panel>
       </Reveal>
 
-      {/* REMOVED_CLAIMS table */}
+      {/* UNSUPPORTED_CLAIMS table (v1.0 — replaces the legacy v1.2 REMOVED_CLAIMS) */}
       <Reveal>
         <Panel className="p-5">
           <div className="mb-3 flex items-center justify-between">
             <div>
-              <div className="text-sm font-semibold text-foreground/90">Removed Claims (§15.1)</div>
-              <div className="text-[0.7rem] text-muted-foreground/70">transparency on what was over-claimed in earlier drafts and what replaced it</div>
+              <div className="text-sm font-semibold text-foreground/90">Claims NOT Supported (§25.3 — v1.0)</div>
+              <div className="text-[0.7rem] text-muted-foreground/70">v1.0 added “Fixed composition”, “Guaranteed outcomes”, “Final optimal percentages” — the methodology is fixed, the outcomes are not</div>
             </div>
           </div>
           <div className="overflow-hidden rounded-md border border-white/[0.07]">
             <table className="w-full text-[0.72rem]">
               <thead className="bg-white/[0.02] text-muted-foreground/70">
                 <tr>
-                  <th className="text-left px-3 py-2 font-medium w-1/2">Removed Claim</th>
-                  <th className="text-left px-3 py-2 font-medium w-1/2">Replaced With</th>
+                  <th className="text-left px-3 py-2 font-medium w-1/2">Claim</th>
+                  <th className="text-left px-3 py-2 font-medium w-1/2">Reason NOT Supported</th>
                 </tr>
               </thead>
               <tbody>
-                {REMOVED_CLAIMS.map((row, i) => (
+                {UNSUPPORTED_CLAIMS.map((row, i) => (
                   <motion.tr
-                    key={row.removed}
+                    key={row.claim}
                     initial={{ opacity: 0, y: 4 }}
                     animate={{ opacity: 1, y: 0 }}
                     transition={{ duration: 0.25, delay: i * 0.03 }}
                     className={`border-t border-white/[0.05] ${i % 2 ? "bg-white/[0.01]" : ""}`}
                   >
                     <td className="px-3 py-2.5">
-                      <span className="line-through text-mtqs-rose/70 font-mono">{row.removed}</span>
+                      <span className="line-through text-mtqs-rose/70 font-mono">{row.claim}</span>
                     </td>
                     <td className="px-3 py-2.5">
-                      <span className="text-[#6ff0c0]/90 font-mono">{row.replaced}</span>
+                      <span className="text-muted-foreground/85">{row.reason}</span>
                     </td>
                   </motion.tr>
                 ))}
               </tbody>
             </table>
           </div>
+          <p className="mt-3 text-[0.7rem] text-muted-foreground/70 leading-relaxed">
+            §25.3 v1.0 added three new unsupported claims that the legacy v1.2 had not explicitly disclaimed:
+            <span className="text-amber-200/90 font-medium"> “Fixed composition”</span>,
+            <span className="text-amber-200/90 font-medium"> “Guaranteed outcomes”</span>, and
+            <span className="text-amber-200/90 font-medium"> “Final optimal percentages”</span>.
+            The composition is <span className="italic">adaptive</span> (MASE ensemble + admissibility envelopes);
+            the methodology is fixed but the outcomes are not. No percentage is final until the validation
+            program (Chapter 23) completes.
+          </p>
         </Panel>
       </Reveal>
     </div>

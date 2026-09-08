@@ -1,10 +1,22 @@
 // MTQΣ — Reference Monetary Engine
-// Faithful TypeScript implementation of MTQΣ_Blueprint.docx v1.2 (FINAL CLOSED-LOOP).
+// TypeScript implementation of the MTQΣ Master Monetary Architecture v1.0.
 // This is the single source of truth for the monetary math. Both the Next.js
 // API layer and the live WebSocket feed service import from this module.
 //
+// v1.0 CHANGES (vs the legacy v1.2 engine):
+//   - Basket is now the 7-component Strategic Prior (USD/EUR/JPY/GBP/CNY/CHF/Gold)
+//     where Gold is a first-class index component (not just reserve collateral).
+//   - computeGfbIndex() uses STRATEGIC_PRIOR with the chain-linked denominator
+//     GFB_BASE_DENOMINATOR (which already includes CHF + Gold base fixings).
+//   - CHF added as a first-class reserve asset (s.chf, fx.CHF_USD).
+//   - The legacy §6/§7/§8 buffer/rebalance/MARP logic is retained verbatim for
+//     now (it will be replaced by the MASE ensemble in a future task). The old
+//     constants (BASE_GOLD_WEIGHT, GOLD_WEIGHT_LOWER/UPPER, ALPHA, BETA, ...)
+//     are imported because that legacy code still references them; they are
+//     marked SUPERSEDED in blueprint.ts.
+//
 // Sections implemented:
-//   §2  GFB Index (normalised)
+//   §2  GFB Index (chain-linked, 7 components incl. Gold + CHF)
 //   §3  MTQ Reference Price + liability + safety band
 //   §4  Reserve NAV (haircuts), Reserve Ratio, Liquidity Coverage Ratio, status
 //   §6  Adaptive Macro Engine (VIX/DXY z-scores, EMA-smoothed target gold weight)
@@ -13,13 +25,14 @@
 //   §11 Geopolitical Eject (staged ladder)
 //   §12 Mint & Redemption (priced against the GFB Index)
 //
-// Honest reconciliation note (tokenomics):
+// Honest reconciliation note (tokenomics, retained from v1.2 for the legacy
+// buffer/MARP path):
 //   §6 base gold weight 26.25% == §8 BASE total (0.20 core + 0.10×0.625 buffer).
 //   We therefore unify: W_target = clamp( base_gold_from_buffer(RR) + θ_smoothed, 22%, 30% ).
 //   In EMERGENCY the buffer base is already 30%, so θ cannot push it higher. ✓
 
 import {
-  Q_USD, Q_EUR, Q_GBP, Q_JPY, Q_CNY,
+  STRATEGIC_PRIOR,
   GFB_BASE_DENOMINATOR,
   PRICE_SAFETY_LOWER, PRICE_SAFETY_UPPER,
   MINT_FEE_BPS, REDEEM_FEE_BPS,
@@ -37,8 +50,9 @@ import {
   REINTEGRATION_WEIGHTS, REINTEGRATION_THRESHOLD, REINTEGRATION_REPURCHASE_STAGES,
   TREASURY_SWEEP_THRESHOLD_USD, TREASURY_SWEEP_AUTHORITY,
   type ProtocolStatus,
+  type FxRates,
 } from "./blueprint";
-import type { FxRates, FxSnapshot } from "./fx";
+import type { FxSnapshot } from "./fx";
 import type { OracleBoard, OracleConsensus } from "./oracle";
 import { computeConcentration, type AssetRecord, type ConcentrationReport } from "./registry";
 
@@ -51,6 +65,7 @@ export interface ReserveState {
   gbp: number; // GBP-token units
   jpy: number; // JPY-token units
   cny: number; // CNY-token units
+  chf: number; // CHF-token units (NEW v1.0 — 5% strategic prior, 3-7% envelope)
   paxg: number; // PAXG units (1 PAXG = 1 troy oz gold = XAU_USD dollars)
   xaut: number; // XAUT units (1 XAUT = 1 troy oz gold) — FIX: second gold issuer (Tether)
 
@@ -121,31 +136,45 @@ export interface ReserveState {
   updatedAt: number;
 }
 
-// --- Genesis initialisation (§13.1) -----------------------------------------
-// Protocol deposits $1,100,000 USDC → buys basket ($880,000) + PAXG ($220,000)
-// at oracle price → mints 1,000,000 MTQΣ to Genesis Reserve Account.
+// --- Genesis initialisation (§13.1, v1.0 Master Blueprint) -----------------
+// Protocol deposits $1,100,000 → buys the 7-component Strategic Prior basket
+// (USD 27% · EUR 20% · JPY 9% · GBP 8% · CNY 5% · CHF 5% · Gold 26%) at oracle
+// prices → mints 1,000,000 MTQΣ to the Genesis Reserve Account.
 // RR = 1,100,000 / (1,000,000 × 1.00) = 1.10 (110%).
 // Genesis supply is LOCKED (excluded from circulating supply).
+//
+// NOTE on Gold (v1.0): Gold is now BOTH in the GFB Index (26% strategic prior,
+// 20-32% admissibility envelope) AND a reserve asset. The 26% gold portion of
+// the genesis deposit IS the index gold. The legacy §8 buffer (core 20% +
+// 10%×62.5% buffer = 26.25% total) is retained verbatim for the rebalance/MARP
+// path — it will be replaced by the MASE ensemble + per-component admissibility
+// envelopes in a future task.
 export function initReserveState(goldPrice: number): ReserveState {
   const initialUsdDeposit = 1_100_000;
-  const fiatSpend = 880_000; // basket
-  const goldSpend = 220_000; // PAXG
 
-  // Split fiatSpend across GFB weights → token holdings
-  const usdTotal = fiatSpend * (Q_USD / (Q_USD + Q_EUR + Q_GBP + Q_JPY + Q_CNY)); // ≈ 0.389
+  // v1.0: split the entire deposit across the 7 Strategic Prior components.
+  // Each component's USD-equivalent notional = deposit × W^Prior_i. The
+  // resulting portfolio is the genesis GFB basket; RR = deposit / supply = 1.10.
+  const usdTotal  = initialUsdDeposit * STRATEGIC_PRIOR.USD;  // $297K
+  const eurcUsd   = initialUsdDeposit * STRATEGIC_PRIOR.EUR;  // $220K
+  const jpyUsd   = initialUsdDeposit * STRATEGIC_PRIOR.JPY;  //  $99K
+  const gbpUsd   = initialUsdDeposit * STRATEGIC_PRIOR.GBP;  //  $88K
+  const cnyUsd   = initialUsdDeposit * STRATEGIC_PRIOR.CNY;  //  $55K
+  const chfUsd   = initialUsdDeposit * STRATEGIC_PRIOR.CHF;  //  $55K (NEW v1.0)
+  const goldSpend = initialUsdDeposit * STRATEGIC_PRIOR.Gold; // $286K (Gold is now in the index)
+
   // FIX: split USD across 3 issuers (USDC/Circle, USDP/Paxos, USDT/Tether) — 1/3 each
   const usdc = usdTotal / 3;
   const usdp = usdTotal / 3;
   const usdt = usdTotal / 3;
-  const eurcUsd = fiatSpend * (Q_EUR / 1.0);
-  const gbpUsd = fiatSpend * (Q_GBP / 1.0);
-  const jpyUsd = fiatSpend * (Q_JPY / 1.0);
-  const cnyUsd = fiatSpend * (Q_CNY / 1.0);
-  // Convert USD-equivalent fiat holdings into native token units
-  const eurc = eurcUsd / 1.05; // € per $1.05
-  const gbp = gbpUsd / 1.25;
-  const jpy = jpyUsd / 0.0067;
-  const cny = cnyUsd / 0.14;
+
+  // Convert USD-equivalent fiat holdings into native token units (using the
+  // base-date fixings so genesis lands at exactly GFB = 1.00).
+  const eurc = eurcUsd / 1.05;            // € per $1.05 at base date
+  const gbp  = gbpUsd / 1.25;             // £ per $1.25
+  const jpy  = jpyUsd / 0.0067;           // ¥ per $0.0067
+  const cny  = cnyUsd / 0.14;             // CNH per $0.14
+  const chf  = chfUsd / 0.88;             // CHF per $0.88 (BASE_FIXINGS.CHF_USD)
   // FIX: split gold across 2 issuers (PAXG/Paxos, XAUT/Tether) — 50/50
   const paxg = (goldSpend / goldPrice) * 0.5;
   const xaut = (goldSpend / goldPrice) * 0.5;
@@ -154,7 +183,7 @@ export function initReserveState(goldPrice: number): ReserveState {
     usdc,
     usdp,
     usdt,
-    eurc, gbp, jpy, cny,
+    eurc, gbp, jpy, cny, chf,
     paxg,
     xaut,
     totalSupply: 1_000_000, // Genesis supply
@@ -212,16 +241,25 @@ function seedHistory(mean: number, sd: number, n: number): number[] {
   return out;
 }
 
-// --- §2 GFB Index -----------------------------------------------------------
-export function computeGfbIndex(fx: Pick<FxRates, "EUR_USD" | "GBP_USD" | "JPY_USD" | "CNY_USD">): number {
-  // Raw USD value of the basket at time t
+// --- §2 GFB Index (v1.0 — 7-component chain-linked) -------------------------
+// GFB_t = Σ_i W^Prior_i × P_{i,t}  (then normalised by GFB_BASE_DENOMINATOR so
+// GFB = 1.00 exactly at the base date). The 7 components are the Strategic
+// Prior: USD, EUR, JPY, GBP, CNY, CHF, Gold. Gold is now a first-class index
+// component (P_Gold = XAU_USD).
+export function computeGfbIndex(fx: Pick<FxRates, "EUR_USD" | "GBP_USD" | "JPY_USD" | "CNY_USD" | "CHF_USD" | "XAU_USD">): number {
+  // Raw USD value of the basket at time t. USD is the unit of account (price 1.0);
+  // every other component contributes its USD-equivalent via its FX rate.
   const numerator =
-    Q_USD * 1.0 +
-    Q_EUR * fx.EUR_USD +
-    Q_GBP * fx.GBP_USD +
-    Q_JPY * fx.JPY_USD +
-    Q_CNY * fx.CNY_USD;
-  // Normalised: GFB_t = numerator / GFB_BASE_DENOMINATOR  (=1.0 at base date)
+    STRATEGIC_PRIOR.USD  * 1.0 +
+    STRATEGIC_PRIOR.EUR  * fx.EUR_USD +
+    STRATEGIC_PRIOR.JPY  * fx.JPY_USD +
+    STRATEGIC_PRIOR.GBP  * fx.GBP_USD +
+    STRATEGIC_PRIOR.CNY  * fx.CNY_USD +
+    STRATEGIC_PRIOR.CHF  * fx.CHF_USD +
+    STRATEGIC_PRIOR.Gold * fx.XAU_USD;
+  // Normalised: GFB_t = numerator / GFB_BASE_DENOMINATOR  (=1.0 at base date).
+  // GFB_BASE_DENOMINATOR is the v1.0 chain-linked denominator (includes Gold
+  // and CHF at base fixings — see blueprint.ts).
   return numerator / GFB_BASE_DENOMINATOR;
 }
 
@@ -243,7 +281,8 @@ export function reserveAssetValues(s: ReserveState, fx: FxRates) {
   const gbpGross = s.gbp * fx.GBP_USD;
   const jpyGross = s.jpy * fx.JPY_USD;
   const cnyGross = s.cny * fx.CNY_USD;
-  const fiatGross = usdGross + eurGross + gbpGross + jpyGross + cnyGross;
+  const chfGross = s.chf * fx.CHF_USD; // NEW v1.0 — CHF is a first-class reserve component
+  const fiatGross = usdGross + eurGross + gbpGross + jpyGross + cnyGross + chfGross;
 
   // §4.1 Note on Gold: use the more conservative of reference vs executable.
   const goldRef = fx.XAU_USD;
@@ -257,10 +296,11 @@ export function reserveAssetValues(s: ReserveState, fx: FxRates) {
   const gbpNet = gbpGross * (1 - HAIRCUTS.GBP);
   const jpyNet = jpyGross * (1 - HAIRCUTS.JPY);
   const cnyNet = cnyGross * (1 - HAIRCUTS.CNY);
+  const chfNet = chfGross * (1 - HAIRCUTS.CHF); // NEW v1.0
   const goldNet = goldGross * (1 - HAIRCUTS.XAU);
 
-  const nav = usdNet + eurNet + gbpNet + jpyNet + cnyNet + goldNet;
-  const fiatNet = usdNet + eurNet + gbpNet + jpyNet + cnyNet;
+  const nav = usdNet + eurNet + gbpNet + jpyNet + cnyNet + chfNet + goldNet;
+  const fiatNet = usdNet + eurNet + gbpNet + jpyNet + cnyNet + chfNet;
 
   // Per-issuer breakdown (for concentration visualization)
   const usdcUsd = s.usdc * 1.0 * (1 - HAIRCUTS.USD);
@@ -270,9 +310,9 @@ export function reserveAssetValues(s: ReserveState, fx: FxRates) {
   const xautUsd = s.xaut * goldPrice * (1 - HAIRCUTS.XAU);
 
   return {
-    usdGross, eurGross, gbpGross, jpyGross, cnyGross, fiatGross,
+    usdGross, eurGross, gbpGross, jpyGross, cnyGross, chfGross, fiatGross,
     goldGross, goldPrice,
-    usdNet, eurNet, gbpNet, jpyNet, cnyNet, goldNet,
+    usdNet, eurNet, gbpNet, jpyNet, cnyNet, chfNet, goldNet,
     nav, fiatNet,
     usdcUsd, usdpUsd, usdtUsd, paxgUsd, xautUsd,
   };
@@ -611,7 +651,10 @@ export function applyRedeem(
   const netUsd = grossUsd - feeUsd;
 
   // Release actual reserve composition proportionally (§12.2):
-  // gold portion = netUsd * W_target ; fiat portion split per GFB weights.
+  // gold portion = netUsd * W_target (legacy v1.2 buffer-derived target —
+  // retained until the MASE ensemble replaces it). fiat portion split per the
+  // 6 non-gold Strategic Prior components (USD/EUR/JPY/GBP/CNY/CHF) renormalised
+  // to the non-gold total.
   const vals = reserveAssetValues(s, fx);
   const rr = computeReserveRatio(vals.nav, computeLiability(s, price));
   const wGold = computeTargetGoldWeight(s, rr);
@@ -620,13 +663,19 @@ export function applyRedeem(
   const goldPrice = vals.goldPrice;
   const goldPaxg = goldUsd / goldPrice;
 
-  const basketFiatTotal = Q_USD + Q_EUR + Q_GBP + Q_JPY + Q_CNY; // = 1.0
+  // v1.0: Strategic Prior weights for the 6 non-gold components, renormalised
+  // to the non-gold total (0.27 + 0.20 + 0.09 + 0.08 + 0.05 + 0.05 = 0.74).
+  const basketFiatTotal =
+    STRATEGIC_PRIOR.USD + STRATEGIC_PRIOR.EUR + STRATEGIC_PRIOR.JPY +
+    STRATEGIC_PRIOR.GBP + STRATEGIC_PRIOR.CNY + STRATEGIC_PRIOR.CHF;
+  const w = (k: keyof typeof STRATEGIC_PRIOR) => STRATEGIC_PRIOR[k] / basketFiatTotal;
   const basket: RedeemBasket[] = [
-    { currency: "USD", token: "USDC", usdValue: fiatUsd * (Q_USD / basketFiatTotal), nativeAmount: fiatUsd * (Q_USD / basketFiatTotal), weight: Q_USD },
-    { currency: "EUR", token: "EURC", usdValue: fiatUsd * (Q_EUR / basketFiatTotal), nativeAmount: (fiatUsd * (Q_EUR / basketFiatTotal)) / fx.EUR_USD, weight: Q_EUR },
-    { currency: "GBP", token: "GBP₿", usdValue: fiatUsd * (Q_GBP / basketFiatTotal), nativeAmount: (fiatUsd * (Q_GBP / basketFiatTotal)) / fx.GBP_USD, weight: Q_GBP },
-    { currency: "JPY", token: "JPY₿", usdValue: fiatUsd * (Q_JPY / basketFiatTotal), nativeAmount: (fiatUsd * (Q_JPY / basketFiatTotal)) / fx.JPY_USD, weight: Q_JPY },
-    { currency: "CNY", token: "CNY₿", usdValue: fiatUsd * (Q_CNY / basketFiatTotal), nativeAmount: (fiatUsd * (Q_CNY / basketFiatTotal)) / fx.CNY_USD, weight: Q_CNY },
+    { currency: "USD", token: "USDC", usdValue: fiatUsd * w("USD"), nativeAmount: fiatUsd * w("USD"), weight: STRATEGIC_PRIOR.USD },
+    { currency: "EUR", token: "EURC", usdValue: fiatUsd * w("EUR"), nativeAmount: (fiatUsd * w("EUR")) / fx.EUR_USD, weight: STRATEGIC_PRIOR.EUR },
+    { currency: "JPY", token: "JPY₿", usdValue: fiatUsd * w("JPY"), nativeAmount: (fiatUsd * w("JPY")) / fx.JPY_USD, weight: STRATEGIC_PRIOR.JPY },
+    { currency: "GBP", token: "GBP₿", usdValue: fiatUsd * w("GBP"), nativeAmount: (fiatUsd * w("GBP")) / fx.GBP_USD, weight: STRATEGIC_PRIOR.GBP },
+    { currency: "CNY", token: "CNY₿", usdValue: fiatUsd * w("CNY"), nativeAmount: (fiatUsd * w("CNY")) / fx.CNY_USD, weight: STRATEGIC_PRIOR.CNY },
+    { currency: "CHF", token: "CHF₿", usdValue: fiatUsd * w("CHF"), nativeAmount: (fiatUsd * w("CHF")) / fx.CHF_USD, weight: STRATEGIC_PRIOR.CHF }, // NEW v1.0
   ];
 
   // Mutate reserve: burn MTQ from circulating (reduce totalSupply), release assets
@@ -638,9 +687,10 @@ export function applyRedeem(
   s.usdp = Math.max(0, s.usdp - usdThirdRelease);
   s.usdt = Math.max(0, s.usdt - usdThirdRelease);
   s.eurc = Math.max(0, s.eurc - basket[1].nativeAmount);
-  s.gbp = Math.max(0, s.gbp - basket[2].nativeAmount);
-  s.jpy = Math.max(0, s.jpy - basket[3].nativeAmount);
-  s.cny = Math.max(0, s.cny - basket[4].nativeAmount);
+  s.jpy  = Math.max(0, s.jpy  - basket[2].nativeAmount);
+  s.gbp  = Math.max(0, s.gbp  - basket[3].nativeAmount);
+  s.cny  = Math.max(0, s.cny  - basket[4].nativeAmount);
+  s.chf  = Math.max(0, s.chf  - basket[5].nativeAmount); // NEW v1.0
   // Gold released 50/50 PAXG + XAUT
   const goldHalf = goldPaxg / 2;
   s.paxg = Math.max(0, s.paxg - goldHalf);
@@ -679,7 +729,7 @@ export interface MetricsSnapshot {
   mtqPrice: number;
   priceInBand: boolean;
   reserve: {
-    usdNet: number; eurNet: number; gbpNet: number; jpyNet: number; cnyNet: number; goldNet: number;
+    usdNet: number; eurNet: number; gbpNet: number; jpyNet: number; cnyNet: number; chfNet: number; goldNet: number;
     fiatNet: number; nav: number; goldPrice: number;
   };
   liability: number;
@@ -761,6 +811,7 @@ export function computeSnapshot(s: ReserveState, fx: FxSnapshot, ctx?: { oracle?
     priceInBand: priceInSafetyBand(price),
     reserve: {
       usdNet: vals.usdNet, eurNet: vals.eurNet, gbpNet: vals.gbpNet, jpyNet: vals.jpyNet, cnyNet: vals.cnyNet,
+      chfNet: vals.chfNet,
       goldNet: vals.goldNet, fiatNet: vals.fiatNet, nav: vals.nav, goldPrice: vals.goldPrice,
     },
     liability,

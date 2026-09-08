@@ -266,4 +266,7 @@ export const REINTEGRATION_WEIGHTS = { w1_TimeInBand: 0.35, w2_LiquidityDepth: 0
 export const REINTEGRATION_THRESHOLD = 0.80;
 export const REINTEGRATION_REPURCHASE_STAGES = [0.25, 0.5, 1.0];
 export const AGGREGATOR_QUOTE_PROVIDERS = ["1inch", "Paraswap"];
-export const RAMP_DURATION_HOURS = 24;
+// NOTE: RAMP_DURATION_HOURS is defined above (§14.2 Reserve Tiers) — retained here
+// would be a duplicate; the canonical export is the one next to BUFFER_GOLD_*.
+// Legacy alias kept for backward-compat consumers that imported it from this block.
+// (no re-declaration — see line ~158)

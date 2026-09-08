@@ -38,7 +38,7 @@ import { genesisRegistry, type AssetRecord } from "./registry";
 
 const TICK_MS = 4000;
 const SIM_TICK_HOURS = 0.25; // each tick simulates ~15 min of macro time
-const STATE_SCHEMA_VERSION = 6; // bump when ReserveState shape changes → singleton rebuilds (v4: usdp field + reconciliation)
+const STATE_SCHEMA_VERSION = 7; // bump when ReserveState shape changes → singleton rebuilds (v7: chf field added per Master Blueprint v1.0)
 
 interface PilotStore {
   state: ReserveState;

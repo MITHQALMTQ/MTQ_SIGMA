@@ -56,6 +56,7 @@ function VaultDiagram({ snapshot }: { snapshot: MetricsSnapshot }) {
     { k: "GBP", v: r.gbpNet, color: "#9fb0a3", token: "GBP₿" },
     { k: "JPY", v: r.jpyNet, color: "#c9a05a", token: "JPY₿" },
     { k: "CNY", v: r.cnyNet, color: "#7d9082", token: "CNY₿" },
+    { k: "CHF", v: r.chfNet, color: "#7ab8a3", token: "CHF₿" },
     { k: "PAXG", v: perIssuer?.paxgUsd ?? r.goldNet / 2, color: "#f5d27a", token: "PAXG (Paxos)" },
     { k: "XAUT", v: perIssuer?.xautUsd ?? r.goldNet / 2, color: "#e0c068", token: "XAUT (Tether)" },
   ];
@@ -295,6 +296,7 @@ export function ReserveVault({ snapshot }: { snapshot: MetricsSnapshot | null })
     { k: "GBP", v: r.gbpNet, color: "#9fb0a3", token: "GBP₿" },
     { k: "JPY", v: r.jpyNet, color: "#c9a05a", token: "JPY₿" },
     { k: "CNY", v: r.cnyNet, color: "#7d9082", token: "CNY₿" },
+    { k: "CHF", v: r.chfNet, color: "#7ab8a3", token: "CHF₿" },
     { k: "PAXG", v: perIssuer?.paxgUsd ?? r.goldNet / 2, color: "#f5d27a", token: "PAXG (Paxos)" },
     { k: "XAUT", v: perIssuer?.xautUsd ?? r.goldNet / 2, color: "#e0c068", token: "XAUT (Tether)" },
   ];

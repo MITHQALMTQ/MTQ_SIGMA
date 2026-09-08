@@ -731,3 +731,61 @@ Stage Summary:
 - The new Master Blueprint v1.0 is a FUNDAMENTAL redesign. The v1.2 implementation must be substantially rewritten.
 - 13 major gap areas identified. Gold is now IN the index (not just the reserve). The basket is adaptive (not fixed). MASE replaces the macro engine. MARP replaces simple rebalancing. CHF is added. 4-state weight system replaces single target.
 - The old v1.2 blueprint is SUPERSEDED — all references to fixed q_i, 5-currency basket, no-gold-in-index, 22-30% gold band must be removed.
+
+---
+Task ID: E2-E3
+Agent: Coder (engine + UI implementation)
+Task: Update engine.ts + UI components to use the new Master Blueprint v1.0 constants (commit 4b384a6 — blueprint.ts already updated by Orchestrator in E1)
+
+Work Log:
+- Read worklog.md (Task ID E1 full gap audit), blueprint.ts (UPDATED v1.0 constants), engine.ts (legacy v1.2), fx.ts (FX fetcher).
+- Discovered the dev server was returning HTTP 500 because the E1 commit removed `BASKET_TABLE` and `REMOVED_CLAIMS` exports but left two consumers (GfbBasket.tsx, DocsSection.tsx, HonestStatus.tsx) still importing them, AND had introduced a duplicate `RAMP_DURATION_HOURS` declaration in blueprint.ts (line 158 + line 269). The duplicate was a hard SWC compile error that blocked the whole module graph.
+
+### Phase 1 — Fix the dev server (critical)
+- blueprint.ts: removed the duplicate `RAMP_DURATION_HOURS` declaration at the bottom of the legacy-constants block (line 269). Replaced with a comment that points to the canonical export next to `BUFFER_GOLD_*`. The §14.2 reserve-tier export at line 158 is now the only declaration.
+- Verified: GET / 200 (was 500).
+
+### Phase 2 — fx.ts (CHF_USD added)
+- Added `CHF_USD: number` to the `FxSnapshot` interface with a comment marking it as the v1.0 first-class index component (5% prior).
+- Added `CHF_USD: 0.88` to `DEFAULTS` (matches `BASE_FIXINGS.CHF_USD`).
+- Updated `fetchFrankfurter()`: the ECB reference rates already publish CHF (Switzerland is in the ECB list), so the inversion is `CHF_USD = 1 / Number(r.CHF)`. CHF is treated as optional — if the feed omits it the snapshot falls back to cache/default.
+- Updated the snapshot builder to include `CHF_USD` in the cached + returned object.
+
+### Phase 3 — engine.ts (the big rewrite)
+- Fixed the import block: previously imported `FxRates` from `./fx` (which never exported it — SWC was silently treating the type as `any`). Now `FxRates` is imported from `./blueprint` (where the v1.0 interface lives, including `CHF_USD` and `XAU_USD`); `FxSnapshot` is imported from `./fx`. Replaced `Q_USD, Q_EUR, Q_GBP, Q_JPY, Q_CNY` with `STRATEGIC_PRIOR`. All legacy `BASE_GOLD_WEIGHT`, `GOLD_WEIGHT_LOWER/UPPER`, `ALPHA`, `BETA`, `THETA_MAX`, `LAMBDA_*`, `BUFFER_*`, `RAMP_DURATION_HOURS` imports are RETAINED — the §6/§7/§8 buffer/MARP path still uses them (kept verbatim per task instructions).
+- Added `chf: number` to the `ReserveState` interface.
+- Rewrote `initReserveState(goldPrice)`: the genesis deposit ($1.1M) is now split across the 7 Strategic Prior components weighted by `STRATEGIC_PRIOR.{USD,EUR,JPY,GBP,CNY,CHF,Gold}` (USD 27% · EUR 20% · JPY 9% · GBP 8% · CNY 5% · CHF 5% · Gold 26%). USD is still split 1/3 each across USDC/USDP/USDT; gold is still split 50/50 across PAXG/XAUT. CHF tokens are computed at the base fixing 0.88. RR remains 1.10 (deposit/supply = 1.1M/1M).
+- Rewrote `computeGfbIndex()`: now takes `Pick<FxRates, "EUR_USD" | "GBP_USD" | "JPY_USD" | "CNY_USD" | "CHF_USD" | "XAU_USD">` and computes the chain-linked numerator as `Σ W^Prior_i × P_i,t` over all 7 components (USD uses 1.0, others use their FX rate, Gold uses XAU_USD). Denominator is `GFB_BASE_DENOMINATOR` (the v1.0 chain-linked denominator from blueprint.ts, which already includes Gold + CHF at base fixings).
+- Rewrote `reserveAssetValues()`: added `chfGross = s.chf * fx.CHF_USD`, `chfNet = chfGross * (1 - HAIRCUTS.CHF)`. Both `fiatGross` and `fiatNet` now include CHF. `nav = usdNet + eurNet + gbpNet + jpyNet + cnyNet + chfNet + goldNet`. The returned object now has `chfGross, chfNet`.
+- Rewrote `applyRedeem()`: the redemption basket now has 6 fiat rows (USD, EUR, JPY, GBP, CNY, CHF). The basket split uses `STRATEGIC_PRIOR` renormalised to the 6-component non-gold total (0.74) — `w = (k) => STRATEGIC_PRIOR[k] / 0.74`. Gold is still released 50/50 PAXG+XAUT, and `s.chf` is debited on redeem.
+- Updated `MetricsSnapshot.reserve` interface to include `chfNet`. `computeSnapshot()` now passes `chfNet: vals.chfNet` through to the snapshot.
+- Bumped `pilot-state.ts` `STATE_SCHEMA_VERSION` from 6 → 7 so the singleton rebuilds with the new `chf` field (otherwise the old cached state would have `s.chf = undefined`, producing `NaN` in CHF computations).
+- KEPT the §6/§7/§8 buffer/MARP logic verbatim per task instructions: `computeRawTargetGoldWeight`, `computeTargetGoldWeight`, `evaluateRebalance`, `applyRebalanceTrade`, `bufferBaseGoldRatio`, `currentBufferGoldRatio`, `updateBufferState`, `applyLoss` waterfal — all unchanged. The legacy v1.2 `BASE_GOLD_WEIGHT`/`GOLD_WEIGHT_LOWER`/`GOLD_WEIGHT_UPPER` (22-30%) are still used by the gold-weight gauge. This is the "future task" path that MASE + per-component envelopes will replace.
+
+### Phase 4 — UI components
+- GfbBasket.tsx: replaced `BASKET_TABLE` with `STRATEGIC_PRIOR_TABLE` (7 components, table now shows Component / Token / W^Prior). The base-fixings card now includes CHF/USD (0.88) and XAU/USD (2500). The denominator formula text was updated to the 7-component chain-linked expression. The `GoldInReserve` component was rewritten to explain that gold is in BOTH the index AND the reserve (v1.0 §3.2 + §14.1), with the §14.1 mandatory separation clearly stated.
+- LiveMonetaryState.tsx: added CHF/USD tile to the FX strip; the grid changed from `lg:grid-cols-7` to `lg:grid-cols-8`. Replaced the stale hardcoded `GFB_DENOM = "0.389+0.278+.../"` string with a dynamic `GFB_BASE_DENOMINATOR`-driven label. The footer note now mentions CHF as a first-class v1.0 index component.
+- ReserveVault.tsx: added CHF to the `assets` array in BOTH the inner `VaultDiagram` component and the outer `ReserveVault` per-asset list. CHF color is `#7ab8a3` (muted emerald-teal, distinct from EUR's `#3ddc97` and GBP's `#9fb0a3`, staying within the brand palette).
+- HomeSection.tsx: updated the "What is MTQΣ?" GFB Index card text to "7-component Strategic Prior basket (USD 27% · EUR 20% · JPY 9% · GBP 8% · CNY 5% · CHF 5% · Gold 26%)". The Tokenized Gold section's `SectionHeading` is now "Tokenized Gold — in BOTH the Index and the Reserve" with eyebrow `§3.2 + §4 + §8`. The explanatory paragraph below the gold cards now reads "Gold is in BOTH the GFB Index (26% strategic prior, 20-32% admissibility envelope per §8.1) and the reserve portfolio (§4, §8.3). In v1.0 these two roles are mandatorily separate per §14.1..." The gold-weight gauge's bounds text changed from "22% floor / 30% ceiling" to "20% envelope floor / 32% envelope ceiling" (the v1.0 admissibility envelope for Gold).
+
+### Phase 5 — DocsSection + HonestStatus (v1.0 reference)
+- DocsSection.tsx: rewrote the section to surface all v1.0 tables. Now shows: (1) STRATEGIC_PRIOR_TABLE (7 components), (2) ENVELOPES_TABLE (per-component admissibility), (3) WEIGHT_STATE_DESCRIPTIONS (4 states — Prior/Target/Smooth/Execution), (4) MASE_MODELS (6 candidate models), (5) CONSTITUTIONAL_INVARIANTS (I1–I11 incl. the new I6, I10, I11), (6) RISK_STATE_MACHINE (carried), (7) GOVERNANCE_HIERARCHY (carried), (8) HONEST_STATUS (now also delegated to the HonestStatus component), (9) UNSUPPORTED_CLAIMS (v1.0 — including the 3 new: "Fixed composition", "Guaranteed outcomes", "Final optimal percentages"), (10) RECONCILIATION_CHANGES (v1.2 → v1.0 — 11 areas), (11) live reconciliation findings from the snapshot. Replaced BASKET_TABLE → STRATEGIC_PRIOR_TABLE. Replaced REMOVED_CLAIMS → UNSUPPORTED_CLAIMS. The heading "v1.2 · FINAL" pill is now "v1.0 · Master". The intro paragraph mentions all the v1.0 surfaces.
+- HonestStatus.tsx: replaced `REMOVED_CLAIMS` (no longer exported) with `UNSUPPORTED_CLAIMS` (different shape: `claim`/`reason` vs `removed`/`replaced`). The table headers are now "Claim" / "Reason NOT Supported". The title text "MTQΣ v1.2 — ..." was updated to "MTQΣ v1.0 (Master Blueprint) — ...". Added an explanatory note below the table calling out the 3 new v1.0 unsupported claims.
+
+### Phase 6 — Verification
+- `bun run lint` → exit 0 (clean).
+- dev.log: `GET / 200`, `GET /api/metrics 200`, `POST /api/simulate/mint 200`, `POST /api/simulate/redeem 200`. No "had an error" / "was not found in module" / "defined multiple times" entries after the fixes.
+- Spot-checked the live `/api/metrics` JSON: `reserve.chfNet` ≈ $76.5K (matches ~5% of $1.1M genesis × CHF appreciation), `fx.CHF_USD` ≈ 1.236 (live from Frankfurter — Swiss franc appreciated vs USD since the base date), `gfbIndex` ≈ 1.769 (the gold-driven increase — 0.26 × ~$4391 ≈ $1142 in the numerator vs $650.63 denominator). The redemption basket now returns 6 currencies: USD, EUR, JPY, GBP, CNY, CHF.
+
+### Constraints honoured
+- DID NOT delete or remove any existing functionality — only ADD/UPDATE. All legacy constants (Q_USD, BASE_GOLD_WEIGHT, GOLD_WEIGHT_LOWER/UPPER, ALPHA, BETA, THETA_MAX, LAMBDA_*, RAMP_DURATION_HOURS, etc.) are RETAINED in blueprint.ts (marked SUPERSEDED) and still imported where the legacy buffer/MARP path uses them.
+- DID NOT modify any /api route files. The /api/metrics, /api/simulate/mint, /api/simulate/redeem routes are unchanged; they just JSON-serialise the engine output which now includes `chfNet`. The /api/status route still reports `version: "Σ-v1.2"` (a cosmetic label, out of scope for this task).
+- DID NOT modify the on-chain contracts (registry.ts, oracle.ts unchanged).
+- The existing §6/§7/§8 buffer/MARP path is kept verbatim — the future MASE task will replace it.
+
+Stage Summary:
+- The engine + UI are now on Master Blueprint v1.0. The dev server returns 200 on `/` and `/api/metrics`. Lint is clean.
+- 7-component Strategic Prior (incl. Gold + CHF) is now the basket. Gold is in BOTH the index and the reserve (with the §14.1 mandatory separation clearly explained in the UI). The legacy 22-30% gold band is retained in the gold-weight gauge (legacy v1.2 buffer path) until MASE replaces it.
+- 4-state weight system (Prior/Target/Smooth/Execution), 6 MASE candidate models, per-component admissibility envelopes, the 11 constitutional invariants (incl. new I6/I10/I11), the updated HONEST_STATUS table, and the new UNSUPPORTED_CLAIMS (incl. the 3 v1.0 additions) are all surfaced in the Docs section.
+- The v1.2 → v1.0 reconciliation table (11 areas) is shown in the Docs section as explicit "superseded vs Master" diffing.
+- Outstanding for the next task: MASE ensemble implementation (replace the legacy §6 single-engine θ ±3% with the 6-model ensemble + adaptive weights), MARP (replace the simple trigger + 24h direction lock with the 6-level hierarchy), per-component admissibility enforcement (currently the envelopes are display-only; the optimizer needs to clamp to them), and physically separating the index gold from the reserve gold (currently the same PAXG + XAUT holdings serve both roles).

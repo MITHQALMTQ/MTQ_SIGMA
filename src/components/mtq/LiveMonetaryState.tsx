@@ -22,6 +22,7 @@ import {
   PRICE_SAFETY_LOWER,
   PRICE_SAFETY_UPPER,
   RISK_STATE_MACHINE,
+  GFB_BASE_DENOMINATOR,
 } from "@/lib/mtq/blueprint";
 import type { MetricsSnapshot } from "@/lib/mtq/engine";
 
@@ -100,7 +101,7 @@ export function LiveMonetaryState({ snapshot }: { snapshot: MetricsSnapshot | nu
               normalised = 1.00 at 2026-01-01 00:00 UTC
             </p>
             <div className="mt-3 flex items-center gap-2 text-[0.65rem] text-muted-foreground/70">
-              <span className="font-mono">Σqᵢ = {GFB_DENOM}</span>
+              <span className="font-mono">7-component prior / GFB_base = ${GFB_BASE_DENOMINATOR.toFixed(2)}</span>
             </div>
           </MetricTile>
         </Reveal>
@@ -277,12 +278,13 @@ export function LiveMonetaryState({ snapshot }: { snapshot: MetricsSnapshot | nu
               {snapshot.fx.degraded ? <Pill tone="amber">degraded</Pill> : <Pill tone="emerald">live</Pill>}
             </div>
           </div>
-          <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-7 gap-3">
+          <div className="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-8 gap-3">
             {[
               { k: "EUR/USD", v: snapshot.fx.EUR_USD, digits: 4 },
               { k: "GBP/USD", v: snapshot.fx.GBP_USD, digits: 4 },
               { k: "JPY/USD", v: snapshot.fx.JPY_USD, digits: 5 },
               { k: "CNY/USD", v: snapshot.fx.CNY_USD, digits: 5 },
+              { k: "CHF/USD", v: snapshot.fx.CHF_USD, digits: 4 },
               { k: "XAU/USD", v: snapshot.fx.XAU_USD, digits: 2, isUsd: true },
             ].map((r) => (
               <div key={r.k} className="rounded-md border border-white/[0.06] bg-white/[0.02] p-2.5">
@@ -307,7 +309,9 @@ export function LiveMonetaryState({ snapshot }: { snapshot: MetricsSnapshot | nu
             </div>
           </div>
           <p className="mt-3 text-[0.7rem] text-muted-foreground/70">
-            VIX & DXY are simulated pilot macro signals — labelled honestly, never misrepresented as live. FX sourced from Frankfurter (ECB) + gold-api.com.
+            VIX &amp; DXY are simulated pilot macro signals — labelled honestly, never misrepresented as live.
+            FX (EUR/GBP/JPY/CNY/CHF) sourced from Frankfurter (ECB) + gold from gold-api.com. CHF is a
+            first-class index component in v1.0 (5% strategic prior).
           </p>
         </Panel>
       </Reveal>
@@ -315,5 +319,7 @@ export function LiveMonetaryState({ snapshot }: { snapshot: MetricsSnapshot | nu
   );
 }
 
-// Constant displayed under GFB Index tile
-const GFB_DENOM = "0.389+0.278+0.167+0.111+0.055 / 0.89796937";
+// Constant displayed under GFB Index tile — the v1.0 chain-linked denominator
+// is dominated by the Gold component (W_Au × P_Au,0 = 0.26 × 2500 = 650) so it
+// is shown dynamically from the blueprint constant above.
+// (Legacy v1.2 string removed — it referenced the 5-currency fixed q_i basket.)
