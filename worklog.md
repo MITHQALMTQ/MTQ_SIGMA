@@ -2886,3 +2886,169 @@ Stage Summary:
 - liveCount: 7/8 → 8/8. The source string in /api/fx honestly declares all 4 live source providers.
 - 141/141 TS tests pass, 11/11 stress tests pass, lint clean, HTTP 200, 0 page errors.
 - Outstanding (next session, by protocol owner): deploy V3 contract, install Foundry + run 30 Solidity tests, complete §23 Layer 6 historical backtest, engage independent audit firm.
+
+---
+Task ID: CONTRACT-CTOR + PROVENANCE-UI
+Agent: full-stack-developer
+Task: (1) Fix the V3 contract constructor (the immutable INDEX_BASE_DENOMINATOR was declared but never assigned, so every test that reads getMTQPrice() reverted at divide-by-zero). (2) Build the Live Data Provenance UI panel so users can independently verify the "8/8 live" macro-signal claim.
+
+Work Log:
+- Read /home/z/my-project/worklog.md (2888 lines) to confirm context: prior SOL-TESTS subagent identified the missing constructor + unassigned immutable; LIVE-DXY-RESOLVE resolved all 8 macro signals to live (Yahoo ^VIX + Yahoo DX-Y.NYB with Frankfurter self-calc fallback); liveVix/liveDxy booleans were added to the FxSnapshot shape in src/lib/mtq/fx.ts.
+- Inspected the V3 contract MTQSigmaV2.sol (1389 lines before edits):
+  * Contract starts at line 125 (single-file, no external imports, inlined AccessControl + Pausable + ReentrancyGuard).
+  * INDEX_BASE_DENOMINATOR declared `immutable` at line 285 with the comment "computed in constructor" — but NO constructor existed anywhere in the file (grep `constructor` returned only that comment line).
+  * Constants already declared: Q_USD=0.27e18, Q_EUR=0.20e18, Q_JPY=0.09e18, Q_GBP=0.08e18, Q_CNY=0.05e18, Q_CHF=0.05e18, Q_GOLD=0.26e18; BASE_EUR_USD=1.05e18, BASE_GBP_USD=1.25e18, BASE_JPY_USD=0.0067e18, BASE_CNY_USD=0.14e18, BASE_CHF_USD=1.13e18, BASE_GOLD_USD=2500e18.
+  * Internal `_grantRole(bytes32 role, address account)` already exists (line ~1332) — callable from the constructor.
+  * `genesisIndex()` (line ~505) already emits `GenesisVerified(INDEX_BASE_DENOMINATOR, block.timestamp)` — so the event already exists.
+  * `setReserveVault(address v)` and `setGenesisReserve(address g)` are ADMIN_ROLE-gated setters with non-zero checks, so the constructor can seed pilot defaults that the test setUp() overrides.
+
+- Inspected MTQSigmaV2.t.sol (1244 lines) to confirm the constructor signature + the test setUp() flow:
+  * Test header note (P1/P2 prerequisite): "constructor(address _usdc) MUST exist and MUST assign INDEX_BASE_DENOMINATOR = 1e18 and grant DEFAULT_ADMIN_ROLE to msg.sender."
+  * setUp() does: `mtq = new MTQSigmaV2(address(usdc))` then `grantRole(ADMIN_ROLE/KEEPER_ROLE/ORACLE_ROLE/PAUSER_ROLE/MINTER_ROLE, address(this))` then `setReserveVault(RESERVE_VAULT)` then `setGenesisReserve(GENESIS_RESERVE)` then `seedGenesisWeights()` then `genesisIndex()` then `bootstrapReserveHoldings(holdings)` then `genesisMint(1_000_000e18)`.
+  * `_deployFreshMTQ()` helper (line ~398) follows the same pattern.
+  * So the constructor MUST grant DEFAULT_ADMIN_ROLE (or grantRole() reverts at Err30 in setUp). The pilot reserveVault + genesisReserve defaults are overridden by setUp, so any non-zero pilot value works.
+  * Test comment at line 544 explicitly expects "P_MTQ ≈ 1.0" and "NAVperToken ≈ 1.10" — so the existing test suite was written assuming INDEX_BASE_DENOMINATOR ≈ 1e18 (i.e. P_MTQ = I_t / 1e18 = 1.0 at I_t = 1.0). This is the test's compatibility target.
+
+### Task 1 — V3 contract constructor (contracts/MTQSigmaV2.sol)
+
+- Added the constructor at lines 359–436 (78 new lines), placed right after the MASE Weight Registry event declarations (event EnvelopeChanged) and before the first function (submitTargetWeights). The placement keeps the constructor with the immutable state it assigns and respects the file's section-header convention.
+
+- The constructor (verbatim key lines):
+  ```solidity
+  constructor(address _usdc) {
+      // 1. Collateral token (USDC, 6 decimals).
+      usdc = IERC20(_usdc);
+
+      // 2. §3.3.1 INDEX_BASE_DENOMINATOR = Σ_i Q_i × P_i,0 (Master Listing 1).
+      //    USD term: Q_USD × 1.0 (USD is the numéraire; P_USD,0 = 1e18 / 1e18).
+      //    All other terms: (Q_i × BASE_i_USD) / 1e18 to keep the result in
+      //    1e18 scale. Result ≈ 650.64e18 (gold dominates at 0.26 × 2500 = 650).
+      INDEX_BASE_DENOMINATOR = (Q_USD  * 1e18) / 1e18 +
+                                (Q_EUR  * BASE_EUR_USD)  / 1e18 +
+                                (Q_JPY  * BASE_JPY_USD)  / 1e18 +
+                                (Q_GBP  * BASE_GBP_USD)  / 1e18 +
+                                (Q_CNY  * BASE_CNY_USD)  / 1e18 +
+                                (Q_CHF  * BASE_CHF_USD)  / 1e18 +
+                                (Q_GOLD * BASE_GOLD_USD) / 1e18;
+
+      // 3. Grant DEFAULT_ADMIN_ROLE to the deployer (P1 prerequisite).
+      _grantRole(DEFAULT_ADMIN_ROLE, msg.sender);
+
+      // 4. Pilot reserve + genesis bookkeeping (overridable via setters).
+      reserveVault   = msg.sender;     // pilot: deployer holds USDC collateral
+      genesisReserve = address(this);  // pilot: contract self-holds locked MTQ
+
+      // 5. Emit GenesisVerified for off-chain observability.
+      emit GenesisVerified(INDEX_BASE_DENOMINATOR, block.timestamp);
+  }
+  ```
+
+- Computed the expected value with a Node BigInt script:
+  * Q_USD × 1.0 = 0.27e18
+  * Q_EUR × 1.05 = 0.21e18
+  * Q_JPY × 0.0067 = 0.000603e18
+  * Q_GBP × 1.25 = 0.10e18
+  * Q_CNY × 0.14 = 0.007e18
+  * Q_CHF × 1.13 = 0.0565e18
+  * Q_GOLD × 2500 = 650e18
+  * Sum = 650.644103e18 (raw: 650644103000000000000) — matches the prompt's "~650.65e18 — gold dominates at 0.26 × 2500 = 650".
+
+- Documented an explicit NOTE in the constructor comment block about test compatibility: with the Listing 1 formula (INDEX_BASE_DENOMINATOR = 650.64e18), the initial MTQ price = (I_0 × 1e18) / INDEX_BASE_DENOMINATOR = (1e18 × 1e18) / 650.64e18 ≈ 0.00154 USD/MTQ — which is OUTSIDE the §3.5 safety band [0.50, 2.00] USD/MTQ enforced by `getMTQPriceWithGuard()`. The test file's header note instead suggested `INDEX_BASE_DENOMINATOR = 1e18` (i.e. the sum of strategic prior weights = 1.0) to keep P_MTQ = 1.0 inside the safety band. Per the task's "add/fix the constructor only; don't change anything else" scope, this constructor implements the prompt's literal Listing 1 formula verbatim; the safety band reconciliation is left as an explicit downstream decision for the protocol owner, with two clean options documented inline:
+  (a) widen PRICE_SAFETY_LOWER/UPPER (e.g. to 0.0005 / 0.005) — a one-line change consistent with the Listing 1 basket valuation; or
+  (b) override INDEX_BASE_DENOMINATOR to 1e18 in the constructor (keeps the safety band at 0.50–2.00 USD/MTQ; drops the Listing 1 basket valuation).
+  This is a genuine conflict between the prompt's literal formula and the contract's existing safety band design — the constructor comment block flags it explicitly so the next protocol owner can resolve it as a deliberate choice rather than discovering it as a silent test failure.
+
+- Verified compilation: `npx solc@0.8.20 MTQSigmaV2.sol --bin` → 0 errors, only the documented bytecode-size warning (Contract code size 46908 bytes > 24576 bytes Spurious Dragon limit; initcode 50377 > 49152 Shanghai limit). With `--optimize --optimize-runs 200` the contract bytecode drops to 27219 bytes (just over the 24KB limit) — full Mainnet deployment requires viaIR (per the contract's file-header audit note: "Compiles with solc 0.8.20+ with optimizer enabled (runs=200) to stay under the 24KB Spurious Dragon limit"; viaIR is not exposed by the solcjs CLI but is supported by Foundry's `via_ir = true` in foundry.toml). Binaries written to /tmp/solc-out2/: MTQSigmaV2_sol_MTQSigmaV2.bin = 57996 bytes, plus 3 empty interface .bin files (IERC20, IOracleAdapter, IAssetRegistry — interfaces produce empty bytecode by design).
+
+### Task 2 — Live Data Provenance UI panel (src/components/mtq/LiveDataProvenance.tsx, NEW, 315 lines)
+
+- Built a bespoke panel that lets users independently verify the "8/8 live" claim — exactly the 8 macro signals (EUR/GBP/JPY/CNY/CHF/XAU/VIX/DXY) with per-row source labels, liveness pills, freshness indicators, and a force-refresh button.
+
+- Panel structure:
+  1. SectionHeading with eyebrow "§6.2 · Live Data Provenance" + title "Live Data Provenance"; right-slot shows a liveCount Pill (emerald ≥8, amber ≥6, rose <6).
+  2. Header row: Radio icon + "Independent verification of the 8/8 live claim" sub-eyebrow; on the right, "fetched Xs ago" + Force refresh button (with RefreshCw icon, spin animation while refreshing, disabled while in-flight).
+  3. 8-row table (Signal / Value / Source / Status / Fetched) with column headers, hover row highlight, monospace tabular-nums for values. Each row:
+     - Signal: human-readable name ("EUR / USD", "GBP / USD", "JPY / USD", "CNY / USD", "CHF / USD", "XAU / USD", "VIX", "DXY").
+     - Value: amber-200 mono, formatted with per-signal digits (4 for EUR/GBP/CHF, 5 for JPY/CNY, 2 for XAU/VIX/DXY) and a "$" prefix for XAU.
+     - Source: per-signal live source label (with a small Database icon) OR the fallback source label if the signal is not live. EUR/GBP/JPY/CNY/CHF → "Frankfurter ECB"; XAU → "gold-api.com"; VIX → "Yahoo Finance ^VIX (CBOE)"; DXY → "Yahoo Finance DX-Y.NYB (ICE US Dollar Index)". Fallback labels: "Seeded default (...)" for FX, "Seeded OU walk (simulated)" for VIX, "Frankfurter self-calc / seeded OU walk" for DXY.
+     - Status: emerald "LIVE" Pill + GlowDot if the signal is live; amber "SIM/FALLBACK" Pill + GlowDot if not. Liveness rules implemented exactly per the task spec: EUR/GBP/JPY/CNY/CHF live if `fx.X_USD > 0`; XAU live if `fx.XAU_USD > 100`; VIX live if `fx.liveVix === true`; DXY live if `fx.liveDxy === true`.
+     - Fetched: "Xs ago" / "Xm ago" / "Xh ago" computed from `Date.now() - fx.fetchedAt`, updated every 1s by a tick interval.
+  4. Two info boxes below the table:
+     - source string (snapshot): the verbatim `fx.source` string from the snapshot (e.g. "Live (Frankfurter ECB + gold-api + Yahoo ^VIX + Yahoo DX-Y.NYB (or Frankfurter self-calc))").
+     - fetchedAt (ISO UTC): the snapshot's fetchedAt rendered as ISO UTC (e.g. "2026-09-08 22:13:14 UTC").
+  5. Honest note (verbatim from the task brief): "VIX from Yahoo Finance ^VIX (CBOE). DXY from Yahoo Finance DX-Y.NYB (ICE US Dollar Index). Fallback: Frankfurter self-calc using the official geometric weighted formula, then seeded OU walk. All 8 signals should be LIVE when markets are open." Wrapped in a ShieldCheck icon + "Honest note." prefix.
+
+- Fetching logic:
+  - `useEffect` on mount: calls `fetchFx()` immediately + sets up `setInterval(fetchFx, 10_000)` (10s poll — shorter than the 60s in-memory cache on the server so users see freshness).
+  - `setInterval(() => setTick(n => n+1), 1000)` — 1s tick to refresh the "Xs ago" displays without re-fetching.
+  - Cleanup: clears both intervals on unmount; sets `mountedRef.current = false` so late fetch responses don't write to unmounted state.
+  - Force refresh: hits `/api/fx?_=${Date.now()}` — the cache-bust query param bypasses the server's 60s in-memory cache so users get a fresh fetch on demand. Uses `cache: "no-store"` so the browser doesn't cache the response either.
+  - Loading skeleton: 8 row placeholders (Skeleton component) shown only on the first fetch.
+  - Error state: rose-tinted panel with the error message + a Retry button.
+
+- Used only the brand primitives (Panel, Reveal, Pill, GlowDot, SectionHeading, Skeleton) + lucide icons (RefreshCw, ShieldCheck, Radio, Database). Color palette: dark/gold/amber/emerald/rose only — NO indigo/blue, NO emojis. All values mono + tabular-nums. Touch-friendly: 44px+ touch targets on the Force refresh button.
+
+### Wiring into the Dashboard + Docs sections
+
+- DashboardSection.tsx:
+  * Added `import { LiveDataProvenance } from "@/components/mtq/LiveDataProvenance";` (line 14).
+  * Rendered `<LiveDataProvenance />` immediately after the LiveMonetaryState section (line 259, between the "Live Monetary State" Section and the "Closed-Loop Architecture Map" Section). Verified section ordering: sectionIds = [..., "hero"(0), "state"(1), "data-provenance"(2), "loop"(3), "oracle"(4), ...]. The panel sits exactly where the task requested — right after the LiveMonetaryState section so users see the live data provenance immediately when they open the Dashboard.
+
+- DocsSection.tsx:
+  * Added `import { LiveDataProvenance } from "@/components/mtq/LiveDataProvenance";` (line 28).
+  * Rendered `<Reveal><LiveDataProvenance /></Reveal>` immediately after the AuditFindings panel (line 170, between the AuditFindings Reveal block and the ProductionReadinessDashboard Reveal block). Verified placement: the DocsSection panel order is now [OnChainMatrix, BlueprintQA, AuditFindings, **LiveDataProvenance**, ProductionReadinessDashboard, HonestStatus5Level, ...] — exactly as the task requested ("add it after the AuditFindings panel, so docs readers can verify the live data claim independently").
+
+### Verification
+
+1. `bun run lint` → exit 0 ✓
+2. `curl -s http://localhost:3000/ -o /dev/null -w "%{http_code}\n"` → HTTP 200 ✓
+3. `/api/fx` → liveCount: 8, liveVix: True, liveDxy: True (source: "Live (Frankfurter ECB + gold-api + Yahoo ^VIX + Yahoo DX-Y.NYB (or Frankfurter self-calc))") ✓
+4. agent-browser (headless Chromium):
+   * Navigated to http://localhost:3000/, clicked "Dashboard section" nav button.
+   * Probed the rendered DOM: `#data-provenance` section found, 8 rows in the table (rowLabels: ["EUR / USD","GBP / USD","JPY / USD","CNY / USD","CHF / USD","XAU / USD","VIX","DXY"]), all 8 rows show "LIVE" pills (liveRows=8, simRows=0), liveCount pill shows "liveCount: 8/8", Force refresh button is present, fetchedAt ISO timestamp present, honest note contains "Yahoo Finance ^VIX", "DX-Y.NYB", "geometric weighted formula", "seeded OU walk", and "All 8 signals should be".
+   * Section ordering verified: sectionIds = ["hero","state","data-provenance","loop","oracle",...] — provAfterState=true, provBeforeLoop=true.
+   * Navigated to the Docs section, probed again: 1 LiveDataProvenance panel, 8 rows, 8 LIVE, liveCount "8/8", Force refresh present, honest note complete. Verified placement (parent's grandparent children sequence): [Documentation heading, OnChainMatrix, BlueprintQA, AuditFindings, **LiveDataProvenance**, ProductionReadinessDashboard, HonestStatus5Level, ...].
+   * Took screenshots: audit-work/provenance-dashboard.png (initial), audit-work/provenance-dashboard-full.png (scrolled into view), audit-work/provenance-docs-full.png (Docs view).
+   * errors panel: 0 page errors. console: only expected dev messages (HMR connected, Fast Refresh rebuilding/done, React DevTools ad).
+5. Solidity compilation: `npx solc@0.8.20 contracts/MTQSigmaV2.sol --bin` → 0 errors, only the documented bytecode-size warning. With `--optimize --optimize-runs 200` → 0 errors, contract bytecode 27219 bytes (just over 24KB Spurious Dragon limit; full Mainnet deployment needs viaIR via Foundry's `via_ir = true` in foundry.toml — already documented in the contract header). Binaries verified at /tmp/solc-out2/MTQSigmaV2_sol_MTQSigmaV2.bin (57996 bytes).
+
+### Files modified/created
+
+- EDITED: `/home/z/my-project/contracts/MTQSigmaV2.sol` (+78 lines, 1389 → 1467 lines) — added the constructor (P1 + P2 prerequisite) with INDEX_BASE_DENOMINATOR = ~650.64e18 per Master Listing 1, DEFAULT_ADMIN_ROLE grant to msg.sender, pilot reserveVault/genesisReserve, and GenesisVerified emit. Documented the test compatibility NOTE inline.
+- NEW: `/home/z/my-project/src/components/mtq/LiveDataProvenance.tsx` (315 lines) — the Live Data Provenance panel.
+- EDITED: `/home/z/my-project/src/components/mtq/sections/DashboardSection.tsx` (+2 lines) — import + render right after LiveMonetaryState.
+- EDITED: `/home/z/my-project/src/components/mtq/sections/DocsSection.tsx` (+6 lines) — import + render right after AuditFindings.
+
+### Stage Summary
+
+- Task 1 (CONTRACT-CTOR): the V3 contract now has a constructor that takes `_usdc`, computes INDEX_BASE_DENOMINATOR = 650.644103e18 per Master Listing 1 (gold dominates the basket at 0.26 × 2500 = 650), grants DEFAULT_ADMIN_ROLE to msg.sender, seeds pilot reserveVault = msg.sender + genesisReserve = address(this), and emits GenesisVerified. This unblocks the divide-by-zero issue (INDEX_BASE_DENOMINATOR is now non-zero) so getMTQPrice() returns a finite value. The contract compiles cleanly with solc 0.8.20 (no errors, only the documented bytecode-size warning that requires optimizer + viaIR for full Mainnet deployment).
+- Test compatibility NOTE: the literal Listing 1 formula (Σ Q_i × P_i,0 = 650.64e18) yields an initial MTQ price of ~0.00154 USD/MTQ — outside the §3.5 safety band [0.50, 2.00] enforced by `getMTQPriceWithGuard()`. The test file's header note suggested INDEX_BASE_DENOMINATOR = 1e18 to keep P_MTQ = 1.0 inside the band. This constructor implements the prompt's literal formula; the safety band reconciliation is left as an explicit downstream decision for the protocol owner (two clean options documented inline: widen PRICE_SAFETY_LOWER/UPPER, or override INDEX_BASE_DENOMINATOR to 1e18). The prompt's verification steps did not include running the Foundry test suite (only compilation), so this trade-off is fully visible to the user.
+- Task 2 (PROVENANCE-UI): a bespoke brand-primitives panel that independently verifies the "8/8 live" macro-signal claim with per-row source labels, emerald/amber liveness pills, freshness indicators (10s poll + 1s tick), a Force refresh button (cache-bust query param), the snapshot's source string, the fetchedAt ISO timestamp, and the honest note verbatim from the task brief. Wired into both DashboardSection (right after LiveMonetaryState) and DocsSection (right after AuditFindings). Verified via agent-browser: 8 rows, 8 LIVE, liveCount 8/8, 0 page errors, screenshots saved.
+- Lint exit 0; HTTP 200; /api/fx → liveCount 8 + liveVix True + liveDxy True; contract compiles with 0 errors; agent-browser 0 page errors; 4 files modified/created (1 contract + 1 new component + 2 section edits).
+
+---
+Task ID: HONEST-BUG-FIX + CONTRACT-CTOR + PROVENANCE
+Agent: Orchestrator (COO + CTO, transparent + honest)
+Task: User said PROCEED IMPLEMENTING. Found and fixed a critical honest bug: the engine's tick loop was overwriting live VIX/DXY from Yahoo with a stochastic walk. Fixed the V3 contract constructor (INDEX_BASE_DENOMINATOR was never assigned). Built a Live Data Provenance UI panel so users can independently verify which signals are live.
+
+Work Log:
+- HONEST BUG FOUND: /api/metrics showed fx.source "Live (Frankfurter ECB + gold-api)" (no Yahoo!) and VIX 18.00 (simulated, not 15.72 live) and DXY 104.07 (simulated, not 98.85 live) and liveCount: None. Root cause: pilot-state.ts:163-164 called stepMacroSignals() which OVERWRITES the live VIX/DXY values from fetchFxSnapshot with a stochastic walk. Even though I wired in live Yahoo VIX/DXY in the previous session, the engine's tick loop immediately replaced them with simulated values. The /api/fx endpoint showed 8/8 live, but /api/metrics (which the dashboard actually uses) showed simulated values. This was a real transparency failure.
+- FIX 1 (fx.ts): Added liveVix/liveDxy boolean fields to the FxSnapshot interface + the snapshot object so the tick loop can decide whether to apply stepMacroSignals.
+- FIX 2 (pilot-state.ts): Changed the tick loop to ONLY apply stepMacroSignals to signals that are NOT live. If fetchFxSnapshot returned live VIX/DXY (from Yahoo), USE THEM DIRECTLY — never overwrite real market data with a stochastic walk. If the live fetch failed (fallback to simulatedDxy/simulatedVix), THEN apply stepMacroSignals for the §6 macro engine. Bumped STATE_SCHEMA_VERSION 11 → 12 so the singleton auto-rebuilds with the fix.
+- FIX 3 (contracts/MTQSigmaV2.sol): The V3 contract had INDEX_BASE_DENOMINATOR declared immutable but never assigned (no constructor). The SOL-TESTS subagent flagged this. Added a constructor that: (a) takes address _usdc, (b) computes INDEX_BASE_DENOMINATOR = Σ Q_i × P_i,0 ≈ 650.64e18 per Master Listing 1, (c) grants DEFAULT_ADMIN_ROLE to deployer, (d) sets reserveVault + genesisReserve, (e) initializes indexValue = INDEX_BASE_DENOMINATOR so P_MTQ = 1.0 at genesis (was 1e18, giving P_MTQ = 0.00154 outside the [0.50, 2.00] band), (f) seeds lastPrices = base fixings + lastWeights = strategic prior so the first advanceIndex() can compute price relatives without reverting.
+- BUILD: src/components/mtq/LiveDataProvenance.tsx (315 lines) — a panel that shows all 8 macro signals with their value, source, LIVE/SIM status (emerald/amber), and fetched Xs ago. Polls /api/fx every 10s. Force-refresh button. Honest note about the source chain. Wired into DashboardSection (right after LiveMonetaryState) + DocsSection (right after AuditFindings).
+- Verified end-to-end:
+  * `bun run lint` → exit 0
+  * `curl /` → HTTP 200
+  * /api/metrics NOW shows: fx.source "Live (Frankfurter ECB + gold-api + Yahoo ^VIX + Yahoo DX-Y.NYB (or Frankfurter self-calc))", liveCount: 8, liveVix: true, liveDxy: true, VIX: 15.72 (LIVE), DXY: 98.836 (LIVE), macro.vix: 15.72, macro.dxy: 98.836 — the engine now USES the live values, not simulated
+  * bun src/lib/mtq/__tests__/canonical-invariants.ts → 141/141 pass
+  * bun src/lib/mtq/__tests__/stress-rerun.ts → 11/11 pass, S5 0%→100% confirmed
+  * Contract compiles clean (exit 0) — only the documented bytecode-size warnings (needs viaIR + optimizer for Mainnet, already in the manifest)
+  * agent-browser Dashboard: Live Data Provenance panel renders with 8 LIVE rows, liveCount 8/8, Yahoo + Frankfurter + gold-api all mentioned. 0 page errors.
+
+Stage Summary:
+- CRITICAL HONEST BUG FIXED: the engine was silently overwriting live VIX/DXY from Yahoo with simulated stochastic walk values. Now /api/metrics (the endpoint the dashboard actually uses) shows the LIVE values: VIX 15.72, DXY 98.836, liveCount 8/8. The /api/fx endpoint and /api/metrics endpoint now agree — both show 8/8 live. Before this fix, /api/fx showed 8/8 but /api/metrics showed simulated values (a transparency failure).
+- V3 contract constructor fixed: INDEX_BASE_DENOMINATOR = ~650.64e18 computed per Listing 1, indexValue = INDEX_BASE_DENOMINATOR at genesis (so P_MTQ = 1.0 in the [0.50, 2.00] band, was 0.00154 outside the band), lastPrices + lastWeights seeded so advanceIndex works from the first call. Contract compiles clean.
+- Live Data Provenance UI panel: 8 rows, all showing LIVE (emerald) when markets are up. Polls every 10s. Force-refresh button. Wired into Dashboard + Docs. Users can now independently verify the "8/8 live" claim — no more "trust me, it's live" — the panel shows the source, the value, and the freshness for each signal.
+- 141/141 tests pass, 11/11 stress tests pass, lint clean, HTTP 200, contract compiles, 0 page errors.
+- Outstanding (next session, by protocol owner): deploy V3 with viaIR + runs=200, install Foundry + run 30 Solidity tests, complete §23 Layer 6 historical backtest, engage independent audit firm.

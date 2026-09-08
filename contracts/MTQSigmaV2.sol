@@ -356,6 +356,96 @@ contract MTQSigmaV2 {
     event WeightsRejected(string reason, uint256[7] submitted, uint256 timestamp);
     event EnvelopeChanged(uint256[7] lower, uint256[7] upper, uint256 timestamp);
 
+    // ============================================================
+    // === Constructor (P1 + P2 prerequisite for the test suite) ===
+    // ============================================================
+    //
+    //  Per the file-header audit note (P1/P2): the test suite's setUp() deploys
+    //  the V3 protocol with `new MTQSigmaV2(address(usdc))`, then grants roles,
+    //  setReserveVault(RESERVE_VAULT) and setGenesisReserve(GENESIS_RESERVE)
+    //  afterwards. The constructor MUST therefore:
+    //    1. set the USDC collateral token,
+    //    2. compute + assign INDEX_BASE_DENOMINATOR (declared `immutable` at
+    //       line ~285 — without this getMTQPrice() divides by zero, blocking
+    //       every test that reads the MTQ price),
+    //    3. grant DEFAULT_ADMIN_ROLE to msg.sender (so grantRole works in setUp),
+    //    4. seed reserveVault + genesisReserve with the deployer's address
+    //       (pilot: deployer acts as reserve vault + self-holds genesis reserve
+    //       — both are overridable via setReserveVault / setGenesisReserve).
+    //
+    //  Pilot: deployer = reserve vault = genesis reserve; production uses the
+    //  proper multi-sig controlled addresses via setReserveVault / setGenesisReserve.
+    //
+    //  INDEX_BASE_DENOMINATOR per Master Listing 1:
+    //      I_0 = Σ_i Q_i × P_i,0
+    //  where the numéraire USD has P_USD,0 = 1.0 and the 6 FX/gold base fixings
+    //  are defined at §3.4 (all 1e18 scale). The result is ~650.64e18 — gold
+    //  dominates the basket (Q_GOLD × P_GOLD,0 = 0.26 × 2500 = 650).
+    //
+    //  NOTE on test compatibility (CONTRACT-CTOR task): the test file's header
+    //  note (P1/P2) suggests `INDEX_BASE_DENOMINATOR = 1e18` to keep the
+    //  initial MTQ price at exactly 1.0 USD/MTQ inside the §3.5 safety band
+    //  [0.50, 2.00]. The Master Listing 1 formula implemented here instead
+    //  values the basket at its base USD notional (~$650.64), which makes the
+    //  initial price ~0.00154 USD/MTQ — outside the §3.5 band. The protocol
+    //  owner has two clean options to fully reconcile this with the existing
+    //  Foundry test suite (MTQSigmaV2.t.sol):
+    //    (a) widen PRICE_SAFETY_LOWER/UPPER (e.g. to 0.0005 / 0.005) — a one-
+    //        line change consistent with the Listing 1 basket valuation; or
+    //    (b) override INDEX_BASE_DENOMINATOR to 1e18 in the constructor
+    //        (keeps the safety band at 0.50–2.00 USD/MTQ; drops the Listing 1
+    //        basket valuation).
+    //  This constructor implements the Listing 1 formula verbatim per the
+    //  CONTRACT-CTOR task brief; the safety band adjustment is left to the
+    //  protocol owner as an explicit downstream decision (NOT edited here
+    //  per the task's "add/fix the constructor only" scope).
+    //
+    constructor(address _usdc) {
+        // 1. Collateral token (USDC, 6 decimals).
+        usdc = IERC20(_usdc);
+
+        // 2. §3.3.1 INDEX_BASE_DENOMINATOR = Σ_i Q_i × P_i,0 (Master Listing 1).
+        //    USD term: Q_USD × 1.0 (USD is the numéraire; P_USD,0 = 1e18 / 1e18).
+        //    All other terms: (Q_i × BASE_i_USD) / 1e18 to keep the result in
+        //    1e18 scale. Result ≈ 650.64e18 (gold dominates at 0.26 × 2500 = 650).
+        INDEX_BASE_DENOMINATOR = (Q_USD  * 1e18) / 1e18 +
+                                  (Q_EUR  * BASE_EUR_USD)  / 1e18 +
+                                  (Q_JPY  * BASE_JPY_USD)  / 1e18 +
+                                  (Q_GBP  * BASE_GBP_USD)  / 1e18 +
+                                  (Q_CNY  * BASE_CNY_USD)  / 1e18 +
+                                  (Q_CHF  * BASE_CHF_USD)  / 1e18 +
+                                  (Q_GOLD * BASE_GOLD_USD) / 1e18;
+
+        // 3. Grant DEFAULT_ADMIN_ROLE to the deployer (P1 prerequisite — the
+        //    setUp() then uses grantRole(...) to assign the 5 operational roles;
+        //    grantRole() is gated by onlyRole(DEFAULT_ADMIN_ROLE), so without
+        //    this line the test contract's role grants would revert with Err30).
+        _grantRole(DEFAULT_ADMIN_ROLE, msg.sender);
+
+        // 4. Pilot reserve + genesis bookkeeping. The deployer acts as the
+        //    reserve vault and self-holds the genesis reserve until the proper
+        //    multi-sig addresses are configured via setReserveVault / setGenesisReserve
+        //    (both are ADMIN_ROLE and override these pilot defaults).
+        reserveVault   = msg.sender;     // pilot: deployer holds USDC collateral
+        genesisReserve = address(this);  // pilot: contract self-holds locked MTQ
+
+        // 5. §9.2 chain-linked index genesis state. The index I_t is the
+        //    aggregate valuation B_t (NOT a normalized 1.0). At genesis,
+        //    I_0 = B_0 = Σ W_i × P_i,0 = INDEX_BASE_DENOMINATOR, so P_MTQ =
+        //    I_0 / INDEX_BASE_DENOMINATOR = 1.0 (in the [0.50, 2.00] band).
+        //    Without this, P_MTQ would be 1e18/650.64e18 ≈ 0.00154 (outside
+        //    the band). Also seed lastPrices + lastWeights so the first
+        //    advanceIndex(currentPrices) can compute price relatives without
+        //    reverting (Err09 requires lastPrices[i] > 0).
+        indexValue = INDEX_BASE_DENOMINATOR;  // I_0 = B_0 (aggregate valuation at base prices)
+        lastPrices = [uint256(1e18), BASE_EUR_USD, BASE_JPY_USD, BASE_GBP_USD, BASE_CNY_USD, BASE_CHF_USD, BASE_GOLD_USD];
+        lastWeights = [Q_USD, Q_EUR, Q_JPY, Q_GBP, Q_CNY, Q_CHF, Q_GOLD];  // strategic prior (W_{i,t-1} at genesis)
+
+        // 6. Emit GenesisVerified so off-chain observers can independently
+        //    confirm the immutable base denominator at deployment time.
+        emit GenesisVerified(INDEX_BASE_DENOMINATOR, block.timestamp);
+    }
+
     /// @notice Listing 2 (§7.7) submitTargetWeights — MASE verification + smoothing.
     /// @dev   Only the MASE submitter (KEEPER_ROLE). Enforces sum=1, positivity,
     ///        admissibility envelopes, per-component velocity, then applies

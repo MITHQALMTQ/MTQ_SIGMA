@@ -25,6 +25,7 @@ import { HonestStatus } from "@/components/mtq/HonestStatus";
 import { OnChainMatrix } from "@/components/mtq/OnChainMatrix";
 import { BlueprintQA } from "@/components/mtq/BlueprintQA";
 import { AuditFindings } from "@/components/mtq/AuditFindings";
+import { LiveDataProvenance } from "@/components/mtq/LiveDataProvenance";
 import { ProductionReadinessDashboard } from "@/components/mtq/ProductionReadinessDashboard";
 import { HonestStatus5Level } from "@/components/mtq/HonestStatus5Level";
 import {
@@ -164,6 +165,11 @@ export function DocsSection({
       {/* Top-Tier Audit Findings — third thing, so visitors see the honest audit verdict immediately */}
       <Reveal>
         <AuditFindings />
+      </Reveal>
+
+      {/* Live Data Provenance — verify the "8/8 live" claim independently of the dashboard */}
+      <Reveal>
+        <LiveDataProvenance />
       </Reveal>
 
       {/* Production Readiness Dashboard (Deliverable J — §39J) — surfaces GREEN/AMBER/RED/BLOCKED for every subsystem */}

@@ -11,6 +11,7 @@ import { motion } from "framer-motion";
 import { Starfield, SectionHeading, Reveal, Panel, Pill, GlowDot, BrandPrinciples, Skeleton } from "@/components/mtq/primitives";
 import { ConstitutionalSeparation } from "@/components/mtq/ConstitutionalSeparation";
 import { LiveMonetaryState } from "@/components/mtq/LiveMonetaryState";
+import { LiveDataProvenance } from "@/components/mtq/LiveDataProvenance";
 import { ClosedLoopMap } from "@/components/mtq/ClosedLoopMap";
 import { OracleConsensus } from "@/components/mtq/OracleConsensus";
 import { AssetRegistry } from "@/components/mtq/AssetRegistry";
@@ -253,6 +254,9 @@ export function DashboardSection() {
       >
         <LiveMonetaryState snapshot={snapshot} />
       </Section>
+
+      {/* ===== 2b — Live Data Provenance (8/8 live verification) ===== */}
+      <LiveDataProvenance />
 
       {/* ===== 3 — Closed-Loop Architecture Map ===== */}
       <Section id="loop" eyebrow="§1 · §3 · §4 · §12" title="Closed-Loop Architecture Map">

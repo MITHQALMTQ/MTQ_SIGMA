@@ -41,10 +41,16 @@ export interface FxSnapshot {
   source: string;
   degraded: boolean;
   // FX-HARDEN: how many of the 8 signals (EUR/GBP/JPY/CNY/CHF/XAU/VIX/DXY) are
-  // live in this snapshot. Max 7 until a live DXY source is wired in. The UI
-  // can show "live, fetched Xs ago" using fetchedAt + liveCount. Optional for
-  // backward compat with internal mock constructors (audit-stress, tests).
+  // live in this snapshot. Max 8 (all live). The UI can show "live, fetched Xs
+  // ago" using fetchedAt + liveCount. Optional for backward compat with internal
+  // mock constructors (audit-stress, tests).
   liveCount?: number;
+  // LIVE-DXY-RESOLVE: per-signal liveness flags so the engine's tick loop can
+  // decide whether to apply stepMacroSignals (only step simulated signals, never
+  // overwrite live values with a stochastic walk). If liveVix/liveDxy are true,
+  // the VIX/DXY values are from Yahoo Finance and must NOT be stepped.
+  liveVix?: boolean;
+  liveDxy?: boolean;
 }
 
 const DEFAULTS: Omit<FxSnapshot, "fetchedAt" | "source" | "degraded" | "liveCount"> = {
@@ -358,6 +364,11 @@ export async function fetchFxSnapshot(force = false): Promise<FxSnapshot> {
     source,
     degraded: false, // simulation is intentional, not a degradation
     liveCount,
+    // Per-signal liveness flags so the engine's tick loop can decide whether
+    // to apply stepMacroSignals (only step simulated signals, never overwrite
+    // live Yahoo values with a stochastic walk).
+    liveVix: !!liveVix,
+    liveDxy: !!liveDxy,
   };
 
   cache = snapshot;

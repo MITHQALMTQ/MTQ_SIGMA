@@ -1,0 +1,628 @@
+     1→// MTQΣ — Docs Section (Master Monetary Architecture v1.0)
+     2→// Reference documentation for the v1.0 Master Blueprint:
+     3→//   1. Strategic Prior (STRATEGIC_PRIOR_TABLE — 7 components incl. Gold + CHF)
+     4→//   2. Admissibility Envelopes (ENVELOPES_TABLE — per-component hard bounds)
+     5→//   3. Four-State Weights (WEIGHT_STATE_DESCRIPTIONS — Prior/Target/Smooth/Execution)
+     6→//   4. MASE Ensemble (MASE_MODELS — 6 candidate models)
+     7→//   5. Constitutional Invariants (CONSTITUTIONAL_INVARIANTS — I1–I11)
+     8→//   6. Risk State Machine (RISK_STATE_MACHINE — 5 states)
+     9→//   7. Governance Hierarchy (GOVERNANCE_HIERARCHY — 4 tiers)
+    10→//   8. Honest Status (HONEST_STATUS)
+    11→//   9. Unsupported Claims (UNSUPPORTED_CLAIMS — incl. new v1.0 entries)
+    12→//  10. Reconciliation: v1.2 → v1.0 (RECONCILIATION_CHANGES)
+    13→//  11. Reconciliation Findings (snapshot.reconciliation — live honest audit)
+    14→//
+    15→// Props: { onNavigate, snapshot }.
+    16→
+    17→"use client";
+    18→
+    19→import { motion } from "framer-motion";
+    20→import { BookOpen, ArrowRight, ScrollText } from "lucide-react";
+    21→import { Panel, Reveal, Pill, GlowDot, SectionHeading } from "@/components/mtq/primitives";
+    22→import { GfbBasket } from "@/components/mtq/GfbBasket";
+    23→import { RiskStateMachine } from "@/components/mtq/RiskStateMachine";
+    24→import { HonestStatus } from "@/components/mtq/HonestStatus";
+    25→import { OnChainMatrix } from "@/components/mtq/OnChainMatrix";
+    26→import { BlueprintQA } from "@/components/mtq/BlueprintQA";
+    27→import { AuditFindings } from "@/components/mtq/AuditFindings";
+    28→import { ProductionReadinessDashboard } from "@/components/mtq/ProductionReadinessDashboard";
+    29→import { HonestStatus5Level } from "@/components/mtq/HonestStatus5Level";
+    30→import {
+    31→  STRATEGIC_PRIOR_TABLE,
+    32→  ENVELOPES_TABLE,
+    33→  WEIGHT_STATE_DESCRIPTIONS,
+    34→  MASE_MODELS,
+    35→  CONSTITUTIONAL_INVARIANTS,
+    36→  RECONCILIATION_CHANGES,
+    37→  RISK_STATE_MACHINE,
+    38→  GOVERNANCE_HIERARCHY,
+    39→  HONEST_STATUS,
+    40→  UNSUPPORTED_CLAIMS,
+    41→} from "@/lib/mtq/blueprint";
+    42→import { GOVERNANCE_TIERS, STATUS_COLORS } from "@/lib/mtq/brand";
+    43→import type { MetricsSnapshot, ReconciliationFinding } from "@/lib/mtq/engine";
+    44→import type { SectionId } from "@/components/mtq/Navigation";
+    45→
+    46→/* ---------- Reference table shell ---------- */
+    47→function RefTable({
+    48→  title,
+    49→  subtitle,
+    50→  headers,
+    51→  rows,
+    52→}: {
+    53→  title: string;
+    54→  subtitle?: string;
+    55→  headers: string[];
+    56→  rows: React.ReactNode[][];
+    57→}) {
+    58→  return (
+    59→    <Panel className="p-5">
+    60→      <div className="mb-3 flex items-start justify-between gap-2">
+    61→        <div>
+    62→          <div className="text-sm font-semibold text-foreground/90">{title}</div>
+    63→          {subtitle && (
+    64→            <div className="text-[0.7rem] text-muted-foreground/70">{subtitle}</div>
+    65→          )}
+    66→        </div>
+    67→        <GlowDot color="gold" size="h-1.5 w-1.5" className="mt-1.5" />
+    68→      </div>
+    69→      <div className="overflow-hidden rounded-md border border-white/[0.07]">
+    70→        <div className="max-h-96 overflow-y-auto mtqs-scroll">
+    71→          <table className="w-full text-[0.74rem]">
+    72→            <thead className="bg-white/[0.02] text-muted-foreground/70 sticky top-0">
+    73→              <tr>
+    74→                {headers.map((h, i) => (
+    75→                  <th
+    76→                    key={i}
+    77→                    className={`text-left px-3 py-2 font-medium ${i === headers.length - 1 ? "text-right" : ""}`}
+    78→                  >
+    79→                    {h}
+    80→                  </th>
+    81→                ))}
+    82→              </tr>
+    83→            </thead>
+    84→            <tbody>
+    85→              {rows.map((row, ri) => (
+    86→                <tr
+    87→                  key={ri}
+    88→                  className={`border-t border-white/[0.05] ${ri % 2 ? "bg-white/[0.01]" : ""}`}
+    89→                >
+    90→                  {row.map((cell, ci) => (
+    91→                    <td
+    92→                      key={ci}
+    93→                      className={`px-3 py-2.5 ${ci === row.length - 1 ? "text-right" : ""}`}
+    94→                    >
+    95→                      {cell}
+    96→                    </td>
+    97→                  ))}
+    98→                </tr>
+    99→              ))}
+   100→            </tbody>
+   101→          </table>
+   102→        </div>
+   103→      </div>
+   104→    </Panel>
+   105→  );
+   106→}
+   107→
+   108→/* ---------- Severity badge ---------- */
+   109→function FindingSeverityBadge({ severity }: { severity: ReconciliationFinding["severity"] }) {
+   110→  if (severity === "fixed") {
+   111→    return (
+   112→      <Pill tone="emerald">
+   113→        <GlowDot color="emerald" size="h-1.5 w-1.5" />
+   114→        fixed
+   115→      </Pill>
+   116→    );
+   117→  }
+   118→  if (severity === "outstanding") {
+   119→    return (
+   120→      <Pill tone="amber">
+   121→        <GlowDot color="amber" size="h-1.5 w-1.5" />
+   122→        outstanding
+   123→      </Pill>
+   124→    );
+   125→  }
+   126→  return (
+   127→    <Pill tone="muted">
+   128→      <GlowDot color="gold" size="h-1.5 w-1.5" />
+   129→      informational
+   130→    </Pill>
+   131→  );
+   132→}
+   133→
+   134→export function DocsSection({
+   135→  onNavigate: _onNavigate,
+   136→  snapshot,
+   137→}: {
+   138→  onNavigate: (id: SectionId) => void;
+   139→  snapshot: MetricsSnapshot | null;
+   140→}) {
+   141→  const findings = snapshot?.reconciliation ?? [];
+   142→
+   143→  return (
+   144→    <div className="space-y-12">
+   145→      <SectionHeading
+   146→        eyebrow="§2 · §3 · §7 · §8 · §14 · §25 · reference"
+   147→        title="Documentation — Master Blueprint v1.0"
+   148→        right={
+   149→          <Pill tone="gold">
+   150→            <GlowDot color="gold" size="h-1.5 w-1.5" />
+   151→            v1.0 · Master
+   152→          </Pill>
+   153→        }
+   154→      />
+   155→
+   156→      {/* On-Chain vs Off-Chain Implementation Matrix — FIRST thing in Docs */}
+   157→      <OnChainMatrix />
+   158→
+   159→      {/* AI Blueprint Q&A — second thing, so visitors can ask questions about the matrix above */}
+   160→      <Reveal>
+   161→        <BlueprintQA />
+   162→      </Reveal>
+   163→
+   164→      {/* Top-Tier Audit Findings — third thing, so visitors see the honest audit verdict immediately */}
+   165→      <Reveal>
+   166→        <AuditFindings />
+   167→      </Reveal>
+   168→
+   169→      {/* Production Readiness Dashboard (Deliverable J — §39J) — surfaces GREEN/AMBER/RED/BLOCKED for every subsystem */}
+   170→      <Reveal>
+   171→        <ProductionReadinessDashboard />
+   172→      </Reveal>
+   173→
+   174→      {/* 5-Level Honest Status (Master Prompt §22 + §23) — 22 rows: 11 honest-status bits + 11 §25.5 validation gates */}
+   175→      <Reveal>
+   176→        <HonestStatus5Level />
+   177→      </Reveal>
+   178→
+   179→      {/* Intro */}
+   180→      <Reveal>
+   181→        <Panel className="p-5">
+   182→          <div className="flex items-start gap-3">
+   183→            <BookOpen className="h-5 w-5 text-mtqs-gold/80 mt-0.5 shrink-0" aria-hidden="true" />
+   184→            <p className="text-[0.82rem] text-muted-foreground/85 leading-relaxed">
+   185→              The MTQΣ Master Monetary Architecture v1.0 is the source of truth for the closed-loop
+   186→              monetary architecture. This section surfaces the 7-component Strategic Prior, per-component
+   187→              admissibility envelopes, the four-state weight system, the MASE ensemble, the constitutional
+   188→              invariants, the 5-state risk machine, the 4-tier governance hierarchy, the honest status
+   189→              declaration, the claims NOT supported (incl. the new v1.0 entries), and the v1.2 → v1.0
+   190→              reconciliation table. The legacy v1.2 fixed-quantity basket (BASKET_TABLE) and removed-claims
+   191→              table (REMOVED_CLAIMS) are SUPERSEDED — see the reconciliation block at the bottom.
+   192→            </p>
+   193→          </div>
+   194→        </Panel>
+   195→      </Reveal>
+   196→
+   197→      {/* 1. Strategic Prior + GFB Basket (STRATEGIC_PRIOR_TABLE) */}
+   198→      <section aria-labelledby="docs-gfb">
+   199→        <div className="flex items-end justify-between gap-4 mb-4">
+   200→          <div>
+   201→            <div className="text-[0.6rem] uppercase tracking-[0.22em] text-mtqs-gold/75">§3.2 · Strategic Prior</div>
+   202→            <h3 className="mt-2 text-base font-semibold text-foreground/95">GFB Index — 7-Component Strategic Prior</h3>
+   203→          </div>
+   204→        </div>
+   205→        <Reveal>
+   206→          <GfbBasket />
+   207→        </Reveal>
+   208→        {/* Explicit STRATEGIC_PRIOR_TABLE quick-reference */}
+   209→        <Reveal delay={0.05}>
+   210→          <div className="mt-4">
+   211→            <RefTable
+   212→              title="Strategic Prior (§3.2 — v1.0)"
+   213→              subtitle="Adaptive W^Prior — deviation penalised, not enforced. Live weights computed by MASE under constitutional envelopes."
+   214→              headers={["Component", "Token (Registry-Resolved)", "W^Prior"]}
+   215→              rows={STRATEGIC_PRIOR_TABLE.map((row) => [
+   216→                <span key="component" className="font-mono text-amber-200">{row.component}</span>,
+   217→                <span key="token" className="text-foreground/85">{row.token}</span>,
+   218→                <span key="weight" className="font-mono text-amber-200">{(row.weight * 100).toFixed(2)}%</span>,
+   219→              ])}
+   220→            />
+   221→          </div>
+   222→        </Reveal>
+   223→      </section>
+   224→
+   225→      {/* 2. Admissibility Envelopes (ENVELOPES_TABLE) */}
+   226→      <section aria-labelledby="docs-envelopes">
+   227→        <div className="flex items-end justify-between gap-4 mb-4">
+   228→          <div>
+   229→            <div className="text-[0.6rem] uppercase tracking-[0.22em] text-mtqs-gold/75">§8.1 · Admissibility</div>
+   230→            <h3 className="mt-2 text-base font-semibold text-foreground/95">Per-Component Admissibility Envelopes</h3>
+   231→          </div>
+   232→          <div className="flex items-center gap-2">
+   233→            <Pill tone="emerald">
+   234→              <GlowDot color="emerald" size="h-1.5 w-1.5" />
+   235→              live in Dashboard
+   236→            </Pill>
+   237→            <Pill tone="gold">hard bounds</Pill>
+   238→          </div>
+   239→        </div>
+   240→        <Reveal>
+   241→          <RefTable
+   242→            title="Admissibility Envelopes (§8.1)"
+   243→            subtitle="No MASE optimizer output may cross these per-component hard bounds. The prior sits inside every envelope. The Dashboard's MASE section now shows the live status of each component's execution weight against its envelope (ok / near edge / breach)."
+   244→            headers={["Component", "Lower Bound", "Upper Bound", "Strategic Prior"]}
+   245→            rows={ENVELOPES_TABLE.map((row) => [
+   246→              <span key="component" className="font-mono text-amber-200">{row.component}</span>,
+   247→              <span key="lower" className="font-mono text-rose-300/90">{row.lower}</span>,
+   248→              <span key="upper" className="font-mono text-rose-300/90">{row.upper}</span>,
+   249→              <span key="prior" className="font-mono text-emerald-200/90">{row.prior}</span>,
+   250→            ])}
+   251→          />
+   252→        </Reveal>
+   253→      </section>
+   254→
+   255→      {/* 3. Four-State Weights (WEIGHT_STATE_DESCRIPTIONS) */}
+   256→      <section aria-labelledby="docs-weight-states">
+   257→        <div className="flex items-end justify-between gap-4 mb-4">
+   258→          <div>
+   259→            <div className="text-[0.6rem] uppercase tracking-[0.22em] text-mtqs-gold/75">§2.3 · Weight States</div>
+   260→            <h3 className="mt-2 text-base font-semibold text-foreground/95">Four-State Weight Distinction</h3>
+   261→          </div>
+   262→          <div className="flex items-center gap-2">
+   263→            <Pill tone="emerald">
+   264→              <GlowDot color="emerald" size="h-1.5 w-1.5" />
+   265→              live in Dashboard
+   266→            </Pill>
+   267→            <Pill tone="gold">W^Prior ≠ W^Target ≠ W^Smooth ≠ W^Execution</Pill>
+   268→          </div>
+   269→        </div>
+   270→        <Reveal>
+   271→          <RefTable
+   272→            title="Four-State Weight System (§2.3)"
+   273→            subtitle="Each published weight W_t is the EXECUTION weight (I6) — never the target or smoothed weight. The Dashboard's MASE section now renders the live 4-state table per component (USD/EUR/JPY/GBP/CNY/CHF/Gold), with the smoothed→execution deviation flagged in green/red."
+   274→            headers={["State", "Symbol", "Meaning", "Produced By"]}
+   275→            rows={WEIGHT_STATE_DESCRIPTIONS.map((row) => [
+   276→              <span key="state" className="font-mono font-semibold text-amber-200">{row.state}</span>,
+   277→              <span key="symbol" className="font-mono text-emerald-200/90">{row.symbol}</span>,
+   278→              <span key="meaning" className="text-muted-foreground/85">{row.meaning}</span>,
+   279→              <span key="producedBy" className="text-muted-foreground/80">{row.producedBy}</span>,
+   280→            ])}
+   281→          />
+   282→        </Reveal>
+   283→      </section>
+   284→
+   285→      {/* 4. MASE Ensemble (MASE_MODELS) */}
+   286→      <section aria-labelledby="docs-mase">
+   287→        <div className="flex items-end justify-between gap-4 mb-4">
+   288→          <div>
+   289→            <div className="text-[0.6rem] uppercase tracking-[0.22em] text-mtqs-gold/75">§6 / §7 · MASE</div>
+   290→            <h3 className="mt-2 text-base font-semibold text-foreground/95">MASE Candidate Models</h3>
+   291→          </div>
+   292→          <div className="flex items-center gap-2">
+   293→            <Pill tone="emerald">
+   294→              <GlowDot color="emerald" size="h-1.5 w-1.5" />
+   295→              live in Dashboard
+   296→            </Pill>
+   297→            <Pill tone="gold">6-model ensemble</Pill>
+   298→          </div>
+   299→        </div>
+   300→        <Reveal>
+   301→          <RefTable
+   302→            title="MASE Ensemble (§6 / §7)"
+   303→            subtitle="The Multi-Asset Stochastic Ensemble runs 6 candidate models and combines them with equal weights (pilot) / adaptive weights (production target). The Dashboard's 'MASE Ensemble + 4-State Weights + MARP' section now shows these models' live weight vectors, the equal-weight ensemble target, the per-component admissibility envelope status, the four-state weight distinction (Prior → Target → Smoothed → Execution), and the per-component MARP rebalancing decisions."
+   304→            headers={["ID", "Model", "Description"]}
+   305→            rows={MASE_MODELS.map((row) => [
+   306→              <span key="id" className="font-mono text-amber-200">{row.id}</span>,
+   307→              <span key="name" className="font-semibold text-foreground/95">{row.name}</span>,
+   308→              <span key="desc" className="text-muted-foreground/85">{row.desc}</span>,
+   309→            ])}
+   310→          />
+   311→        </Reveal>
+   312→        <Reveal delay={0.05}>
+   313→          <div className="mt-4">
+   314→            <Panel className="p-4 border-emerald-400/20">
+   315→              <div className="flex items-start gap-3">
+   316→                <ArrowRight className="h-4 w-4 text-mtqs-emerald/80 mt-0.5 shrink-0" aria-hidden="true" />
+   317→                <div>
+   318→                  <div className="text-sm font-semibold text-foreground/90 mb-1">Live MASE data now in the Dashboard</div>
+   319→                  <p className="text-[0.78rem] text-muted-foreground/85 leading-relaxed">
+   320→                    The <button
+   321→                      onClick={() => _onNavigate("dashboard")}
+   322→                      className="font-mono text-mtqs-emerald/90 hover:text-mtqs-emerald underline-offset-2 hover:underline"
+   323→                    >
+   324→                      Dashboard
+   325→                    </button> now renders a dedicated <span className="text-amber-200/90 font-medium">MASE Ensemble + 4-State Weights + MARP</span> section
+   326→                    (between the Adaptive Macro Engine and the Rebalancing Engine) showing the live output of all 6 candidate models,
+   327→                    the equal-weight ensemble target, the four-state weight table (W<sup>Prior</sup> → W<sup>Target</sup> → W<sup>Smooth</sup> → W<sup>Execution</sup>),
+   328→                    the per-component admissibility envelope status (ok / warn / breach), and the MARP per-component rebalancing decisions
+   329→                    (direction, trade USD, urgency, level, reason). The legacy §6 single-engine (VIX/DXY → θ ±3%) and §7 single-direction
+   330→                    rebalance are retained in parallel as live pilot paths; MASE + MARP is the v1.0 production target.
+   331→                  </p>
+   332→                </div>
+   333→              </div>
+   334→            </Panel>
+   335→          </div>
+   336→        </Reveal>
+   337→      </section>
+   338→
+   339→      {/* 5. Constitutional Invariants (CONSTITUTIONAL_INVARIANTS) */}
+   340→      <section aria-labelledby="docs-invariants">
+   341→        <div className="flex items-end justify-between gap-4 mb-4">
+   342→          <div>
+   343→            <div className="text-[0.6rem] uppercase tracking-[0.22em] text-mtqs-gold/75">§2.6 · Hard Rules</div>
+   344→            <h3 className="mt-2 text-base font-semibold text-foreground/95">Constitutional Invariants</h3>
+   345→          </div>
+   346→          <Pill tone="gold">I1–I11</Pill>
+   347→        </div>
+   348→        <Reveal>
+   349→          <RefTable
+   350→            title="Constitutional Invariants (§2.6)"
+   351→            subtitle="Hard rules — cannot be relaxed by governance. v1.0 added I6 (execution weight is the published weight), I10 (honest status), I11 (daily calc ≠ daily trade)."
+   352→            headers={["ID", "Description", "Enforced By"]}
+   353→            rows={CONSTITUTIONAL_INVARIANTS.map((row) => [
+   354→              <span key="id" className="font-mono text-amber-200">{row.id}</span>,
+   355→              <span key="description" className="text-muted-foreground/85">{row.description}</span>,
+   356→              <span key="enforcedBy" className="font-mono text-emerald-200/80">{row.enforcedBy}</span>,
+   357→            ])}
+   358→          />
+   359→        </Reveal>
+   360→      </section>
+   361→
+   362→      {/* 6. Risk State Machine (RISK_STATE_MACHINE) */}
+   363→      <section aria-labelledby="docs-risk">
+   364→        <div className="flex items-end justify-between gap-4 mb-4">
+   365→          <div>
+   366→            <div className="text-[0.6rem] uppercase tracking-[0.22em] text-mtqs-gold/75">§14.1 · Risk</div>
+   367→            <h3 className="mt-2 text-base font-semibold text-foreground/95">Risk State Machine &amp; Governance</h3>
+   368→          </div>
+   369→        </div>
+   370→        <Reveal>
+   371→          <RiskStateMachine snapshot={snapshot} />
+   372→        </Reveal>
+   373→        <Reveal delay={0.05}>
+   374→          <div className="mt-4">
+   375→            <RefTable
+   376→              title="Risk State Machine (§14.1)"
+   377→              subtitle="5 states · Minting/Redemption/Rebalancing policy per state · RR target"
+   378→              headers={["Status", "Minting", "Redemption", "Rebalancing", "RR Target"]}
+   379→              rows={RISK_STATE_MACHINE.map((row) => {
+   380→                const sc = STATUS_COLORS[row.status] ?? STATUS_COLORS.NORMAL;
+   381→                return [
+   382→                  <span
+   383→                    key="status"
+   384→                    className="inline-flex items-center gap-1.5 font-mono font-semibold"
+   385→                    style={{ color: sc.color }}
+   386→                  >
+   387→                    <GlowDot
+   388→                      color={
+   389→                        row.status === "NORMAL"
+   390→                          ? "emerald"
+   391→                          : row.status === "CAUTION"
+   392→                          ? "amber"
+   393→                          : row.status === "RECOVERY"
+   394→                          ? "gold"
+   395→                          : "rose"
+   396→                      }
+   397→                      size="h-1.5 w-1.5"
+   398→                    />
+   399→                    {row.status}
+   400→                  </span>,
+   401→                  <span key="minting" className="text-foreground/85">{row.minting}</span>,
+   402→                  <span key="redemption" className="text-foreground/85">{row.redemption}</span>,
+   403→                  <span key="rebalancing" className="text-foreground/85">{row.rebalancing}</span>,
+   404→                  <span key="rr" className="font-mono text-amber-200">{(row.rrTarget * 100).toFixed(0)}%</span>,
+   405→                ];
+   406→              })}
+   407→            />
+   408→          </div>
+   409→        </Reveal>
+   410→      </section>
+   411→
+   412→      {/* 7. Governance hierarchy (GOVERNANCE_HIERARCHY) */}
+   413→      <section aria-labelledby="docs-gov">
+   414→        <div className="flex items-end justify-between gap-4 mb-4">
+   415→          <div>
+   416→            <div className="text-[0.6rem] uppercase tracking-[0.22em] text-mtqs-gold/75">§14.2 · Authority</div>
+   417→            <h3 className="mt-2 text-base font-semibold text-foreground/95">Governance Hierarchy</h3>
+   418→          </div>
+   419→        </div>
+   420→        <Reveal>
+   421→          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 mb-4">
+   422→            {GOVERNANCE_HIERARCHY.map((row, i) => {
+   423→              const tierKey = (
+   424→                ["constitutional", "monetary", "risk", "emergency"] as const
+   425→              )[i];
+   426→              const tier = GOVERNANCE_TIERS[tierKey];
+   427→              return (
+   428→                <Panel key={row.scope} className="p-4" style={{ boxShadow: tier.glow }}>
+   429→                  <div
+   430→                    className="text-[0.6rem] uppercase tracking-[0.18em] mb-2"
+   431→                    style={{ color: tier.color }}
+   432→                  >
+   433→                    Tier {i + 1}
+   434→                  </div>
+   435→                  <div className="text-sm font-semibold text-foreground/95 mb-1.5">{row.scope}</div>
+   436→                  <div className="font-mono text-[0.72rem]" style={{ color: tier.color }}>
+   437→                    {row.authority}
+   438→                  </div>
+   439→                  <div className="mt-2 text-[0.68rem] text-muted-foreground/75">
+   440→                    Timelock: <span className="font-mono text-foreground/85">{row.timelock}</span>
+   441→                  </div>
+   442→                  <div className="mt-1 text-[0.62rem] text-muted-foreground/60">{tier.label}</div>
+   443→                </Panel>
+   444→              );
+   445→            })}
+   446→          </div>
+   447→        </Reveal>
+   448→        <Reveal delay={0.05}>
+   449→          <RefTable
+   450→            title="Governance Hierarchy (§14.2)"
+   451→            subtitle="4 tiers · escalating authority + descending timelock"
+   452→            headers={["Scope", "Authority", "Timelock"]}
+   453→            rows={GOVERNANCE_HIERARCHY.map((row) => [
+   454→              <span key="scope" className="text-foreground/90">{row.scope}</span>,
+   455→              <span key="authority" className="font-mono text-amber-200">{row.authority}</span>,
+   456→              <span key="timelock" className="font-mono text-amber-200">{row.timelock}</span>,
+   457→            ])}
+   458→          />
+   459→        </Reveal>
+   460→      </section>
+   461→
+   462→      {/* 8. Honest Status (HONEST_STATUS) — delegated to HonestStatus component */}
+   463→      <section aria-labelledby="docs-honest">
+   464→        <div className="flex items-end justify-between gap-4 mb-4">
+   465→          <div>
+   466→            <div className="text-[0.6rem] uppercase tracking-[0.22em] text-mtqs-gold/75">§25 · Honesty</div>
+   467→            <h3 className="mt-2 text-base font-semibold text-foreground/95">Honest Status Declaration</h3>
+   468→          </div>
+   469→        </div>
+   470→        <Reveal>
+   471→          <HonestStatus snapshot={snapshot} />
+   472→        </Reveal>
+   473→        <Reveal delay={0.05}>
+   474→          <div className="mt-4">
+   475→            <RefTable
+   476→              title="Honest Status Table (§25.2 — v1.0)"
+   477→              subtitle="State of each conceptual dimension of the protocol — updated for Master v1.0"
+   478→              headers={["Metric", "State"]}
+   479→              rows={HONEST_STATUS.map((row) => [
+   480→                <span key="metric" className="text-muted-foreground/85">{row.metric}</span>,
+   481→                <span key="state" className="font-mono text-foreground/90">{row.state}</span>,
+   482→              ])}
+   483→            />
+   484→          </div>
+   485→        </Reveal>
+   486→      </section>
+   487→
+   488→      {/* 9. Unsupported Claims (UNSUPPORTED_CLAIMS) — v1.0 table replaces the v1.2 REMOVED_CLAIMS */}
+   489→      <section aria-labelledby="docs-unsupported">
+   490→        <div className="flex items-end justify-between gap-4 mb-4">
+   491→          <div>
+   492→            <div className="text-[0.6rem] uppercase tracking-[0.22em] text-mtqs-gold/75">§25.3 · Transparency</div>
+   493→            <h3 className="mt-2 text-base font-semibold text-foreground/95">Claims NOT Supported</h3>
+   494→          </div>
+   495→          <Pill tone="amber">v1.0 adds 3 new</Pill>
+   496→        </div>
+   497→        <Reveal>
+   498→          <RefTable
+   499→            title="Claims NOT Supported (§25.3 — v1.0)"
+   500→            subtitle="v1.0 added: 'Fixed composition', 'Guaranteed outcomes', 'Final optimal percentages'. The legacy v1.2 REMOVED_CLAIMS table is SUPERSEDED — see the reconciliation block below."
+   501→            headers={["Claim", "Reason NOT Supported"]}
+   502→            rows={UNSUPPORTED_CLAIMS.map((row) => [
+   503→              <span key="claim" className="line-through text-mtqs-rose/70 font-mono">{row.claim}</span>,
+   504→              <span key="reason" className="text-muted-foreground/85">{row.reason}</span>,
+   505→            ])}
+   506→          />
+   507→        </Reveal>
+   508→      </section>
+   509→
+   510→      {/* 10. Reconciliation: v1.2 → v1.0 (RECONCILIATION_CHANGES) */}
+   511→      <section aria-labelledby="docs-reconciliation-changes">
+   512→        <div className="flex items-end justify-between gap-4 mb-4">
+   513→          <div>
+   514→            <div className="text-[0.6rem] uppercase tracking-[0.22em] text-mtqs-gold/75">v1.2 → v1.0</div>
+   515→            <h3 className="mt-2 text-base font-semibold text-foreground/95">Reconciliation — v1.2 (superseded) vs Master v1.0</h3>
+   516→          </div>
+   517→          <Pill tone="gold">11 areas</Pill>
+   518→        </div>
+   519→        <Reveal>
+   520→          <RefTable
+   521→            title="v1.2 → v1.0 Reconciliation Changes"
+   522→            subtitle="Each row shows the superseded v1.2 approach vs the new v1.0 approach. The legacy engine constants are retained for backward-compat (marked SUPERSEDED in blueprint.ts)."
+   523→            headers={["Area", "v1.2 (Superseded)", "v1.0 (Master)"]}
+   524→            rows={RECONCILIATION_CHANGES.map((row) => [
+   525→              <span key="area" className="font-semibold text-amber-200">{row.area}</span>,
+   526→              <span key="v1_2" className="text-muted-foreground/70 line-through">{row.v1_2}</span>,
+   527→              <span key="v1_0" className="text-emerald-200/90">{row.v1_0}</span>,
+   528→            ])}
+   529→          />
+   530→        </Reveal>
+   531→      </section>
+   532→
+   533→      {/* 11. Reconciliation findings (snapshot.reconciliation) — live honest audit */}
+   534→      <section aria-labelledby="docs-findings">
+   535→        <div className="flex items-end justify-between gap-4 mb-4">
+   536→          <div>
+   537→            <div className="text-[0.6rem] uppercase tracking-[0.22em] text-mtqs-gold/75">Live · Honest Audit</div>
+   538→            <h3 className="mt-2 text-base font-semibold text-foreground/95">Reconciliation Findings (Live)</h3>
+   539→          </div>
+   540→          <Pill tone={findings.length ? "emerald" : "muted"}>
+   541→            <GlowDot color={findings.length ? "emerald" : "gold"} size="h-1.5 w-1.5" />
+   542→            {findings.length} finding{findings.length === 1 ? "" : "s"}
+   543→          </Pill>
+   544→        </div>
+   545→        <Reveal>
+   546→          <Panel className="p-5 mtqs-glow">
+   547→            {findings.length === 0 ? (
+   548→              <div className="rounded-md border border-white/[0.06] bg-white/[0.02] p-4 text-center text-[0.75rem] text-muted-foreground/70">
+   549→                <ScrollText className="h-5 w-5 mx-auto mb-2 opacity-50" aria-hidden="true" />
+   550→                No reconciliation findings loaded. Visit the Dashboard to fetch the live snapshot.
+   551→              </div>
+   552→            ) : (
+   553→              <div className="space-y-3">
+   554→                {findings.map((f, i) => {
+   555→                  const tone =
+   556→                    f.severity === "fixed"
+   557→                      ? "border-mtqs-emerald/40 bg-mtqs-emerald/[0.06]"
+   558→                      : f.severity === "outstanding"
+   559→                      ? "border-mtqs-amber/40 bg-mtqs-amber/[0.06]"
+   560→                      : "border-white/[0.08] bg-white/[0.02]";
+   561→                  return (
+   562→                    <motion.div
+   563→                      key={f.id}
+   564→                      initial={{ opacity: 0, y: 6 }}
+   565→                      animate={{ opacity: 1, y: 0 }}
+   566→                      transition={{ duration: 0.3, delay: i * 0.05 }}
+   567→                      className={`rounded-md border p-4 ${tone}`}
+   568→                    >
+   569→                      <div className="flex items-start justify-between gap-2 mb-2">
+   570→                        <div className="flex items-start gap-2">
+   571→                          <span className="font-mono text-xs text-muted-foreground/70 shrink-0 mt-0.5">
+   572→                            #{i + 1}
+   573→                          </span>
+   574→                          <div className="text-sm font-semibold text-foreground/95 leading-snug">
+   575→                            {f.title}
+   576→                          </div>
+   577→                        </div>
+   578→                        <FindingSeverityBadge severity={f.severity} />
+   579→                      </div>
+   580→                      <p className="text-[0.75rem] text-muted-foreground/85 leading-relaxed">
+   581→                        {f.description}
+   582→                      </p>
+   583→                      {f.resolution && (
+   584→                        <p className="mt-2 text-[0.72rem] text-foreground/75 leading-relaxed">
+   585→                          <span className="text-mtqs-gold/80 uppercase tracking-[0.18em] text-[0.6rem] font-medium mr-1">
+   586→                            Resolution
+   587→                          </span>
+   588→                          {f.resolution}
+   589→                        </p>
+   590→                      )}
+   591→                    </motion.div>
+   592→                  );
+   593→                })}
+   594→              </div>
+   595→            )}
+   596→          </Panel>
+   597→        </Reveal>
+   598→      </section>
+   599→
+   600→      {/* Closing */}
+   601→      <Reveal>
+   602→        <Panel className="p-5 sm:p-6 text-center">
+   603→          <p className="text-[0.82rem] text-muted-foreground/85 leading-relaxed max-w-2xl mx-auto mb-4">
+   604→            Blueprint reference complete. See the engine in action in the Dashboard, or review the
+   605→            contract registry to verify each deployment on-chain.
+   606→          </p>
+   607→          <div className="flex flex-wrap items-center justify-center gap-2">
+   608→            <button
+   609→              onClick={() => _onNavigate("dashboard")}
+   610→              className="inline-flex items-center gap-1.5 rounded-full border border-white/[0.1] bg-white/[0.03] px-4 py-2 text-[0.78rem] font-medium text-foreground/85 hover:border-mtqs-gold/30 hover:text-foreground transition"
+   611→            >
+   612→              Live Dashboard
+   613→              <ArrowRight className="h-3.5 w-3.5" aria-hidden="true" />
+   614→            </button>
+   615→            <button
+   616→              onClick={() => _onNavigate("investors")}
+   617→              className="inline-flex items-center gap-1.5 rounded-full border border-white/[0.1] bg-white/[0.03] px-4 py-2 text-[0.78rem] font-medium text-foreground/85 hover:border-mtqs-gold/30 hover:text-foreground transition"
+   618→            >
+   619→              Investor endpoints
+   620→              <ArrowRight className="h-3.5 w-3.5" aria-hidden="true" />
+   621→            </button>
+   622→          </div>
+   623→        </Panel>
+   624→      </Reveal>
+   625→    </div>
+   626→  );
+   627→}
+   628→

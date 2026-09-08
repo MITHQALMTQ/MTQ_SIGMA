@@ -68,7 +68,7 @@ const SIM_TICK_HOURS = 0.25; // each tick simulates ~15 min of macro time
 //   and `riskState` (canonical 6-state risk machine per §21.2: state,
 //   enteredAt, confirmationPeriodEnds for RECOVERY 48h hysteresis). The tick
 //   loop now advances both every tick.
-const STATE_SCHEMA_VERSION = 11;
+const STATE_SCHEMA_VERSION = 12; // v12: live VIX/DXY — don't overwrite live Yahoo values with stepMacroSignals
 // §14.1 MARP execution feature flag — toggle to switch the rebalance execution
 // path. Default false (legacy §7 single-direction) for pilot stability; the
 // MARP per-component path is the v1.0 production target. The UI renders an
@@ -159,10 +159,28 @@ async function tick(store: PilotStore) {
     const ofx = oracleFxRates(store.oracle);
     store.fx = { ...store.fx, ...ofx };
   }
-  // §6 macro signals (honest stochastic walk)
-  const stepped = stepMacroSignals({ vix: store.fx.VIX, dxy: store.fx.DXY });
-  store.fx = { ...store.fx, VIX: stepped.vix, DXY: stepped.dxy };
-  advanceMacro(store.state, stepped.vix, stepped.dxy, SIM_TICK_HOURS);
+  // §6 macro signals — HONEST: only step the signals that are NOT live.
+  // If fetchFxSnapshot returned live VIX/DXY (from Yahoo Finance), USE THEM
+  // DIRECTLY — never overwrite real market data with a stochastic walk.
+  // If the live fetch failed (fallback to simulatedDxy/simulatedVix), THEN
+  // apply stepMacroSignals to add tick-level movement for the §6 macro engine
+  // (the fetchFxSnapshot OU walk is deterministic per UTC day, so it doesn't
+  // move within a day — stepMacroSignals adds the intra-day tick movement).
+  const liveVix = store.fx.liveVix === true;
+  const liveDxy = store.fx.liveDxy === true;
+  let vixForEngine = store.fx.VIX;
+  let dxyForEngine = store.fx.DXY;
+  if (!liveVix || !liveDxy) {
+    const stepped = stepMacroSignals({ vix: store.fx.VIX, dxy: store.fx.DXY });
+    if (!liveVix) vixForEngine = stepped.vix;
+    if (!liveDxy) dxyForEngine = stepped.dxy;
+    store.fx = {
+      ...store.fx,
+      ...(liveVix ? {} : { VIX: vixForEngine }),
+      ...(liveDxy ? {} : { DXY: dxyForEngine }),
+    };
+  }
+  advanceMacro(store.state, vixForEngine, dxyForEngine, SIM_TICK_HOURS);
   // P0-FIX-1: advance the canonical chain-linked index ONE step with the
   // latest FX/gold prices (§9.2 COO-16). This MUST happen BEFORE advanceMase
   // (which calls commitChainIndexWeights internally to commit any new
