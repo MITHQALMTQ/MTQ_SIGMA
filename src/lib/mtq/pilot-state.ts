@@ -53,6 +53,7 @@ import {
   persistRebalancingDecision,
   persistOracleSamples,
   persistMarpDecisions,
+  pruneAuditTrail,
 } from "./audit-trail";
 
 const TICK_MS = 4000;
@@ -68,13 +69,24 @@ const SIM_TICK_HOURS = 0.25; // each tick simulates ~15 min of macro time
 //   and `riskState` (canonical 6-state risk machine per §21.2: state,
 //   enteredAt, confirmationPeriodEnds for RECOVERY 48h hysteresis). The tick
 //   loop now advances both every tick.
-const STATE_SCHEMA_VERSION = 12; // v12: live VIX/DXY — don't overwrite live Yahoo values with stepMacroSignals
+// v12: live VIX/DXY — don't overwrite live Yahoo values with stepMacroSignals
+// v13: AUDIT-RETENTION — added `lastMarpAdvisoryAt` (throttle MARP advisory
+//   persistence to 60s, was 4s — was writing 7 rows/tick → 85,984 rows in 67min)
+//   and `lastPruneAt` (cap audit-trail row counts via pruneAuditTrail every
+//   300s — RebalancingDecision ≤10k, DailyStateVector ≤5k, OracleSample ≤5k).
+const STATE_SCHEMA_VERSION = 13;
 // §14.1 MARP execution feature flag — toggle to switch the rebalance execution
 // path. Default false (legacy §7 single-direction) for pilot stability; the
 // MARP per-component path is the v1.0 production target. The UI renders an
 // A/B badge so the pilot can compare both paths side-by-side. Flip to `true`
 // to activate the per-component MARP execution path.
 const USE_MARP_EXECUTION = false;
+// AUDIT-RETENTION: prune the audit-trail tables at most every 5 minutes.
+// Calling pruneAuditTrail on every tick would lock the DB for ~ms every 4s;
+// 5min is well below the time it takes the tables to grow past their caps
+// post-prune (even at 7 rows/tick × 75 ticks = 525 rows between prunes for
+// RebalancingDecision — well under the 10k cap).
+const AUDIT_PRUNE_INTERVAL_MS = 300_000;
 
 interface PilotStore {
   state: ReserveState;
@@ -90,6 +102,13 @@ interface PilotStore {
   // Reset to 0 on schema rebuild so the first post-rebuild tick writes a row.
   lastDailyVectorAt: number;
   lastOracleSampleAt: number;
+  // v13 AUDIT-RETENTION: throttle MARP advisory persistence to 60s (was 4s —
+  // was writing 7 rows/tick → 85,984 rows in 67min). 0 = never persisted.
+  lastMarpAdvisoryAt: number;
+  // v13 AUDIT-RETENTION: timestamp of the last pruneAuditTrail() call.
+  // 0 = never pruned. pruneAuditTrail() is called once every 5 min from the
+  // tick loop (caps RebalancingDecision ≤10k, DailyStateVector ≤5k, OracleSample ≤5k).
+  lastPruneAt: number;
 }
 
 declare global {
@@ -130,6 +149,8 @@ async function ensureStore(): Promise<PilotStore> {
     tickCount: 0,
     lastDailyVectorAt: 0,
     lastOracleSampleAt: 0,
+    lastMarpAdvisoryAt: 0,
+    lastPruneAt: 0,
   };
   globalThis.__MTQ_PILOT__ = store;
   startLoop(store);
@@ -367,8 +388,13 @@ async function tick(store: PilotStore) {
     store.lastDailyVectorAt = await persistDailyStateVector(finalSnap, store.tickCount, store.lastDailyVectorAt);
     // §10 + §24.2 — MARP per-component decisions (advisory rows; only when
     // the snapshot actually has a marp block — true once advanceMase has run).
+    // v13 AUDIT-RETENTION: throttled to 60s (was 4s — was writing 7 rows/tick).
     try {
-      await persistMarpDecisions(store.tickCount, finalSnap);
+      store.lastMarpAdvisoryAt = await persistMarpDecisions(
+        store.tickCount,
+        finalSnap,
+        store.lastMarpAdvisoryAt,
+      );
     } catch (e) {
       console.error("[audit-trail] persistMarpDecisions:", e);
     }
@@ -380,6 +406,28 @@ async function tick(store: PilotStore) {
     store.lastOracleSampleAt = await persistOracleSamples(store.oracle, store.tickCount, store.lastOracleSampleAt);
   } catch (e) {
     console.error("[audit-trail] persistOracleSamples:", e);
+  }
+  // v13 AUDIT-RETENTION — prune the audit-trail tables once every 5 min.
+  // Caps RebalancingDecision ≤10k, DailyStateVector ≤5k, OracleSample ≤5k.
+  // Skipped on the very first tick (lastPruneAt = 0 → runs prune immediately
+  // so any pre-existing overflow from a prior version is cleaned up before
+  // we accumulate more rows).
+  try {
+    const nowMs = Date.now();
+    if (nowMs - store.lastPruneAt > AUDIT_PRUNE_INTERVAL_MS) {
+      const pruned = await pruneAuditTrail();
+      store.lastPruneAt = nowMs;
+      if (pruned.rebalancingDecision || pruned.dailyStateVector || pruned.oracleSample) {
+        console.log(
+          `[audit-trail] prune: deleted ` +
+          `RebalancingDecision=${pruned.rebalancingDecision}, ` +
+          `DailyStateVector=${pruned.dailyStateVector}, ` +
+          `OracleSample=${pruned.oracleSample}`,
+        );
+      }
+    }
+  } catch (e) {
+    console.error("[audit-trail] pruneAuditTrail:", e);
   }
 }
 

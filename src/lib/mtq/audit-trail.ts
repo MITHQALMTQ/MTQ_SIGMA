@@ -4,7 +4,8 @@
 //   - persistDailyStateVector  → DailyStateVector (§24.1, throttled 30s)
 //   - persistRebalancingDecision → RebalancingDecision (§24.2, every eval)
 //   - persistOracleSamples      → OracleSample (§24.3, throttled 30s, batched)
-//   - persistMarpDecisions      → RebalancingDecision (§24.2 + §10 MARP per-component)
+//   - persistMarpDecisions      → RebalancingDecision (§24.2 + §10 MARP per-component, throttled 60s)
+//   - pruneAuditTrail           → retention cleanup (caps each table's row count)
 //
 // All persistence is best-effort: callers MUST wrap calls in try/catch so the
 // engine tick loop keeps running even if the audit DB is unavailable. The
@@ -33,6 +34,32 @@ import type { OracleBoard } from "./oracle";
 
 const DAILY_VECTOR_THROTTLE_MS = 30_000; // persist DailyStateVector at most every 30s
 const ORACLE_SAMPLE_THROTTLE_MS = 30_000; // persist OracleSample batch at most every 30s
+const MARP_ADVISORY_THROTTLE_MS = 60_000; // persist MARP advisory rows at most every 60s
+
+// Module-level fallback for the MARP advisory throttle. The caller is
+// supposed to pass `lastPersistedAt` and store the return value back into
+// its PilotStore. If the caller is a stale tick closure from before the
+// v13 schema bump (i.e. it doesn't have `lastMarpAdvisoryAt` on its store
+// and calls `persistMarpDecisions(tickCount, snap)` with the OLD 2-arg
+// signature, leaving `lastPersistedAt` undefined), the throttle would be
+// bypassed because `now - undefined = NaN` and `NaN < 60_000` is `false`.
+// To prevent that, we fall back to this module-level variable so the
+// throttle still works even when the caller doesn't track the timestamp.
+// This is a defensive measure for the dev-server hot-reload scenario
+// where orphaned tick closures from a previous module version may still
+// be running; in production (where there's only one engine and one
+// module version) the caller always passes a valid `lastPersistedAt`.
+let LAST_MARP_PERSIST_AT_FALLBACK = 0;
+
+// Retention caps — keep the audit-trail tables bounded so the SQLite file
+// doesn't grow unbounded during a long pilot run. When a table exceeds its
+// cap, the oldest rows (by `createdAt` descending sort, i.e. the rows that
+// fall outside the most-recent MAX_* window) are deleted in batches of
+// `PRUNE_BATCH_SIZE` to avoid locking the DB for too long.
+const MAX_REBALANCING_DECISIONS = 10_000;
+const MAX_DAILY_STATE_VECTORS = 5_000;
+const MAX_ORACLE_SAMPLES = 5_000;
+const PRUNE_BATCH_SIZE = 1_000; // delete in batches of 1000 to avoid locking
 
 // Coerce non-finite numbers (Infinity/NaN) to 0 for SQLite Float storage.
 // Used for `reserveRatio` / `lcr` / `postReserveRatio` which are Infinity at
@@ -197,14 +224,44 @@ export async function persistOracleSamples(
 //   - blockedBy        ← reason when !shouldTrade
 // The shared decision-input fields (nav/RR/observed/target/deviation) come from
 // the snapshot; per-component deviations are not stored separately (the
-// `reason` field already encodes them textually). Returns the number of rows
-// written (0 when there are no MARP decisions to log).
+// `reason` field already encodes them textually).
+//
+// THROTTLED — called every tick (4s) but only persists at most every
+// `MARP_ADVISORY_THROTTLE_MS` (60s). The throttle matches the DailyStateVector
+// cadence so the audit-trail stays bounded without losing the per-component
+// MARP picture. The function signature mirrors `persistDailyStateVector` /
+// `persistOracleSamples`: callers pass the previous `lastPersistedAt` (0 = never
+// persisted) and assign the return value back to the store field. When the
+// throttle suppresses a write, the prior `lastPersistedAt` is returned
+// unchanged so callers can always reassign. Returns the new `lastPersistedAt`
+// timestamp (the prior value when throttled, `now` when persisted or when the
+// snapshot has no MARP decisions to log this tick).
 export async function persistMarpDecisions(
   tickCount: number,
   snapshot: MetricsSnapshot,
+  lastPersistedAt: number,
 ): Promise<number> {
+  const now = Date.now();
+  // Defensive: if `lastPersistedAt` is not a finite number (e.g. undefined
+  // because the caller is a stale tick closure from before the v13 schema
+  // bump that didn't have `lastMarpAdvisoryAt`), fall back to the module-
+  // level variable so the throttle still works. Without this, `now -
+  // undefined = NaN` and `NaN < 60_000` is `false`, which would bypass the
+  // throttle entirely. See LAST_MARP_PERSIST_AT_FALLBACK doc above.
+  const lastTime =
+    Number.isFinite(lastPersistedAt) && lastPersistedAt > 0
+      ? lastPersistedAt
+      : LAST_MARP_PERSIST_AT_FALLBACK;
+  if (now - lastTime < MARP_ADVISORY_THROTTLE_MS) {
+    return Number.isFinite(lastPersistedAt) && lastPersistedAt > 0
+      ? lastPersistedAt
+      : LAST_MARP_PERSIST_AT_FALLBACK;
+  }
   const decisions = snapshot.marp?.decisions ?? [];
-  if (decisions.length === 0) return 0;
+  if (decisions.length === 0) {
+    LAST_MARP_PERSIST_AT_FALLBACK = now;
+    return now;
+  }
   const dir = (d: string): number => (d === "buy" ? 1 : d === "sell" ? -1 : 0);
   await db.$transaction(
     decisions.map((d) =>
@@ -233,5 +290,68 @@ export async function persistMarpDecisions(
       }),
     ),
   );
-  return decisions.length;
+  LAST_MARP_PERSIST_AT_FALLBACK = now;
+  return now;
+}
+
+// §24 — Audit-trail retention cleanup. Caps each Chapter 24 table at a
+// reasonable row count so the SQLite file stays bounded during a long pilot
+// run. When a table exceeds its cap, the OLDEST rows (i.e. the rows that fall
+// outside the most-recent MAX_* window when sorted by `createdAt` DESC) are
+// deleted in batches of `PRUNE_BATCH_SIZE` (1000) to avoid locking the DB.
+//
+// Returns the number of rows deleted per table. Idempotent — calling it on
+// tables that are already under their caps is a no-op (returns 0/0/0).
+//
+// Best-effort: callers MUST wrap in try/catch so the tick loop survives a
+// prune failure (e.g. transient DB lock).
+export async function pruneAuditTrail(): Promise<{
+  rebalancingDecision: number;
+  dailyStateVector: number;
+  oracleSample: number;
+}> {
+  // RebalancingDecision — cap at MAX_REBALANCING_DECISIONS rows.
+  const rdOldIds = await db.rebalancingDecision.findMany({
+    orderBy: { createdAt: "desc" },
+    skip: MAX_REBALANCING_DECISIONS,
+    take: PRUNE_BATCH_SIZE,
+    select: { id: true },
+  });
+  const rd = rdOldIds.length
+    ? await db.rebalancingDecision.deleteMany({
+        where: { id: { in: rdOldIds.map((r) => r.id) } },
+      })
+    : { count: 0 };
+
+  // DailyStateVector — cap at MAX_DAILY_STATE_VECTORS rows.
+  const dsvOldIds = await db.dailyStateVector.findMany({
+    orderBy: { createdAt: "desc" },
+    skip: MAX_DAILY_STATE_VECTORS,
+    take: PRUNE_BATCH_SIZE,
+    select: { id: true },
+  });
+  const dsv = dsvOldIds.length
+    ? await db.dailyStateVector.deleteMany({
+        where: { id: { in: dsvOldIds.map((r) => r.id) } },
+      })
+    : { count: 0 };
+
+  // OracleSample — cap at MAX_ORACLE_SAMPLES rows.
+  const osOldIds = await db.oracleSample.findMany({
+    orderBy: { createdAt: "desc" },
+    skip: MAX_ORACLE_SAMPLES,
+    take: PRUNE_BATCH_SIZE,
+    select: { id: true },
+  });
+  const os = osOldIds.length
+    ? await db.oracleSample.deleteMany({
+        where: { id: { in: osOldIds.map((r) => r.id) } },
+      })
+    : { count: 0 };
+
+  return {
+    rebalancingDecision: rd.count,
+    dailyStateVector: dsv.count,
+    oracleSample: os.count,
+  };
 }

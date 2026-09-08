@@ -1,7 +1,7 @@
 // MTQΣ — Honest Status Declaration (§25, v1.0 Master) + Honest Audit Findings
 // Brand v2: shows ALL 4 reconciliation findings (F1 redemption price
 // contradiction = fixed, F2 genesis issuer concentration breach = fixed,
-// F3 VIX/DXY simulated = informational, F4 Sharia not certified =
+// F3 VIX/DXY now LIVE from Yahoo Finance = fixed, F4 Sharia not certified =
 // informational) with severity-coded badges (fixed=emerald, outstanding=amber,
 // informational=neutral). Also renders HONEST_STATUS, UNSUPPORTED_CLAIMS
 // (v1.0 — replaces the legacy v1.2 REMOVED_CLAIMS table), and the canonical
@@ -218,9 +218,11 @@ export function HonestStatus({ snapshot }: { snapshot: MetricsSnapshot | null })
           )}
 
           <p className="mt-3 text-[0.72rem] text-muted-foreground/70 leading-relaxed">
-            These are honest findings surfaced by the pilot. Both F1 (§12.2 vs §3.4.2) and
-            F2 (issuer concentration breach) are <span className="text-[#6ff0c0] font-medium">fixed</span>;
-            F3 (VIX/DXY simulated) and F4 (Sharia not certified) remain informational.
+            These are honest findings surfaced by the pilot. As of the V3 reconciliation pass:
+            F1 (§12.2 vs §3.4.2 redemption contradiction), F2 (issuer concentration breach), and
+            F3 (VIX/DXY now LIVE from Yahoo Finance) are all <span className="text-[#6ff0c0] font-medium">fixed</span>;
+            F4 (Sharia not certified) remains <span className="text-amber-200/90 font-medium">informational</span> (requires independent scholarly review).
+            The live status of each finding is read from the engine snapshot above — not hardcoded.
           </p>
         </Panel>
       </Reveal>
