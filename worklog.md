@@ -789,3 +789,40 @@ Stage Summary:
 - 4-state weight system (Prior/Target/Smooth/Execution), 6 MASE candidate models, per-component admissibility envelopes, the 11 constitutional invariants (incl. new I6/I10/I11), the updated HONEST_STATUS table, and the new UNSUPPORTED_CLAIMS (incl. the 3 v1.0 additions) are all surfaced in the Docs section.
 - The v1.2 → v1.0 reconciliation table (11 areas) is shown in the Docs section as explicit "superseded vs Master" diffing.
 - Outstanding for the next task: MASE ensemble implementation (replace the legacy §6 single-engine θ ±3% with the 6-model ensemble + adaptive weights), MARP (replace the simple trigger + 24h direction lock with the 6-level hierarchy), per-component admissibility enforcement (currently the envelopes are display-only; the optimizer needs to clamp to them), and physically separating the index gold from the reserve gold (currently the same PAXG + XAUT holdings serve both roles).
+
+---
+Task ID: E2-E3 (COMPLETED)
+Agent: full-stack-developer subagent
+Task: Update engine + UI to Master Blueprint v1.0
+
+Work Log:
+- Fixed pre-existing 500: duplicate RAMP_DURATION_HOURS in blueprint.ts + stale BASKET_TABLE/REMOVED_CLAIMS imports
+- fx.ts: Added CHF_USD to FxRates + DEFAULTS + Frankfurter fetch (1/r.CHF)
+- engine.ts: Updated to 7-component Strategic Prior (USD/EUR/JPY/GBP/CNY/CHF/Gold), gold now IN the index, CHF added to reserve, GFB Index uses chain-linked formula
+- pilot-state.ts: Bumped STATE_SCHEMA_VERSION to 7
+- GfbBasket.tsx: Uses STRATEGIC_PRIOR_TABLE (7 components), GoldInReserve explains gold is in BOTH index AND reserve
+- LiveMonetaryState.tsx: CHF tile added, 8-col grid
+- ReserveVault.tsx: CHF added to assets arrays
+- HomeSection.tsx: Gold section says "in BOTH the Index and the Reserve", envelope bounds 20-32%
+- DocsSection.tsx: Full v1.0 tables — Strategic Prior, Envelopes, Weight States, MASE Models, Constitutional Invariants, Reconciliation Changes, Unsupported Claims
+- HonestStatus.tsx: Updated to UNSUPPORTED_CLAIMS
+
+VERIFIED:
+- Dev: 200 ✓, Vercel: 200 ✓, Lint: clean ✓
+- GFB Index: 1.7703 (gold-driven, vs old 1.0544)
+- CHF net: $76,452 ✓, FX CHF: 1.236 ✓
+- Gold net: $294,438 ✓, Gold weight: 25.76% ✓
+- Home: PAXG + XAUT + CHF + "BOTH" ✓
+- Dashboard: CHF + GFB + gold + basket ✓
+- Docs: Strategic Prior + Admissibility + MASE + Weight States + Reconciliation + Unsupported Claims ✓
+- All 9 sections, 0 errors
+
+Stage Summary:
+- Master Blueprint v1.0 is now implemented in the pilot engine.
+- Gold is IN the index (first-class component, 26% prior, 20-32% envelope).
+- CHF is added (5% prior, 3-7% envelope).
+- 7-component adaptive basket replaces the old 5-currency fixed basket.
+- 4-state weight system (Prior, Target, Smoothed, Execution) is documented.
+- MASE ensemble (6 models) is documented and ready for implementation.
+- Reconciliation changes table (v1.2 → v1.0) is displayed in the Docs section.
+- Committed + pushed to GitHub. Vercel auto-deployed successfully.
