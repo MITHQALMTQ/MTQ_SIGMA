@@ -270,51 +270,51 @@ export function HomeSection({ onNavigate }: { onNavigate: (id: SectionId) => voi
       <section aria-labelledby="home-gold">
         <SectionHeading eyebrow="§4 · §8 · Bullion" title="Tokenized Gold Reserve" />
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-          {/* PAXG card */}
+          {/* PAXG card — GOLD TINTED */}
           <Reveal delay={0}>
-            <Panel className="p-5">
+            <div className="mtqs-glass-gold p-5 rounded-[20px]" style={{ background: 'linear-gradient(135deg, rgba(232,185,100,0.12) 0%, rgba(20,20,24,0.55) 60%)', border: '1px solid rgba(232,185,100,0.25)' }}>
               <div className="flex items-center gap-2 mb-3">
-                <div className="w-10 h-10 rounded-full bg-amber-400/15 border border-amber-400/30 flex items-center justify-center">
+                <div className="w-10 h-10 rounded-full flex items-center justify-center" style={{ background: 'linear-gradient(135deg, #f5d27a, #e8b964)', boxShadow: '0 0 12px rgba(232,185,100,0.3)' }}>
                   <span className="text-lg">🥇</span>
                 </div>
                 <div>
-                  <div className="text-sm font-semibold text-amber-200">PAXG</div>
-                  <div className="text-[0.65rem] text-muted-foreground/60">Paxos Gold · Tether</div>
+                  <div className="text-sm font-bold text-amber-100">PAXG</div>
+                  <div className="text-[0.65rem] text-amber-200/60">Paxos Gold</div>
                 </div>
               </div>
               <div className="text-2xl font-mono mtqs-gold-text">
                 {snapshot ? fmtUsdCompact(snapshot.perIssuer?.paxgUsd ?? (snapshot.reserve.goldNet / 2)) : "—"}
               </div>
-              <div className="text-[0.7rem] text-muted-foreground/60 mt-1">
+              <div className="text-[0.7rem] text-amber-200/60 mt-1">
                 1 PAXG = 1 troy oz gold · {snapshot ? `$${fmtFixed(snapshot.reserve.goldPrice, 0)}` : "—"}/oz
               </div>
-              <div className="mt-2 text-[0.7rem] text-muted-foreground/50">
+              <div className="mt-2 text-[0.7rem] text-amber-200/50">
                 Haircut: 1.0% · Issuer: Paxos
               </div>
-            </Panel>
+            </div>
           </Reveal>
-          {/* XAUT card */}
+          {/* XAUT card — GOLD TINTED */}
           <Reveal delay={0.05}>
-            <Panel className="p-5">
+            <div className="mtqs-glass-gold p-5 rounded-[20px]" style={{ background: 'linear-gradient(135deg, rgba(232,185,100,0.10) 0%, rgba(20,20,24,0.55) 60%)', border: '1px solid rgba(232,185,100,0.22)' }}>
               <div className="flex items-center gap-2 mb-3">
-                <div className="w-10 h-10 rounded-full bg-amber-400/15 border border-amber-400/30 flex items-center justify-center">
+                <div className="w-10 h-10 rounded-full flex items-center justify-center" style={{ background: 'linear-gradient(135deg, #e0c068, #d4a44f)', boxShadow: '0 0 12px rgba(208,160,79,0.3)' }}>
                   <span className="text-lg">🥇</span>
                 </div>
                 <div>
-                  <div className="text-sm font-semibold text-amber-200">XAUT</div>
-                  <div className="text-[0.65rem] text-muted-foreground/60">Tether Gold</div>
+                  <div className="text-sm font-bold text-amber-100">XAUT</div>
+                  <div className="text-[0.65rem] text-amber-200/60">Tether Gold</div>
                 </div>
               </div>
               <div className="text-2xl font-mono mtqs-gold-text">
                 {snapshot ? fmtUsdCompact(snapshot.perIssuer?.xautUsd ?? (snapshot.reserve.goldNet / 2)) : "—"}
               </div>
-              <div className="text-[0.7rem] text-muted-foreground/60 mt-1">
+              <div className="text-[0.7rem] text-amber-200/60 mt-1">
                 1 XAUT = 1 troy oz gold · {snapshot ? `$${fmtFixed(snapshot.reserve.goldPrice, 0)}` : "—"}/oz
               </div>
-              <div className="mt-2 text-[0.7rem] text-muted-foreground/50">
+              <div className="mt-2 text-[0.7rem] text-amber-200/50">
                 Haircut: 1.0% · Issuer: Tether
               </div>
-            </Panel>
+            </div>
           </Reveal>
           {/* Gold Weight gauge card */}
           <Reveal delay={0.1}>
