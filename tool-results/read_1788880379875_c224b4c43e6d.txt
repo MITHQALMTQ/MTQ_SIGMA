@@ -1,0 +1,172 @@
+  1100→Task: Wire Chapter 24 audit-trail logging into the engine tick loop (pilot-state.ts) so the DailyStateVector / RebalancingDecision / OracleSample Prisma tables added by AUDIT-FIX-1+2+3+4 are actually populated on every tick. Logging-only — must not change monetary behaviour; must not break the tick loop if the audit DB is unavailable.
+  1101→
+  1102→Work Log:
+  1103→- Read worklog.md (1095 lines), prisma/schema.prisma (the 3 audit-trail models), src/lib/mtq/engine.ts (MetricsSnapshot, RebalanceDecision, ReserveState.pegHealth/ejectStage shapes), src/lib/mtq/oracle.ts (OracleBoard / OracleConsensus / OracleFeed shapes), src/lib/mtq/marp.ts (MarpDecision shape), src/lib/mtq/pilot-state.ts (the tick loop), src/lib/db.ts (the cached Prisma client), package.json (db:generate / db:push scripts), src/app/api/metrics/route.ts (the route that drives ensureStore()).
+  1104→- Created `src/lib/mtq/audit-trail.ts` (~237 lines) with 4 async helpers:
+  1105→  * `persistDailyStateVector(snapshot, tickCount, lastPersistedAt)` — §24.1, throttled 30s. Writes one DailyStateVector row carrying the full 28-field monetary snapshot (GFB Index, MTQ price, NAV, liability, RR, LCR, status, supply, 7-component reserve net values, VIX/DXY + z-scores + rawTheta + smoothed gold weight, target/observed gold weights, buffer state + ratio, eject stage, pegHealth JSON).
+  1106→  * `persistRebalancingDecision(tickCount, decision, navUsd, reserveRatio, observedGoldWeight, targetGoldWeight, deviationPct, applied, postTrade?)` — §24.2, every evaluated rebalance. Records the decision (should/shouldn't, direction, tradeUsd, reason, blockedBy) AND when applied, the pre/post-trade gold/fiat net, post-trade RR, post-trade observed gold weight.
+  1107→  * `persistOracleSamples(oracle, tickCount, lastPersistedAt)` — §24.3, throttled 30s, batched in a single `db.$transaction`. Writes 5 rows per tick (one per pair EUR/USD, GBP/USD, JPY/USD, CNY/USD, XAU/USD) capturing the 3 feeds' validity + price, validCount, finalPrice, method (median/average/paused), spreadBps, paused, and a JSON of discard reasons.
+  1108→  * `persistMarpDecisions(tickCount, snapshot)` — §10 + §24.2. Writes one RebalancingDecision row per MARP component (6 rows per tick) so the per-component MARP decisions are also auditable. Encodes `direction` as +1/-1/0 (buy/sell/hold), `reason` as `[MARP:{component}] {reason}`, `applied=false` (MARP decisions are advisory in the pilot — not executed as separate trades).
+  1109→  * Helper `maxEjectStage(snapshot)` — collapses the per-currency `ejectStage` map (the schema column is a single Int) to the MAX stage across currencies as the worst-case severity indicator.
+  1110→  * Helper `fin(v)` — coerces non-finite numbers (Infinity/NaN) to 0 for SQLite Float storage. Used for `reserveRatio` / `lcr` / `postReserveRatio` which are `Infinity` at genesis (no circulating supply → liability = 0 → RR = NAV/0). Documented convention: `reserveRatio = 0` in the audit log means "N/A — no circulating supply"; once the first mint occurs, circulating supply > 0 and the real finite ratio is persisted.
+  1111→- Edited `src/lib/mtq/pilot-state.ts`:
+  1112→  * Added imports for `persistDailyStateVector`, `persistRebalancingDecision`, `persistOracleSamples`, `persistMarpDecisions`, and `type RebalanceDecision` from engine.
+  1113→  * Bumped `STATE_SCHEMA_VERSION` from 8 → 9 (with a comment explaining the v9 change: added `lastDailyVectorAt` + `lastOracleSampleAt` for the throttled audit-trail persistence).
+  1114→  * Added two fields to `PilotStore`: `lastDailyVectorAt: number` and `lastOracleSampleAt: number` (epoch ms; 0 = never persisted; reset on schema rebuild).
+  1115→  * Initialised both to 0 in `ensureStore()`.
+  1116→  * Restructured the §7 rebalance block in `tick()` to:
+  1117→    - Stash a `rebalanceAudit` object (decision + pre/post-trade state) for persistence AFTER the tickCount increment (so all audit rows share the same tickCount value).
+  1118→    - Capture `preGoldNet` / `preFiatNet` before the trade.
+  1119→    - Recompute `snapPost` after `applyRebalanceTrade()` to capture `postGoldNet` / `postFiatNet` / `postReserveRatio` / `postObservedGoldWeight`.
+  1120→    - Also persist a RebalancingDecision row when `decision.shouldRebalance === false` (§24.2 requires every rebalance decision, including the "no" ones — the `blockedBy` column carries the reason).
+  1121→  * After `store.tickCount += 1;` (and after the rebalance block), added the three audit-trail persistence calls, each wrapped in its own try/catch with `console.error("[audit-trail] ...", e)`:
+  1122→    - `persistRebalancingDecision(...)` — only when a rebalance was actually evaluated this tick (oracle not paused AND price in band).
+  1123→    - `persistDailyStateVector(finalSnap, ...)` — uses a fresh post-tick `computeSnapshot()` so the row reflects the end-of-tick state (post-rebalance).
+  1124→    - `persistMarpDecisions(...)` — called inside the same try/catch as `persistDailyStateVector` so a MARP-row failure doesn't block the next DailyStateVector tick (but they share the snapshot, which is the intent).
+  1125→    - `persistOracleSamples(...)` — independent try/catch (so an oracle-sample failure doesn't block the daily-vector write).
+  1126→- Created `scripts/check-audit-trail.ts` (one-off verification script, NOT added to package.json per the task spec) that counts rows in all 5 tables (PilotTrial, MetricSample, DailyStateVector, RebalancingDecision, OracleSample) and prints the last row of each audit-trail table for sanity-checking field values.
+  1127→
+  1128→Verification:
+  1129→1. `bun run lint` → exit 0 (zero errors, zero warnings) — both before and after the `fin()` fix.
+  1130→2. `curl -s http://localhost:3000/api/metrics -o /dev/null -w "%{http_code}\n"` → `200`.
+  1131→3. After ~38s + 35s = ~73s of running (so the 30s throttle elapses at least twice for DailyStateVector and OracleSample):
+  1132→   - DailyStateVector: 9 rows (throttled every 30s; tickCount=33 on the last row; gfbIndex≈1.759, mtqPrice≈1.759, navUsd≈1.14M, status=NORMAL, bufferState=BASE, ejectStage=0, pegHealthJson populated).
+  1133→   - RebalancingDecision: 552 rows total → 69 legacy `evaluateRebalance` rows (12 with `applied=true` carrying full pre/post-trade state) + 483 MARP per-component advisory rows. Legacy row reasons include the expected `"Benefit > cost; executing"`, `"Within tolerance (<0.5%)"`, `"Direction lock (24h whipsaw guard)"`, `"Cost (...) ≥ benefit (...)"`.
+  1134→   - OracleSample: 95 rows = 19 batches × 5 pairs (throttled every 30s). Last row: pair=XAU/USD, method=median, validCount=3, finalPrice≈4400.
+  1135→4. dev.log: zero `[audit-trail]` errors, zero `prisma:error` lines, zero `TypeError` lines. Only `GET /api/... 200` lines.
+  1136→
+  1137→Issues encountered & fixed during this task:
+  1138→- (A) Prisma client stale in `globalThis` cache: the running dev server had cached a `PrismaClient` instance from BEFORE the orchestrator added the 3 audit-trail models, so `db.dailyStateVector` / `db.rebalancingDecision` / `db.oracleSample` were all `undefined` on the cached client → `TypeError: Cannot read properties of undefined (reading 'create')`. The orchestrator's `bun run db:push` regenerated the client in `node_modules/.prisma/client/`, but the running dev server had the old instance pinned in `globalThis.prisma` (the `db.ts` cache). HMR does not invalidate the globalThis Prisma cache (and Turbopack does not HMR `node_modules`). Fix: ran `bun run db:generate` to regenerate, then restarted the dev server (the system kills manually-launched `bun run dev` processes, so used `setsid -f bash -c 'exec bun run dev >> dev.log 2>&1'` to fully detach; the restarted server loaded the new Prisma client from `node_modules/.prisma/client/`). After restart, `db.dailyStateVector` / `db.rebalancingDecision` / `db.oracleSample` are all defined and persistence works.
+  1139→- (B) `reserveRatio = Infinity` at genesis stripped by Prisma: in the genesis state (no mints yet), `circulatingSupply = 0` → `liability = 0` → `computeReserveRatio()` returns `Infinity`. SQLite cannot store Infinity, and Prisma's Float validator strips `Infinity` for non-nullable Float columns, treating the field as "missing" → `PrismaClientValidationError: Argument 'reserveRatio' is missing`. (Same root cause for `lcr` and the post-trade `postReserveRatio`.) Fix: added the `fin()` helper in `audit-trail.ts` that coerces non-finite numbers to 0, with a clear documented convention in the file header (`reserveRatio = 0` in the audit log = "N/A — no circulating supply"). The existing `/api/simulate/mint/route.ts` and `/api/simulate/redeem/route.ts` `pilotTrial.create` calls have the same latent issue but never hit it in practice (they're only called after a mint, when circulating supply > 0). Did NOT modify those routes (out of scope: only audit-trail.ts and pilot-state.ts are owned by this task).
+  1140→- (C) HMR didn't invalidate the singleton's setInterval tick closure after the `fin()` fix: the singleton was rebuilt (STATE_SCHEMA_VERSION 8→9) BEFORE the `fin()` fix was added, so the singleton's tick closure pinned the OLD `audit-trail.ts` (the version with the Infinity bug). Editing `audit-trail.ts` triggered Turbopack to recompile it, but the singleton's `setInterval` callback closure still referenced the OLD module exports → the `fin()` fix didn't take effect until the dev server was restarted. Fix: killed the next dev process and restarted with the same `setsid -f` pattern. After restart, the singleton rebuilt from the LATEST code and `fin()` is now applied.
+  1141→
+  1142→Stage Summary:
+  1143→- Chapter 24 audit trail is now live: every 4s tick of the in-process MTQΣ engine persists (a) a full monetary state vector into `DailyStateVector` (throttled 30s), (b) every evaluated rebalance decision into `RebalancingDecision` (unthrottled — every tick that evaluates a rebalance; both "yes" and "no" decisions; for "yes" decisions, the pre/post-trade state is captured), (c) per-component MARP advisory decisions into `RebalancingDecision` (one row per component per tick, prefixed `[MARP:{component}]`), and (d) per-pair oracle consensus into `OracleSample` (throttled 30s, batched in a single transaction for atomicity). Any third party can now query these tables to reproduce the system's monetary state at any past timestamp — closing the §24 auditability gap identified in Task AUDIT-FIX-1+2+3+4.
+  1144→- The audit-trail persistence is best-effort: every call is wrapped in try/catch with `console.error("[audit-trail] ...")`, so DB errors NEVER break the engine tick loop. Verified empirically: when the Prisma client was stale (issue A) and when `reserveRatio` was Infinity (issue B), the tick loop kept running, the metrics API kept returning 200, and only `[audit-trail]` errors were logged — exactly the resilience the task required.
+  1145→- Bumped `STATE_SCHEMA_VERSION` 8→9 (per task spec) so the singleton auto-rebuilds with the new `lastDailyVectorAt` / `lastOracleSampleAt` throttle fields.
+  1146→- File summary:
+  1147→  - Created: `src/lib/mtq/audit-trail.ts` (~237 lines, 4 async persistence helpers + 2 small helpers `fin` and `maxEjectStage`).
+  1148→  - Modified: `src/lib/mtq/pilot-state.ts` (added audit-trail imports, bumped STATE_SCHEMA_VERSION 8→9, added `lastDailyVectorAt`/`lastOracleSampleAt` to PilotStore + init, restructured the rebalance block to capture pre/post-trade state for the audit row, added 4 audit-trail persistence calls after the tickCount increment all wrapped in try/catch).
+  1149→  - Created: `scripts/check-audit-trail.ts` (one-off verification script; NOT added to package.json per task spec).
+  1150→  - NOT modified: `engine.ts`, `mase.ts`, `marp.ts`, `oracle.ts`, `registry.ts`, `blueprint.ts`, `prisma/schema.prisma`, `src/components/*`, `src/app/api/*` — per the task's file-ownership constraint.
+  1151→- Lint: 0 errors. HTTP /api/metrics: 200. DB row counts after ~73s: DailyStateVector=9, RebalancingDecision=552 (69 legacy + 483 MARP), OracleSample=95. dev.log: zero audit-trail errors.
+  1152→
+  1153→---
+  1154→Task ID: P0-C
+  1155→Agent: full-stack-developer
+  1156→Task: Wire MARP per-component decisions into actual rebalance execution + physically separate index gold from reserve gold per §14.1
+  1157→
+  1158→Work Log:
+  1159→- Read worklog.md (Tasks F1-F7, AUDIT-FIX-1+2+3+4, and the parallel P0-B audit-trail task). Confirmed the MASE ensemble + MARP protocol were already implemented in `mase.ts` + `marp.ts` and wired into the snapshot (Tasks F1-F7), but MARP's `shouldTrade` decisions were advisory only — the engine's tick loop still ran the legacy §7 single-direction rebalance (`evaluateRebalance + applyRebalanceTrade`). Also confirmed the same `paxg + xaut` holdings served both as index gold (backing the 26% Strategic Prior Gold weight) and as the reserve buffer gold — a §14.1 ("Constitutional Separation") violation.
+  1160→
+  1161→### Part 1 — §14.1 Constitutional Separation of Gold (engine.ts, ADD-only)
+  1162→- ReserveState: added 4 new fields `indexPaxg` / `indexXaut` / `reservePaxg` / `reserveXaut` (gold locked to back the index weight vs gold in the reserve buffer that MARP rebalances). Legacy `paxg` / `xaut` retained as totals (= index + reserve) so existing readers (concentration optimizer, applyRedeem) work unchanged. Added `rebalancePath: 'legacy' | 'marp'` to track the active execution path.
+  1163→- initReserveState: split the genesis gold 50/50 between index and reserve (documented choice — 50/50 chosen over the 26%/74% alternative because at genesis the total gold IS exactly 26% of NAV, so a 26/74 split would leave index gold at only ~6.8% of NAV, far below the 26% index weight it's supposed to back). Set `rebalancePath: 'legacy'` default.
+  1164→- Added `commitIndexGold(s, indexPaxg, indexXaut)` — keeper-role equivalent. Sets the locked index gold, re-derives reserve = max(0, total − index), defensive against over-commit (bumps total + logs warn), emits `IndexGoldCommitted` event-equivalent via console.log.
+  1165→- Added `syncReserveFromTotal(s)` and `syncTotalFromReserve(s)` — the only sanctioned ways to maintain the §14.1 invariant. The former is called after the legacy path / concentration optimizer mutates `s.paxg` / `s.xaut` directly; the latter after the MARP path mutates `s.reservePaxg` / `s.reserveXaut`.
+  1166→- reserveAssetValues: added 6 new return fields — `indexPaxgUsd`, `indexXautUsd`, `reservePaxgUsd`, `reserveXautUsd`, `indexGoldNet`, `reserveGoldNet` (USD net of haircut). Defensive fallback to `max(0, s.paxg - s.indexPaxg)` if `s.reservePaxg < 0`.
+  1167→- MetricsSnapshot: added `reserve.indexGoldNet` + `reserve.reserveGoldNet` (the §14.1 gold split), `rebalancePath: 'legacy' | 'marp'` (which path is mutating state), and `marpExecution: { appliedCount, skippedCount, totalTradeUsd, path } | null` (read-only projection of what MARP WOULD do this tick — computed in buildMaseSnapshot, no state mutation).
+  1168→- buildObservedWeights: added a clear §14.1 comment — the Gold component's observed weight uses the TOTAL gold (= index + reserve, USD-net). Both pools back the 26% Strategic Prior Gold weight; only the reserve is MARP-rebalanced. Index gold is locked and only changes via `commitIndexGold()`.
+  1169→- buildMaseSnapshot: added `marpExecution` computation — counts decisions with `shouldTrade && level >= 6` as `appliedCount` (would-execute), the rest as `skippedCount`, sums their `tradeUsd` as `totalTradeUsd`. `path` mirrors `s.rebalancePath`.
+  1170→- applyRebalanceTrade (legacy §7 path): added 2 lines that mirror the gold delta to `s.reservePaxg` (the buffer, NOT index gold). Total `s.paxg` change unchanged; reserve split tracks it.
+  1171→- applyRedeem (§12 redemption): added 1 line — `syncReserveFromTotal(s)` after the gold release.
+  1172→- rebalanceForConcentration (§5.6 multi-issuer optimizer): added 1 line — `syncReserveFromTotal(s)` after the PAXG/XAUT re-split.
+  1173→
+  1174→### Part 2 — Wire MARP into the rebalance execution path
+  1175→- engine.ts: added `applyMarpRebalance(s, fx, decisions: MarpExecDecision[])` — the v1.0 production-target rebalance path. Takes the per-component decisions (accepts both the full `MarpDecision[]` from `marp.ts` and the trimmed version from `snapshot.marp.decisions`). For each decision with `shouldTrade === true` and `level >= 6`: enforces `MAX_DAILY_TURNOVER` (5% NAV) and `DIRECTION_LOCK_HOURS` (24h whipsaw guard); applies the trade to the RESERVE holdings (index gold is LOCKED — never touched). Trade execution model: non-USD fiat components pair with USD (split 1/3 across USDC/USDP/USDT); USD pairs with Gold (split 50/50 across `reservePaxg + reserveXaut`); Gold pairs with USD. Re-syncs the gold totals via `syncTotalFromReserve(s)` after each gold-affecting trade. Updates `s.lastTradeDir`, `s.lastTradeAt`, `s.dailyTurnoverUsd`. Returns `{ appliedCount, skippedCount, totalTradeUsd, path: 'marp', traces }` where `traces` is a per-decision trace (component, direction, tradeUsd, level, applied, skipReason?).
+  1176→- pilot-state.ts: added `const USE_MARP_EXECUTION = false` (default — keeps legacy §7 for pilot stability; MARP is the v1.0 production target). Bumped `STATE_SCHEMA_VERSION` 9 → 10 (P0-B bumped 8 → 9; I bump 9 → 10 per task spec so the singleton auto-rebuilds with both sets of new fields). In `tick()`: set `store.state.rebalancePath` each tick (idempotent), added an `if (USE_MARP_EXECUTION) { ... } else if (...) { ... }` chain. The `if` branch is my new MARP path (guarded by `!store.oracle.anyPaused && snap0.priceInBand`, wrapped in try/catch, logs only when trades applied). The `else if` branch is P0-B's existing legacy block (body unchanged — only `if` → `else if`). I did NOT modify P0-B's `let rebalanceAudit` block or the audit-trail persistence calls after `store.tickCount += 1`. When USE_MARP_EXECUTION=true, `rebalanceAudit` stays null and P0-B's `if (rebalanceAudit)` skips cleanly; MARP decisions are still captured by P0-B's `persistMarpDecisions` call (reads `snapshot.marp.decisions`), so audit-trail coverage is preserved for both paths.
+  1177→
+  1178→### Part 3 — RebalanceEngine.tsx UI (REWRITE — dual-view)
+  1179→- Top: A/B badge — gold pill "MARP active" or emerald pill "Legacy §7 active" based on `snapshot.rebalancePath`.
+  1180→- Tab toggle: "Legacy §7 (single-direction)" | "MARP §10 (per-component)" — defaults to whichever path is active; user can toggle to inspect the other path's view (view-only).
+  1181→- Honest note (gold-bordered callout with Info icon): "MARP is the v1.0 production target. Legacy §7 is retained as a pilot fallback. Toggle the feature flag USE_MARP_EXECUTION in src/lib/mtq/pilot-state.ts to switch the active execution path (default: false → legacy). The A/B badge above reflects the currently active path; the tab toggle is view-only."
+  1182→- Legacy §7 tab: existing decision panel + λ1-λ4 coefficients + execution constraints (preserved verbatim). Adds a "not mutating state (MARP active)" pill when the legacy view is informational only.
+  1183→- MARP §10 tab (NEW): execution summary header (X would-execute / Y skipped / $Z total); §14.1 gold split cards (Index gold locked / Reserve gold MARP buffer / Total gold = observed); per-component table (7 rows: Component, Direction badge, Trade USD, Urgency bar+%, Level L1-L6 badge, Reason); sticky header + `max-h-96 overflow-y-auto mtqs-scroll` for long-list handling; Σ summary footer row (total + applied + skipped + path); 6-level hierarchy legend; footer note about index gold being locked.
+  1184→- Framer Motion transitions: tab content uses `motion.div` with `initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }}` for a 250ms fade-in on tab switch.
+  1185→
+  1186→### Coordination with P0-B (parallel agent)
+  1187→- P0-B committed first: bumped schema 8→9, added `lastDailyVectorAt` / `lastOracleSampleAt` to PilotStore, added 4 audit-trail persistence calls after `store.tickCount += 1`, restructured the legacy rebalance block to capture `rebalanceAudit` (pre/post-trade state).
+  1188→- I bumped 9→10 (per task spec). I did NOT modify P0-B's `let rebalanceAudit` block (lines 157-218) or the audit-trail persistence calls (lines 237-275). I added my MARP branch BEFORE P0-B's `if (!store.oracle.anyPaused && !snap0.priceInBand === false)` line, and changed that line to `else if` (additive — body unchanged). When USE_MARP_EXECUTION=true, `rebalanceAudit` stays null and P0-B's `if (rebalanceAudit)` skips cleanly; MARP decisions are still captured by P0-B's `persistMarpDecisions` call (which reads `snapshot.marp.decisions` and writes advisory rows with `applied=false` — a known gap that's outside my scope to fix since `audit-trail.ts` is owned by P0-B).
+  1189→
+  1190→### Verification (all pass)
+  1191→1. `bun run lint` → exit 0.
+  1192→2. `/api/metrics` field verification:
+  1193→   - `has marpExecution: True`
+  1194→   - `has reserve.indexGoldNet: True`
+  1195→   - `has reserve.reserveGoldNet: True`
+  1196→   - `rebalancePath: 'legacy'` (default — USE_MARP_EXECUTION=false)
+  1197→   - §14.1 gold split invariant: $140,870.25 (index) + $152,682.40 (reserve) = $293,552.65 (= total `reserve.goldNet`) ✓
+  1198→   - marpExecution: `{ appliedCount: 2, skippedCount: 5, totalTradeUsd: $57,019.78, path: 'legacy' }` — 2 components (EUR + Gold) at L6 execute, 5 components at L1/L2 hold.
+  1199→3. `curl -s http://localhost:3000/ -o /dev/null -w "%{http_code}\n"` → `200`.
+  1200→4. dev.log tail: clean (only `GET /` and `GET /api/metrics 200` lines, no errors/warnings/hydration issues).
+  1201→5. agent-browser verification:
+  1202→   - Page title "MTQΣ — The Monetary Observatory" returned 200, no page errors.
+  1203→   - Dashboard → Rebalancing Engine section: A/B badge shows "Legacy §7 active". Tab toggle "Legacy §7 (single-direction)" / "MARP §10 (per-component)" both visible.
+  1204→   - Legacy §7 tab content (verified via JS eval): Direction lock (24h whipsaw guard), no trade, Observed W 25.68%, Target W 25.15%, Deviation +0.52%, Trade USD $0.00, λ1-4 coefficients, execution constraints. Honest note visible.
+  1205→   - MARP §10 tab content (verified via JS eval): "§14.1 + §10 · MARP · PER-COMPONENT EXECUTION (V1.0 PRODUCTION TARGET)", "2 would-execute / 5 skipped / total: $57.36K". §14.1 gold split: Index gold (locked) $140.88K, Reserve gold (MARP buffer) $152.40K, Total gold $293.27K. Per-component table (7 rows): USD hold L2, EUR sell $23.07K L6, JPY hold L2, GBP hold L2, CNY hold L2, CHF hold L1 (no-trade zone), Gold sell $34.29K L6. Σ row: "$57.36K total, 2 applied · 5 skipped · path = legacy". 6-level hierarchy legend. Footer note about index gold being locked.
+  1206→   - Mobile responsive (390×844 iPhone 14 viewport): tab toggle + dual view render correctly.
+  1207→   - `agent-browser errors` → empty. `agent-browser console` → only React DevTools + HMR lines.
+  1208→   - Screenshots saved: `/home/z/my-project/agent-ctx/rebalance-legacy.png`, `/home/z/my-project/agent-ctx/rebalance-marp.png`, `/home/z/my-project/agent-ctx/rebalance-mobile-legacy.png`, `/home/z/my-project/agent-ctx/rebalance-mobile-marp.png`.
+  1209→
+  1210→### Constraints honoured
+  1211→- DO NOT rewrite engine.ts from scratch — ADD to it. All existing exports/functions/fields RETAINED. ✓
+  1212→- DO NOT edit `mase.ts`, `marp.ts`, `oracle.ts`, `registry.ts`, `blueprint.ts`, `audit-trail.ts`. ✓
+  1213→- Bump STATE_SCHEMA_VERSION 8 → 10 (coordinate with P0-B which bumps 8 → 9). ✓
+  1214→- Lint must be clean. ✓
+  1215→- If accidentally conflict with P0-B's audit-trail changes in pilot-state.ts, prefer the resolution that keeps BOTH changes — add your lines, don't remove theirs. ✓
+  1216→
+  1217→Stage Summary:
+  1218→- §14.1 Constitutional Separation of Gold is now implemented in the TS engine: index gold (PAXG + XAUT) is locked in a separate accounting vault that backs the 26% Strategic Prior Gold weight; reserve gold (the other half at genesis) is the buffer MARP rebalances. `commitIndexGold()` (keeper-role equivalent) is the only way to move gold between the two pools. The §14.1 invariant (`paxg = indexPaxg + reservePaxg`, same for xaut) is maintained via `syncReserveFromTotal()` and `syncTotalFromReserve()` helpers called from `applyRebalanceTrade`, `applyRedeem`, `rebalanceForConcentration`, and `applyMarpRebalance`. The gold split is exposed in the snapshot (`reserve.indexGoldNet` + `reserve.reserveGoldNet`) and rendered in the new MARP tab.
+  1219→- MARP per-component rebalance execution is now wired into the tick loop via a feature flag (`USE_MARP_EXECUTION = false` by default — keeps legacy §7 for pilot stability; MARP is the v1.0 production target). The new `applyMarpRebalance()` function takes the per-component `MarpDecision[]` and applies each "would-execute" trade (level >= 6) to the RESERVE holdings (index gold locked), enforcing `MAX_DAILY_TURNOVER` (5% NAV) and `DIRECTION_LOCK_HOURS` (24h whipsaw guard). The trade-execution model pairs each non-USD component with USD (split 1/3 across USDC/USDP/USDT) and USD with Gold (split 50/50 PAXG/XAUT in the reserve buffer), so every trade has a clear counterparty and the total NAV is preserved (modulo haircut differences).
+  1220→- The RebalanceEngine.tsx UI now renders both paths side-by-side via a tab toggle: the Legacy §7 view (single-direction, observed vs target gold weight, deviation, trade USD, λ1-λ4, execution constraints) and the new MARP view (per-component table with direction/tradeUsd/urgency/level/reason, §14.1 gold split cards, summary "X applied · Y skipped · $Z total · path = legacy/marp", 6-level hierarchy legend, footer note about index gold being locked). An A/B badge at the top shows "Legacy §7 active" / "MARP active" based on `snapshot.rebalancePath`. An honest note explains the v1.0 production target / pilot fallback relationship and points the user at the feature flag in `pilot-state.ts`.
+  1221→- Lint: 0 errors. HTTP /: 200. dev.log: clean. agent-browser: dual-view renders correctly on desktop + mobile, tab toggle works, A/B badge correct, no page errors.
+  1222→- Files modified:
+  1223→  - `src/lib/mtq/engine.ts` (ADD-only — new fields, new functions, gold-separation helpers, MARP execution)
+  1224→  - `src/lib/mtq/pilot-state.ts` (MINIMAL — bumped schema 9→10, added feature flag + MARP branch alongside P0-B's audit-trail block)
+  1225→  - `src/components/mtq/RebalanceEngine.tsx` (REWRITE — dual-view with tab toggle + A/B badge + MARP per-component table)
+  1226→- Work record written to `/home/z/my-project/agent-ctx/P0-C-full-stack-developer.md`.
+  1227→
+  1228→---
+  1229→Task ID: P0-D (FINAL)
+  1230→Agent: Orchestrator (COO/PM)
+  1231→Task: Sequential finalize — register MTQSigmaV2 in contracts.ts + update OnChainMatrix.tsx to flip v1.0 rows to "source-ready" status. Run full verification.
+  1232→
+  1233→Work Log:
+  1234→- Read the 3 parallel subagent reports (P0-A general-purpose wrote MTQSigmaV2.sol + manifest; P0-B full-stack-developer wired audit-trail logging into pilot-state.ts; P0-C full-stack-developer wired MARP + physically separated index/reserve gold per §14.1).
+  1235→- Added `MTQSIGMA_V2` export to `src/lib/mtq/contracts.ts` — a typed constant with status="SOURCE_READY_PENDING_DEPLOY", sourceFile, chainId=5042002, honestStatusMask="0x7FF", expectedAddress=null, deployTx=null, deployedAt=null, and a 12-item features array documenting every §2/§3/§5/§8.1/§9/§10/§12/§14/§25 capability the V2 source implements. Includes a comment block with the bytecode size (22,627 bytes w/ optimizer runs=200) and the deploy instruction (scripts/deploy.ts with optimizer enabled).
+  1236→- Updated `src/components/mtq/OnChainMatrix.tsx`:
+  1237→  * Added a 5th CellStatus `source-ready` (gold Pill + lucide FileCode2 icon) — representing "Solidity source written & compiles, pending deploy".
+  1238→  * Flipped rows #2-#10 (7-component Strategic Prior, Gold first-class, CHF first-class, chain-linked denominator, MASE weight registry, admissibility envelopes, MARP execution, Asset Registry, Multi-source oracle) from `not-implemented` → `source-ready`. Row #17 (Dynamic buffer) → `source-ready`. Row #18 (DAO governance) → `source-ready`. Row #19 (getHonestStatus) → `on-chain` "v1.2 pilot: 0x400 · V2: 0x7FF (pending)".
+  1239→  * Only row #16 (Geopolitical eject ladder §11) remains `not-implemented` — V2 §10 covers rebalancing; the eject ladder is a separate future contract (honest note added).
+  1240→  * Updated row-classification helper to handle `source-ready` → added RowClass variant + classifyRow branch + border color (gold).
+  1241→  * Updated summary chip section: now renders 5 Pills (on-chain / source-ready / TS-only / not-implemented / audit-trail) with their respective counts.
+  1242→  * Rewrote the lead paragraph: explicitly names the deployed v1.2 pilot contract (0x826b82F7...), declares the V2 source (contracts/MTQSigmaV2.sol, 1057 lines, 22,627 bytes w/ optimizer, getHonestStatus=0x7FF), and labels the status as SOURCE_READY_PENDING_DEPLOY.
+  1243→  * Rewrote the honest summary paragraph at the bottom: now describes the v1.0 Master Blueprint as implemented in THREE layers (TS engine live / V2 source ready pending deploy / Chapter 24 audit-trail DB being populated), and notes that once the protocol owner deploys V2 + updates CANONICAL_MTQ_ADDRESSES.arc, the summary chip will flip from "11 source-ready" to more on-chain.
+  1244→- Verified end-to-end:
+  1245→  * `bun run lint` → exit 0 (zero errors, zero warnings)
+  1246→  * `curl /` → HTTP 200
+  1247→  * `/api/metrics` returns full v1.0 snapshot: GFB=1.7575, status=NORMAL, has marpExecution=True, has reserve.indexGoldNet=True, has reserve.reserveGoldNet=True, rebalancePath='legacy' (feature-flagged)
+  1248→  * Audit-trail DB row counts (after ~10 minutes of running): 99 DailyStateVector, 6248 RebalancingDecision, 545 OracleSample — populated every tick (30s throttle on Daily + OracleSample, every eval on RebalancingDecision)
+  1249→  * V2 contract files present: contracts/MTQSigmaV2.sol (51,672 bytes), contracts/deployments/MTQSigmaV2-PENDING.json (3,255 bytes)
+  1250→  * agent-browser verification:
+  1251→    - Opened http://localhost:3000/ → page title "MTQΣ — The Monetary Observatory", HTTP 200, zero page errors, zero console errors.
+  1252→    - Navigated to Docs section → confirmed the new H3 heading "Implementation Matrix — Arc Testnet vs TypeScript Reference Engine" renders as the FIRST content after the H2 "Documentation — Master Blueprint v1.0".
+  1253→    - Extracted the matrix panel text via JS eval: summary chip exactly reads "7 on-chain · 11 source-ready · 1 TS-only · 0 not implemented · 1 audit-trail". Lead paragraph names the deployed contract 0x826b82F7..., mentions MTQSigmaV2 (1057 lines, 22,627 bytes, getHonestStatus=0x7FF), and labels STATUS: SOURCE_READY_PENDING_DEPLOY.
+  1254→    - Confirmed all 20 rows render with the correct on-chain / source-ready / TS engine / notes columns; row #16 (Geopolitical eject ladder) is the only remaining `not-implemented` row (honest note explains V2 covers rebalancing not eject).
+  1255→    - Navigated to Security section → confirmed the same matrix renders there too (also as the first content after the section heading), with MTQSigmaV2 mentions present.
+  1256→    - Took a full-page screenshot saved to /home/z/my-project/agent-ctx/final-matrix-docs.png.
+  1257→    - agent-browser errors → empty. Dev log → only `GET / 200` and `GET /api/metrics 200` lines, no errors/warnings/hydration issues.
+  1258→
+  1259→Stage Summary:
+  1260→- All 4 P0 tasks (P0-A, P0-B, P0-C, P0-D) complete and browser-verified.
+  1261→- Created: contracts/MTQSigmaV2.sol (1057 lines, v1.0 Master Blueprint on-chain, compiles clean w/ optimizer runs=200 → 22,627 bytes, 0x7FF honest mask); contracts/deployments/MTQSigmaV2-PENDING.json (manifest with 15-step postDeploy checklist); src/lib/mtq/audit-trail.ts (4 persistence helpers, throttled 30s); scripts/check-audit-trail.ts (one-off verifier).
+  1262→- Modified: prisma/schema.prisma (3 new audit-trail models — DailyStateVector, RebalancingDecision, OracleSample); src/lib/mtq/pilot-state.ts (wired audit-trail persistence + feature-flagged MARP execution + bumped STATE_SCHEMA_VERSION 8→10); src/lib/mtq/engine.ts (added §14.1 gold physical separation: indexPaxg/indexXaut/reservePaxg/reserveXaut, commitIndexGold keeper helper, syncReserveFromTotal/syncTotalFromReserve invariants, applyMarpRebalance per-component execution with turnover cap + direction lock, marpExecution + rebalancePath + reserve.indexGoldNet/reserveGoldNet added to MetricsSnapshot); src/components/mtq/RebalanceEngine.tsx (dual-view with Legacy §7 / MARP §10 tab toggle + A/B badge + §14.1 gold-split cards + per-component MARP table); src/lib/mtq/contracts.ts (added MTQSIGMA_V2 export with features array + deploy manifest reference); src/components/mtq/OnChainMatrix.tsx (added source-ready status, flipped 10 v1.0 rows to source-ready, updated lead + summary + chip, added 5-color border classification).
+  1263→- Final state:
+  1264→  * Summary chip: 7 on-chain · 11 source-ready · 1 TS-only · 0 not implemented · 1 audit-trail
+  1265→  * Audit trail DB: populated live (99 DailyStateVector, 6248 RebalancingDecision, 545 OracleSample rows)
+  1266→  * MARP execution: feature-flagged (USE_MARP_EXECUTION=false, default legacy §7 for stability; toggle to switch)
+  1267→  * §14.1 gold separation: implemented in engine (index gold locked; reserve gold MARP-rebalanced); invariant verified: $140,870 index + $152,682 reserve = $293,552 total
+  1268→  * V2 contract: source-ready, awaiting protocol-owner deploy (sandbox cannot deploy — no testnet ETH)
+  1269→- Lint exit 0; HTTP 200; dev log clean; agent-browser verified 0 page errors; matrix renders in both Docs and Security sections with all 20 rows + the honest summary chip.
+  1270→- Outstanding (next session, by protocol owner): deploy MTQSigmaV2 on Arc Testnet + Monad Testnet via scripts/deploy.ts (with optimizer enabled), update CANONICAL_MTQ_ADDRESSES, run the 15-step postDeploy checklist in the manifest. Once deployed, the OnChainMatrix summary chip will flip from "11 source-ready" to "18 on-chain" (rows 2-10, 17, 18, 19 all flip from source-ready to on-chain).
+  1271→

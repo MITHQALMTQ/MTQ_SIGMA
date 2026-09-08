@@ -373,5 +373,7 @@ export const SECTION_IDS = [
   "governance",
   "basket",
   "trials",
+  "ai-briefing",
+  "ai-risk",
   "honest",
 ] as const;

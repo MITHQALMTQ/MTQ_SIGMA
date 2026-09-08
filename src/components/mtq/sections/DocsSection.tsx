@@ -23,6 +23,7 @@ import { GfbBasket } from "@/components/mtq/GfbBasket";
 import { RiskStateMachine } from "@/components/mtq/RiskStateMachine";
 import { HonestStatus } from "@/components/mtq/HonestStatus";
 import { OnChainMatrix } from "@/components/mtq/OnChainMatrix";
+import { BlueprintQA } from "@/components/mtq/BlueprintQA";
 import {
   STRATEGIC_PRIOR_TABLE,
   ENVELOPES_TABLE,
@@ -151,6 +152,11 @@ export function DocsSection({
 
       {/* On-Chain vs Off-Chain Implementation Matrix — FIRST thing in Docs */}
       <OnChainMatrix />
+
+      {/* AI Blueprint Q&A — second thing, so visitors can ask questions about the matrix above */}
+      <Reveal>
+        <BlueprintQA />
+      </Reveal>
 
       {/* Intro */}
       <Reveal>

@@ -29,6 +29,8 @@ import { RiskStateMachine } from "@/components/mtq/RiskStateMachine";
 import { GfbBasket, GoldInReserve } from "@/components/mtq/GfbBasket";
 import { TrialLog, type PilotTrial } from "@/components/mtq/TrialLog";
 import { HonestStatus } from "@/components/mtq/HonestStatus";
+import { AIPolicyBriefing } from "@/components/mtq/AIPolicyBriefing";
+import { RiskSignals } from "@/components/mtq/RiskSignals";
 
 import type { MetricsSnapshot } from "@/lib/mtq/engine";
 import type { OracleBoard } from "@/lib/mtq/oracle";
@@ -391,6 +393,16 @@ export function DashboardSection() {
       {/* ===== 17 — Trial Log ===== */}
       <Section id="trials" eyebrow="audit" title="Pilot Trial Log">
         <TrialLog trials={trials} loading={trialsLoading} onRefresh={fetchTrials} />
+      </Section>
+
+      {/* ===== 17a — AI Policy Briefing (COO AI · Gemini) ===== */}
+      <Section id="ai-briefing" eyebrow="AI · advisory" title="AI Monetary Policy Briefing · COO AI">
+        <AIPolicyBriefing />
+      </Section>
+
+      {/* ===== 17b — AI Risk Signals (Groq) ===== */}
+      <Section id="ai-risk" eyebrow="AI · advisory" title="Live Risk Monitor · AI Signals">
+        <RiskSignals />
       </Section>
 
       {/* ===== 18 — Honest Status Declaration ===== */}
