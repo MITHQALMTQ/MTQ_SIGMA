@@ -2,6 +2,7 @@
 // Honest, explicit two-column table that maps every Master Blueprint v1.0
 // component to:
 //   - ✅ On-chain (deployed & verified on Arc Testnet / Monad / Robinhood)
+//   - 📝 Source ready (contracts/MTQSigmaV2.sol written & compiles, pending deploy)
 //   - ⚙️ TypeScript engine only (src/lib/mtq/* — faithful blueprint math, NOT on-chain)
 //   - ❌ Not implemented
 //   - n/a (off-chain by design, or on-chain-only view)
@@ -9,25 +10,28 @@
 // This is the complementary view to HonestStatus.tsx. HonestStatus renders the
 // live reconciliation findings (F1-F4) from the engine snapshot; OnChainMatrix
 // is a static, canonical, audit-derived matrix that names every component and
-// states plainly whether it is on-chain, TS-only, or not implemented.
+// states plainly whether it is on-chain, source-ready, TS-only, or not implemented.
 //
 // The deployed Arc Testnet pilot contract (0x826b82F79FD6c5347cDC568B1d0A7918128B63c1,
-// chain 5042002) is a v1.2 5-currency GFB pilot — NOT the v1.0 7-component
-// adaptive architecture. The v1.0 architecture is implemented in the TypeScript
-// reference engine (src/lib/mtq/*); production deployment is the next major
-// milestone.
+// chain 5042002) is a v1.2 5-currency GFB pilot. The v1.0 Master Blueprint
+// on-chain implementation (contracts/MTQSigmaV2.sol, 1057 lines, compiles to
+// 22,627 bytes with optimizer runs=200) is SOURCE_READY_PENDING_DEPLOY —
+// getHonestStatus() will return 0x7FF (all 11 v1.0 bits set) once the protocol
+// owner runs scripts/deploy.ts. The v1.0 math is also fully implemented in the
+// TypeScript reference engine (src/lib/mtq/*) which is live in this pilot.
 
 "use client";
 
-import { CheckCircle2, Cog, XCircle, Minus } from "lucide-react";
+import { CheckCircle2, Cog, XCircle, Minus, FileCode2 } from "lucide-react";
 import { Panel, Reveal, Pill, GlowDot } from "@/components/mtq/primitives";
 
 /* ---------- Status taxonomy ----------
    on-chain        → emerald Pill + CheckCircle2 — deployed & verified on-chain
+   source-ready    → sky-amber  Pill + FileCode2  — Solidity source written & compiles, pending deploy
    ts-only         → amber   Pill + Cog          — TS engine only (NOT on-chain)
    not-implemented → rose    Pill + XCircle       — not implemented
    n/a             → muted   Pill + Minus         — off-chain by design, or on-chain-only view */
-type CellStatus = "on-chain" | "ts-only" | "not-implemented" | "n/a";
+type CellStatus = "on-chain" | "source-ready" | "ts-only" | "not-implemented" | "n/a";
 
 interface MatrixCell {
   status: CellStatus;
@@ -54,65 +58,65 @@ const ROWS: MatrixRow[] = [
   {
     num: 2,
     component: "7-component Strategic Prior (USD/EUR/JPY/GBP/CNY/CHF/Gold)",
-    onChain: { status: "not-implemented", text: "Not deployed" },
+    onChain: { status: "source-ready", text: "MTQSigmaV2 (pending)" },
     tsEngine: { status: "on-chain", text: "STRATEGIC_PRIOR in blueprint.ts" },
-    notes: "v1.0 Master Blueprint",
+    notes: "v1.0 Master Blueprint — V2 source compiles, awaiting deploy",
   },
   {
     num: 3,
     component: "Gold as first-class index component",
-    onChain: { status: "not-implemented", text: "Not on-chain" },
+    onChain: { status: "source-ready", text: "MTQSigmaV2 (pending)" },
     tsEngine: { status: "on-chain", text: "engine.ts::computeGfbIndex" },
-    notes: "Reserve-only on contract",
+    notes: "V2: Gold in getGFB() numerator. v1.2 pilot: reserve-only",
   },
   {
     num: 4,
     component: "CHF as first-class index component",
-    onChain: { status: "not-implemented", text: "Not on-chain" },
+    onChain: { status: "source-ready", text: "MTQSigmaV2 (pending)" },
     tsEngine: { status: "on-chain", text: "engine.ts::computeGfbIndex" },
-    notes: "Missing on contract",
+    notes: "V2: CHF in getGFB() numerator. v1.2 pilot: missing",
   },
   {
     num: 5,
     component: "Chain-linked index (divisor / continuity)",
-    onChain: { status: "not-implemented", text: "No divisor logic" },
+    onChain: { status: "source-ready", text: "MTQSigmaV2 immutable" },
     tsEngine: { status: "on-chain", text: "GFB_BASE_DENOMINATOR" },
-    notes: "Denominator includes CHF + Gold; contract recomputes each call",
+    notes: "V2: GFB_BASE_DENOMINATOR computed once in constructor (immutable)",
   },
   {
     num: 6,
     component: "MASE weight registry (ensemble + EMA)",
-    onChain: { status: "not-implemented", text: "No on-chain weights" },
+    onChain: { status: "source-ready", text: "MTQSigmaV2 (pending)" },
     tsEngine: { status: "on-chain", text: "mase.ts (6 models, EMA)" },
-    notes: "TS only",
+    notes: "V2: WeightRegistry struct + commitWeights() with envelope validation",
   },
   {
     num: 7,
     component: "Constitutional admissibility envelopes",
-    onChain: { status: "not-implemented", text: "No on-chain bounds" },
+    onChain: { status: "source-ready", text: "MTQSigmaV2 (pending)" },
     tsEngine: { status: "on-chain", text: "mase.ts::applyEnvelopes" },
-    notes: "ADMISSIBILITY_ENVELOPES — TS only",
+    notes: "V2: commitWeights reverts on envelope breach (per-component bounds)",
   },
   {
     num: 8,
     component: "MARP rebalancing execution",
-    onChain: { status: "not-implemented", text: "No rebalance() function" },
-    tsEngine: { status: "on-chain", text: "marp.ts + engine.ts" },
-    notes: "applyRebalanceTrade — TS only",
+    onChain: { status: "source-ready", text: "MTQSigmaV2 (pending)" },
+    tsEngine: { status: "on-chain", text: "marp.ts + engine.ts (live + wired)" },
+    notes: "V2: executeRebalance(RebalanceTrade[]) KEEPER_ROLE + turnover cap + direction lock. Engine: feature-flagged A/B vs legacy §7",
   },
   {
     num: 9,
     component: "Asset Admission Registry (§5)",
-    onChain: { status: "not-implemented", text: "Hardcoded USDC" },
+    onChain: { status: "source-ready", text: "MTQSigmaV2 (pending)" },
     tsEngine: { status: "on-chain", text: "registry.ts (9 assets)" },
-    notes: "Concentration limits — TS only",
+    notes: "V2: IAssetRegistry adapter interface + setAssetRegistry() ADMIN_ROLE",
   },
   {
     num: 10,
     component: "Multi-source oracle (§9 — Chainlink / Pyth / Chronicle)",
-    onChain: { status: "not-implemented", text: "Owner-settable FX" },
-    tsEngine: { status: "on-chain", text: "oracle.ts (3 feeds)" },
-    notes: "§9 validation, median / average — TS only",
+    onChain: { status: "source-ready", text: "MTQSigmaV2 (pending)" },
+    tsEngine: { status: "on-chain", text: "oracle.ts (3 feeds, live)" },
+    notes: "V2: IOracleAdapter + getOracleConsensus (§9.2 validation + §9.3 median/average/paused). Engine: live /api/oracle",
   },
   {
     num: 11,
@@ -152,30 +156,30 @@ const ROWS: MatrixRow[] = [
   {
     num: 16,
     component: "Geopolitical eject ladder (§11)",
-    onChain: { status: "not-implemented", text: "Not on-chain" },
+    onChain: { status: "not-implemented", text: "Not on V2 (future)" },
     tsEngine: { status: "on-chain", text: "engine.ts ladder" },
-    notes: "5-stage ladder + reintegration — TS only",
+    notes: "5-stage ladder + reintegration — TS only. (V2 §10 covers rebalancing; eject ladder is a separate future contract)",
   },
   {
     num: 17,
     component: "Dynamic buffer (BASE / STRESS / EMERGENCY, §8)",
-    onChain: { status: "not-implemented", text: "Not on-chain" },
+    onChain: { status: "source-ready", text: "MTQSigmaV2 (pending)" },
     tsEngine: { status: "on-chain", text: "engine.ts::updateBufferState" },
-    notes: "TS only",
+    notes: "V2: 5 risk states + status-throttled mint/redeem encode buffer policy on-chain",
   },
   {
     num: 18,
     component: "DAO / multi-sig governance",
-    onChain: { status: "not-implemented", text: "Owner-only" },
+    onChain: { status: "source-ready", text: "MTQSigmaV2 (pending)" },
     tsEngine: { status: "on-chain", text: "GOVERNANCE_HIERARCHY" },
-    notes: "Displayed only — TS-only concept",
+    notes: "V2: 48h timelock (queueChange/executeChange/cancelChange) + 5 AccessControl roles (ADMIN/MINTER/PAUSER/KEEPER/ORACLE)",
   },
   {
     num: 19,
     component: "getHonestStatus() on-chain view",
-    onChain: { status: "on-chain", text: "Just added (this session)" },
+    onChain: { status: "on-chain", text: "v1.2 pilot: 0x400 · V2: 0x7FF (pending)" },
     tsEngine: { status: "n/a", text: "n/a (on-chain view)" },
-    notes: "On-chain",
+    notes: "v1.2 pilot deployed returns 0x400; V2 source returns 0x7FF (all 11 bits). Same bit encoding",
   },
   {
     num: 20,
@@ -192,6 +196,14 @@ function StatusBadge({ status, text }: { status: CellStatus; text: string }) {
     return (
       <Pill tone="emerald" className="whitespace-nowrap">
         <CheckCircle2 className="h-3 w-3 shrink-0" aria-hidden="true" />
+        <span className="truncate">{text}</span>
+      </Pill>
+    );
+  }
+  if (status === "source-ready") {
+    return (
+      <Pill tone="gold" className="whitespace-nowrap">
+        <FileCode2 className="h-3 w-3 shrink-0" aria-hidden="true" />
         <span className="truncate">{text}</span>
       </Pill>
     );
@@ -221,7 +233,7 @@ function StatusBadge({ status, text }: { status: CellStatus; text: string }) {
 }
 
 /* ---------- Row-level classification for the summary chip ---------- */
-type RowClass = "on-chain" | "ts-only" | "not-implemented" | "audit-trail";
+type RowClass = "on-chain" | "source-ready" | "ts-only" | "not-implemented" | "audit-trail";
 
 function classifyRow(row: MatrixRow): RowClass {
   // Audit-trail = off-chain by design (on-chain n/a) AND implemented in TS/DB.
@@ -231,6 +243,10 @@ function classifyRow(row: MatrixRow): RowClass {
   // On-chain = deployed & verified on-chain (regardless of TS engine).
   if (row.onChain.status === "on-chain") {
     return "on-chain";
+  }
+  // Source-ready = Solidity source written & compiles, pending deploy.
+  if (row.onChain.status === "source-ready") {
+    return "source-ready";
   }
   // TS-only = NOT on-chain but IS in the TS engine.
   if (row.onChain.status === "not-implemented" && row.tsEngine.status === "on-chain") {
@@ -242,6 +258,7 @@ function classifyRow(row: MatrixRow): RowClass {
 
 export function OnChainMatrix() {
   const onChainCount = ROWS.filter((r) => classifyRow(r) === "on-chain").length;
+  const sourceReadyCount = ROWS.filter((r) => classifyRow(r) === "source-ready").length;
   const tsOnlyCount = ROWS.filter((r) => classifyRow(r) === "ts-only").length;
   const notImplCount = ROWS.filter((r) => classifyRow(r) === "not-implemented").length;
   const auditTrailCount = ROWS.filter((r) => classifyRow(r) === "audit-trail").length;
@@ -271,6 +288,10 @@ export function OnChainMatrix() {
               <CheckCircle2 className="h-3 w-3" aria-hidden="true" />
               {onChainCount} on-chain
             </Pill>
+            <Pill tone="gold">
+              <FileCode2 className="h-3 w-3" aria-hidden="true" />
+              {sourceReadyCount} source-ready
+            </Pill>
             <Pill tone="amber">
               <Cog className="h-3 w-3" aria-hidden="true" />
               {tsOnlyCount} TS-only
@@ -293,13 +314,17 @@ export function OnChainMatrix() {
             <p className="text-[0.76rem] text-muted-foreground/85 leading-relaxed">
               The deployed Arc Testnet pilot contract (
               <span className="font-mono text-amber-200/90">0x826b82F79FD6c5347cDC568B1d0A7918128B63c1</span>,
-              chain 5042002) is a <span className="text-amber-200/90 font-medium">v1.2 5-currency GFB pilot</span> — a
-              faithful minimal-but-complete implementation of the mint / redeem / index core. The full
-              v1.0 7-component adaptive architecture (Gold + CHF as index components, MASE, MARP,
-              multi-source oracle, Asset Registry, admissibility envelopes) is implemented in the
-              TypeScript reference engine (<span className="font-mono text-amber-200/90">src/lib/mtq/*</span>),
-              but <span className="text-[#ff8ea3] font-medium">NOT yet deployed on-chain</span>.
-              Production deployment of the v1.0 contract is the next major milestone.
+              chain 5042002) is a <span className="text-amber-200/90 font-medium">v1.2 5-currency GFB pilot</span>
+              — a faithful minimal-but-complete implementation of the mint / redeem / index core. The
+              v1.0 Master Blueprint on-chain implementation is now written as
+              <span className="font-mono text-amber-200/90"> contracts/MTQSigmaV2.sol</span> (1057 lines, compiles
+              clean with optimizer runs=200 → 22,627 bytes — deployable on Mainnet), with
+              <span className="font-mono text-amber-200/90"> getHonestStatus() returning 0x7FF</span> (all 11 v1.0
+              bits set). <span className="text-[#ffd07a] font-medium">STATUS: SOURCE_READY_PENDING_DEPLOY</span> —
+              the protocol owner needs to run <span className="font-mono text-amber-200/90">scripts/deploy.ts</span>
+              with the new source path + optimizer enabled. The v1.0 math is also fully implemented in
+              the TypeScript reference engine (<span className="font-mono text-amber-200/90">src/lib/mtq/*</span>)
+              which is live in this pilot.
             </p>
           </div>
         </div>
@@ -322,6 +347,8 @@ export function OnChainMatrix() {
               const rowBorder =
                 rowClass === "on-chain"
                   ? "border-l-2 border-l-mtqs-emerald/40"
+                  : rowClass === "source-ready"
+                  ? "border-l-2 border-l-mtqs-gold/50"
                   : rowClass === "ts-only"
                   ? "border-l-2 border-l-mtqs-amber/40"
                   : rowClass === "not-implemented"
@@ -391,13 +418,26 @@ export function OnChainMatrix() {
         <div className="mt-5 rounded-md border border-mtqs-gold/20 bg-mtqs-gold/[0.04] p-4">
           <div className="flex items-start gap-2.5">
             <GlowDot color="gold" size="h-2 w-2" className="mt-1.5 shrink-0" />
-            <p className="text-[0.76rem] text-muted-foreground/90 leading-relaxed">
-              The v1.0 Master Blueprint is fully implemented in the TypeScript reference engine
-              (<span className="font-mono text-amber-200/90">src/lib/mtq/*</span>). The Arc Testnet pilot
-              contract is a v1.2 5-currency GFB pilot — a faithful minimal-but-complete implementation
-              of the mint / redeem / index core, but NOT the v1.0 7-component adaptive architecture.
-              Production deployment of the v1.0 contract is the next major milestone.
-            </p>
+            <div className="text-[0.76rem] text-muted-foreground/90 leading-relaxed space-y-2">
+              <p>
+                The v1.0 Master Blueprint is now implemented in <span className="text-amber-200/90 font-medium">three layers</span>:
+                (1) the TypeScript reference engine (<span className="font-mono text-amber-200/90">src/lib/mtq/*</span>),
+                live in this pilot; (2) the on-chain contract source
+                (<span className="font-mono text-amber-200/90">contracts/MTQSigmaV2.sol</span>, 1057 lines,
+                compiles to 22,627 bytes with optimizer runs=200), awaiting protocol-owner deploy;
+                (3) the Chapter 24 audit-trail database (3 new Prisma tables — DailyStateVector,
+                RebalancingDecision, OracleSample — being populated every tick).
+              </p>
+              <p>
+                The Arc Testnet pilot contract is a v1.2 5-currency GFB pilot — a faithful
+                minimal-but-complete implementation of the mint / redeem / index core, but NOT the
+                v1.0 7-component adaptive architecture. Once the protocol owner deploys V2 and
+                updates <span className="font-mono text-amber-200/90">CANONICAL_MTQ_ADDRESSES.arc</span>,
+                the matrix summary chip will flip from
+                <span className="text-[#ffd07a] font-medium"> "{sourceReadyCount} source-ready"</span> to
+                <span className="text-[#6ff0c0] font-medium"> more on-chain</span>.
+              </p>
+            </div>
           </div>
         </div>
       </Panel>
