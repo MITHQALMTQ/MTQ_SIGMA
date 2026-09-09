@@ -39,7 +39,7 @@ function ChainTab({ chain, active, onClick }: { chain: ChainInfo; active: boolea
       className={`mtqs-focus relative px-4 py-2.5 text-sm font-medium transition ${
         active
           ? "text-mtqs-gold"
-          : "text-muted-foreground hover:text-muted-foreground"
+          : "text-white/40 hover:text-white/40"
       }`}
       aria-pressed={active}
     >
@@ -59,27 +59,27 @@ function ChainPanel({ chain }: { chain: ChainInfo }) {
     <div className="space-y-4">
       {/* Chain metadata */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-2 text-[0.72rem]">
-        <div className="rounded-md border border-border bg-black/[0.02] p-2.5">
-          <div className="text-muted-foreground">Chain ID</div>
+        <div className="rounded-md border border-white/[0.06] bg-white/[0.03]/[0.02] p-2.5">
+          <div className="text-white/40">Chain ID</div>
           <div className="font-mono text-mtqs-gold">{String(chain.chainId)}</div>
         </div>
-        <div className="rounded-md border border-border bg-black/[0.02] p-2.5">
-          <div className="text-muted-foreground">Native Currency</div>
+        <div className="rounded-md border border-white/[0.06] bg-white/[0.03]/[0.02] p-2.5">
+          <div className="text-white/40">Native Currency</div>
           <div className="font-mono text-mtqs-gold">{chain.nativeCurrency}</div>
         </div>
-        <div className="rounded-md border border-border bg-black/[0.02] p-2.5 sm:col-span-2">
-          <div className="text-muted-foreground">RPC URL</div>
+        <div className="rounded-md border border-white/[0.06] bg-white/[0.03]/[0.02] p-2.5 sm:col-span-2">
+          <div className="text-white/40">RPC URL</div>
           <div className="font-mono text-mtqs-gold truncate text-[0.7rem]">{chain.rpcUrl}</div>
         </div>
-        <div className="rounded-md border border-border bg-black/[0.02] p-2.5">
-          <div className="text-muted-foreground">Deployer Wallet</div>
+        <div className="rounded-md border border-white/[0.06] bg-white/[0.03]/[0.02] p-2.5">
+          <div className="text-white/40">Deployer Wallet</div>
           <div className="font-mono text-mtqs-gold flex items-center gap-1.5">
             {shortAddr(chain.wallet, 6, 4)}
             <CopyButton value={chain.wallet} label="deployer wallet" />
           </div>
         </div>
-        <div className="rounded-md border border-border bg-black/[0.02] p-2.5">
-          <div className="text-muted-foreground">Explorer</div>
+        <div className="rounded-md border border-white/[0.06] bg-white/[0.03]/[0.02] p-2.5">
+          <div className="text-white/40">Explorer</div>
           <a
             href={chain.explorer}
             target="_blank"
@@ -89,8 +89,8 @@ function ChainPanel({ chain }: { chain: ChainInfo }) {
             open ↗
           </a>
         </div>
-        <div className="rounded-md border border-border bg-black/[0.02] p-2.5 sm:col-span-2">
-          <div className="text-muted-foreground">Network</div>
+        <div className="rounded-md border border-white/[0.06] bg-white/[0.03]/[0.02] p-2.5 sm:col-span-2">
+          <div className="text-white/40">Network</div>
           <div className="text-mtqs-gold">{chain.network}</div>
         </div>
       </div>
@@ -108,9 +108,9 @@ function ChainPanel({ chain }: { chain: ChainInfo }) {
       )}
 
       {/* Contracts table */}
-      <div className="overflow-hidden rounded-md border border-border">
+      <div className="overflow-hidden rounded-md border border-white/[0.06]">
         <table className="w-full text-[0.72rem]">
-          <thead className="bg-black/[0.02] text-muted-foreground">
+          <thead className="bg-white/[0.03]/[0.02] text-white/40">
             <tr>
               <th className="text-left px-3 py-2 font-medium">Contract</th>
               <th className="text-left px-3 py-2 font-medium hidden sm:table-cell">Symbol</th>
@@ -122,10 +122,10 @@ function ChainPanel({ chain }: { chain: ChainInfo }) {
             {chain.contracts.map((c, i) => {
               const url = buildExplorerAddressUrl(chain, c.address);
               return (
-                <tr key={c.address} className={`border-t border-border ${i % 2 ? "bg-white/[0.01]" : ""}`}>
+                <tr key={c.address} className={`border-t border-white/[0.06] ${i % 2 ? "bg-white/[0.03]/[0.01]" : ""}`}>
                   <td className="px-3 py-2.5">
-                    <div className="text-foreground/90">{c.name}</div>
-                    {c.note && <div className="text-[0.62rem] text-muted-foreground/60 mt-0.5">{c.note}</div>}
+                    <div className="text-white/90">{c.name}</div>
+                    {c.note && <div className="text-[0.62rem] text-white/40/60 mt-0.5">{c.note}</div>}
                   </td>
                   <td className="px-3 py-2.5 font-mono text-mtqs-gold/80 hidden sm:table-cell">{c.symbol}</td>
                   <td className="px-3 py-2.5 font-mono text-mtqs-gold">
@@ -161,7 +161,7 @@ export function ContractRegistry() {
       <Reveal>
         <Panel className="p-1">
           {/* Tabs */}
-          <div className="relative flex border-b border-border">
+          <div className="relative flex border-b border-white/[0.06]">
             {ALL_CHAINS.map((c) => (
               <ChainTab
                 key={c.id}
@@ -190,7 +190,7 @@ export function ContractRegistry() {
 
       <Reveal delay={0.05}>
         <Panel className="p-3.5">
-          <div className="flex items-start gap-2 text-[0.7rem] text-muted-foreground">
+          <div className="flex items-start gap-2 text-[0.7rem] text-white/40">
             <GlowDot color="gold" size="h-1.5 w-1.5" className="mt-1.5" />
             <p className="leading-relaxed">
               Honest note: the pilot is a faithful reference implementation of the blueprint math that also surfaces the real deployed contract addresses for verification. We do not pretend to read on-chain state from these contracts in the pilot; the live monetary engine runs in-process (§3-§14) so the dashboard is robust to testnet RPC reliability.

@@ -32,7 +32,7 @@ export function Header({
 
   return (
     <header
-      className="sticky top-0 z-50 border-b border-border bg-background/85 backdrop-blur-xl"
+      className="sticky top-0 z-50 border-b border-white/[0.06] bg-transparent/85 backdrop-blur-xl"
       role="banner"
     >
       <div className="absolute inset-x-0 -bottom-px h-px bg-gradient-to-r from-transparent via-mtqs-gold/40 to-transparent" />
@@ -66,7 +66,7 @@ export function Header({
                 Global Purchasing Power Unit
               </span>
             </div>
-            <p className="truncate text-[0.65rem] sm:text-[0.7rem] text-muted-foreground tracking-[0.08em] mt-0.5">
+            <p className="truncate text-[0.65rem] sm:text-[0.7rem] text-white/40 tracking-[0.08em] mt-0.5">
               {BRAND_VOICE.tagline} · Closed-Loop Monetary Architecture
             </p>
           </div>
@@ -123,7 +123,7 @@ export function Header({
               <Pill tone="gold" className="font-mono tabular-nums">Σ-v1.2</Pill>
               <GlowDot color="gold" size="h-2 w-2" />
             </div>
-            <span className="text-[0.6rem] text-muted-foreground tracking-wide">
+            <span className="text-[0.6rem] text-white/40 tracking-wide">
               {BRAND_VOICE.statusDeclaration}
             </span>
           </div>
@@ -153,12 +153,12 @@ export function LiveTicker({ snapshot }: { snapshot: MetricsSnapshot | null }) {
   if (!snapshot) {
     return (
       <div
-        className="sticky top-[57px] sm:top-[69px] z-40 border-b border-border bg-card/90 backdrop-blur"
+        className="sticky top-[57px] sm:top-[69px] z-40 border-b border-white/[0.06] mtqs-glass backdrop-blur"
         aria-hidden="true"
       >
         <div className="mx-auto max-w-[1400px] px-4 sm:px-6 lg:px-8 py-2 flex items-center gap-4 overflow-hidden">
           {[...Array(8)].map((_, i) => (
-            <div key={i} className="h-3 w-32 animate-pulse rounded bg-black/[0.04]" />
+            <div key={i} className="h-3 w-32 animate-pulse rounded bg-white/[0.03]/[0.04]" />
           ))}
         </div>
       </div>
@@ -192,14 +192,14 @@ export function LiveTicker({ snapshot }: { snapshot: MetricsSnapshot | null }) {
     tickerItem("NAV", <TickNumber value={snapshot.nav} format={fmtUsdCompact} />, "default"),
     tickerItem("RR", <span className={toneByRr === "emerald" ? "text-mtqs-emerald" : toneByRr === "amber" ? "text-mtqs-amber" : "text-mtqs-rose"}>{rrTxt}</span>, toneByRr),
     tickerItem("LCR", <span className={toneByLcr === "emerald" ? "text-mtqs-emerald" : "text-mtqs-amber"}>{lcrTxt}</span>, toneByLcr),
-    tickerItem("STATUS", <span className="uppercase tracking-wider text-foreground/90">{snapshot.status}</span>, "default"),
+    tickerItem("STATUS", <span className="uppercase tracking-wider text-white/90">{snapshot.status}</span>, "default"),
     tickerItem("BUFFER", <span className="text-mtqs-gold">{snapshot.bufferState}</span>, "gold"),
     tickerItem("ORACLE", <span className={snapshot.oraclePaused ? "text-mtqs-rose" : "text-mtqs-emerald"}>{oracleText}</span>, snapshot.oraclePaused ? "rose" : "emerald"),
   ];
 
   return (
     <div
-      className="sticky top-[57px] sm:top-[69px] z-40 border-b border-border bg-card/92 backdrop-blur"
+      className="sticky top-[57px] sm:top-[69px] z-40 border-b border-white/[0.06] mtqs-glass backdrop-blur"
       role="region"
       aria-label="Live monetary ticker"
     >
@@ -216,9 +216,9 @@ export function LiveTicker({ snapshot }: { snapshot: MetricsSnapshot | null }) {
               initial={{ opacity: 0, y: -4 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.25, delay: i * 0.03 }}
-              className="flex items-center gap-1.5 sm:gap-2 px-3 sm:px-4 py-2.5 border-r border-border last:border-r-0 shrink-0"
+              className="flex items-center gap-1.5 sm:gap-2 px-3 sm:px-4 py-2.5 border-r border-white/[0.06] last:border-r-0 shrink-0"
             >
-              <span className="text-[0.55rem] sm:text-[0.6rem] uppercase tracking-[0.18em] sm:tracking-[0.22em] text-muted-foreground whitespace-nowrap">
+              <span className="text-[0.55rem] sm:text-[0.6rem] uppercase tracking-[0.18em] sm:tracking-[0.22em] text-white/40 whitespace-nowrap">
                 {it.label}
               </span>
               <span className="font-mono tabular-nums text-[0.72rem] sm:text-[0.8rem] font-medium whitespace-nowrap">

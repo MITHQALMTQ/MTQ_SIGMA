@@ -314,7 +314,7 @@ function SubsystemCard({ row }: { row: SubsystemRow }) {
             className="h-4 w-4 text-mtqs-gold/80 shrink-0"
             aria-hidden="true"
           />
-          <span className="text-[0.7rem] uppercase tracking-[0.18em] text-muted-foreground/90 leading-snug break-words">
+          <span className="text-[0.7rem] uppercase tracking-[0.18em] text-white/40/90 leading-snug break-words">
             {row.name}
           </span>
         </div>
@@ -324,16 +324,16 @@ function SubsystemCard({ row }: { row: SubsystemRow }) {
         </Pill>
       </div>
       {/* Primary value */}
-      <div className="font-mono tabular-nums text-lg sm:text-xl text-foreground leading-tight break-words min-h-[1.75rem]">
+      <div className="font-mono tabular-nums text-lg sm:text-xl text-white leading-tight break-words min-h-[1.75rem]">
         {row.primary}
       </div>
       {/* Secondary line */}
-      <div className="text-[0.72rem] text-muted-foreground/90 font-mono tabular-nums break-words leading-relaxed">
+      <div className="text-[0.72rem] text-white/40/90 font-mono tabular-nums break-words leading-relaxed">
         {row.secondary}
       </div>
       {/* Tertiary line (optional) */}
       {row.tertiary ? (
-        <div className="text-[0.68rem] text-muted-foreground font-mono tabular-nums break-words leading-relaxed">
+        <div className="text-[0.68rem] text-white/40 font-mono tabular-nums break-words leading-relaxed">
           {row.tertiary}
         </div>
       ) : null}
@@ -421,7 +421,7 @@ export function SystemHealth() {
               type="button"
               onClick={() => fetchMetrics(true)}
               disabled={refreshing}
-              className="inline-flex items-center gap-1.5 rounded-md border border-border bg-black/[0.03] px-2.5 py-1.5 text-[0.7rem] text-foreground transition hover:bg-black/[0.06] hover:border-mtqs-gold/40 disabled:opacity-50 disabled:cursor-not-allowed focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-mtqs-gold/40"
+              className="inline-flex items-center gap-1.5 rounded-md border border-white/[0.06] bg-white/[0.03]/[0.03] px-2.5 py-1.5 text-[0.7rem] text-white transition hover:bg-white/[0.03]/[0.06] hover:border-mtqs-gold/40 disabled:opacity-50 disabled:cursor-not-allowed focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-mtqs-gold/40"
               aria-label="Force refresh the metrics snapshot"
             >
               <RefreshCw
@@ -440,15 +440,15 @@ export function SystemHealth() {
           <div className="mb-5 flex flex-wrap items-center justify-between gap-3">
             <div className="flex items-center gap-2">
               <Database className="h-4 w-4 text-mtqs-gold/80" aria-hidden="true" />
-              <span className="text-[0.7rem] uppercase tracking-[0.22em] text-muted-foreground">
+              <span className="text-[0.7rem] uppercase tracking-[0.22em] text-white/40">
                 All 8 subsystems · refreshed every 5s
               </span>
             </div>
             <div className="flex items-center gap-2 text-[0.72rem] font-mono tabular-nums">
               <span className="text-mtqs-emerald/90">{healthyCount} healthy</span>
-              <span className="text-muted-foreground/40">·</span>
+              <span className="text-white/40/40">·</span>
               <span className="text-mtqs-amber/90">{warnCount} warn</span>
-              <span className="text-muted-foreground/40">·</span>
+              <span className="text-white/40/40">·</span>
               <span className="text-mtqs-rose/90">{degradedCount} degraded</span>
             </div>
           </div>
@@ -488,11 +488,11 @@ export function SystemHealth() {
               </div>
 
               {/* Honest summary line */}
-              <div className="mt-5 rounded-md border border-border bg-black/[0.02] p-3 text-[0.72rem] text-muted-foreground leading-relaxed">
+              <div className="mt-5 rounded-md border border-white/[0.06] bg-white/[0.03]/[0.02] p-3 text-[0.72rem] text-white/40 leading-relaxed">
                 <p className="flex items-start gap-2">
                   <ShieldCheck className="h-4 w-4 text-mtqs-emerald/80 mt-0.5 shrink-0" aria-hidden="true" />
                   <span>
-                    <span className="text-foreground/90">Honest note.</span>{" "}
+                    <span className="text-white/90">Honest note.</span>{" "}
                     This panel reflects the live engine state at{" "}
                     <span className="font-mono text-mtqs-gold-light">
                       {snap ? new Date(snap.fetchedAt).toISOString().replace("T", " ").replace(/\.\d+Z$/, " UTC") : "—"}

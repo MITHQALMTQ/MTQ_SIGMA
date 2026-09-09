@@ -14,7 +14,7 @@ import { useEffect, useRef, useState, type ReactNode, type CSSProperties } from 
 import { motion, useInView, AnimatePresence } from "framer-motion";
 
 /* ---------- Starfield / dust layer ---------- */
-export function Starfield({ className = "" }: { className?: string }) {
+export function _Starfield_deprecated({ className = "" }: { className?: string }) {
   return (
     <div
       className={`pointer-events-none absolute inset-0 overflow-hidden ${className}`}
@@ -141,7 +141,7 @@ export function SectionHeading({
     <div className={`flex items-end justify-between gap-4 mb-6 ${className}`}>
       <div className="space-y-1.5 min-w-0">
         <Eyebrow>{eyebrow}</Eyebrow>
-        <h2 className="mtqs-section-title text-foreground">
+        <h2 className="mtqs-section-title text-white">
           {title}
         </h2>
       </div>
@@ -150,7 +150,7 @@ export function SectionHeading({
   );
 }
 
-/* ---------- Panel — exchange-grade card surface ---------- */
+/* ---------- Panel — 2026 glassmorphic card surface ---------- */
 export function Panel({
   children,
   className = "",
@@ -166,10 +166,10 @@ export function Panel({
 }) {
   const v =
     variant === "emerald"
-      ? "mtqs-panel mtqs-glow-emerald"
+      ? "mtqs-glass-emerald"
       : variant === "rose"
-      ? "mtqs-panel mtqs-glow-emerald"
-      : "mtqs-panel";
+      ? "mtqs-glass-emerald"
+      : "mtqs-glass";
   return (
     <As className={`${v} ${className}`} style={style}>
       {children}
@@ -222,13 +222,13 @@ export function Stat({
 }) {
   return (
     <div className={`flex flex-col gap-1 ${className}`}>
-      <span className="text-[0.625rem] uppercase tracking-[0.22em] text-muted-foreground">
+      <span className="text-[0.625rem] uppercase tracking-[0.22em] text-white/40">
         {label}
       </span>
-      <span className={`font-mono tabular-nums text-foreground ${valueClass}`}>
+      <span className={`font-mono tabular-nums text-white ${valueClass}`}>
         {value}
       </span>
-      {sub ? <span className="text-[0.7rem] text-muted-foreground">{sub}</span> : null}
+      {sub ? <span className="text-[0.7rem] text-white/40">{sub}</span> : null}
     </div>
   );
 }
@@ -239,7 +239,7 @@ export function MiniBar({
   max = 1,
   min = 0,
   colorClass = "bg-amber-400",
-  trackClass = "bg-black/5",
+  trackClass = "bg-white/[0.03]/5",
   className = "",
   height = "h-1.5",
 }: {
@@ -301,7 +301,7 @@ export function FadeSwap({
 export function Skeleton({ className = "" }: { className?: string }) {
   return (
     <div
-      className={`animate-pulse rounded-md bg-black/[0.04] ${className}`}
+      className={`animate-pulse rounded-md bg-white/[0.03]/[0.04] ${className}`}
       aria-hidden="true"
     />
   );
@@ -318,12 +318,12 @@ export function Pill({
   className?: string;
 }) {
   const tones: Record<string, string> = {
-    default: "border-border bg-black/[0.03] text-muted-foreground",
+    default: "border-white/[0.06] bg-white/[0.03]/[0.03] text-white/40",
     gold: "border-mtqs-gold/30 bg-mtqs-gold/10 text-mtqs-gold",
     emerald: "border-mtqs-emerald/30 bg-mtqs-emerald/10 text-mtqs-emerald",
     rose: "border-mtqs-rose/30 bg-mtqs-rose/10 text-mtqs-rose",
     amber: "border-mtqs-amber/30 bg-mtqs-amber/10 text-mtqs-amber",
-    muted: "border-border bg-black/[0.02] text-muted-foreground",
+    muted: "border-white/[0.06] bg-white/[0.03]/[0.02] text-white/40",
   };
   return (
     <span
@@ -339,7 +339,7 @@ export function BrandPrinciples({ className = "" }: { className?: string }) {
   const principles = ["Honest", "Sovereign", "Collateralized", "Calm"];
   return (
     <div
-      className={`flex flex-wrap items-center gap-x-3 gap-y-1 text-[0.65rem] uppercase tracking-[0.22em] text-muted-foreground/75 ${className}`}
+      className={`flex flex-wrap items-center gap-x-3 gap-y-1 text-[0.65rem] uppercase tracking-[0.22em] text-white/40/75 ${className}`}
       aria-label="MTQΣ brand principles"
     >
       {principles.map((p, i) => (

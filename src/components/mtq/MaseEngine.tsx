@@ -51,7 +51,7 @@ function WeightCell({ value, isTarget }: { value: number; isTarget?: boolean }) 
   const opacity = 0.06 + (pct / 100) * 0.32; // 0.06 → 0.38
   return (
     <td
-      className={`px-2 py-1.5 text-right font-mono tabular-nums ${isTarget ? "text-mtqs-gold font-semibold" : "text-foreground"}`}
+      className={`px-2 py-1.5 text-right font-mono tabular-nums ${isTarget ? "text-mtqs-gold font-semibold" : "text-white"}`}
       style={{ backgroundColor: isTarget ? `rgba(232,185,100,${opacity + 0.06})` : `rgba(232,185,100,${opacity})` }}
     >
       {(value * 100).toFixed(2)}%
@@ -131,7 +131,7 @@ export function MaseEngine({ snapshot }: { snapshot: MetricsSnapshot | null }) {
     return (
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
         {[...Array(2)].map((_, i) => (
-          <div key={i} className="h-64 animate-pulse rounded-lg bg-black/[0.03]" />
+          <div key={i} className="h-64 animate-pulse rounded-lg bg-white/[0.03]/[0.03]" />
         ))}
       </div>
     );
@@ -169,8 +169,8 @@ export function MaseEngine({ snapshot }: { snapshot: MetricsSnapshot | null }) {
         <Panel className="p-5">
           <div className="flex flex-wrap items-start justify-between gap-3">
             <div>
-              <div className="text-sm font-semibold text-foreground/90">MASE Ensemble + 4-State Weights + MARP (v1.0)</div>
-              <p className="mt-1 text-[0.72rem] text-muted-foreground leading-relaxed max-w-2xl">
+              <div className="text-sm font-semibold text-white/90">MASE Ensemble + 4-State Weights + MARP (v1.0)</div>
+              <p className="mt-1 text-[0.72rem] text-white/40 leading-relaxed max-w-2xl">
                 The Multi-Asset Stochastic Ensemble (§6 / §7) runs 6 candidate models, blends them with equal
                 weights into a single target, clamps to per-component admissibility envelopes (§8.1), and
                 EMA-smooths (λ = {(SMOOTHING_LAMBDA * 100).toFixed(0)}%) toward the constrained target (§8.4).
@@ -196,10 +196,10 @@ export function MaseEngine({ snapshot }: { snapshot: MetricsSnapshot | null }) {
         <Panel className="p-5">
           <div className="mb-3 flex items-start justify-between gap-3 flex-wrap">
             <div>
-              <div className="text-[0.625rem] uppercase tracking-[0.25em] text-muted-foreground">
+              <div className="text-[0.625rem] uppercase tracking-[0.25em] text-white/40">
                 §6 / §7 · MASE Candidate Models · 6-model equal-weight ensemble
               </div>
-              <div className="text-sm font-semibold text-foreground/90 mt-1">Per-model weight vectors (W<sup>Target</sup> candidates)</div>
+              <div className="text-sm font-semibold text-white/90 mt-1">Per-model weight vectors (W<sup>Target</sup> candidates)</div>
             </div>
             <Pill tone="gold">equal weight = 1/6</Pill>
           </div>
@@ -207,7 +207,7 @@ export function MaseEngine({ snapshot }: { snapshot: MetricsSnapshot | null }) {
             <div className="overflow-x-auto">
               <table className="w-full text-[0.72rem]">
                 <thead>
-                  <tr className="text-muted-foreground border-b border-border">
+                  <tr className="text-white/40 border-b border-white/[0.06]">
                     <th className="text-left px-2 py-2 font-medium">Model</th>
                     {COMPONENTS.map((c) => (
                       <th key={c} className="text-right px-2 py-2 font-medium font-mono">{c}</th>
@@ -216,11 +216,11 @@ export function MaseEngine({ snapshot }: { snapshot: MetricsSnapshot | null }) {
                 </thead>
                 <tbody>
                   {mase.models.map((m) => (
-                    <tr key={m.id} className="border-b border-border hover:bg-white/[0.01]">
+                    <tr key={m.id} className="border-b border-white/[0.06] hover:bg-white/[0.03]/[0.01]">
                       <td className="px-2 py-1.5">
                         <div className="flex flex-col">
-                          <span className="font-medium text-foreground/90">{m.name}</span>
-                          <span className="text-[0.62rem] text-muted-foreground/60 font-mono">{m.id}</span>
+                          <span className="font-medium text-white/90">{m.name}</span>
+                          <span className="text-[0.62rem] text-white/40/60 font-mono">{m.id}</span>
                         </div>
                       </td>
                       {COMPONENTS.map((c) => (
@@ -244,11 +244,11 @@ export function MaseEngine({ snapshot }: { snapshot: MetricsSnapshot | null }) {
               </table>
             </div>
           ) : (
-            <div className="rounded-md border border-border bg-black/[0.02] p-4 text-center text-[0.75rem] text-muted-foreground">
+            <div className="rounded-md border border-white/[0.06] bg-white/[0.03]/[0.02] p-4 text-center text-[0.75rem] text-white/40">
               MASE ensemble not computed yet.
             </div>
           )}
-          <p className="mt-3 text-[0.68rem] text-muted-foreground leading-relaxed">
+          <p className="mt-3 text-[0.68rem] text-white/40 leading-relaxed">
             Each cell shows that model's recommended weight for the component. The <span className="text-mtqs-gold font-medium">Ensemble Target</span> row
             is the equal-weight average of all 6 models — this becomes W<sup>Target</sup> before envelope constraints are applied.
             Production will use adaptive ensemble weights (model-performance-driven); the pilot uses 1/6 each.
@@ -261,10 +261,10 @@ export function MaseEngine({ snapshot }: { snapshot: MetricsSnapshot | null }) {
         <Panel className="p-5">
           <div className="mb-3 flex items-start justify-between gap-3 flex-wrap">
             <div>
-              <div className="text-[0.625rem] uppercase tracking-[0.25em] text-muted-foreground">
+              <div className="text-[0.625rem] uppercase tracking-[0.25em] text-white/40">
                 §2.3 · Four-State Weight Distinction
               </div>
-              <div className="text-sm font-semibold text-foreground/90 mt-1">W<sup>Prior</sup> ≠ W<sup>Target</sup> ≠ W<sup>Smooth</sup> ≠ W<sup>Execution</sup></div>
+              <div className="text-sm font-semibold text-white/90 mt-1">W<sup>Prior</sup> ≠ W<sup>Target</sup> ≠ W<sup>Smooth</sup> ≠ W<sup>Execution</sup></div>
             </div>
             <Pill tone="gold">published = execution (I6)</Pill>
           </div>
@@ -272,27 +272,27 @@ export function MaseEngine({ snapshot }: { snapshot: MetricsSnapshot | null }) {
             <div className="overflow-x-auto">
               <table className="w-full text-[0.74rem]">
                 <thead>
-                  <tr className="text-muted-foreground border-b border-border">
+                  <tr className="text-white/40 border-b border-white/[0.06]">
                     <th className="text-left px-2 py-2 font-medium">Component</th>
                     <th className="text-right px-2 py-2 font-medium">
                       <span className="font-mono text-mtqs-gold">W<sup>Prior</sup></span>
-                      <div className="text-[0.6rem] text-muted-foreground/60 font-normal">soft anchor</div>
+                      <div className="text-[0.6rem] text-white/40/60 font-normal">soft anchor</div>
                     </th>
                     <th className="text-right px-2 py-2 font-medium">
                       <span className="font-mono text-mtqs-gold">W<sup>Target</sup></span>
-                      <div className="text-[0.6rem] text-muted-foreground/60 font-normal">MASE + envelope</div>
+                      <div className="text-[0.6rem] text-white/40/60 font-normal">MASE + envelope</div>
                     </th>
                     <th className="text-right px-2 py-2 font-medium">
                       <span className="font-mono text-mtqs-emerald/90">W<sup>Smooth</sup></span>
-                      <div className="text-[0.6rem] text-muted-foreground/60 font-normal">EMA λ={(SMOOTHING_LAMBDA * 100).toFixed(0)}%</div>
+                      <div className="text-[0.6rem] text-white/40/60 font-normal">EMA λ={(SMOOTHING_LAMBDA * 100).toFixed(0)}%</div>
                     </th>
                     <th className="text-right px-2 py-2 font-medium">
                       <span className="font-mono text-mtqs-rose/90">W<sup>Execution</sup></span>
-                      <div className="text-[0.6rem] text-muted-foreground/60 font-normal">observed</div>
+                      <div className="text-[0.6rem] text-white/40/60 font-normal">observed</div>
                     </th>
                     <th className="text-right px-2 py-2 font-medium">
-                      <span className="font-mono text-foreground/90">Δ Smooth→Exec</span>
-                      <div className="text-[0.6rem] text-muted-foreground/60 font-normal">deviation</div>
+                      <span className="font-mono text-white/90">Δ Smooth→Exec</span>
+                      <div className="text-[0.6rem] text-white/40/60 font-normal">deviation</div>
                     </th>
                   </tr>
                 </thead>
@@ -304,13 +304,13 @@ export function MaseEngine({ snapshot }: { snapshot: MetricsSnapshot | null }) {
                     const execution = ws.execution[c] ?? 0;
                     const dev = execution - smoothed;
                     return (
-                      <tr key={c} className="border-b border-border hover:bg-white/[0.01]">
+                      <tr key={c} className="border-b border-white/[0.06] hover:bg-white/[0.03]/[0.01]">
                         <td className="px-2 py-2 font-mono font-medium text-mtqs-gold">{c}</td>
-                        <td className="px-2 py-2 text-right font-mono tabular-nums text-muted-foreground">{(prior * 100).toFixed(2)}%</td>
+                        <td className="px-2 py-2 text-right font-mono tabular-nums text-white/40">{(prior * 100).toFixed(2)}%</td>
                         <td className="px-2 py-2 text-right font-mono tabular-nums text-mtqs-gold">{(target * 100).toFixed(2)}%</td>
                         <td className="px-2 py-2 text-right font-mono tabular-nums text-mtqs-emerald">{(smoothed * 100).toFixed(2)}%</td>
                         <td className="px-2 py-2 text-right font-mono tabular-nums text-rose-200">{(execution * 100).toFixed(2)}%</td>
-                        <td className={`px-2 py-2 text-right font-mono tabular-nums ${Math.abs(dev) >= 0.005 ? (dev > 0 ? "text-mtqs-rose" : "text-mtqs-emerald") : "text-muted-foreground"}`}>
+                        <td className={`px-2 py-2 text-right font-mono tabular-nums ${Math.abs(dev) >= 0.005 ? (dev > 0 ? "text-mtqs-rose" : "text-mtqs-emerald") : "text-white/40"}`}>
                           {dev > 0 ? "+" : ""}{(dev * 100).toFixed(2)}%
                         </td>
                       </tr>
@@ -320,18 +320,18 @@ export function MaseEngine({ snapshot }: { snapshot: MetricsSnapshot | null }) {
               </table>
             </div>
           ) : (
-            <div className="rounded-md border border-border bg-black/[0.02] p-4 text-center text-[0.75rem] text-muted-foreground">
+            <div className="rounded-md border border-white/[0.06] bg-white/[0.03]/[0.02] p-4 text-center text-[0.75rem] text-white/40">
               Weight states not computed yet.
             </div>
           )}
           <div className="mt-3 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-2">
             {WEIGHT_STATE_DESCRIPTIONS.map((row) => (
-              <div key={row.state} className="rounded-md border border-border bg-black/[0.02] p-2.5">
+              <div key={row.state} className="rounded-md border border-white/[0.06] bg-white/[0.03]/[0.02] p-2.5">
                 <div className="flex items-baseline justify-between gap-2 mb-1">
                   <span className="font-mono font-semibold text-[0.72rem] text-mtqs-gold">{row.state}</span>
                   <span className="font-mono text-[0.66rem] text-mtqs-emerald/80">{row.symbol}</span>
                 </div>
-                <div className="text-[0.66rem] text-muted-foreground leading-snug">{row.meaning}</div>
+                <div className="text-[0.66rem] text-white/40 leading-snug">{row.meaning}</div>
               </div>
             ))}
           </div>
@@ -343,10 +343,10 @@ export function MaseEngine({ snapshot }: { snapshot: MetricsSnapshot | null }) {
         <Panel className="p-5">
           <div className="mb-3 flex items-start justify-between gap-3 flex-wrap">
             <div>
-              <div className="text-[0.625rem] uppercase tracking-[0.25em] text-muted-foreground">
+              <div className="text-[0.625rem] uppercase tracking-[0.25em] text-white/40">
                 §8.1 · Per-Component Admissibility Envelopes
               </div>
-              <div className="text-sm font-semibold text-foreground/90 mt-1">Live envelope status · execution weight vs constitutional bounds</div>
+              <div className="text-sm font-semibold text-white/90 mt-1">Live envelope status · execution weight vs constitutional bounds</div>
             </div>
             <div className="flex items-center gap-2">
               <Pill tone="emerald">
@@ -392,13 +392,13 @@ export function MaseEngine({ snapshot }: { snapshot: MetricsSnapshot | null }) {
                     <EnvelopeStatusBadge status={e.status} />
                   </div>
                   <div className="flex items-baseline justify-between gap-2 mb-2">
-                    <TickNumber value={e.current} format={(n) => `${(n * 100).toFixed(2)}%`} className="text-base font-semibold text-foreground" />
-                    <span className="text-[0.62rem] font-mono text-muted-foreground">
+                    <TickNumber value={e.current} format={(n) => `${(n * 100).toFixed(2)}%`} className="text-base font-semibold text-white" />
+                    <span className="text-[0.62rem] font-mono text-white/40">
                       [{(e.lower * 100).toFixed(0)}%–{(e.upper * 100).toFixed(0)}%]
                     </span>
                   </div>
                   {/* Envelope bar — lower bound (left), upper bound (right), prior (gold tick), current (colored) */}
-                  <div className="relative h-2 rounded-full bg-white/[0.05] overflow-hidden">
+                  <div className="relative h-2 rounded-full bg-white/[0.03]/[0.05] overflow-hidden">
                     {/* Prior marker */}
                     <div
                       className="absolute top-0 bottom-0 w-px bg-amber-300/70"
@@ -413,7 +413,7 @@ export function MaseEngine({ snapshot }: { snapshot: MetricsSnapshot | null }) {
                       transition={{ duration: 0.5 }}
                     />
                   </div>
-                  <div className="mt-1 flex justify-between text-[0.6rem] font-mono text-muted-foreground/60">
+                  <div className="mt-1 flex justify-between text-[0.6rem] font-mono text-white/40/60">
                     <span>{(e.lower * 100).toFixed(0)}% floor</span>
                     <span>prior {(prior * 100).toFixed(0)}%</span>
                     <span>{(e.upper * 100).toFixed(0)}% cap</span>
@@ -422,7 +422,7 @@ export function MaseEngine({ snapshot }: { snapshot: MetricsSnapshot | null }) {
               );
             })}
           </div>
-          <p className="mt-3 text-[0.68rem] text-muted-foreground leading-relaxed">
+          <p className="mt-3 text-[0.68rem] text-white/40 leading-relaxed">
             Each bar shows the execution weight's position within the per-component admissibility envelope. The gold tick marks
             the strategic prior. <span className="text-mtqs-gold font-medium">Near-edge</span> = within 10% of the band width;
             <span className="text-mtqs-rose/90 font-medium"> breach</span> = outside the envelope (would require governance override
@@ -436,10 +436,10 @@ export function MaseEngine({ snapshot }: { snapshot: MetricsSnapshot | null }) {
         <Panel className="p-5">
           <div className="mb-3 flex items-start justify-between gap-3 flex-wrap">
             <div>
-              <div className="text-[0.625rem] uppercase tracking-[0.25em] text-muted-foreground">
+              <div className="text-[0.625rem] uppercase tracking-[0.25em] text-white/40">
                 §10 · MARP · Monetary Adaptive Rebalancing Protocol
               </div>
-              <div className="text-sm font-semibold text-foreground/90 mt-1">Per-component rebalance decision · daily calculation vs actual trade</div>
+              <div className="text-sm font-semibold text-white/90 mt-1">Per-component rebalance decision · daily calculation vs actual trade</div>
             </div>
             <div className="flex items-center gap-2">
               <Pill tone={marp && marp.totalTradeUsd > 0 ? "gold" : "emerald"}>
@@ -457,7 +457,7 @@ export function MaseEngine({ snapshot }: { snapshot: MetricsSnapshot | null }) {
             <div className="overflow-x-auto">
               <table className="w-full text-[0.72rem]">
                 <thead>
-                  <tr className="text-muted-foreground border-b border-border">
+                  <tr className="text-white/40 border-b border-white/[0.06]">
                     <th className="text-left px-2 py-2 font-medium">Component</th>
                     <th className="text-left px-2 py-2 font-medium">Direction</th>
                     <th className="text-right px-2 py-2 font-medium">Trade USD</th>
@@ -468,14 +468,14 @@ export function MaseEngine({ snapshot }: { snapshot: MetricsSnapshot | null }) {
                 </thead>
                 <tbody>
                   {marp.decisions.map((d) => (
-                    <tr key={d.component} className={`border-b border-border ${d.shouldTrade ? "bg-amber-500/[0.03]" : ""}`}>
+                    <tr key={d.component} className={`border-b border-white/[0.06] ${d.shouldTrade ? "bg-amber-500/[0.03]" : ""}`}>
                       <td className="px-2 py-2 font-mono font-semibold text-mtqs-gold">{d.component}</td>
                       <td className="px-2 py-2"><MarpDirectionBadge direction={d.direction} shouldTrade={d.shouldTrade} /></td>
                       <td className="px-2 py-2 text-right font-mono tabular-nums">
                         {d.shouldTrade ? (
                           <span className="text-mtqs-gold font-medium">{fmtUsdCompact(d.tradeUsd)}</span>
                         ) : (
-                          <span className="text-muted-foreground/60">—</span>
+                          <span className="text-white/40/60">—</span>
                         )}
                       </td>
                       <td className="px-2 py-2">
@@ -487,18 +487,18 @@ export function MaseEngine({ snapshot }: { snapshot: MetricsSnapshot | null }) {
                             height="h-1.5"
                             className="w-20"
                           />
-                          <span className="text-[0.66rem] font-mono text-muted-foreground">{(d.urgency * 100).toFixed(1)}%</span>
+                          <span className="text-[0.66rem] font-mono text-white/40">{(d.urgency * 100).toFixed(1)}%</span>
                         </div>
                       </td>
                       <td className="px-2 py-2"><MarpLevelBadge level={d.level} shouldTrade={d.shouldTrade} /></td>
-                      <td className="px-2 py-2 text-muted-foreground text-[0.7rem]">{d.reason}</td>
+                      <td className="px-2 py-2 text-white/40 text-[0.7rem]">{d.reason}</td>
                     </tr>
                   ))}
                   <tr className="border-t-2 border-mtqs-amber/30 bg-mtqs-amber/5">
                     <td className="px-2 py-2 font-mono font-semibold text-mtqs-gold" colSpan={2}>Σ Total Trade USD</td>
                     <td className="px-2 py-2 text-right font-mono font-semibold text-mtqs-gold">{fmtUsdCompact(marp.totalTradeUsd)}</td>
                     <td className="px-2 py-2" colSpan={3}>
-                      <span className="text-[0.66rem] text-muted-foreground">
+                      <span className="text-[0.66rem] text-white/40">
                         Max daily turnover = 5% of NAV ≈ {fmtUsdCompact(snapshot.nav * 0.05)}. Trades capped at this level (L5).
                       </span>
                     </td>
@@ -507,7 +507,7 @@ export function MaseEngine({ snapshot }: { snapshot: MetricsSnapshot | null }) {
               </table>
             </div>
           ) : (
-            <div className="rounded-md border border-border bg-black/[0.02] p-4 text-center text-[0.75rem] text-muted-foreground">
+            <div className="rounded-md border border-white/[0.06] bg-white/[0.03]/[0.02] p-4 text-center text-[0.75rem] text-white/40">
               MARP decisions not computed yet.
             </div>
           )}
@@ -520,9 +520,9 @@ export function MaseEngine({ snapshot }: { snapshot: MetricsSnapshot | null }) {
               { level: 5, label: "L5 · Turnover cap", desc: "capped at 5% NAV" },
               { level: 6, label: "L6 · Execute", desc: "trade fires" },
             ].map((l) => (
-              <div key={l.level} className="rounded-md border border-border bg-black/[0.02] p-2">
-                <div className="text-[0.62rem] uppercase tracking-[0.16em] text-muted-foreground">{l.label}</div>
-                <div className="text-[0.66rem] text-muted-foreground mt-0.5">{l.desc}</div>
+              <div key={l.level} className="rounded-md border border-white/[0.06] bg-white/[0.03]/[0.02] p-2">
+                <div className="text-[0.62rem] uppercase tracking-[0.16em] text-white/40">{l.label}</div>
+                <div className="text-[0.66rem] text-white/40 mt-0.5">{l.desc}</div>
               </div>
             ))}
           </div>
@@ -532,7 +532,7 @@ export function MaseEngine({ snapshot }: { snapshot: MetricsSnapshot | null }) {
       {/* ===== Footer: constants + lineage note ===== */}
       <Reveal>
         <Panel className="p-4">
-          <div className="flex flex-wrap items-center gap-x-3 gap-y-1 text-[0.66rem] text-muted-foreground">
+          <div className="flex flex-wrap items-center gap-x-3 gap-y-1 text-[0.66rem] text-white/40">
             <span className="text-[0.6rem] uppercase tracking-[0.22em] text-mtqs-gold/80">lineage</span>
             <span className="font-mono text-mtqs-gold">prices: P<sub>i,t</sub>/P<sub>i,0</sub></span>
             <span>→</span>
@@ -546,9 +546,9 @@ export function MaseEngine({ snapshot }: { snapshot: MetricsSnapshot | null }) {
             <span>→</span>
             <span className="font-mono text-rose-200/90">MARP per-component decision</span>
             <span>→</span>
-            <span className="font-mono text-foreground">execution (published)</span>
+            <span className="font-mono text-white">execution (published)</span>
           </div>
-          <p className="mt-2 text-[0.66rem] text-muted-foreground/60 leading-relaxed">
+          <p className="mt-2 text-[0.66rem] text-white/40/60 leading-relaxed">
             The legacy §6 single-engine (VIX/DXY → θ ±3%) and §7 single-direction rebalance (displayed in
             the sections above and below this one) are RETAINED in parallel as live pilot paths. MASE + MARP
             shown here is the v1.0 production target. Until MASE is wired into the actual rebalance execution

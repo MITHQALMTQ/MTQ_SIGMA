@@ -272,15 +272,15 @@ export function OnChainMatrix() {
             <div className="text-[0.6rem] uppercase tracking-[0.22em] text-mtqs-gold/75">
               Honest · On-chain vs Off-chain
             </div>
-            <h3 className="text-base font-semibold text-foreground">
+            <h3 className="text-base font-semibold text-white">
               Implementation Matrix — Arc Testnet vs TypeScript Reference Engine
             </h3>
-            <p className="text-[0.72rem] text-muted-foreground leading-relaxed">
+            <p className="text-[0.72rem] text-white/40 leading-relaxed">
               20 blueprint components mapped explicitly. Status badges:
               <span className="text-mtqs-emerald"> on-chain</span>,
               <span className="text-mtqs-amber"> TS-only</span>,
               <span className="text-mtqs-rose"> not-implemented</span>,
-              <span className="text-muted-foreground"> n/a</span>.
+              <span className="text-white/40"> n/a</span>.
             </p>
           </div>
           <div className="flex flex-wrap items-center gap-1.5 shrink-0">
@@ -308,10 +308,10 @@ export function OnChainMatrix() {
         </div>
 
         {/* Lead paragraph — names the deployed contract + the v1.2 vs v1.0 truth */}
-        <div className="mb-5 rounded-md border border-border bg-black/[0.02] p-3.5">
+        <div className="mb-5 rounded-md border border-white/[0.06] bg-white/[0.03]/[0.02] p-3.5">
           <div className="flex items-start gap-2.5">
             <GlowDot color="gold" size="h-2 w-2" className="mt-1.5 shrink-0" />
-            <p className="text-[0.76rem] text-muted-foreground leading-relaxed">
+            <p className="text-[0.76rem] text-white/40 leading-relaxed">
               The deployed Arc Testnet pilot contract (
               <span className="font-mono text-mtqs-gold">0x826b82F79FD6c5347cDC568B1d0A7918128B63c1</span>,
               chain 5042002) is a <span className="text-mtqs-gold font-medium">v1.2 5-currency GFB pilot</span>
@@ -330,9 +330,9 @@ export function OnChainMatrix() {
         </div>
 
         {/* Matrix table — responsive grid */}
-        <div className="overflow-hidden rounded-md border border-border">
+        <div className="overflow-hidden rounded-md border border-white/[0.06]">
           {/* Desktop header row — visible sm+ */}
-          <div className="hidden sm:grid grid-cols-[36px_minmax(0,2.2fr)_minmax(0,1.3fr)_minmax(0,1.3fr)_minmax(0,2.6fr)] gap-3 px-3 py-2 bg-black/[0.03] text-[0.6rem] uppercase tracking-[0.18em] text-muted-foreground">
+          <div className="hidden sm:grid grid-cols-[36px_minmax(0,2.2fr)_minmax(0,1.3fr)_minmax(0,1.3fr)_minmax(0,2.6fr)] gap-3 px-3 py-2 bg-white/[0.03]/[0.03] text-[0.6rem] uppercase tracking-[0.18em] text-white/40">
             <div>#</div>
             <div>Component</div>
             <div>On-Chain</div>
@@ -357,16 +357,16 @@ export function OnChainMatrix() {
               return (
                 <div
                   key={row.num}
-                  className={`border-t border-border px-3 py-3 ${rowBorder} ${
-                    i % 2 ? "bg-white/[0.01]" : ""
+                  className={`border-t border-white/[0.06] px-3 py-3 ${rowBorder} ${
+                    i % 2 ? "bg-white/[0.03]/[0.01]" : ""
                   }`}
                 >
                   {/* Desktop: grid row */}
                   <div className="hidden sm:grid grid-cols-[36px_minmax(0,2.2fr)_minmax(0,1.3fr)_minmax(0,1.3fr)_minmax(0,2.6fr)] gap-3 items-start">
-                    <div className="font-mono text-[0.7rem] text-muted-foreground/60 pt-0.5">
+                    <div className="font-mono text-[0.7rem] text-white/40/60 pt-0.5">
                       {row.num}
                     </div>
-                    <div className="text-[0.78rem] font-medium text-foreground leading-snug">
+                    <div className="text-[0.78rem] font-medium text-white leading-snug">
                       {row.component}
                     </div>
                     <div className="min-w-0">
@@ -375,7 +375,7 @@ export function OnChainMatrix() {
                     <div className="min-w-0">
                       <StatusBadge status={row.tsEngine.status} text={row.tsEngine.text} />
                     </div>
-                    <div className="text-[0.7rem] text-muted-foreground leading-relaxed">
+                    <div className="text-[0.7rem] text-white/40 leading-relaxed">
                       {row.notes}
                     </div>
                   </div>
@@ -383,28 +383,28 @@ export function OnChainMatrix() {
                   {/* Mobile: stacked card */}
                   <div className="sm:hidden space-y-2.5">
                     <div className="flex items-start gap-2">
-                      <span className="font-mono text-[0.65rem] text-muted-foreground/60 shrink-0 mt-0.5">
+                      <span className="font-mono text-[0.65rem] text-white/40/60 shrink-0 mt-0.5">
                         {row.num}
                       </span>
-                      <div className="text-[0.8rem] font-medium text-foreground leading-snug">
+                      <div className="text-[0.8rem] font-medium text-white leading-snug">
                         {row.component}
                       </div>
                     </div>
                     <div className="grid grid-cols-1 gap-2 pl-5">
                       <div className="space-y-1">
-                        <div className="text-[0.55rem] uppercase tracking-[0.18em] text-muted-foreground/60">
+                        <div className="text-[0.55rem] uppercase tracking-[0.18em] text-white/40/60">
                           On-Chain
                         </div>
                         <StatusBadge status={row.onChain.status} text={row.onChain.text} />
                       </div>
                       <div className="space-y-1">
-                        <div className="text-[0.55rem] uppercase tracking-[0.18em] text-muted-foreground/60">
+                        <div className="text-[0.55rem] uppercase tracking-[0.18em] text-white/40/60">
                           TS Engine
                         </div>
                         <StatusBadge status={row.tsEngine.status} text={row.tsEngine.text} />
                       </div>
                     </div>
-                    <div className="pl-5 text-[0.7rem] text-muted-foreground leading-relaxed">
+                    <div className="pl-5 text-[0.7rem] text-white/40 leading-relaxed">
                       {row.notes}
                     </div>
                   </div>
@@ -418,7 +418,7 @@ export function OnChainMatrix() {
         <div className="mt-5 rounded-md border border-mtqs-gold/20 bg-mtqs-gold/5 p-4">
           <div className="flex items-start gap-2.5">
             <GlowDot color="gold" size="h-2 w-2" className="mt-1.5 shrink-0" />
-            <div className="text-[0.76rem] text-muted-foreground/90 leading-relaxed space-y-2">
+            <div className="text-[0.76rem] text-white/40/90 leading-relaxed space-y-2">
               <p>
                 The v1.0 Master Blueprint is now implemented in <span className="text-mtqs-gold font-medium">three layers</span>:
                 (1) the TypeScript reference engine (<span className="font-mono text-mtqs-gold">src/lib/mtq/*</span>),

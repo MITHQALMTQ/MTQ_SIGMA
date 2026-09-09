@@ -87,7 +87,7 @@ function FindingCard({ finding, index, snapshot }: { finding: ReconciliationFind
       ? "border-mtqs-emerald/40 bg-mtqs-emerald/5"
       : finding.severity === "outstanding"
       ? "border-mtqs-amber/40 bg-mtqs-amber/5"
-      : "border-border bg-black/[0.02]";
+      : "border-white/[0.06] bg-white/[0.03]/[0.02]";
   return (
     <motion.div
       initial={{ opacity: 0, y: 6 }}
@@ -97,20 +97,20 @@ function FindingCard({ finding, index, snapshot }: { finding: ReconciliationFind
     >
       <div className="flex items-start justify-between gap-2 mb-2">
         <div className="flex items-start gap-2">
-          <span className="font-mono text-xs text-muted-foreground shrink-0 mt-0.5">
+          <span className="font-mono text-xs text-white/40 shrink-0 mt-0.5">
             #{index + 1}
           </span>
-          <div className="text-sm font-semibold text-foreground leading-snug">
+          <div className="text-sm font-semibold text-white leading-snug">
             {finding.title}
           </div>
         </div>
         <SeverityBadge severity={finding.severity} />
       </div>
-      <p className="text-[0.75rem] text-muted-foreground leading-relaxed">
+      <p className="text-[0.75rem] text-white/40 leading-relaxed">
         {finding.description}
       </p>
       {finding.resolution && (
-        <p className="mt-2 text-[0.72rem] text-muted-foreground leading-relaxed">
+        <p className="mt-2 text-[0.72rem] text-white/40 leading-relaxed">
           <span className="text-mtqs-gold/80 uppercase tracking-[0.18em] text-[0.6rem] font-medium mr-1">
             Resolution
           </span>
@@ -139,10 +139,10 @@ export function HonestStatus({ snapshot }: { snapshot: MetricsSnapshot | null })
           <div className="flex items-start gap-3 mb-4">
             <GlowDot color="gold" size="h-3 w-3" className="mt-1" />
             <div>
-              <div className="text-base font-semibold text-foreground mb-1">
+              <div className="text-base font-semibold text-white mb-1">
                 MTQΣ v1.0 (Master Blueprint) — {BRAND_VOICE.statusDeclaration}
               </div>
-              <p className="text-[0.82rem] text-muted-foreground leading-relaxed">
+              <p className="text-[0.82rem] text-white/40 leading-relaxed">
                 {BRAND_VOICE.coreObjective} The system is {BRAND_VOICE.designConstraint.toLowerCase()}.
                 This pilot is a faithful reference implementation of the closed-loop blueprint
                 math, not a deployed production system.
@@ -151,9 +151,9 @@ export function HonestStatus({ snapshot }: { snapshot: MetricsSnapshot | null })
           </div>
 
           {/* HONEST_STATUS table */}
-          <div className="overflow-hidden rounded-md border border-border">
+          <div className="overflow-hidden rounded-md border border-white/[0.06]">
             <table className="w-full text-[0.75rem]">
-              <thead className="bg-black/[0.02] text-muted-foreground/75">
+              <thead className="bg-white/[0.03]/[0.02] text-white/40/75">
                 <tr>
                   <th className="text-left px-3 py-2 font-medium">Metric</th>
                   <th className="text-left px-3 py-2 font-medium">State</th>
@@ -161,9 +161,9 @@ export function HonestStatus({ snapshot }: { snapshot: MetricsSnapshot | null })
               </thead>
               <tbody>
                 {HONEST_STATUS.map((row, i) => (
-                  <tr key={row.metric} className={`border-t border-border ${i % 2 ? "bg-white/[0.01]" : ""}`}>
-                    <td className="px-3 py-2 text-muted-foreground">{row.metric}</td>
-                    <td className="px-3 py-2 text-foreground/90 font-mono">{row.state}</td>
+                  <tr key={row.metric} className={`border-t border-white/[0.06] ${i % 2 ? "bg-white/[0.03]/[0.01]" : ""}`}>
+                    <td className="px-3 py-2 text-white/40">{row.metric}</td>
+                    <td className="px-3 py-2 text-white/90 font-mono">{row.state}</td>
                   </tr>
                 ))}
               </tbody>
@@ -178,7 +178,7 @@ export function HonestStatus({ snapshot }: { snapshot: MetricsSnapshot | null })
           <div className="mb-3 flex items-center justify-between gap-2 flex-wrap">
             <div className="flex items-center gap-2">
               <GlowDot color="gold" size="h-3 w-3" />
-              <div className="text-base font-semibold text-foreground">Honest Audit Findings</div>
+              <div className="text-base font-semibold text-white">Honest Audit Findings</div>
             </div>
             <div className="flex flex-wrap items-center gap-1.5">
               {fixedCount > 0 && <Pill tone="emerald">{fixedCount} fixed</Pill>}
@@ -188,7 +188,7 @@ export function HonestStatus({ snapshot }: { snapshot: MetricsSnapshot | null })
           </div>
 
           {findings.length === 0 ? (
-            <div className="rounded-md border border-border bg-black/[0.02] p-4 text-center text-[0.75rem] text-muted-foreground">
+            <div className="rounded-md border border-white/[0.06] bg-white/[0.03]/[0.02] p-4 text-center text-[0.75rem] text-white/40">
               Loading audit findings…
             </div>
           ) : (
@@ -208,16 +208,16 @@ export function HonestStatus({ snapshot }: { snapshot: MetricsSnapshot | null })
               <div className="font-mono text-sm text-mtqs-emerald">
                 {snapshot.redemptionPolicy.canonical}
               </div>
-              <div className="mt-1 text-[0.7rem] text-muted-foreground leading-relaxed">
+              <div className="mt-1 text-[0.7rem] text-white/40 leading-relaxed">
                 {snapshot.redemptionPolicy.reason}
               </div>
-              <div className="mt-1 text-[0.65rem] text-muted-foreground/60 italic">
+              <div className="mt-1 text-[0.65rem] text-white/40/60 italic">
                 Informational: {snapshot.redemptionPolicy.informational}
               </div>
             </div>
           )}
 
-          <p className="mt-3 text-[0.72rem] text-muted-foreground leading-relaxed">
+          <p className="mt-3 text-[0.72rem] text-white/40 leading-relaxed">
             These are honest findings surfaced by the pilot. As of the V3 reconciliation pass:
             F1 (§12.2 vs §3.4.2 redemption contradiction), F2 (issuer concentration breach), and
             F3 (VIX/DXY now LIVE from Yahoo Finance) are all <span className="text-mtqs-emerald font-medium">fixed</span>;
@@ -232,13 +232,13 @@ export function HonestStatus({ snapshot }: { snapshot: MetricsSnapshot | null })
         <Panel className="p-5">
           <div className="mb-3 flex items-center justify-between">
             <div>
-              <div className="text-sm font-semibold text-foreground/90">Claims NOT Supported (§25.3 — v1.0)</div>
-              <div className="text-[0.7rem] text-muted-foreground">v1.0 added “Fixed composition”, “Guaranteed outcomes”, “Final optimal percentages” — the methodology is fixed, the outcomes are not</div>
+              <div className="text-sm font-semibold text-white/90">Claims NOT Supported (§25.3 — v1.0)</div>
+              <div className="text-[0.7rem] text-white/40">v1.0 added “Fixed composition”, “Guaranteed outcomes”, “Final optimal percentages” — the methodology is fixed, the outcomes are not</div>
             </div>
           </div>
-          <div className="overflow-hidden rounded-md border border-border">
+          <div className="overflow-hidden rounded-md border border-white/[0.06]">
             <table className="w-full text-[0.72rem]">
-              <thead className="bg-black/[0.02] text-muted-foreground">
+              <thead className="bg-white/[0.03]/[0.02] text-white/40">
                 <tr>
                   <th className="text-left px-3 py-2 font-medium w-1/2">Claim</th>
                   <th className="text-left px-3 py-2 font-medium w-1/2">Reason NOT Supported</th>
@@ -251,20 +251,20 @@ export function HonestStatus({ snapshot }: { snapshot: MetricsSnapshot | null })
                     initial={{ opacity: 0, y: 4 }}
                     animate={{ opacity: 1, y: 0 }}
                     transition={{ duration: 0.25, delay: i * 0.03 }}
-                    className={`border-t border-border ${i % 2 ? "bg-white/[0.01]" : ""}`}
+                    className={`border-t border-white/[0.06] ${i % 2 ? "bg-white/[0.03]/[0.01]" : ""}`}
                   >
                     <td className="px-3 py-2.5">
                       <span className="line-through text-mtqs-rose/70 font-mono">{row.claim}</span>
                     </td>
                     <td className="px-3 py-2.5">
-                      <span className="text-muted-foreground">{row.reason}</span>
+                      <span className="text-white/40">{row.reason}</span>
                     </td>
                   </motion.tr>
                 ))}
               </tbody>
             </table>
           </div>
-          <p className="mt-3 text-[0.7rem] text-muted-foreground leading-relaxed">
+          <p className="mt-3 text-[0.7rem] text-white/40 leading-relaxed">
             §25.3 v1.0 added three new unsupported claims that the legacy v1.2 had not explicitly disclaimed:
             <span className="text-mtqs-gold font-medium"> “Fixed composition”</span>,
             <span className="text-mtqs-gold font-medium"> “Guaranteed outcomes”</span>, and

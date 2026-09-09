@@ -44,7 +44,7 @@ function ChainTab({ chain, active, onClick }: { chain: ChainInfo; active: boolea
     <button
       onClick={onClick}
       className={`mtqs-focus relative px-4 py-2.5 text-sm font-medium transition ${
-        active ? "text-mtqs-gold" : "text-muted-foreground hover:text-muted-foreground"
+        active ? "text-mtqs-gold" : "text-white/40 hover:text-white/40"
       }`}
       aria-pressed={active}
     >
@@ -77,20 +77,20 @@ function CanonicalCard({ chainId }: { chainId: string }) {
         <Pill tone="gold" className="font-mono">cid {String(info.chainId)}</Pill>
       </div>
       <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 text-[0.72rem]">
-        <div className="rounded-md border border-border bg-black/[0.02] p-2.5">
-          <div className="text-muted-foreground">Name</div>
+        <div className="rounded-md border border-white/[0.06] bg-white/[0.03]/[0.02] p-2.5">
+          <div className="text-white/40">Name</div>
           <div className="font-mono text-mtqs-gold">{info.name}</div>
         </div>
-        <div className="rounded-md border border-border bg-black/[0.02] p-2.5">
-          <div className="text-muted-foreground">Symbol</div>
+        <div className="rounded-md border border-white/[0.06] bg-white/[0.03]/[0.02] p-2.5">
+          <div className="text-white/40">Symbol</div>
           <div className="font-mono text-mtqs-gold">{info.symbol}</div>
         </div>
-        <div className="rounded-md border border-border bg-black/[0.02] p-2.5">
-          <div className="text-muted-foreground">Decimals</div>
+        <div className="rounded-md border border-white/[0.06] bg-white/[0.03]/[0.02] p-2.5">
+          <div className="text-white/40">Decimals</div>
           <div className="font-mono text-mtqs-gold">{info.decimals}</div>
         </div>
-        <div className="rounded-md border border-border bg-black/[0.02] p-2.5">
-          <div className="text-muted-foreground">Chain ID</div>
+        <div className="rounded-md border border-white/[0.06] bg-white/[0.03]/[0.02] p-2.5">
+          <div className="text-white/40">Chain ID</div>
           <div className="font-mono text-mtqs-gold">{String(info.chainId)}</div>
         </div>
       </div>
@@ -131,10 +131,10 @@ function EcosystemTable({ chain, query }: { chain: ChainInfo; query: string }) {
   }, [chain, q]);
 
   return (
-    <div className="overflow-hidden rounded-md border border-border">
+    <div className="overflow-hidden rounded-md border border-white/[0.06]">
       <div className="max-h-96 overflow-y-auto mtqs-scroll">
         <table className="w-full text-[0.72rem]">
-          <thead className="bg-black/[0.02] text-muted-foreground sticky top-0 backdrop-blur">
+          <thead className="bg-white/[0.03]/[0.02] text-white/40 sticky top-0 backdrop-blur">
             <tr>
               <th className="text-left px-3 py-2 font-medium">Contract</th>
               <th className="text-left px-3 py-2 font-medium hidden sm:table-cell">Symbol</th>
@@ -145,7 +145,7 @@ function EcosystemTable({ chain, query }: { chain: ChainInfo; query: string }) {
           <tbody>
             {rows.length === 0 ? (
               <tr>
-                <td colSpan={4} className="px-3 py-6 text-center text-muted-foreground/60">
+                <td colSpan={4} className="px-3 py-6 text-center text-white/40/60">
                   No contracts match &ldquo;{query}&rdquo;.
                 </td>
               </tr>
@@ -155,12 +155,12 @@ function EcosystemTable({ chain, query }: { chain: ChainInfo; query: string }) {
                 return (
                   <tr
                     key={c.address}
-                    className={`border-t border-border ${i % 2 ? "bg-white/[0.01]" : ""}`}
+                    className={`border-t border-white/[0.06] ${i % 2 ? "bg-white/[0.03]/[0.01]" : ""}`}
                   >
                     <td className="px-3 py-2.5">
-                      <div className="text-foreground/90">{c.name}</div>
+                      <div className="text-white/90">{c.name}</div>
                       {c.note && (
-                        <div className="text-[0.62rem] text-muted-foreground/60 mt-0.5">{c.note}</div>
+                        <div className="text-[0.62rem] text-white/40/60 mt-0.5">{c.note}</div>
                       )}
                     </td>
                     <td className="px-3 py-2.5 font-mono text-mtqs-gold/80 hidden sm:table-cell">
@@ -213,7 +213,7 @@ export function ContractsSection({ onNavigate: _onNavigate }: { onNavigate: (id:
         <div className="flex items-end justify-between gap-4 mb-5">
           <div className="space-y-1.5 min-w-0">
             <span className="mtqs-eyebrow">Deployments · 4 testnets</span>
-            <h2 className="text-lg sm:text-xl font-medium tracking-tight text-foreground">
+            <h2 className="text-lg sm:text-xl font-medium tracking-tight text-white">
               Contract Registry &amp; Canonical MTQΣ
             </h2>
           </div>
@@ -232,7 +232,7 @@ export function ContractsSection({ onNavigate: _onNavigate }: { onNavigate: (id:
       {/* Chain tabs */}
       <Reveal delay={0.05}>
         <Panel className="p-1">
-          <div className="relative flex border-b border-border overflow-x-auto mtqs-no-scrollbar">
+          <div className="relative flex border-b border-white/[0.06] overflow-x-auto mtqs-no-scrollbar">
             {ALL_CHAINS.map((c) => (
               <ChainTab
                 key={c.id}
@@ -258,27 +258,27 @@ export function ContractsSection({ onNavigate: _onNavigate }: { onNavigate: (id:
                 className="space-y-4"
               >
                 <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-2 text-[0.72rem]">
-                  <div className="rounded-md border border-border bg-black/[0.02] p-2.5">
-                    <div className="text-muted-foreground">Chain ID</div>
+                  <div className="rounded-md border border-white/[0.06] bg-white/[0.03]/[0.02] p-2.5">
+                    <div className="text-white/40">Chain ID</div>
                     <div className="font-mono text-mtqs-gold">{String(active.chainId)}</div>
                   </div>
-                  <div className="rounded-md border border-border bg-black/[0.02] p-2.5">
-                    <div className="text-muted-foreground">Native Currency</div>
+                  <div className="rounded-md border border-white/[0.06] bg-white/[0.03]/[0.02] p-2.5">
+                    <div className="text-white/40">Native Currency</div>
                     <div className="font-mono text-mtqs-gold">{active.nativeCurrency}</div>
                   </div>
-                  <div className="rounded-md border border-border bg-black/[0.02] p-2.5 sm:col-span-2">
-                    <div className="text-muted-foreground">RPC URL</div>
+                  <div className="rounded-md border border-white/[0.06] bg-white/[0.03]/[0.02] p-2.5 sm:col-span-2">
+                    <div className="text-white/40">RPC URL</div>
                     <div className="font-mono text-mtqs-gold truncate text-[0.7rem]">{active.rpcUrl}</div>
                   </div>
-                  <div className="rounded-md border border-border bg-black/[0.02] p-2.5">
-                    <div className="text-muted-foreground">Deployer Wallet</div>
+                  <div className="rounded-md border border-white/[0.06] bg-white/[0.03]/[0.02] p-2.5">
+                    <div className="text-white/40">Deployer Wallet</div>
                     <div className="font-mono text-mtqs-gold flex items-center gap-1.5">
                       {shortAddr(active.wallet, 6, 4)}
                       <CopyButton value={active.wallet} label="deployer wallet" />
                     </div>
                   </div>
-                  <div className="rounded-md border border-border bg-black/[0.02] p-2.5">
-                    <div className="text-muted-foreground">Explorer</div>
+                  <div className="rounded-md border border-white/[0.06] bg-white/[0.03]/[0.02] p-2.5">
+                    <div className="text-white/40">Explorer</div>
                     <a
                       href={active.explorer}
                       target="_blank"
@@ -288,8 +288,8 @@ export function ContractsSection({ onNavigate: _onNavigate }: { onNavigate: (id:
                       open ↗
                     </a>
                   </div>
-                  <div className="rounded-md border border-border bg-black/[0.02] p-2.5 sm:col-span-2">
-                    <div className="text-muted-foreground">Network</div>
+                  <div className="rounded-md border border-white/[0.06] bg-white/[0.03]/[0.02] p-2.5 sm:col-span-2">
+                    <div className="text-white/40">Network</div>
                     <div className="text-mtqs-gold">{active.network}</div>
                   </div>
                 </div>
@@ -297,7 +297,7 @@ export function ContractsSection({ onNavigate: _onNavigate }: { onNavigate: (id:
                 {/* Search input */}
                 <div className="relative">
                   <Search
-                    className="absolute left-3 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-muted-foreground/60"
+                    className="absolute left-3 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-white/40/60"
                     aria-hidden="true"
                   />
                   <input
@@ -305,7 +305,7 @@ export function ContractsSection({ onNavigate: _onNavigate }: { onNavigate: (id:
                     value={query}
                     onChange={(e) => setQuery(e.target.value)}
                     placeholder={`Filter ${active.contracts.length} ecosystem contracts by name, symbol, or address…`}
-                    className="w-full rounded-md border border-border bg-black/[0.02] pl-9 pr-3 py-2 text-[0.78rem] text-foreground placeholder:text-muted-foreground/50 focus:outline-none focus:border-mtqs-gold/40 focus:bg-black/[0.04] transition"
+                    className="w-full rounded-md border border-white/[0.06] bg-white/[0.03]/[0.02] pl-9 pr-3 py-2 text-[0.78rem] text-white placeholder:text-white/40/50 focus:outline-none focus:border-mtqs-gold/40 focus:bg-white/[0.03]/[0.04] transition"
                     aria-label="Filter contracts"
                   />
                 </div>
@@ -321,7 +321,7 @@ export function ContractsSection({ onNavigate: _onNavigate }: { onNavigate: (id:
       {/* Honest note */}
       <Reveal delay={0.1}>
         <Panel className="p-4">
-          <div className="flex items-start gap-2 text-[0.7rem] text-muted-foreground">
+          <div className="flex items-start gap-2 text-[0.7rem] text-white/40">
             <GlowDot color="gold" size="h-1.5 w-1.5" className="mt-1.5" />
             <p className="leading-relaxed">
               The canonical MTQΣ address per chain is the source-of-truth token contract.

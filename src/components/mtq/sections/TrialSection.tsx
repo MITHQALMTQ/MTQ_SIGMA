@@ -44,7 +44,7 @@ function StepIndicator() {
             <div className="h-8 w-8 rounded-full border border-mtqs-gold/30 bg-mtqs-gold/5 flex items-center justify-center text-[0.78rem] font-mono font-semibold text-mtqs-gold-light">
               {s.n}
             </div>
-            <span className="text-[0.6rem] sm:text-[0.68rem] uppercase tracking-[0.12em] text-muted-foreground/75 text-center">
+            <span className="text-[0.6rem] sm:text-[0.68rem] uppercase tracking-[0.12em] text-white/40/75 text-center">
               {s.label}
             </span>
           </div>
@@ -157,7 +157,7 @@ export function TrialSection({
       <Reveal>
         <Panel className="p-4 sm:p-5">
           <StepIndicator />
-          <p className="mt-4 text-[0.72rem] text-muted-foreground leading-relaxed">
+          <p className="mt-4 text-[0.72rem] text-white/40 leading-relaxed">
             Run the closed loop end-to-end: fund a testnet wallet from a faucet, copy the canonical
             MTQΣ address, mint MTQΣ against USDC, redeem MTQΣ back into the basket, and review your
             trial history. Every step is logged to SQLite for auditability.
@@ -173,12 +173,12 @@ export function TrialSection({
               <div className="h-7 w-7 rounded-full border border-mtqs-gold/30 bg-mtqs-gold/5 flex items-center justify-center text-[0.72rem] font-mono font-semibold text-mtqs-gold-light">
                 1
               </div>
-              <h3 className="text-base font-semibold text-foreground flex items-center gap-2">
+              <h3 className="text-base font-semibold text-white flex items-center gap-2">
                 <Droplets className="h-4 w-4 text-mtqs-gold/80" aria-hidden="true" />
                 Faucets
               </h3>
             </div>
-            <p className="text-[0.72rem] text-muted-foreground/75 mt-1 ml-9">
+            <p className="text-[0.72rem] text-white/40/75 mt-1 ml-9">
               Fund your testnet wallet before minting or redeeming.
             </p>
           </div>
@@ -199,14 +199,14 @@ export function TrialSection({
                       {f.chain}
                     </div>
                     <ExternalLink
-                      className="h-3.5 w-3.5 text-muted-foreground/60 group-hover:text-mtqs-gold-light transition"
+                      className="h-3.5 w-3.5 text-white/40/60 group-hover:text-mtqs-gold-light transition"
                       aria-hidden="true"
                     />
                   </div>
-                  <div className="text-sm font-semibold text-foreground/90 group-hover:text-mtqs-gold-light transition">
+                  <div className="text-sm font-semibold text-white/90 group-hover:text-mtqs-gold-light transition">
                     {f.label}
                   </div>
-                  <div className="mt-1 text-[0.68rem] text-muted-foreground leading-relaxed">
+                  <div className="mt-1 text-[0.68rem] text-white/40 leading-relaxed">
                     {f.note}
                   </div>
                 </Panel>
@@ -224,12 +224,12 @@ export function TrialSection({
               <div className="h-7 w-7 rounded-full border border-mtqs-gold/30 bg-mtqs-gold/5 flex items-center justify-center text-[0.72rem] font-mono font-semibold text-mtqs-gold-light">
                 2
               </div>
-              <h3 className="text-base font-semibold text-foreground flex items-center gap-2">
+              <h3 className="text-base font-semibold text-white flex items-center gap-2">
                 <Coins className="h-4 w-4 text-mtqs-gold/80" aria-hidden="true" />
                 Canonical MTQΣ Addresses
               </h3>
             </div>
-            <p className="text-[0.72rem] text-muted-foreground/75 mt-1 ml-9">
+            <p className="text-[0.72rem] text-white/40/75 mt-1 ml-9">
               The source-of-truth token contract on each testnet. Verify on the explorer before minting.
             </p>
           </div>
@@ -247,12 +247,12 @@ export function TrialSection({
               <div className="h-7 w-7 rounded-full border border-mtqs-gold/30 bg-mtqs-gold/5 flex items-center justify-center text-[0.72rem] font-mono font-semibold text-mtqs-gold-light">
                 3
               </div>
-              <h3 className="text-base font-semibold text-foreground flex items-center gap-2">
+              <h3 className="text-base font-semibold text-white flex items-center gap-2">
                 <Coins className="h-4 w-4 text-mtqs-gold/80" aria-hidden="true" />
                 Mint Simulator
               </h3>
             </div>
-            <p className="text-[0.72rem] text-muted-foreground/75 mt-1 ml-9">
+            <p className="text-[0.72rem] text-white/40/75 mt-1 ml-9">
               Deposit USDC → mint MTQΣ = X·(1−0.001)/P_MTQ (§12.1, fee 0.10%).
             </p>
           </div>
@@ -277,12 +277,12 @@ export function TrialSection({
               <div className="h-7 w-7 rounded-full border border-mtqs-gold/30 bg-mtqs-gold/5 flex items-center justify-center text-[0.72rem] font-mono font-semibold text-mtqs-gold-light">
                 4
               </div>
-              <h3 className="text-base font-semibold text-foreground flex items-center gap-2">
+              <h3 className="text-base font-semibold text-white flex items-center gap-2">
                 <Flame className="h-4 w-4 text-mtqs-gold/80" aria-hidden="true" />
                 Redeem Simulator
               </h3>
             </div>
-            <p className="text-[0.72rem] text-muted-foreground/75 mt-1 ml-9">
+            <p className="text-[0.72rem] text-white/40/75 mt-1 ml-9">
               Burn MTQΣ → release the basket (§3.4.2 canonical, arbitrage-safe) + 0.15% fee.
             </p>
           </div>
@@ -307,12 +307,12 @@ export function TrialSection({
               <div className="h-7 w-7 rounded-full border border-mtqs-gold/30 bg-mtqs-gold/5 flex items-center justify-center text-[0.72rem] font-mono font-semibold text-mtqs-gold-light">
                 5
               </div>
-              <h3 className="text-base font-semibold text-foreground flex items-center gap-2">
+              <h3 className="text-base font-semibold text-white flex items-center gap-2">
                 <ScrollText className="h-4 w-4 text-mtqs-gold/80" aria-hidden="true" />
                 Trial Log
               </h3>
             </div>
-            <p className="text-[0.72rem] text-muted-foreground/75 mt-1 ml-9">
+            <p className="text-[0.72rem] text-white/40/75 mt-1 ml-9">
               Every mint/redeem is stored in SQLite. Most recent first.
             </p>
           </div>
@@ -325,21 +325,21 @@ export function TrialSection({
       {/* Closing CTA */}
       <Reveal>
         <Panel variant="emerald" className="p-5 sm:p-6 text-center">
-          <p className="text-[0.82rem] text-muted-foreground leading-relaxed max-w-2xl mx-auto mb-4">
+          <p className="text-[0.82rem] text-white/40 leading-relaxed max-w-2xl mx-auto mb-4">
             Trial complete. Review the full reconciliation in the Docs section, or explore the
             contract registry to verify each deployment on-chain.
           </p>
           <div className="flex flex-wrap items-center justify-center gap-2">
             <button
               onClick={() => _onNavigate("docs")}
-              className="inline-flex items-center gap-1.5 rounded-full border border-black/[0.1] bg-black/[0.03] px-4 py-2 text-[0.78rem] font-medium text-foreground hover:border-mtqs-gold/30 hover:text-foreground transition"
+              className="inline-flex items-center gap-1.5 rounded-full border border-white/[0.1] bg-white/[0.03]/[0.03] px-4 py-2 text-[0.78rem] font-medium text-white hover:border-mtqs-gold/30 hover:text-white transition"
             >
               View Docs
               <ArrowRight className="h-3.5 w-3.5" aria-hidden="true" />
             </button>
             <button
               onClick={() => _onNavigate("contracts")}
-              className="inline-flex items-center gap-1.5 rounded-full border border-black/[0.1] bg-black/[0.03] px-4 py-2 text-[0.78rem] font-medium text-foreground hover:border-mtqs-gold/30 hover:text-foreground transition"
+              className="inline-flex items-center gap-1.5 rounded-full border border-white/[0.1] bg-white/[0.03]/[0.03] px-4 py-2 text-[0.78rem] font-medium text-white hover:border-mtqs-gold/30 hover:text-white transition"
             >
               Contract Registry
               <ArrowRight className="h-3.5 w-3.5" aria-hidden="true" />

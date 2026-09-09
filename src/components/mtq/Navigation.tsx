@@ -67,7 +67,7 @@ export function Navigation({
       aria-label="MTQΣ sections"
     >
       {/* Frosted glass background bar */}
-      <div className="bg-background/72 backdrop-blur-xl saturate-200 border-b border-border">
+      <div className="bg-transparent/72 backdrop-blur-xl saturate-200 border-b border-white/[0.06]">
         <div className="mx-auto max-w-[1400px] px-4 sm:px-6 lg:px-8">
           {/* Desktop: Apple segmented control */}
           <div className="hidden md:flex items-center gap-1 py-2.5">
@@ -81,8 +81,8 @@ export function Navigation({
                     onClick={() => handlePick(s.id)}
                     className={`relative flex items-center gap-1.5 px-3 py-1.5 text-[0.78rem] font-medium tracking-tight rounded-lg transition-colors duration-200 ${
                       isActive
-                        ? "text-foreground"
-                        : "text-muted-foreground/60 hover:text-muted-foreground"
+                        ? "text-white"
+                        : "text-white/40/60 hover:text-white/40"
                     }`}
                     aria-pressed={isActive}
                     aria-label={`${s.label} section`}
@@ -107,7 +107,7 @@ export function Navigation({
             <div className="flex items-center gap-3">
               <button
                 onClick={() => setMobileOpen((v) => !v)}
-                className="flex items-center justify-center rounded-lg p-2 text-mtqs-gold/80 hover:text-mtqs-gold hover:bg-white/[0.05] transition-colors duration-200"
+                className="flex items-center justify-center rounded-lg p-2 text-mtqs-gold/80 hover:text-mtqs-gold hover:bg-white/[0.03]/[0.05] transition-colors duration-200"
                 aria-label={mobileOpen ? "Close menu" : "Open menu"}
                 aria-expanded={mobileOpen}
               >
@@ -117,7 +117,7 @@ export function Navigation({
                 {SECTIONS.find((s) => s.id === active)?.label ?? "Home"}
               </span>
             </div>
-            <span className="text-[0.65rem] font-medium text-muted-foreground/40 uppercase tracking-widest">
+            <span className="text-[0.65rem] font-medium text-white/40/40 uppercase tracking-widest">
               9 sections
             </span>
           </div>
@@ -146,7 +146,7 @@ export function Navigation({
                         className={`flex flex-col items-center justify-center gap-1.5 rounded-2xl py-3.5 transition-colors duration-200 ${
                           isActive
                             ? "bg-amber-400/15 text-mtqs-gold border border-amber-400/25"
-                            : "bg-black/[0.04] text-muted-foreground border border-border hover:bg-black/[0.08]"
+                            : "bg-white/[0.03]/[0.04] text-white/40 border border-white/[0.06] hover:bg-white/[0.03]/[0.08]"
                         }`}
                         aria-pressed={isActive}
                       >

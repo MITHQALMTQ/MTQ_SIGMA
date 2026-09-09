@@ -82,19 +82,19 @@ function AssetCard({ rec, index }: { rec: AssetRecord; index: number }) {
           ? "border-mtqs-rose/30 bg-mtqs-rose/[0.03]"
           : rec.state === "WATCH"
           ? "border-mtqs-amber/20 bg-mtqs-amber/[0.02]"
-          : "border-border bg-white/[0.015]"
+          : "border-white/[0.06] bg-white/[0.03]/[0.015]"
       }`}
     >
       {/* Header row */}
       <div className="flex items-start justify-between gap-3 mb-3">
         <div>
           <div className="flex items-baseline gap-2 flex-wrap">
-            <span className="font-mono text-base font-semibold text-foreground/90">{rec.currencyCode}</span>
-            <span className="text-xs text-muted-foreground">→</span>
+            <span className="font-mono text-base font-semibold text-white/90">{rec.currencyCode}</span>
+            <span className="text-xs text-white/40">→</span>
             <span className="font-mono text-sm text-mtqs-gold">{rec.tokenAddress}</span>
           </div>
-          <div className="mt-0.5 text-[0.7rem] text-muted-foreground">
-            {rec.name} · issuer <span className="text-muted-foreground font-mono">{rec.issuerId}</span>
+          <div className="mt-0.5 text-[0.7rem] text-white/40">
+            {rec.name} · issuer <span className="text-white/40 font-mono">{rec.issuerId}</span>
           </div>
         </div>
         <Pill tone={tone}>
@@ -105,16 +105,16 @@ function AssetCard({ rec, index }: { rec: AssetRecord; index: number }) {
 
       {/* Stats row */}
       <div className="grid grid-cols-3 gap-2 mb-3 text-[0.7rem]">
-        <div className="rounded-md border border-border bg-black/[0.02] px-2 py-1.5">
-          <div className="text-muted-foreground">Haircut</div>
+        <div className="rounded-md border border-white/[0.06] bg-white/[0.03]/[0.02] px-2 py-1.5">
+          <div className="text-white/40">Haircut</div>
           <div className="font-mono text-mtqs-gold">{(rec.haircut * 100).toFixed(2)}%</div>
         </div>
-        <div className="rounded-md border border-border bg-black/[0.02] px-2 py-1.5">
-          <div className="text-muted-foreground">Liq. Min.</div>
+        <div className="rounded-md border border-white/[0.06] bg-white/[0.03]/[0.02] px-2 py-1.5">
+          <div className="text-white/40">Liq. Min.</div>
           <div className="font-mono text-mtqs-gold">${(rec.liquidityThresholdUsd / 1_000_000).toFixed(1)}M</div>
         </div>
-        <div className="rounded-md border border-border bg-black/[0.02] px-2 py-1.5">
-          <div className="text-muted-foreground">Score</div>
+        <div className="rounded-md border border-white/[0.06] bg-white/[0.03]/[0.02] px-2 py-1.5">
+          <div className="text-white/40">Score</div>
           <div className={`font-mono ${score.allPassed ? "text-mtqs-emerald" : "text-mtqs-amber"}`}>
             {score.passed}/{score.total}
           </div>
@@ -128,7 +128,7 @@ function AssetCard({ rec, index }: { rec: AssetRecord; index: number }) {
         {ELIGIBILITY_CRITERIA.map((c) => {
           const ok = rec.criteria[c.id as keyof typeof rec.criteria];
           return (
-            <div key={c.id} className="flex items-center gap-1 text-[0.6rem] text-muted-foreground">
+            <div key={c.id} className="flex items-center gap-1 text-[0.6rem] text-white/40">
               <span className={ok ? "text-mtqs-emerald" : "text-mtqs-rose/80"}>{ok ? "✓" : "✗"}</span>
               <span>{c.label}</span>
             </div>
@@ -143,7 +143,7 @@ function ConcentrationPanel({ reports, perIssuer }: { reports: ConcentrationRepo
   if (!reports || reports.length === 0) {
     return (
       <Panel className="p-4">
-        <div className="text-sm text-muted-foreground">No concentration data.</div>
+        <div className="text-sm text-white/40">No concentration data.</div>
       </Panel>
     );
   }
@@ -189,8 +189,8 @@ function ConcentrationPanel({ reports, perIssuer }: { reports: ConcentrationRepo
           >
             <div className="flex items-center justify-between mb-2">
               <div>
-                <div className="font-mono text-sm font-semibold text-foreground/90">{r.issuer}</div>
-                <div className="text-[0.7rem] text-muted-foreground">
+                <div className="font-mono text-sm font-semibold text-white/90">{r.issuer}</div>
+                <div className="text-[0.7rem] text-white/40">
                   {fmtUsd(r.usdValue)} ·{" "}
                   {constituents.map((c) => `${c.label} ${fmtUsd(c.usd)}`).join(" · ")}
                 </div>
@@ -214,14 +214,14 @@ function ConcentrationPanel({ reports, perIssuer }: { reports: ConcentrationRepo
                 height="h-2.5"
               />
               {/* Threshold ticks */}
-              <div className="mt-1 flex justify-between text-[0.6rem] font-mono text-muted-foreground">
+              <div className="mt-1 flex justify-between text-[0.6rem] font-mono text-white/40">
                 <span>0</span>
                 <span style={{ position: "absolute", left: `${(warn / crisis) * 100}%`, top: -1, transform: "translateX(-50%)" }} className="text-mtqs-amber">↓{warn}%</span>
                 <span style={{ position: "absolute", left: `${(limit / crisis) * 100}%`, top: -1, transform: "translateX(-50%)" }} className="text-mtqs-rose">↓{limit}%</span>
                 <span>35%</span>
               </div>
             </div>
-            <div className="mt-2 flex flex-wrap gap-3 text-[0.7rem] text-muted-foreground">
+            <div className="mt-2 flex flex-wrap gap-3 text-[0.7rem] text-white/40">
               <span>share <span className={`font-mono ${tone === "emerald" ? "text-mtqs-emerald" : tone === "rose" ? "text-mtqs-rose" : "text-mtqs-amber"}`}>{(r.sharePct * 100).toFixed(2)}%</span></span>
               <span>limit <span className="font-mono">{(r.limitPct * 100).toFixed(0)}%</span></span>
               <span>warn <span className="font-mono">{(r.warnPct * 100).toFixed(0)}%</span></span>
@@ -259,10 +259,10 @@ export function AssetRegistry({
         <Panel className="p-4 sm:p-5">
           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-2">
             <div>
-              <div className="text-sm font-semibold text-foreground/90">
+              <div className="text-sm font-semibold text-white/90">
                 Genesis Asset Registry · §5.4.2
               </div>
-              <div className="text-[0.7rem] text-muted-foreground">
+              <div className="text-[0.7rem] text-white/40">
                 {registry?.length ?? 0} admitted assets · 8 eligibility criteria · state machine ACTIVE/WATCH/RESTRICTED/EJECTED
               </div>
             </div>
@@ -287,7 +287,7 @@ export function AssetRegistry({
                   ? "Honest Finding — issuer concentration breach (§5.6) · optimizer running"
                   : "Resolved Finding — issuer concentration breach (§5.6) · fixed"}
               </div>
-              <p className="text-[0.75rem] text-muted-foreground leading-relaxed">
+              <p className="text-[0.75rem] text-white/40 leading-relaxed">
                 The v1.0 genesis mapping (USD → USDC, EUR → EURC, both Circle) placed Circle at
                 ~54% of NAV, breaching the §5.6 30% issuer concentration limit. The registry now
                 admits 3 USD issuers (USDC/Circle + USDP/Paxos + USDT/Tether) and 2 gold issuers
@@ -295,7 +295,7 @@ export function AssetRegistry({
                 each tick.
                 {maxIssuer && (
                   <>
-                    {" "}Live max issuer = <span className="font-mono font-semibold text-foreground">
+                    {" "}Live max issuer = <span className="font-mono font-semibold text-white">
                       {maxIssuer.issuer} at {(maxIssuer.sharePct * 100).toFixed(2)}%
                     </span>{" "}
                     of NAV — {maxIssuer.status === "ok"
@@ -323,7 +323,7 @@ export function AssetRegistry({
           ))
         ) : (
           [...Array(6)].map((_, i) => (
-            <div key={i} className="h-48 animate-pulse rounded-lg bg-black/[0.03]" />
+            <div key={i} className="h-48 animate-pulse rounded-lg bg-white/[0.03]/[0.03]" />
           ))
         )}
       </div>
@@ -332,10 +332,10 @@ export function AssetRegistry({
       <Reveal>
         <Panel className="p-4 sm:p-5">
           <div className="mb-3 flex items-center justify-between">
-            <div className="text-sm font-semibold text-foreground/90">
+            <div className="text-sm font-semibold text-white/90">
               Issuer Concentration (§5.6)
             </div>
-            <div className="text-[0.7rem] text-muted-foreground font-mono">
+            <div className="text-[0.7rem] text-white/40 font-mono">
               warn {(CONCENTRATION_WARN_PCT * 100).toFixed(0)}% · limit {(CONCENTRATION_LIMIT_PCT * 100).toFixed(0)}% · crisis {(CONCENTRATION_CRISIS_LIMIT_PCT * 100).toFixed(0)}%
             </div>
           </div>

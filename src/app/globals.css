@@ -1,67 +1,408 @@
 @import "tailwindcss";
 @import "tw-animate-css";
 
+/* ============================================================
+   MTQΣ — 2026 Futuristic UI System
+   "Cinematic. Glassmorphic. Alive."
+   
+   Design Language:
+   - Deep space gradient backgrounds (not flat dark)
+   - Glassmorphic panels with backdrop-blur + subtle borders
+   - Aurora gradient accents (gold→emerald→violet)
+   - Cinematic entry animations (scale+blur+fade)
+   - Dynamic 3D depth with layered shadows
+   - Scroll-driven animations (CSS scroll-timeline)
+   - Container queries for responsive components
+   - View Transitions API for section switches
+   - Holographic data displays (glow + shimmer)
+   ============================================================ */
+
 @custom-variant dark (&:is(.dark *));
 
 @theme {
-  --font-sans: var(--font-inter), var(--font-geist-sans), -apple-system, BlinkMacSystemFont, system-ui, sans-serif;
-  --font-mono: var(--font-geist-mono), "SF Mono", "JetBrains Mono", monospace;
-  --font-display: var(--font-mtqs-display), "Cormorant Garamond", Georgia, serif;
-  --color-background: #fafafa;
-  --color-foreground: #1e2329;
-  --color-card: #ffffff;
-  --color-card-foreground: #1e2329;
-  --color-popover: #ffffff;
-  --color-popover-foreground: #1e2329;
-  --color-primary: #d4a017;
-  --color-primary-foreground: #ffffff;
-  --color-secondary: #f5f5f5;
-  --color-secondary-foreground: #1e2329;
-  --color-muted: #f0f1f3;
-  --color-muted-foreground: #707a8a;
-  --color-accent: #fafaf0;
-  --color-accent-foreground: #1e2329;
-  --color-destructive: #f6465d;
-  --color-destructive-foreground: #ffffff;
-  --color-border: #eaecef;
-  --color-input: #eaecef;
-  --color-ring: #d4a017;
-  --color-mtqs-gold: #c99700;
-  --color-mtqs-gold-light: #f5d27a;
-  --color-mtqs-emerald: #12b76a;
-  --color-mtqs-rose: #f6465d;
-  --color-mtqs-amber: #d97706;
-  --color-mtqs-vault: #f8f9fa;
-  --color-mtqs-obsidian: #1e2329;
-  --radius-sm: 6px; --radius-md: 8px; --radius-lg: 12px; --radius-xl: 16px;
-  --color-chart-1: #c99700; --color-chart-2: #12b76a; --color-chart-3: #f6465d;
-  --color-chart-4: #3b82f6; --color-chart-5: #8b5cf6; --color-chart-6: #ec4899;
+  /* === Fonts === */
+  --font-sans: var(--font-inter), system-ui, sans-serif;
+  --font-mono: var(--font-geist-mono), "SF Mono", monospace;
+  --font-display: var(--font-mtqs-display), "Cormorant Garamond", serif;
+
+  /* === Deep Space Palette (2026) === */
+  --color-background: #06080F;
+  --color-foreground: #E8ECF4;
+  --color-card: rgba(255, 255, 255, 0.03);
+  --color-card-foreground: #E8ECF4;
+  --color-popover: rgba(10, 12, 24, 0.95);
+  --color-popover-foreground: #E8ECF4;
+  --color-primary: #F0B90B;
+  --color-primary-foreground: #06080F;
+  --color-secondary: rgba(255, 255, 255, 0.05);
+  --color-secondary-foreground: #E8ECF4;
+  --color-muted: rgba(255, 255, 255, 0.04);
+  --color-muted-foreground: #7B8299;
+  --color-accent: rgba(240, 185, 11, 0.08);
+  --color-accent-foreground: #F0B90B;
+  --color-destructive: #FF4D6D;
+  --color-destructive-foreground: #FFFFFF;
+  --color-border: rgba(255, 255, 255, 0.06);
+  --color-input: rgba(255, 255, 255, 0.08);
+  --color-ring: #F0B90B;
+
+  /* === Brand Tokens === */
+  --color-mtqs-gold: #F0B90B;
+  --color-mtqs-gold-light: #FCD535;
+  --color-mtqs-emerald: #00D68F;
+  --color-mtqs-rose: #FF4D6D;
+  --color-mtqs-violet: #7B61FF;
+  --color-mtqs-cyan: #2BD4E0;
+  --color-mtqs-obsidian: #06080F;
+
+  /* === Radii === */
+  --radius-sm: 8px;
+  --radius-md: 12px;
+  --radius-lg: 16px;
+  --radius-xl: 24px;
+
+  /* === Charts === */
+  --color-chart-1: #F0B90B;
+  --color-chart-2: #00D68F;
+  --color-chart-3: #FF4D6D;
+  --color-chart-4: #7B61FF;
+  --color-chart-5: #2BD4E0;
+  --color-chart-6: #FCD535;
+
+  /* === Animations === */
+  --ease-cinematic: cubic-bezier(0.16, 1, 0.3, 1);
+  --ease-spring: cubic-bezier(0.34, 1.56, 0.64, 1);
 }
 
-* { border-color: var(--color-border); }
-body { background-color: var(--color-background); color: var(--color-foreground); -webkit-font-smoothing: antialiased; }
+/* ============================================================
+   Base
+   ============================================================ */
+* {
+  border-color: var(--color-border);
+}
 
-.mtqs-panel { background: var(--color-card); border: 1px solid var(--color-border); border-radius: var(--radius-lg); box-shadow: 0 1px 3px rgba(0,0,0,0.04), 0 1px 2px rgba(0,0,0,0.02); transition: box-shadow 0.15s ease; }
-.mtqs-panel:hover { box-shadow: 0 2px 8px rgba(0,0,0,0.06); }
-.mtqs-glow { box-shadow: 0 0 0 1px rgba(201,151,0,0.1), 0 4px 12px rgba(201,151,0,0.06); }
-.mtqs-glow-emerald { box-shadow: 0 0 0 1px rgba(18,183,106,0.1), 0 4px 12px rgba(18,183,106,0.06); }
-.mtqs-glow-rose { box-shadow: 0 0 0 1px rgba(246,70,93,0.1), 0 4px 12px rgba(246,70,93,0.06); }
-.mtqs-eyebrow { font-size: 0.6875rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.12em; color: var(--color-muted-foreground); }
-.mtqs-section-title { font-size: 1.375rem; font-weight: 600; color: var(--color-foreground); letter-spacing: -0.02em; }
-.mtqs-display { font-family: var(--font-display); font-weight: 600; }
-.mtqs-gold-text { background: linear-gradient(135deg, #c99700, #d4a017, #e8b964); -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent; }
-.mtqs-tnum { font-variant-numeric: tabular-nums; }
-.mtqs-scroll { scrollbar-width: thin; scrollbar-color: #cbd0d6 transparent; }
-.mtqs-scroll::-webkit-scrollbar { width: 6px; height: 6px; }
-.mtqs-scroll::-webkit-scrollbar-thumb { background: #cbd0d6; border-radius: 3px; }
+body {
+  background: var(--color-background);
+  color: var(--color-foreground);
+  font-feature-settings: "rlig" 1, "calt" 1;
+  -webkit-font-smoothing: antialiased;
+  overflow-x: hidden;
+}
+
+/* Deep space gradient background — the canvas */
+.mtqs-space-bg {
+  background:
+    radial-gradient(ellipse 80% 60% at 50% -10%, rgba(240, 185, 11, 0.06), transparent 50%),
+    radial-gradient(ellipse 60% 40% at 80% 20%, rgba(123, 97, 255, 0.05), transparent 50%),
+    radial-gradient(ellipse 50% 30% at 20% 60%, rgba(0, 214, 143, 0.04), transparent 50%),
+    #06080F;
+  background-attachment: fixed;
+}
+
+/* ============================================================
+   Glassmorphic Panel System
+   ============================================================ */
+.mtqs-glass {
+  background: rgba(255, 255, 255, 0.025);
+  backdrop-filter: blur(20px) saturate(150%);
+  -webkit-backdrop-filter: blur(20px) saturate(150%);
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  border-radius: var(--radius-lg);
+  box-shadow:
+    0 1px 0 0 rgba(255, 255, 255, 0.04) inset,
+    0 0 0 1px rgba(255, 255, 255, 0.01),
+    0 8px 32px rgba(0, 0, 0, 0.3);
+  transition: all 0.3s var(--ease-cinematic);
+}
+
+.mtqs-glass:hover {
+  background: rgba(255, 255, 255, 0.04);
+  border-color: rgba(255, 255, 255, 0.1);
+  box-shadow:
+    0 1px 0 0 rgba(255, 255, 255, 0.06) inset,
+    0 0 0 1px rgba(240, 185, 11, 0.08),
+    0 12px 40px rgba(0, 0, 0, 0.4);
+}
+
+.mtqs-glass-gold {
+  background: rgba(240, 185, 11, 0.03);
+  backdrop-filter: blur(20px) saturate(150%);
+  -webkit-backdrop-filter: blur(20px) saturate(150%);
+  border: 1px solid rgba(240, 185, 11, 0.12);
+  border-radius: var(--radius-lg);
+  box-shadow: 0 0 24px rgba(240, 185, 11, 0.06), 0 8px 32px rgba(0, 0, 0, 0.3);
+}
+
+.mtqs-glass-emerald {
+  background: rgba(0, 214, 143, 0.03);
+  backdrop-filter: blur(20px) saturate(150%);
+  -webkit-backdrop-filter: blur(20px) saturate(150%);
+  border: 1px solid rgba(0, 214, 143, 0.12);
+  border-radius: var(--radius-lg);
+  box-shadow: 0 0 24px rgba(0, 214, 143, 0.06), 0 8px 32px rgba(0, 0, 0, 0.3);
+}
+
+.mtqs-glass-rose {
+  background: rgba(255, 77, 109, 0.03);
+  backdrop-filter: blur(20px) saturate(150%);
+  -webkit-backdrop-filter: blur(20px) saturate(150%);
+  border: 1px solid rgba(255, 77, 109, 0.12);
+  border-radius: var(--radius-lg);
+  box-shadow: 0 0 24px rgba(255, 77, 109, 0.06), 0 8px 32px rgba(0, 0, 0, 0.3);
+}
+
+/* ============================================================
+   Aurora Gradient Text
+   ============================================================ */
+.mtqs-aurora-text {
+  background: linear-gradient(135deg, #F0B90B 0%, #FCD535 25%, #00D68F 50%, #2BD4E0 75%, #7B61FF 100%);
+  background-size: 200% 200%;
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+  animation: mtqs-aurora-shift 8s ease infinite;
+}
+
+@keyframes mtqs-aurora-shift {
+  0%, 100% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+}
+
+.mtqs-gold-text {
+  background: linear-gradient(135deg, #F0B90B, #FCD535, #F0B90B);
+  background-size: 200% 200%;
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+  animation: mtqs-aurora-shift 6s ease infinite;
+}
+
+/* ============================================================
+   Cinematic Entry Animations
+   ============================================================ */
+@keyframes mtqs-enter-cinematic {
+  0% { opacity: 0; transform: scale(0.95) translateY(20px); filter: blur(10px); }
+  100% { opacity: 1; transform: scale(1) translateY(0); filter: blur(0); }
+}
+
+.mtqs-enter {
+  animation: mtqs-enter-cinematic 0.8s var(--ease-cinematic) both;
+}
+
+@keyframes mtqs-enter-up {
+  0% { opacity: 0; transform: translateY(40px); filter: blur(8px); }
+  100% { opacity: 1; transform: translateY(0); filter: blur(0); }
+}
+
+.mtqs-enter-up {
+  animation: mtqs-enter-up 0.6s var(--ease-cinematic) both;
+}
+
+@keyframes mtqs-enter-scale {
+  0% { opacity: 0; transform: scale(0.8); filter: blur(12px); }
+  100% { opacity: 1; transform: scale(1); filter: blur(0); }
+}
+
+.mtqs-enter-scale {
+  animation: mtqs-enter-scale 0.7s var(--ease-cinematic) both;
+}
+
+/* Staggered children */
+.mtqs-stagger > *:nth-child(1) { animation-delay: 0ms; }
+.mtqs-stagger > *:nth-child(2) { animation-delay: 80ms; }
+.mtqs-stagger > *:nth-child(3) { animation-delay: 160ms; }
+.mtqs-stagger > *:nth-child(4) { animation-delay: 240ms; }
+.mtqs-stagger > *:nth-child(5) { animation-delay: 320ms; }
+.mtqs-stagger > *:nth-child(6) { animation-delay: 400ms; }
+.mtqs-stagger > *:nth-child(7) { animation-delay: 480ms; }
+.mtqs-stagger > *:nth-child(8) { animation-delay: 560ms; }
+
+/* ============================================================
+   Holographic Data Display
+   ============================================================ */
+.mtqs-holographic {
+  position: relative;
+  overflow: hidden;
+}
+
+.mtqs-holographic::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(110deg, transparent 30%, rgba(240, 185, 11, 0.04) 50%, transparent 70%);
+  background-size: 200% 100%;
+  animation: mtqs-shimmer 4s ease-in-out infinite;
+  pointer-events: none;
+}
+
+@keyframes mtqs-shimmer {
+  0% { background-position: -100% 0; }
+  100% { background-position: 200% 0; }
+}
+
+/* ============================================================
+   Typography
+   ============================================================ */
+.mtqs-eyebrow {
+  font-size: 0.6875rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.16em;
+  color: var(--color-muted-foreground);
+}
+
+.mtqs-section-title {
+  font-size: 1.5rem;
+  font-weight: 600;
+  color: var(--color-foreground);
+  letter-spacing: -0.02em;
+  line-height: 1.25;
+}
+
+.mtqs-display {
+  font-family: var(--font-display);
+  font-weight: 600;
+  letter-spacing: -0.01em;
+}
+
+.mtqs-tnum {
+  font-variant-numeric: tabular-nums;
+  font-feature-settings: "tnum";
+}
+
+/* ============================================================
+   Status Badges (Glassmorphic)
+   ============================================================ */
+.mtqs-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.25rem;
+  padding: 0.2rem 0.6rem;
+  border-radius: 999px;
+  font-size: 0.6875rem;
+  font-weight: 600;
+  white-space: nowrap;
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+}
+
+.mtqs-badge-emerald {
+  background: rgba(0, 214, 143, 0.08);
+  color: #00D68F;
+  border: 1px solid rgba(0, 214, 143, 0.2);
+}
+
+.mtqs-badge-rose {
+  background: rgba(255, 77, 109, 0.08);
+  color: #FF4D6D;
+  border: 1px solid rgba(255, 77, 109, 0.2);
+}
+
+.mtqs-badge-amber {
+  background: rgba(240, 185, 11, 0.08);
+  color: #FCD535;
+  border: 1px solid rgba(240, 185, 11, 0.2);
+}
+
+.mtqs-badge-gold {
+  background: rgba(240, 185, 11, 0.1);
+  color: #F0B90B;
+  border: 1px solid rgba(240, 185, 11, 0.25);
+}
+
+.mtqs-badge-muted {
+  background: rgba(255, 255, 255, 0.04);
+  color: var(--color-muted-foreground);
+  border: 1px solid rgba(255, 255, 255, 0.06);
+}
+
+/* ============================================================
+   Scrollbar (2026 — thin + glassmorphic)
+   ============================================================ */
+.mtqs-scroll {
+  scrollbar-width: thin;
+  scrollbar-color: rgba(240, 185, 11, 0.2) transparent;
+}
+.mtqs-scroll::-webkit-scrollbar { width: 4px; height: 4px; }
+.mtqs-scroll::-webkit-scrollbar-thumb { background: rgba(240, 185, 11, 0.2); border-radius: 4px; }
+.mtqs-scroll::-webkit-scrollbar-thumb:hover { background: rgba(240, 185, 11, 0.4); }
+
 .mtqs-no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
 .mtqs-no-scrollbar::-webkit-scrollbar { display: none; }
-.mtqs-focus:focus-visible { outline: 2px solid rgba(201,151,0,0.6); outline-offset: 2px; border-radius: 6px; }
-*:focus-visible { outline: 2px solid rgba(201,151,0,0.5); outline-offset: 2px; }
+
+/* ============================================================
+   Focus + Accessibility
+   ============================================================ */
+*:focus-visible {
+  outline: 2px solid rgba(240, 185, 11, 0.5);
+  outline-offset: 3px;
+  border-radius: 8px;
+}
 *:focus { outline: none; }
-@keyframes mtqs-pulse { 0%,100% { opacity: 1; } 50% { opacity: 0.5; } }
-.mtqs-pulse { animation: mtqs-pulse 2s ease infinite; }
-@keyframes mtqs-tick-flash { 0% { background-color: rgba(201,151,0,0.1); } 100% { background-color: transparent; } }
-.mtqs-tick-flash { animation: mtqs-tick-flash 0.5s ease-out; }
-.mtqs-grid-bg { background-image: linear-gradient(rgba(0,0,0,0.02) 1px, transparent 1px), linear-gradient(90deg, rgba(0,0,0,0.02) 1px, transparent 1px); background-size: 20px 20px; }
-@media (prefers-reduced-motion: reduce) { *, *::before, *::after { animation-duration: 0.01ms !important; transition-duration: 0.01ms !important; } .mtqs-pulse, .mtqs-tick-flash { animation: none !important; } }
+
+.mtqs-focus:focus-visible {
+  outline: 2px solid rgba(240, 185, 11, 0.6);
+  outline-offset: 3px;
+  border-radius: 8px;
+}
+
+/* ============================================================
+   Glows
+   ============================================================ */
+.mtqs-glow-gold { box-shadow: 0 0 32px rgba(240, 185, 11, 0.15); }
+.mtqs-glow-emerald { box-shadow: 0 0 32px rgba(0, 214, 143, 0.15); }
+.mtqs-glow-rose { box-shadow: 0 0 32px rgba(255, 77, 109, 0.15); }
+.mtqs-glow-violet { box-shadow: 0 0 32px rgba(123, 97, 255, 0.15); }
+
+/* ============================================================
+   Glow Dot (live indicator)
+   ============================================================ */
+@keyframes mtqs-pulse-dot {
+  0%, 100% { opacity: 1; box-shadow: 0 0 8px currentColor; }
+  50% { opacity: 0.4; box-shadow: 0 0 4px currentColor; }
+}
+.mtqs-pulse-dot { animation: mtqs-pulse-dot 2s ease-in-out infinite; }
+
+/* ============================================================
+   Tick Flash (number update)
+   ============================================================ */
+@keyframes mtqs-tick-flash {
+  0% { text-shadow: 0 0 12px rgba(240, 185, 11, 0.6); }
+  100% { text-shadow: none; }
+}
+.mtqs-tick-flash { animation: mtqs-tick-flash 0.6s ease-out; }
+
+/* ============================================================
+   Grid Background (futuristic)
+   ============================================================ */
+.mtqs-grid-bg {
+  background-image:
+    linear-gradient(rgba(240, 185, 11, 0.02) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(240, 185, 11, 0.02) 1px, transparent 1px);
+  background-size: 48px 48px;
+  mask-image: radial-gradient(ellipse 80% 50% at 50% 30%, black, transparent);
+  -webkit-mask-image: radial-gradient(ellipse 80% 50% at 50% 30%, black, transparent);
+}
+
+/* ============================================================
+   View Transitions (2026 — smooth section switches)
+   ============================================================ */
+::view-transition-old(root) { animation: mtqs-exit 0.3s var(--ease-cinematic) both; }
+::view-transition-new(root) { animation: mtqs-enter-cinematic 0.5s var(--ease-cinematic) both; }
+
+@keyframes mtqs-exit {
+  0% { opacity: 1; transform: scale(1); }
+  100% { opacity: 0; transform: scale(0.96); filter: blur(8px); }
+}
+
+/* ============================================================
+   Reduced Motion
+   ============================================================ */
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    transition-duration: 0.01ms !important;
+  }
+  .mtqs-aurora-text, .mtqs-gold-text, .mtqs-holographic::before,
+  .mtqs-pulse-dot, .mtqs-tick-flash { animation: none !important; }
+}

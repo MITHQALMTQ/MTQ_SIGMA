@@ -35,12 +35,12 @@ export function GfbBasket() {
       <Reveal>
         <Panel className="p-5">
           <div className="mb-3 flex items-center justify-between">
-            <div className="text-sm font-semibold text-foreground/90">Strategic Prior (§3.2 — v1.0)</div>
-            <span className="text-[0.7rem] text-muted-foreground font-mono">adaptive · 7 components · 7/7 Multi-Sig · 90d</span>
+            <div className="text-sm font-semibold text-white/90">Strategic Prior (§3.2 — v1.0)</div>
+            <span className="text-[0.7rem] text-white/40 font-mono">adaptive · 7 components · 7/7 Multi-Sig · 90d</span>
           </div>
-          <div className="overflow-hidden rounded-md border border-border">
+          <div className="overflow-hidden rounded-md border border-white/[0.06]">
             <table className="w-full text-[0.75rem]">
-              <thead className="bg-black/[0.02] text-muted-foreground">
+              <thead className="bg-white/[0.03]/[0.02] text-white/40">
                 <tr>
                   <th className="text-left px-3 py-2 font-medium">Component</th>
                   <th className="text-left px-3 py-2 font-medium">Token (Registry-Resolved)</th>
@@ -49,20 +49,20 @@ export function GfbBasket() {
               </thead>
               <tbody>
                 {STRATEGIC_PRIOR_TABLE.map((row, i) => (
-                  <tr key={row.component} className={`border-t border-border ${i % 2 ? "bg-white/[0.01]" : ""}`}>
+                  <tr key={row.component} className={`border-t border-white/[0.06] ${i % 2 ? "bg-white/[0.03]/[0.01]" : ""}`}>
                     <td className="px-3 py-2 font-mono text-mtqs-gold">{row.component}</td>
-                    <td className="px-3 py-2 text-foreground">{row.token}</td>
+                    <td className="px-3 py-2 text-white">{row.token}</td>
                     <td className="px-3 py-2 font-mono text-right text-mtqs-gold">{(row.weight * 100).toFixed(2)}%</td>
                   </tr>
                 ))}
-                <tr className="border-t border-black/[0.1] bg-mtqs-amber/5">
+                <tr className="border-t border-white/[0.1] bg-mtqs-amber/5">
                   <td className="px-3 py-2 font-semibold" colSpan={2}>Σ W<sup>Prior</sup> · Total</td>
                   <td className="px-3 py-2 font-mono text-right font-semibold text-mtqs-gold">100.00%</td>
                 </tr>
               </tbody>
             </table>
           </div>
-          <p className="mt-3 text-[0.7rem] text-muted-foreground leading-relaxed">
+          <p className="mt-3 text-[0.7rem] text-white/40 leading-relaxed">
             <span className="text-mtqs-gold/80 font-mono">W<sup>Prior</sup> ≠ W<sup>Target</sup> ≠ W<sup>Smooth</sup> ≠ W<sup>Execution</sup></span>.
             The prior is a soft anchor — deviation is penalised, not enforced. Live weights are computed
             by the MASE ensemble (§7) under per-component admissibility envelopes (§8.1).
@@ -72,20 +72,20 @@ export function GfbBasket() {
 
       <Reveal delay={0.05}>
         <Panel className="p-5">
-          <div className="mb-3 text-sm font-semibold text-foreground/90">Base-Date Fixings + Chain-Linked Denominator (§3.4)</div>
+          <div className="mb-3 text-sm font-semibold text-white/90">Base-Date Fixings + Chain-Linked Denominator (§3.4)</div>
           <div className="grid grid-cols-2 sm:grid-cols-3 gap-2 text-[0.72rem] mb-4">
             {baseFx.map((b) => (
-              <div key={b.pair} className={`rounded-md border p-2.5 ${b.isGold ? "border-mtqs-amber/40 bg-amber-500/[0.05]" : "border-border bg-black/[0.02]"}`}>
-                <div className="text-muted-foreground text-[0.65rem] uppercase tracking-[0.18em]">{b.pair}</div>
+              <div key={b.pair} className={`rounded-md border p-2.5 ${b.isGold ? "border-mtqs-amber/40 bg-amber-500/[0.05]" : "border-white/[0.06] bg-white/[0.03]/[0.02]"}`}>
+                <div className="text-white/40 text-[0.65rem] uppercase tracking-[0.18em]">{b.pair}</div>
                 <div className="font-mono text-mtqs-gold">{b.isGold ? `$${b.value.toFixed(2)}` : b.value.toFixed(4)}</div>
-                <div className="text-[0.6rem] text-muted-foreground/60">P<sub>i,0</sub> · 2026-01-01 00:00 UTC</div>
+                <div className="text-[0.6rem] text-white/40/60">P<sub>i,0</sub> · 2026-01-01 00:00 UTC</div>
               </div>
             ))}
           </div>
           <div className="rounded-md border border-mtqs-amber/30 bg-mtqs-amber/5 p-3">
             <div className="text-[0.65rem] uppercase tracking-[0.18em] text-mtqs-gold/80 mb-1">GFB Base Denominator (chain-linked)</div>
             <div className="font-mono text-base text-mtqs-gold">{GFB_BASE_DENOMINATOR.toFixed(4)}</div>
-            <div className="mt-2 text-[0.65rem] text-muted-foreground font-mono leading-relaxed break-words">
+            <div className="mt-2 text-[0.65rem] text-white/40 font-mono leading-relaxed break-words">
               = W<sub>USD</sub>·1.00 + W<sub>EUR</sub>·1.05 + W<sub>JPY</sub>·0.0067 + W<sub>GBP</sub>·1.25 + W<sub>CNY</sub>·0.14 + W<sub>CHF</sub>·0.88 + W<sub>Au</sub>·2500
             </div>
           </div>
@@ -94,7 +94,7 @@ export function GfbBasket() {
             <div className="font-mono text-sm text-mtqs-emerald leading-relaxed">
               GFB<sub>t</sub> = ( Σ<sub>i</sub> W<sup>Prior</sup><sub>i</sub> · P<sub>i,t</sub> ) / GFB_base
             </div>
-            <div className="mt-1 text-[0.65rem] text-muted-foreground">
+            <div className="mt-1 text-[0.65rem] text-white/40">
               GFB = 1.00 exactly at the base date · drift reflects currency + gold moves. Gold is now
               <span className="text-mtqs-gold/80"> a first-class index component</span> (P<sub>Au,t</sub> = XAU/USD).
             </div>
@@ -124,23 +124,23 @@ export function GoldInReserve({ snapshot }: { snapshot?: import("@/lib/mtq/engin
       </div>
       <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
         <div>
-          <div className="text-[0.7rem] text-muted-foreground">PAXG (Paxos)</div>
+          <div className="text-[0.7rem] text-white/40">PAXG (Paxos)</div>
           <div className="text-lg font-mono text-mtqs-gold">{fmtUsdCompact(perIssuer?.paxgUsd ?? r.goldNet / 2)}</div>
         </div>
         <div>
-          <div className="text-[0.7rem] text-muted-foreground">XAUT (Tether)</div>
+          <div className="text-[0.7rem] text-white/40">XAUT (Tether)</div>
           <div className="text-lg font-mono text-mtqs-gold">{fmtUsdCompact(perIssuer?.xautUsd ?? r.goldNet / 2)}</div>
         </div>
         <div>
-          <div className="text-[0.7rem] text-muted-foreground">Gold Price</div>
+          <div className="text-[0.7rem] text-white/40">Gold Price</div>
           <div className="text-lg font-mono text-mtqs-gold">${fmtFixed(r.goldPrice, 0)}/oz</div>
         </div>
         <div>
-          <div className="text-[0.7rem] text-muted-foreground">Gold Weight</div>
+          <div className="text-[0.7rem] text-white/40">Gold Weight</div>
           <div className="text-lg font-mono text-mtqs-gold">{(snapshot.observedGoldWeight * 100).toFixed(2)}%</div>
         </div>
       </div>
-      <p className="mt-3 text-[0.7rem] text-muted-foreground/60 leading-relaxed">
+      <p className="mt-3 text-[0.7rem] text-white/40/60 leading-relaxed">
         The GFB Index (above) is a 7-component basket that defines the VALUE of MTQΣ — Gold is
         <span className="text-mtqs-gold font-medium"> a first-class index component</span> (26% strategic
         prior, 20-32% admissibility envelope). The reserve holds PAXG + XAUT as the collateral that

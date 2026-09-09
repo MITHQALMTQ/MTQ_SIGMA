@@ -38,7 +38,7 @@ const PANELS = [
     body: [
       "The GFB Index fixes a basket of five currencies (USD 38.9% · EUR 27.8% · GBP 16.69% · JPY 11.11% · CNY 5.5%). One MTQΣ is intended to represent that basket's purchasing power.",
       "An audited reserve portfolio (stablecoins + tokenized gold) collateralizes every MTQΣ at a 110% Reserve Ratio target. Mint and redeem flows arbitrage back to the index price.",
-      "A 5-state risk machine, a 4-tier governance hierarchy, staged geopolitical eject, and a dynamic buffer protect the peg under stress. Every parameter is published and timelocked.",
+      "A 6-state risk machine, a 4-tier governance hierarchy, staged geopolitical eject, and a dynamic buffer protect the peg under stress. Every parameter is published and timelocked.",
     ],
     tone: "emerald" as const,
   },
@@ -114,7 +114,7 @@ export function PitchSection({ onNavigate: _onNavigate }: { onNavigate: (id: Sec
         <Panel className="p-5">
           <div className="flex items-start gap-3">
             <Sparkles className="h-5 w-5 text-mtqs-gold/80 mt-0.5 shrink-0" aria-hidden="true" />
-            <p className="text-[0.82rem] text-muted-foreground leading-relaxed">
+            <p className="text-[0.82rem] text-white/40 leading-relaxed">
               {BRAND_VOICE.coreObjective} {BRAND_VOICE.designConstraint}. {BRAND_VOICE.statusDeclaration}.
               The six panels below are the full investor pitch — Problem, Solution, Market, Business
               Model, Traction, and The Ask — written in the brand voice: honest, sovereign,
@@ -164,7 +164,7 @@ export function PitchSection({ onNavigate: _onNavigate }: { onNavigate: (id: Sec
                     <GlowDot color={dotColor} size="h-2 w-2" />
                   </div>
                 </div>
-                <h3 className="mtqs-display text-xl sm:text-2xl font-semibold text-foreground leading-tight">
+                <h3 className="mtqs-display text-xl sm:text-2xl font-semibold text-white leading-tight">
                   {p.title}
                 </h3>
                 <ul className="space-y-2 mt-1">
@@ -175,7 +175,7 @@ export function PitchSection({ onNavigate: _onNavigate }: { onNavigate: (id: Sec
                       whileInView={{ opacity: 1, x: 0 }}
                       viewport={{ once: true }}
                       transition={{ duration: 0.3, delay: j * 0.04 }}
-                      className="flex gap-2 text-[0.78rem] text-muted-foreground leading-relaxed"
+                      className="flex gap-2 text-[0.78rem] text-white/40 leading-relaxed"
                     >
                       <span className="text-mtqs-gold/70 shrink-0 mt-0.5">·</span>
                       <span>{line}</span>
@@ -193,11 +193,11 @@ export function PitchSection({ onNavigate: _onNavigate }: { onNavigate: (id: Sec
         <Panel variant="emerald" className="p-6 sm:p-8 text-center">
           <div className="flex items-center justify-center gap-2 mb-3">
             <HandCoins className="h-5 w-5 text-mtqs-emerald" aria-hidden="true" />
-            <h3 className="mtqs-display text-2xl font-semibold text-foreground">
+            <h3 className="mtqs-display text-2xl font-semibold text-white">
               Read the full blueprint · verify on-chain
             </h3>
           </div>
-          <p className="text-[0.82rem] text-muted-foreground leading-relaxed max-w-2xl mx-auto mb-5">
+          <p className="text-[0.82rem] text-white/40 leading-relaxed max-w-2xl mx-auto mb-5">
             The pitch above is a summary. The blueprint reference, live on-chain verification, and
             the 10,300-run Monte Carlo audit are all available on this site — start with the
             Investor Verification section.
@@ -212,13 +212,13 @@ export function PitchSection({ onNavigate: _onNavigate }: { onNavigate: (id: Sec
             </button>
             <button
               onClick={() => _onNavigate("docs")}
-              className="inline-flex items-center gap-1.5 rounded-full border border-white/[0.12] bg-black/[0.04] px-5 py-2.5 text-sm font-medium text-foreground hover:border-mtqs-gold/30 hover:text-foreground transition"
+              className="inline-flex items-center gap-1.5 rounded-full border border-white/[0.12] bg-white/[0.03]/[0.04] px-5 py-2.5 text-sm font-medium text-white hover:border-mtqs-gold/30 hover:text-white transition"
             >
               Blueprint Docs
             </button>
             <button
               onClick={() => _onNavigate("tests")}
-              className="inline-flex items-center gap-1.5 rounded-full border border-white/[0.12] bg-black/[0.04] px-5 py-2.5 text-sm font-medium text-foreground hover:border-mtqs-gold/30 hover:text-foreground transition"
+              className="inline-flex items-center gap-1.5 rounded-full border border-white/[0.12] bg-white/[0.03]/[0.04] px-5 py-2.5 text-sm font-medium text-white hover:border-mtqs-gold/30 hover:text-white transition"
             >
               Test Audit
             </button>
