@@ -314,7 +314,7 @@ function SubsystemCard({ row }: { row: SubsystemRow }) {
             className="h-4 w-4 text-mtqs-gold/80 shrink-0"
             aria-hidden="true"
           />
-          <span className="text-[0.7rem] uppercase tracking-[0.22em] text-muted-foreground/85 truncate">
+          <span className="text-[0.7rem] uppercase tracking-[0.18em] text-muted-foreground/90 leading-snug break-words">
             {row.name}
           </span>
         </div>
@@ -324,16 +324,16 @@ function SubsystemCard({ row }: { row: SubsystemRow }) {
         </Pill>
       </div>
       {/* Primary value */}
-      <div className="font-mono tabular-nums text-lg sm:text-xl text-foreground/95 leading-tight break-words">
+      <div className="font-mono tabular-nums text-lg sm:text-xl text-foreground/95 leading-tight break-words min-h-[1.75rem]">
         {row.primary}
       </div>
       {/* Secondary line */}
-      <div className="text-[0.72rem] text-muted-foreground/85 font-mono tabular-nums break-words leading-relaxed">
+      <div className="text-[0.72rem] text-muted-foreground/90 font-mono tabular-nums break-words leading-relaxed">
         {row.secondary}
       </div>
       {/* Tertiary line (optional) */}
       {row.tertiary ? (
-        <div className="text-[0.68rem] text-muted-foreground/70 font-mono tabular-nums break-words leading-relaxed">
+        <div className="text-[0.68rem] text-muted-foreground/80 font-mono tabular-nums break-words leading-relaxed">
           {row.tertiary}
         </div>
       ) : null}

@@ -205,7 +205,7 @@ function Row({ label, value, tone = "default" }: { label: string; value: string;
   const color = tone === "rose" ? "text-rose-300" : tone === "gold" ? "text-amber-200" : tone === "emerald" ? "text-emerald-200" : "text-foreground";
   return (
     <div>
-      <div className="text-muted-foreground/70 text-[0.65rem] uppercase tracking-[0.18em]">{label}</div>
+      <div className="text-muted-foreground/85 text-[0.65rem] uppercase tracking-[0.18em]">{label}</div>
       <div className={`font-mono ${color}`}>{value}</div>
     </div>
   );

@@ -103,7 +103,7 @@
   --secondary: oklch(0.16 0.01 70);
   --secondary-foreground: oklch(0.96 0.012 70);
   --muted: oklch(0.16 0.01 70);
-  --muted-foreground: oklch(0.62 0.018 70);     /* warm gray */
+  --muted-foreground: oklch(0.68 0.018 70);     /* warm gray — bumped from 0.62 → 0.68 for WCAG AA at low opacity (text-muted-foreground/70) */
   --accent: oklch(0.20 0.014 70);
   --accent-foreground: oklch(0.96 0.012 70);
   --destructive: oklch(0.704 0.21 22);           /* rose */
