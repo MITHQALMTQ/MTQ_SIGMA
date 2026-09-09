@@ -623,3 +623,73 @@
 .mtqs-scroll::-webkit-scrollbar-track {
   background: transparent;
 }
+
+/* ============================================================
+   MTQΣ — Accessibility: prefers-reduced-motion
+   ============================================================
+   When the user has expressed a preference for reduced motion
+   (OS-level setting: "Reduce Motion" on macOS, "Show animations
+   in Windows" off, or @media (prefers-reduced-motion: reduce)),
+   we disable ALL non-essential animations:
+     - Framer Motion: respect via useReducedMotion() in components
+     - CSS animations: paused via the rules below
+     - CSS transitions: shortened to 0.01s (effectively instant)
+     - The Starfield drift, spin-slow/slower, pulse, dash, tick-flash
+       are all paused.
+   Essential transitions (focus rings, color changes on hover) are
+   kept at 0.01s so the UI remains functional, just without motion.
+   This is an accessibility requirement (WCAG 2.1 SC 2.3.3 Animation
+   from Interactions + SC 2.2.2 Pause, Stop, Hide).
+   ============================================================ */
+@media (prefers-reduced-motion: reduce) {
+  /* Pause all CSS keyframe animations */
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+
+  /* Specifically pause the MTQΣ decorative animations */
+  .mtqs-spin-slow,
+  .mtqs-spin-slower,
+  .mtqs-pulse,
+  .mtqs-flow-dash,
+  .mtqs-flow-dash-slow,
+  .mtqs-tick-flash,
+  .mtqs-starfield,
+  .mtqs-radial-glow {
+    animation: none !important;
+  }
+
+  /* Keep focus rings instant (no transition) */
+  .mtqs-focus:focus-visible {
+    transition: none !important;
+  }
+}
+
+/* ============================================================
+   MTQΣ — Global focus-visible polish
+   ============================================================
+   Ensure every interactive element (button, link, input, select,
+   textarea, [tabindex]) has a visible gold focus ring when navigated
+   by keyboard. The .mtqs-focus class is opt-in for elements that
+   want the bespoke ring; the rules below apply a default ring to
+   all interactive elements that don't have it.
+   ============================================================ */
+*:focus-visible {
+  outline: 2px solid rgba(232, 185, 100, 0.5);
+  outline-offset: 2px;
+  border-radius: 4px;
+}
+
+/* Remove the default browser focus outline (we use focus-visible instead) */
+*:focus {
+  outline: none;
+}
+*:focus-visible {
+  outline: 2px solid rgba(232, 185, 100, 0.5);
+  outline-offset: 2px;
+}

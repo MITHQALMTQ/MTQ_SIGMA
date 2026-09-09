@@ -63,7 +63,7 @@
       "description": "500 runs × 90 ticks; 5-day block bootstrap from 252-day history (V3 engine)",
       "runs": 500,
       "survivalRate": 1,
-      "meanMinRR": 1.1075422777255628,
+      "meanMinRR": 1.1075422777255173,
       "worstMinRR": 1.0893242601602389,
       "meanTimeToRecover": 70.70270270270271,
       "pegStabilityPct": 1,
@@ -135,7 +135,7 @@
       "description": "500 runs × 90 ticks; Cauchy returns (tail-heavy) (V3 engine)",
       "runs": 500,
       "survivalRate": 0.788,
-      "meanMinRR": 1.0265543396725079,
+      "meanMinRR": 1.0265543396756398,
       "worstMinRR": 0.06311524448832778,
       "meanTimeToRecover": 31.71117166212534,
       "pegStabilityPct": 0.9068444444444439,
@@ -171,7 +171,7 @@
       "description": "500 runs × 90 ticks; 4-regime Markov switching (V3 engine)",
       "runs": 500,
       "survivalRate": 1,
-      "meanMinRR": 1.1034822465812637,
+      "meanMinRR": 1.1034822465814116,
       "worstMinRR": 1.063040717180712,
       "meanTimeToRecover": 47.968,
       "pegStabilityPct": 1,
@@ -572,6 +572,6 @@
       "runs": 3200
     }
   ],
-  "generatedAt": 1788915187142,
-  "totalRuntimeMs": 1270
+  "generatedAt": 1788941637399,
+  "totalRuntimeMs": 1288
 }
