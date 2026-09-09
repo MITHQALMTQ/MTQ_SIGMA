@@ -1190,8 +1190,8 @@ function runPerturbedSim(seed: number, ticks: number, params: PerturbParams): Tr
   let lastTradeAt = 0;
 
   // FX state — start at base fixings
-  let EUR = BASE_FIXINGS.EUR_USD, GBP = BASE_FIXINGS.GBP_USD, JPY = BASE_FIXINGS.JPY_USD;
-  let CNY = BASE_FIXINGS.CNY_USD, CHF = BASE_FIXINGS.CHF_USD, XAU = BASE_FIXINGS.XAU_USD;
+  let EUR: number = BASE_FIXINGS.EUR_USD, GBP: number = BASE_FIXINGS.GBP_USD, JPY: number = BASE_FIXINGS.JPY_USD;
+  let CNY: number = BASE_FIXINGS.CNY_USD, CHF: number = BASE_FIXINGS.CHF_USD, XAU: number = BASE_FIXINGS.XAU_USD;
   let VIX = 18.5, DXY = 104.2;
 
   let minRR = Infinity;

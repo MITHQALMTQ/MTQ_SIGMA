@@ -152,9 +152,9 @@ export function BlueprintQA({ className = "" }: { className?: string }) {
       initial={{ opacity: 0, y: -4 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.25, delay: idx * 0.03 }}
-      className="rounded-md border border-white/[0.07] bg-white/[0.02] p-3 space-y-2"
+      className="rounded-md border border-border bg-black/[0.02] p-3 space-y-2"
     >
-      <div className="text-[0.78rem] font-medium text-amber-200/90 leading-snug">
+      <div className="text-[0.78rem] font-medium text-mtqs-gold leading-snug">
         {item.q}
       </div>
       <div className="text-[0.75rem] text-foreground/90 leading-relaxed whitespace-pre-wrap">
@@ -165,7 +165,7 @@ export function BlueprintQA({ className = "" }: { className?: string }) {
           {item.citations.map((c, i) => (
             <span
               key={i}
-              className="inline-flex items-center rounded-full border border-white/[0.08] bg-white/[0.02] px-2 py-0.5 text-[0.6rem] font-mono text-muted-foreground/80"
+              className="inline-flex items-center rounded-full border border-border bg-black/[0.02] px-2 py-0.5 text-[0.6rem] font-mono text-muted-foreground"
             >
               §{c}
             </span>
@@ -177,7 +177,7 @@ export function BlueprintQA({ className = "" }: { className?: string }) {
 
   /* ---------- Current answer panel ---------- */
   const renderCurrentAnswer = () => (
-    <div className="rounded-md border border-mtqs-gold/25 bg-mtqs-gold/[0.04] p-4 space-y-3">
+    <div className="rounded-md border border-mtqs-gold/25 bg-mtqs-gold/5 p-4 space-y-3">
       <div className="flex items-center gap-2 text-[0.6rem] uppercase tracking-[0.22em] text-mtqs-gold/85">
         <Sparkles className="h-3 w-3" aria-hidden="true" />
         Answer
@@ -189,32 +189,32 @@ export function BlueprintQA({ className = "" }: { className?: string }) {
           <Skeleton className="h-3 w-[78%]" />
         </div>
       ) : error ? (
-        <div className="rounded-md border border-mtqs-rose/40 bg-mtqs-rose/[0.06] p-3 flex items-start gap-2.5">
-          <AlertCircle className="h-3.5 w-3.5 text-rose-300 shrink-0 mt-0.5" aria-hidden="true" />
+        <div className="rounded-md border border-mtqs-rose/40 bg-mtqs-rose/5 p-3 flex items-start gap-2.5">
+          <AlertCircle className="h-3.5 w-3.5 text-mtqs-rose shrink-0 mt-0.5" aria-hidden="true" />
           <div className="flex-1 min-w-0">
-            <div className="text-[0.78rem] font-medium text-rose-300">
+            <div className="text-[0.78rem] font-medium text-mtqs-rose">
               Q&A unavailable
             </div>
-            <p className="mt-0.5 text-[0.7rem] text-muted-foreground/85 leading-relaxed break-words">
+            <p className="mt-0.5 text-[0.7rem] text-muted-foreground leading-relaxed break-words">
               {error}
             </p>
           </div>
           <button
             onClick={() => submit(trimmed)}
             disabled={loading || !canSubmit}
-            className="shrink-0 inline-flex items-center gap-1.5 rounded-md border border-mtqs-rose/30 bg-mtqs-rose/[0.06] px-2.5 py-1.5 text-[0.66rem] font-medium text-rose-200 hover:bg-mtqs-rose/[0.12] transition disabled:opacity-50"
+            className="shrink-0 inline-flex items-center gap-1.5 rounded-md border border-mtqs-rose/30 bg-mtqs-rose/5 px-2.5 py-1.5 text-[0.66rem] font-medium text-rose-200 hover:bg-mtqs-rose/[0.12] transition disabled:opacity-50"
           >
             Retry
           </button>
         </div>
       ) : answer ? (
         <>
-          <p className="whitespace-pre-wrap leading-relaxed text-[0.82rem] text-foreground/95">
+          <p className="whitespace-pre-wrap leading-relaxed text-[0.82rem] text-foreground">
             {answer}
           </p>
           {citations && citations.length > 0 && (
             <div className="flex flex-wrap items-center gap-1.5 pt-1">
-              <span className="text-[0.6rem] uppercase tracking-[0.18em] text-muted-foreground/70 mr-1">
+              <span className="text-[0.6rem] uppercase tracking-[0.18em] text-muted-foreground mr-1">
                 Cites
               </span>
               {citations.map((c, i) => (
@@ -225,7 +225,7 @@ export function BlueprintQA({ className = "" }: { className?: string }) {
             </div>
           )}
           {disclaimer && (
-            <p className="text-[0.62rem] text-muted-foreground/55 leading-relaxed pt-1 border-t border-white/[0.05]">
+            <p className="text-[0.62rem] text-muted-foreground/55 leading-relaxed pt-1 border-t border-border">
               {disclaimer}
             </p>
           )}
@@ -246,7 +246,7 @@ export function BlueprintQA({ className = "" }: { className?: string }) {
                 AI · Blueprint Q&amp;A
               </span>
             </div>
-            <h3 className="text-base font-semibold text-foreground/95">
+            <h3 className="text-base font-semibold text-foreground">
               Ask the Blueprint
             </h3>
             <p className="text-[0.72rem] text-muted-foreground/75 leading-relaxed">
@@ -271,7 +271,7 @@ export function BlueprintQA({ className = "" }: { className?: string }) {
               exit={{ opacity: 0, height: 0 }}
               className="mb-3"
             >
-              <div className="text-[0.6rem] uppercase tracking-[0.22em] text-muted-foreground/70 mb-2">
+              <div className="text-[0.6rem] uppercase tracking-[0.22em] text-muted-foreground mb-2">
                 Recent Q&amp;A
               </div>
               <div className="space-y-2 max-h-72 overflow-y-auto mtqs-scroll pr-1">
@@ -290,7 +290,7 @@ export function BlueprintQA({ className = "" }: { className?: string }) {
         {/* ---------- Suggested questions (only when history empty) ---------- */}
         {history.length === 0 && !loading && !answer && !error && (
           <div className="mb-3">
-            <div className="text-[0.6rem] uppercase tracking-[0.22em] text-muted-foreground/70 mb-2">
+            <div className="text-[0.6rem] uppercase tracking-[0.22em] text-muted-foreground mb-2">
               Try one of
             </div>
             <div className="flex flex-wrap gap-2">
@@ -298,7 +298,7 @@ export function BlueprintQA({ className = "" }: { className?: string }) {
                 <button
                   key={q}
                   onClick={() => onSuggested(q)}
-                  className="inline-flex items-center rounded-full border border-mtqs-gold/25 bg-mtqs-gold/[0.05] px-3 py-1.5 text-[0.72rem] text-amber-200/90 hover:bg-mtqs-gold/[0.12] hover:border-mtqs-gold/40 transition"
+                  className="inline-flex items-center rounded-full border border-mtqs-gold/25 bg-mtqs-gold/[0.05] px-3 py-1.5 text-[0.72rem] text-mtqs-gold hover:bg-mtqs-gold/[0.12] hover:border-mtqs-gold/40 transition"
                 >
                   {q}
                 </button>
@@ -317,12 +317,12 @@ export function BlueprintQA({ className = "" }: { className?: string }) {
               placeholder="Ask about the v1.0 Master Blueprint…"
               rows={2}
               aria-label="Question"
-              className="flex-1 resize-none rounded-md border border-white/[0.08] bg-white/[0.02] px-3 py-2 text-[0.8rem] text-foreground placeholder:text-muted-foreground/50 focus:outline-none focus:border-mtqs-gold/40 focus:bg-white/[0.04] transition"
+              className="flex-1 resize-none rounded-md border border-border bg-black/[0.02] px-3 py-2 text-[0.8rem] text-foreground placeholder:text-muted-foreground/50 focus:outline-none focus:border-mtqs-gold/40 focus:bg-black/[0.04] transition"
             />
             <button
               onClick={() => submit()}
               disabled={!canSubmit}
-              className="inline-flex items-center justify-center gap-1.5 rounded-md border border-mtqs-gold/30 bg-mtqs-gold/[0.08] px-4 py-2 text-[0.78rem] font-medium text-[#f5d27a] hover:bg-mtqs-gold/[0.16] hover:border-mtqs-gold/45 transition disabled:opacity-50 disabled:cursor-not-allowed sm:self-stretch"
+              className="inline-flex items-center justify-center gap-1.5 rounded-md border border-mtqs-gold/30 bg-mtqs-gold/[0.08] px-4 py-2 text-[0.78rem] font-medium text-mtqs-gold hover:bg-mtqs-gold/[0.16] hover:border-mtqs-gold/45 transition disabled:opacity-50 disabled:cursor-not-allowed sm:self-stretch"
             >
               <Send className="h-3.5 w-3.5" aria-hidden="true" />
               Send
@@ -333,9 +333,9 @@ export function BlueprintQA({ className = "" }: { className?: string }) {
             <span
               className={`text-[0.62rem] font-mono tabular-nums ${
                 question.length >= MAX_CHARS
-                  ? "text-rose-300"
+                  ? "text-mtqs-rose"
                   : question.length > MAX_CHARS * 0.9
-                  ? "text-amber-300"
+                  ? "text-mtqs-amber"
                   : "text-muted-foreground/60"
               }`}
             >

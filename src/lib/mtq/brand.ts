@@ -74,11 +74,12 @@ export const GOVERNANCE_TIERS = {
 
 // === Status colors (§14.1 risk state machine) ===
 export const STATUS_COLORS: Record<string, { color: string; bg: string; label: string }> = {
-  NORMAL: { color: "#3ddc97", bg: "rgba(61,220,151,0.10)", label: "NORMAL" },
-  CAUTION: { color: "#ffb84d", bg: "rgba(255,184,77,0.10)", label: "CAUTION" },
-  DEFENSIVE: { color: "#ff8ea3", bg: "rgba(255,142,163,0.12)", label: "DEFENSIVE" },
-  EMERGENCY: { color: "#ff5d73", bg: "rgba(255,93,115,0.15)", label: "EMERGENCY" },
-  RECOVERY: { color: "#6ff0c0", bg: "rgba(111,240,192,0.10)", label: "RECOVERY" },
+  NORMAL: { color: "#12b76a", bg: "rgba(18,183,106,0.08)", label: "NORMAL" },
+  CAUTION: { color: "#d97706", bg: "rgba(217,119,6,0.08)", label: "CAUTION" },
+  STRESS: { color: "#ea580c", bg: "rgba(234,88,12,0.08)", label: "STRESS" },
+  DEFENSIVE: { color: "#dc2626", bg: "rgba(220,38,38,0.08)", label: "DEFENSIVE" },
+  EMERGENCY: { color: "#f6465d", bg: "rgba(246,70,93,0.10)", label: "EMERGENCY" },
+  RECOVERY: { color: "#0891b2", bg: "rgba(8,145,178,0.08)", label: "RECOVERY" },
 };
 
 // === Typography ===

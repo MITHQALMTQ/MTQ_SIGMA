@@ -9,6 +9,7 @@ export interface ContractEntry {
   address: string;
   explorer?: string;
   note?: string;
+  canonical?: boolean;
 }
 
 export interface ChainInfo {

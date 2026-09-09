@@ -136,7 +136,7 @@ export function TestsSection({ onNavigate: _onNavigate }: { onNavigate: (id: Sec
         <Panel className="p-5">
           <div className="flex items-start gap-3 mb-3">
             <TestTube className="h-5 w-5 text-mtqs-gold/80 mt-0.5 shrink-0" aria-hidden="true" />
-            <p className="text-[0.82rem] text-muted-foreground/85 leading-relaxed">
+            <p className="text-[0.82rem] text-muted-foreground leading-relaxed">
               The Monte Carlo audit runs 10,300 survival simulations across 8 stress suites. Each
               suite seeds the protocol with realistic shocks (depeg cascade, oracle failure,
               liquidity crisis, hyperinflation, depression, black swan) and runs the full §3-§14
@@ -144,7 +144,7 @@ export function TestsSection({ onNavigate: _onNavigate }: { onNavigate: (id: Sec
               breaches the hard floor (RR ≥ 1.00). The audit verdict aggregates all 8 suites.
             </p>
           </div>
-          <div className="rounded-md border border-white/[0.06] bg-white/[0.02] p-3 text-[0.7rem] text-muted-foreground/85 leading-relaxed">
+          <div className="rounded-md border border-border bg-black/[0.02] p-3 text-[0.7rem] text-muted-foreground leading-relaxed">
             <div className="text-[0.6rem] uppercase tracking-[0.22em] text-mtqs-gold/75 mb-1">
               Methodology disclosure
             </div>
@@ -180,7 +180,7 @@ export function TestsSection({ onNavigate: _onNavigate }: { onNavigate: (id: Sec
           <Panel className="p-6">
             <div className="flex items-center gap-3 mb-4">
               <RefreshCw className="h-4 w-4 text-mtqs-gold animate-spin" aria-hidden="true" />
-              <span className="text-[0.78rem] text-muted-foreground/85">Loading audit results…</span>
+              <span className="text-[0.78rem] text-muted-foreground">Loading audit results…</span>
             </div>
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
               {[...Array(8)].map((_, i) => (
@@ -232,12 +232,12 @@ export function TestsSection({ onNavigate: _onNavigate }: { onNavigate: (id: Sec
                     </div>
                     <div
                       className={`mtqs-display text-2xl sm:text-3xl font-semibold ${
-                        isPass ? "text-[#6ff0c0]" : "text-[#ff8ea3]"
+                        isPass ? "text-mtqs-emerald" : "text-mtqs-rose"
                       }`}
                     >
                       {isPass ? "PASS" : "FAIL"}
                     </div>
-                    <p className="mt-1 text-[0.78rem] text-muted-foreground/85 leading-relaxed max-w-2xl">
+                    <p className="mt-1 text-[0.78rem] text-muted-foreground leading-relaxed max-w-2xl">
                       {verdict ?? "No verdict available."}
                     </p>
                   </div>
@@ -254,8 +254,8 @@ export function TestsSection({ onNavigate: _onNavigate }: { onNavigate: (id: Sec
                 </div>
               </div>
               {/* Re-run button */}
-              <div className="mt-4 pt-4 border-t border-white/[0.06] flex items-center justify-between gap-2">
-                <div className="text-[0.68rem] text-muted-foreground/70">
+              <div className="mt-4 pt-4 border-t border-border flex items-center justify-between gap-2">
+                <div className="text-[0.68rem] text-muted-foreground">
                   {data?.cached
                     ? "Showing cached results. Re-run to execute the full 10,300-run suite live."
                     : "Showing fresh results from the live Monte Carlo run."}
@@ -280,7 +280,7 @@ export function TestsSection({ onNavigate: _onNavigate }: { onNavigate: (id: Sec
             <div className="flex items-end justify-between gap-4 mb-4">
               <div>
                 <div className="text-[0.6rem] uppercase tracking-[0.22em] text-mtqs-gold/75">suites</div>
-                <h3 className="mt-2 text-base font-semibold text-foreground/95">Stress Suite Results</h3>
+                <h3 className="mt-2 text-base font-semibold text-foreground">Stress Suite Results</h3>
               </div>
               <Pill tone="muted">{suites.length} suites</Pill>
             </div>
@@ -313,12 +313,12 @@ export function TestsSection({ onNavigate: _onNavigate }: { onNavigate: (id: Sec
                           <XCircle className="h-4 w-4 text-mtqs-rose shrink-0" aria-hidden="true" />
                         )}
                       </div>
-                      <div className="text-[0.68rem] text-muted-foreground/70 leading-relaxed">
+                      <div className="text-[0.68rem] text-muted-foreground leading-relaxed">
                         {s.description}
                       </div>
                       <div className="mt-1 grid grid-cols-2 gap-2 text-[0.7rem]">
-                        <div className="rounded-md border border-white/[0.06] bg-white/[0.02] p-2">
-                          <div className="text-[0.55rem] uppercase tracking-[0.18em] text-muted-foreground/70">
+                        <div className="rounded-md border border-border bg-black/[0.02] p-2">
+                          <div className="text-[0.55rem] uppercase tracking-[0.18em] text-muted-foreground">
                             Survival
                           </div>
                           <div
@@ -333,8 +333,8 @@ export function TestsSection({ onNavigate: _onNavigate }: { onNavigate: (id: Sec
                             {(sr * 100).toFixed(1)}%
                           </div>
                         </div>
-                        <div className="rounded-md border border-white/[0.06] bg-white/[0.02] p-2">
-                          <div className="text-[0.55rem] uppercase tracking-[0.18em] text-muted-foreground/70">
+                        <div className="rounded-md border border-border bg-black/[0.02] p-2">
+                          <div className="text-[0.55rem] uppercase tracking-[0.18em] text-muted-foreground">
                             Worst min RR
                           </div>
                           <div
@@ -366,7 +366,7 @@ export function TestsSection({ onNavigate: _onNavigate }: { onNavigate: (id: Sec
             <div className="flex items-end justify-between gap-4 mb-4">
               <div>
                 <div className="text-[0.6rem] uppercase tracking-[0.22em] text-mtqs-gold/75">invariants</div>
-                <h3 className="mt-2 text-base font-semibold text-foreground/95">Invariants Tested</h3>
+                <h3 className="mt-2 text-base font-semibold text-foreground">Invariants Tested</h3>
               </div>
               <Pill tone="emerald">
                 <ShieldCheck className="h-3 w-3" aria-hidden="true" />
@@ -376,7 +376,7 @@ export function TestsSection({ onNavigate: _onNavigate }: { onNavigate: (id: Sec
             <Reveal>
               <Panel className="p-5">
                 {invariants.length === 0 ? (
-                  <div className="text-center text-[0.75rem] text-muted-foreground/70 py-4">
+                  <div className="text-center text-[0.75rem] text-muted-foreground py-4">
                     No invariants loaded.
                   </div>
                 ) : (
@@ -387,7 +387,7 @@ export function TestsSection({ onNavigate: _onNavigate }: { onNavigate: (id: Sec
                         initial={{ opacity: 0, y: 4 }}
                         animate={{ opacity: 1, y: 0 }}
                         transition={{ duration: 0.25, delay: i * 0.03 }}
-                        className="inline-flex items-center gap-1.5 rounded-full border border-mtqs-emerald/30 bg-mtqs-emerald/[0.06] px-3 py-1.5 text-[0.7rem] font-mono text-[#6ff0c0]"
+                        className="inline-flex items-center gap-1.5 rounded-full border border-mtqs-emerald/30 bg-mtqs-emerald/5 px-3 py-1.5 text-[0.7rem] font-mono text-mtqs-emerald"
                       >
                         <CheckCircle2 className="h-3 w-3" aria-hidden="true" />
                         {inv}
@@ -404,7 +404,7 @@ export function TestsSection({ onNavigate: _onNavigate }: { onNavigate: (id: Sec
             <div className="flex items-end justify-between gap-4 mb-4">
               <div>
                 <div className="text-[0.6rem] uppercase tracking-[0.22em] text-mtqs-gold/75">findings</div>
-                <h3 className="mt-2 text-base font-semibold text-foreground/95">Audit Findings</h3>
+                <h3 className="mt-2 text-base font-semibold text-foreground">Audit Findings</h3>
               </div>
               <Pill tone="emerald">
                 <Activity className="h-3 w-3" aria-hidden="true" />
@@ -414,14 +414,14 @@ export function TestsSection({ onNavigate: _onNavigate }: { onNavigate: (id: Sec
             <Reveal>
               <Panel className="p-5">
                 {findings.length === 0 ? (
-                  <div className="text-center text-[0.75rem] text-muted-foreground/70 py-4">
+                  <div className="text-center text-[0.75rem] text-muted-foreground py-4">
                     No findings loaded (the audit response may not include <code>audit.findings</code>).
                   </div>
                 ) : (
-                  <div className="overflow-hidden rounded-md border border-white/[0.07]">
+                  <div className="overflow-hidden rounded-md border border-border">
                     <div className="max-h-80 overflow-y-auto mtqs-scroll">
                       <table className="w-full text-[0.72rem]">
-                        <thead className="bg-white/[0.02] text-muted-foreground/70 sticky top-0">
+                        <thead className="bg-black/[0.02] text-muted-foreground sticky top-0">
                           <tr>
                             <th className="text-left px-3 py-2 font-medium">Finding</th>
                             <th className="text-left px-3 py-2 font-medium hidden sm:table-cell">Detail</th>
@@ -434,7 +434,7 @@ export function TestsSection({ onNavigate: _onNavigate }: { onNavigate: (id: Sec
                             return (
                               <tr
                                 key={f.title + i}
-                                className={`border-t border-white/[0.05] ${i % 2 ? "bg-white/[0.01]" : ""}`}
+                                className={`border-t border-border ${i % 2 ? "bg-white/[0.01]" : ""}`}
                               >
                                 <td className="px-3 py-2.5 text-foreground/90">{f.title}</td>
                                 <td className="px-3 py-2.5 text-muted-foreground/75 font-mono hidden sm:table-cell">
@@ -465,7 +465,7 @@ export function TestsSection({ onNavigate: _onNavigate }: { onNavigate: (id: Sec
           {/* Closing */}
           <Reveal>
             <Panel className="p-5 sm:p-6 text-center">
-              <p className="text-[0.82rem] text-muted-foreground/85 leading-relaxed max-w-2xl mx-auto mb-4">
+              <p className="text-[0.82rem] text-muted-foreground leading-relaxed max-w-2xl mx-auto mb-4">
                 Audit complete. For the honest disclosure of what these results mean (and don&apos;t
                 mean), read the Security section. For the live protocol state driving the engine,
                 open the Dashboard.
@@ -473,14 +473,14 @@ export function TestsSection({ onNavigate: _onNavigate }: { onNavigate: (id: Sec
               <div className="flex flex-wrap items-center justify-center gap-2">
                 <button
                   onClick={() => _onNavigate("security")}
-                  className="inline-flex items-center gap-1.5 rounded-full border border-white/[0.1] bg-white/[0.03] px-4 py-2 text-[0.78rem] font-medium text-foreground/85 hover:border-mtqs-gold/30 hover:text-foreground transition"
+                  className="inline-flex items-center gap-1.5 rounded-full border border-black/[0.1] bg-black/[0.03] px-4 py-2 text-[0.78rem] font-medium text-foreground hover:border-mtqs-gold/30 hover:text-foreground transition"
                 >
                   Security Posture
                   <ArrowRight className="h-3.5 w-3.5" aria-hidden="true" />
                 </button>
                 <button
                   onClick={() => _onNavigate("dashboard")}
-                  className="inline-flex items-center gap-1.5 rounded-full border border-white/[0.1] bg-white/[0.03] px-4 py-2 text-[0.78rem] font-medium text-foreground/85 hover:border-mtqs-gold/30 hover:text-foreground transition"
+                  className="inline-flex items-center gap-1.5 rounded-full border border-black/[0.1] bg-black/[0.03] px-4 py-2 text-[0.78rem] font-medium text-foreground hover:border-mtqs-gold/30 hover:text-foreground transition"
                 >
                   Live Dashboard
                   <ArrowRight className="h-3.5 w-3.5" aria-hidden="true" />

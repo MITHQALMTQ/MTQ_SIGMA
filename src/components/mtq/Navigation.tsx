@@ -67,7 +67,7 @@ export function Navigation({
       aria-label="MTQΣ sections"
     >
       {/* Frosted glass background bar */}
-      <div className="bg-[#080a0c]/72 backdrop-blur-xl saturate-200 border-b border-white/[0.06]">
+      <div className="bg-background/72 backdrop-blur-xl saturate-200 border-b border-border">
         <div className="mx-auto max-w-[1400px] px-4 sm:px-6 lg:px-8">
           {/* Desktop: Apple segmented control */}
           <div className="hidden md:flex items-center gap-1 py-2.5">
@@ -81,8 +81,8 @@ export function Navigation({
                     onClick={() => handlePick(s.id)}
                     className={`relative flex items-center gap-1.5 px-3 py-1.5 text-[0.78rem] font-medium tracking-tight rounded-lg transition-colors duration-200 ${
                       isActive
-                        ? "text-white"
-                        : "text-muted-foreground/60 hover:text-foreground/80"
+                        ? "text-foreground"
+                        : "text-muted-foreground/60 hover:text-muted-foreground"
                     }`}
                     aria-pressed={isActive}
                     aria-label={`${s.label} section`}
@@ -107,7 +107,7 @@ export function Navigation({
             <div className="flex items-center gap-3">
               <button
                 onClick={() => setMobileOpen((v) => !v)}
-                className="flex items-center justify-center rounded-lg p-2 text-amber-200/80 hover:text-amber-200 hover:bg-white/[0.05] transition-colors duration-200"
+                className="flex items-center justify-center rounded-lg p-2 text-mtqs-gold/80 hover:text-mtqs-gold hover:bg-white/[0.05] transition-colors duration-200"
                 aria-label={mobileOpen ? "Close menu" : "Open menu"}
                 aria-expanded={mobileOpen}
               >
@@ -145,8 +145,8 @@ export function Navigation({
                         onClick={() => handlePick(s.id)}
                         className={`flex flex-col items-center justify-center gap-1.5 rounded-2xl py-3.5 transition-colors duration-200 ${
                           isActive
-                            ? "bg-amber-400/15 text-amber-200 border border-amber-400/25"
-                            : "bg-white/[0.04] text-muted-foreground/70 border border-white/[0.04] hover:bg-white/[0.08]"
+                            ? "bg-amber-400/15 text-mtqs-gold border border-amber-400/25"
+                            : "bg-black/[0.04] text-muted-foreground border border-border hover:bg-black/[0.08]"
                         }`}
                         aria-pressed={isActive}
                       >

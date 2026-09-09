@@ -17,7 +17,7 @@ export function PriceEvents({ snapshot }: { snapshot: MetricsSnapshot | null }) 
       <div className="mb-3 flex items-center justify-between">
         <div>
           <div className="text-sm font-semibold text-foreground/90">Price Events Log (§3.6)</div>
-          <div className="text-[0.7rem] text-muted-foreground/70">
+          <div className="text-[0.7rem] text-muted-foreground">
             PriceUpdated events emitted when GFB changes ≥ {(PRICE_EVENT_THRESHOLD * 100).toFixed(1)}% · last {events.length} of 20
           </div>
         </div>
@@ -28,7 +28,7 @@ export function PriceEvents({ snapshot }: { snapshot: MetricsSnapshot | null }) 
       </div>
 
       {events.length === 0 ? (
-        <div className="rounded-md border border-white/[0.06] bg-white/[0.02] p-4 text-center text-[0.72rem] text-muted-foreground/70">
+        <div className="rounded-md border border-border bg-black/[0.02] p-4 text-center text-[0.72rem] text-muted-foreground">
           No price events yet. The GFB Index has not moved more than {(PRICE_EVENT_THRESHOLD * 100).toFixed(1)}% between ticks since the pilot started.
         </div>
       ) : (
@@ -48,14 +48,14 @@ export function PriceEvents({ snapshot }: { snapshot: MetricsSnapshot | null }) 
                   <span className={`relative z-10 mt-1.5 inline-flex h-3 w-3 items-center justify-center rounded-full border ${isUp ? "border-emerald-400/60 bg-emerald-500/20" : "border-rose-400/60 bg-rose-500/20"}`}>
                     <span className={`h-1 w-1 rounded-full ${isUp ? "bg-emerald-300" : "bg-rose-300"}`} />
                   </span>
-                  <div className="flex-1 rounded-md border border-white/[0.05] bg-white/[0.015] p-2.5">
+                  <div className="flex-1 rounded-md border border-border bg-white/[0.015] p-2.5">
                     <div className="flex items-center justify-between gap-2">
                       <div className="font-mono text-[0.75rem]">
-                        <span className="text-muted-foreground/80">{fmtFixed(e.oldPrice, 4)}</span>
+                        <span className="text-muted-foreground">{fmtFixed(e.oldPrice, 4)}</span>
                         <span className="mx-1.5 text-muted-foreground/60">→</span>
-                        <span className={isUp ? "text-emerald-300" : "text-rose-300"}>{fmtFixed(e.newPrice, 4)}</span>
+                        <span className={isUp ? "text-mtqs-emerald" : "text-mtqs-rose"}>{fmtFixed(e.newPrice, 4)}</span>
                       </div>
-                      <span className={`font-mono text-[0.75rem] font-semibold ${isUp ? "text-emerald-300" : "text-rose-300"}`}>
+                      <span className={`font-mono text-[0.75rem] font-semibold ${isUp ? "text-mtqs-emerald" : "text-mtqs-rose"}`}>
                         {fmtSignedPct(isUp ? e.changePct : -e.changePct)}
                       </span>
                     </div>

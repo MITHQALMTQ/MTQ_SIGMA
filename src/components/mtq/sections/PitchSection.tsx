@@ -114,7 +114,7 @@ export function PitchSection({ onNavigate: _onNavigate }: { onNavigate: (id: Sec
         <Panel className="p-5">
           <div className="flex items-start gap-3">
             <Sparkles className="h-5 w-5 text-mtqs-gold/80 mt-0.5 shrink-0" aria-hidden="true" />
-            <p className="text-[0.82rem] text-muted-foreground/85 leading-relaxed">
+            <p className="text-[0.82rem] text-muted-foreground leading-relaxed">
               {BRAND_VOICE.coreObjective} {BRAND_VOICE.designConstraint}. {BRAND_VOICE.statusDeclaration}.
               The six panels below are the full investor pitch — Problem, Solution, Market, Business
               Model, Traction, and The Ask — written in the brand voice: honest, sovereign,
@@ -164,7 +164,7 @@ export function PitchSection({ onNavigate: _onNavigate }: { onNavigate: (id: Sec
                     <GlowDot color={dotColor} size="h-2 w-2" />
                   </div>
                 </div>
-                <h3 className="mtqs-display text-xl sm:text-2xl font-semibold text-foreground/95 leading-tight">
+                <h3 className="mtqs-display text-xl sm:text-2xl font-semibold text-foreground leading-tight">
                   {p.title}
                 </h3>
                 <ul className="space-y-2 mt-1">
@@ -175,7 +175,7 @@ export function PitchSection({ onNavigate: _onNavigate }: { onNavigate: (id: Sec
                       whileInView={{ opacity: 1, x: 0 }}
                       viewport={{ once: true }}
                       transition={{ duration: 0.3, delay: j * 0.04 }}
-                      className="flex gap-2 text-[0.78rem] text-muted-foreground/85 leading-relaxed"
+                      className="flex gap-2 text-[0.78rem] text-muted-foreground leading-relaxed"
                     >
                       <span className="text-mtqs-gold/70 shrink-0 mt-0.5">·</span>
                       <span>{line}</span>
@@ -193,11 +193,11 @@ export function PitchSection({ onNavigate: _onNavigate }: { onNavigate: (id: Sec
         <Panel variant="emerald" className="p-6 sm:p-8 text-center">
           <div className="flex items-center justify-center gap-2 mb-3">
             <HandCoins className="h-5 w-5 text-mtqs-emerald" aria-hidden="true" />
-            <h3 className="mtqs-display text-2xl font-semibold text-foreground/95">
+            <h3 className="mtqs-display text-2xl font-semibold text-foreground">
               Read the full blueprint · verify on-chain
             </h3>
           </div>
-          <p className="text-[0.82rem] text-muted-foreground/85 leading-relaxed max-w-2xl mx-auto mb-5">
+          <p className="text-[0.82rem] text-muted-foreground leading-relaxed max-w-2xl mx-auto mb-5">
             The pitch above is a summary. The blueprint reference, live on-chain verification, and
             the 10,300-run Monte Carlo audit are all available on this site — start with the
             Investor Verification section.
@@ -212,13 +212,13 @@ export function PitchSection({ onNavigate: _onNavigate }: { onNavigate: (id: Sec
             </button>
             <button
               onClick={() => _onNavigate("docs")}
-              className="inline-flex items-center gap-1.5 rounded-full border border-white/[0.12] bg-white/[0.04] px-5 py-2.5 text-sm font-medium text-foreground/85 hover:border-mtqs-gold/30 hover:text-foreground transition"
+              className="inline-flex items-center gap-1.5 rounded-full border border-white/[0.12] bg-black/[0.04] px-5 py-2.5 text-sm font-medium text-foreground hover:border-mtqs-gold/30 hover:text-foreground transition"
             >
               Blueprint Docs
             </button>
             <button
               onClick={() => _onNavigate("tests")}
-              className="inline-flex items-center gap-1.5 rounded-full border border-white/[0.12] bg-white/[0.04] px-5 py-2.5 text-sm font-medium text-foreground/85 hover:border-mtqs-gold/30 hover:text-foreground transition"
+              className="inline-flex items-center gap-1.5 rounded-full border border-white/[0.12] bg-black/[0.04] px-5 py-2.5 text-sm font-medium text-foreground hover:border-mtqs-gold/30 hover:text-foreground transition"
             >
               Test Audit
             </button>

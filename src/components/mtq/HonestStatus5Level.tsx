@@ -394,7 +394,7 @@ function HonestRowView({ row, index }: { row: HonestRow; index: number }) {
       initial={{ opacity: 0, y: 4 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.2, delay: Math.min(0.4, index * 0.015) }}
-      className={`border-t border-white/[0.05] ${index % 2 ? "bg-white/[0.01]" : ""}`}
+      className={`border-t border-border ${index % 2 ? "bg-white/[0.01]" : ""}`}
     >
       <td className="px-3 py-2.5 align-top">
         <div className="flex items-start gap-2">
@@ -421,7 +421,7 @@ function HonestRowView({ row, index }: { row: HonestRow; index: number }) {
         </div>
       </td>
       <td className="px-3 py-2.5 align-top">
-        <span className="text-[0.7rem] text-muted-foreground/85 leading-snug block">
+        <span className="text-[0.7rem] text-muted-foreground leading-snug block">
           {row.evidence}
         </span>
       </td>
@@ -463,14 +463,14 @@ function SummaryFooter({ rows }: { rows: HonestRow[] }) {
   ];
 
   return (
-    <div className="mt-4 rounded-md border border-mtqs-gold/25 bg-mtqs-gold/[0.04] p-4 mtqs-glow">
+    <div className="mt-4 rounded-md border border-mtqs-gold/25 bg-mtqs-gold/5 p-4 mtqs-glow">
       <div className="flex items-start gap-2 mb-3">
         <Award className="h-4 w-4 text-mtqs-gold/85 mt-0.5 shrink-0" aria-hidden="true" />
         <div>
           <div className="text-[0.6rem] uppercase tracking-[0.22em] text-mtqs-gold/85 mb-0.5">
             5-Level Honest Status Summary
           </div>
-          <div className="text-[0.72rem] text-muted-foreground/85 leading-snug">
+          <div className="text-[0.72rem] text-muted-foreground leading-snug">
             11 honest-status bits + 11 §25.5 validation gates = 22 rows total
           </div>
         </div>
@@ -486,21 +486,21 @@ function SummaryFooter({ rows }: { rows: HonestRow[] }) {
           return (
             <div
               key={lvl}
-              className="rounded-md border border-white/[0.07] bg-white/[0.02] p-2.5"
+              className="rounded-md border border-border bg-black/[0.02] p-2.5"
             >
               <div className="flex items-center gap-1.5 mb-1">
                 <GlowDot color={meta.dot} size="h-1.5 w-1.5" />
-                <span className="font-mono uppercase tracking-[0.08em] text-[0.58rem] text-foreground/85">
+                <span className="font-mono uppercase tracking-[0.08em] text-[0.58rem] text-foreground">
                   {meta.label}
                 </span>
               </div>
-              <div className="font-mono text-base text-foreground/95">
+              <div className="font-mono text-base text-foreground">
                 {total}
-                <span className="text-[0.65rem] text-muted-foreground/70 ml-1">
+                <span className="text-[0.65rem] text-muted-foreground ml-1">
                   / 22
                 </span>
               </div>
-              <div className="text-[0.6rem] text-muted-foreground/70 mt-0.5">
+              <div className="text-[0.6rem] text-muted-foreground mt-0.5">
                 {f} feature{f === 1 ? "" : "s"} · {g} gate{g === 1 ? "" : "s"}
               </div>
             </div>
@@ -509,17 +509,17 @@ function SummaryFooter({ rows }: { rows: HonestRow[] }) {
       </div>
 
       {/* Final verdict */}
-      <div className="rounded-md border border-mtqs-emerald/30 bg-mtqs-emerald/[0.04] p-3 mb-2">
+      <div className="rounded-md border border-mtqs-emerald/30 bg-mtqs-emerald/5 p-3 mb-2">
         <div className="flex items-start gap-2">
           <ShieldCheck className="h-4 w-4 text-mtqs-emerald/80 mt-0.5 shrink-0" aria-hidden="true" />
           <div className="min-w-0">
             <div className="text-[0.62rem] uppercase tracking-[0.2em] text-mtqs-emerald/85 mb-0.5">
               Final System Status
             </div>
-            <div className="font-mono text-sm text-[#6ff0c0] mb-1">
+            <div className="font-mono text-sm text-mtqs-emerald mb-1">
               VALIDATED, NOT PRODUCTION_AUTHORIZED
             </div>
-            <div className="text-[0.7rem] text-muted-foreground/85 leading-snug">
+            <div className="text-[0.7rem] text-muted-foreground leading-snug">
               Candidate for Public Testing per §25.4 / §38 — the 11 honest-status
               bits are all implemented + validated by the 141-test Layer 1-7
               suite, but the 11 §25.5 validation gates have not passed (1
@@ -533,12 +533,12 @@ function SummaryFooter({ rows }: { rows: HonestRow[] }) {
       </div>
 
       {/* Counts */}
-      <div className="text-[0.66rem] text-muted-foreground/80 leading-relaxed">
+      <div className="text-[0.66rem] text-muted-foreground leading-relaxed">
         <span className="font-mono text-mtqs-emerald/85">11 features at VALIDATED</span>
         {" · "}
         <span className="font-mono text-mtqs-amber/85">1 gate at PARTIAL</span>
         {" · "}
-        <span className="font-mono text-muted-foreground/85">10 gates at SPECIFIED_ONLY</span>
+        <span className="font-mono text-muted-foreground">10 gates at SPECIFIED_ONLY</span>
         {" · "}
         <span className="font-mono text-mtqs-gold/85">0 gates at PRODUCTION_AUTHORIZED</span>
       </div>
@@ -566,7 +566,7 @@ function Status5Legend() {
               {i + 1}.
             </span>
             <GlowDot color={meta.dot} size="h-1.5 w-1.5" />
-            <span className="font-mono uppercase tracking-[0.08em] text-[0.6rem] text-foreground/80">
+            <span className="font-mono uppercase tracking-[0.08em] text-[0.6rem] text-muted-foreground">
               {meta.label}
             </span>
             {i < levels.length - 1 && (
@@ -596,10 +596,10 @@ export function HonestStatus5Level() {
                 <div className="text-[0.6rem] uppercase tracking-[0.22em] text-mtqs-gold/75 mb-1">
                   §22 + §23 + §25 · 5-Level Honest Status
                 </div>
-                <div className="text-base font-semibold text-foreground/95">
+                <div className="text-base font-semibold text-foreground">
                   Honest Status Declaration — 5-Level System
                 </div>
-                <div className="text-[0.74rem] text-muted-foreground/85 mt-1 leading-relaxed max-w-3xl">
+                <div className="text-[0.74rem] text-muted-foreground mt-1 leading-relaxed max-w-3xl">
                   Per Master Prompt §22 + §23, every feature and every §25.5
                   validation gate is classified into exactly one of 5 levels —
                   SPECIFIED_ONLY, PARTIAL, IMPLEMENTED_UNVALIDATED, VALIDATED,
@@ -621,10 +621,10 @@ export function HonestStatus5Level() {
           <Status5Legend />
 
           {/* Table */}
-          <div className="overflow-hidden rounded-md border border-white/[0.08]">
+          <div className="overflow-hidden rounded-md border border-border">
             <div className="max-h-[28rem] overflow-y-auto mtqs-scroll">
               <table className="w-full text-[0.72rem]">
-                <thead className="bg-white/[0.02] text-muted-foreground/75 sticky top-0 z-10">
+                <thead className="bg-black/[0.02] text-muted-foreground/75 sticky top-0 z-10">
                   <tr>
                     <th className="text-left px-3 py-2 font-medium w-[22%]">
                       Feature / Gate

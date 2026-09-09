@@ -41,7 +41,7 @@ function StepIndicator() {
       {steps.map((s, i) => (
         <div key={s.n} className="flex items-center gap-2">
           <div className="flex flex-col items-center gap-1 flex-1">
-            <div className="h-8 w-8 rounded-full border border-mtqs-gold/30 bg-mtqs-gold/[0.06] flex items-center justify-center text-[0.78rem] font-mono font-semibold text-mtqs-gold-light">
+            <div className="h-8 w-8 rounded-full border border-mtqs-gold/30 bg-mtqs-gold/5 flex items-center justify-center text-[0.78rem] font-mono font-semibold text-mtqs-gold-light">
               {s.n}
             </div>
             <span className="text-[0.6rem] sm:text-[0.68rem] uppercase tracking-[0.12em] text-muted-foreground/75 text-center">
@@ -81,7 +81,7 @@ function CanonicalAddresses() {
                 if (ok) toast.success(`Copied ${info.chain} MTQΣ`, { description: shortAddr(info.address, 8, 6) });
                 else toast.error("Copy failed");
               }}
-              className="text-[0.65rem] font-mono text-amber-200/70 hover:text-amber-200 transition"
+              className="text-[0.65rem] font-mono text-mtqs-gold/70 hover:text-mtqs-gold transition"
             >
               copy address
             </button>
@@ -89,7 +89,7 @@ function CanonicalAddresses() {
               href={info.explorer}
               target="_blank"
               rel="noopener noreferrer"
-              className="inline-flex items-center gap-1 text-[0.65rem] text-emerald-200/80 hover:text-emerald-200 transition"
+              className="inline-flex items-center gap-1 text-[0.65rem] text-mtqs-emerald/80 hover:text-mtqs-emerald transition"
             >
               explorer
               <ExternalLink className="h-3 w-3" aria-hidden="true" />
@@ -157,7 +157,7 @@ export function TrialSection({
       <Reveal>
         <Panel className="p-4 sm:p-5">
           <StepIndicator />
-          <p className="mt-4 text-[0.72rem] text-muted-foreground/80 leading-relaxed">
+          <p className="mt-4 text-[0.72rem] text-muted-foreground leading-relaxed">
             Run the closed loop end-to-end: fund a testnet wallet from a faucet, copy the canonical
             MTQΣ address, mint MTQΣ against USDC, redeem MTQΣ back into the basket, and review your
             trial history. Every step is logged to SQLite for auditability.
@@ -170,10 +170,10 @@ export function TrialSection({
         <div className="flex items-end justify-between gap-4 mb-4">
           <div>
             <div className="flex items-center gap-2">
-              <div className="h-7 w-7 rounded-full border border-mtqs-gold/30 bg-mtqs-gold/[0.06] flex items-center justify-center text-[0.72rem] font-mono font-semibold text-mtqs-gold-light">
+              <div className="h-7 w-7 rounded-full border border-mtqs-gold/30 bg-mtqs-gold/5 flex items-center justify-center text-[0.72rem] font-mono font-semibold text-mtqs-gold-light">
                 1
               </div>
-              <h3 className="text-base font-semibold text-foreground/95 flex items-center gap-2">
+              <h3 className="text-base font-semibold text-foreground flex items-center gap-2">
                 <Droplets className="h-4 w-4 text-mtqs-gold/80" aria-hidden="true" />
                 Faucets
               </h3>
@@ -206,7 +206,7 @@ export function TrialSection({
                   <div className="text-sm font-semibold text-foreground/90 group-hover:text-mtqs-gold-light transition">
                     {f.label}
                   </div>
-                  <div className="mt-1 text-[0.68rem] text-muted-foreground/70 leading-relaxed">
+                  <div className="mt-1 text-[0.68rem] text-muted-foreground leading-relaxed">
                     {f.note}
                   </div>
                 </Panel>
@@ -221,10 +221,10 @@ export function TrialSection({
         <div className="flex items-end justify-between gap-4 mb-4">
           <div>
             <div className="flex items-center gap-2">
-              <div className="h-7 w-7 rounded-full border border-mtqs-gold/30 bg-mtqs-gold/[0.06] flex items-center justify-center text-[0.72rem] font-mono font-semibold text-mtqs-gold-light">
+              <div className="h-7 w-7 rounded-full border border-mtqs-gold/30 bg-mtqs-gold/5 flex items-center justify-center text-[0.72rem] font-mono font-semibold text-mtqs-gold-light">
                 2
               </div>
-              <h3 className="text-base font-semibold text-foreground/95 flex items-center gap-2">
+              <h3 className="text-base font-semibold text-foreground flex items-center gap-2">
                 <Coins className="h-4 w-4 text-mtqs-gold/80" aria-hidden="true" />
                 Canonical MTQΣ Addresses
               </h3>
@@ -244,10 +244,10 @@ export function TrialSection({
         <div className="flex items-end justify-between gap-4 mb-4">
           <div>
             <div className="flex items-center gap-2">
-              <div className="h-7 w-7 rounded-full border border-mtqs-gold/30 bg-mtqs-gold/[0.06] flex items-center justify-center text-[0.72rem] font-mono font-semibold text-mtqs-gold-light">
+              <div className="h-7 w-7 rounded-full border border-mtqs-gold/30 bg-mtqs-gold/5 flex items-center justify-center text-[0.72rem] font-mono font-semibold text-mtqs-gold-light">
                 3
               </div>
-              <h3 className="text-base font-semibold text-foreground/95 flex items-center gap-2">
+              <h3 className="text-base font-semibold text-foreground flex items-center gap-2">
                 <Coins className="h-4 w-4 text-mtqs-gold/80" aria-hidden="true" />
                 Mint Simulator
               </h3>
@@ -274,10 +274,10 @@ export function TrialSection({
         <div className="flex items-end justify-between gap-4 mb-4">
           <div>
             <div className="flex items-center gap-2">
-              <div className="h-7 w-7 rounded-full border border-mtqs-gold/30 bg-mtqs-gold/[0.06] flex items-center justify-center text-[0.72rem] font-mono font-semibold text-mtqs-gold-light">
+              <div className="h-7 w-7 rounded-full border border-mtqs-gold/30 bg-mtqs-gold/5 flex items-center justify-center text-[0.72rem] font-mono font-semibold text-mtqs-gold-light">
                 4
               </div>
-              <h3 className="text-base font-semibold text-foreground/95 flex items-center gap-2">
+              <h3 className="text-base font-semibold text-foreground flex items-center gap-2">
                 <Flame className="h-4 w-4 text-mtqs-gold/80" aria-hidden="true" />
                 Redeem Simulator
               </h3>
@@ -304,10 +304,10 @@ export function TrialSection({
         <div className="flex items-end justify-between gap-4 mb-4">
           <div>
             <div className="flex items-center gap-2">
-              <div className="h-7 w-7 rounded-full border border-mtqs-gold/30 bg-mtqs-gold/[0.06] flex items-center justify-center text-[0.72rem] font-mono font-semibold text-mtqs-gold-light">
+              <div className="h-7 w-7 rounded-full border border-mtqs-gold/30 bg-mtqs-gold/5 flex items-center justify-center text-[0.72rem] font-mono font-semibold text-mtqs-gold-light">
                 5
               </div>
-              <h3 className="text-base font-semibold text-foreground/95 flex items-center gap-2">
+              <h3 className="text-base font-semibold text-foreground flex items-center gap-2">
                 <ScrollText className="h-4 w-4 text-mtqs-gold/80" aria-hidden="true" />
                 Trial Log
               </h3>
@@ -325,21 +325,21 @@ export function TrialSection({
       {/* Closing CTA */}
       <Reveal>
         <Panel variant="emerald" className="p-5 sm:p-6 text-center">
-          <p className="text-[0.82rem] text-muted-foreground/85 leading-relaxed max-w-2xl mx-auto mb-4">
+          <p className="text-[0.82rem] text-muted-foreground leading-relaxed max-w-2xl mx-auto mb-4">
             Trial complete. Review the full reconciliation in the Docs section, or explore the
             contract registry to verify each deployment on-chain.
           </p>
           <div className="flex flex-wrap items-center justify-center gap-2">
             <button
               onClick={() => _onNavigate("docs")}
-              className="inline-flex items-center gap-1.5 rounded-full border border-white/[0.1] bg-white/[0.03] px-4 py-2 text-[0.78rem] font-medium text-foreground/85 hover:border-mtqs-gold/30 hover:text-foreground transition"
+              className="inline-flex items-center gap-1.5 rounded-full border border-black/[0.1] bg-black/[0.03] px-4 py-2 text-[0.78rem] font-medium text-foreground hover:border-mtqs-gold/30 hover:text-foreground transition"
             >
               View Docs
               <ArrowRight className="h-3.5 w-3.5" aria-hidden="true" />
             </button>
             <button
               onClick={() => _onNavigate("contracts")}
-              className="inline-flex items-center gap-1.5 rounded-full border border-white/[0.1] bg-white/[0.03] px-4 py-2 text-[0.78rem] font-medium text-foreground/85 hover:border-mtqs-gold/30 hover:text-foreground transition"
+              className="inline-flex items-center gap-1.5 rounded-full border border-black/[0.1] bg-black/[0.03] px-4 py-2 text-[0.78rem] font-medium text-foreground hover:border-mtqs-gold/30 hover:text-foreground transition"
             >
               Contract Registry
               <ArrowRight className="h-3.5 w-3.5" aria-hidden="true" />

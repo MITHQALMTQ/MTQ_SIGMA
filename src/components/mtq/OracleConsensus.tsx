@@ -16,9 +16,9 @@ import type { OracleBoard, OracleFeed, OracleConsensus as OracleConsensusType } 
 import type { MetricsSnapshot } from "@/lib/mtq/engine";
 
 const FEED_COLORS: Record<string, { dot: string; text: string; border: string; bg: string; label: string }> = {
-  CHAINLINK: { dot: "bg-amber-400", text: "text-amber-200", border: "border-amber-400/40", bg: "bg-amber-500/[0.06]", label: "Chainlink" },
-  PYTH: { dot: "bg-emerald-400", text: "text-emerald-200", border: "border-emerald-400/40", bg: "bg-emerald-500/[0.06]", label: "Pyth" },
-  CHRONICLE: { dot: "bg-rose-400", text: "text-rose-200", border: "border-rose-400/40", bg: "bg-rose-500/[0.06]", label: "Chronicle" },
+  CHAINLINK: { dot: "bg-amber-400", text: "text-mtqs-gold", border: "border-mtqs-amber/40", bg: "bg-mtqs-amber/5", label: "Chainlink" },
+  PYTH: { dot: "bg-emerald-400", text: "text-mtqs-emerald", border: "border-mtqs-emerald/40", bg: "bg-mtqs-emerald/5", label: "Pyth" },
+  CHRONICLE: { dot: "bg-rose-400", text: "text-rose-200", border: "border-rose-400/40", bg: "bg-mtqs-rose/5", label: "Chronicle" },
 };
 
 function FeedChip({ feed, now }: { feed: OracleFeed; now: number }) {
@@ -28,7 +28,7 @@ function FeedChip({ feed, now }: { feed: OracleFeed; now: number }) {
   const ageMs = now - feed.timestamp;
   return (
     <div
-      className={`group relative flex flex-col gap-1 rounded-md border px-2 py-1.5 ${valid ? `${c.border} ${c.bg}` : "border-rose-500/30 bg-rose-500/[0.04]"}`}
+      className={`group relative flex flex-col gap-1 rounded-md border px-2 py-1.5 ${valid ? `${c.border} ${c.bg}` : "border-mtqs-rose/30 bg-mtqs-rose/5"}`}
       title={
         valid
           ? `${c.label} · valid · conf ±${(confPct).toFixed(2)}% · age ${(ageMs / 1000).toFixed(1)}s`
@@ -37,15 +37,15 @@ function FeedChip({ feed, now }: { feed: OracleFeed; now: number }) {
     >
       <div className="flex items-center gap-1.5">
         <span className={`relative inline-flex h-1.5 w-1.5 rounded-full ${valid ? c.dot : "bg-rose-500"}`} />
-        <span className={`text-[0.625rem] font-semibold tracking-wider ${valid ? c.text : "text-rose-300"}`}>
+        <span className={`text-[0.625rem] font-semibold tracking-wider ${valid ? c.text : "text-mtqs-rose"}`}>
           {feed.source}
         </span>
-        {!valid && <span className="text-[0.55rem] text-rose-300/80">discarded</span>}
+        {!valid && <span className="text-[0.55rem] text-mtqs-rose/80">discarded</span>}
       </div>
-      <div className={`font-mono tabular-nums text-[0.75rem] ${valid ? "text-foreground" : "text-rose-300/60 line-through"}`}>
+      <div className={`font-mono tabular-nums text-[0.75rem] ${valid ? "text-foreground" : "text-mtqs-rose/60 line-through"}`}>
         {feed.price < 0.01 ? feed.price.toFixed(6) : feed.price < 10 ? feed.price.toFixed(5) : feed.price.toFixed(2)}
       </div>
-      <div className="text-[0.55rem] text-muted-foreground/70 font-mono">
+      <div className="text-[0.55rem] text-muted-foreground font-mono">
         ±{confPct.toFixed(2)}% · {(ageMs / 1000).toFixed(0)}s
       </div>
     </div>
@@ -65,8 +65,8 @@ function PairRow({ pair, index }: { pair: OracleConsensusType; index: number }) 
       transition={{ duration: 0.4, delay: index * 0.04 }}
       className={`rounded-lg border p-3 sm:p-4 ${
         pair.paused
-          ? "border-rose-500/30 bg-rose-500/[0.04]"
-          : "border-white/[0.06] bg-white/[0.015]"
+          ? "border-mtqs-rose/30 bg-mtqs-rose/5"
+          : "border-border bg-white/[0.015]"
       }`}
     >
       <div className="flex flex-col lg:flex-row lg:items-center gap-3">
@@ -86,20 +86,20 @@ function PairRow({ pair, index }: { pair: OracleConsensusType; index: number }) 
         {/* Right — method, final, spread */}
         <div className="lg:w-64 shrink-0 grid grid-cols-3 gap-2 lg:text-right">
           <div>
-            <div className="text-[0.55rem] uppercase tracking-[0.2em] text-muted-foreground/70">Method</div>
+            <div className="text-[0.55rem] uppercase tracking-[0.2em] text-muted-foreground">Method</div>
             <Pill tone={methodTone as "rose" | "emerald" | "amber" | "muted"} className="mt-0.5">
               {pair.method}
             </Pill>
           </div>
           <div>
-            <div className="text-[0.55rem] uppercase tracking-[0.2em] text-muted-foreground/70">Final</div>
-            <div className={`mt-0.5 font-mono tabular-nums text-sm font-semibold ${finalTone === "gold" ? "mtqs-gold-text" : "text-rose-300"}`}>
+            <div className="text-[0.55rem] uppercase tracking-[0.2em] text-muted-foreground">Final</div>
+            <div className={`mt-0.5 font-mono tabular-nums text-sm font-semibold ${finalTone === "gold" ? "mtqs-gold-text" : "text-mtqs-rose"}`}>
               {pair.paused ? "—" : fmtPrice(pair.finalPrice)}
             </div>
           </div>
           <div>
-            <div className="text-[0.55rem] uppercase tracking-[0.2em] text-muted-foreground/70">Spread</div>
-            <div className="mt-0.5 font-mono tabular-nums text-sm text-amber-200">
+            <div className="text-[0.55rem] uppercase tracking-[0.2em] text-muted-foreground">Spread</div>
+            <div className="mt-0.5 font-mono tabular-nums text-sm text-mtqs-gold">
               {pair.spreadBps > 0 ? `${pair.spreadBps} bps` : "—"}
             </div>
           </div>
@@ -133,7 +133,7 @@ export function OracleConsensus({
                 <div className="text-sm font-semibold text-foreground/90">
                   Oracle Consensus Board
                 </div>
-                <div className="text-[0.7rem] text-muted-foreground/70">
+                <div className="text-[0.7rem] text-muted-foreground">
                   {board ? `${validTotal}/${maxValid} feeds valid · sampled ${fmtAgo(board.sampledAt)}` : "loading…"}
                 </div>
               </div>
@@ -142,7 +142,7 @@ export function OracleConsensus({
               <Pill tone={paused ? "rose" : "emerald"}>
                 {paused ? "PAUSED — §9.3" : "All pairs healthy"}
               </Pill>
-              <span className="text-[0.7rem] text-muted-foreground/70 font-mono">
+              <span className="text-[0.7rem] text-muted-foreground font-mono">
                 {board?.pairs.length ?? 0} pairs
               </span>
             </div>
@@ -150,21 +150,21 @@ export function OracleConsensus({
 
           {/* Legend of validation rules */}
           <div className="grid grid-cols-2 lg:grid-cols-4 gap-2 text-[0.7rem]">
-            <div className="rounded-md border border-white/[0.06] bg-white/[0.02] px-2.5 py-1.5">
-              <div className="text-muted-foreground/70">§9.2.1 · Staleness</div>
-              <div className="font-mono text-amber-200">≤ {ORACLE_STALENESS_MS / 1000}s</div>
+            <div className="rounded-md border border-border bg-black/[0.02] px-2.5 py-1.5">
+              <div className="text-muted-foreground">§9.2.1 · Staleness</div>
+              <div className="font-mono text-mtqs-gold">≤ {ORACLE_STALENESS_MS / 1000}s</div>
             </div>
-            <div className="rounded-md border border-white/[0.06] bg-white/[0.02] px-2.5 py-1.5">
-              <div className="text-muted-foreground/70">§9.2.3 · Confidence</div>
-              <div className="font-mono text-amber-200">&lt; {(ORACLE_CONFIDENCE_MAX_PCT * 100).toFixed(1)}%</div>
+            <div className="rounded-md border border-border bg-black/[0.02] px-2.5 py-1.5">
+              <div className="text-muted-foreground">§9.2.3 · Confidence</div>
+              <div className="font-mono text-mtqs-gold">&lt; {(ORACLE_CONFIDENCE_MAX_PCT * 100).toFixed(1)}%</div>
             </div>
-            <div className="rounded-md border border-white/[0.06] bg-white/[0.02] px-2.5 py-1.5">
-              <div className="text-muted-foreground/70">§9.2.4 · Deviation</div>
-              <div className="font-mono text-amber-200">&lt; {(ORACLE_DEVIATION_MAX_PCT * 100).toFixed(1)}% from median</div>
+            <div className="rounded-md border border-border bg-black/[0.02] px-2.5 py-1.5">
+              <div className="text-muted-foreground">§9.2.4 · Deviation</div>
+              <div className="font-mono text-mtqs-gold">&lt; {(ORACLE_DEVIATION_MAX_PCT * 100).toFixed(1)}% from median</div>
             </div>
-            <div className="rounded-md border border-white/[0.06] bg-white/[0.02] px-2.5 py-1.5">
-              <div className="text-muted-foreground/70">§9.3 · Quorum</div>
-              <div className="font-mono text-amber-200">≥ 2 valid feeds / pair</div>
+            <div className="rounded-md border border-border bg-black/[0.02] px-2.5 py-1.5">
+              <div className="text-muted-foreground">§9.3 · Quorum</div>
+              <div className="font-mono text-mtqs-gold">≥ 2 valid feeds / pair</div>
             </div>
           </div>
         </Panel>
@@ -201,7 +201,7 @@ export function OracleConsensus({
       ) : (
         <div className="space-y-2.5">
           {[...Array(5)].map((_, i) => (
-            <div key={i} className="h-20 animate-pulse rounded-lg bg-white/[0.03]" />
+            <div key={i} className="h-20 animate-pulse rounded-lg bg-black/[0.03]" />
           ))}
         </div>
       )}
@@ -209,7 +209,7 @@ export function OracleConsensus({
       {/* Honest note */}
       <Reveal>
         <Panel className="p-4 border-amber-400/15">
-          <div className="flex items-start gap-2 text-[0.72rem] text-muted-foreground/85">
+          <div className="flex items-start gap-2 text-[0.72rem] text-muted-foreground">
             <span className="mtqs-eyebrow shrink-0">Honest Note</span>
             <p className="leading-relaxed">
               Pyth & Chronicle are modelled as independent synthetic witnesses around the live ECB/gold reference price for pilot validation of the §9 consensus pipeline. The validation rules (staleness, confidence, deviation, quorum) and median/average selection logic are exercised exactly as specified; only the underlying witness quotes are simulated. In production, these would be replaced by real Chainlink/Pyth/Chronicle on-chain feeds.

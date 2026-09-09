@@ -108,7 +108,7 @@ function TestnetCards() {
         <Panel key={id} className="p-4 flex flex-col gap-2">
           <div className="flex items-start justify-between gap-2">
             <div className="min-w-0">
-              <div className="text-[0.6rem] uppercase tracking-[0.22em] text-muted-foreground/70">
+              <div className="text-[0.6rem] uppercase tracking-[0.22em] text-muted-foreground">
                 {info.chain}
               </div>
               <div className="mtqs-display mtqs-gold-text text-base font-semibold leading-none mt-1">
@@ -117,7 +117,7 @@ function TestnetCards() {
             </div>
             <Pill tone="gold" className="font-mono">cid {String(info.chainId)}</Pill>
           </div>
-          <div className="font-mono text-[0.72rem] text-amber-200/90 break-all leading-relaxed">
+          <div className="font-mono text-[0.72rem] text-mtqs-gold break-all leading-relaxed">
             {info.address}
           </div>
           <div className="mt-auto flex items-center justify-between pt-1">
@@ -128,7 +128,7 @@ function TestnetCards() {
                 if (ok) toast.success(`Copied ${info.chain} MTQΣ address`, { description: shortAddr(info.address, 8, 6) });
                 else toast.error("Copy failed");
               }}
-              className="text-[0.65rem] font-mono text-amber-200/70 hover:text-amber-200 transition"
+              className="text-[0.65rem] font-mono text-mtqs-gold/70 hover:text-mtqs-gold transition"
             >
               copy
             </button>
@@ -136,7 +136,7 @@ function TestnetCards() {
               href={info.explorer}
               target="_blank"
               rel="noopener noreferrer"
-              className="text-[0.65rem] text-emerald-200/80 hover:text-emerald-200 transition"
+              className="text-[0.65rem] text-mtqs-emerald/80 hover:text-mtqs-emerald transition"
             >
               explorer ↗
             </a>
@@ -201,7 +201,7 @@ export function HomeSection({ onNavigate }: { onNavigate: (id: SectionId) => voi
               className="space-y-5"
             >
               <div className="text-[0.65rem] sm:text-xs uppercase tracking-[0.32em] text-mtqs-gold/75 mtqs-fade-in">
-                The Monetary Observatory
+                The Global Purchasing Power Unit
               </div>
               <h1 className="mtqs-display mtqs-gold-text mtqs-hero-text mtqs-fade-in mtqs-stagger-1">
                 MTQΣ
@@ -209,7 +209,7 @@ export function HomeSection({ onNavigate }: { onNavigate: (id: SectionId) => voi
               <p className="mtqs-display mtqs-hero-subtitle text-amber-100/85 italic max-w-2xl mx-auto mtqs-fade-in mtqs-stagger-2">
                 {BRAND_VOICE.tagline}
               </p>
-              <p className="mtqs-body text-muted-foreground/80 max-w-xl mx-auto mtqs-fade-in mtqs-stagger-3">
+              <p className="mtqs-body text-muted-foreground max-w-xl mx-auto mtqs-fade-in mtqs-stagger-3">
                 {BRAND_VOICE.coreObjective}
               </p>
               <div className="flex flex-wrap items-center justify-center gap-3 pt-3 mtqs-fade-in mtqs-stagger-4">
@@ -279,16 +279,16 @@ export function HomeSection({ onNavigate }: { onNavigate: (id: SectionId) => voi
                 </div>
                 <div>
                   <div className="text-sm font-bold text-amber-100">PAXG</div>
-                  <div className="text-[0.65rem] text-amber-200/60">Paxos Gold</div>
+                  <div className="text-[0.65rem] text-mtqs-gold/60">Paxos Gold</div>
                 </div>
               </div>
               <div className="text-2xl font-mono mtqs-gold-text">
                 {snapshot ? fmtUsdCompact(snapshot.perIssuer?.paxgUsd ?? (snapshot.reserve.goldNet / 2)) : "—"}
               </div>
-              <div className="text-[0.7rem] text-amber-200/60 mt-1">
+              <div className="text-[0.7rem] text-mtqs-gold/60 mt-1">
                 1 PAXG = 1 troy oz gold · {snapshot ? `$${fmtFixed(snapshot.reserve.goldPrice, 0)}` : "—"}/oz
               </div>
-              <div className="mt-2 text-[0.7rem] text-amber-200/50">
+              <div className="mt-2 text-[0.7rem] text-mtqs-gold/50">
                 Haircut: 1.0% · Issuer: Paxos
               </div>
             </div>
@@ -302,16 +302,16 @@ export function HomeSection({ onNavigate }: { onNavigate: (id: SectionId) => voi
                 </div>
                 <div>
                   <div className="text-sm font-bold text-amber-100">XAUT</div>
-                  <div className="text-[0.65rem] text-amber-200/60">Tether Gold</div>
+                  <div className="text-[0.65rem] text-mtqs-gold/60">Tether Gold</div>
                 </div>
               </div>
               <div className="text-2xl font-mono mtqs-gold-text">
                 {snapshot ? fmtUsdCompact(snapshot.perIssuer?.xautUsd ?? (snapshot.reserve.goldNet / 2)) : "—"}
               </div>
-              <div className="text-[0.7rem] text-amber-200/60 mt-1">
+              <div className="text-[0.7rem] text-mtqs-gold/60 mt-1">
                 1 XAUT = 1 troy oz gold · {snapshot ? `$${fmtFixed(snapshot.reserve.goldPrice, 0)}` : "—"}/oz
               </div>
-              <div className="mt-2 text-[0.7rem] text-amber-200/50">
+              <div className="mt-2 text-[0.7rem] text-mtqs-gold/50">
                 Haircut: 1.0% · Issuer: Tether
               </div>
             </div>
@@ -319,23 +319,23 @@ export function HomeSection({ onNavigate }: { onNavigate: (id: SectionId) => voi
           {/* Gold Weight gauge card */}
           <Reveal delay={0.1}>
             <Panel variant="emerald" className="p-5">
-              <div className="text-[0.625rem] uppercase tracking-[0.25em] text-muted-foreground/80 mb-3">Gold Weight (§6.5 + §8, legacy buffer path)</div>
+              <div className="text-[0.625rem] uppercase tracking-[0.25em] text-muted-foreground mb-3">Gold Weight (§6.5 + §8, legacy buffer path)</div>
               <div className="grid grid-cols-2 gap-2">
                 <div>
                   <div className="text-[0.65rem] text-muted-foreground/60">Observed</div>
-                  <div className="text-xl font-mono text-amber-200">{snapshot ? `${(snapshot.observedGoldWeight * 100).toFixed(2)}%` : "—"}</div>
+                  <div className="text-xl font-mono text-mtqs-gold">{snapshot ? `${(snapshot.observedGoldWeight * 100).toFixed(2)}%` : "—"}</div>
                 </div>
                 <div>
                   <div className="text-[0.65rem] text-muted-foreground/60">Target</div>
-                  <div className="text-xl font-mono text-emerald-200">{snapshot ? `${(snapshot.targetGoldWeight * 100).toFixed(2)}%` : "—"}</div>
+                  <div className="text-xl font-mono text-mtqs-emerald">{snapshot ? `${(snapshot.targetGoldWeight * 100).toFixed(2)}%` : "—"}</div>
                 </div>
                 <div>
                   <div className="text-[0.65rem] text-muted-foreground/60">Buffer State</div>
-                  <div className="text-sm font-mono text-amber-200">{snapshot?.bufferState ?? "—"}</div>
+                  <div className="text-sm font-mono text-mtqs-gold">{snapshot?.bufferState ?? "—"}</div>
                 </div>
                 <div>
                   <div className="text-[0.65rem] text-muted-foreground/60">Buffer Au</div>
-                  <div className="text-sm font-mono text-amber-200">{snapshot ? `${(snapshot.bufferGoldRatio * 100).toFixed(1)}%` : "—"}</div>
+                  <div className="text-sm font-mono text-mtqs-gold">{snapshot ? `${(snapshot.bufferGoldRatio * 100).toFixed(1)}%` : "—"}</div>
                 </div>
               </div>
               <div className="mt-3 h-2 rounded-full bg-white/[0.05] overflow-hidden">
@@ -346,15 +346,15 @@ export function HomeSection({ onNavigate }: { onNavigate: (id: SectionId) => voi
                 <span>32% envelope ceiling</span>
               </div>
               <div className="mt-2 text-[0.65rem] text-muted-foreground/60">
-                Total gold net: <span className="font-mono text-amber-200">{snapshot ? fmtUsdCompact(snapshot.reserve.goldNet) : "—"}</span>
+                Total gold net: <span className="font-mono text-mtqs-gold">{snapshot ? fmtUsdCompact(snapshot.reserve.goldNet) : "—"}</span>
               </div>
             </Panel>
           </Reveal>
         </div>
         <p className="mt-3 text-[0.7rem] text-muted-foreground/60 max-w-3xl">
-          Gold is in <span className="text-amber-200/90 font-medium">BOTH</span> the GFB Index (26% strategic prior,
+          Gold is in <span className="text-mtqs-gold font-medium">BOTH</span> the GFB Index (26% strategic prior,
           20-32% admissibility envelope per §8.1) <span className="italic">and</span> the reserve portfolio
-          (§4, §8.3). In v1.0 these two roles are <span className="text-amber-200/90 font-medium">mandatorily
+          (§4, §8.3). In v1.0 these two roles are <span className="text-mtqs-gold font-medium">mandatorily
           separate</span> per §14.1: the index gold defines what 1 MTQ represents (purchasing power); the
           reserve gold is sized by obligations, liquidity, custody, and redemption risk — not by the
           index weight. The pilot's current state uses the same physical PAXG + XAUT holdings for
@@ -383,8 +383,8 @@ export function HomeSection({ onNavigate }: { onNavigate: (id: SectionId) => voi
                       {c.eyebrow}
                     </span>
                   </div>
-                  <h3 className="mtqs-display text-xl font-semibold text-foreground/95">{c.title}</h3>
-                  <p className="text-[0.78rem] text-muted-foreground/85 leading-relaxed">{c.body}</p>
+                  <h3 className="mtqs-display text-xl font-semibold text-foreground">{c.title}</h3>
+                  <p className="text-[0.78rem] text-muted-foreground leading-relaxed">{c.body}</p>
                 </Panel>
               </Reveal>
             );
@@ -401,7 +401,7 @@ export function HomeSection({ onNavigate }: { onNavigate: (id: SectionId) => voi
         />
         <Reveal>
           <Panel className="p-5 sm:p-6">
-            <p className="mb-4 text-[0.78rem] text-muted-foreground/85 leading-relaxed max-w-2xl">
+            <p className="mb-4 text-[0.78rem] text-muted-foreground leading-relaxed max-w-2xl">
               The GFB Index defines what one MTQΣ is intended to represent. The reserve
               portfolio exists to collateralize that obligation. The two are constitutionally
               separate: the reserve cannot dilute the index, and the index cannot be redefined
@@ -411,7 +411,7 @@ export function HomeSection({ onNavigate }: { onNavigate: (id: SectionId) => voi
               <ConstitutionalSeparation snapshot={snapshot} />
             </ClientOnly>
             <noscript>
-              <p className="text-[0.72rem] text-muted-foreground/70">
+              <p className="text-[0.72rem] text-muted-foreground">
                 The Constitutional Separation diagram requires JavaScript to render.
               </p>
             </noscript>
@@ -458,11 +458,11 @@ export function HomeSection({ onNavigate }: { onNavigate: (id: SectionId) => voi
           <Panel variant="emerald" className="p-6 sm:p-8 text-center">
             <div className="flex items-center justify-center gap-2 mb-3">
               <Layers className="h-5 w-5 text-mtqs-emerald" aria-hidden="true" />
-              <h3 className="mtqs-display text-2xl font-semibold text-foreground/95">
+              <h3 className="mtqs-display text-2xl font-semibold text-foreground">
                 Explore the closed-loop architecture
               </h3>
             </div>
-            <p className="text-[0.82rem] text-muted-foreground/85 leading-relaxed max-w-2xl mx-auto mb-5">
+            <p className="text-[0.82rem] text-muted-foreground leading-relaxed max-w-2xl mx-auto mb-5">
               {BRAND_VOICE.designConstraint}. {BRAND_VOICE.statusDeclaration}. Every metric on this
               site is computed live by the reference engine and reconciled against the blueprint.
             </p>
@@ -476,7 +476,7 @@ export function HomeSection({ onNavigate }: { onNavigate: (id: SectionId) => voi
                 <button
                   key={c.id}
                   onClick={() => onNavigate(c.id)}
-                  className="inline-flex items-center gap-1.5 rounded-full border border-white/[0.1] bg-white/[0.03] px-4 py-2 text-[0.78rem] font-medium text-foreground/85 hover:border-mtqs-gold/30 hover:text-foreground transition"
+                  className="inline-flex items-center gap-1.5 rounded-full border border-black/[0.1] bg-black/[0.03] px-4 py-2 text-[0.78rem] font-medium text-foreground hover:border-mtqs-gold/30 hover:text-foreground transition"
                 >
                   {c.label}
                   <ArrowRight className="h-3.5 w-3.5" aria-hidden="true" />

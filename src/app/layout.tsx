@@ -31,7 +31,7 @@ const cormorant = Cormorant_Garamond({
 });
 
 export const metadata: Metadata = {
-  title: "MTQΣ — The Monetary Observatory",
+  title: "MTQΣ — The Global Purchasing Power Unit",
   description:
     "Closed-loop monetary architecture pilot — GFB Index, gold-collateralized reserve, §9 oracle consensus, mint/redeem simulation on Monad, Arc, and Solana testnets. Candidate for public testing — NOT production-authorized.",
   keywords: [
@@ -54,14 +54,14 @@ export const metadata: Metadata = {
     apple: "/brand/mtqs-emblem.png",
   },
   openGraph: {
-    title: "MTQΣ — The Monetary Observatory",
+    title: "MTQΣ — The Global Purchasing Power Unit",
     description:
       "The Global Purchasing Power Unit — Closed-loop monetary architecture pilot.",
     type: "website",
   },
   twitter: {
     card: "summary_large_image",
-    title: "MTQΣ — The Monetary Observatory",
+    title: "MTQΣ — The Global Purchasing Power Unit",
     description: "Closed-loop monetary architecture pilot. Candidate for testnet validation.",
   },
 };
@@ -72,7 +72,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en" className="dark" suppressHydrationWarning>
+    <html lang="en"  suppressHydrationWarning>
       <body
         className={`${geistSans.variable} ${geistMono.variable} ${inter.variable} ${cormorant.variable} antialiased bg-background text-foreground`}
         style={{ fontFamily: 'var(--font-inter), var(--font-geist-sans), -apple-system, BlinkMacSystemFont, "SF Pro Display", "SF Pro Text", system-ui, sans-serif' }}

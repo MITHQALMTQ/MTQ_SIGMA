@@ -1,4 +1,4 @@
-// MTQΣ — Monetary Observatory primitives
+// MTQΣ — Global Purchasing Power Unit primitives
 // Atomic building blocks for the bespoke UI: starfield, animated numbers,
 // panels, eyebrows, glow dots, focusable buttons. All small + composable.
 //
@@ -20,7 +20,7 @@ export function Starfield({ className = "" }: { className?: string }) {
       className={`pointer-events-none absolute inset-0 overflow-hidden ${className}`}
       aria-hidden="true"
     >
-      <div className="mtqs-starfield" />
+      <div className="" />
       <div
         className="absolute inset-0"
         style={{
@@ -141,7 +141,7 @@ export function SectionHeading({
     <div className={`flex items-end justify-between gap-4 mb-6 ${className}`}>
       <div className="space-y-1.5 min-w-0">
         <Eyebrow>{eyebrow}</Eyebrow>
-        <h2 className="mtqs-section-title text-foreground/95">
+        <h2 className="mtqs-section-title text-foreground">
           {title}
         </h2>
       </div>
@@ -150,7 +150,7 @@ export function SectionHeading({
   );
 }
 
-/* ---------- Panel — bespoke obsidian card surface ---------- */
+/* ---------- Panel — exchange-grade card surface ---------- */
 export function Panel({
   children,
   className = "",
@@ -166,10 +166,10 @@ export function Panel({
 }) {
   const v =
     variant === "emerald"
-      ? "mtqs-glass mtqs-glass-emerald mtqs-hover-lift"
+      ? "mtqs-panel mtqs-glow-emerald"
       : variant === "rose"
-      ? "mtqs-glass mtqs-glass-emerald mtqs-hover-lift"
-      : "mtqs-glass mtqs-hover-lift";
+      ? "mtqs-panel mtqs-glow-emerald"
+      : "mtqs-panel";
   return (
     <As className={`${v} ${className}`} style={style}>
       {children}
@@ -222,7 +222,7 @@ export function Stat({
 }) {
   return (
     <div className={`flex flex-col gap-1 ${className}`}>
-      <span className="text-[0.625rem] uppercase tracking-[0.22em] text-muted-foreground/80">
+      <span className="text-[0.625rem] uppercase tracking-[0.22em] text-muted-foreground">
         {label}
       </span>
       <span className={`font-mono tabular-nums text-foreground ${valueClass}`}>
@@ -239,7 +239,7 @@ export function MiniBar({
   max = 1,
   min = 0,
   colorClass = "bg-amber-400",
-  trackClass = "bg-white/5",
+  trackClass = "bg-black/5",
   className = "",
   height = "h-1.5",
 }: {
@@ -301,7 +301,7 @@ export function FadeSwap({
 export function Skeleton({ className = "" }: { className?: string }) {
   return (
     <div
-      className={`animate-pulse rounded-md bg-white/[0.04] ${className}`}
+      className={`animate-pulse rounded-md bg-black/[0.04] ${className}`}
       aria-hidden="true"
     />
   );
@@ -318,12 +318,12 @@ export function Pill({
   className?: string;
 }) {
   const tones: Record<string, string> = {
-    default: "border-white/10 bg-white/[0.03] text-foreground/80",
-    gold: "border-mtqs-gold/30 bg-mtqs-gold/10 text-[#f5d27a]",
-    emerald: "border-mtqs-emerald/30 bg-mtqs-emerald/10 text-[#6ff0c0]",
-    rose: "border-mtqs-rose/30 bg-mtqs-rose/10 text-[#ff8ea3]",
-    amber: "border-mtqs-amber/30 bg-mtqs-amber/10 text-[#ffd07a]",
-    muted: "border-white/10 bg-white/[0.02] text-muted-foreground",
+    default: "border-border bg-black/[0.03] text-muted-foreground",
+    gold: "border-mtqs-gold/30 bg-mtqs-gold/10 text-mtqs-gold",
+    emerald: "border-mtqs-emerald/30 bg-mtqs-emerald/10 text-mtqs-emerald",
+    rose: "border-mtqs-rose/30 bg-mtqs-rose/10 text-mtqs-rose",
+    amber: "border-mtqs-amber/30 bg-mtqs-amber/10 text-mtqs-amber",
+    muted: "border-border bg-black/[0.02] text-muted-foreground",
   };
   return (
     <span

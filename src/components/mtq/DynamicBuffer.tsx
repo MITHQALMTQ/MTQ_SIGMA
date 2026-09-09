@@ -36,8 +36,8 @@ export function DynamicBuffer({ snapshot }: { snapshot: MetricsSnapshot | null }
   if (!snapshot) {
     return (
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
-        <div className="h-64 animate-pulse rounded-lg bg-white/[0.03]" />
-        <div className="h-64 animate-pulse rounded-lg bg-white/[0.03]" />
+        <div className="h-64 animate-pulse rounded-lg bg-black/[0.03]" />
+        <div className="h-64 animate-pulse rounded-lg bg-black/[0.03]" />
       </div>
     );
   }
@@ -54,7 +54,7 @@ export function DynamicBuffer({ snapshot }: { snapshot: MetricsSnapshot | null }
           <div className="mb-3 flex items-center justify-between">
             <div>
               <div className="text-sm font-semibold text-foreground/90">Dynamic Buffer (§8.3)</div>
-              <div className="text-[0.7rem] text-muted-foreground/70">buffer gold ratio by protocol status</div>
+              <div className="text-[0.7rem] text-muted-foreground">buffer gold ratio by protocol status</div>
             </div>
             <Pill tone={current === "EMERGENCY" ? "rose" : current === "STRESS" ? "amber" : "emerald"}>
               <GlowDot color={current === "EMERGENCY" ? "rose" : current === "STRESS" ? "amber" : "emerald"} size="h-1.5 w-1.5" />
@@ -73,30 +73,30 @@ export function DynamicBuffer({ snapshot }: { snapshot: MetricsSnapshot | null }
                   className={`rounded-lg border p-3 ${
                     isActive
                       ? s.tone === "emerald"
-                        ? "border-emerald-400/40 bg-emerald-500/[0.08] mtqs-glow-emerald"
+                        ? "border-mtqs-emerald/40 bg-emerald-500/[0.08] mtqs-glow-emerald"
                         : s.tone === "amber"
-                        ? "border-amber-400/40 bg-amber-500/[0.08]"
+                        ? "border-mtqs-amber/40 bg-amber-500/[0.08]"
                         : "border-rose-400/40 bg-rose-500/[0.08] mtqs-glow-rose"
-                      : "border-white/[0.06] bg-white/[0.02]"
+                      : "border-border bg-black/[0.02]"
                   }`}
                 >
-                  <div className={`text-[0.7rem] font-semibold ${isActive ? (s.tone === "emerald" ? "text-emerald-200" : s.tone === "amber" ? "text-amber-200" : "text-rose-200") : "text-muted-foreground/80"}`}>
+                  <div className={`text-[0.7rem] font-semibold ${isActive ? (s.tone === "emerald" ? "text-mtqs-emerald" : s.tone === "amber" ? "text-mtqs-gold" : "text-rose-200") : "text-muted-foreground"}`}>
                     {s.label}
                   </div>
-                  <div className="mt-1 font-mono text-lg text-amber-200">{(s.gold * 100).toFixed(1)}%</div>
-                  <div className="text-[0.65rem] text-muted-foreground/70">{s.desc}</div>
+                  <div className="mt-1 font-mono text-lg text-mtqs-gold">{(s.gold * 100).toFixed(1)}%</div>
+                  <div className="text-[0.65rem] text-muted-foreground">{s.desc}</div>
                   <div className="mt-1.5 text-[0.6rem] text-muted-foreground/60">
-                    total W ≈ <span className="font-mono text-amber-200">{(s.total * 100).toFixed(2)}%</span>
+                    total W ≈ <span className="font-mono text-mtqs-gold">{(s.total * 100).toFixed(2)}%</span>
                   </div>
                 </motion.div>
               );
             })}
           </div>
 
-          <div className="mt-4 rounded-md border border-white/[0.05] bg-white/[0.02] p-3">
+          <div className="mt-4 rounded-md border border-border bg-black/[0.02] p-3">
             <div className="flex items-center justify-between mb-2">
-              <div className="text-[0.65rem] uppercase tracking-[0.2em] text-muted-foreground/70">Buffer Gold Ratio (live)</div>
-              <TickNumber value={snapshot.bufferGoldRatio} format={(n) => `${(n * 100).toFixed(2)}%`} className="font-mono text-amber-200 text-sm font-semibold" />
+              <div className="text-[0.65rem] uppercase tracking-[0.2em] text-muted-foreground">Buffer Gold Ratio (live)</div>
+              <TickNumber value={snapshot.bufferGoldRatio} format={(n) => `${(n * 100).toFixed(2)}%`} className="font-mono text-mtqs-gold text-sm font-semibold" />
             </div>
             <MiniBar
               value={snapshot.bufferGoldRatio}
@@ -106,8 +106,8 @@ export function DynamicBuffer({ snapshot }: { snapshot: MetricsSnapshot | null }
             />
           </div>
 
-          <p className="mt-3 text-[0.7rem] text-muted-foreground/70 leading-relaxed">
-            Total target gold weight formula: <span className="font-mono text-amber-200">W_target = 0.20 + 0.10·B_gold(RR) + θ_smoothed</span> clamped to [22%, 30%]. Ramp duration: {RAMP_DURATION_HOURS}h.
+          <p className="mt-3 text-[0.7rem] text-muted-foreground leading-relaxed">
+            Total target gold weight formula: <span className="font-mono text-mtqs-gold">W_target = 0.20 + 0.10·B_gold(RR) + θ_smoothed</span> clamped to [22%, 30%]. Ramp duration: {RAMP_DURATION_HOURS}h.
           </p>
         </Panel>
       </Reveal>
@@ -118,7 +118,7 @@ export function DynamicBuffer({ snapshot }: { snapshot: MetricsSnapshot | null }
           <div className="mb-3 flex items-center justify-between">
             <div>
               <div className="text-sm font-semibold text-foreground/90">First-Loss Waterfall (§8.5)</div>
-              <div className="text-[0.7rem] text-muted-foreground/70">5-layer loss absorption order</div>
+              <div className="text-[0.7rem] text-muted-foreground">5-layer loss absorption order</div>
             </div>
             <Pill tone={wf.currentLayer >= 4 ? "rose" : wf.currentLayer >= 2 ? "amber" : "emerald"}>
               layer {wf.currentLayer} active
@@ -139,27 +139,27 @@ export function DynamicBuffer({ snapshot }: { snapshot: MetricsSnapshot | null }
                   className={`relative rounded-md border p-2.5 pl-3 ${
                     isActive
                       ? layer.tone === "emerald"
-                        ? "border-emerald-400/40 bg-emerald-500/[0.08]"
+                        ? "border-mtqs-emerald/40 bg-emerald-500/[0.08]"
                         : layer.tone === "gold"
-                        ? "border-amber-400/40 bg-amber-500/[0.08]"
+                        ? "border-mtqs-amber/40 bg-amber-500/[0.08]"
                         : layer.tone === "amber"
-                        ? "border-amber-400/40 bg-amber-500/[0.06]"
+                        ? "border-mtqs-amber/40 bg-mtqs-amber/5"
                         : "border-rose-400/40 bg-rose-500/[0.08] mtqs-glow-rose"
-                      : "border-white/[0.06] bg-white/[0.015]"
+                      : "border-border bg-white/[0.015]"
                   }`}
                   style={{ marginLeft: `${stairOffset}px` }}
                 >
                   <div className="flex items-center justify-between gap-2">
                     <div className="flex items-center gap-2 min-w-0">
-                      <span className={`font-mono text-xs font-semibold ${isActive ? "text-amber-200" : "text-muted-foreground/70"}`}>
+                      <span className={`font-mono text-xs font-semibold ${isActive ? "text-mtqs-gold" : "text-muted-foreground"}`}>
                         L{layer.id}
                       </span>
-                      <span className={`text-xs font-medium truncate ${isActive ? "text-foreground/90" : "text-muted-foreground/80"}`}>
+                      <span className={`text-xs font-medium truncate ${isActive ? "text-foreground/90" : "text-muted-foreground"}`}>
                         {layer.name}
                       </span>
                       {isActive && <GlowDot color="amber" size="h-1.5 w-1.5" />}
                     </div>
-                    <span className="text-[0.65rem] font-mono text-muted-foreground/70 shrink-0">
+                    <span className="text-[0.65rem] font-mono text-muted-foreground shrink-0">
                       {consumed > 0 ? `consumed ${fmtUsdCompact(consumed)}` : "intact"}
                     </span>
                   </div>
@@ -169,7 +169,7 @@ export function DynamicBuffer({ snapshot }: { snapshot: MetricsSnapshot | null }
             })}
           </div>
 
-          <p className="mt-3 text-[0.7rem] text-muted-foreground/70 leading-relaxed">
+          <p className="mt-3 text-[0.7rem] text-muted-foreground leading-relaxed">
             Losses flow top → bottom. Surplus absorbs first, then buffer fiat, buffer gold, core fiat (80% of core), and finally core gold (20% of core — the deepest, never-breach layer).
           </p>
         </Panel>

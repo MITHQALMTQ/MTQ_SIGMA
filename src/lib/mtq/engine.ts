@@ -1317,6 +1317,7 @@ export interface MetricsSnapshot {
   };
   rebalance: RebalanceDecision;
   pegHealth: ReserveState["pegHealth"];
+  depegHours: ReserveState["depegHours"];
   ejectStage: ReserveState["ejectStage"];
   // New sections (v2 — full blueprint coverage)
   oracle: OracleBoard | null;
@@ -1521,6 +1522,7 @@ export function computeSnapshot(s: ReserveState, fx: FxSnapshot, ctx?: { oracle?
     },
     rebalance: decision,
     pegHealth: s.pegHealth,
+    depegHours: s.depegHours,
     ejectStage: s.ejectStage,
     oracle,
     oraclePaused: oracle?.anyPaused ?? false,

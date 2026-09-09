@@ -54,3 +54,5 @@ server.log
 /skills/
 upload/*.txt
 upload/private_key.txt
+screenshots/
+agent-ctx/

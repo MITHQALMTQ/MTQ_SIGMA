@@ -12,7 +12,7 @@ import type { MetricsSnapshot } from "@/lib/mtq/engine";
 
 export function TreasurySweep({ snapshot }: { snapshot: MetricsSnapshot | null }) {
   if (!snapshot) {
-    return <div className="h-44 animate-pulse rounded-lg bg-white/[0.03]" />;
+    return <div className="h-44 animate-pulse rounded-lg bg-black/[0.03]" />;
   }
   const t = snapshot.treasury;
   const fillPct = Math.min(1, t.hotWalletUsd / TREASURY_SWEEP_THRESHOLD_USD);
@@ -24,7 +24,7 @@ export function TreasurySweep({ snapshot }: { snapshot: MetricsSnapshot | null }
       <div className="mb-3 flex items-center justify-between">
         <div>
           <div className="text-sm font-semibold text-foreground/90">Treasury Sweep (§13.2)</div>
-          <div className="text-[0.7rem] text-muted-foreground/70">hot-wallet surplus → 4/7 Multi-Sig Cold Treasury</div>
+          <div className="text-[0.7rem] text-muted-foreground">hot-wallet surplus → 4/7 Multi-Sig Cold Treasury</div>
         </div>
         <Pill tone={overThreshold ? "rose" : nearThreshold ? "amber" : "emerald"}>
           <GlowDot color={overThreshold ? "rose" : nearThreshold ? "amber" : "emerald"} size="h-1.5 w-1.5" />
@@ -35,10 +35,10 @@ export function TreasurySweep({ snapshot }: { snapshot: MetricsSnapshot | null }
       {/* Hot wallet fill visual */}
       <div className="mb-4">
         <div className="flex items-baseline justify-between mb-1.5">
-          <span className="text-[0.65rem] uppercase tracking-[0.2em] text-muted-foreground/70">Hot Wallet</span>
-          <TickNumber value={t.hotWalletUsd} format={fmtUsd} className={`font-mono text-sm font-semibold ${overThreshold ? "text-rose-300" : nearThreshold ? "text-amber-200" : "text-emerald-200"}`} />
+          <span className="text-[0.65rem] uppercase tracking-[0.2em] text-muted-foreground">Hot Wallet</span>
+          <TickNumber value={t.hotWalletUsd} format={fmtUsd} className={`font-mono text-sm font-semibold ${overThreshold ? "text-mtqs-rose" : nearThreshold ? "text-mtqs-gold" : "text-mtqs-emerald"}`} />
         </div>
-        <div className="relative h-4 rounded-md border border-white/[0.06] bg-white/[0.02] overflow-hidden">
+        <div className="relative h-4 rounded-md border border-border bg-black/[0.02] overflow-hidden">
           <motion.div
             className={`absolute inset-y-0 left-0 ${overThreshold ? "bg-rose-400" : nearThreshold ? "bg-amber-400" : "bg-emerald-400"}`}
             initial={{ width: 0 }}
@@ -58,13 +58,13 @@ export function TreasurySweep({ snapshot }: { snapshot: MetricsSnapshot | null }
 
       {/* Cold treasury + sweep history */}
       <div className="grid grid-cols-2 sm:grid-cols-3 gap-2 text-[0.75rem]">
-        <div className="rounded-md border border-white/[0.05] bg-white/[0.02] p-2.5">
-          <div className="text-muted-foreground/70 text-[0.65rem] uppercase tracking-[0.18em]">Cold Treasury</div>
-          <div className="font-mono text-amber-200 text-sm font-semibold">{fmtUsd(t.coldTreasuryUsd)}</div>
+        <div className="rounded-md border border-border bg-black/[0.02] p-2.5">
+          <div className="text-muted-foreground text-[0.65rem] uppercase tracking-[0.18em]">Cold Treasury</div>
+          <div className="font-mono text-mtqs-gold text-sm font-semibold">{fmtUsd(t.coldTreasuryUsd)}</div>
         </div>
-        <div className="rounded-md border border-white/[0.05] bg-white/[0.02] p-2.5">
-          <div className="text-muted-foreground/70 text-[0.65rem] uppercase tracking-[0.18em]">Last Sweep</div>
-          <div className="font-mono text-amber-200 text-sm">
+        <div className="rounded-md border border-border bg-black/[0.02] p-2.5">
+          <div className="text-muted-foreground text-[0.65rem] uppercase tracking-[0.18em]">Last Sweep</div>
+          <div className="font-mono text-mtqs-gold text-sm">
             {t.lastSweepAt > 0 ? (
               <>
                 {fmtUsdCompact(t.lastSweepAmount)} · {fmtAgo(t.lastSweepAt)}
@@ -74,14 +74,14 @@ export function TreasurySweep({ snapshot }: { snapshot: MetricsSnapshot | null }
             )}
           </div>
         </div>
-        <div className="rounded-md border border-white/[0.05] bg-white/[0.02] p-2.5">
-          <div className="text-muted-foreground/70 text-[0.65rem] uppercase tracking-[0.18em]">Total Swept</div>
-          <div className="font-mono text-amber-200 text-sm font-semibold">{fmtUsd(t.totalSwept)}</div>
+        <div className="rounded-md border border-border bg-black/[0.02] p-2.5">
+          <div className="text-muted-foreground text-[0.65rem] uppercase tracking-[0.18em]">Total Swept</div>
+          <div className="font-mono text-mtqs-gold text-sm font-semibold">{fmtUsd(t.totalSwept)}</div>
         </div>
       </div>
 
-      <p className="mt-3 text-[0.72rem] text-muted-foreground/70 leading-relaxed">
-        Authority: <span className="font-mono text-amber-200">{TREASURY_SWEEP_AUTHORITY}</span>. When the hot-wallet surplus stablecoins exceed <span className="font-mono text-amber-200">{fmtUsd(TREASURY_SWEEP_THRESHOLD_USD)}</span>, the excess is swept to the cold treasury (keeping a $5,000 operating float).
+      <p className="mt-3 text-[0.72rem] text-muted-foreground leading-relaxed">
+        Authority: <span className="font-mono text-mtqs-gold">{TREASURY_SWEEP_AUTHORITY}</span>. When the hot-wallet surplus stablecoins exceed <span className="font-mono text-mtqs-gold">{fmtUsd(TREASURY_SWEEP_THRESHOLD_USD)}</span>, the excess is swept to the cold treasury (keeping a $5,000 operating float).
       </p>
     </Panel>
   );

@@ -162,22 +162,22 @@ export function AuditFindings() {
               <div className="text-[0.6rem] uppercase tracking-[0.22em] text-mtqs-rose/75">
                 Honest · Top-Tier Audit Findings
               </div>
-              <h3 className="mt-1 text-base font-semibold text-foreground/95">
+              <h3 className="mt-1 text-base font-semibold text-foreground">
                 v1.0 Master Blueprint — Multi-Disciplinary Audit (V3: All 4 P0 FIXED, 0x7FF Earned, 141/141 Tests Pass)
               </h3>
             </div>
           </div>
-          <p className="text-[0.78rem] text-muted-foreground/85 leading-relaxed pl-8">
+          <p className="text-[0.78rem] text-muted-foreground leading-relaxed pl-8">
             The audit was conducted in 4 parallel streams (static code, smart contract, stress tests, tokenomics) —
             3,111 lines across 5 reports. After the Master Reconciliation Prompt (39 sections), all 4 P0 findings are now
-            <span className="text-emerald-200/90 font-medium"> FIXED in V3</span>: chain-linked index (Listing 3),
+            <span className="text-mtqs-emerald/90 font-medium"> FIXED in V3</span>: chain-linked index (Listing 3),
             NAV-based redemption (§19.3.2), 6-state risk machine (Listing 13), 4 governance layers (Listing 14).
-            <span className="text-emerald-200/90 font-medium"> 0x7FF honest mask is now TRUTHFULLY EARNED</span> in V3.
-            <span className="text-emerald-200/90 font-medium"> S5 gold +50% survival flipped from 0% → 100%</span>.
-            <span className="text-amber-200/90 font-medium"> 141/141 tests pass</span> across 7 layers. The protocol remains
-            <span className="text-amber-200/90 font-medium"> NOT production-authorized</span> until independent audit + §23
+            <span className="text-mtqs-emerald/90 font-medium"> 0x7FF honest mask is now TRUTHFULLY EARNED</span> in V3.
+            <span className="text-mtqs-emerald/90 font-medium"> S5 gold +50% survival flipped from 0% → 100%</span>.
+            <span className="text-mtqs-gold font-medium"> 141/141 tests pass</span> across 7 layers. The protocol remains
+            <span className="text-mtqs-gold font-medium"> NOT production-authorized</span> until independent audit + §23
             validation + external gates pass. The full audit + 9 deliverables (A-I) are at{" "}
-            <span className="font-mono text-amber-200/90">audit-work/</span>.
+            <span className="font-mono text-mtqs-gold">audit-work/</span>.
           </p>
         </div>
 
@@ -210,14 +210,14 @@ export function AuditFindings() {
                 initial={{ opacity: 0, y: 4 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.25, delay: i * 0.05 }}
-                className="rounded-md border border-mtqs-emerald/30 bg-mtqs-emerald/[0.04] p-3"
+                className="rounded-md border border-mtqs-emerald/30 bg-mtqs-emerald/5 p-3"
               >
                 <div className="flex items-start justify-between gap-2 mb-1">
                   <div className="flex items-start gap-2">
-                    <span className="font-mono text-xs text-emerald-300/90 font-semibold shrink-0 mt-0.5">
+                    <span className="font-mono text-xs text-mtqs-emerald/90 font-semibold shrink-0 mt-0.5">
                       {f.id}
                     </span>
-                    <div className="text-[0.82rem] font-semibold text-foreground/95 leading-snug">
+                    <div className="text-[0.82rem] font-semibold text-foreground leading-snug">
                       {f.title}
                     </div>
                   </div>
@@ -225,10 +225,10 @@ export function AuditFindings() {
                     fixed (V3)
                   </Pill>
                 </div>
-                <p className="text-[0.72rem] text-muted-foreground/85 leading-relaxed mb-1.5">
+                <p className="text-[0.72rem] text-muted-foreground leading-relaxed mb-1.5">
                   {f.detail}
                 </p>
-                <div className="flex flex-wrap gap-x-4 gap-y-1 text-[0.65rem] text-muted-foreground/70 font-mono">
+                <div className="flex flex-wrap gap-x-4 gap-y-1 text-[0.65rem] text-muted-foreground font-mono">
                   <span>
                     <span className="text-mtqs-gold/80">owner:</span> {f.owner}
                   </span>
@@ -249,11 +249,11 @@ export function AuditFindings() {
               0x7FF honest mask — bit-by-bit audit verdict
             </h4>
           </div>
-          <p className="text-[0.72rem] text-muted-foreground/80 mb-2 leading-relaxed">
-            V3 contract claims <span className="font-mono text-amber-200/90">{CLAIMED_MASK}</span> (all 11 bits). After the Master Reconciliation implementation, V3 <span className="text-emerald-200/90 font-medium">TRUTHFULLY EARNED</span> <span className="font-mono text-emerald-200/90">{HONEST_MASK}</span> ({honestCount} of 11 bits verified). All 4 previously-overstated bits (chainLinkedIndex, maseWeightRegistry, marpExecution, daoGovernance) are now genuinely implemented per Master Listings 1, 2, 3, 13, 14. Status: <span className="text-amber-200/90 font-medium">VALIDATED, NOT PRODUCTION_AUTHORIZED</span> (per §25.4).
+          <p className="text-[0.72rem] text-muted-foreground mb-2 leading-relaxed">
+            V3 contract claims <span className="font-mono text-mtqs-gold">{CLAIMED_MASK}</span> (all 11 bits). After the Master Reconciliation implementation, V3 <span className="text-mtqs-emerald/90 font-medium">TRUTHFULLY EARNED</span> <span className="font-mono text-mtqs-emerald/90">{HONEST_MASK}</span> ({honestCount} of 11 bits verified). All 4 previously-overstated bits (chainLinkedIndex, maseWeightRegistry, marpExecution, daoGovernance) are now genuinely implemented per Master Listings 1, 2, 3, 13, 14. Status: <span className="text-mtqs-gold font-medium">VALIDATED, NOT PRODUCTION_AUTHORIZED</span> (per §25.4).
           </p>
-          <div className="overflow-hidden rounded-md border border-white/[0.07]">
-            <div className="hidden sm:grid grid-cols-[44px_minmax(0,1.5fr)_minmax(0,2fr)_80px] gap-2 px-3 py-2 bg-white/[0.03] text-[0.6rem] uppercase tracking-[0.18em] text-muted-foreground/70">
+          <div className="overflow-hidden rounded-md border border-border">
+            <div className="hidden sm:grid grid-cols-[44px_minmax(0,1.5fr)_minmax(0,2fr)_80px] gap-2 px-3 py-2 bg-black/[0.03] text-[0.6rem] uppercase tracking-[0.18em] text-muted-foreground">
               <div>Bit</div>
               <div>Name</div>
               <div>Audit Note</div>
@@ -263,16 +263,16 @@ export function AuditFindings() {
               {BIT_VERDICTS.map((b, i) => (
                 <div
                   key={b.bit}
-                  className={`border-t border-white/[0.05] px-3 py-2 ${i % 2 ? "bg-white/[0.01]" : ""} ${
+                  className={`border-t border-border px-3 py-2 ${i % 2 ? "bg-white/[0.01]" : ""} ${
                     b.honest
                       ? "border-l-2 border-l-mtqs-emerald/40"
                       : "border-l-2 border-l-mtqs-rose/50"
                   }`}
                 >
                   <div className="hidden sm:grid grid-cols-[44px_minmax(0,1.5fr)_minmax(0,2fr)_80px] gap-2 items-center">
-                    <div className="font-mono text-[0.7rem] text-muted-foreground/70">{b.bit}</div>
+                    <div className="font-mono text-[0.7rem] text-muted-foreground">{b.bit}</div>
                     <div className="font-mono text-[0.72rem] text-foreground/90">{b.name}</div>
-                    <div className="text-[0.68rem] text-muted-foreground/85 leading-snug">{b.note}</div>
+                    <div className="text-[0.68rem] text-muted-foreground leading-snug">{b.note}</div>
                     <div>
                       {b.honest ? (
                         <Pill tone="emerald" className="text-[0.55rem]">honest</Pill>
@@ -292,7 +292,7 @@ export function AuditFindings() {
                         <Pill tone="rose" className="text-[0.5rem] ml-auto">overstated</Pill>
                       )}
                     </div>
-                    <div className="text-[0.68rem] text-muted-foreground/85 leading-snug">{b.note}</div>
+                    <div className="text-[0.68rem] text-muted-foreground leading-snug">{b.note}</div>
                   </div>
                 </div>
               ))}
@@ -308,8 +308,8 @@ export function AuditFindings() {
               Stress tests — §23 validation program (11 scenarios, 18,450 trajectories)
             </h4>
           </div>
-          <div className="overflow-hidden rounded-md border border-white/[0.07]">
-            <div className="hidden sm:grid grid-cols-[44px_minmax(0,2fr)_minmax(0,1fr)_minmax(0,1fr)_minmax(0,1fr)] gap-2 px-3 py-2 bg-white/[0.03] text-[0.6rem] uppercase tracking-[0.18em] text-muted-foreground/70">
+          <div className="overflow-hidden rounded-md border border-border">
+            <div className="hidden sm:grid grid-cols-[44px_minmax(0,2fr)_minmax(0,1fr)_minmax(0,1fr)_minmax(0,1fr)] gap-2 px-3 py-2 bg-black/[0.03] text-[0.6rem] uppercase tracking-[0.18em] text-muted-foreground">
               <div>#</div>
               <div>Scenario</div>
               <div>Survival</div>
@@ -320,7 +320,7 @@ export function AuditFindings() {
               {STRESS_HEADLINE.map((s, i) => (
                 <div
                   key={s.id}
-                  className={`border-t border-white/[0.05] px-3 py-2 ${i % 2 ? "bg-white/[0.01]" : ""} ${
+                  className={`border-t border-border px-3 py-2 ${i % 2 ? "bg-white/[0.01]" : ""} ${
                     s.verdict === "PASS"
                       ? "border-l-2 border-l-mtqs-emerald/40"
                       : s.verdict === "PARTIAL"
@@ -329,12 +329,12 @@ export function AuditFindings() {
                   }`}
                 >
                   <div className="hidden sm:grid grid-cols-[44px_minmax(0,2fr)_minmax(0,1fr)_minmax(0,1fr)_minmax(0,1fr)] gap-2 items-center">
-                    <div className="font-mono text-[0.7rem] text-muted-foreground/70">{s.id}</div>
+                    <div className="font-mono text-[0.7rem] text-muted-foreground">{s.id}</div>
                     <div className="text-[0.74rem] text-foreground/90 leading-snug">{s.scenario}</div>
                     <div className="font-mono text-[0.74rem] tabular-nums text-foreground/90">
                       {s.survival.toFixed(1)}%
                     </div>
-                    <div className="font-mono text-[0.72rem] tabular-nums text-muted-foreground/70">
+                    <div className="font-mono text-[0.72rem] tabular-nums text-muted-foreground">
                       ≥ {s.target}%
                     </div>
                     <div>
@@ -352,7 +352,7 @@ export function AuditFindings() {
                         {verdictText(s.verdict)}
                       </Pill>
                     </div>
-                    <div className="font-mono text-[0.7rem] tabular-nums text-muted-foreground/80">
+                    <div className="font-mono text-[0.7rem] tabular-nums text-muted-foreground">
                       survival {s.survival.toFixed(1)}% · target ≥ {s.target}%
                     </div>
                   </div>
@@ -363,14 +363,14 @@ export function AuditFindings() {
         </div>
 
         {/* Footer with link to full report */}
-        <div className="rounded-md border border-mtqs-gold/25 bg-mtqs-gold/[0.04] p-3.5">
+        <div className="rounded-md border border-mtqs-gold/25 bg-mtqs-gold/5 p-3.5">
           <div className="flex items-start gap-2.5">
             <FileText className="h-4 w-4 text-mtqs-gold/80 mt-0.5 shrink-0" aria-hidden="true" />
             <div className="text-[0.74rem] text-muted-foreground/90 leading-relaxed space-y-1">
               <p>
                 <span className="text-mtqs-gold/90 font-medium">Full audit report</span> — 5 documents, 3,111 lines:
               </p>
-              <ul className="ml-4 space-y-0.5 font-mono text-[0.68rem] text-amber-200/80">
+              <ul className="ml-4 space-y-0.5 font-mono text-[0.68rem] text-mtqs-gold/80">
                 <li>audit-work/FINAL-TOP-TIER-AUDIT-REPORT.md (347 lines, synthesis)</li>
                 <li>audit-work/audit-a-static-code.md (453 lines, engine vs blueprint)</li>
                 <li>audit-work/audit-b-smart-contract.md (1198 lines, MTQSigmaV2.sol)</li>

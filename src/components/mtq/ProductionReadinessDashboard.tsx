@@ -385,12 +385,12 @@ export function ProductionReadinessDashboard() {
               <div className="text-[0.6rem] uppercase tracking-[0.22em] text-mtqs-gold/75">
                 §39J · Production Readiness Dashboard
               </div>
-              <h3 className="mt-1 text-base font-semibold text-foreground/95">
+              <h3 className="mt-1 text-base font-semibold text-foreground">
                 MTQΣ Subsystem Status — GREEN / AMBER / RED / BLOCKED
               </h3>
             </div>
           </div>
-          <p className="text-[0.78rem] text-muted-foreground/85 leading-relaxed pl-8">
+          <p className="text-[0.78rem] text-muted-foreground leading-relaxed pl-8">
             Per Master Prompt §39J, every subsystem is rated with its production-readiness color
             and the evidence that backs the verdict. The dashboard is the single source of truth
             for the protocol&apos;s production-readiness state.{" "}
@@ -429,13 +429,13 @@ export function ProductionReadinessDashboard() {
                 <div className="mb-2 flex items-center gap-2">
                   <CategoryIcon category={cat} />
                   <h4 className="text-sm font-semibold text-foreground/90">{cat}</h4>
-                  <span className="text-[0.65rem] text-muted-foreground/70 font-mono">
+                  <span className="text-[0.65rem] text-muted-foreground font-mono">
                     ({items.length} items)
                   </span>
                 </div>
                 {/* Subsystem rows */}
-                <div className="overflow-hidden rounded-md border border-white/[0.07]">
-                  <div className="hidden sm:grid grid-cols-[minmax(0,1.6fr)_minmax(0,1.4fr)_minmax(0,3fr)] gap-2 px-3 py-2 bg-white/[0.03] text-[0.6rem] uppercase tracking-[0.18em] text-muted-foreground/70">
+                <div className="overflow-hidden rounded-md border border-border">
+                  <div className="hidden sm:grid grid-cols-[minmax(0,1.6fr)_minmax(0,1.4fr)_minmax(0,3fr)] gap-2 px-3 py-2 bg-black/[0.03] text-[0.6rem] uppercase tracking-[0.18em] text-muted-foreground">
                     <div>Subsystem</div>
                     <div>Status</div>
                     <div>Evidence</div>
@@ -447,29 +447,29 @@ export function ProductionReadinessDashboard() {
                         initial={{ opacity: 0, y: 4 }}
                         animate={{ opacity: 1, y: 0 }}
                         transition={{ duration: 0.25, delay: i * 0.03 }}
-                        className={`border-t border-white/[0.05] px-3 py-2.5 ${i % 2 ? "bg-white/[0.01]" : ""}`}
+                        className={`border-t border-border px-3 py-2.5 ${i % 2 ? "bg-white/[0.01]" : ""}`}
                       >
                         {/* Desktop layout */}
                         <div className="hidden sm:grid grid-cols-[minmax(0,1.6fr)_minmax(0,1.4fr)_minmax(0,3fr)] gap-2 items-center">
-                          <div className="text-[0.78rem] font-medium text-foreground/95 leading-snug">
+                          <div className="text-[0.78rem] font-medium text-foreground leading-snug">
                             {s.name}
                           </div>
                           <div>
                             <StatusBadge color={s.color} status={s.status} />
                           </div>
-                          <div className="text-[0.72rem] text-muted-foreground/85 leading-snug">
+                          <div className="text-[0.72rem] text-muted-foreground leading-snug">
                             {s.evidence}
                           </div>
                         </div>
                         {/* Mobile layout */}
                         <div className="sm:hidden space-y-1.5">
                           <div className="flex items-start justify-between gap-2">
-                            <div className="text-[0.78rem] font-medium text-foreground/95 leading-snug flex-1">
+                            <div className="text-[0.78rem] font-medium text-foreground leading-snug flex-1">
                               {s.name}
                             </div>
                             <StatusBadge color={s.color} status={s.status} />
                           </div>
-                          <div className="text-[0.7rem] text-muted-foreground/85 leading-snug">
+                          <div className="text-[0.7rem] text-muted-foreground leading-snug">
                             {s.evidence}
                           </div>
                         </div>
@@ -490,7 +490,7 @@ export function ProductionReadinessDashboard() {
               5 Production-Readiness Gates (COO-RECOMMENDATIONS §9)
             </h4>
           </div>
-          <p className="text-[0.72rem] text-muted-foreground/80 mb-3 leading-relaxed">
+          <p className="text-[0.72rem] text-muted-foreground mb-3 leading-relaxed">
             All 5 gates must pass before any mainnet deployment approval. Gate 1 (chain-linking)
             is the only one complete. The protocol is honestly a strong pilot — but{" "}
             <span className="text-mtqs-rose/90 font-medium">NOT production-authorized</span>.
@@ -516,7 +516,7 @@ export function ProductionReadinessDashboard() {
                       Gate {g.number}
                     </span>
                     <div className="flex-1">
-                      <div className="text-[0.82rem] font-semibold text-foreground/95 leading-snug">
+                      <div className="text-[0.82rem] font-semibold text-foreground leading-snug">
                         {g.name}
                       </div>
                     </div>
@@ -525,7 +525,7 @@ export function ProductionReadinessDashboard() {
                       {g.status}
                     </Pill>
                   </div>
-                  <p className="text-[0.7rem] text-muted-foreground/85 leading-relaxed">
+                  <p className="text-[0.7rem] text-muted-foreground leading-relaxed">
                     {g.detail}
                   </p>
                 </Panel>
@@ -539,13 +539,13 @@ export function ProductionReadinessDashboard() {
           <div className="flex items-start gap-2.5">
             <XCircle className="h-5 w-5 text-mtqs-rose/85 mt-0.5 shrink-0" aria-hidden="true" />
             <div className="space-y-1.5">
-              <div className="text-sm font-semibold text-foreground/95">
+              <div className="text-sm font-semibold text-foreground">
                 Final verdict: NOT PRODUCTION-AUTHORIZED — Candidate for Public Testing
               </div>
               <p className="text-[0.74rem] text-muted-foreground/90 leading-relaxed">
                 Per Master §38 stop conditions, the protocol may proceed to public testnet
                 testing but <span className="text-mtqs-rose/90 font-medium">MUST NOT be deployed to mainnet</span> until
-                all 5 production-readiness gates pass. <span className="text-emerald-200/90 font-medium">3 of 5 gates now PASS</span>:
+                all 5 production-readiness gates pass. <span className="text-mtqs-emerald/90 font-medium">3 of 5 gates now PASS</span>:
                 Gate 1 (chain-linking), Gate 2 (P0 fixes — V3 contract source-ready), Gate 3 (§23 validation — all 7 layers complete:
                 141 unit + 257 historical + 11 stress tests pass). The remaining gates require:
                 an independent smart-contract audit by a top-tier firm (Gate 4), and the
@@ -570,20 +570,20 @@ export function ProductionReadinessDashboard() {
         </div>
 
         {/* Footer — link to the test suite + audit reports */}
-        <div className="mt-4 rounded-md border border-mtqs-gold/25 bg-mtqs-gold/[0.04] p-3.5">
+        <div className="mt-4 rounded-md border border-mtqs-gold/25 bg-mtqs-gold/5 p-3.5">
           <div className="flex items-start gap-2.5">
             <ClipboardCheck className="h-4 w-4 text-mtqs-gold/80 mt-0.5 shrink-0" aria-hidden="true" />
             <div className="text-[0.74rem] text-muted-foreground/90 leading-relaxed space-y-1">
               <p>
                 <span className="text-mtqs-gold/90 font-medium">Evidence package — </span>
                 The 141-test Layer 1-7 canonical invariants suite is at{" "}
-                <span className="font-mono text-amber-200/90">src/lib/mtq/__tests__/canonical-invariants.ts</span>{" "}
-                (run via <span className="font-mono text-amber-200/90">bun src/lib/mtq/__tests__/canonical-invariants.ts</span>).
+                <span className="font-mono text-mtqs-gold">src/lib/mtq/__tests__/canonical-invariants.ts</span>{" "}
+                (run via <span className="font-mono text-mtqs-gold">bun src/lib/mtq/__tests__/canonical-invariants.ts</span>).
               </p>
               <p>
                 <span className="text-mtqs-gold/90 font-medium">Test report — </span>
                 The full Layer 1-7 test report is at{" "}
-                <span className="font-mono text-amber-200/90">audit-work/DELIVERABLE-G-test-suite.md</span>{" "}
+                <span className="font-mono text-mtqs-gold">audit-work/DELIVERABLE-G-test-suite.md</span>{" "}
                 (141/141 pass, S5 survival 100%, S6 survival 100%, S3 survival 39.5%).
               </p>
               <p className="pt-1">

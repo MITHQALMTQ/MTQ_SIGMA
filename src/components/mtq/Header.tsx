@@ -32,7 +32,7 @@ export function Header({
 
   return (
     <header
-      className="sticky top-0 z-50 border-b border-white/[0.06] bg-[#080a0c]/85 backdrop-blur-xl"
+      className="sticky top-0 z-50 border-b border-border bg-background/85 backdrop-blur-xl"
       role="banner"
     >
       <div className="absolute inset-x-0 -bottom-px h-px bg-gradient-to-r from-transparent via-mtqs-gold/40 to-transparent" />
@@ -63,10 +63,10 @@ export function Header({
                 className="hidden sm:inline text-[0.6rem] uppercase tracking-[0.25em] text-mtqs-gold/70"
                 aria-hidden="true"
               >
-                Monetary Observatory
+                Global Purchasing Power Unit
               </span>
             </div>
-            <p className="truncate text-[0.65rem] sm:text-[0.7rem] text-muted-foreground/80 tracking-[0.08em] mt-0.5">
+            <p className="truncate text-[0.65rem] sm:text-[0.7rem] text-muted-foreground tracking-[0.08em] mt-0.5">
               {BRAND_VOICE.tagline} · Closed-Loop Monetary Architecture
             </p>
           </div>
@@ -78,8 +78,8 @@ export function Header({
           <div
             className={`hidden md:inline-flex items-center gap-1.5 rounded-full border px-2.5 py-1 text-[0.7rem] ${
               oracleAnyPaused
-                ? "border-mtqs-rose/40 bg-mtqs-rose/10 text-[#ff8ea3]"
-                : "border-mtqs-emerald/30 bg-mtqs-emerald/10 text-[#6ff0c0]"
+                ? "border-mtqs-rose/40 bg-mtqs-rose/10 text-mtqs-rose"
+                : "border-mtqs-emerald/30 bg-mtqs-emerald/10 text-mtqs-emerald"
             }`}
             title={oracleAnyPaused ? "Oracle consensus paused (§9.3)" : `${oracleValidCount} of ${oracleTotalCount} oracle feeds valid`}
             aria-label={oracleAnyPaused ? "Oracle paused" : `Oracle ${oracleValidCount} of ${oracleTotalCount} feeds valid`}
@@ -123,7 +123,7 @@ export function Header({
               <Pill tone="gold" className="font-mono tabular-nums">Σ-v1.2</Pill>
               <GlowDot color="gold" size="h-2 w-2" />
             </div>
-            <span className="text-[0.6rem] text-muted-foreground/80 tracking-wide">
+            <span className="text-[0.6rem] text-muted-foreground tracking-wide">
               {BRAND_VOICE.statusDeclaration}
             </span>
           </div>
@@ -153,12 +153,12 @@ export function LiveTicker({ snapshot }: { snapshot: MetricsSnapshot | null }) {
   if (!snapshot) {
     return (
       <div
-        className="sticky top-[57px] sm:top-[69px] z-40 border-b border-white/[0.05] bg-[#0a0e0d]/90 backdrop-blur"
+        className="sticky top-[57px] sm:top-[69px] z-40 border-b border-border bg-card/90 backdrop-blur"
         aria-hidden="true"
       >
         <div className="mx-auto max-w-[1400px] px-4 sm:px-6 lg:px-8 py-2 flex items-center gap-4 overflow-hidden">
           {[...Array(8)].map((_, i) => (
-            <div key={i} className="h-3 w-32 animate-pulse rounded bg-white/[0.04]" />
+            <div key={i} className="h-3 w-32 animate-pulse rounded bg-black/[0.04]" />
           ))}
         </div>
       </div>
@@ -180,26 +180,26 @@ export function LiveTicker({ snapshot }: { snapshot: MetricsSnapshot | null }) {
   const toneByPrice = snapshot.priceInBand ? "emerald" : "rose";
 
   const items = [
-    tickerItem("GFB", <TickNumber value={snapshot.gfbIndex} format={(n) => fmtFixed(n, 4)} className="text-[#f5d27a]" />, "gold"),
+    tickerItem("GFB", <TickNumber value={snapshot.gfbIndex} format={(n) => fmtFixed(n, 4)} className="text-mtqs-gold" />, "gold"),
     tickerItem("MTQ", (
       <span className="flex items-center gap-1">
-        <TickNumber value={snapshot.mtqPrice} format={(n) => `$${fmtFixed(n, 4)}`} className={toneByPrice === "emerald" ? "text-[#6ff0c0]" : "text-[#ff8ea3]"} />
+        <TickNumber value={snapshot.mtqPrice} format={(n) => `$${fmtFixed(n, 4)}`} className={toneByPrice === "emerald" ? "text-mtqs-emerald" : "text-mtqs-rose"} />
         <span className={`text-[0.6rem] ${snapshot.priceInBand ? "text-mtqs-emerald/70" : "text-mtqs-rose/80"}`}>
           {snapshot.priceInBand ? "in-band" : "BREAKER"}
         </span>
       </span>
     ), toneByPrice),
     tickerItem("NAV", <TickNumber value={snapshot.nav} format={fmtUsdCompact} />, "default"),
-    tickerItem("RR", <span className={toneByRr === "emerald" ? "text-[#6ff0c0]" : toneByRr === "amber" ? "text-[#ffd07a]" : "text-[#ff8ea3]"}>{rrTxt}</span>, toneByRr),
-    tickerItem("LCR", <span className={toneByLcr === "emerald" ? "text-[#6ff0c0]" : "text-[#ffd07a]"}>{lcrTxt}</span>, toneByLcr),
+    tickerItem("RR", <span className={toneByRr === "emerald" ? "text-mtqs-emerald" : toneByRr === "amber" ? "text-mtqs-amber" : "text-mtqs-rose"}>{rrTxt}</span>, toneByRr),
+    tickerItem("LCR", <span className={toneByLcr === "emerald" ? "text-mtqs-emerald" : "text-mtqs-amber"}>{lcrTxt}</span>, toneByLcr),
     tickerItem("STATUS", <span className="uppercase tracking-wider text-foreground/90">{snapshot.status}</span>, "default"),
-    tickerItem("BUFFER", <span className="text-[#f5d27a]">{snapshot.bufferState}</span>, "gold"),
-    tickerItem("ORACLE", <span className={snapshot.oraclePaused ? "text-[#ff8ea3]" : "text-[#6ff0c0]"}>{oracleText}</span>, snapshot.oraclePaused ? "rose" : "emerald"),
+    tickerItem("BUFFER", <span className="text-mtqs-gold">{snapshot.bufferState}</span>, "gold"),
+    tickerItem("ORACLE", <span className={snapshot.oraclePaused ? "text-mtqs-rose" : "text-mtqs-emerald"}>{oracleText}</span>, snapshot.oraclePaused ? "rose" : "emerald"),
   ];
 
   return (
     <div
-      className="sticky top-[57px] sm:top-[69px] z-40 border-b border-white/[0.05] bg-[#0a0e0d]/92 backdrop-blur"
+      className="sticky top-[57px] sm:top-[69px] z-40 border-b border-border bg-card/92 backdrop-blur"
       role="region"
       aria-label="Live monetary ticker"
     >
@@ -216,9 +216,9 @@ export function LiveTicker({ snapshot }: { snapshot: MetricsSnapshot | null }) {
               initial={{ opacity: 0, y: -4 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.25, delay: i * 0.03 }}
-              className="flex items-center gap-1.5 sm:gap-2 px-3 sm:px-4 py-2.5 border-r border-white/[0.04] last:border-r-0 shrink-0"
+              className="flex items-center gap-1.5 sm:gap-2 px-3 sm:px-4 py-2.5 border-r border-border last:border-r-0 shrink-0"
             >
-              <span className="text-[0.55rem] sm:text-[0.6rem] uppercase tracking-[0.18em] sm:tracking-[0.22em] text-muted-foreground/70 whitespace-nowrap">
+              <span className="text-[0.55rem] sm:text-[0.6rem] uppercase tracking-[0.18em] sm:tracking-[0.22em] text-muted-foreground whitespace-nowrap">
                 {it.label}
               </span>
               <span className="font-mono tabular-nums text-[0.72rem] sm:text-[0.8rem] font-medium whitespace-nowrap">

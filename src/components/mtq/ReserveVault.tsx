@@ -218,14 +218,14 @@ function GoldWeightGauge({ snapshot }: { snapshot: MetricsSnapshot }) {
   return (
     <div>
       <div className="flex items-baseline justify-between mb-2">
-        <span className="text-[0.7rem] uppercase tracking-[0.2em] text-muted-foreground/80">
+        <span className="text-[0.7rem] uppercase tracking-[0.2em] text-muted-foreground">
           Gold Weight (§6.5 + §8)
         </span>
-        <span className="text-[0.7rem] text-muted-foreground/70 font-mono">
+        <span className="text-[0.7rem] text-muted-foreground font-mono">
           bounds {lower.toFixed(0)}–{upper.toFixed(0)}% · base {base.toFixed(2)}%
         </span>
       </div>
-      <div className="relative h-10 rounded-md border border-white/[0.06] bg-white/[0.02] overflow-hidden">
+      <div className="relative h-10 rounded-md border border-border bg-black/[0.02] overflow-hidden">
         {/* bounds track */}
         <div className="absolute inset-y-0 left-0 right-0 bg-gradient-to-r from-amber-400/5 via-emerald-400/5 to-amber-400/5" />
         {/* lower bound zone (red zone below 22%) */}
@@ -235,7 +235,7 @@ function GoldWeightGauge({ snapshot }: { snapshot: MetricsSnapshot }) {
         {/* base line */}
         <div className="absolute inset-y-0" style={{ left: `${basePct}%` }}>
           <div className="h-full w-px bg-amber-300/40" />
-          <span className="absolute -top-0.5 -translate-x-1/2 text-[0.55rem] text-amber-300/80 font-mono">base</span>
+          <span className="absolute -top-0.5 -translate-x-1/2 text-[0.55rem] text-mtqs-amber/80 font-mono">base</span>
         </div>
 
         {/* observed marker */}
@@ -247,7 +247,7 @@ function GoldWeightGauge({ snapshot }: { snapshot: MetricsSnapshot }) {
         >
           <div className={`h-full w-1.5 ${stateColor} rounded-sm`} />
           <div className="absolute -top-0 -translate-x-1/2 -translate-y-full mtqs-glow">
-            <div className={`text-[0.6rem] font-mono font-semibold ${snapshot.bufferState === "EMERGENCY" ? "text-rose-300" : snapshot.bufferState === "STRESS" ? "text-amber-300" : "text-emerald-300"} whitespace-nowrap`}>
+            <div className={`text-[0.6rem] font-mono font-semibold ${snapshot.bufferState === "EMERGENCY" ? "text-mtqs-rose" : snapshot.bufferState === "STRESS" ? "text-mtqs-amber" : "text-mtqs-emerald"} whitespace-nowrap`}>
               obs {obs.toFixed(2)}%
             </div>
           </div>
@@ -262,18 +262,18 @@ function GoldWeightGauge({ snapshot }: { snapshot: MetricsSnapshot }) {
         >
           <div className="h-full w-px bg-amber-300" />
           <div className="absolute bottom-0 -translate-x-1/2 translate-y-full">
-            <div className="text-[0.6rem] font-mono font-semibold text-amber-200 whitespace-nowrap">tgt {tgt.toFixed(2)}%</div>
+            <div className="text-[0.6rem] font-mono font-semibold text-mtqs-gold whitespace-nowrap">tgt {tgt.toFixed(2)}%</div>
           </div>
         </motion.div>
       </div>
-      <div className="mt-4 flex flex-wrap gap-3 text-[0.7rem] text-muted-foreground/80">
-        <span>observed <span className="font-mono text-amber-200">{obs.toFixed(2)}%</span></span>
-        <span>target <span className="font-mono text-amber-200">{tgt.toFixed(2)}%</span></span>
+      <div className="mt-4 flex flex-wrap gap-3 text-[0.7rem] text-muted-foreground">
+        <span>observed <span className="font-mono text-mtqs-gold">{obs.toFixed(2)}%</span></span>
+        <span>target <span className="font-mono text-mtqs-gold">{tgt.toFixed(2)}%</span></span>
         <span>buffer-state <Pill tone={snapshot.bufferState === "EMERGENCY" ? "rose" : snapshot.bufferState === "STRESS" ? "amber" : "emerald"}>{snapshot.bufferState}</Pill></span>
-        <span>buffer Au <span className="font-mono text-amber-200">{(snapshot.bufferGoldRatio * 100).toFixed(2)}%</span></span>
+        <span>buffer Au <span className="font-mono text-mtqs-gold">{(snapshot.bufferGoldRatio * 100).toFixed(2)}%</span></span>
       </div>
-      <p className="mt-2 text-[0.7rem] text-muted-foreground/70 leading-relaxed">
-        Total target gold weight formula: <span className="font-mono text-amber-200">W_target = clamp(0.20 + 0.10·B_gold(RR) + θ_smoothed, 22%, 30%)</span>
+      <p className="mt-2 text-[0.7rem] text-muted-foreground leading-relaxed">
+        Total target gold weight formula: <span className="font-mono text-mtqs-gold">W_target = clamp(0.20 + 0.10·B_gold(RR) + θ_smoothed, 22%, 30%)</span>
       </p>
     </div>
   );
@@ -283,8 +283,8 @@ export function ReserveVault({ snapshot }: { snapshot: MetricsSnapshot | null })
   if (!snapshot) {
     return (
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
-        <div className="aspect-square animate-pulse rounded-lg bg-white/[0.03]" />
-        <div className="h-48 animate-pulse rounded-lg bg-white/[0.03]" />
+        <div className="aspect-square animate-pulse rounded-lg bg-black/[0.03]" />
+        <div className="h-48 animate-pulse rounded-lg bg-black/[0.03]" />
       </div>
     );
   }
@@ -307,7 +307,7 @@ export function ReserveVault({ snapshot }: { snapshot: MetricsSnapshot | null })
       <Reveal>
         <Panel className="p-5">
           <div className="mb-3 flex items-center justify-between">
-            <span className="text-[0.625rem] uppercase tracking-[0.25em] text-muted-foreground/80">Vault Composition</span>
+            <span className="text-[0.625rem] uppercase tracking-[0.25em] text-muted-foreground">Vault Composition</span>
             <Pill tone="gold">§4 + §8.3</Pill>
           </div>
           <VaultDiagram snapshot={snapshot} />
@@ -318,8 +318,8 @@ export function ReserveVault({ snapshot }: { snapshot: MetricsSnapshot | null })
         <Reveal delay={0.05}>
           <Panel className="p-5">
             <div className="mb-3 flex items-center justify-between">
-              <span className="text-[0.625rem] uppercase tracking-[0.25em] text-muted-foreground/80">Per-Asset Net Values</span>
-              <span className="text-[0.7rem] text-muted-foreground/70 font-mono">after haircut</span>
+              <span className="text-[0.625rem] uppercase tracking-[0.25em] text-muted-foreground">Per-Asset Net Values</span>
+              <span className="text-[0.7rem] text-muted-foreground font-mono">after haircut</span>
             </div>
             <div className="space-y-2.5">
               {assets.map((a, i) => (
@@ -333,10 +333,10 @@ export function ReserveVault({ snapshot }: { snapshot: MetricsSnapshot | null })
                       height="h-2"
                     />
                   </div>
-                  <span className="w-20 text-right text-[0.7rem] font-mono text-amber-200">
+                  <span className="w-20 text-right text-[0.7rem] font-mono text-mtqs-gold">
                     {fmtUsdCompact(a.v)}
                   </span>
-                  <span className="w-10 text-right text-[0.65rem] font-mono text-muted-foreground/70">
+                  <span className="w-10 text-right text-[0.65rem] font-mono text-muted-foreground">
                     {((a.v / total) * 100).toFixed(1)}%
                   </span>
                 </div>

@@ -7,7 +7,7 @@
 // Home and Dashboard sections fetch their own snapshot independently to keep
 // their first-paint self-contained.
 //
-// Root wrapper: min-h-screen flex flex-col bg-[#080a0c] with starfield +
+// Root wrapper: min-h-screen flex flex-col bg-background with starfield +
 // radial glow background. Header + Navigation + AnimatePresence section
 // switch + Footer (with mt-auto, sticky to viewport bottom on short content).
 
@@ -84,11 +84,11 @@ export default function Page() {
   const oracleAnyPaused = snapshot?.oraclePaused ?? false;
 
   return (
-    <div className="relative min-h-screen flex flex-col bg-[#080a0c] text-foreground overflow-hidden">
+    <div className="relative min-h-screen flex flex-col bg-background overflow-hidden">
       {/* Background layers — starfield + radial glow + faint gold grid */}
       <div className="pointer-events-none fixed inset-0 z-0">
-        <Starfield />
-        <div className="absolute inset-0 mtqs-radial-glow" />
+        
+        <div className="absolute inset-0 " />
         <div className="absolute inset-0 mtqs-grid-bg opacity-40" />
       </div>
 

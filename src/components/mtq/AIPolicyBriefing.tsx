@@ -111,14 +111,14 @@ export function AIPolicyBriefing({ className = "" }: { className?: string }) {
 
   /* ---------- Disabled state — amber panel ---------- */
   const renderDisabled = () => (
-    <div className="rounded-md border border-mtqs-amber/40 bg-mtqs-amber/[0.06] p-4 flex items-start gap-3">
-      <AlertCircle className="h-4 w-4 text-amber-300 shrink-0 mt-0.5" aria-hidden="true" />
+    <div className="rounded-md border border-mtqs-amber/40 bg-mtqs-amber/5 p-4 flex items-start gap-3">
+      <AlertCircle className="h-4 w-4 text-mtqs-amber shrink-0 mt-0.5" aria-hidden="true" />
       <div>
-        <div className="text-sm font-medium text-amber-200/90">
+        <div className="text-sm font-medium text-mtqs-gold">
           AI briefing disabled by feature flag
         </div>
-        <p className="mt-1 text-[0.72rem] text-muted-foreground/80 leading-relaxed">
-          The <span className="font-mono text-amber-200/90">AI_BRIEFING_ENABLED</span> flag is off.
+        <p className="mt-1 text-[0.72rem] text-muted-foreground leading-relaxed">
+          The <span className="font-mono text-mtqs-gold">AI_BRIEFING_ENABLED</span> flag is off.
           Enable it on the server to render the live COO-voice monetary policy briefing.
         </p>
       </div>
@@ -127,21 +127,21 @@ export function AIPolicyBriefing({ className = "" }: { className?: string }) {
 
   /* ---------- Error state — rose panel + retry ---------- */
   const renderError = () => (
-    <div className="rounded-md border border-mtqs-rose/40 bg-mtqs-rose/[0.06] p-4">
+    <div className="rounded-md border border-mtqs-rose/40 bg-mtqs-rose/5 p-4">
       <div className="flex items-start gap-3">
-        <AlertCircle className="h-4 w-4 text-rose-300 shrink-0 mt-0.5" aria-hidden="true" />
+        <AlertCircle className="h-4 w-4 text-mtqs-rose shrink-0 mt-0.5" aria-hidden="true" />
         <div className="flex-1 min-w-0">
-          <div className="text-sm font-medium text-rose-300">
+          <div className="text-sm font-medium text-mtqs-rose">
             Briefing unavailable
           </div>
-          <p className="mt-1 text-[0.72rem] text-muted-foreground/85 leading-relaxed break-words">
+          <p className="mt-1 text-[0.72rem] text-muted-foreground leading-relaxed break-words">
             {error ?? "Unknown error"}
           </p>
         </div>
         <button
           onClick={fetchBriefing}
           disabled={loading}
-          className="shrink-0 inline-flex items-center gap-1.5 rounded-md border border-mtqs-rose/30 bg-mtqs-rose/[0.06] px-2.5 py-1.5 text-[0.7rem] font-medium text-rose-200 hover:bg-mtqs-rose/[0.12] transition disabled:opacity-50"
+          className="shrink-0 inline-flex items-center gap-1.5 rounded-md border border-mtqs-rose/30 bg-mtqs-rose/5 px-2.5 py-1.5 text-[0.7rem] font-medium text-rose-200 hover:bg-mtqs-rose/[0.12] transition disabled:opacity-50"
         >
           <RefreshCw className={`h-3 w-3 ${loading ? "animate-spin" : ""}`} aria-hidden="true" />
           Retry
@@ -171,7 +171,7 @@ export function AIPolicyBriefing({ className = "" }: { className?: string }) {
                 AI · COO Briefing
               </span>
             </div>
-            <h3 className="text-base font-semibold text-foreground/95">
+            <h3 className="text-base font-semibold text-foreground">
               Monetary Policy Briefing
             </h3>
             <p className="text-[0.72rem] text-muted-foreground/75 leading-relaxed">
@@ -192,7 +192,7 @@ export function AIPolicyBriefing({ className = "" }: { className?: string }) {
               onClick={fetchBriefing}
               disabled={loading}
               aria-label="Refresh briefing"
-              className="inline-flex items-center justify-center rounded-md border border-white/[0.08] bg-white/[0.03] h-8 w-8 text-muted-foreground hover:text-foreground hover:bg-white/[0.06] transition disabled:opacity-50"
+              className="inline-flex items-center justify-center rounded-md border border-border bg-black/[0.03] h-8 w-8 text-muted-foreground hover:text-foreground hover:bg-black/[0.06] transition disabled:opacity-50"
             >
               <RefreshCw className={`h-3.5 w-3.5 ${loading ? "animate-spin" : ""}`} aria-hidden="true" />
             </button>
@@ -218,7 +218,7 @@ export function AIPolicyBriefing({ className = "" }: { className?: string }) {
                 className="space-y-3"
               >
                 {paragraphs.length === 0 ? (
-                  <p className="text-[0.82rem] text-muted-foreground/70 italic leading-relaxed">
+                  <p className="text-[0.82rem] text-muted-foreground italic leading-relaxed">
                     No briefing text returned.
                   </p>
                 ) : (
@@ -238,7 +238,7 @@ export function AIPolicyBriefing({ className = "" }: { className?: string }) {
 
         {/* ---------- Footer: generated-at · sources · disclaimer ---------- */}
         {data && !error && data.model !== "disabled" && (
-          <div className="mt-4 pt-3 border-t border-white/[0.06] space-y-1">
+          <div className="mt-4 pt-3 border-t border-border space-y-1">
             <div className="flex flex-wrap items-center gap-x-2 gap-y-1 text-[0.68rem] font-mono tabular-nums text-muted-foreground/75">
               <GlowDot color="gold" size="h-1.5 w-1.5" />
               <span>

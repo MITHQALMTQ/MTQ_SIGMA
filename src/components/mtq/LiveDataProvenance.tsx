@@ -258,19 +258,19 @@ export function LiveDataProvenance() {
           <div className="mb-4 flex flex-wrap items-center justify-between gap-3">
             <div className="flex items-center gap-2">
               <Radio className="h-4 w-4 text-mtqs-gold/80" aria-hidden="true" />
-              <span className="text-[0.7rem] uppercase tracking-[0.22em] text-muted-foreground/80">
+              <span className="text-[0.7rem] uppercase tracking-[0.22em] text-muted-foreground">
                 Independent verification of the 8/8 live claim
               </span>
             </div>
             <div className="flex items-center gap-3">
-              <div className="text-[0.7rem] text-muted-foreground/80 font-mono tabular-nums">
+              <div className="text-[0.7rem] text-muted-foreground font-mono tabular-nums">
                 fetched {fmtAgo(fetchedAgoSec ?? NaN)}
               </div>
               <button
                 type="button"
                 onClick={() => fetchFx(true)}
                 disabled={refreshing}
-                className="inline-flex items-center gap-1.5 rounded-md border border-white/10 bg-white/[0.03] px-2.5 py-1.5 text-[0.7rem] text-foreground/85 transition hover:bg-white/[0.06] hover:border-mtqs-gold/40 disabled:opacity-50 disabled:cursor-not-allowed focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-mtqs-gold/40"
+                className="inline-flex items-center gap-1.5 rounded-md border border-border bg-black/[0.03] px-2.5 py-1.5 text-[0.7rem] text-foreground transition hover:bg-black/[0.06] hover:border-mtqs-gold/40 disabled:opacity-50 disabled:cursor-not-allowed focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-mtqs-gold/40"
                 aria-label="Force refresh the live FX snapshot"
               >
                 <RefreshCw
@@ -308,7 +308,7 @@ export function LiveDataProvenance() {
               <div className="overflow-x-auto">
                 <table className="w-full min-w-[640px] border-collapse text-[0.78rem]">
                   <thead>
-                    <tr className="text-left text-[0.62rem] uppercase tracking-[0.2em] text-muted-foreground/70">
+                    <tr className="text-left text-[0.62rem] uppercase tracking-[0.2em] text-muted-foreground">
                       <th scope="col" className="py-2 pr-3 font-medium">Signal</th>
                       <th scope="col" className="py-2 px-3 font-medium">Value</th>
                       <th scope="col" className="py-2 px-3 font-medium">Source</th>
@@ -324,15 +324,15 @@ export function LiveDataProvenance() {
                       return (
                         <tr
                           key={row.key}
-                          className="border-t border-white/[0.06] transition-colors hover:bg-white/[0.02]"
+                          className="border-t border-border transition-colors hover:bg-black/[0.02]"
                         >
-                          <th scope="row" className="py-2.5 pr-3 font-medium text-foreground/95">
+                          <th scope="row" className="py-2.5 pr-3 font-medium text-foreground">
                             {row.label}
                           </th>
-                          <td className="py-2.5 px-3 font-mono tabular-nums text-amber-200">
+                          <td className="py-2.5 px-3 font-mono tabular-nums text-mtqs-gold">
                             {fmtValue(row, fx)}
                           </td>
-                          <td className="py-2.5 px-3 text-muted-foreground/85">
+                          <td className="py-2.5 px-3 text-muted-foreground">
                             <span className="inline-flex items-center gap-1.5">
                               <Database className="h-3 w-3 text-mtqs-gold/70" aria-hidden="true" />
                               {source}
@@ -356,16 +356,16 @@ export function LiveDataProvenance() {
 
               {/* Source string + fetchedAt timestamp */}
               <div className="mt-4 grid grid-cols-1 sm:grid-cols-2 gap-3">
-                <div className="rounded-md border border-white/[0.06] bg-white/[0.02] p-3">
-                  <div className="text-[0.6rem] uppercase tracking-[0.22em] text-muted-foreground/70 mb-1">
+                <div className="rounded-md border border-border bg-black/[0.02] p-3">
+                  <div className="text-[0.6rem] uppercase tracking-[0.22em] text-muted-foreground mb-1">
                     source string (snapshot)
                   </div>
                   <div className="font-mono text-[0.72rem] text-mtqs-gold-light break-words leading-relaxed">
                     {fx.source}
                   </div>
                 </div>
-                <div className="rounded-md border border-white/[0.06] bg-white/[0.02] p-3">
-                  <div className="text-[0.6rem] uppercase tracking-[0.22em] text-muted-foreground/70 mb-1">
+                <div className="rounded-md border border-border bg-black/[0.02] p-3">
+                  <div className="text-[0.6rem] uppercase tracking-[0.22em] text-muted-foreground mb-1">
                     fetchedAt (ISO UTC)
                   </div>
                   <div className="font-mono text-[0.72rem] text-foreground/90 break-words">
@@ -375,7 +375,7 @@ export function LiveDataProvenance() {
               </div>
 
               {/* Honest note */}
-              <div className="mt-4 rounded-md border border-white/[0.06] bg-white/[0.02] p-3 text-[0.72rem] text-muted-foreground/85 leading-relaxed">
+              <div className="mt-4 rounded-md border border-border bg-black/[0.02] p-3 text-[0.72rem] text-muted-foreground leading-relaxed">
                 <p className="flex items-start gap-2">
                   <ShieldCheck className="h-4 w-4 text-mtqs-emerald/80 mt-0.5 shrink-0" aria-hidden="true" />
                   <span>
@@ -383,7 +383,7 @@ export function LiveDataProvenance() {
                     VIX from Yahoo Finance <span className="font-mono text-mtqs-gold-light">^VIX</span> (CBOE).
                     DXY from Yahoo Finance <span className="font-mono text-mtqs-gold-light">DX-Y.NYB</span> (ICE US Dollar Index).
                     Fallback: Frankfurter self-calc using the official geometric weighted formula, then
-                    seeded OU walk. All 8 signals should be <span className="text-emerald-200/90">LIVE</span> when markets are open.
+                    seeded OU walk. All 8 signals should be <span className="text-mtqs-emerald/90">LIVE</span> when markets are open.
                   </span>
                 </p>
               </div>

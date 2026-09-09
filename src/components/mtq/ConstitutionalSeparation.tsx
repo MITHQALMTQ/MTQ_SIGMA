@@ -287,7 +287,7 @@ export function ConstitutionalSeparation({
 
       {/* Side readout card overlay (desktop) */}
       <div className="hidden md:block absolute top-1/2 -translate-y-1/2 -left-2 -translate-x-full pr-4 text-right">
-        <div className="text-[0.6rem] uppercase tracking-[0.25em] text-muted-foreground/70 mb-1">Active Ring</div>
+        <div className="text-[0.6rem] uppercase tracking-[0.25em] text-muted-foreground mb-1">Active Ring</div>
         <div className="font-mono text-sm" style={{ color: reserveTone }}>
           {status === "NORMAL" ? "C · steady" : `${status} · ${status === "EMERGENCY" ? "C · drain" : "C · elevated"}`}
         </div>
