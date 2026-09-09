@@ -204,19 +204,24 @@ export function LiveTicker({ snapshot }: { snapshot: MetricsSnapshot | null }) {
       aria-label="Live monetary ticker"
     >
       <div className="mx-auto max-w-[1400px] px-4 sm:px-6 lg:px-8">
-        <div className="flex items-stretch overflow-x-auto mtqs-no-scrollbar">
+        {/* Responsive ticker: horizontal scroll on all sizes, tighter padding on mobile.
+            The 8 metrics stay on one line on desktop (≥1024px) and scroll horizontally
+            on mobile/tablet. Each item is shrink-0 so the row never wraps (which would
+            create uneven height). The mtqs-no-scrollbar class hides the scrollbar for
+            a clean look; users can still swipe-scroll on touch. */}
+        <div className="flex items-stretch overflow-x-auto mtqs-no-scrollbar -mx-4 sm:mx-0 px-4 sm:px-0">
           {items.map((it, i) => (
             <motion.div
               key={it.label}
               initial={{ opacity: 0, y: -4 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.25, delay: i * 0.03 }}
-              className="flex items-center gap-2 px-4 py-2.5 border-r border-white/[0.04] last:border-r-0 shrink-0"
+              className="flex items-center gap-1.5 sm:gap-2 px-3 sm:px-4 py-2.5 border-r border-white/[0.04] last:border-r-0 shrink-0"
             >
-              <span className="text-[0.6rem] uppercase tracking-[0.22em] text-muted-foreground/70">
+              <span className="text-[0.55rem] sm:text-[0.6rem] uppercase tracking-[0.18em] sm:tracking-[0.22em] text-muted-foreground/70 whitespace-nowrap">
                 {it.label}
               </span>
-              <span className="font-mono tabular-nums text-[0.8rem] font-medium whitespace-nowrap">
+              <span className="font-mono tabular-nums text-[0.72rem] sm:text-[0.8rem] font-medium whitespace-nowrap">
                 {it.value}
               </span>
             </motion.div>

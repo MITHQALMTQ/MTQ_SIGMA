@@ -3503,3 +3503,38 @@ Stage Summary:
 - NAVIGATION AUDIT: All 9 sections (Home/Dashboard/Contracts/Trial/Docs/Investors/Pitch/Security/Tests) render correctly with live data. 0 page errors across all sections.
 - UI DESIGN SCORE: 75/100 (post-fix). 4 issues fixed (truncation, contrast, alignment, opacity). 2 issues documented (ticker overcrowding, section heading gap — need primitive-level changes).
 - Lint exit 0; HTTP 200; 141/141 tests pass; 11/11 stress tests pass; 0 page errors; mint API returns all fields.
+
+---
+Task ID: UI-FIXES-FINAL
+Agent: Orchestrator (CTO + COO + UI Design Expert)
+Task: User said PROCEED IMPLEMENTING. Fixed the 2 documented UI issues from the previous UI audit: (1) ticker overcrowding on mobile, (2) SectionHeading whitespace gap on Docs/Security.
+
+Work Log:
+- UI FIX 5 — Ticker overcrowding (src/components/mtq/Header.tsx):
+  * Made the ticker responsive: tighter padding on mobile (px-3 sm:px-4, gap-1.5 sm:gap-2), smaller text on mobile (text-[0.55rem] sm:text-[0.6rem] for labels, text-[0.72rem] sm:text-[0.8rem] for values)
+  * Added `-mx-4 sm:mx-0 px-4 sm:px-0` to extend the ticker full-width on mobile (uses the parent's px-4 padding)
+  * Added `whitespace-nowrap` to labels so they never wrap
+  * The `overflow-x-auto mtqs-no-scrollbar` already provided horizontal scroll on touch — now with the tighter mobile sizing, more items fit before needing to scroll
+  * Verified: mobile (390px) shows the ticker with horizontal scroll (8 items, shrink-0, overflow-x-auto); desktop (1280px) shows all 8 items visible without scrolling
+- UI FIX 6 — SectionHeading whitespace gap (src/components/mtq/primitives.tsx + Docs/Security sections):
+  * Added documentation comment to SectionHeading: "Sections that place this heading inside a space-y-* container should add className='mb-0' to avoid double-spacing"
+  * DocsSection: changed `space-y-12` → `space-y-8` (48px → 32px between children) + added `className="mb-0"` to SectionHeading (removes the 24px mb-6, so total gap is now 32px instead of 72px)
+  * SecuritySection: same fix (space-y-12 → space-y-8 + mb-0)
+  * Verified: the gap between the Docs h2 and the first panel (OnChainMatrix) is now ~32px (was ~72px) — a much tighter, more professional spacing
+- Verified end-to-end:
+  * `bun run lint` → exit 0
+  * `curl /` → HTTP 200
+  * `bun src/lib/mtq/__tests__/canonical-invariants.ts` → 141/141 pass
+  * `bun src/lib/mtq/__tests__/stress-rerun.ts` → 11/11 pass
+  * agent-browser mobile (390x844): ticker found, 8 items, horizontal scroll works
+  * agent-browser desktop (1280x800): ticker found, 8 items, all visible
+  * agent-browser Docs section: SectionHeading gap reduced from ~72px to ~32px
+  * 0 page errors
+
+Stage Summary:
+- Both documented UI issues from the previous audit are now FIXED:
+  1. Ticker overcrowding — responsive sizing + horizontal scroll on mobile, all items visible on desktop
+  2. SectionHeading gap — reduced from 72px (space-y-12 + mb-6) to 32px (space-y-8 + mb-0) on Docs + Security
+- UI Design Score should improve from 75/100 to ~78-80/100 (the 2 unfixed issues are now resolved; the documented issues 5 + 6 no longer apply)
+- Lint exit 0; HTTP 200; 141/141 tests pass; 11/11 stress tests pass; 0 page errors.
+- The UI is now more responsive (mobile ticker) + more professionally spaced (Docs/Security section heading gaps). All 9 navigation sections render correctly with live data.

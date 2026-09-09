@@ -99,8 +99,8 @@
       "description": "500 runs × 90 ticks; MVN returns with blueprint vols (V3 engine)",
       "runs": 500,
       "survivalRate": 1,
-      "meanMinRR": 1.1086856610869311,
-      "worstMinRR": 1.089014393457406,
+      "meanMinRR": 1.1086856610870104,
+      "worstMinRR": 1.0890143934970298,
       "meanTimeToRecover": 74.16666666666667,
       "pegStabilityPct": 1,
       "finalStatus": "NORMAL",
@@ -135,7 +135,7 @@
       "description": "500 runs × 90 ticks; Cauchy returns (tail-heavy) (V3 engine)",
       "runs": 500,
       "survivalRate": 0.788,
-      "meanMinRR": 1.0265543396720755,
+      "meanMinRR": 1.0265543396725079,
       "worstMinRR": 0.06311524448832778,
       "meanTimeToRecover": 31.71117166212534,
       "pegStabilityPct": 0.9068444444444439,
@@ -171,7 +171,7 @@
       "description": "500 runs × 90 ticks; 4-regime Markov switching (V3 engine)",
       "runs": 500,
       "survivalRate": 1,
-      "meanMinRR": 1.103482246581327,
+      "meanMinRR": 1.1034822465812637,
       "worstMinRR": 1.063040717180712,
       "meanTimeToRecover": 47.968,
       "pegStabilityPct": 1,
@@ -572,6 +572,6 @@
       "runs": 3200
     }
   ],
-  "generatedAt": 1788913665019,
-  "totalRuntimeMs": 2378
+  "generatedAt": 1788915187142,
+  "totalRuntimeMs": 1270
 }

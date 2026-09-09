@@ -142,10 +142,11 @@ export function DocsSection({
   const findings = snapshot?.reconciliation ?? [];
 
   return (
-    <div className="space-y-12">
+    <div className="space-y-8">
       <SectionHeading
         eyebrow="§2 · §3 · §7 · §8 · §14 · §25 · reference"
         title="Documentation — Master Blueprint v1.0"
+        className="mb-0"
         right={
           <Pill tone="gold">
             <GlowDot color="gold" size="h-1.5 w-1.5" />

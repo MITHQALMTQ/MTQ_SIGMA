@@ -120,10 +120,11 @@ export function SecuritySection({ onNavigate: _onNavigate }: { onNavigate: (id: 
   const allPass = AUDIT_FINDINGS.every((f) => f.severity === "PASS");
 
   return (
-    <div className="space-y-12">
+    <div className="space-y-8">
       <SectionHeading
         eyebrow="honest · security posture"
         title="Security — Posture, Keys, Audit, Regulatory"
+        className="mb-0"
         right={
           <Pill tone={allPass ? "emerald" : "rose"}>
             <GlowDot color={allPass ? "emerald" : "rose"} size="h-1.5 w-1.5" />

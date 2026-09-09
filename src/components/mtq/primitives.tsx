@@ -122,7 +122,10 @@ export function Eyebrow({
 /* ---------- Section heading: eyebrow + title + optional right slot ----------
    Eyebrow = §-reference (small tracked uppercase gold).
    Title   = readable section name (font-sans, medium, warm-white).
-   Both layered into a sovereign editorial header that speaks the MTQΣ brand. */
+   Both layered into a sovereign editorial header that speaks the MTQΣ brand.
+   Note: mb-6 is retained for sections that use this heading in isolation.
+   Sections that place this heading inside a `space-y-*` container should
+   add `className="mb-0"` to avoid double-spacing (space-y + mb-6). */
 export function SectionHeading({
   eyebrow,
   title,
