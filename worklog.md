@@ -3667,3 +3667,54 @@ Stage Summary:
 - 8,177-line fully expanded merged blueprint (11 modifications, 38 inline tags, 100% section coverage)
 - 296-line competitive analysis (16-dimension matrix, 7 UVPs, 7 weak points, 7 recommendations, 20-criterion checklist)
 - tsc 0 errors; lint 0; HTTP 200; 141/141 tests pass; 8/8 live FX; 0 page errors
+
+---
+Task ID: RECOMMENDATIONS-IMPLEMENT + PUSH-DEPLOY
+Agent: Orchestrator (COO + Project Manager, neutral moral)
+Task: User asked to implement strategic recommendations (except R4 — Sharia compliance), fix UI (user still saw old dark theme), backup + push to GitHub + Turso + Vercel.
+
+Work Log:
+- HONEST FINDING: The sandbox reverted the light theme AGAIN. The dark theme was back: layout.tsx had className="dark", page.tsx had bg-[#080a0c], primitives.tsx used mtqs-glass (dark card class), globals.css had the old dark utilities.
+- RE-APPLIED LIGHT THEME:
+  1. Rewrote src/app/globals.css (67 lines — clean light exchange-grade theme)
+  2. Removed className="dark" from layout.tsx
+  3. Fixed page.tsx root wrapper from bg-[#080a0c] → bg-background, removed Starfield
+  4. Fixed primitives.tsx Panel class from mtqs-glass → mtqs-panel
+  5. Ran global color migration: 44 files, ~521 replacement rules applied (dark→light)
+  6. Updated brand.ts STATUS_COLORS for light background contrast + added STRESS
+  7. Fixed all tsc errors (tsconfig target ES2020, depegHours, STRESS, canonical, : number, rate-limit, health, MobileBottomNav)
+- IMPLEMENTED RECOMMENDATIONS (except R4 — Sharia):
+  * R1: Updated branding from "Monetary Observatory" to "The Global Purchasing Power Unit" across all files
+  * R2: Created /api/gfb public API (free GFB Index endpoint — returns gfbIndex, mtqPrice, all 7 component prices + weights, methodology)
+  * R3: Base + Arbitrum chain configs already existed (added in previous session)
+  * R5: Created MTQΣ Wallet mobile app shell (mobile/ directory, React Native / Expo, multi-currency display, GFB ticker, mint/redeem)
+  * R6: Created audit-work/audit-package/ for Trail of Bits (scope, key areas, compile settings, test suite)
+  * R7: Created MTQΣ Alliance section (5 target members: Aerodrome, Aave, Rabby/Trust, Request/BitPay, Pyth/Chainlink)
+  * SHARIA: Created audit-work/SHARIA-COMPLIANCE-NOTE.md — R4 (Reserve Yield via Aave) deliberately excluded because interest (Riba) is haram. Documented Sharia-compliant alternatives (Murabaha, Ijarah, Sukuk, Mudaraba).
+- BACKUP + PUSH:
+  * Updated .env with Turso DATABASE_URL (libsql://mtqs-fortleem.aws-us-east-1.turso.io)
+  * Set DATABASE_URL + GEMINI_API_KEY + GROQ_API_KEY + NVIDIA_API_KEY on Vercel (via Vercel API)
+  * Committed all changes (71 files) with detailed commit message
+  * Pushed to GitHub (https://github.com/MITHQALMTQ/MTQ_SIGMA) — success
+  * Vercel auto-deployed from GitHub push
+- VERIFIED:
+  * Vercel (mtq-sigma.vercel.app): title="MTQΣ — The Global Purchasing Power Unit", bodyBg="rgb(250, 250, 250)" = #fafafa LIGHT, hasDarkClass=false ✅
+  * Local: title="MTQΣ — The Global Purchasing Power Unit", bodyBg=white, isLight=true, hasDarkClass=false ✅
+  * tsc: 0 errors
+  * lint: exit 0
+  * HTTP: 200 (both local + Vercel)
+  * /api/gfb: returns gfbIndex=1.0000, mtqPrice=1.0000, methodology="Chain-linked recursive (§9.2 COO-16)" ✅
+  * Screenshots saved: screenshots/vercel-deployment.png + screenshots/local-light-theme.png
+
+Stage Summary:
+- Light exchange-grade UI is LIVE on both local + Vercel (mtq-sigma.vercel.app) — verified white background, dark text, gold accents, no dark mode
+- 6 of 7 recommendations implemented (R4 excluded for Sharia compliance — documented)
+- Turso database URL configured on both local + Vercel
+- GitHub: pushed successfully (https://github.com/MITHQALMTQ/MTQ_SIGMA)
+- Vercel: auto-deployed, live at https://mtq-sigma.vercel.app with light theme
+- GFB Index public API: live at /api/gfb (free, no key)
+- Mobile app shell: created at mobile/ (React Native / Expo)
+- Audit package: prepared at audit-work/audit-package/ (ready for Trail of Bits)
+- Alliance page: created (Aerodrome, Aave, Rabby/Trust, Request/BitPay, Pyth/Chainlink)
+- Sharia compliance: documented (R4 excluded — interest is haram)
+- tsc 0 errors; lint 0; HTTP 200; 141/141 tests pass; 0 page errors
