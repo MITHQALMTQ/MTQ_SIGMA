@@ -93,7 +93,7 @@ contract MockUSDC {
     }
 
     // `public` (not `external`) so MaliciousUSDC can `super.transferFrom`.
-    function transferFrom(address from, address to, uint256 amount) public returns (bool) {
+    function transferFrom(address from, address to, uint256 amount) public virtual returns (bool) {
         uint256 allowed = allowance[from][msg.sender];
         if (allowed != type(uint256).max) {
             require(allowed >= amount, "USDC: insufficient allowance");
@@ -201,7 +201,12 @@ contract MaliciousAssetRegistry {
     bool                          public innerReverted;
 
     function setTarget(MTQSigmaV2 _t) external { target = _t; }
-    function setInnerTrades(MTQSigmaV2.RebalanceTrade[] calldata t) external { innerTrades = t; }
+    function setInnerTrades(MTQSigmaV2.RebalanceTrade[] memory t) external {
+        // Solidity 0.8.20 can't copy struct arrays to storage in one assignment;
+        // copy element-by-element via push().
+        for (uint256 i = innerTrades.length; i > 0; i--) innerTrades.pop();
+        for (uint256 i = 0; i < t.length; i++) innerTrades.push(t[i]);
+    }
 
     function getAsset(bytes32) external returns (address, uint256, uint8, bytes32) {
         if (!triggered && innerTrades.length > 0) {
@@ -281,16 +286,16 @@ contract MTQSigmaV3Test is Test {
     MockUSDC     public usdc;
 
     // Governance addresses (4 governance bodies — §2.7)
-    address public constant DAO_ADDR               = address(0xDA0);
-    address public constant RISK_COUNCIL_ADDR     = address(0xR1);
-    address public constant EMERGENCY_COUNCIL_ADDR = address(0xE1);
-    address public constant CONSTITUTIONAL_COUNCIL = address(0xC1);
+    address public constant DAO_ADDR               = address(0x1);
+    address public constant RISK_COUNCIL_ADDR     = address(0x2);
+    address public constant EMERGENCY_COUNCIL_ADDR = address(0x3);
+    address public constant CONSTITUTIONAL_COUNCIL = address(0x4);
 
     // The reserve vault that holds USDC collateral + fees (H5 requires v != 0)
-    address public constant RESERVE_VAULT   = address(0xBA11);
+    address public constant RESERVE_VAULT   = address(0x5);
 
     // Genesis reserve (locked — excluded from circulating supply)
-    address public constant GENESIS_RESERVE = address(0x6E);
+    address public constant GENESIS_RESERVE = address(0x6);
 
     // Base FX fixings (mirror the contract's BASE_* constants, 1e18 scale)
     uint256 constant EUR_BASE  = 1.05e18;
@@ -1019,7 +1024,7 @@ contract MTQSigmaV3Test is Test {
                 survived = false;
             }
         }
-        assertTrue(survived, "S5 (gold +50%) — RR stays >= 1.00 (chain-linked dampens the shock)");
+        assertTrue(survived, "S5 (gold +50%) - RR stays >= 1.00 (chain-linked dampens the shock)");
     }
 
     // ---- 7.2 S6: Gold -30% shock — survival ≥ 95% ----
@@ -1070,7 +1075,7 @@ contract MTQSigmaV3Test is Test {
             uint256 rr = mtqFuzz.getReserveRatio();
             if (rr < 1.00e18) survived = false;
         }
-        assertTrue(survived, "S6 (gold -30%) — RR stays >= 1.00 (liability drops, RR improves)");
+        assertTrue(survived, "S6 (gold -30%) - RR stays >= 1.00 (liability drops, RR improves)");
     }
 
     // ---- 7.3 Mint → Redeem round-trip approximately conserves value ----
@@ -1094,7 +1099,7 @@ contract MTQSigmaV3Test is Test {
 
         // The round-trip slippage is bounded by mintFee + redeemFee ≈ 0.25%.
         // We assert usdcOut is within 1% of usdcIn (tolerant of fee + rounding).
-        assertApproxEqRel(usdcOut, usdcIn, 1e16, "mint→redeem conserves value within 1%");
+        assertApproxEqRel(usdcOut, usdcIn, 1e16, "mint->redeem conserves value within 1%");
     }
 
     // ---- 7.4 RR stays above the 1.00 hard floor across fuzz market paths ----

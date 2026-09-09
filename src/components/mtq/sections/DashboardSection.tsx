@@ -10,6 +10,7 @@ import { motion } from "framer-motion";
 
 import { Starfield, SectionHeading, Reveal, Panel, Pill, GlowDot, BrandPrinciples, Skeleton } from "@/components/mtq/primitives";
 import { ConstitutionalSeparation } from "@/components/mtq/ConstitutionalSeparation";
+import { SystemHealth } from "@/components/mtq/SystemHealth";
 import { LiveMonetaryState } from "@/components/mtq/LiveMonetaryState";
 import { LiveDataProvenance } from "@/components/mtq/LiveDataProvenance";
 import { ClosedLoopMap } from "@/components/mtq/ClosedLoopMap";
@@ -200,6 +201,9 @@ export function DashboardSection() {
 
   return (
     <div className="space-y-16">
+      {/* ===== 0 — Live System Health (8 subsystems at a glance) ===== */}
+      <SystemHealth />
+
       {/* ===== 1 — Constitutional Separation ===== */}
       <Section
         id="hero"

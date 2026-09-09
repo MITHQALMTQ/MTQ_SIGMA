@@ -1233,7 +1233,7 @@ contract MTQSigmaV2 {
 
     event RebalanceExecuted(RebalanceTrade[] trades, uint256 timestamp);
 
-    function executeRebalance(RebalanceTrade[] calldata trades) external nonReentrant onlyKeeper whenNotPaused {
+    function executeRebalance(RebalanceTrade[] memory trades) external nonReentrant onlyKeeper whenNotPaused {
         if (!(liveWeights.updatedAt > 0)) revert Err28();
         if (!(trades.length <= 7)) revert Err48(); // H3 cap
 
@@ -1249,7 +1249,7 @@ contract MTQSigmaV2 {
         bool solvencyOverride = (rr < rrStressFloor); // §11.5.3 / C4 fix
 
         for (uint256 i = 0; i < trades.length; i++) {
-            RebalanceTrade calldata t = trades[i];
+            RebalanceTrade memory t = trades[i];
             if (!(t.level >= 1 && t.level <= 6)) revert Err24();
             if (t.direction == 0 || t.tradeUsd == 0) continue; // hold
             if (!(t.direction == 1 || t.direction == -1)) revert Err08();
