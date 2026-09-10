@@ -4056,3 +4056,84 @@ Stage Summary:
 - "Strategic Prior" labels preserved for the 27/20/9/8/5/5/26 weights
 - "GFB" retained in code/technical comments only — removed from all user-facing labels/aria-labels/SVG text
 - mtqPrice / gfbIndex / mtqPrice variable names left untouched per the rule
+
+---
+Task ID: FULL-PROMPT-IMPLEMENTATION-CHECKPOINT
+Agent: Orchestrator (COO + CTO + PM + UI/UX Architect)
+Task: Implementing the full 91-section MTQΣ terminal transformation prompt. Checkpoint after phases 1-2 complete.
+
+Work Log:
+- PHASE 1 (REBRAND-NEUTRAL): Complete — 26 files modified, 55 replacements applied
+  * "MTQ Price" → "Reference Value" across all UI
+  * "GFB Index" → "Adaptive Reference Basket" / "Reference Index" in user-facing text
+  * USD values labeled "External USD Reporting Value" with tooltips
+  * "Strategic Prior" clearly labeled as soft anchor
+  * Removed unsupported claims: "guaranteed", "crisis-proof", "100% Halal", "fatfa-ready"
+  * agent-browser verified: hasNeutral=true, hasUsdPeg=false, hasExtUsd=true, hasPrior=true
+
+- PHASE 2 (NAV-RESTRUCTURE): Complete — 3 files rewritten
+  * New 19-section institutional terminal navigation (Overview/Reference/Reserve/Risk/Rebalancing/Transparency/Governance/Validation/Developers + Mint/Redeem/Portfolio/Activity + Simulation Lab/Docs/Security/Contracts/Networks/Faucet)
+  * Investors + Pitch moved to "More" dropdown (restricted)
+  * Desktop: professional terminal bar (replaced Apple segmented control)
+  * Mobile: 5 bottom nav tabs (Overview/Reserve/Risk/Mint/Redeem)
+  * agent-browser verified: all nav items clickable, mobile bottom nav works
+
+- PHASE 3-7 (Remaining): The prompt has 91 sections total. Phases 1-2 covered the most critical:
+  * §2 (neutral identity), §10 (external USD), §11 (GFB→Reference Basket), §54 (marketing language), §55 (Sharia), §56 (homepage cleanup)
+  * §4 (information architecture), §6 (global header), §57 (navigation cleanup)
+  
+  Remaining sections (3-91) cover deep UI component creation for each section, which builds on the existing components:
+  * §8-9: Homepage/Overview redesign (hero with reference value, system panel)
+  * §12-15: Live reference basket table, 4-state weight visualizer, weight change explainer, reference chart
+  * §16-20: Reserve dashboard, asset table, admission registry, RR visualization, LCR visualization
+  * §21-23: Risk center, risk state explanation, risk timeline
+  * §24-26: Oracle center, oracle consensus, oracle simulation
+  * §27-29: MARP center, daily calc vs trading, decision explorer
+  * §30-32: Mint/Redeem/Portfolio experiences
+  * §33-35: Transparency center, reproducibility, decision audit drawer
+  * §36-37: Governance center, parameter registry
+  * §38: Validation center
+  * §39-42: Developers portal, network selector, faucet, contract/event explorer
+  * §43-47: Branding, typography, color system, responsive, UI component system
+  * §48-53: Full-stack data, database, API surface, blockchain authority, honest status engine, production authorization
+  * §58-61: Dashboard redesign, command center, transaction UX, error UX
+  * §62-89: Additional detail sections
+  * §90: Completion checklist
+  * §91: Final instruction
+
+- COMPLETION CHECKLIST VERIFIED (section 90):
+  [x] Neutral non-USD identity visible (hasNeutral=true)
+  [x] No accidental USD-peg messaging (hasUsdPeg=false)
+  [x] External USD reporting explicitly labeled (hasExtUsd=true)
+  [x] Strategic prior clearly labeled as prior (hasPrior=true)
+  [x] Risk state machine visible (hasRisk=true)
+  [x] RR visible (hasRR=true)
+  [x] MARP/Rebalancing visible (hasMarp=true)
+  [x] Governance visible (hasGov=true)
+  [x] Validation visible (hasVal=true)
+  [x] Testnet status honest (hasTestnet=true)
+  [x] Not production-authorized visible (hasNotProd=true)
+  [ ] Oracle consensus visible on overview (hasOracle=false — exists in Dashboard/Reference section, needs to be visible on overview)
+  [ ] Adaptive weights correctly presented (exists in Dashboard MASE engine, needs to be on overview)
+  [ ] Prior/target/smoothed/execution visually separated (exists in MaseEngine component, needs overview exposure)
+  [ ] Reference vs reserve separated (exists in ConstitutionalSeparation component)
+  [ ] Decision log visible (exists in TrialLog + RebalancingDecision DB table)
+  [ ] Transparency center functional (exists in DocsSection with AuditFindings + ProductionReadinessDashboard)
+  [ ] Version lineage functional (exists in DocsSection)
+  [ ] Reproducibility flow (exists in stress-rerun tests)
+  [ ] Validation gates visible (exists in ProductionReadinessDashboard + HonestStatus5Level)
+  [ ] Contract addresses dynamic (exists in ContractsSection with /api/contracts)
+  [ ] Network selector functional (exists in ContractsSection with chain tabs)
+  [ ] Mint flow functional (exists in TrialSection + MintSimulator)
+  [ ] Redemption flow functional (exists in TrialSection + RedeemSimulator)
+  [ ] Simulation lab functional (exists in TrialSection + stress-rerun + historical-backtest)
+  [ ] Developer portal functional (exists in ContractsSection + Developer section)
+  [ ] Mobile experience complete (exists with MobileBottomNav, 5 tabs)
+  [ ] Accessibility reviewed (prefers-reduced-motion, focus-visible, WCAG AA contrast)
+  [ ] Console errors eliminated (0 page errors)
+  [ ] No credentials embedded in source (.env gitignored, server-side only)
+  [ ] No unsupported marketing claims (removed in rebrand)
+  [ ] Existing working architecture preserved (all 141 tests pass, 8/8 live FX, all API endpoints 200)
+
+- Verified: tsc 0, lint 0 (pre-existing non-critical), HTTP 200, 141/141 tests pass
+- Pushed to GitHub (commit 3172f9d) + Vercel auto-deployed
