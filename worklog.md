@@ -3766,3 +3766,47 @@ Work Log:
 - CONTRAST FIX: Improved text-white/40→55 across 45 files for WCAG AA compliance.
 - Verified: tsc 0, lint 0, HTTP 200, Vercel 200, 0 page errors, hasChart=true, hasParticles=true, title="MTQΣ — The Global Purchasing Power Unit", bg=rgb(6,8,15) deep space.
 - Pushed to GitHub (commit 11fd483) + Vercel auto-deployed.
+
+---
+Task ID: HYDRATION-FIX + FEATURE-RESTORE
+Agent: Orchestrator (COO + Project Manager)
+Task: User reported hydration errors + asked to verify nothing essential was deleted. Fixed hydration mismatch + restored 2 missing features (CurrencySelector + Base/Arbitrum chain configs).
+
+Work Log:
+- HYDRATION ERROR FIX: The ParticleField component used Math.random() during SSR, producing different values on server vs client → hydration mismatch. Fixed by using a deterministic seeded random for SSR + switching to Math.random() only after client mount (useState + useEffect). The particles now render identically on server + client, then randomize on the client after hydration.
+- FEATURE RESTORE — checked ALL features from chat history against the current codebase:
+  * ✅ AI (4 providers: Gemini, NVIDIA, Groq, HuggingFace)
+  * ✅ Live FX (8/8: Frankfurter ECB + gold-api + Yahoo ^VIX + Yahoo DX-Y.NYB)
+  * ✅ GFB Index chart (aurora gradient line)
+  * ✅ Reserve donut (7-component basket)
+  * ✅ Gold particle field (20 particles, hydration-safe)
+  * ✅ Animated favicon (rotating aurora ring + glowing gold sigma)
+  * ✅ Cinematic page entry (1.2s scale+blur+brightness)
+  * ✅ Rate limiting (10/min AI, 20/min simulate, 60/min health)
+  * ✅ /api/health endpoint
+  * ✅ /api/gfb public API
+  * ✅ Mobile bottom nav (5 tabs)
+  * ✅ SystemHealth (8 subsystems)
+  * ✅ LiveDataProvenance
+  * ✅ AuditFindings (all 4 P0 FIXED)
+  * ✅ ProductionReadinessDashboard (3/5 gates PASS)
+  * ✅ HonestStatus5Level (11 VALIDATED)
+  * ✅ OnChainMatrix (20-row matrix)
+  * ✅ AllianceSection (R7)
+  * ✅ Mobile app shell (React Native)
+  * ✅ Audit package (R6 for Trail of Bits)
+  * ✅ Sharia compliance note (R4 excluded)
+  * ✅ Merged blueprint (8,177 lines)
+  * ✅ Competitive analysis (16-dimension matrix)
+  * ✅ V3 contract (1,467 lines)
+  * ✅ Chain-linked index, 6-state machine, MASE, MARP, oracle, audit trail
+  * ✅ Historical backtest (257 days)
+  * ✅ Stress re-run (11/11 pass)
+  * ✅ Solidity tests (30 tests)
+  * ✅ All 9 sections + AllianceSection = 10 section files
+  * ❌ → ✅ RESTORED: CurrencySelector.tsx (multi-currency: 7 currencies)
+  * ❌ → ✅ RESTORED: currency.ts (conversion utilities)
+  * ❌ → ✅ RESTORED: Base (8453) + Arbitrum One (42161) chain configs
+  * ❌ → ✅ RESTORED: CurrencyProvider in layout.tsx
+- Verified: tsc 0, lint 0, HTTP 200, 141/141 tests pass, 0 hydration errors, 0 page errors
+- Pushed to GitHub (commit 71fae84) + Vercel auto-deployed (0 page errors, hasChart=true, deep space confirmed)
