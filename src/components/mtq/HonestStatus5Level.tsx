@@ -281,7 +281,7 @@ const VALIDATION_GATES: HonestRow[] = [
     name: "Sharia Certification",
     sourceSection: "§25.5 / External",
     status: "SPECIFIED_ONLY",
-    evidence: "NOT DONE — external fatwa not yet issued",
+    evidence: "NOT DONE — external Sharia review not yet issued",
     artifactVersion: ARTIFACT_VERSION,
     evidenceHash: hash("gate:3:sharia_certification"),
   },

@@ -38,7 +38,7 @@ const WHAT_IS = [
   {
     icon: Activity,
     eyebrow: "§2 · The Index",
-    title: "GFB Index",
+    title: "Adaptive Reference Basket",
     body:
       "A 7-component Strategic Prior basket (USD 27% · EUR 20% · JPY 9% · GBP 8% · CNY 5% · CHF 5% · Gold 26%). Gold is a first-class index component (20-32% admissibility envelope). The Index defines what one MTQΣ is intended to represent — global purchasing power.",
   },
@@ -47,7 +47,7 @@ const WHAT_IS = [
     eyebrow: "§3 · The Token",
     title: "MTQΣ Token",
     body:
-      "An ERC-20 (and SPL) unit whose reference price equals the GFB Index. Minted against, and redeemed into, the reserve portfolio — never fiat-printed, never algorithmic.",
+      "An ERC-20 (and SPL) unit whose reference value equals the Adaptive Reference Basket. Minted against, and redeemed into, the reserve portfolio — never fiat-printed, never algorithmic.",
   },
   {
     icon: Shield,
@@ -73,8 +73,8 @@ function LiveStatsBand({ snapshot }: { snapshot: MetricsSnapshot | null }) {
       : "text-mtqs-rose";
 
   const stats = [
-    { label: "GFB Index", value: snapshot ? fmtFixed(snapshot.gfbIndex, 4) : null, tone: "text-mtqs-gold-light" },
-    { label: "MTQ Price", value: snapshot ? `$${fmtFixed(snapshot.mtqPrice, 4)}` : null, tone: snapshot?.priceInBand ? "text-mtqs-emerald" : "text-mtqs-rose" },
+    { label: "Reference Index", value: snapshot ? fmtFixed(snapshot.gfbIndex, 4) : null, tone: "text-mtqs-gold-light" },
+    { label: "Reference Value", value: snapshot ? fmtFixed(snapshot.mtqPrice, 4) : null, tone: snapshot?.priceInBand ? "text-mtqs-emerald" : "text-mtqs-rose" },
     { label: "Reserve NAV", value: snapshot ? fmtUsdCompact(snapshot.nav) : null, tone: "text-white" },
     { label: "Reserve Ratio", value: snapshot ? rrTxt : null, tone: rrTone },
   ];
@@ -362,7 +362,7 @@ export function HomeSection({ onNavigate }: { onNavigate: (id: SectionId) => voi
           </Reveal>
         </div>
         <p className="mt-3 text-[0.7rem] text-white/55/60 max-w-3xl">
-          Gold is in <span className="text-mtqs-gold font-medium">BOTH</span> the GFB Index (26% strategic prior,
+          Gold is in <span className="text-mtqs-gold font-medium">BOTH</span> the Adaptive Reference Basket (26% Strategic Prior,
           20-32% admissibility envelope per §8.1) <span className="italic">and</span> the reserve portfolio
           (§4, §8.3). In v1.0 these two roles are <span className="text-mtqs-gold font-medium">mandatorily
           separate</span> per §14.1: the index gold defines what 1 MTQ represents (purchasing power); the
@@ -412,7 +412,7 @@ export function HomeSection({ onNavigate }: { onNavigate: (id: SectionId) => voi
         <Reveal>
           <Panel className="p-5 sm:p-6">
             <p className="mb-4 text-[0.78rem] text-white/55 leading-relaxed max-w-2xl">
-              The GFB Index defines what one MTQΣ is intended to represent. The reserve
+              The Adaptive Reference Basket defines what one MTQΣ is intended to represent. The reserve
               portfolio exists to collateralize that obligation. The two are constitutionally
               separate: the reserve cannot dilute the index, and the index cannot be redefined
               to mask a reserve shortfall.

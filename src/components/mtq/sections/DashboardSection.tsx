@@ -219,9 +219,9 @@ export function DashboardSection() {
                 The Global Purchasing Power Unit
               </h3>
               <p className="text-[0.82rem] text-white/55 leading-relaxed mb-4">
-                The GFB Index defines what one MTQΣ is intended to represent. The reserve
+                The Adaptive Reference Basket defines what one MTQΣ is intended to represent. The reserve
                 portfolio exists to collateralize that obligation. Mint and redeem flows
-                arbitrage back to the price, with the GFB Index as the immutable reference.
+                arbitrage back to the price, with the Adaptive Reference Basket as the immutable reference.
               </p>
               <div className="rounded-md border border-white/[0.06] bg-white/[0.03]/[0.02] p-3 text-[0.72rem] text-white/55">
                 <div className="font-mono text-mtqs-gold-light mb-1">§1.1 · Core Objective</div>
@@ -270,10 +270,10 @@ export function DashboardSection() {
           <Panel className="p-4 sm:p-5">
             <div className="mb-3 flex items-start justify-between gap-3 flex-wrap">
               <p className="text-[0.78rem] text-white/55 leading-relaxed max-w-2xl">
-                The GFB Index feeds the MTQ Reference Price; the price multiplied by circulating
+                The Adaptive Reference Basket feeds the Reference Value; the value multiplied by circulating
                 supply gives the protocol liability. The Reserve NAV backs that liability at the
-                Reserve Ratio. Mint and Redeem flows arbitrage back to the price, with the GFB
-                Index as the immutable reference. Live values ride along each edge.
+                Reserve Ratio. Mint and Redeem flows arbitrage back to the value, with the Adaptive
+                Reference Basket as the immutable reference. Live values ride along each edge.
               </p>
               <Pill tone="gold">signature visual</Pill>
             </div>
@@ -395,7 +395,7 @@ export function DashboardSection() {
       </Section>
 
       {/* ===== 16 — GFB Basket ===== */}
-      <Section id="basket" eyebrow="§2" title="GFB Basket Reference">
+      <Section id="basket" eyebrow="§2" title="Adaptive Reference Basket">
         <GfbBasket />
         <GoldInReserve snapshot={snapshot} />
       </Section>

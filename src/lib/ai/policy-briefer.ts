@@ -148,7 +148,7 @@ function fallbackBriefing(snap: MetricsSnapshot): string {
   const rrStr = Number.isFinite(rr) ? rr.toFixed(4) : "n/a (no MTQ minted yet)";
   const lcrStr = Number.isFinite(lcr) ? lcr.toFixed(4) : "n/a (no MTQ minted yet)";
   lines.push(
-    `State of the Protocol: GFB Index at ${snap.gfbIndex.toFixed(4)}, MTQ price at ${snap.mtqPrice.toFixed(4)} (peg ${snap.mtqPrice >= 0.98 && snap.mtqPrice <= 1.02 ? "within" : "outside"} band), Reserve Ratio ${rrStr} (target 1.10, stress floor 1.05), LCR ${lcrStr}, protocol status ${snap.status}.`,
+    `State of the Protocol: Adaptive Reference Basket at ${snap.gfbIndex.toFixed(4)}, Reference Value at ${snap.mtqPrice.toFixed(4)} (safety band ${snap.mtqPrice >= 0.98 && snap.mtqPrice <= 1.02 ? "within" : "outside"}), Reserve Ratio ${rrStr} (target 1.10, stress floor 1.05), LCR ${lcrStr}, protocol status ${snap.status}.`,
   );
 
   // Paragraph 2 — Risk Watch

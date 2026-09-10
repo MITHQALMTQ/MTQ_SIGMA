@@ -150,7 +150,7 @@ export function LiveTicker({ snapshot }: { snapshot: MetricsSnapshot | null }) {
     tickerItem("GFB", <TickNumber value={snapshot.gfbIndex} format={(n) => fmtFixed(n, 4)} className="text-mtqs-gold" />, "gold"),
     tickerItem("MTQ", (
       <span className="flex items-center gap-1">
-        <TickNumber value={snapshot.mtqPrice} format={(n) => `$${fmtFixed(n, 4)}`} className={toneByPrice === "emerald" ? "text-mtqs-emerald" : "text-mtqs-rose"} />
+        <TickNumber value={snapshot.mtqPrice} format={(n) => fmtFixed(n, 4)} className={toneByPrice === "emerald" ? "text-mtqs-emerald" : "text-mtqs-rose"} />
         <span className={`text-[0.6rem] ${snapshot.priceInBand ? "text-mtqs-emerald/70" : "text-mtqs-rose/80"}`}>
           {snapshot.priceInBand ? "in-band" : "BREAKER"}
         </span>

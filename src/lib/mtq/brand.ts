@@ -95,7 +95,7 @@ export const BRAND_TYPOGRAPHY = {
 export const BRAND_VOICE = {
   tagline: "The Global Purchasing Power Unit",
   principles: ["Honest", "Sovereign", "Collateralized", "Calm"],
-  coreObjective: "The GFB Index defines what one MTQΣ is intended to represent. The reserve portfolio exists to collateralize that obligation.",
+  coreObjective: "The Adaptive Reference Basket defines what one MTQΣ is intended to represent. The reserve portfolio exists to collateralize that obligation.",
   statusDeclaration: "Candidate for public testing — NOT production-authorized",
   designConstraint: "Designed for Sharia review (interest-free, asset-backed, non-speculative)",
 } as const;

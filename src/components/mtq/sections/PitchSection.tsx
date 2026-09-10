@@ -36,9 +36,9 @@ const PANELS = [
     eyebrow: "02 · Solution",
     title: "MTQΣ — a collateralized Global Purchasing Power Unit.",
     body: [
-      "The GFB Index fixes a basket of five currencies (USD 38.9% · EUR 27.8% · GBP 16.69% · JPY 11.11% · CNY 5.5%). One MTQΣ is intended to represent that basket's purchasing power.",
-      "An audited reserve portfolio (stablecoins + tokenized gold) collateralizes every MTQΣ at a 110% Reserve Ratio target. Mint and redeem flows arbitrage back to the index price.",
-      "A 6-state risk machine, a 4-tier governance hierarchy, staged geopolitical eject, and a dynamic buffer protect the peg under stress. Every parameter is published and timelocked.",
+      "The Adaptive Reference Basket is a chain-linked reference of seven components (USD 27% · EUR 20% · JPY 9% · GBP 8% · CNY 5% · CHF 5% · Gold 26%). One MTQΣ is intended to represent that basket's purchasing power.",
+      "An audited reserve portfolio (stablecoins + tokenized gold) collateralizes every MTQΣ at a 110% Reserve Ratio target. Mint and redeem flows arbitrage back to the reference value.",
+      "A 6-state risk machine, a 4-tier governance hierarchy, staged geopolitical eject, and a dynamic buffer protect the reference value under stress. Every parameter is published and timelocked.",
     ],
     tone: "emerald" as const,
   },
@@ -71,7 +71,7 @@ const PANELS = [
     body: [
       `Canonical MTQΣ deployed across ${Object.keys(CANONICAL_MTQ_ADDRESSES).length} testnets (Monad, Arc, Robinhood, Solana). Every chain has verified bytecode + role assignments.`,
       "10,300 Monte Carlo survival runs across 8 stress suites (Baseline, Monte Carlo, Depression, Hyperinflation, Depeg Cascade, Oracle Failure, Liquidity Crisis, Black Swan). Audit verdict: PASS.",
-      "Live pilot: every mint/redeem is logged to SQLite with full input/output, GFB index, MTQ price, NAV, RR, LCR, and pass/fail reason — full audit trail via /api/trials/export.",
+      "Live pilot: every mint/redeem is logged to SQLite with full input/output, Reference Index, Reference Value, NAV (USD reporting), RR, LCR, and pass/fail reason — full audit trail via /api/trials/export.",
     ],
     tone: "emerald" as const,
   },

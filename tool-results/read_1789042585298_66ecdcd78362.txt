@@ -1,0 +1,2002 @@
+     1→# MTQ Σ EXISTING APPLICATION — FULL-STACK PRODUCT, UX, UI, ARCHITECTURE AND TESTNET TERMINAL TRANSFORMATION
+     2→
+     3→## ROLE
+     4→
+     5→Act as the lead:
+     6→
+     7→* Crypto / digital-asset architecture expert
+     8→* Monetary-system architecture expert
+     9→* Tokenomics expert
+    10→* COO
+    11→* CTO
+    12→* Product manager
+    13→* Principal UI/UX architect
+    14→* Senior financial-terminal designer
+    15→* Institutional trading-interface designer
+    16→* Blockchain explorer / transparency UX expert
+    17→* Binance / Bybit interaction-pattern expert
+    18→* Full-stack Next.js architect
+    19→* Web3 testnet product architect
+    20→* Data visualization architect
+    21→* Security-minded production engineer
+    22→
+    23→You are modifying an EXISTING MTQ Σ application.
+    24→
+    25→DO NOT treat this as a greenfield rebuild.
+    26→
+    27→DO NOT replace the existing architecture merely because you prefer a different stack.
+    28→
+    29→DO NOT rewrite working infrastructure unnecessarily.
+    30→
+    31→DO NOT remove functional backend, smart-contract, metrics, database, wallet, or testnet capabilities unless they are demonstrably incorrect or conflict with the current MTQ Σ Master Specification.
+    32→
+    33→Your primary objective is:
+    34→
+    35→> TRANSFORM THE CURRENT WEBSITE INTO A WORLD-CLASS, INSTITUTIONAL, TESTNET MONETARY INFRASTRUCTURE TERMINAL WHILE PRESERVING AND EXTENDING THE EXISTING APPLICATION.
+    36→
+    37→The current repository is:
+    38→
+    39→MITHQALMTQ/MTQ_SIGMA
+    40→
+    41→Current production preview:
+    42→
+    43→MTQ Σ Vercel application
+    44→
+    45→The current codebase is a Next.js / React / TypeScript application and already contains MTQ-specific components, sections, metrics, branding, contract references and testnet functionality.
+    46→
+    47→Preserve the existing technical foundation and evolve it.
+    48→
+    49→---
+    50→
+    51→# 1. SOURCE OF TRUTH
+    52→
+    53→The governing architectural source is:
+    54→
+    55→MTQ Σ — Master Monetary Architecture & Quantitative Specification v1.0
+    56→
+    57→Status:
+    58→
+    59→CANDIDATE FOR PUBLIC TESTING — NOT PRODUCTION-AUTHORIZED
+    60→
+    61→The application MUST follow the terminology, separation, constraints, risk model, governance model, transparency model and honest-status doctrine defined by that specification.
+    62→
+    63→The specification defines:
+    64→
+    65→1. Adaptive Reference Basket
+    66→2. Monetary Unit
+    67→3. Reserve Portfolio
+    68→4. Constituency Engine
+    69→5. MASE
+    70→6. Constitutional constraints
+    71→7. Chain-linked index valuation
+    72→8. MARP
+    73→9. Reserve / NAV / coverage
+    74→10. Asset Admission Registry
+    75→11. Dynamic Buffer
+    76→12. Oracle Architecture
+    77→13. Risk State Machine
+    78→14. Minting / Redemption
+    79→15. Genesis / Treasury
+    80→16. Governance
+    81→17. Validation Program
+    82→18. Transparency / reproducibility
+    83→19. Honest Status
+    84→
+    85→The application must visually communicate these layers rather than hiding them behind generic crypto terminology.
+    86→
+    87→---
+    88→
+    89→# 2. MOST IMPORTANT BRAND / MONETARY IDENTITY RULE
+    90→
+    91→MTQ Σ IS NEUTRAL.
+    92→
+    93→THIS IS NON-NEGOTIABLE.
+    94→
+    95→MTQ Σ MUST NOT BE PRESENTED AS:
+    96→
+    97→* USD-backed
+    98→* USD-pegged
+    99→* USD-linked
+   100→* dollar stablecoin
+   101→* dollar token
+   102→* synthetic USD
+   103→* digital dollar
+   104→* USD equivalent monetary unit
+   105→* $1 token
+   106→* 1 MTQ = $1
+   107→* stablecoin pegged to USD
+   108→
+   109→The protocol's identity is:
+   110→
+   111→> A neutral, methodology-defined, adaptive global purchasing-power reference unit.
+   112→
+   113→Use language such as:
+   114→
+   115→* Neutral monetary reference
+   116→* Global purchasing-power reference unit
+   117→* Adaptive reference basket
+   118→* Multi-currency + gold reference
+   119→* Methodology-defined unit of account
+   120→* Asset-backed monetary unit
+   121→* Independently computed reference value
+   122→* Non-USD monetary reference
+   123→* Neutral reference methodology
+   124→
+   125→NEVER write:
+   126→
+   127→"MTQ Price = $X"
+   128→
+   129→as if MTQ itself is a USD-denominated monetary object.
+   130→
+   131→Instead use:
+   132→
+   133→"MTQ Σ Reference Value"
+   134→
+   135→or
+   136→
+   137→"Reference Value"
+   138→
+   139→or
+   140→
+   141→"MTQ Σ Unit Value"
+   142→
+   143→or
+   144→
+   145→"Reference Index Level"
+   146→
+   147→If an external USD reporting numeraire is needed for reserve accounting or valuation, show it explicitly as:
+   148→
+   149→"External USD Reporting Value"
+   150→
+   151→or
+   152→
+   153→"USD-equivalent reporting view"
+   154→
+   155→and add explanatory microcopy:
+   156→
+   157→"USD shown solely as an external reporting / valuation numeraire. It does not define or peg MTQ Σ."
+   158→
+   159→The distinction between the monetary identity and external reporting must be visible.
+   160→
+   161→---
+   162→
+   163→# 3. CONSTITUTIONAL SEPARATION MUST BECOME THE CORE UI STRUCTURE
+   164→
+   165→Every major experience should reinforce:
+   166→
+   167→REFERENCE ≠ TOKEN ≠ RESERVE
+   168→
+   169→Create three permanent conceptual labels:
+   170→
+   171→### REFERENCE
+   172→
+   173→What MTQ Σ represents.
+   174→
+   175→### MONETARY UNIT
+   176→
+   177→The transferable on-chain instrument.
+   178→
+   179→### RESERVE
+   180→
+   181→The assets held to collateralize the obligation.
+   182→
+   183→Do not collapse these into one object.
+   184→
+   185→Do not show a single pie chart implying reserve composition equals reference composition.
+   186→
+   187→The UI must clearly distinguish:
+   188→
+   189→W_Index ≠ W_Reserve
+   190→
+   191→and:
+   192→
+   193→Strategic Prior ≠ Target ≠ Smoothed ≠ Execution
+   194→
+   195→---
+   196→
+   197→# 4. TRANSFORM THE CURRENT INFORMATION ARCHITECTURE
+   198→
+   199→The current application contains sections such as:
+   200→
+   201→Home
+   202→Dashboard
+   203→Contracts
+   204→Trial
+   205→Docs
+   206→Investors
+   207→Pitch
+   208→Security
+   209→Tests
+   210→
+   211→These should NOT simply remain as the primary conceptual model.
+   212→
+   213→Retain existing routes/components where practical, but restructure their presentation and navigation into this product architecture:
+   214→
+   215→## PRIMARY
+   216→
+   217→Overview
+   218→Reference
+   219→Reserve
+   220→Risk
+   221→Rebalancing
+   222→Transparency
+   223→Governance
+   224→Validation
+   225→Developers
+   226→
+   227→## USER OPERATIONS
+   228→
+   229→Mint
+   230→Redeem
+   231→Portfolio
+   232→Activity
+   233→
+   234→## SUPPORTING
+   235→
+   236→Simulation Lab
+   237→Documentation
+   238→Security
+   239→Contracts
+   240→Networks
+   241→Faucet
+   242→
+   243→The old concepts:
+   244→
+   245→"Investors"
+   246→"Pitch"
+   247→
+   248→must not dominate the public testnet experience.
+   249→
+   250→If retained for project-internal reasons, move them under a restricted or secondary "Project" / "Research" / "Information" area.
+   251→
+   252→The primary product must look like monetary infrastructure, not a fundraising or token-sale website.
+   253→
+   254→---
+   255→
+   256→# 5. OVERALL PRODUCT POSITIONING
+   257→
+   258→The design language should combine:
+   259→
+   260→* institutional financial terminal
+   261→* high-end monetary analytics interface
+   262→* exchange-grade interaction quality
+   263→* blockchain explorer transparency
+   264→* reserve monitoring dashboard
+   265→* central-bank-style seriousness
+   266→* modern Web3 testnet usability
+   267→
+   268→Use Binance / Bybit as UX references for:
+   269→
+   270→* information density
+   271→* keyboard-friendly interaction
+   272→* professional tables
+   273→* charts
+   274→* transaction confirmation
+   275→* wallet state
+   276→* responsive layouts
+   277→* navigation hierarchy
+   278→* order-independent workflow clarity
+   279→
+   280→DO NOT copy their business model.
+   281→
+   282→DO NOT introduce:
+   283→
+   284→* leveraged trading
+   285→* futures
+   286→* perpetuals
+   287→* margin
+   288→* liquidation trading
+   289→* gambling-like mechanics
+   290→* token speculation
+   291→* memecoin-style presentation
+   292→* price-pump imagery
+   293→* "to the moon" language
+   294→* yield farming
+   295→* generic "Earn" products
+   296→* fake market activity
+   297→
+   298→MTQ Σ is not a trading casino.
+   299→
+   300→---
+   301→
+   302→# 6. GLOBAL HEADER
+   303→
+   304→Create a persistent institutional header.
+   305→
+   306→Left:
+   307→
+   308→MTQ Σ logo / wordmark
+   309→
+   310→Primary navigation:
+   311→
+   312→Overview
+   313→Reference
+   314→Reserve
+   315→Risk
+   316→Rebalancing
+   317→Transparency
+   318→Governance
+   319→Validation
+   320→Developers
+   321→
+   322→Right:
+   323→
+   324→TESTNET badge
+   325→Network selector
+   326→System status
+   327→Wallet connect
+   328→
+   329→Example:
+   330→
+   331→MTQ Σ
+   332→
+   333→TESTNET
+   334→
+   335→ARC ▼
+   336→
+   337→● NORMAL
+   338→
+   339→Connect Wallet
+   340→
+   341→The system status must be driven by actual application data and ultimately by on-chain truth where supported.
+   342→
+   343→---
+   344→
+   345→# 7. GLOBAL TESTNET STATUS BAR
+   346→
+   347→Create a persistent thin banner:
+   348→
+   349→MTQ Σ TESTNET
+   350→Candidate for public testing
+   351→Not production-authorized
+   352→
+   353→Secondary status:
+   354→
+   355→Oracles: SIMULATED
+   356→Assets: TESTNET / SIMULATED
+   357→Validation Gates: X / 11
+   358→Production Authorized: NO
+   359→
+   360→This MUST be dynamically derived from the real application / contract status.
+   361→
+   362→Do not hard-code "production ready".
+   363→
+   364→Do not allow marketing copy to contradict the contract's honest-status functions.
+   365→
+   366→---
+   367→
+   368→# 8. HOMEPAGE / OVERVIEW — COMPLETE REDESIGN
+   369→
+   370→Replace the current overly cinematic marketing-first homepage with an institutional monetary overview.
+   371→
+   372→The page should feel like an operating terminal.
+   373→
+   374→## HERO
+   375→
+   376→Headline:
+   377→
+   378→MTQ Σ
+   379→
+   380→Subheadline:
+   381→
+   382→A neutral, adaptive global purchasing-power reference unit.
+   383→
+   384→Supporting statement:
+   385→
+   386→MTQ Σ is defined by a transparent methodology spanning eligible currencies and gold, an adaptive weighting system, constitutional constraints, reserve collateralization, risk controls and auditable execution.
+   387→
+   388→Do not say "USD stablecoin".
+   389→
+   390→Do not say "1 MTQ = $1".
+   391→
+   392→Do not imply a USD peg.
+   393→
+   394→Primary CTA:
+   395→
+   396→Explore the Reference
+   397→
+   398→Secondary CTA:
+   399→
+   400→Enter Testnet
+   401→
+   402→Third:
+   403→
+   404→View Transparency
+   405→
+   406→---
+   407→
+   408→# 9. HERO LIVE SYSTEM PANEL
+   409→
+   410→Immediately below the headline, show:
+   411→
+   412→REFERENCE VALUE
+   413→
+   414→1.XXXX
+   415→
+   416→Use a neutral label.
+   417→
+   418→NOT:
+   419→
+   420→"$1.XXXX"
+   421→
+   422→Below:
+   423→
+   424→PAR
+   425→1.00 basket-unit
+   426→
+   427→Then:
+   428→
+   429→Reference Index
+   430→Current Live Weight State
+   431→Reserve Ratio
+   432→Liquidity Coverage
+   433→Risk State
+   434→Oracle Health
+   435→
+   436→Make these clickable.
+   437→
+   438→---
+   439→
+   440→# 10. EXTERNAL USD REPORTING MUST BE CLEARLY SEPARATED
+   441→
+   442→Where USD is technically required by reserve accounting:
+   443→
+   444→show something like:
+   445→
+   446→External USD Reporting Value
+   447→$X,XXX,XXX
+   448→
+   449→with a tooltip:
+   450→
+   451→"USD is used here only as an external reporting / valuation numeraire. It does not define the MTQ Σ monetary unit and does not constitute a USD peg."
+   452→
+   453→Apply this distinction everywhere.
+   454→
+   455→This is especially important for:
+   456→
+   457→* reserve NAV
+   458→* liabilities
+   459→* reserve ratio
+   460→* asset valuations
+   461→* execution costs
+   462→* liquidity metrics
+   463→
+   464→---
+   465→
+   466→# 11. REMOVE OR REFRAME CURRENT GFB PRESENTATION
+   467→
+   468→The existing homepage uses "GFB Index" heavily.
+   469→
+   470→The new UI must reflect the current specification's terminology and adaptive architecture.
+   471→
+   472→Preferred primary term:
+   473→
+   474→Adaptive Reference Basket
+   475→
+   476→Secondary technical reference:
+   477→
+   478→Chain-linked reference index
+   479→
+   480→If "GFB" remains in source code or historical documentation, do not blindly delete the identifier. Instead normalize the user-facing language so the current architecture is clear.
+   481→
+   482→The homepage must never present the strategic prior as the current fixed basket.
+   483→
+   484→DO NOT display:
+   485→
+   486→USD 27%
+   487→EUR 20%
+   488→JPY 9%
+   489→GBP 8%
+   490→CNY 5%
+   491→CHF 5%
+   492→Gold 26%
+   493→
+   494→as if these are fixed live weights.
+   495→
+   496→Instead label them:
+   497→
+   498→Strategic Prior
+   499→
+   500→and separately show:
+   501→
+   502→Current Live Weights
+   503→
+   504→---
+   505→
+   506→# 12. LIVE REFERENCE BASKET
+   507→
+   508→Create a premium table/card:
+   509→
+   510→ADAPTIVE REFERENCE BASKET
+   511→
+   512→Columns:
+   513→
+   514→Component
+   515→Live Weight
+   516→Target
+   517→Smoothed
+   518→Prior
+   519→Change
+   520→Eligibility
+   521→Signal
+   522→
+   523→Example:
+   524→
+   525→USD | XX.X% | XX.X% | XX.X% | 27.0% | +X.X% | ACTIVE | ...
+   526→
+   527→EUR | ...
+   528→
+   529→Gold | ...
+   530→
+   531→Make the current live vector dominant.
+   532→
+   533→The prior must visually appear secondary.
+   534→
+   535→Add a constant warning:
+   536→
+   537→"Strategic prior is a soft methodological anchor, not a fixed composition."
+   538→
+   539→---
+   540→
+   541→# 13. FOUR-STATE WEIGHT VISUALIZER
+   542→
+   543→Create an interactive component:
+   544→
+   545→PRIOR
+   546→↓
+   547→TARGET
+   548→↓
+   549→SMOOTHED
+   550→↓
+   551→EXECUTION
+   552→↓
+   553→LIVE
+   554→
+   555→Click each stage to see:
+   556→
+   557→* source
+   558→* methodology
+   559→* version
+   560→* constraints
+   561→* timestamp
+   562→* reason for movement
+   563→
+   564→This is a signature MTQ Σ component.
+   565→
+   566→Use animated transitions only where they improve comprehension.
+   567→
+   568→No decorative animation that obscures numerical information.
+   569→
+   570→---
+   571→
+   572→# 14. "WHY DID THE WEIGHT CHANGE?" FEATURE
+   573→
+   574→Every component change must support an explanation drawer.
+   575→
+   576→Example:
+   577→
+   578→Gold
+   579→+1.8%
+   580→
+   581→Click:
+   582→
+   583→WHY DID GOLD MOVE?
+   584→
+   585→Show:
+   586→
+   587→Macro regime
+   588→Risk contribution
+   589→Diversification contribution
+   590→Purchasing-power signal
+   591→Strategic-prior penalty
+   592→Constraint status
+   593→Target weight
+   594→Smoothing
+   595→Execution decision
+   596→Decision ID
+   597→
+   598→Then:
+   599→
+   600→Target
+   601→XX.XX%
+   602→
+   603→Smoothed
+   604→XX.XX%
+   605→
+   606→Executed
+   607→XX.XX%
+   608→
+   609→Live
+   610→XX.XX%
+   611→
+   612→Use human-readable explanations plus technical details.
+   613→
+   614→---
+   615→
+   616→# 15. CURRENT REFERENCE CHART
+   617→
+   618→Provide:
+   619→
+   620→1D
+   621→7D
+   622→30D
+   623→90D
+   624→1Y
+   625→MAX
+   626→
+   627→Show:
+   628→
+   629→* reference index level
+   630→* index movement
+   631→* weight-change markers
+   632→* major risk-state transitions
+   633→* rebalance events
+   634→* oracle events
+   635→
+   636→Tooltips must distinguish:
+   637→
+   638→Price effect
+   639→Composition effect
+   640→Execution effect
+   641→
+   642→Do not frame ordinary index movement as a speculative market price.
+   643→
+   644→---
+   645→
+   646→# 16. RESERVE DASHBOARD
+   647→
+   648→Create a first-class RESERVE experience.
+   649→
+   650→Header:
+   651→
+   652→RESERVE
+   653→
+   654→Primary metrics:
+   655→
+   656→Reserve NAV
+   657→Outstanding Liability
+   658→Coverage Ratio
+   659→Reserve Ratio
+   660→Liquidity Coverage Ratio
+   661→Available Liquidity
+   662→Stress Buffer
+   663→
+   664→Then two separate visualizations:
+   665→
+   666→### Reference Composition
+   667→
+   668→What the unit represents.
+   669→
+   670→### Reserve Composition
+   671→
+   672→What currently backs the obligation.
+   673→
+   674→These MUST NOT be combined.
+   675→
+   676→---
+   677→
+   678→# 17. RESERVE ASSET TABLE
+   679→
+   680→Columns:
+   681→
+   682→Asset
+   683→Currency
+   684→Asset Class
+   685→Gross Value
+   686→Haircut
+   687→Net Value
+   688→Issuer
+   689→24h Liquidity
+   690→Concentration
+   691→State
+   692→Chain
+   693→
+   694→States:
+   695→
+   696→ACTIVE
+   697→WATCH
+   698→RESTRICTED
+   699→EJECTED
+   700→
+   701→Clicking an asset should reveal its admission evidence.
+   702→
+   703→---
+   704→
+   705→# 18. ASSET ADMISSION REGISTRY EXPERIENCE
+   706→
+   707→Create an institutional asset registry.
+   708→
+   709→Each asset page/drawer contains:
+   710→
+   711→Issuer authorization
+   712→Redemption right
+   713→Custody structure
+   714→Sanctions status
+   715→Smart-contract audit
+   716→Liquidity evidence
+   717→Concentration status
+   718→Admission date
+   719→Current state
+   720→Governance record
+   721→
+   722→Add:
+   723→
+   724→"Why is this asset eligible?"
+   725→
+   726→and
+   727→
+   728→"Why can this asset be restricted or ejected?"
+   729→
+   730→Use evidence-oriented UI.
+   731→
+   732→---
+   733→
+   734→# 19. RESERVE RATIO VISUALIZATION
+   735→
+   736→Make RR a visually important metric:
+   737→
+   738→Reserve Ratio
+   739→110.XX%
+   740→
+   741→Target:
+   742→110%
+   743→
+   744→Stress:
+   745→105%
+   746→
+   747→Hard Floor:
+   748→100%
+   749→
+   750→Show a horizontal gauge with:
+   751→
+   752→Target zone
+   753→Stress zone
+   754→Emergency boundary
+   755→
+   756→Do not imply that 110% is a guaranteed permanent state.
+   757→
+   758→Label it:
+   759→
+   760→Current
+   761→Target
+   762→Stress Floor
+   763→Hard Floor
+   764→
+   765→---
+   766→
+   767→# 20. LCR VISUALIZATION
+   768→
+   769→Create:
+   770→
+   771→LIQUIDITY COVERAGE
+   772→
+   773→LCR
+   774→1.XX
+   775→
+   776→Stress Redemption Demand
+   777→XX
+   778→
+   779→Liquid Assets
+   780→$X
+   781→
+   782→Show:
+   783→
+   784→Healthy
+   785→Caution
+   786→Stress
+   787→
+   788→Use the real application state.
+   789→
+   790→---
+   791→
+   792→# 21. RISK CENTER
+   793→
+   794→Make RISK a major navigation item.
+   795→
+   796→Show:
+   797→
+   798→CURRENT PROTOCOL STATE
+   799→
+   800→NORMAL / CAUTION / STRESS / DEFENSIVE / EMERGENCY / RECOVERY
+   801→
+   802→Create a six-state visual state machine.
+   803→
+   804→For the current state show:
+   805→
+   806→RR
+   807→LCR
+   808→Oracle health
+   809→Crisis score
+   810→Mint status
+   811→Redemption status
+   812→Rebalancing status
+   813→Current fees
+   814→Governance posture
+   815→
+   816→---
+   817→
+   818→# 22. RISK STATE EXPLANATION
+   819→
+   820→Example:
+   821→
+   822→NORMAL
+   823→
+   824→RR ≥ target
+   825→LCR ≥ target
+   826→Minting: ENABLED
+   827→Redemption: ENABLED
+   828→Rebalancing: STANDARD
+   829→
+   830→CAUTION
+   831→
+   832→RR/LCR deterioration
+   833→Minting: THROTTLED
+   834→Rebalancing: ELEVATED
+   835→
+   836→STRESS
+   837→
+   838→Minting: PAUSED
+   839→Redemption fee: STRESS
+   840→Emergency rebalancing: ENABLED
+   841→
+   842→DEFENSIVE
+   843→
+   844→Redemptions: THROTTLED
+   845→Rebalancing: FORCED
+   846→Governance: NOTIFIED
+   847→
+   848→EMERGENCY
+   849→
+   850→Redemptions: PAUSED
+   851→Circuit breakers: ACTIVE
+   852→Council response: REQUIRED
+   853→
+   854→RECOVERY
+   855→
+   856→Gradual restoration
+   857→Time-based confirmation
+   858→Controlled reactivation
+   859→
+   860→Do not simplify risk into one vague "risk score".
+   861→
+   862→The state machine itself is the primary protocol status.
+   863→
+   864→---
+   865→
+   866→# 23. RISK TIMELINE
+   867→
+   868→Add a historical risk-state timeline:
+   869→
+   870→Date
+   871→State
+   872→RR
+   873→LCR
+   874→Trigger
+   875→Action
+   876→Evidence
+   877→
+   878→Allow users to click a transition and inspect what caused it.
+   879→
+   880→---
+   881→
+   882→# 24. ORACLE CENTER
+   883→
+   884→Create a dedicated ORACLE page.
+   885→
+   886→Show:
+   887→
+   888→Canonical Gold Price
+   889→EUR/USD
+   890→GBP/USD
+   891→JPY/USD
+   892→CNY/CNH
+   893→VIX
+   894→DXY
+   895→
+   896→For every source:
+   897→
+   898→Chainlink
+   899→Pyth
+   900→Chronicle
+   901→
+   902→Show:
+   903→
+   904→Source price
+   905→Timestamp
+   906→Freshness
+   907→Confidence
+   908→Deviation
+   909→Status
+   910→
+   911→---
+   912→
+   913→# 25. ORACLE CONSENSUS COMPONENT
+   914→
+   915→Example:
+   916→
+   917→GOLD ORACLE CONSENSUS
+   918→
+   919→Chainlink
+   920→$X,XXX.XX
+   921→✓
+   922→
+   923→Pyth
+   924→$X,XXX.XX
+   925→✓
+   926→
+   927→Chronicle
+   928→$X,XXX.XX
+   929→✓
+   930→
+   931→Canonical:
+   932→$X,XXX.XX
+   933→
+   934→Consensus:
+   935→3 / 3
+   936→
+   937→Confidence:
+   938→X.XX%
+   939→
+   940→Deviation:
+   941→X.XX%
+   942→
+   943→This should visually communicate multi-source quorum.
+   944→
+   945→---
+   946→
+   947→# 26. ORACLE SIMULATION
+   948→
+   949→Create:
+   950→
+   951→SIMULATION LAB
+   952→
+   953→Scenarios:
+   954→
+   955→Oracle stale
+   956→Oracle divergence
+   957→Gold shock
+   958→Currency shock
+   959→Stable-value stress
+   960→Liquidity deterioration
+   961→Issuer failure
+   962→Reserve stress
+   963→Correlation collapse
+   964→
+   965→The testnet should use simulations for these scenarios rather than pretending real-world production events exist.
+   966→
+   967→The simulation screen should show:
+   968→
+   969→Input
+   970→↓
+   971→Detection
+   972→↓
+   973→Validation
+   974→↓
+   975→State transition
+   976→↓
+   977→Protocol response
+   978→↓
+   979→Evidence / event
+   980→
+   981→---
+   982→
+   983→# 27. MARP / REBALANCING CENTER
+   984→
+   985→Create a sophisticated monetary rebalancing terminal.
+   986→
+   987→Header:
+   988→
+   989→MARP
+   990→Monetary Adaptive Rebalancing Protocol
+   991→
+   992→Current Decision:
+   993→
+   994→CALCULATED
+   995→YES
+   996→
+   997→TRADE
+   998→NO / PARTIAL / EXECUTED
+   999→
+  1000→Show:
+  1001→
+  1002→Target Weight
+  1003→Actual Weight
+  1004→Deviation
+  1005→Expected Benefit
+  1006→Expected Cost
+  1007→Urgency
+  1008→Execution Size
+  1009→Liquidity
+  1010→Slippage
+  1011→Decision ID
+  1012→
+  1013→Example:
+  1014→
+  1015→Expected Benefit
+  1016→0.12%
+  1017→
+  1018→Expected Cost
+  1019→0.17%
+  1020→
+  1021→Decision
+  1022→NO TRADE
+  1023→
+  1024→Reason
+  1025→Execution cost exceeds expected correction benefit.
+  1026→
+  1027→---
+  1028→
+  1029→# 28. DAILY CALCULATION VS DAILY TRADING
+  1030→
+  1031→Make this concept visible.
+  1032→
+  1033→Display:
+  1034→
+  1035→Daily calculation:
+  1036→ACTIVE
+  1037→
+  1038→Daily trading:
+  1039→CONDITIONAL
+  1040→
+  1041→Add microcopy:
+  1042→
+  1043→"MTQ Σ recalculates the monetary state daily. It does not trade merely because a target moved."
+  1044→
+  1045→This is a critical architectural principle.
+  1046→
+  1047→---
+  1048→
+  1049→# 29. MARP DECISION EXPLORER
+  1050→
+  1051→Create a searchable table:
+  1052→
+  1053→Decision ID
+  1054→Timestamp
+  1055→Component
+  1056→Target
+  1057→Actual
+  1058→Drift
+  1059→Risk Score
+  1060→Expected Benefit
+  1061→Expected Cost
+  1062→Execution
+  1063→Post-Trade Weight
+  1064→Status
+  1065→
+  1066→Support:
+  1067→
+  1068→Executed
+  1069→Partial
+  1070→No Trade
+  1071→Risk Override
+  1072→Emergency
+  1073→
+  1074→Every decision should open a complete audit drawer.
+  1075→
+  1076→---
+  1077→
+  1078→# 30. MINT EXPERIENCE
+  1079→
+  1080→Create:
+  1081→
+  1082→MINT MTQ Σ
+  1083→
+  1084→Input:
+  1085→
+  1086→Deposit Asset
+  1087→Amount
+  1088→Slippage Tolerance
+  1089→
+  1090→Output:
+  1091→
+  1092→MTQ Σ amount
+  1093→
+  1094→Show:
+  1095→
+  1096→Reference Value
+  1097→PAR
+  1098→Mint Fee
+  1099→Net Deposit
+  1100→Expected Output
+  1101→Minimum Output
+  1102→Oracle Timestamp
+  1103→Risk State
+  1104→
+  1105→Use the actual formula from the protocol.
+  1106→
+  1107→Never describe this as:
+  1108→
+  1109→"buying MTQ at $1"
+  1110→
+  1111→Use:
+  1112→
+  1113→"Mint against the current reference value."
+  1114→
+  1115→---
+  1116→
+  1117→# 31. REDEMPTION EXPERIENCE
+  1118→
+  1119→Create:
+  1120→
+  1121→REDEEM MTQ Σ
+  1122→
+  1123→Input:
+  1124→
+  1125→MTQ Σ amount
+  1126→
+  1127→Output:
+  1128→
+  1129→Estimated redemption basket
+  1130→
+  1131→Display:
+  1132→
+  1133→Current NAV basis
+  1134→Redeem fee
+  1135→Risk state
+  1136→Expected output
+  1137→Minimum acceptable output
+  1138→Slippage
+  1139→Available liquidity
+  1140→
+  1141→Add clear text:
+  1142→
+  1143→"Redemption is based on current reserve NAV and protocol rules. MTQ Σ is not redeemed at a fixed USD peg."
+  1144→
+  1145→---
+  1146→
+  1147→# 32. PORTFOLIO
+  1148→
+  1149→Connected-wallet dashboard:
+  1150→
+  1151→MTQ Σ Balance
+  1152→Testnet Assets
+  1153→Transaction History
+  1154→Mint History
+  1155→Redemption History
+  1156→Current Network
+  1157→Wallet
+  1158→Contract Interaction Status
+  1159→
+  1160→Do not show portfolio performance as guaranteed return.
+  1161→
+  1162→Do not create "APR/APY" unless explicitly supported by the specification.
+  1163→
+  1164→---
+  1165→
+  1166→# 33. TRANSPARENCY CENTER
+  1167→
+  1168→This should be one of the most important parts of the application.
+  1169→
+  1170→Tabs:
+  1171→
+  1172→Live Weights
+  1173→Historical Weights
+  1174→Reference States
+  1175→Reserve States
+  1176→Risk States
+  1177→Oracle States
+  1178→Decision Log
+  1179→Data Versions
+  1180→Model Versions
+  1181→Parameter Versions
+  1182→Oracle Versions
+  1183→Genesis
+  1184→Events
+  1185→
+  1186→---
+  1187→
+  1188→# 34. DETERMINISTIC REPRODUCIBILITY
+  1189→
+  1190→Every live/historical calculation should expose:
+  1191→
+  1192→DataVersion
+  1193→ModelVersion
+  1194→ParameterVersion
+  1195→OracleVersion
+  1196→Weight Vector
+  1197→Output
+  1198→DecisionID
+  1199→
+  1200→Create a button:
+  1201→
+  1202→REPRODUCE
+  1203→
+  1204→Then show:
+  1205→
+  1206→Published Output
+  1207→Recomputed Output
+  1208→Match Status
+  1209→
+  1210→Example:
+  1211→
+  1212→Published:
+  1213→27.412%
+  1214→
+  1215→Recomputed:
+  1216→27.412%
+  1217→
+  1218→MATCH ✓
+  1219→
+  1220→This must use real underlying application data when available.
+  1221→
+  1222→Do not fake successful reproduction.
+  1223→
+  1224→---
+  1225→
+  1226→# 35. DECISION AUDIT DRAWER
+  1227→
+  1228→Every MARP decision must expose:
+  1229→
+  1230→Decision ID
+  1231→Target Weight
+  1232→Actual Weight
+  1233→Drift
+  1234→Risk Score
+  1235→Expected Benefit
+  1236→Expected Cost
+  1237→Execution Amount
+  1238→Execution Price
+  1239→Post-Trade Weight
+  1240→Data Version
+  1241→Model Version
+  1242→Parameter Version
+  1243→Oracle Version
+  1244→Transaction hash
+  1245→Block
+  1246→Timestamp
+  1247→
+  1248→---
+  1249→
+  1250→# 36. GOVERNANCE CENTER
+  1251→
+  1252→Create four clearly separated governance layers.
+  1253→
+  1254→## CONSTITUTIONAL
+  1255→
+  1256→7/7 Multi-Sig
+  1257→90-day timelock
+  1258→
+  1259→## MONETARY
+  1260→
+  1261→DAO
+  1262→51%
+  1263→48-hour timelock
+  1264→
+  1265→## RISK
+  1266→
+  1267→Risk Council
+  1268→4/7
+  1269→24-hour timelock
+  1270→
+  1271→## EMERGENCY
+  1272→
+  1273→Emergency Council
+  1274→4/7
+  1275→Instant
+  1276→
+  1277→Do not display these as interchangeable administrative permissions.
+  1278→
+  1279→Show scope boundaries.
+  1280→
+  1281→---
+  1282→
+  1283→# 37. PARAMETER REGISTRY
+  1284→
+  1285→Create:
+  1286→
+  1287→PARAMETER REGISTRY
+  1288→
+  1289→Columns:
+  1290→
+  1291→Parameter
+  1292→Value
+  1293→Unit
+  1294→Layer
+  1295→Authority
+  1296→Timelock
+  1297→Last Updated
+  1298→Version
+  1299→Status
+  1300→
+  1301→Examples:
+  1302→
+  1303→PAR
+  1304→RR Target
+  1305→RR Stress Floor
+  1306→RR Hard Floor
+  1307→LCR Target
+  1308→Mint Fee
+  1309→Redeem Fee
+  1310→Smoothing Parameters
+  1311→Slippage
+  1312→Haircuts
+  1313→Stress Redemption Rate
+  1314→De-peg Window
+  1315→
+  1316→Where the parameter is immutable, show:
+  1317→
+  1318→IMMUTABLE
+  1319→
+  1320→Where governed, show:
+  1321→
+  1322→GOVERNED
+  1323→
+  1324→---
+  1325→
+  1326→# 38. VALIDATION CENTER
+  1327→
+  1328→Create a very serious validation dashboard.
+  1329→
+  1330→Header:
+  1331→
+  1332→PRODUCTION AUTHORIZATION
+  1333→
+  1334→NOT AUTHORIZED
+  1335→
+  1336→Then:
+  1337→
+  1338→0 / 11
+  1339→or actual on-chain state
+  1340→
+  1341→Each gate:
+  1342→
+  1343→G1 Historical Evidence
+  1344→G2 Out-of-Sample Integrity
+  1345→G3 Synthetic Robustness
+  1346→G4 Parameter Robustness
+  1347→G5 Model Selection
+  1348→G6 Stress Suite
+  1349→G7 Reproducibility
+  1350→G8 ...
+  1351→G9 ...
+  1352→G10 ...
+  1353→G11 ...
+  1354→
+  1355→Each gate has:
+  1356→
+  1357→Status
+  1358→Evidence
+  1359→Owner
+  1360→Version
+  1361→Timestamp
+  1362→Hash
+  1363→Reviewer
+  1364→Notes
+  1365→
+  1366→Never show fake completion.
+  1367→
+  1368→---
+  1369→
+  1370→# 39. DEVELOPERS
+  1371→
+  1372→Create a developer portal.
+  1373→
+  1374→Sections:
+  1375→
+  1376→Networks
+  1377→Contracts
+  1378→Addresses
+  1379→ABIs
+  1380→Events
+  1381→Read Functions
+  1382→Write Functions
+  1383→Oracle Feeds
+  1384→Test Assets
+  1385→Faucet
+  1386→Verification
+  1387→APIs
+  1388→SDK
+  1389→Documentation
+  1390→
+  1391→Each contract page:
+  1392→
+  1393→Contract Name
+  1394→Network
+  1395→Address
+  1396→Verified
+  1397→Source
+  1398→Version
+  1399→Events
+  1400→Read methods
+  1401→Write methods
+  1402→Explorer
+  1403→
+  1404→---
+  1405→
+  1406→# 40. NETWORK SELECTOR
+  1407→
+  1408→Support the actual currently configured testnet deployments.
+  1409→
+  1410→Current specification references:
+  1411→
+  1412→Arc
+  1413→Monad
+  1414→Solana Devnet
+  1415→
+  1416→Do not hard-code an outdated deployment list into the marketing layer.
+  1417→
+  1418→Create dynamic network records:
+  1419→
+  1420→Network
+  1421→Environment
+  1422→Status
+  1423→Chain ID
+  1424→Contract Status
+  1425→Oracle Status
+  1426→Explorer
+  1427→Last Checked
+  1428→
+  1429→If Arbitrum Sepolia is later added, it should be additive rather than requiring architecture redesign.
+  1430→
+  1431→---
+  1432→
+  1433→# 41. TESTNET FAUCET
+  1434→
+  1435→Create:
+  1436→
+  1437→TESTNET ACCESS
+  1438→
+  1439→Network selector
+  1440→Test assets
+  1441→Faucet status
+  1442→Wallet address
+  1443→Claim amount
+  1444→Cooldown
+  1445→Transaction hash
+  1446→
+  1447→Clearly identify all simulated assets.
+  1448→
+  1449→---
+  1450→
+  1451→# 42. CONTRACT / EVENT EXPLORER
+  1452→
+  1453→Create a lightweight protocol-specific explorer.
+  1454→
+  1455→Search:
+  1456→
+  1457→Transaction hash
+  1458→Block
+  1459→Address
+  1460→Decision ID
+  1461→Event
+  1462→Contract
+  1463→Asset
+  1464→Weight update
+  1465→Risk transition
+  1466→
+  1467→Event categories:
+  1468→
+  1469→Mint
+  1470→Redeem
+  1471→Reserve update
+  1472→Weight update
+  1473→Oracle update
+  1474→Risk transition
+  1475→Asset state change
+  1476→Governance
+  1477→Rebalance
+  1478→Genesis
+  1479→Validation
+  1480→
+  1481→---
+  1482→
+  1483→# 43. CURRENT BRANDING IMPROVEMENT
+  1484→
+  1485→The current brand direction is already based on:
+  1486→
+  1487→Obsidian
+  1488→Gold
+  1489→Emerald
+  1490→Risk Rose
+  1491→Warm neutrals
+  1492→
+  1493→Preserve this general identity.
+  1494→
+  1495→However, reduce excessive:
+  1496→
+  1497→* cinematic effects
+  1498→* glassmorphism
+  1499→* giant decorative imagery
+  1500→* ornamental gradients
+  1501→* visual noise
+  1502→* excessive rounded-card styling
+  1503→
+  1504→Move toward:
+  1505→
+  1506→institutional
+  1507→precise
+  1508→dense
+  1509→calm
+  1510→high-trust
+  1511→data-first
+  1512→
+  1513→The existing brand should evolve, not be discarded.
+  1514→
+  1515→---
+  1516→
+  1517→# 44. TYPOGRAPHY
+  1518→
+  1519→Use:
+  1520→
+  1521→Sans serif for interface
+  1522→High-quality display face only for brand moments
+  1523→Monospace/tabular numerals for financial data
+  1524→
+  1525→All critical numeric values should use tabular numerals.
+  1526→
+  1527→Numbers must align correctly in tables.
+  1528→
+  1529→---
+  1530→
+  1531→# 45. COLOR SYSTEM
+  1532→
+  1533→Primary:
+  1534→
+  1535→Obsidian / near-black
+  1536→
+  1537→Secondary:
+  1538→
+  1539→Gold
+  1540→
+  1541→Health:
+  1542→
+  1543→Emerald
+  1544→
+  1545→Caution:
+  1546→
+  1547→Amber
+  1548→
+  1549→Danger:
+  1550→
+  1551→Rose
+  1552→
+  1553→Do NOT use color alone to communicate state.
+  1554→
+  1555→Every state needs:
+  1556→
+  1557→icon
+  1558→text
+  1559→status label
+  1560→numeric evidence
+  1561→
+  1562→---
+  1563→
+  1564→# 46. RESPONSIVE DESIGN
+  1565→
+  1566→Desktop:
+  1567→
+  1568→Dense terminal experience.
+  1569→
+  1570→Tablet:
+  1571→
+  1572→Collapsed navigation with readable analytics.
+  1573→
+  1574→Mobile:
+  1575→
+  1576→Bottom navigation or compact drawer.
+  1577→
+  1578→Primary mobile actions:
+  1579→
+  1580→Overview
+  1581→Reference
+  1582→Reserve
+  1583→Risk
+  1584→Mint
+  1585→Redeem
+  1586→Activity
+  1587→
+  1588→Do not merely scale desktop down.
+  1589→
+  1590→---
+  1591→
+  1592→# 47. UI COMPONENT SYSTEM
+  1593→
+  1594→Create reusable components:
+  1595→
+  1596→ProtocolStatusBar
+  1597→ReferenceValueCard
+  1598→ExternalUsdValue
+  1599→MetricCard
+  1600→RiskStateBadge
+  1601→RiskStateMachine
+  1602→ReserveGauge
+  1603→LcrGauge
+  1604→WeightTable
+  1605→WeightStateVisualizer
+  1606→WeightReasonDrawer
+  1607→OracleConsensus
+  1608→OracleSourceCard
+  1609→MarpDecisionCard
+  1610→DecisionExplorer
+  1611→GovernanceTierCard
+  1612→TimelockCard
+  1613→ValidationGateCard
+  1614→AssetRegistryTable
+  1615→AssetEvidenceDrawer
+  1616→VersionLineage
+  1617→ReproductionPanel
+  1618→TransactionTimeline
+  1619→ContractCard
+  1620→NetworkSelector
+  1621→TestnetFaucet
+  1622→SimulationRunner
+  1623→ExplorerEventRow
+  1624→
+  1625→Keep components composable.
+  1626→
+  1627→Do not duplicate logic across pages.
+  1628→
+  1629→---
+  1630→
+  1631→# 48. FULL-STACK DATA RULE
+  1632→
+  1633→Do not create mock-looking frontend numbers that are disconnected from the backend.
+  1634→
+  1635→Where data exists:
+  1636→
+  1637→use live API / database / contract state.
+  1638→
+  1639→Where data is simulated by the testnet:
+  1640→
+  1641→label it explicitly as simulated.
+  1642→
+  1643→Where data is unavailable:
+  1644→
+  1645→show:
+  1646→
+  1647→Unavailable
+  1648→Not published
+  1649→Awaiting source
+  1650→Not yet deployed
+  1651→
+  1652→Never fabricate.
+  1653→
+  1654→---
+  1655→
+  1656→# 49. DATABASE
+  1657→
+  1658→Preserve Turso / existing persistence architecture if it is working.
+  1659→
+  1660→Extend the schema where necessary with concepts such as:
+  1661→
+  1662→chains
+  1663→contracts
+  1664→oracle_feeds
+  1665→oracle_snapshots
+  1666→reference_snapshots
+  1667→weight_snapshots
+  1668→weight_components
+  1669→reserve_snapshots
+  1670→reserve_assets
+  1671→risk_states
+  1672→risk_transitions
+  1673→mase_runs
+  1674→mase_outputs
+  1675→marp_decisions
+  1676→marp_executions
+  1677→governance_proposals
+  1678→governance_votes
+  1679→timelocks
+  1680→validation_gates
+  1681→validation_evidence
+  1682→transactions
+  1683→events
+  1684→data_versions
+  1685→model_versions
+  1686→parameter_versions
+  1687→oracle_versions
+  1688→
+  1689→Do not duplicate data unnecessarily.
+  1690→
+  1691→Use the database as the indexed/read model while blockchain state remains authoritative where required.
+  1692→
+  1693→---
+  1694→
+  1695→# 50. API SURFACE
+  1696→
+  1697→Preserve existing working endpoints.
+  1698→
+  1699→Extend using coherent API routes such as:
+  1700→
+  1701→/api/status
+  1702→/api/reference
+  1703→/api/reference/weights
+  1704→/api/reference/history
+  1705→/api/reserve
+  1706→/api/reserve/assets
+  1707→/api/risk
+  1708→/api/risk/history
+  1709→/api/oracles
+  1710→/api/oracles/consensus
+  1711→/api/rebalance
+  1712→/api/rebalance/decisions
+  1713→/api/transparency
+  1714→/api/transparency/versions
+  1715→/api/transparency/reproduce
+  1716→/api/governance
+  1717→/api/governance/proposals
+  1718→/api/governance/parameters
+  1719→/api/validation
+  1720→/api/contracts
+  1721→/api/networks
+  1722→/api/events
+  1723→
+  1724→Do not create separate inconsistent API conventions.
+  1725→
+  1726→---
+  1727→
+  1728→# 51. BLOCKCHAIN AUTHORITY RULE
+  1729→
+  1730→Never make the database silently override blockchain truth.
+  1731→
+  1732→Use this precedence:
+  1733→
+  1734→On-chain authoritative state
+  1735→↓
+  1736→Indexed blockchain state
+  1737→↓
+  1738→Database read model
+  1739→↓
+  1740→Cached API representation
+  1741→
+  1742→If data conflicts, expose the conflict instead of silently selecting the prettier result.
+  1743→
+  1744→---
+  1745→
+  1746→# 52. HONEST STATUS ENGINE
+  1747→
+  1748→The application must expose:
+  1749→
+  1750→getHonestStatus
+  1751→getValidationGates
+  1752→isProductionAuthorized
+  1753→getStatusSummary
+  1754→
+  1755→where available through the deployed contract/interface.
+  1756→
+  1757→Do not duplicate those values manually in UI configuration.
+  1758→
+  1759→The UI must dynamically reflect actual status.
+  1760→
+  1761→---
+  1762→
+  1763→# 53. PRODUCTION-AUTHORIZATION LOGIC
+  1764→
+  1765→The frontend must have a visible:
+  1766→
+  1767→PRODUCTION AUTHORIZATION
+  1768→
+  1769→status.
+  1770→
+  1771→Possible states:
+  1772→
+  1773→NOT AUTHORIZED
+  1774→PENDING VALIDATION
+  1775→CONDITIONAL
+  1776→AUTHORIZED
+  1777→
+  1778→Do not hard-code AUTHORIZED.
+  1779→
+  1780→Authorization must be derived from actual protocol state / gates.
+  1781→
+  1782→---
+  1783→
+  1784→# 54. STRICT MARKETING LANGUAGE POLICY
+  1785→
+  1786→REMOVE / REWRITE any current user-facing content that says:
+  1787→
+  1788→"1 MTQ = $1"
+  1789→"$1 stablecoin"
+  1790→"USD peg"
+  1791→"guaranteed purchasing power"
+  1792→"guaranteed returns"
+  1793→"crisis-proof"
+  1794→"optimal final weights"
+  1795→"100% Halal"
+  1796→"fatwa-ready"
+  1797→"final 27% / 26% composition"
+  1798→"best"
+  1799→"highest"
+  1800→"safe returns"
+  1801→"risk-free"
+  1802→"guaranteed"
+  1803→
+  1804→Use instead:
+  1805→
+  1806→"neutral reference"
+  1807→"adaptive methodology"
+  1808→"asset-backed design"
+  1809→"validation-stage"
+  1810→"testnet"
+  1811→"current live state"
+  1812→"published methodology"
+  1813→"observable reserve metrics"
+  1814→"deterministic audit trail"
+  1815→
+  1816→---
+  1817→
+  1818→# 55. SHARIA LANGUAGE
+  1819→
+  1820→Do not claim certified Sharia compliance.
+  1821→
+  1822→Use:
+  1823→
+  1824→"Designed for Sharia review"
+  1825→
+  1826→and only where accurate:
+  1827→
+  1828→"formal certification has not yet been obtained"
+  1829→
+  1830→Do not claim:
+  1831→
+  1832→"100% Halal"
+  1833→"Sharia certified"
+  1834→
+  1835→unless the application receives actual documented certification.
+  1836→
+  1837→---
+  1838→
+  1839→# 56. CURRENT HOMEPAGE CONTENT CLEANUP
+  1840→
+  1841→Review the current HomeSection and remove or rewrite:
+  1842→
+  1843→* USD-style MTQ price presentation
+  1844→* misleading fixed-weight narrative
+  1845→* overly promotional language
+  1846→* token-sale style messaging
+  1847→* investor-centric CTA hierarchy
+  1848→* any unsupported performance claims
+  1849→
+  1850→The existing homepage currently contains a seven-component prior description and `$`-prefixed MTQ price display.
+  1851→
+  1852→Fix those at the UI source level.
+  1853→
+  1854→---
+  1855→
+  1856→# 57. HEADER / NAVIGATION CLEANUP
+  1857→
+  1858→Replace the existing Apple-style segmented navigation as the primary desktop architecture.
+  1859→
+  1860→Use a professional terminal navigation system.
+  1861→
+  1862→Preferred:
+  1863→
+  1864→Top global header
+  1865→+
+  1866→Secondary product navigation
+  1867→+
+  1868→Context-aware section navigation
+  1869→
+  1870→On larger screens:
+  1871→
+  1872→left-side compact navigation or command-oriented top navigation
+  1873→
+  1874→On mobile:
+  1875→
+  1876→compact top header + bottom navigation
+  1877→
+  1878→Do not waste excessive vertical space on a decorative segmented control.
+  1879→
+  1880→---
+  1881→
+  1882→# 58. DASHBOARD REDESIGN
+  1883→
+  1884→The dashboard is not merely another page.
+  1885→
+  1886→Make it the operational command center.
+  1887→
+  1888→Top row:
+  1889→
+  1890→Reference Value
+  1891→Reserve Ratio
+  1892→LCR
+  1893→Risk State
+  1894→
+  1895→Second row:
+  1896→
+  1897→Live Weight
+  1898→Oracle Consensus
+  1899→MARP Decision
+  1900→Production Authorization
+  1901→
+  1902→Third:
+  1903→
+  1904→Reference chart
+  1905→
+  1906→Fourth:
+  1907→
+  1908→Weight table
+  1909→
+  1910→Fifth:
+  1911→
+  1912→Reserve composition
+  1913→
+  1914→Sixth:
+  1915→
+  1916→Risk timeline
+  1917→
+  1918→Seventh:
+  1919→
+  1920→Recent decisions / events
+  1921→
+  1922→This should feel like a serious treasury / monetary operations terminal.
+  1923→
+  1924→---
+  1925→
+  1926→# 59. COMMAND CENTER EXPERIENCE
+  1927→
+  1928→Add a command/search launcher:
+  1929→
+  1930→Cmd/Ctrl + K
+  1931→
+  1932→Commands:
+  1933→
+  1934→Go to Overview
+  1935→Go to Reference
+  1936→Go to Reserve
+  1937→Go to Risk
+  1938→Go to Rebalancing
+  1939→Mint
+  1940→Redeem
+  1941→Search Decision
+  1942→Search Transaction
+  1943→Open Contract
+  1944→Open Validation
+  1945→Open Governance
+  1946→Open Documentation
+  1947→
+  1948→This is a high-value institutional UX feature.
+  1949→
+  1950→---
+  1951→
+  1952→# 60. TRANSACTION UX
+  1953→
+  1954→All blockchain writes should follow:
+  1955→
+  1956→Review
+  1957→↓
+  1958→Risk / state check
+  1959→↓
+  1960→Estimated result
+  1961→↓
+  1962→Slippage
+  1963→↓
+  1964→Network
+  1965→↓
+  1966→Gas
+  1967→↓
+  1968→Contract
+  1969→↓
+  1970→Confirm
+  1971→↓
+  1972→Pending
+  1973→↓
+  1974→Confirmed
+  1975→↓
+  1976→Explorer
+  1977→
+  1978→Never make a user wonder what they are signing.
+  1979→
+  1980→---
+  1981→
+  1982→# 61. ERROR UX
+  1983→
+  1984→Never show raw:
+  1985→
+  1986→"execution reverted"
+  1987→
+  1988→to normal users.
+  1989→
+  1990→Translate errors into:
+  1991→
+  1992→WHAT HAPPENED
+  1993→WHY
+  1994→WHAT YOU CAN DO
+  1995→
+  1996→For developers, expose:
+  1997→
+  1998→raw revert
+  1999→contract
+  2000→selector
+
+[showing lines 1-2000 of 2751; use offset=2001 with limit to continue reading]

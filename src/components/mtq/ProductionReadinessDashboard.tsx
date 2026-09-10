@@ -195,7 +195,7 @@ const SUBSYSTEMS: Subsystem[] = [
     name: "Sharia certification",
     status: "NOT DONE",
     color: "BLOCKED",
-    evidence: "External dependency — independent fatwa from a recognised Sharia board required",
+    evidence: "External dependency — independent Sharia review from a recognised Sharia board required",
     category: "External Gates",
   },
   {

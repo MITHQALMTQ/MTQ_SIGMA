@@ -124,7 +124,7 @@ export function GfbChart({ snapshot, height = 200 }: GfbChartProps) {
       
       {/* Current value label */}
       <div className="absolute top-2 right-2 flex flex-col items-end">
-        <div className="text-[0.6rem] text-white/55 uppercase tracking-wider">GFB Index</div>
+        <div className="text-[0.6rem] text-white/55 uppercase tracking-wider">Reference Index</div>
         <div className="font-mono text-lg font-bold mtqs-gold-text tabular-nums">{gfb.toFixed(4)}</div>
       </div>
     </div>

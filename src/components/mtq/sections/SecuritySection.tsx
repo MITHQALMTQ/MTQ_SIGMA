@@ -458,8 +458,10 @@ export function SecuritySection({ onNavigate: _onNavigate }: { onNavigate: (id: 
                 <li className="flex gap-2">
                   <XCircle className="h-3.5 w-3.5 text-mtqs-rose shrink-0 mt-0.5" aria-hidden="true" />
                   <span>
-                    The earlier draft&apos;s claim &ldquo;100% Halal / Fatwa-ready&rdquo; was removed (§15.1) and
-                    replaced with &ldquo;designed for Sharia review.&rdquo;
+                    The earlier draft&apos;s claim of automatic Sharia compliance was removed (§15.1) and
+                    replaced with &ldquo;designed for Sharia review.&rdquo; The design is interest-free,
+                    asset-backed, and non-speculative — independent scholarly review remains the
+                    explicit ask (F4 informational finding).
                   </span>
                 </li>
               </ul>

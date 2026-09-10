@@ -89,8 +89,8 @@ export function TrialLog({
                   <th className="text-left px-3 py-2 font-medium">Chain</th>
                   <th className="text-left px-3 py-2 font-medium">Input → Output</th>
                   <th className="text-right px-3 py-2 font-medium">GFB</th>
-                  <th className="text-right px-3 py-2 font-medium">Price</th>
-                  <th className="text-right px-3 py-2 font-medium">NAV</th>
+                  <th className="text-right px-3 py-2 font-medium">Ref Value</th>
+                  <th className="text-right px-3 py-2 font-medium">NAV (USD)</th>
                   <th className="text-right px-3 py-2 font-medium">RR</th>
                   <th className="text-right px-3 py-2 font-medium">LCR</th>
                   <th className="text-left px-3 py-2 font-medium">Status</th>
@@ -121,7 +121,7 @@ export function TrialLog({
                         <span className="text-mtqs-gold">{fmtNum(t.outputAmount, 4)} {t.outputSymbol}</span>
                       </td>
                       <td className="px-3 py-2 text-right font-mono text-white/55">{fmtFixed(t.gfbIndex, 4)}</td>
-                      <td className="px-3 py-2 text-right font-mono text-mtqs-gold/80">${fmtFixed(t.mtqPrice, 4)}</td>
+                      <td className="px-3 py-2 text-right font-mono text-mtqs-gold/80">{fmtFixed(t.mtqPrice, 4)}</td>
                       <td className="px-3 py-2 text-right font-mono text-white/55">{fmtUsd(t.nav)}</td>
                       <td className="px-3 py-2 text-right font-mono">
                         <span className={t.reserveRatio >= 1.1 ? "text-mtqs-emerald" : t.reserveRatio >= 1.05 ? "text-mtqs-amber" : "text-mtqs-rose"}>

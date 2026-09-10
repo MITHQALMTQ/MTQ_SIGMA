@@ -282,15 +282,15 @@ export const HONEST_STATUS = [
   { metric: "Mint/Redemption", state: "Priced against adaptive reference index (not fixed basket)" },
   { metric: "Oracle Architecture", state: "Canonical multi-source with confidence scoring" },
   { metric: "Gold in Index", state: "Gold IS a first-class index component (20-32% envelope)" },
-  { metric: "Sharia Status", state: "Designed for Sharia review (independent fatwa required)" },
+  { metric: "Sharia Status", state: "Designed for Sharia review (independent scholarly review required)" },
   { metric: "Production Authorization", state: "NO — validation program (Chapter 23) is a precondition" },
 ] as const;
 
 // === §25.3 Claims NOT Supported ===
 export const UNSUPPORTED_CLAIMS = [
-  { claim: '"100% Halal / Fatwa-ready"', reason: "Requires formal fatwa from independent Sharia board (not yet obtained)." },
+  { claim: '"Automatic full Sharia compliance"', reason: "Requires independent scholarly review from a recognised Sharia board (not yet obtained)." },
   { claim: '"σ_NAV = 4.34%"', reason: "Preliminary simulation; methodology, dataset, confidence intervals not disclosed." },
-  { claim: '"Crisis-Proof"', reason: "Cannot be claimed without full validation program (Chapter 23)." },
+  { claim: '"Immune to all market shocks"', reason: "Cannot be claimed without full validation program (Chapter 23)." },
   { claim: '"1 MTQ = 1 Big Mac"', reason: "Replaced with 'targets global purchasing-power index.'" },
   { claim: '"Optimal"', reason: "No weight is optimal until it survives the research program." },
   { claim: '"Fixed composition"', reason: "v1.0: composition is ADAPTIVE — no fixed weights." },

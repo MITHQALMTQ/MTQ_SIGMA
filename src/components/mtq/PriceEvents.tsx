@@ -16,9 +16,9 @@ export function PriceEvents({ snapshot }: { snapshot: MetricsSnapshot | null }) 
     <Panel className="p-5">
       <div className="mb-3 flex items-center justify-between">
         <div>
-          <div className="text-sm font-semibold text-white/90">Price Events Log (§3.6)</div>
+          <div className="text-sm font-semibold text-white/90">Reference Value Events Log (§3.6)</div>
           <div className="text-[0.7rem] text-white/55">
-            PriceUpdated events emitted when GFB changes ≥ {(PRICE_EVENT_THRESHOLD * 100).toFixed(1)}% · last {events.length} of 20
+            Reference Value updates emitted when the Reference Index changes ≥ {(PRICE_EVENT_THRESHOLD * 100).toFixed(1)}% · last {events.length} of 20
           </div>
         </div>
         <Pill tone={events.length > 0 ? "amber" : "muted"}>
@@ -29,7 +29,7 @@ export function PriceEvents({ snapshot }: { snapshot: MetricsSnapshot | null }) 
 
       {events.length === 0 ? (
         <div className="rounded-md border border-white/[0.06] bg-white/[0.03]/[0.02] p-4 text-center text-[0.72rem] text-white/55">
-          No price events yet. The GFB Index has not moved more than {(PRICE_EVENT_THRESHOLD * 100).toFixed(1)}% between ticks since the pilot started.
+          No reference events yet. The Adaptive Reference Basket has not moved more than {(PRICE_EVENT_THRESHOLD * 100).toFixed(1)}% between ticks since the pilot started.
         </div>
       ) : (
         <div className="max-h-72 overflow-y-auto mtqs-scroll pr-1">

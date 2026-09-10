@@ -57,7 +57,7 @@ export function MintSimulator({
         if (data.mint.ok) {
           setResult(data.mint);
           toast.success(`Minted ${data.mint.mtqMinted.toFixed(4)} MTQΣ`, {
-            description: `${fmtUsd(amt)} USDC → ${fmtUsd(data.mint.netUsd)} net @ ${fmtFixed(data.mint.mtqPrice, 4)}`,
+            description: `${fmtUsd(amt)} USDC → ${fmtUsd(data.mint.netUsd)} net @ ref val ${fmtFixed(data.mint.mtqPrice, 4)}`,
           });
         } else {
           setResult(data.mint);
@@ -177,7 +177,7 @@ export function MintSimulator({
                 <Row label="Input" value={fmtUsd(result.inputUsd)} />
                 <Row label={`Fee (${(feeBps / 100).toFixed(2)}%)`} value={fmtUsd(result.feeUsd)} tone="rose" />
                 <Row label="Net deposit" value={fmtUsd(result.netUsd)} />
-                <Row label="MTQ price" value={`$${fmtFixed(result.mtqPrice, 4)}`} tone="gold" />
+                <Row label="Reference Value" value={fmtFixed(result.mtqPrice, 4)} tone="gold" />
                 <Row label="Throttle factor" value={`${(result.throttleFactor * 100).toFixed(0)}%`} />
                 <Row label="New RR" value={Number.isFinite(result.newReserveRatio) ? fmtRatio(result.newReserveRatio) : "∞"} />
               </div>

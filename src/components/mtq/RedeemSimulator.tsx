@@ -174,7 +174,7 @@ export function RedeemSimulator({
 
               <div className="grid grid-cols-2 gap-2.5 text-[0.75rem]">
                 <Row label="Input MTQ" value={fmtNum(result.inputMtq, 4)} />
-                <Row label="MTQ price" value={`$${fmtFixed(result.mtqPrice, 4)}`} tone="gold" />
+                <Row label="Reference Value" value={fmtFixed(result.mtqPrice, 4)} tone="gold" />
                 <Row label="Gross USD (§3.4.2)" value={fmtUsd(result.grossUsd)} tone="emerald" />
                 <Row label={`Fee (${(result.feeBps / 100).toFixed(2)}%)`} value={fmtUsd(result.feeUsd)} tone="rose" />
                 <Row label="Net USD" value={fmtUsd(result.netUsd)} tone="gold" />

@@ -34,7 +34,7 @@ const sectionVariants = {
 };
 
 export default function Page() {
-  const [section, setSection] = useState<SectionId>("home");
+  const [section, setSection] = useState<SectionId>("overview");
   const [snapshot, setSnapshot] = useState<MetricsSnapshot | null>(null);
   const [error, setError] = useState<string | null>(null);
   const mountedRef = useRef(true);
@@ -93,14 +93,53 @@ export default function Page() {
               exit="exit"
               transition={{ duration: 0.5, ease: [0.16, 1, 0.3, 1] }}
             >
+              {/* ─── PRIMARY ─────────────────────────────────────────── */}
+              {section === "overview" && <HomeSection onNavigate={handleNavigate} />}
+              {section === "reference" && <DashboardSection />}
+              {section === "reserve" && <DashboardSection />}
+              {section === "risk" && <DashboardSection />}
+              {section === "rebalancing" && <DashboardSection />}
+              {section === "transparency" && (
+                <DocsSection onNavigate={handleNavigate} snapshot={snapshot} />
+              )}
+              {section === "governance" && <DashboardSection />}
+              {section === "validation" && <TestsSection onNavigate={handleNavigate} />}
+              {section === "developers" && <ContractsSection onNavigate={handleNavigate} />}
+
+              {/* ─── USER OPERATIONS ─────────────────────────────────── */}
+              {section === "mint" && (
+                <TrialSection onNavigate={handleNavigate} snapshot={snapshot} />
+              )}
+              {section === "redeem" && (
+                <TrialSection onNavigate={handleNavigate} snapshot={snapshot} />
+              )}
+              {section === "portfolio" && <DashboardSection />}
+              {section === "activity" && <DashboardSection />}
+
+              {/* ─── SUPPORTING ──────────────────────────────────────── */}
+              {section === "simulation" && (
+                <TrialSection onNavigate={handleNavigate} snapshot={snapshot} />
+              )}
+              {section === "docs" && (
+                <DocsSection onNavigate={handleNavigate} snapshot={snapshot} />
+              )}
+              {section === "security" && <SecuritySection onNavigate={handleNavigate} />}
+              {section === "contracts" && <ContractsSection onNavigate={handleNavigate} />}
+              {section === "networks" && <ContractsSection onNavigate={handleNavigate} />}
+              {section === "faucet" && <DashboardSection />}
+
+              {/* ─── SECONDARY / RESTRICTED (accessible via "More" dropdown) ─── */}
+              {section === "investors" && (
+                <InvestorSection onNavigate={handleNavigate} snapshot={snapshot} />
+              )}
+              {section === "pitch" && <PitchSection onNavigate={handleNavigate} />}
+
+              {/* ─── LEGACY fallbacks (internal section links may still target these IDs) ─── */}
               {section === "home" && <HomeSection onNavigate={handleNavigate} />}
               {section === "dashboard" && <DashboardSection />}
-              {section === "contracts" && <ContractsSection onNavigate={handleNavigate} />}
-              {section === "trial" && <TrialSection onNavigate={handleNavigate} snapshot={snapshot} />}
-              {section === "docs" && <DocsSection onNavigate={handleNavigate} snapshot={snapshot} />}
-              {section === "investors" && <InvestorSection onNavigate={handleNavigate} snapshot={snapshot} />}
-              {section === "pitch" && <PitchSection onNavigate={handleNavigate} />}
-              {section === "security" && <SecuritySection onNavigate={handleNavigate} />}
+              {section === "trial" && (
+                <TrialSection onNavigate={handleNavigate} snapshot={snapshot} />
+              )}
               {section === "tests" && <TestsSection onNavigate={handleNavigate} />}
             </motion.div>
           </AnimatePresence>

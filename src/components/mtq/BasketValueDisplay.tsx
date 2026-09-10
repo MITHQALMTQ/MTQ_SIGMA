@@ -57,9 +57,9 @@ export function BasketValueDisplay({ snapshot }: BasketValueProps) {
         <div className="mb-4 p-4 rounded-xl bg-white/[0.02] border border-white/[0.06]">
           <div className="flex items-baseline gap-3">
             <span className="font-mono text-2xl font-bold mtqs-gold-text tabular-nums">{mtqPrice.toFixed(4)}</span>
-            <span className="text-sm text-white/55">USD per 1 MTQΣ</span>
+            <span className="text-sm text-white/55" title="USD is used here only as an external reporting/valuation numeraire. It does not define the MTQΣ monetary unit; no fixed USD parity is implied or guaranteed.">External USD Reporting Value per 1 MTQΣ</span>
           </div>
-          <div className="mt-2 text-xs text-white/40">GFB Index: {snapshot?.gfbIndex?.toFixed(4) ?? "—"}</div>
+          <div className="mt-2 text-xs text-white/40">Reference Index: {snapshot?.gfbIndex?.toFixed(4) ?? "—"}</div>
         </div>
 
         {/* Grid of all 7 currencies */}
@@ -95,7 +95,7 @@ export function BasketValueDisplay({ snapshot }: BasketValueProps) {
 
         {/* Honest note */}
         <p className="mt-4 text-[0.7rem] text-white/40 leading-relaxed">
-          1 MTQΣ represents one unit of the GFB Index — a chain-linked 7-component basket.
+          1 MTQΣ represents one unit of the Adaptive Reference Basket — a chain-linked 7-component reference.
           The values above show what 1 MTQΣ is worth in each component currency at live FX rates.
           Gold (PAXG + XAUT) is a first-class index component (26% Strategic Prior), not just reserve collateral.
         </p>

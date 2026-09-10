@@ -206,7 +206,7 @@ export function DocsSection({
         <div className="flex items-end justify-between gap-4 mb-4">
           <div>
             <div className="text-[0.6rem] uppercase tracking-[0.22em] text-mtqs-gold/75">§3.2 · Strategic Prior</div>
-            <h3 className="mt-2 text-base font-semibold text-white">GFB Index — 7-Component Strategic Prior</h3>
+            <h3 className="mt-2 text-base font-semibold text-white">Adaptive Reference Basket — 7-Component Strategic Prior</h3>
           </div>
         </div>
         <Reveal>

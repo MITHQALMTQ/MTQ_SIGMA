@@ -141,9 +141,9 @@ export function InvestorSection({
   const healthCards = [
     {
       icon: Activity,
-      label: "GFB Index",
+      label: "Reference Index",
       value: snapshot ? fmtFixed(snapshot.gfbIndex, 4) : null,
-      sub: snapshot ? `Price $${fmtFixed(snapshot.mtqPrice, 4)}` : "polling…",
+      sub: snapshot ? `Ref Value ${fmtFixed(snapshot.mtqPrice, 4)}` : "polling…",
       tone: snapshot?.priceInBand ? "emerald" : "rose",
     },
     {
@@ -162,9 +162,9 @@ export function InvestorSection({
     },
     {
       icon: Coins,
-      label: "Reserve NAV",
+      label: "Reserve NAV (USD reporting)",
       value: snapshot ? fmtUsdCompact(snapshot.nav) : null,
-      sub: snapshot ? `Liability ${fmtUsdCompact(snapshot.liability)}` : "polling…",
+      sub: snapshot ? `Liability (USD reporting) ${fmtUsdCompact(snapshot.liability)}` : "polling…",
       tone: "gold",
     },
     {

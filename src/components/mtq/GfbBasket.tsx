@@ -120,7 +120,7 @@ export function GoldInReserve({ snapshot }: { snapshot?: import("@/lib/mtq/engin
   return (
     <div className="mt-4 rounded-lg border border-mtqs-amber/20 bg-amber-400/[0.03] p-4">
       <div className="text-[0.625rem] uppercase tracking-[0.25em] text-mtqs-amber/80 mb-3">
-        §3.2 + §14.1 · Gold is in BOTH the GFB Index AND the Reserve (v1.0)
+        §3.2 + §14.1 · Gold is in BOTH the Adaptive Reference Basket AND the Reserve (v1.0)
       </div>
       <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
         <div>
@@ -141,9 +141,9 @@ export function GoldInReserve({ snapshot }: { snapshot?: import("@/lib/mtq/engin
         </div>
       </div>
       <p className="mt-3 text-[0.7rem] text-white/55/60 leading-relaxed">
-        The GFB Index (above) is a 7-component basket that defines the VALUE of MTQΣ — Gold is
-        <span className="text-mtqs-gold font-medium"> a first-class index component</span> (26% strategic
-        prior, 20-32% admissibility envelope). The reserve holds PAXG + XAUT as the collateral that
+        The Adaptive Reference Basket (above) is a 7-component basket that defines the VALUE of MTQΣ — Gold is
+        <span className="text-mtqs-gold font-medium"> a first-class index component</span> (26% Strategic
+        Prior, 20-32% admissibility envelope). The reserve holds PAXG + XAUT as the collateral that
         backs the token. In v1.0 the two roles are <span className="text-mtqs-gold font-medium">mandatorily
         separate</span> per §14.1: index gold defines what 1 MTQ represents (purchasing power); reserve
         gold is sized by obligations, liquidity, custody, and redemption risk — <span className="italic">not</span> by

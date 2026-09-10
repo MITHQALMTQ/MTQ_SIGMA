@@ -203,7 +203,7 @@ export const MTQSIGMA_V2: {
   features: [
     "§2  7-component Strategic Prior (USD/EUR/JPY/GBP/CNY/CHF/Gold) — Gold + CHF first-class",
     "§3  Chain-linked GFB_BASE_DENOMINATOR (immutable, computed once)",
-    "§3  MTQ price + safety band 0.50-2.00 + circulating supply + liability",
+    "§3  Reference Value + safety band 0.50-2.00 + circulating supply + liability",
     "§5  Asset Admission Registry adapter interface",
     "§8.1 On-chain MASE weight registry (target/smoothed/execution [7])",
     "§8.1 Per-component admissibility envelopes (enforced on commit — reverts on breach)",

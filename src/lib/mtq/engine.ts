@@ -1069,7 +1069,7 @@ export function applyMint(
   // legacy Laspeyres form had a structural short-gold bug — see chain-index.ts).
   const price = getMtqPriceFromState(s);
   if (!priceInSafetyBand(price)) {
-    return { ok: false, reason: "MTQ price outside safety band (0.50–2.00 USD); minting paused by circuit breaker.", inputUsd, feeUsd: 0, netUsd: 0, mtqPrice: price, mtqMinted: 0, throttleFactor: 0, newCirculatingSupply: circulatingSupply(s), newReserveRatio: computeReserveRatio(reserveAssetValues(s, fx).nav, computeLiability(s, price)) };
+    return { ok: false, reason: "Reference Value outside safety band (0.50–2.00 USD reporting); minting paused by circuit breaker.", inputUsd, feeUsd: 0, netUsd: 0, mtqPrice: price, mtqMinted: 0, throttleFactor: 0, newCirculatingSupply: circulatingSupply(s), newReserveRatio: computeReserveRatio(reserveAssetValues(s, fx).nav, computeLiability(s, price)) };
   }
   // P0-FIX-3: use the canonical mint throttle / minting-allowed from
   // state-machine.ts. STRESS now also pauses minting (previously only
@@ -2185,7 +2185,7 @@ export function getReconciliationFindings(s: ReserveState, vals: { usdcUsd: numb
       title: "Sharia compliance not yet certified",
       severity: "informational",
       description:
-        "Blueprint §15.2 honestly states 'Designed for Sharia review (independent review required).' No fatwa has been issued. The v1.2 removed the '100% Halal / Fatwa-ready' claim.",
+        "Blueprint §15.2 honestly states 'Designed for Sharia review (independent scholarly review required).' No independent Sharia review has been completed. The v1.2 removed the 'Automatic full Sharia compliance' claim.",
       resolution: "Independent scholarly review required before any Sharia-compliance claim. The UI displays the honest status.",
     },
   ];

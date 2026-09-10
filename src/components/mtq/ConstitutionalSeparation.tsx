@@ -33,7 +33,7 @@ export function ConstitutionalSeparation({
         preserveAspectRatio="xMidYMid meet"
         className="w-full h-full"
         role="img"
-        aria-label="Constitutional Separation diagram: three concentric rings labeled A GFB Index, B MTQΣ Token, C Reserve, with the active ring pulsing by protocol status."
+        aria-label="Constitutional Separation diagram: three concentric rings labeled A Reference Index, B MTQΣ Token, C Reserve, with the active ring pulsing by protocol status."
       >
         <defs>
           <radialGradient id="mtqs-aurora" cx="50%" cy="50%" r="50%">
@@ -227,7 +227,7 @@ export function ConstitutionalSeparation({
         <g>
           <circle cx="260" cy="50" r="4" fill="#f5d27a" />
           <text x="260" y="32" textAnchor="middle" fontSize="11" fill="#f5d27a" fontFamily="var(--font-geist-sans), sans-serif" letterSpacing="3">
-            A · GFB INDEX
+            A · REFERENCE INDEX
           </text>
           <text x="260" y="70" textAnchor="middle" fontSize="14" fill="#e8b964" fontFamily="var(--font-geist-mono), monospace" fontWeight="600">
             {snapshot ? fmtFixed(snapshot.gfbIndex, 4) : "—"}
@@ -244,7 +244,7 @@ export function ConstitutionalSeparation({
             MTQΣ
           </text>
           <text x="36" y="282" textAnchor="middle" fontSize="11" fill="#3ddc97" fontFamily="var(--font-geist-mono), monospace" fontWeight="600">
-            {snapshot ? `$${fmtFixed(snapshot.mtqPrice, 4)}` : "—"}
+            {snapshot ? fmtFixed(snapshot.mtqPrice, 4) : "—"}
           </text>
         </g>
 

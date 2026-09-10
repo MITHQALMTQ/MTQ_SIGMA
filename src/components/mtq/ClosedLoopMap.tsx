@@ -19,8 +19,8 @@ type Node = {
 };
 
 const NODES: Record<string, Node> = {
-  gfb:   { id: "gfb",   label: "GFB Index",     x: 80,  y: 200, accent: "#e8b964", glyph: "G" },
-  price: { id: "price", label: "MTQ Price",     x: 320, y: 80,  accent: "#3ddc97", glyph: "P" },
+  gfb:   { id: "gfb",   label: "Reference Index",     x: 80,  y: 200, accent: "#e8b964", glyph: "G" },
+  price: { id: "price", label: "Reference Value",     x: 320, y: 80,  accent: "#3ddc97", glyph: "P" },
   liab:  { id: "liab",  label: "Liability",      x: 620, y: 200, accent: "#9fb0a3", glyph: "L" },
   nav:   { id: "nav",   label: "Reserve NAV",    x: 320, y: 320, accent: "#f5d27a", glyph: "V" },
   mint:  { id: "mint",  label: "Mint / Redeem",   x: 460, y: 200, accent: "#ff9f43", glyph: "↻" },
@@ -38,7 +38,7 @@ const EDGES: Array<{ from: string; to: string; label: string; dash?: "fast" | "s
 export function ClosedLoopMap({ snapshot }: { snapshot: MetricsSnapshot | null }) {
   const edgeValue = (label: string): string => {
     if (!snapshot) return "—";
-    if (label === "P_MTQ = GFB_t") return `$${fmtFixed(snapshot.mtqPrice, 4)}`;
+    if (label === "P_MTQ = GFB_t") return fmtFixed(snapshot.mtqPrice, 4);
     if (label === "L = S·P_MTQ") return fmtUsdCompact(snapshot.liability);
     if (label === "RR = NAV / L")
       return Number.isFinite(snapshot.reserveRatio) ? fmtRatio(snapshot.reserveRatio) : "∞";
@@ -68,7 +68,7 @@ export function ClosedLoopMap({ snapshot }: { snapshot: MetricsSnapshot | null }
         preserveAspectRatio="xMidYMid meet"
         className="w-full min-w-[640px] h-auto"
         role="img"
-        aria-label="Closed-loop architecture map: GFB Index feeds MTQ Price; Price feeds Liability; Liability and Reserve NAV determine the Reserve Ratio; the Mint/Redeem flow feeds back to price, with the GFB Index as the reference."
+        aria-label="Closed-loop architecture map: Adaptive Reference Basket feeds Reference Value; Reference Value feeds Liability; Liability and Reserve NAV determine the Reserve Ratio; the Mint/Redeem flow feeds back to value, with the Adaptive Reference Basket as the reference."
       >
         <defs>
           <radialGradient id="mtqs-loop-bg" cx="50%" cy="50%" r="60%">

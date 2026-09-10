@@ -88,14 +88,14 @@ export function LiveMonetaryState({ snapshot }: { snapshot: MetricsSnapshot | nu
       {/* Row 1 — top 4 tiles */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
         <Reveal delay={0}>
-          <MetricTile eyebrow="GFB Index (§2)" stripe="gold">
+          <MetricTile eyebrow="Reference Index (§2)" stripe="gold">
             <div className="flex items-baseline gap-2">
               <TickNumber
                 value={snapshot.gfbIndex}
                 format={(n) => fmtFixed(n, 4)}
                 className="text-3xl font-semibold mtqs-gold-text"
               />
-              <span className="text-xs text-white/55 font-mono">/USD</span>
+              <span className="text-xs text-white/55 font-mono" title="USD is used here only as an external reporting/valuation numeraire. It does not define the MTQΣ monetary unit; no fixed USD parity is implied or guaranteed.">·USD reporting</span>
             </div>
             <p className="mt-2 text-[0.7rem] text-white/55">
               normalised = 1.00 at 2026-01-01 00:00 UTC
@@ -107,11 +107,11 @@ export function LiveMonetaryState({ snapshot }: { snapshot: MetricsSnapshot | nu
         </Reveal>
 
         <Reveal delay={0.04}>
-          <MetricTile eyebrow="MTQ Reference Price (§3)" stripe={snapshot.priceInBand ? "emerald" : "rose"}>
+          <MetricTile eyebrow="Reference Value (§3)" stripe={snapshot.priceInBand ? "emerald" : "rose"}>
             <div className="flex items-baseline gap-2">
               <TickNumber
                 value={snapshot.mtqPrice}
-                format={(n) => `$${fmtFixed(n, 4)}`}
+                format={(n) => fmtFixed(n, 4)}
                 className={`text-3xl font-semibold ${snapshot.priceInBand ? "text-mtqs-emerald" : "text-mtqs-rose"}`}
               />
               {snapshot.priceInBand ? (
@@ -121,7 +121,7 @@ export function LiveMonetaryState({ snapshot }: { snapshot: MetricsSnapshot | nu
               )}
             </div>
             <p className="mt-2 text-[0.7rem] text-white/55">
-              Safety band {PRICE_SAFETY_LOWER.toFixed(2)}–{PRICE_SAFETY_UPPER.toFixed(2)} USD
+              Safety band {PRICE_SAFETY_LOWER.toFixed(2)}–{PRICE_SAFETY_UPPER.toFixed(2)} (USD reporting)
             </p>
             <div className="mt-3">
               <MiniBar
@@ -140,7 +140,7 @@ export function LiveMonetaryState({ snapshot }: { snapshot: MetricsSnapshot | nu
         </Reveal>
 
         <Reveal delay={0.08}>
-          <MetricTile eyebrow="Reserve NAV (§4)" stripe="gold">
+          <MetricTile eyebrow="Reserve NAV · USD reporting (§4)" stripe="gold">
             <TickNumber
               value={snapshot.nav}
               format={fmtUsd}

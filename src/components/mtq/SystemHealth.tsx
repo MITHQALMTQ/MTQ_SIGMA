@@ -205,8 +205,8 @@ function buildRows(snap: MetricsSnapshot | undefined): SubsystemRow[] {
       icon: Layers,
       health: classifyChainIndex(snap),
       primary: `I_t = ${fmtFixed(snap?.chainIndex.I_t ?? null, 6)}`,
-      secondary: `GFB ${fmtFixed(snap?.gfbIndex ?? null, 6)} · P_MTQ ${fmtFixed(snap?.mtqPrice ?? null, 6)}`,
-      tertiary: `peg ${snap?.priceInBand ? "in band" : "BROKEN"}`,
+      secondary: `Ref Idx ${fmtFixed(snap?.gfbIndex ?? null, 6)} · Ref Val ${fmtFixed(snap?.mtqPrice ?? null, 6)}`,
+      tertiary: `ref ${snap?.priceInBand ? "in band" : "breaker"}`,
     },
     {
       id: "risk-state",
