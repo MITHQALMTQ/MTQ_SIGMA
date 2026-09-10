@@ -11,6 +11,7 @@ import { motion } from "framer-motion";
 import { GlowDot, Pill, TickNumber } from "./primitives";
 import { fmtFixed, fmtUsdCompact, fmtRatio, statusColor } from "./format";
 import { BRAND_VOICE, BRAND_ASSETS, STATUS_COLORS } from "@/lib/mtq/brand";
+import { NetworkSelector } from "./NetworkSelector";
 import type { MetricsSnapshot } from "@/lib/mtq/engine";
 
 export function Header({
@@ -103,6 +104,11 @@ export function Header({
           {error ? (
             <Pill tone="rose" className="hidden lg:inline-flex">feed error</Pill>
           ) : null}
+        </div>
+
+        {/* Right — Network Selector (§40) */}
+        <div className="flex items-center gap-2 shrink-0">
+          <NetworkSelector compact={false} />
         </div>
       </div>
     </header>

@@ -4299,3 +4299,248 @@ Stage Summary:
   * §90 (completion checklist) — 15/15 critical items verified ✅
 
 - Remaining (lower priority): §8-9 homepage hero redesign, §12-13 live basket table + 4-state visualizer (exists in MaseEngine but needs standalone), §40 network selector dropdown in header, §41 faucet UI, §42 contract/event explorer, §58 dashboard command center layout, §60 transaction UX flow, §61 error UX
+
+---
+Task ID: SECTIONS-40-41-42
+Agent: full-stack-developer (Senior Full-stack Engineer + Web3 Testnet Product Architect)
+Task: Implement 3 components from the MTQΣ terminal transformation prompt — §40 Network Selector Dropdown (in Header), §41 Testnet Faucet UI, §42 Contract/Event Explorer.
+
+Work Log:
+- Read previous agents' work records in `/agent-ctx/` (SECTIONS-15-14-23 — ReferenceChart/WeightChangeDrawer/RiskTimeline, plus the SECTIONS-37-34-59-7 collection — ParameterRegistry/ReproducibilityPanel/CommandLauncher/TestnetStatusBar) to understand the existing primitives (Panel / Pill / GlowDot / Reveal / SectionHeading), the brand palette (gold #e8b964 / emerald #3ddc97 / rose #ff5d73 / amber #ffb84d, with cyan #2BD4E0 reserved for RECOVERY), the contracts registry (`ALL_CHAINS` from `src/lib/mtq/contracts.ts` — 6 chains: Monad Testnet 10143, Arc Testnet 5042002, Robinhood Chain 46630, Solana Devnet, Base 8453, Arbitrum 42161, plus canonical MTQΣ addresses), and the API surface (`/api/simulate/mint` → `applyTrial({type:"MINT", amount, chain, wallet})`, `/api/trials` → recent PilotTrial list from SQLite).
+
+Files created (3):
+
+1. `src/components/mtq/NetworkSelector.tsx` (NEW, ~190 lines)
+   - Compact Binance-style network selector using shadcn `DropdownMenu` (Radix). Trigger shows live/dead GlowDot + network label + chain-id chip + chevron; below the trigger is a contract-address row showing the canonical MTQΣ address (from `CANONICAL_MTQ_ADDRESSES`) with Copy + Explorer buttons.
+   - Dropdown: 6 menu items (Monad Testnet / Arc Testnet / Robinhood Chain / Solana Devnet / Base / Arbitrum One), each with a live/pending/devnet tag + EVM/non-EVM tag + native-currency pill + Check icon on the active row.
+   - State persisted to `localStorage["mtqs-active-network"]`. Default: monad.
+   - Network status heuristic: live (emerald dot) if a canonical MTQΣ address exists and isn't 0x0+; pending (amber dot) if the only contract is `0x0000…0000` (Base/Arbitrum); devnet (gold dot) for Solana.
+   - `onChange` callback + `initialChainId` prop for parent wiring. `compact` prop hides the address row beneath the trigger.
+
+2. `src/components/mtq/FaucetPanel.tsx` (NEW, ~630 lines)
+   - Full faucet form: network selector (testnet-only — 4 chains: monad/arc/robinhood/solana) + test-asset selector (per-chain catalogue: MON/MockUSDC/MTQ on monad; USDC/MockUSDC/MTQ on arc; ETH/MockUSDC/MTQ on robinhood; SOL/MTQ on solana) + wallet address input with EVM/Solana-specific validation + claim amount input with quick-pick chips (100/1,000/10,000) + Claim button.
+   - Claim handler: POSTs to `/api/simulate/mint` with `{ amount, chain, wallet }` — the engine actually mints MTQ against the live pilot state (real state change: deducts 0.10% mint fee, updates RR + circulating supply, logs to SQLite). We then surface the engine's response alongside a deterministic simulated tx hash + block number.
+   - Simulated tx hash generator: FNV-1a 32-bit seed → 64-hex LCG chain → `0x…`. Block: `10_000_000 + |hash| % 5_000_000`.
+   - Cooldown: 30s after a successful claim. Per-second ticker; button shows "Available in Xs" + disabled.
+   - Result panel (AnimatePresence): status row (CheckCircle2 / AlertTriangle), tx hash row (mono + Copy + Explorer link + block number), engine-response grid (Asset / MTQ Minted / MTQ Price / RR post).
+   - Hard honesty banner at the top: "TESTNET — All assets are simulated. No real value. Claims mint MTQ against the live pilot engine — fees + reserve ratio are real state changes."
+   - Toast notifications (sonner) for success/failure/copy. Failure path shows the engine's `error`/`reason` in a rose panel.
+   - Glassmorphic Panel surface, strict brand palette. NO blue/indigo. tabular-nums on every numeric field. Responsive: stacked on mobile, side-by-side asset+wallet grid on md+.
+
+3. `src/components/mtq/EventExplorer.tsx` (NEW, ~795 lines)
+   - Protocol-specific explorer with search bar + 12-category filter + paginated event table + expandable detail panel.
+   - Search bar: filters by id / category / description / tx hash / block / decision ID / wallet / chain. Clear button.
+   - 12 category chips (All, Mint, Redeem, Reserve Update, Weight Update, Oracle Update, Risk Transition, Asset State Change, Governance, Rebalance, Genesis, Validation) — each shows a live count.
+   - Event table columns: Timestamp · Event Type · Description · Tx Hash (or "—" italic) · Block (or "—" italic).
+   - Data sources:
+     * **Real**: recent PilotTrials from `/api/trials?limit=60` converted to Mint/Redeem ProtocolEvents with `source: "real"` + "real · DB trial" inline label.
+     * **Synthetic**: deterministic-per-hour events for the other 10 categories (FNV-1a hash seeded by `(hourBucket, i, component/pair/...)`). Each labelled "simulated" inline.
+   - Each row is `role="button"` + `tabIndex={0}` + Enter/Space activation. `aria-expanded` toggles the detail panel. Per-category tone mapping (Mint=emerald, Redeem=amber, Risk Transition=rose, etc.) drives the GlowDot color in the Event Type column.
+   - Detail panel (animated height): per-event key/value grid (Type / Chain / Input / Output / GFB / MTQ Price / NAV / RR / LCR / Status / Result / Wallet for real trials; layer / authority / timelock for governance; from→to state / trigger / confirmation / policy for risk transitions; direction / trade / slippage / turnover for rebalances, etc.). Footer row with Copy tx hash + Open on explorer + honesty disclosure ("Sourced from /api/trials (SQLite audit log)" for real, "Synthetic event · deterministic per hour · production will replace with on-chain logs" for synthetic).
+   - Refresh button (RefreshCw spin during fetch). Skeleton loader during first fetch; empty-state with AlertTriangle when no events match.
+   - Glassmorphic Panel surface, strict brand palette. NO blue/indigo. tabular-nums on every numeric field. Responsive: filter chips wrap, table scrolls horizontally below 860px, detail grid collapses 3-col → 2-col → 1-col.
+
+Files edited (2, for wiring):
+
+4. `src/components/mtq/Header.tsx`
+   - Added `import { NetworkSelector } from "./NetworkSelector";`.
+   - Added a right-side flex container `<div className="flex items-center gap-2 shrink-0"><NetworkSelector compact={false} /></div>` immediately after the existing left-side brand/version/error stack, inside the header's `flex items-center justify-between` wrapper. NetworkSelector now renders in the top-right of the header on every section.
+
+5. `src/app/page.tsx`
+   - Added imports for `SectionHeading, Reveal, Pill, GlowDot` from primitives + `FaucetPanel` + `EventExplorer`.
+   - Replaced the `faucet` section (was `<DashboardSection />`) with a dedicated section: `SectionHeading` eyebrow "§41 · testnet" + title "Testnet Faucet" + right-side Pill "simulated · no real value" + grid `grid-cols-1 lg:grid-cols-2` containing the FaucetPanel on the left and a "What this faucet does" explanatory panel + "Available test assets" reference grid on the right.
+   - Replaced the `activity` section (was `<DashboardSection />`) with a dedicated section: `SectionHeading` eyebrow "§42 · explorer" + title "Protocol Event Explorer" + right-side Pill "live + synthetic" + the EventExplorer component (limit=60) wrapped in Reveal.
+
+Design rules followed:
+- 2026 deep-space glassmorphic theme: all three components use the `Panel` primitive (`mtqs-glass` class) on the obsidian background (#080a0c / #0b0f0e).
+- Gold / emerald / rose / amber accents only. Verified NO blue/indigo classes appear in any of the 3 new files.
+- Tabular numerals: every numeric field wrapped in `font-mono tabular-nums`.
+- Clear "TESTNET" and "SIMULATED" labels: FaucetPanel top banner ("TESTNET — All assets are simulated. No real value.") + "simulated" Pill in header + "simulated" italic note in tx result; EventExplorer: each synthetic row labelled "simulated" inline, real rows labelled "real · DB trial", detail panel footer discloses source.
+- Responsive: stacked on mobile, side-by-side on desktop (filter chips wrap, table scrolls, faucet form is 2-col on md+, event table is horizontal-scroll below 860px).
+- Accessibility:
+  * `role="button"` + `tabIndex={0}` + Enter/Space activation on every EventExplorer row.
+  * `aria-expanded` + `aria-controls` for the expandable row.
+  * `aria-pressed` on every toggle chip (network buttons, asset buttons, category filter chips).
+  * `aria-label` on every icon-only button (copy, explorer, refresh, clear search).
+  * `<caption className="sr-only">` on the EventExplorer table.
+  * `aria-invalid` + inline validity badge on the FaucetPanel wallet input.
+  * `aria-busy` on the Claim button during pending request.
+
+Verification:
+- `bun run lint` → 0 errors, 0 warnings on any of the 3 new files. (5 pre-existing errors + 3 pre-existing warnings in untouched files: CommandLauncher / CurrencySelector / InstitutionalHero / ReserveDonut / TransactionFlow.)
+- `npx tsc --noEmit` → 0 errors in `src/`. (1 pre-existing error in `mobile/src/App.tsx` — react-native module, outside `src/` scope, documented as pre-existing in prior worklog entries.)
+- `curl -s http://localhost:3000/ -o /dev/null -w "%{http_code}\n"` → 200.
+- agent-browser verification (Playwright headless Chromium):
+  * **Header NetworkSelector** (§40): Trigger button "Select network — current Monad Testnet" visible top-right. Click opens dropdown showing all 6 chains: Monad Testnet (10143, live, EVM, MON), Arc Testnet (5042002, live, EVM, USDC), Robinhood Chain Testnet (46630, live, EVM, ETH), Solana Devnet (devnet, non-EVM, SOL), Base (Coinbase L2) (8453, pending, EVM, ETH), Arbitrum One (42161, pending, EVM, ETH). Canonical MTQΣ address row beneath trigger shows `0x0Ac2…5982f` with Copy + Explorer buttons. ✓
+  * **Faucet section** (§41): Navigated via "Faucet section" nav button. "Testnet Faucet" heading renders. Network buttons for the 4 testnets render. Wallet address input + claim amount spinbutton + "Claim 1,000 MON" button render. Filled the wallet with `0x3C3932F865892EFabE45892f453f81B64f6c8d8c` (valid EVM). Clicked "Claim 1,000 MON" → toast "Faucet claim simulated · MON sent · tx 0x9436…be50f2" appeared. Claim result panel rendered with: status (CheckCircle2 emerald), Tx Hash row (mono + Copy + Explorer link + block number), 4-cell engine-response grid. Claim button switched to "Available in 28s" (disabled) — cooldown ticking. ✓
+  * **Activity section / EventExplorer** (§42): Navigated via "Activity section" nav button. "Protocol Event Explorer" heading renders. Search bar + 12 category filter chips (All 75, Mint 18, Redeem 12, Reserve Update 6, Weight Update 6, Oracle Update 8, Risk Transition 5, Asset State Change 4, Governance 4, Rebalance 5, Genesis 1, Validation 6) render with live counts. Event table renders 75 rows mixing real trials (labelled "real · DB trial") and synthetic events (labelled "simulated"). Each row shows Timestamp / Event Type / Description / Tx Hash (or "—" italic) / Block (or "—" italic). Clicked "Risk Transition 5" filter → table narrowed to 5 risk-transition rows. Clicked row 1 → `aria-expanded=true` and detail panel expanded with: From state (CAUTION), To state (NORMAL), Trigger (VIX z-score breach), Confirmation (instant), Policy (redemption throttle 5% → 2%/hr), Copy tx hash button, "Open simulated tx on explorer (will not exist for synthetic events)" link, footer "Synthetic event · deterministic per hour · production will replace with on-chain logs". Typed "RISK-20260910-4403" into the search bar → table narrowed to exactly 1 matching event. Clicked clear-search → table restored. ✓
+- **No page errors** during any of the above interactions (`agent-browser errors` returned empty).
+- Screenshots saved:
+  * `/agent-ctx/SECTIONS-40-41-42-network-selector.png` (full-page header showing the network dropdown open)
+  * `/agent-ctx/SECTIONS-40-41-42-header-network-selector.png` (home page with the network selector visible in the top-right of the header)
+  * `/agent-ctx/SECTIONS-40-41-42-faucet.png` (faucet section after a successful claim — cooldown active, tx hash + block visible)
+  * `/agent-ctx/SECTIONS-40-41-42-event-explorer.png` (activity section with all 75 events in the table + filter chips)
+- Work record written to `/agent-ctx/SECTIONS-40-41-42-full-stack-developer.md`.
+
+Synthetic-data honesty notes:
+- **NetworkSelector**: no synthetic data — uses `ALL_CHAINS` + `CANONICAL_MTQ_ADDRESSES` from `contracts.ts` (the real deployed-address registry).
+- **FaucetPanel**: the mint path through the engine is real — POST `/api/simulate/mint` invokes `applyMint()` which deducts the 0.10% mint fee, mints MTQ against the live reserve, updates RR + circulating supply, and logs the trial to SQLite via Prisma. The displayed tx hash + block number are deterministic-simulated per `(chain, wallet, amount, asset, timestamp)` via FNV-1a → LCG. They are NOT real on-chain hashes — there is no on-chain broadcast. The result panel discloses this inline ("Simulated transaction · hash is deterministic per claim · no on-chain broadcast. The mint path through the engine is real."). The 30s cooldown is real — wall clock, enforced client-side via `setInterval`.
+- **EventExplorer**: real Mint + Redeem rows are pulled from `/api/trials` (SQLite audit log via Prisma), each labelled "real · DB trial". All other categories (Oracle Update / Weight Update / Reserve Update / Risk Transition / Asset State Change / Governance / Rebalance / Genesis / Validation) are synthetic-deterministic per hour (FNV-1a seed), each labelled "simulated" inline. Each row's tx hash + block number are deterministic per its seed; real rows get hashes derived from the trial's cuid (also synthetic, since the PilotTrial table doesn't store on-chain tx hashes), but they're stable per trial so the same row always shows the same hash. Footer disclosure on every expanded row states whether the event was "Sourced from /api/trials (SQLite audit log)" or "Synthetic event · deterministic per hour · production will replace with on-chain logs".
+
+Stage Summary:
+- Files: 3 NEW + 2 EDITED = 5 total.
+- All required §40 / §41 / §42 features implemented and verified.
+- tsc: 0 errors in `src/` (1 pre-existing mobile/react-native error outside scope).
+- lint: 0 new errors / warnings (5 pre-existing errors + 3 pre-existing warnings in untouched files).
+- HTTP: 200.
+- agent-browser: all 3 components render in their correct sections, the dropdown opens with all 6 networks, the faucet claim flow runs end-to-end (form → mint API → simulated tx hash + cooldown), the event explorer's search + filter + row-expansion all work.
+- Brand-palette compliant (no blue/indigo), tabular numerals, ARIA labels, keyboard navigation, responsive grids — all design rules met.
+
+---
+Task ID: SECTIONS-8-9-60-61
+Agent: full-stack-developer (Principal UI/UX Architect + Institutional Trading-Interface Designer)
+Task: Implement 3 components from the MTQΣ terminal transformation prompt — §8-9 Homepage Hero Redesign (institutional terminal, not marketing), §60 Transaction UX Flow (guided 11-step mint/redeem), §61 Error UX (human-readable error translator).
+
+Work Log:
+- Read previous agents' work records in `/agent-ctx/` (P0-IMPL, F5-F6, NAV-RESTRUCTURE, REBRAND-NEUTRAL, SECTIONS-15-14-23, SECTIONS-15-14-23-37-34-59-7) to understand the existing component architecture, the MetricsSnapshot shape (gfbIndex, mtqPrice, reserveRatio, lcr, status, oracle, weightStates, mintingAllowed), the brand palette (gold #e8b964 / emerald #3ddc97 / rose #ff5d73 / amber #ffb84d), and the navigation map (reference / reserve / risk / mint / transparency section IDs).
+
+Files created (3):
+
+1. `src/components/mtq/InstitutionalHero.tsx` (NEW, ~310 lines)
+   - Replaces the cinematic marketing hero (image card + "The Global Purchasing Power Unit" tagline + Start Trial CTA + HonestStatus badge) with an institutional terminal overview.
+   - Top: terminal status strip with `TESTNET · LIVE` + oracle valid-count/total + risk-state pill + live 1s-tick clock (null-then-tick pattern avoids hydration mismatch + set-state-in-effect lint).
+   - Body: `MTQΣ` wordmark (display, mtqs-gold-text, 6xl→8xl) + subheadline "A neutral, adaptive global purchasing-power reference unit." + supporting paragraph (transparent methodology spanning eligible currencies and gold, adaptive weighting, constitutional constraints, reserve collateralization, risk controls, auditable execution) + 3 CTAs (Explore the Reference → reference, Enter Testnet → mint, View Transparency → transparency).
+   - Right column: Protocol Snapshot digest (Reference Index, Reserve NAV, Circulating, Minting allowed/paused) + disclaimer "the protocol does not peg to any single currency".
+   - Below: REFERENCE VALUE block (NO "$X" prefix — just the number e.g. "0.9986" + "basket-unit" suffix, "Chain-linked I_t · 4s poll · in safety band" sublabel) + PAR 1.00 basket-unit (emerald panel, "Immutable unit of account · §18.1 · Constitutional").
+   - Bottom: row of 6 clickable metric chips (Reference Index → reference, Live Weight State → reference, Reserve Ratio → reserve, Liquidity Coverage → reserve, Risk State → risk, Oracle Health → reference). Each chip: uppercase label + tabular-num value (tone by tier) + hint + chevron + full-button click target with full aria-label.
+   - Footer disclaimer: "Candidate for public testing — not production-authorized" + version timestamp.
+   - Background: subtle gold grid pattern with radial mask + mtqs-glow-gold shadow for terminal feel.
+   - NO USD-peg language. Uses "Reference Value" (not "MTQ Price" or "$X"). Uses "basket-unit" not "USD".
+
+2. `src/components/mtq/TransactionFlow.tsx` (NEW, ~880 lines)
+   - 11-step guided flow: Review → Risk/State Check → Estimated Result → Slippage → Network → Gas → Contract → Confirm → Pending → Confirmed → Explorer.
+   - Single source of truth `STEPS` array (11 entries) — each has id, short label, title, icon, what/why/know text.
+   - Live estimate computed from snapshot: feeUsd = amount * 0.001 (MINT_FEE_BPS=10), netUsd = amount - feeUsd, throttle by status (NORMAL 1.0 / CAUTION 0.5 / RECOVERY 0.25 / paused otherwise), expectedMtq = (netUsd / mtqPrice) * throttle, minOutput = expectedMtq * (1 - SLIPPAGE_TOLERANCE=0.01).
+   - Horizontal stepper (role="tablist", 11 tabs, role="tab" + aria-selected per tab). Active gold, completed emerald, awaiting muted.
+   - Step 1 (Review): input field + breakdown (Deposit, Mint fee 0.10%, Net deposit, Reference Value, Expected MTQ output, Min output after 1% slippage).
+   - Step 2 (Risk/State Check): 4-stat grid (Risk State, Minting allowed/paused, Throttle, Oracle ok/paused). Conditional warning boxes if minting paused, oracle paused, or price out of band.
+   - Step 3 (Estimated Result): big tabular MTQ output (mtqs-gold-text) + min output + Reference Value + Net deposit + Throttle.
+   - Steps 4-7 (Slippage / Network / Gas / Contract): AwaitingPanel — icon + "Step N · Title" + "awaiting on-chain confirmation" pill + What/Why/Know grid (each step explains what would happen on mainnet).
+   - Step 8 (Confirm): final review summary (Operation, Chain, Contract address, Deposit, Fee, Net deposit, Reference Value, Expected MTQ, Min output) + "Confirm Transaction" button (calls /api/simulate/mint). Disabled if pending || !mintingAllowed || !oracleOk || !inBand || !est — never lets the user sign into a paused state.
+   - Steps 9-11 (Pending / Confirmed / Explorer): AwaitingPanel + PilotExecutionResult (renders the actual MintResult from the API with explorer link). Reset flow button.
+   - Navigation footer: Back / Next (or "Go to Confirm" jump for awaiting steps) + step counter "step NN / 11 · Title".
+
+3. `src/components/mtq/ErrorDisplay.tsx` (NEW, ~330 lines)
+   - Human-readable error translator. Takes rawError (string | Error | null | undefined) and pattern-matches against a 9-pattern taxonomy:
+     * execution reverted → ERROR "Transaction Failed"
+     * insufficient funds → ERROR "Insufficient Balance"
+     * oracle paused → WARNING "Oracle Consensus Paused"
+     * price out of band → ERROR "Reference Value Outside Safety Band"
+     * mint paused → WARNING "Minting Paused"
+     * redeem paused → WARNING "Redemption Paused"
+     * user rejected → WARNING "Signature Rejected"
+     * network error → WARNING "Network Error"
+     * slippage → WARNING "Slippage Exceeded"
+     * default fallback → ERROR "Unexpected Error" with raw preserved
+   - Each translation: { level, title, whatHappened, why, whatYouCanDo[] }.
+   - 4-byte contract selector extracted from raw error via regex (0x[0-9a-fA-F]{8}).
+   - Tone styles: rose for errors (role="alert", aria-live="assertive"), amber for warnings (role="status", aria-live="polite"), emerald for success.
+   - Rendered card: title row with icon + level label + context + matched pattern; WHAT HAPPENED / WHY / WHAT YOU CAN DO (numbered list with branded counter bubbles).
+   - Developer collapsible: button toggles <pre> with raw error (preserves stack if Error instance), contract selector block if found, canonical contract address resolved from chainId with explorer link. Always surfaces "Contact support" line.
+
+Files edited (2, for wiring):
+
+4. `src/components/mtq/sections/HomeSection.tsx`
+   - Removed imports: Image (next/image), motion (framer-motion), BRAND_ASSETS, STATUS_COLORS (no longer needed).
+   - Added import: InstitutionalHero.
+   - Removed const status + statusBrand (no longer needed).
+   - Replaced the entire hero section (image card + BrandPrinciples + HonestStatusBadge + sr-only h2, lines 191-278) with a single <InstitutionalHero snapshot={snapshot} onNavigate={onNavigate} />.
+   - Kept the BrandPrinciples row below the hero (with negative margin -mt-8 to bring it closer to the new compact hero) as a small brand reminder.
+   - All other sections below (Tokenized Gold, What is MTQΣ, Constitutional Separation, Live Monetary State, Reference Index Chart, 4 Testnet cards, Closing) are UNCHANGED.
+
+5. `src/components/mtq/sections/TrialSection.tsx`
+   - Updated header comment: 7 steps (was 5).
+   - Removed unused motion import. Added useMemo. Added Workflow, AlertOctagon icons.
+   - Added imports: TransactionFlow, ErrorDisplay.
+   - Updated StepIndicator from 5 to 7 steps (Faucets → Canonical → Mint → Redeem → Guided Flow → Trial log → Error UX). Grid grid-cols-5 → grid-cols-7 with smaller gap (gap-1.5 sm:gap-2) and smaller text (text-[0.55rem] sm:text-[0.62rem]) so all 7 fit on a phone.
+   - Updated SectionHeading title "Trial Simulator — 5 Steps" → "7 Steps".
+   - Updated intro paragraph to mention the guided flow + error UX.
+   - Added new Step 5 — <section aria-labelledby="trial-flow"> containing <TransactionFlow mode="mint"> component.
+   - Renumbered Trial Log from Step 5 → Step 6.
+   - Added new Step 7 — ErrorUxDemo sub-component with 9 sample error buttons (execution reverted, insufficient funds, oracle paused, price out of band, mint paused, user rejected, network error, slippage exceeded, unknown error). When the live snapshot's oraclePaused is true OR status is STRESS/DEFENSIVE/EMERGENCY, surfaces a "LIVE · …" sample that overrides the manual pick. Renders <ErrorDisplay> with the chosen raw error + context + chainId.
+
+Files edited (1, supporting):
+
+6. `src/app/globals.css`
+   - Added `--color-mtqs-amber: #FFB84D;` to the brand tokens (line 54). This is a safe additive change: the existing codebase used `text-mtqs-amber`, `border-mtqs-amber`, `bg-mtqs-amber` in many places (Header ticker, TestnetStatusBar, WeightChangeDrawer, etc.) but the Tailwind v4 @theme token wasn't defined — those classes were silently no-ops. Defining the token makes them all render correctly with the brand amber hex. No visual regression for components that didn't use mtqs-amber.
+
+Design rules followed:
+- 2026 deep-space glassmorphic theme: all 3 components use the existing Panel primitive (mtqs-glass / mtqs-glass-emerald / mtqs-glass-gold) on the deep obsidian background. InstitutionalHero adds a subtle gold grid backdrop with a radial mask for terminal feel.
+- Gold / emerald / rose / amber accents: strict brand palette only. No blue / indigo (verified — none used anywhere in the 3 new files).
+- "Reference Value" not "MTQ Price" or "$X": literal compliance — no instance of "MTQ Price" anywhere. The hero shows "REFERENCE VALUE 0.9986 basket-unit" (no $).
+- No USD-peg language: no "USD stablecoin", no "1 MTQ = $1", no "$X" prefix. The Protocol Snapshot digest's disclaimer explicitly states "the protocol does not peg to any single currency".
+- Institutional, precise, calm — NOT marketing: no "the future of", "the global", etc. The copy reads like a Bloomberg terminal: "testnet · live", "Reference Value", "in safety band", "step 02 / 11 · Risk / State Check".
+- Tabular numerals: every financial value wrapped in `font-mono tabular-nums`.
+- Responsive: hero grid lg:grid-cols-[1.3fr_1fr], chips grid-cols-2 sm:grid-cols-3 lg:grid-cols-6, TransactionFlow stepper overflow-x-auto with mtqs-no-scrollbar, ErrorDisplay cards stack on mobile.
+- Accessibility: role="tablist" + aria-selected on stepper, role="alert"/"status" + aria-live on ErrorDisplay, full aria-labels on every CTA/chip/step button, numbered WHAT YOU CAN DO list with branded counter bubbles.
+
+Verification:
+- `bun run lint` → 0 new errors, 0 new warnings (2 pre-existing errors + 3 pre-existing warnings in untouched files: CommandLauncher.tsx, CinematicLoader.tsx, CurrencySelector.tsx, ReserveDonut.tsx).
+- `npx tsc --noEmit` → 0 errors in `src/`. 1 pre-existing error in `mobile/src/App.tsx` (react-native module) — outside `src/` scope, documented as pre-existing in prior worklog entries.
+- `curl -s http://localhost:3000/ -o /dev/null -w "%{http_code}\n"` → 200.
+- agent-browser verification (Playwright headless Chromium):
+  * Home (`/`): InstitutionalHero renders with h1 "MTQΣ", subheadline "A neutral, adaptive global purchasing-power reference unit.", supporting paragraph, 3 CTAs (Explore the Reference / Enter Testnet / View Transparency), REFERENCE VALUE 0.9986 basket-unit (no $ prefix), PAR 1.00 basket-unit, 6 clickable metric chips (Reference Index / Live Weight State / Reserve Ratio / Liquidity Coverage / Risk State / Oracle Health), terminal strip with live clock, footer disclaimer.
+  * Navigation tested: "Explore the Reference" → navigated to Reference section (Reference Index Chart visible). "Enter Testnet" → navigated to Mint section (Trial Simulator 7 Steps visible). "View Transparency" → navigated to Transparency section (Documentation heading visible). "Reference Index" chip → navigated to Reference section ✓.
+  * Trial section (`/mint`): Trial Simulator — 7 Steps heading. 7-step indicator (Faucets · Canonical · Mint · Redeem · Guided Flow · Trial log · Error UX). TransactionFlow renders with all 11 tabs visible in tablist "Transaction flow steps" (Step 1 Review selected by default, Steps 2-11 visible). Step 1 panel shows input + breakdown. Step 2 panel (after click) shows 4-stat grid + Why. Step 8 panel shows final review summary + "Confirm Transaction" button. Error UX demo renders 9 sample error buttons + ErrorDisplay card with WHAT HAPPENED / WHY / WHAT YOU CAN DO + developer collapsible. After clicking "oracle paused" sample, switched to WARNING level + "Oracle Consensus Paused" heading + different WHAT/WHY/WHAT YOU CAN DO.
+- Screenshots saved:
+  * `/agent-ctx/SECTIONS-8-9-60-61-home-hero.png`
+  * `/agent-ctx/SECTIONS-8-9-60-61-trial-flow.png`
+  * `/agent-ctx/SECTIONS-8-9-60-61-confirm-step.png`
+  * `/agent-ctx/SECTIONS-8-9-60-61-mint-paused-error.png`
+- Work record written to `/agent-ctx/SECTIONS-8-9-60-61-full-stack-developer.md`.
+
+Synthetic-data honesty notes:
+- InstitutionalHero: NO synthetic data. All values read from the live MetricsSnapshot (gfbIndex, mtqPrice, reserveRatio, lcr, status, oracle, weightStates.execution, circulatingSupply, nav, mintingAllowed). The only computed value is `Live Weight State` which picks the largest execution-weight component as a headline summary.
+- TransactionFlow: estimate computed live from snapshot via computeEstimate (no API call until Confirm). The Confirm action calls the existing /api/simulate/mint endpoint, which executes the actual pilot trial (mutates state + logs to SQLite). Steps 4-11 are explicitly labeled "awaiting on-chain confirmation" — no fake tx hashes are generated.
+- ErrorDisplay: pattern matching is deterministic (regex). The 9 sample errors in ErrorUxDemo are hand-crafted realistic strings drawn from the canonical error patterns documented in the spec. The "LIVE · …" sample is generated from the live snapshot's oraclePaused and status fields when applicable. No fake data is presented as real.
+
+Stage Summary:
+- Files modified: 3 NEW (InstitutionalHero, TransactionFlow, ErrorDisplay) + 2 EDITED (HomeSection, TrialSection) + 1 supporting EDIT (globals.css for the mtqs-amber token) = 6 total.
+- All required §8-9 / §60 / §61 features implemented and verified.
+- Lint: 0 new errors, 0 new warnings (2 pre-existing errors + 3 pre-existing warnings in untouched files).
+- TSC: 0 new errors in `src/` (1 pre-existing mobile/react-native error outside scope).
+- HTTP: 200.
+- agent-browser: InstitutionalHero renders on Home with all CTAs + chips working; TransactionFlow renders with 11 steps on Trial; ErrorDisplay renders with 9 sample errors and correct level/title/what/why/know translation.
+- Brand-palette compliant (no blue/indigo), tabular numerals, ARIA labels, keyboard navigation, responsive grids — all design rules met.
+
+Combined with prior phases, the implementation now covers:
+  * §2 (neutral identity) ✅
+  * §3 (constitutional separation) ✅
+  * §4 (information architecture) ✅
+  * §6 (global header) ✅
+  * §7 (testnet status bar) ✅
+  * §8-9 (institutional hero redesign) ✅ NEW
+  * §10 (external USD reporting) ✅
+  * §11 (GFB → Reference Basket) ✅
+  * §14 (weight change drawer) ✅
+  * §15 (reference chart) ✅
+  * §16-20 (reserve, assets, RR, LCR) ✅
+  * §21-23 (risk center, state explanation, timeline) ✅
+  * §24-25 (oracle center) ✅
+  * §27-29 (MARP center) ✅
+  * §30-31 (mint/redeem) ✅
+  * §33 (transparency center) ✅
+  * §34 (reproducibility) ✅
+  * §36-37 (governance + parameter registry) ✅
+  * §38 (validation center) ✅
+  * §39-42 (developers, networks, faucet) ✅
+  * §43-47 (branding, typography, colors, responsive, components) ✅
+  * §48-53 (data, DB, API, authority, honest status, production auth) ✅
+  * §54-55 (marketing language, Sharia) ✅
+  * §57 (navigation cleanup) ✅
+  * §59 (command launcher) ✅
+  * §60 (transaction UX flow) ✅ NEW
+  * §61 (error UX) ✅ NEW
+  * §90 (completion checklist) — 15/15 critical items verified ✅
+
+- Remaining (lower priority): §12-13 live basket table + 4-state visualizer (exists in MaseEngine but needs standalone), §40 network selector dropdown in header, §41 faucet UI, §42 contract/event explorer, §58 dashboard command center layout.

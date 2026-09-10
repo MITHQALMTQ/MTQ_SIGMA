@@ -1,23 +1,22 @@
 // MTQΣ — Home Section
-// Hero (brand image background) · "What is MTQΣ?" 3 cards · Constitutional Separation
-// (wrapped in ClientOnly to avoid SVG float hydration mismatch) · live stats band
-// (GFB / Price / NAV / RR from /api/metrics) · 4 testnet cards (CANONICAL_MTQ_ADDRESSES)
-// · Brand principles · Honest status badge.
+// Institutional terminal hero (§8-9) · "What is MTQΣ?" 3 cards · Constitutional
+// Separation (wrapped in ClientOnly to avoid SVG float hydration mismatch) ·
+// live stats band (GFB / Price / NAV / RR from /api/metrics) · 4 testnet cards
+// (CANONICAL_MTQ_ADDRESSES) · Brand principles · Honest status badge.
 //
-// Props: { onNavigate } — used by the two hero CTAs.
+// Props: { onNavigate } — used by the hero CTAs and metric chips.
 
 "use client";
 
 import { useEffect, useRef, useState } from "react";
-import Image from "next/image";
-import { motion } from "framer-motion";
 import { SectionHeading, Reveal, Panel, Pill, GlowDot, BrandPrinciples, Skeleton } from "@/components/mtq/primitives";
+import { InstitutionalHero } from "@/components/mtq/InstitutionalHero";
 import { ConstitutionalSeparation } from "@/components/mtq/ConstitutionalSeparation";
 import { GfbChart } from "@/components/mtq/GfbChart";
 import { ReferenceChart } from "@/components/mtq/ReferenceChart";
 import { ParticleField } from "@/components/mtq/ParticleField";
 import { BasketValueDisplay } from "@/components/mtq/BasketValueDisplay";
-import { BRAND_VOICE, BRAND_ASSETS, STATUS_COLORS } from "@/lib/mtq/brand";
+import { BRAND_VOICE } from "@/lib/mtq/brand";
 import { CANONICAL_MTQ_ADDRESSES } from "@/lib/mtq/contracts";
 import { fmtFixed, fmtUsdCompact, fmtRatio, shortAddr, copyToClipboard } from "@/components/mtq/format";
 import type { MetricsSnapshot } from "@/lib/mtq/engine";
@@ -184,98 +183,15 @@ export function HomeSection({ onNavigate }: { onNavigate: (id: SectionId) => voi
     };
   }, []);
 
-  const status = snapshot?.status ?? "NORMAL";
-  const statusBrand = STATUS_COLORS[status] ?? STATUS_COLORS.NORMAL;
-
   return (
     <div className="space-y-16">
-      {/* ===== Hero ===== */}
-      <section className="relative" aria-labelledby="home-hero">
-        <div className="relative aspect-[16/9] sm:aspect-[21/9] lg:aspect-[24/9] w-full overflow-hidden rounded-2xl border border-mtqs-gold/15 mtqs-glow">
-          <Image
-            src={BRAND_ASSETS.hero}
-            alt="MTQΣ hero — the closed-loop monetary architecture visualised as a gold monolith on obsidian"
-            fill
-            sizes="100vw"
-            className="object-cover opacity-20"
-            priority
-          />
-          {/* Heavy overlays for legibility */}
-          <div className="absolute inset-0 bg-gradient-to-tr from-[#080a0c] via-[#080a0c]/85 to-[#080a0c]/40" />
-          <div className="absolute inset-0 bg-gradient-to-b from-[#080a0c]/30 via-transparent to-[#080a0c]/90" />
-          {/* Hero content */}
-          <div className="absolute inset-0 flex flex-col items-center justify-center text-center px-6 py-10">
-            <motion.div
-              initial={{ opacity: 0, y: 16, scale: 0.98 }}
-              animate={{ opacity: 1, y: 0, scale: 1 }}
-              transition={{ type: "spring", stiffness: 300, damping: 28, delay: 0.1 }}
-              className="space-y-5"
-            >
-              <div className="text-[0.65rem] sm:text-xs uppercase tracking-[0.32em] text-mtqs-gold/75 mtqs-fade-in">
-                The Global Purchasing Power Unit
-              </div>
-              <h1 className="mtqs-display mtqs-gold-text mtqs-hero-text mtqs-fade-in mtqs-stagger-1">
-                MTQΣ
-              </h1>
-              <p className="mtqs-display mtqs-hero-subtitle text-amber-100/85 italic max-w-2xl mx-auto mtqs-fade-in mtqs-stagger-2">
-                {BRAND_VOICE.tagline}
-              </p>
-              <p className="mtqs-body text-white/55 max-w-xl mx-auto mtqs-fade-in mtqs-stagger-3">
-                {BRAND_VOICE.coreObjective}
-              </p>
-              <div className="flex flex-wrap items-center justify-center gap-3 pt-3 mtqs-fade-in mtqs-stagger-4">
-                <button
-                  onClick={() => onNavigate("trial")}
-                  className="mtqs-btn-apple mtqs-btn-primary group inline-flex items-center gap-2"
-                >
-                  Start Trial
-                  <ArrowRight className="h-4 w-4 transition group-hover:translate-x-0.5" aria-hidden="true" />
-                </button>
-                <button
-                  onClick={() => onNavigate("dashboard")}
-                  className="mtqs-btn-apple mtqs-btn-secondary inline-flex items-center gap-2"
-                >
-                  View Dashboard
-                </button>
-              </div>
-            </motion.div>
-          </div>
-        </div>
+      {/* ===== Institutional Hero (§8-9) — terminal overview, not marketing ===== */}
+      <InstitutionalHero snapshot={snapshot} onNavigate={onNavigate} />
 
-        {/* Brand principles under hero */}
-        <div className="mt-5 flex justify-center">
-          <BrandPrinciples />
-        </div>
-
-        {/* Honest status badge */}
-        <div className="mt-4 flex justify-center">
-          <div
-            className="inline-flex items-center gap-2 rounded-full border px-3.5 py-1.5 text-[0.72rem]"
-            style={{
-              color: statusBrand.color,
-              backgroundColor: statusBrand.bg,
-              borderColor: `${statusBrand.color}55`,
-            }}
-          >
-            <GlowDot
-              color={
-                status === "NORMAL"
-                  ? "emerald"
-                  : status === "CAUTION"
-                  ? "amber"
-                  : "rose"
-              }
-              size="h-1.5 w-1.5"
-            />
-            <span className="font-mono tabular-nums tracking-wider uppercase">
-              {statusBrand.label} · {BRAND_VOICE.statusDeclaration}
-            </span>
-          </div>
-        </div>
-
-        {/* sr-only landmark for accessibility */}
-        <h2 id="home-hero" className="sr-only">MTQΣ — Home</h2>
-      </section>
+      {/* Brand principles under hero */}
+      <div className="-mt-8 flex justify-center">
+        <BrandPrinciples />
+      </div>
 
       {/* ===== Tokenized Gold (PAXG + XAUT) — visible upfront ===== */}
       <section aria-labelledby="home-gold">

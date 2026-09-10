@@ -15,6 +15,9 @@ import { CinematicLoader } from '@/components/mtq/CinematicLoader';
 import { MobileBottomNav } from "@/components/mtq/MobileBottomNav";
 import { TestnetStatusBar } from "@/components/mtq/TestnetStatusBar";
 import { CommandLauncher } from "@/components/mtq/CommandLauncher";
+import { SectionHeading, Reveal, Pill, GlowDot } from "@/components/mtq/primitives";
+import { FaucetPanel } from "@/components/mtq/FaucetPanel";
+import { EventExplorer } from "@/components/mtq/EventExplorer";
 import { HomeSection } from "@/components/mtq/sections/HomeSection";
 import { DashboardSection } from "@/components/mtq/sections/DashboardSection";
 import { ContractsSection } from "@/components/mtq/sections/ContractsSection";
@@ -119,7 +122,25 @@ export default function Page() {
                 <TrialSection onNavigate={handleNavigate} snapshot={snapshot} />
               )}
               {section === "portfolio" && <DashboardSection />}
-              {section === "activity" && <DashboardSection />}
+              {section === "activity" && (
+                <div className="space-y-10">
+                  <section id="activity-explorer" aria-labelledby="activity-explorer-h" className="scroll-mt-32">
+                    <SectionHeading
+                      eyebrow="§42 · explorer"
+                      title="Protocol Event Explorer"
+                      right={
+                        <Pill tone="emerald">
+                          <GlowDot color="emerald" size="h-1.5 w-1.5" />
+                          live + synthetic
+                        </Pill>
+                      }
+                    />
+                    <Reveal>
+                      <EventExplorer limit={60} />
+                    </Reveal>
+                  </section>
+                </div>
+              )}
 
               {/* ─── SUPPORTING ──────────────────────────────────────── */}
               {section === "simulation" && (
@@ -131,7 +152,73 @@ export default function Page() {
               {section === "security" && <SecuritySection onNavigate={handleNavigate} />}
               {section === "contracts" && <ContractsSection onNavigate={handleNavigate} />}
               {section === "networks" && <ContractsSection onNavigate={handleNavigate} />}
-              {section === "faucet" && <DashboardSection />}
+              {section === "faucet" && (
+                <div className="space-y-10">
+                  <section id="faucet-panel" aria-labelledby="faucet-panel-h" className="scroll-mt-32">
+                    <SectionHeading
+                      eyebrow="§41 · testnet"
+                      title="Testnet Faucet"
+                      right={
+                        <Pill tone="amber">
+                          <GlowDot color="amber" size="h-1.5 w-1.5" />
+                          simulated · no real value
+                        </Pill>
+                      }
+                    />
+                    <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                      <Reveal>
+                        <FaucetPanel />
+                      </Reveal>
+                      <Reveal delay={0.05}>
+                        <div className="space-y-4">
+                          <div className="rounded-xl border border-mtqs-amber/25 bg-mtqs-amber/[0.04] p-5">
+                            <h3 className="text-sm font-semibold text-mtqs-amber mb-2 flex items-center gap-2">
+                              <GlowDot color="amber" size="h-2 w-2" />
+                              What this faucet does
+                            </h3>
+                            <ul className="text-[0.78rem] text-white/70 space-y-2 leading-relaxed list-disc list-inside">
+                              <li>Picks a testnet network + test asset + wallet address + claim amount.</li>
+                              <li>Calls <code className="font-mono text-mtqs-gold">/api/simulate/mint</code> which mints MTQ against the live pilot engine — fees, RR, and circulating supply are real state changes.</li>
+                              <li>Generates a deterministic simulated tx hash + block number so the UI feels like a real faucet. No on-chain broadcast.</li>
+                              <li>30-second cooldown after each successful claim — prevents spamming the engine&apos;s mint path.</li>
+                              <li>All assets are simulated. <span className="text-mtqs-rose font-medium">No real value.</span></li>
+                            </ul>
+                          </div>
+                          <div className="rounded-xl border border-white/[0.06] bg-white/[0.03]/[0.02] p-5">
+                            <h3 className="text-sm font-semibold text-white mb-2">Available test assets</h3>
+                            <div className="grid grid-cols-2 gap-2 text-[0.72rem]">
+                              <div className="rounded-md border border-white/[0.06] px-2 py-1.5">
+                                <div className="font-mono text-mtqs-gold">MON</div>
+                                <div className="text-white/55">Monad testnet</div>
+                              </div>
+                              <div className="rounded-md border border-white/[0.06] px-2 py-1.5">
+                                <div className="font-mono text-mtqs-gold">MockUSDC</div>
+                                <div className="text-white/55">pilot collateral</div>
+                              </div>
+                              <div className="rounded-md border border-white/[0.06] px-2 py-1.5">
+                                <div className="font-mono text-mtqs-gold">ETH</div>
+                                <div className="text-white/55">Robinhood testnet</div>
+                              </div>
+                              <div className="rounded-md border border-white/[0.06] px-2 py-1.5">
+                                <div className="font-mono text-mtqs-gold">SOL</div>
+                                <div className="text-white/55">Solana devnet</div>
+                              </div>
+                              <div className="rounded-md border border-white/[0.06] px-2 py-1.5">
+                                <div className="font-mono text-mtqs-gold">MTQ</div>
+                                <div className="text-white/55">protocol claim</div>
+                              </div>
+                              <div className="rounded-md border border-white/[0.06] px-2 py-1.5">
+                                <div className="font-mono text-mtqs-gold">USDC</div>
+                                <div className="text-white/55">Arc testnet</div>
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+                      </Reveal>
+                    </div>
+                  </section>
+                </div>
+              )}
 
               {/* ─── SECONDARY / RESTRICTED (accessible via "More" dropdown) ─── */}
               {section === "investors" && (
