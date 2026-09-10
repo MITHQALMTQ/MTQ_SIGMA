@@ -1,0 +1,645 @@
+     1→## Error Type
+     2→Console Error
+     3→
+     4→## Error Message
+     5→A tree hydrated but some attributes of the server rendered HTML didn't match the client properties. This won't be patched up. This can happen if a SSR-ed Client Component used:
+     6→
+     7→- A server/client branch `if (typeof window !== 'undefined')`.
+     8→- Variable input such as `Date.now()` or `Math.random()` which changes each time it's called.
+     9→- Date formatting in a user's locale which doesn't match the server.
+    10→- External changing data without sending a snapshot of it along with the HTML.
+    11→- Invalid HTML tag nesting.
+    12→
+    13→It can also happen if the client has a browser extension installed which messes with the HTML before React loaded.
+    14→
+    15→https://react.dev/link/hydration-mismatch
+    16→
+    17→  ...
+    18→    <AnimatePresence mode="wait">
+    19→      <PresenceChild isPresent={true} initial={undefined} custom={undefined} presenceAffectsLayout={true} mode="wait" ...>
+    20→        <motion.div variants={{initial:{...}, ...}} initial="initial" animate="animate" exit="exit" ...>
+    21→          <div style={{opacity:0, ...}} ref={function useMotionRef.useCallback}>
+    22→            <HomeSection onNavigate={function Page.useCallback[handleNavigate]}>
+    23→              <div className="space-y-16">
+    24→                <section>
+    25→                <section>
+    26→                <section>
+    27→                <section>
+    28→                <section aria-labelledby="home-stats">
+    29→                  <SectionHeading>
+    30→                  <LiveStatsBand snapshot={null}>
+    31→                    <div className="space-y-6">
+    32→                      <div className="relative">
+    33→                        <ParticleField count={20}>
+    34→                          <div aria-hidden="true" className="jsx-372b86...">
+    35→                            <div
+    36→                              style={{
+    37→+                               left: "94.2393199599406%"
+    38→-                               left: "31.809669%"
+    39→+                               bottom: "-10px"
+    40→-                               bottom: "-10px"
+    41→+                               width: "1.255209594851416px"
+    42→-                               width: "1.013093px"
+    43→+                               height: "1.255209594851416px"
+    44→-                               height: "1.013093px"
+    45→+                               opacity: 0.18545000418307772
+    46→-                               opacity: "0.181458"
+    47→+                               boxShadow: "0 0 2.510419189702832px rgba(240, 185, 11, 0.5)"
+    48→+                               animation: "mtqs-particle-rise 17.272088383332154s linear infinite"
+    49→+                               animationDelay: "4.875974704906182s"
+    50→-                               box-shadow: "rgba(240, 185, 11, 0.5) 0px 0px 2.026186px"
+    51→-                               animation-duration: "11.231751s"
+    52→-                               animation-timing-function: "linear"
+    53→-                               animation-iteration-count: "infinite"
+    54→-                               animation-direction: "normal"
+    55→-                               animation-fill-mode: "none"
+    56→-                               animation-play-state: "running"
+    57→-                               animation-name: "mtqs-particle-rise"
+    58→-                               animation-timeline: "auto"
+    59→-                               animation-range-start: "normal"
+    60→-                               animation-range-end: "normal"
+    61→-                               animation-delay: "3.244579s"
+    62→                              }}
+    63→                              className="jsx-372b8623776b5da2 absolute rounded-full bg-mtqs-gold"
+    64→                            >
+    65→                            <div
+    66→                              style={{
+    67→+                               left: "75.78595416778454%"
+    68→-                               left: "30.809657%"
+    69→+                               bottom: "-10px"
+    70→-                               bottom: "-10px"
+    71→+                               width: "3.0340455017354104px"
+    72→-                               width: "1.594776px"
+    73→+                               height: "3.0340455017354104px"
+    74→-                               height: "1.594776px"
+    75→+                               opacity: 0.33050642087997173
+    76→-                               opacity: "0.131049"
+    77→+                               boxShadow: "0 0 6.068091003470821px rgba(240, 185, 11, 0.5)"
+    78→+                               animation: "mtqs-particle-rise 14.43398685581807s linear infinite"
+    79→+                               animationDelay: "3.541130184893232s"
+    80→-                               box-shadow: "rgba(240, 185, 11, 0.5) 0px 0px 3.189551px"
+    81→-                               animation-duration: "12.536464s"
+    82→-                               animation-timing-function: "linear"
+    83→-                               animation-iteration-count: "infinite"
+    84→-                               animation-direction: "normal"
+    85→-                               animation-fill-mode: "none"
+    86→-                               animation-play-state: "running"
+    87→-                               animation-name: "mtqs-particle-rise"
+    88→-                               animation-timeline: "auto"
+    89→-                               animation-range-start: "normal"
+    90→-                               animation-range-end: "normal"
+    91→-                               animation-delay: "1.176764s"
+    92→                              }}
+    93→                              className="jsx-372b8623776b5da2 absolute rounded-full bg-mtqs-gold"
+    94→                            >
+    95→                            <div
+    96→                              style={{
+    97→+                               left: "9.610055377989879%"
+    98→-                               left: "43.636375%"
+    99→+                               bottom: "-10px"
+   100→-                               bottom: "-10px"
+   101→+                               width: "2.5594255377357222px"
+   102→-                               width: "1.822108px"
+   103→+                               height: "2.5594255377357222px"
+   104→-                               height: "1.822108px"
+   105→+                               opacity: 0.22501857749563497
+   106→-                               opacity: "0.277977"
+   107→+                               boxShadow: "0 0 5.1188510754714445px rgba(240, 185, 11, 0.5)"
+   108→+                               animation: "mtqs-particle-rise 14.537589053418376s linear infinite"
+   109→+                               animationDelay: "9.411821811895482s"
+   110→-                               box-shadow: "rgba(240, 185, 11, 0.5) 0px 0px 3.644216px"
+   111→-                               animation-duration: "14.991255s"
+   112→-                               animation-timing-function: "linear"
+   113→-                               animation-iteration-count: "infinite"
+   114→-                               animation-direction: "normal"
+   115→-                               animation-fill-mode: "none"
+   116→-                               animation-play-state: "running"
+   117→-                               animation-name: "mtqs-particle-rise"
+   118→-                               animation-timeline: "auto"
+   119→-                               animation-range-start: "normal"
+   120→-                               animation-range-end: "normal"
+   121→-                               animation-delay: "1.305267s"
+   122→                              }}
+   123→                              className="jsx-372b8623776b5da2 absolute rounded-full bg-mtqs-gold"
+   124→                            >
+   125→                            <div
+   126→                              style={{
+   127→+                               left: "84.35700226327691%"
+   128→-                               left: "96.128681%"
+   129→+                               bottom: "-10px"
+   130→-                               bottom: "-10px"
+   131→+                               width: "2.522187385001458px"
+   132→-                               width: "2.81004px"
+   133→+                               height: "2.522187385001458px"
+   134→-                               height: "2.81004px"
+   135→+                               opacity: 0.26267470296065715
+   136→-                               opacity: "0.199576"
+   137→+                               boxShadow: "0 0 5.044374770002916px rgba(240, 185, 11, 0.5)"
+   138→+                               animation: "mtqs-particle-rise 13.005938113469533s linear infinite"
+   139→+                               animationDelay: "5.91889053783053s"
+   140→-                               box-shadow: "rgba(240, 185, 11, 0.5) 0px 0px 5.620081px"
+   141→-                               animation-duration: "17.695261s"
+   142→-                               animation-timing-function: "linear"
+   143→-                               animation-iteration-count: "infinite"
+   144→-                               animation-direction: "normal"
+   145→-                               animation-fill-mode: "none"
+   146→-                               animation-play-state: "running"
+   147→-                               animation-name: "mtqs-particle-rise"
+   148→-                               animation-timeline: "auto"
+   149→-                               animation-range-start: "normal"
+   150→-                               animation-range-end: "normal"
+   151→-                               animation-delay: "1.509362s"
+   152→                              }}
+   153→                              className="jsx-372b8623776b5da2 absolute rounded-full bg-mtqs-gold"
+   154→                            >
+   155→                            <div
+   156→                              style={{
+   157→+                               left: "69.4578365907805%"
+   158→-                               left: "16.55914%"
+   159→+                               bottom: "-10px"
+   160→-                               bottom: "-10px"
+   161→+                               width: "2.6298752813348965px"
+   162→-                               width: "3.560686px"
+   163→+                               height: "2.6298752813348965px"
+   164→-                               height: "3.560686px"
+   165→+                               opacity: 0.35673296237135654
+   166→-                               opacity: "0.228428"
+   167→+                               boxShadow: "0 0 5.259750562669793px rgba(240, 185, 11, 0.5)"
+   168→+                               animation: "mtqs-particle-rise 11.460274828682131s linear infinite"
+   169→+                               animationDelay: "5.957143582994662s"
+   170→-                               box-shadow: "rgba(240, 185, 11, 0.5) 0px 0px 7.121371px"
+   171→-                               animation-duration: "9.220172s"
+   172→-                               animation-timing-function: "linear"
+   173→-                               animation-iteration-count: "infinite"
+   174→-                               animation-direction: "normal"
+   175→-                               animation-fill-mode: "none"
+   176→-                               animation-play-state: "running"
+   177→-                               animation-name: "mtqs-particle-rise"
+   178→-                               animation-timeline: "auto"
+   179→-                               animation-range-start: "normal"
+   180→-                               animation-range-end: "normal"
+   181→-                               animation-delay: "3.847458s"
+   182→                              }}
+   183→                              className="jsx-372b8623776b5da2 absolute rounded-full bg-mtqs-gold"
+   184→                            >
+   185→                            <div
+   186→                              style={{
+   187→+                               left: "49.316039629309095%"
+   188→-                               left: "9.422125%"
+   189→+                               bottom: "-10px"
+   190→-                               bottom: "-10px"
+   191→+                               width: "2.931802459788129px"
+   192→-                               width: "3.825077px"
+   193→+                               height: "2.931802459788129px"
+   194→-                               height: "3.825077px"
+   195→+                               opacity: 0.11532006348348998
+   196→-                               opacity: "0.264785"
+   197→+                               boxShadow: "0 0 5.863604919576258px rgba(240, 185, 11, 0.5)"
+   198→+                               animation: "mtqs-particle-rise 12.927260882518242s linear infinite"
+   199→+                               animationDelay: "4.572730888487625s"
+   200→-                               box-shadow: "rgba(240, 185, 11, 0.5) 0px 0px 7.650154px"
+   201→-                               animation-duration: "8.84149s"
+   202→-                               animation-timing-function: "linear"
+   203→-                               animation-iteration-count: "infinite"
+   204→-                               animation-direction: "normal"
+   205→-                               animation-fill-mode: "none"
+   206→-                               animation-play-state: "running"
+   207→-                               animation-name: "mtqs-particle-rise"
+   208→-                               animation-timeline: "auto"
+   209→-                               animation-range-start: "normal"
+   210→-                               animation-range-end: "normal"
+   211→-                               animation-delay: "5.605091s"
+   212→                              }}
+   213→                              className="jsx-372b8623776b5da2 absolute rounded-full bg-mtqs-gold"
+   214→                            >
+   215→                            <div
+   216→                              style={{
+   217→+                               left: "90.71480023907294%"
+   218→-                               left: "29.19015%"
+   219→+                               bottom: "-10px"
+   220→-                               bottom: "-10px"
+   221→+                               width: "3.6528055767994383px"
+   222→-                               width: "3.637819px"
+   223→+                               height: "3.6528055767994383px"
+   224→-                               height: "3.637819px"
+   225→+                               opacity: 0.3822160432819448
+   226→-                               opacity: "0.300346"
+   227→+                               boxShadow: "0 0 7.305611153598877px rgba(240, 185, 11, 0.5)"
+   228→+                               animation: "mtqs-particle-rise 19.71587166451279s linear infinite"
+   229→+                               animationDelay: "0.5200853591692556s"
+   230→-                               box-shadow: "rgba(240, 185, 11, 0.5) 0px 0px 7.275638px"
+   231→-                               animation-duration: "8.029837s"
+   232→-                               animation-timing-function: "linear"
+   233→-                               animation-iteration-count: "infinite"
+   234→-                               animation-direction: "normal"
+   235→-                               animation-fill-mode: "none"
+   236→-                               animation-play-state: "running"
+   237→-                               animation-name: "mtqs-particle-rise"
+   238→-                               animation-timeline: "auto"
+   239→-                               animation-range-start: "normal"
+   240→-                               animation-range-end: "normal"
+   241→-                               animation-delay: "3.476762s"
+   242→                              }}
+   243→                              className="jsx-372b8623776b5da2 absolute rounded-full bg-mtqs-gold"
+   244→                            >
+   245→                            <div
+   246→                              style={{
+   247→+                               left: "53.59613561341471%"
+   248→-                               left: "4.260957%"
+   249→+                               bottom: "-10px"
+   250→-                               bottom: "-10px"
+   251→+                               width: "1.3722936119541147px"
+   252→-                               width: "1.177114px"
+   253→+                               height: "1.3722936119541147px"
+   254→-                               height: "1.177114px"
+   255→+                               opacity: 0.1995583991543678
+   256→-                               opacity: "0.384999"
+   257→+                               boxShadow: "0 0 2.7445872239082294px rgba(240, 185, 11, 0.5)"
+   258→+                               animation: "mtqs-particle-rise 9.57787218567085s linear infinite"
+   259→+                               animationDelay: "3.595896305336672s"
+   260→-                               box-shadow: "rgba(240, 185, 11, 0.5) 0px 0px 2.354227px"
+   261→-                               animation-duration: "17.491621s"
+   262→-                               animation-timing-function: "linear"
+   263→-                               animation-iteration-count: "infinite"
+   264→-                               animation-direction: "normal"
+   265→-                               animation-fill-mode: "none"
+   266→-                               animation-play-state: "running"
+   267→-                               animation-name: "mtqs-particle-rise"
+   268→-                               animation-timeline: "auto"
+   269→-                               animation-range-start: "normal"
+   270→-                               animation-range-end: "normal"
+   271→-                               animation-delay: "6.998979s"
+   272→                              }}
+   273→                              className="jsx-372b8623776b5da2 absolute rounded-full bg-mtqs-gold"
+   274→                            >
+   275→                            <div
+   276→                              style={{
+   277→+                               left: "46.84036665436394%"
+   278→-                               left: "76.885659%"
+   279→+                               bottom: "-10px"
+   280→-                               bottom: "-10px"
+   281→+                               width: "2.5833593295357122px"
+   282→-                               width: "3.338591px"
+   283→+                               height: "2.5833593295357122px"
+   284→-                               height: "3.338591px"
+   285→+                               opacity: 0.21823123529354205
+   286→-                               opacity: "0.238412"
+   287→+                               boxShadow: "0 0 5.1667186590714245px rgba(240, 185, 11, 0.5)"
+   288→+                               animation: "mtqs-particle-rise 11.562125155374488s linear infinite"
+   289→+                               animationDelay: "7.341111695956819s"
+   290→-                               box-shadow: "rgba(240, 185, 11, 0.5) 0px 0px 6.677182px"
+   291→-                               animation-duration: "17.278553s"
+   292→-                               animation-timing-function: "linear"
+   293→-                               animation-iteration-count: "infinite"
+   294→-                               animation-direction: "normal"
+   295→-                               animation-fill-mode: "none"
+   296→-                               animation-play-state: "running"
+   297→-                               animation-name: "mtqs-particle-rise"
+   298→-                               animation-timeline: "auto"
+   299→-                               animation-range-start: "normal"
+   300→-                               animation-range-end: "normal"
+   301→-                               animation-delay: "9.665302s"
+   302→                              }}
+   303→                              className="jsx-372b8623776b5da2 absolute rounded-full bg-mtqs-gold"
+   304→                            >
+   305→                            <div
+   306→                              style={{
+   307→+                               left: "61.20347279635919%"
+   308→-                               left: "6.501681%"
+   309→+                               bottom: "-10px"
+   310→-                               bottom: "-10px"
+   311→+                               width: "1.8966913142666617px"
+   312→-                               width: "3.690302px"
+   313→+                               height: "1.8966913142666617px"
+   314→-                               height: "3.690302px"
+   315→+                               opacity: 0.1780670726260925
+   316→-                               opacity: "0.29657"
+   317→+                               boxShadow: "0 0 3.7933826285333234px rgba(240, 185, 11, 0.5)"
+   318→+                               animation: "mtqs-particle-rise 9.156153311765994s linear infinite"
+   319→+                               animationDelay: "6.068400717526844s"
+   320→-                               box-shadow: "rgba(240, 185, 11, 0.5) 0px 0px 7.380605px"
+   321→-                               animation-duration: "9.362772s"
+   322→-                               animation-timing-function: "linear"
+   323→-                               animation-iteration-count: "infinite"
+   324→-                               animation-direction: "normal"
+   325→-                               animation-fill-mode: "none"
+   326→-                               animation-play-state: "running"
+   327→-                               animation-name: "mtqs-particle-rise"
+   328→-                               animation-timeline: "auto"
+   329→-                               animation-range-start: "normal"
+   330→-                               animation-range-end: "normal"
+   331→-                               animation-delay: "0.641411s"
+   332→                              }}
+   333→                              className="jsx-372b8623776b5da2 absolute rounded-full bg-mtqs-gold"
+   334→                            >
+   335→                            <div
+   336→                              style={{
+   337→+                               left: "66.85050427413304%"
+   338→-                               left: "66.696335%"
+   339→+                               bottom: "-10px"
+   340→-                               bottom: "-10px"
+   341→+                               width: "3.9387715303444715px"
+   342→-                               width: "3.783868px"
+   343→+                               height: "3.9387715303444715px"
+   344→-                               height: "3.783868px"
+   345→+                               opacity: 0.26581585451256007
+   346→-                               opacity: "0.174752"
+   347→+                               boxShadow: "0 0 7.877543060688943px rgba(240, 185, 11, 0.5)"
+   348→+                               animation: "mtqs-particle-rise 14.714177635797533s linear infinite"
+   349→+                               animationDelay: "7.789704700542883s"
+   350→-                               box-shadow: "rgba(240, 185, 11, 0.5) 0px 0px 7.567737px"
+   351→-                               animation-duration: "16.498046s"
+   352→-                               animation-timing-function: "linear"
+   353→-                               animation-iteration-count: "infinite"
+   354→-                               animation-direction: "normal"
+   355→-                               animation-fill-mode: "none"
+   356→-                               animation-play-state: "running"
+   357→-                               animation-name: "mtqs-particle-rise"
+   358→-                               animation-timeline: "auto"
+   359→-                               animation-range-start: "normal"
+   360→-                               animation-range-end: "normal"
+   361→-                               animation-delay: "4.724943s"
+   362→                              }}
+   363→                              className="jsx-372b8623776b5da2 absolute rounded-full bg-mtqs-gold"
+   364→                            >
+   365→                            <div
+   366→                              style={{
+   367→+                               left: "87.86123973315264%"
+   368→-                               left: "20.027142%"
+   369→+                               bottom: "-10px"
+   370→-                               bottom: "-10px"
+   371→+                               width: "1.7001605203018948px"
+   372→-                               width: "2.588774px"
+   373→+                               height: "1.7001605203018948px"
+   374→-                               height: "2.588774px"
+   375→+                               opacity: 0.3008367745446813
+   376→-                               opacity: "0.322085"
+   377→+                               boxShadow: "0 0 3.4003210406037896px rgba(240, 185, 11, 0.5)"
+   378→+                               animation: "mtqs-particle-rise 12.090088462880367s linear infinite"
+   379→+                               animationDelay: "8.234228789342184s"
+   380→-                               box-shadow: "rgba(240, 185, 11, 0.5) 0px 0px 5.177548px"
+   381→-                               animation-duration: "12.624768s"
+   382→-                               animation-timing-function: "linear"
+   383→-                               animation-iteration-count: "infinite"
+   384→-                               animation-direction: "normal"
+   385→-                               animation-fill-mode: "none"
+   386→-                               animation-play-state: "running"
+   387→-                               animation-name: "mtqs-particle-rise"
+   388→-                               animation-timeline: "auto"
+   389→-                               animation-range-start: "normal"
+   390→-                               animation-range-end: "normal"
+   391→-                               animation-delay: "4.244104s"
+   392→                              }}
+   393→                              className="jsx-372b8623776b5da2 absolute rounded-full bg-mtqs-gold"
+   394→                            >
+   395→                            <div
+   396→                              style={{
+   397→+                               left: "9.36030007078582%"
+   398→-                               left: "78.920223%"
+   399→+                               bottom: "-10px"
+   400→-                               bottom: "-10px"
+   401→+                               width: "1.5307021536938321px"
+   402→-                               width: "2.15673px"
+   403→+                               height: "1.5307021536938321px"
+   404→-                               height: "2.15673px"
+   405→+                               opacity: 0.12250151672174006
+   406→-                               opacity: "0.382476"
+   407→+                               boxShadow: "0 0 3.0614043073876642px rgba(240, 185, 11, 0.5)"
+   408→+                               animation: "mtqs-particle-rise 19.57861993729497s linear infinite"
+   409→+                               animationDelay: "0.5288874062811277s"
+   410→-                               box-shadow: "rgba(240, 185, 11, 0.5) 0px 0px 4.31346px"
+   411→-                               animation-duration: "14.47277s"
+   412→-                               animation-timing-function: "linear"
+   413→-                               animation-iteration-count: "infinite"
+   414→-                               animation-direction: "normal"
+   415→-                               animation-fill-mode: "none"
+   416→-                               animation-play-state: "running"
+   417→-                               animation-name: "mtqs-particle-rise"
+   418→-                               animation-timeline: "auto"
+   419→-                               animation-range-start: "normal"
+   420→-                               animation-range-end: "normal"
+   421→-                               animation-delay: "3.310642s"
+   422→                              }}
+   423→                              className="jsx-372b8623776b5da2 absolute rounded-full bg-mtqs-gold"
+   424→                            >
+   425→                            <div
+   426→                              style={{
+   427→+                               left: "38.04573313415598%"
+   428→-                               left: "73.31562%"
+   429→+                               bottom: "-10px"
+   430→-                               bottom: "-10px"
+   431→+                               width: "1.9615133153006867px"
+   432→-                               width: "1.666728px"
+   433→+                               height: "1.9615133153006867px"
+   434→-                               height: "1.666728px"
+   435→+                               opacity: 0.1742588589183207
+   436→-                               opacity: "0.244827"
+   437→+                               boxShadow: "0 0 3.9230266306013735px rgba(240, 185, 11, 0.5)"
+   438→+                               animation: "mtqs-particle-rise 12.882688523455517s linear infinite"
+   439→+                               animationDelay: "1.6871756737383503s"
+   440→-                               box-shadow: "rgba(240, 185, 11, 0.5) 0px 0px 3.333456px"
+   441→-                               animation-duration: "11.815673s"
+   442→-                               animation-timing-function: "linear"
+   443→-                               animation-iteration-count: "infinite"
+   444→-                               animation-direction: "normal"
+   445→-                               animation-fill-mode: "none"
+   446→-                               animation-play-state: "running"
+   447→-                               animation-name: "mtqs-particle-rise"
+   448→-                               animation-timeline: "auto"
+   449→-                               animation-range-start: "normal"
+   450→-                               animation-range-end: "normal"
+   451→-                               animation-delay: "5.38004s"
+   452→                              }}
+   453→                              className="jsx-372b8623776b5da2 absolute rounded-full bg-mtqs-gold"
+   454→                            >
+   455→                            <div
+   456→                              style={{
+   457→+                               left: "55.62695915120985%"
+   458→-                               left: "22.024116%"
+   459→+                               bottom: "-10px"
+   460→-                               bottom: "-10px"
+   461→+                               width: "1.3435270637634018px"
+   462→-                               width: "1.645633px"
+   463→+                               height: "1.3435270637634018px"
+   464→-                               height: "1.645633px"
+   465→+                               opacity: 0.28874784247697
+   466→-                               opacity: "0.266616"
+   467→+                               boxShadow: "0 0 2.6870541275268036px rgba(240, 185, 11, 0.5)"
+   468→+                               animation: "mtqs-particle-rise 9.30481108589214s linear infinite"
+   469→+                               animationDelay: "8.06552206221023s"
+   470→-                               box-shadow: "rgba(240, 185, 11, 0.5) 0px 0px 3.291267px"
+   471→-                               animation-duration: "9.828576s"
+   472→-                               animation-timing-function: "linear"
+   473→-                               animation-iteration-count: "infinite"
+   474→-                               animation-direction: "normal"
+   475→-                               animation-fill-mode: "none"
+   476→-                               animation-play-state: "running"
+   477→-                               animation-name: "mtqs-particle-rise"
+   478→-                               animation-timeline: "auto"
+   479→-                               animation-range-start: "normal"
+   480→-                               animation-range-end: "normal"
+   481→-                               animation-delay: "2.242115s"
+   482→                              }}
+   483→                              className="jsx-372b8623776b5da2 absolute rounded-full bg-mtqs-gold"
+   484→                            >
+   485→                            <div
+   486→                              style={{
+   487→+                               left: "2.2054086637819603%"
+   488→-                               left: "85.57077%"
+   489→+                               bottom: "-10px"
+   490→-                               bottom: "-10px"
+   491→+                               width: "2.900805376474005px"
+   492→-                               width: "2.764489px"
+   493→+                               height: "2.900805376474005px"
+   494→-                               height: "2.764489px"
+   495→+                               opacity: 0.16986271379799286
+   496→-                               opacity: "0.185984"
+   497→+                               boxShadow: "0 0 5.80161075294801px rgba(240, 185, 11, 0.5)"
+   498→+                               animation: "mtqs-particle-rise 14.071445382538855s linear infinite"
+   499→+                               animationDelay: "8.054870479558787s"
+   500→-                               box-shadow: "rgba(240, 185, 11, 0.5) 0px 0px 5.528977px"
+   501→-                               animation-duration: "10.705936s"
+   502→-                               animation-timing-function: "linear"
+   503→-                               animation-iteration-count: "infinite"
+   504→-                               animation-direction: "normal"
+   505→-                               animation-fill-mode: "none"
+   506→-                               animation-play-state: "running"
+   507→-                               animation-name: "mtqs-particle-rise"
+   508→-                               animation-timeline: "auto"
+   509→-                               animation-range-start: "normal"
+   510→-                               animation-range-end: "normal"
+   511→-                               animation-delay: "7.865112s"
+   512→                              }}
+   513→                              className="jsx-372b8623776b5da2 absolute rounded-full bg-mtqs-gold"
+   514→                            >
+   515→                            <div
+   516→                              style={{
+   517→+                               left: "34.64764257708076%"
+   518→-                               left: "31.919406%"
+   519→+                               bottom: "-10px"
+   520→-                               bottom: "-10px"
+   521→+                               width: "1.1146689331336295px"
+   522→-                               width: "3.688626px"
+   523→+                               height: "1.1146689331336295px"
+   524→-                               height: "3.688626px"
+   525→+                               opacity: 0.234038792120186
+   526→-                               opacity: "0.193201"
+   527→+                               boxShadow: "0 0 2.229337866267259px rgba(240, 185, 11, 0.5)"
+   528→+                               animation: "mtqs-particle-rise 15.017741630624283s linear infinite"
+   529→+                               animationDelay: "0.04299362784828342s"
+   530→-                               box-shadow: "rgba(240, 185, 11, 0.5) 0px 0px 7.377253px"
+   531→-                               animation-duration: "13.625017s"
+   532→-                               animation-timing-function: "linear"
+   533→-                               animation-iteration-count: "infinite"
+   534→-                               animation-direction: "normal"
+   535→-                               animation-fill-mode: "none"
+   536→-                               animation-play-state: "running"
+   537→-                               animation-name: "mtqs-particle-rise"
+   538→-                               animation-timeline: "auto"
+   539→-                               animation-range-start: "normal"
+   540→-                               animation-range-end: "normal"
+   541→-                               animation-delay: "6.334821s"
+   542→                              }}
+   543→                              className="jsx-372b8623776b5da2 absolute rounded-full bg-mtqs-gold"
+   544→                            >
+   545→                            <div
+   546→                              style={{
+   547→+                               left: "87.50391809357887%"
+   548→-                               left: "4.305648%"
+   549→+                               bottom: "-10px"
+   550→-                               bottom: "-10px"
+   551→+                               width: "1.4427072021293563px"
+   552→-                               width: "2.470447px"
+   553→+                               height: "1.4427072021293563px"
+   554→-                               height: "2.470447px"
+   555→+                               opacity: 0.3916491383801147
+   556→-                               opacity: "0.385526"
+   557→+                               boxShadow: "0 0 2.8854144042587127px rgba(240, 185, 11, 0.5)"
+   558→+                               animation: "mtqs-particle-rise 17.729178074115566s linear infinite"
+   559→+                               animationDelay: "7.389327727649048s"
+   560→-                               box-shadow: "rgba(240, 185, 11, 0.5) 0px 0px 4.940894px"
+   561→-                               animation-duration: "18.238452s"
+   562→-                               animation-timing-function: "linear"
+   563→-                               animation-iteration-count: "infinite"
+   564→-                               animation-direction: "normal"
+   565→-                               animation-fill-mode: "none"
+   566→-                               animation-play-state: "running"
+   567→-                               animation-name: "mtqs-particle-rise"
+   568→-                               animation-timeline: "auto"
+   569→-                               animation-range-start: "normal"
+   570→-                               animation-range-end: "normal"
+   571→-                               animation-delay: "2.608136s"
+   572→                              }}
+   573→                              className="jsx-372b8623776b5da2 absolute rounded-full bg-mtqs-gold"
+   574→                            >
+   575→                            <div
+   576→                              style={{
+   577→+                               left: "85.51334707253639%"
+   578→-                               left: "98.874167%"
+   579→+                               bottom: "-10px"
+   580→-                               bottom: "-10px"
+   581→+                               width: "3.8327230338129206px"
+   582→-                               width: "2.145847px"
+   583→+                               height: "3.8327230338129206px"
+   584→-                               height: "2.145847px"
+   585→+                               opacity: 0.2262109256684201
+   586→-                               opacity: "0.221053"
+   587→+                               boxShadow: "0 0 7.665446067625841px rgba(240, 185, 11, 0.5)"
+   588→+                               animation: "mtqs-particle-rise 13.851910538491824s linear infinite"
+   589→+                               animationDelay: "8.706874523720835s"
+   590→-                               box-shadow: "rgba(240, 185, 11, 0.5) 0px 0px 4.291693px"
+   591→-                               animation-duration: "17.520649s"
+   592→-                               animation-timing-function: "linear"
+   593→-                               animation-iteration-count: "infinite"
+   594→-                               animation-direction: "normal"
+   595→-                               animation-fill-mode: "none"
+   596→-                               animation-play-state: "running"
+   597→-                               animation-name: "mtqs-particle-rise"
+   598→-                               animation-timeline: "auto"
+   599→-                               animation-range-start: "normal"
+   600→-                               animation-range-end: "normal"
+   601→-                               animation-delay: "1.966322s"
+   602→                              }}
+   603→                              className="jsx-372b8623776b5da2 absolute rounded-full bg-mtqs-gold"
+   604→                            >
+   605→                            <div
+   606→                              style={{
+   607→+                               left: "21.10246458713506%"
+   608→-                               left: "72.826683%"
+   609→+                               bottom: "-10px"
+   610→-                               bottom: "-10px"
+   611→+                               width: "1.0805370912209704px"
+   612→-                               width: "3.975238px"
+   613→+                               height: "1.0805370912209704px"
+   614→-                               height: "3.975238px"
+   615→+                               opacity: 0.1927072825043149
+   616→-                               opacity: "0.186421"
+   617→+                               boxShadow: "0 0 2.161074182441941px rgba(240, 185, 11, 0.5)"
+   618→+                               animation: "mtqs-particle-rise 18.16240008712601s linear infinite"
+   619→+                               animationDelay: "7.191336073015422s"
+   620→-                               box-shadow: "rgba(240, 185, 11, 0.5) 0px 0px 7.950476px"
+   621→-                               animation-duration: "9.090771s"
+   622→-                               animation-timing-function: "linear"
+   623→-                               animation-iteration-count: "infinite"
+   624→-                               animation-direction: "normal"
+   625→-                               animation-fill-mode: "none"
+   626→-                               animation-play-state: "running"
+   627→-                               animation-name: "mtqs-particle-rise"
+   628→-                               animation-timeline: "auto"
+   629→-                               animation-range-start: "normal"
+   630→-                               animation-range-end: "normal"
+   631→-                               animation-delay: "5.352992s"
+   632→                              }}
+   633→                              className="jsx-372b8623776b5da2 absolute rounded-full bg-mtqs-gold"
+   634→                            >
+   635→                            ...
+   636→                        ...
+   637→                      ...
+   638→                ...
+   639→
+   640→
+   641→
+   642→    at div (unknown:0:0)
+   643→
+   644→Next.js version: 16.1.3 (Turbopack)
+   645→

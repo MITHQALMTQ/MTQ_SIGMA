@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { Geist, Geist_Mono, Cormorant_Garamond, Inter } from "next/font/google";
 import { MotionConfig } from "framer-motion";
+import { CurrencyProvider } from "@/components/mtq/CurrencySelector";
 import "./globals.css";
 import { Toaster } from "@/components/ui/toaster";
 
@@ -78,10 +79,12 @@ export default function RootLayout({
         style={{ fontFamily: 'var(--font-inter), var(--font-geist-sans), -apple-system, BlinkMacSystemFont, "SF Pro Display", "SF Pro Text", system-ui, sans-serif' }}
       >
         <MotionConfig reducedMotion="user">
+        <CurrencyProvider>
           {children}
           <Toaster />
           <SonnerToaster position="bottom-right" richColors closeButton />
-        </MotionConfig>
+        </CurrencyProvider>
+      </MotionConfig>
       </body>
     </html>
   );

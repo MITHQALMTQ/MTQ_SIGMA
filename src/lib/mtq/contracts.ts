@@ -154,7 +154,26 @@ export const ROBINHOOD_TESTNET: ChainInfo = {
     { name: "MockUSDC (pilot collateral)", symbol: "MockUSDC.sol", address: "0xFd2B8d176bf059287638Db30D02C6651dA02861e" },
   ],
 };
-export const ALL_CHAINS: ChainInfo[] = [MONAD_TESTNET, ARC_TESTNET, ROBINHOOD_TESTNET, SOLANA_DEVNET];
+
+// === Base (Coinbase L2) — Chain ID 8453 (mainnet) ===
+export const BASE_MAINNET: ChainInfo = {
+  id: "base", chainId: 8453, label: "Base (Coinbase L2)", network: "Base",
+  rpcUrl: "https://mainnet.base.org", explorer: "https://basescan.org",
+  explorerAddrBase: "https://basescan.org/address/", explorerTxBase: "https://basescan.org/tx/",
+  nativeCurrency: "ETH", wallet: DEPLOYER_WALLET, isEvm: true,
+  contracts: [{ name: "MTQΣ Token (pending deploy)", symbol: "MTQSigmaV2.sol", address: "0x0000000000000000000000000000000000000000", note: "Deploy V3 on Base per competitive analysis R3." }],
+};
+
+// === Arbitrum One — Chain ID 42161 (mainnet) ===
+export const ARBITRUM_ONE: ChainInfo = {
+  id: "arbitrum", chainId: 42161, label: "Arbitrum One", network: "Arbitrum One",
+  rpcUrl: "https://arb1.arbitrum.io/rpc", explorer: "https://arbiscan.io",
+  explorerAddrBase: "https://arbiscan.io/address/", explorerTxBase: "https://arbiscan.io/tx/",
+  nativeCurrency: "ETH", wallet: DEPLOYER_WALLET, isEvm: true,
+  contracts: [{ name: "MTQΣ Token (pending deploy)", symbol: "MTQSigmaV2.sol", address: "0x0000000000000000000000000000000000000000", note: "Deploy V3 on Arbitrum per competitive analysis R3." }],
+};
+
+export const ALL_CHAINS: ChainInfo[] = [MONAD_TESTNET, ARC_TESTNET, ROBINHOOD_TESTNET, SOLANA_DEVNET, BASE_MAINNET, ARBITRUM_ONE];
 
 // === MTQΣ V2 — v1.0 Master Blueprint on-chain implementation ===
 // Source: contracts/MTQSigmaV2.sol (~1057 lines, Solidity ^0.8.20, compiles clean

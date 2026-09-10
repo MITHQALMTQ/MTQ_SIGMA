@@ -1,13 +1,50 @@
 "use client";
 
-import { useMemo } from "react";
+import { useMemo, useState, useEffect } from "react";
 
 // MTQΣ — Gold Particle Background
 // Floating gold particles drifting upward — like gold dust in deep space.
-// Pure CSS animation, no JS runtime cost.
+// Uses a deterministic seed on first render (server) + randomizes on client mount
+// to avoid hydration mismatches.
+
+function seededRandom(seed: number): () => number {
+  let s = seed;
+  return () => {
+    s = (s * 2654435761 + 12345) & 0x7fffffff;
+    return s / 0x7fffffff;
+  };
+}
+
+interface Particle {
+  id: number;
+  left: number;
+  size: number;
+  duration: number;
+  delay: number;
+  opacity: number;
+}
 
 export function ParticleField({ count = 30 }: { count?: number }) {
-  const particles = useMemo(() => {
+  const [mounted, setMounted] = useState(false);
+  
+  useEffect(() => {
+    setMounted(true);
+  }, []);
+
+  const particles: Particle[] = useMemo(() => {
+    if (!mounted) {
+      // Deterministic particles for SSR (seeded random)
+      const rng = seededRandom(42);
+      return Array.from({ length: count }, (_, i) => ({
+        id: i,
+        left: rng() * 100,
+        size: 1 + rng() * 3,
+        duration: 8 + rng() * 12,
+        delay: rng() * 10,
+        opacity: 0.1 + rng() * 0.3,
+      }));
+    }
+    // Random particles on client (after mount — no hydration mismatch)
     return Array.from({ length: count }, (_, i) => ({
       id: i,
       left: Math.random() * 100,
@@ -16,7 +53,7 @@ export function ParticleField({ count = 30 }: { count?: number }) {
       delay: Math.random() * 10,
       opacity: 0.1 + Math.random() * 0.3,
     }));
-  }, [count]);
+  }, [count, mounted]);
 
   return (
     <div className="pointer-events-none absolute inset-0 overflow-hidden" aria-hidden="true">
@@ -36,24 +73,6 @@ export function ParticleField({ count = 30 }: { count?: number }) {
           }}
         />
       ))}
-      <style jsx>{`
-        @keyframes mtqs-particle-rise {
-          0% {
-            transform: translateY(0) translateX(0);
-            opacity: 0;
-          }
-          10% {
-            opacity: var(--p-opacity, 0.3);
-          }
-          90% {
-            opacity: var(--p-opacity, 0.3);
-          }
-          100% {
-            transform: translateY(-100vh) translateX(20px);
-            opacity: 0;
-          }
-        }
-      `}</style>
     </div>
   );
 }
