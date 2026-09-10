@@ -39,125 +39,51 @@ export function Header({
       <div className="mx-auto flex max-w-[1400px] items-center justify-between gap-3 px-4 sm:px-6 lg:px-8 py-3">
         {/* Left — logo-mark + wordmark + tagline */}
         <div className="flex items-center gap-2.5 sm:gap-3 min-w-0">
-          {/* Animated Logo-mark — inline SVG with rotating aurora ring + glowing gold sigma */}
-          <div className="relative h-9 w-9 sm:h-11 sm:w-11 shrink-0" aria-label="MTQΣ logo mark — animated gold sigma with aurora ring">
+                    {/* Animated Logo-mark — original Σ-gold-ingot with glow + pulsing emerald line */}
+          <div className="relative h-9 w-9 sm:h-11 sm:w-11 shrink-0" aria-label="MTQΣ logo mark — animated gold sigma ingot">
             <svg viewBox="0 0 64 64" className="w-full h-full" role="img" aria-label="MTQΣ animated logo">
               <defs>
-                <linearGradient id="header-gold" x1="0" y1="0" x2="0" y2="1">
-                  <stop offset="0" stopColor="#FCD535" />
-                  <stop offset="0.5" stopColor="#F0B90B" />
-                  <stop offset="1" stopColor="#c99700" />
+                <linearGradient id="hdr-gold" x1="0" y1="0" x2="0" y2="1">
+                  <stop offset="0" stop-color="#f4d58d"/>
+                  <stop offset="0.5" stop-color="#e8b964"/>
+                  <stop offset="1" stop-color="#b8861f"/>
                 </linearGradient>
-                <linearGradient id="header-aurora" x1="0" y1="0" x2="1" y2="1">
-                  <stop offset="0%" stopColor="#F0B90B" />
-                  <stop offset="33%" stopColor="#00D68F" />
-                  <stop offset="66%" stopColor="#7B61FF" />
-                  <stop offset="100%" stopColor="#2BD4E0" />
+                <linearGradient id="hdr-goldEdge" x1="0" y1="0" x2="1" y2="1">
+                  <stop offset="0" stop-color="#f9e6b0"/>
+                  <stop offset="1" stop-color="#9c6f1a"/>
                 </linearGradient>
-                <filter id="header-glow">
-                  <feGaussianBlur stdDeviation="1" />
-                  <feMerge>
-                    <feMergeNode />
-                    <feMergeNode in="SourceGraphic" />
-                  </feMerge>
+                <filter id="hdr-glow">
+                  <feGaussianBlur stdDeviation="1" result="blur"/>
+                  <feMerge><feMergeNode in="blur"/><feMergeNode in="SourceGraphic"/></feMerge>
                 </filter>
               </defs>
-              {/* Deep space bg */}
-              <rect width="64" height="64" rx="14" fill="#06080F" />
-              {/* Rotating aurora rings */}
-              <g transform="translate(32 32)">
-                <circle r="26" fill="none" stroke="url(#header-aurora)" strokeWidth="0.5" opacity="0.4" filter="url(#header-glow)">
-                  <animateTransform attributeName="transform" type="rotate" from="0" to="360" dur="8s" repeatCount="indefinite" />
-                </circle>
-                <circle r="22" fill="none" stroke="url(#header-aurora)" strokeWidth="0.3" opacity="0.2">
-                  <animateTransform attributeName="transform" type="rotate" from="360" to="0" dur="12s" repeatCount="indefinite" />
+              <rect width="64" height="64" rx="14" fill="#06080F"/>
+              {/* Subtle rotating glow ring */}
+              <g transform="translate(32 32)" opacity="0.12">
+                <circle r="24" fill="none" stroke="url(#hdr-gold)" strokeWidth="0.5">
+                  <animateTransform attributeName="transform" type="rotate" from="0" to="360" dur="10s" repeatCount="indefinite"/>
                 </circle>
               </g>
-              {/* Gold sigma ingot */}
-              <g transform="translate(12 12)" filter="url(#header-glow)">
-                <polygon points="4,4 36,4 30,14 10,14" fill="url(#header-gold)" stroke="#FCD535" strokeWidth="0.5">
-                  <animate attributeName="opacity" values="1;0.8;1" dur="3s" repeatCount="indefinite" />
+              {/* Original Σ-gold-ingot design with animation */}
+              <g transform="translate(12 12)" filter="url(#hdr-glow)">
+                <polygon points="4,4 36,4 30,14 10,14" fill="url(#hdr-gold)" stroke="url(#hdr-goldEdge)" strokeWidth="0.8">
+                  <animate attributeName="opacity" values="1;0.88;1" dur="3s" repeatCount="indefinite"/>
                 </polygon>
-                <polygon points="22,16 30,14 20,20 14,20" fill="#d4a84a" stroke="#FCD535" strokeWidth="0.4" />
-                <polygon points="4,36 36,36 30,26 10,26" fill="url(#header-gold)" stroke="#FCD535" strokeWidth="0.5">
-                  <animate attributeName="opacity" values="1;0.8;1" dur="3s" begin="1.5s" repeatCount="indefinite" />
+                <polygon points="22,16 30,14 20,20 14,20" fill="#d4a84a" stroke="url(#hdr-goldEdge)" strokeWidth="0.6"/>
+                <polygon points="22,16 14,20 10,14" fill="#c99a3a" opacity="0.9"/>
+                <polygon points="4,36 36,36 30,26 10,26" fill="url(#hdr-gold)" stroke="url(#hdr-goldEdge)" strokeWidth="0.8">
+                  <animate attributeName="opacity" values="1;0.88;1" dur="3s" begin="1.5s" repeatCount="indefinite"/>
                 </polygon>
-                <polygon points="4,4 10,14 10,26 4,36" fill="#b8861f" stroke="#FCD535" strokeWidth="0.3" />
-                <polygon points="36,4 30,14 30,26 36,36" fill="#b8861f" stroke="#FCD535" strokeWidth="0.3" />
+                <polygon points="22,24 30,26 20,20 14,20" fill="#d4a84a" stroke="url(#hdr-goldEdge)" strokeWidth="0.6"/>
+                <polygon points="22,24 14,20 10,26 18,26" fill="#b8861f" opacity="0.95"/>
+                {/* Pulsing emerald solvency line */}
+                <rect x="14" y="38" width="12" height="1.6" rx="0.8" fill="#00D68F">
+                  <animate attributeName="opacity" values="0.4;0.9;0.4" dur="2s" repeatCount="indefinite"/>
+                  <animate attributeName="width" values="12;14;12" dur="2s" repeatCount="indefinite"/>
+                </rect>
               </g>
-              {/* Pulsing emerald line */}
-              <line x1="20" y1="52" x2="44" y2="52" stroke="#00D68F" strokeWidth="1" opacity="0.6">
-                <animate attributeName="opacity" values="0.3;0.8;0.3" dur="2s" repeatCount="indefinite" />
-              </line>
             </svg>
           </div>
-          {/* Wordmark + tagline stack */}
-          <div className="min-w-0">
-            <div className="flex items-baseline gap-2">
-              <span
-                className="mtqs-display mtqs-gold-text text-xl sm:text-2xl font-semibold leading-none"
-                aria-label="MTQ Sigma"
-              >
-                MTQΣ
-              </span>
-              <span
-                className="hidden sm:inline text-[0.6rem] uppercase tracking-[0.25em] text-mtqs-gold/70"
-                aria-hidden="true"
-              >
-                Global Purchasing Power Unit
-              </span>
-            </div>
-            <p className="truncate text-[0.65rem] sm:text-[0.7rem] text-white/55 tracking-[0.08em] mt-0.5">
-              {BRAND_VOICE.tagline} · Closed-Loop Monetary Architecture
-            </p>
-          </div>
-        </div>
-
-        {/* Right — status + version + badges */}
-        <div className="flex items-center gap-2 sm:gap-3 shrink-0">
-          {/* Oracle indicator */}
-          <div
-            className={`hidden md:inline-flex items-center gap-1.5 rounded-full border px-2.5 py-1 text-[0.7rem] ${
-              oracleAnyPaused
-                ? "border-mtqs-rose/40 bg-mtqs-rose/10 text-mtqs-rose"
-                : "border-mtqs-emerald/30 bg-mtqs-emerald/10 text-mtqs-emerald"
-            }`}
-            title={oracleAnyPaused ? "Oracle consensus paused (§9.3)" : `${oracleValidCount} of ${oracleTotalCount} oracle feeds valid`}
-            aria-label={oracleAnyPaused ? "Oracle paused" : `Oracle ${oracleValidCount} of ${oracleTotalCount} feeds valid`}
-          >
-            <GlowDot color={oracleAnyPaused ? "rose" : "emerald"} size="h-1.5 w-1.5" />
-            <span className="font-mono tabular-nums">
-              {oracleAnyPaused ? "ORACLE PAUSED" : `ORACLE ${oracleValidCount}/${oracleTotalCount}`}
-            </span>
-          </div>
-
-          {/* Status pill — brand STATUS_COLORS */}
-          <div
-            className="inline-flex items-center gap-1.5 rounded-full border px-2.5 py-1 text-[0.7rem]"
-            style={{
-              color: scBrand.color,
-              backgroundColor: scBrand.bg,
-              borderColor: `${scBrand.color}55`,
-            }}
-            aria-label={`Protocol status: ${scBrand.label}`}
-          >
-            <GlowDot
-              color={
-                status === "NORMAL"
-                  ? "emerald"
-                  : status === "CAUTION"
-                  ? "amber"
-                  : status === "DEFENSIVE"
-                  ? "rose"
-                  : status === "EMERGENCY"
-                  ? "rose"
-                  : "gold"
-              }
-              size="h-1.5 w-1.5"
-            />
-            <span className="font-mono tabular-nums tracking-wider">{scBrand.label}</span>
-          </div>
-
           {/* Version + honest badge */}
           <div className="hidden sm:flex flex-col items-end gap-1">
             <div className="flex items-center gap-2">

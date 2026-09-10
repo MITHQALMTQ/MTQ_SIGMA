@@ -15,6 +15,7 @@ import { SectionHeading, Reveal, Panel, Pill, GlowDot, BrandPrinciples, Skeleton
 import { ConstitutionalSeparation } from "@/components/mtq/ConstitutionalSeparation";
 import { GfbChart } from "@/components/mtq/GfbChart";
 import { ParticleField } from "@/components/mtq/ParticleField";
+import { BasketValueDisplay } from "@/components/mtq/BasketValueDisplay";
 import { BRAND_VOICE, BRAND_ASSETS, STATUS_COLORS } from "@/lib/mtq/brand";
 import { CANONICAL_MTQ_ADDRESSES } from "@/lib/mtq/contracts";
 import { fmtFixed, fmtUsdCompact, fmtRatio, shortAddr, copyToClipboard } from "@/components/mtq/format";
@@ -102,7 +103,8 @@ function LiveStatsBand({ snapshot }: { snapshot: MetricsSnapshot | null }) {
           )}
         </Panel>
       ))}
-    </div>
+      </div>
+      <BasketValueDisplay snapshot={snapshot} />
     </div>
   );
 }
