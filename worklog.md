@@ -3749,3 +3749,20 @@ Stage Summary:
 - Design system: deep space (#06080F) + glassmorphic panels (backdrop-blur 20px) + aurora text (gold→emerald→violet animated) + 2026 palette + cinematic entry (scale+blur+fade 0.8s)
 - 43 components migrated, all 9 sections rebuilt with cinematic transitions
 - tsc 0; lint 0; HTTP 200; 141/141 tests pass; 0 page errors; Vercel live
+
+---
+Task ID: CINEMATIC-CHARTS-PARTICLES-FAVICON
+Agent: Orchestrator (COO + UI Design Expert)
+Task: User asked "implement all recommendations, and where is the cinematic entry and animated favicon?"
+
+Work Log:
+- ANIMATED FAVICON: Rewrote public/brand/favicon.svg — rotating aurora ring (8s rotation), counter-rotating inner ring (12s), glowing gold sigma ingot with pulsing opacity animation, pulsing emerald solvency line at base. Pure SVG animation, no JS.
+- CINEMATIC ENTRY: Added .mtqs-cinematic-page class to globals.css — dramatic 1.2s entry: scale(0.92)→(1) + blur(20px)→(0) + brightness(0.3)→(1). Applied to page.tsx root wrapper. This is VISIBLE — the page starts blurred + dark, then focuses in over 1.2s.
+- GFB INDEX LIVE CHART: Created GfbChart.tsx — aurora gradient line chart (gold→emerald→violet→cyan), animated path drawing (1.5s draw-in), pulsing gold endpoint, area fill gradient, grid lines. Wired into HomeSection hero area.
+- RESERVE COMPOSITION DONUT: Created ReserveDonut.tsx — 7-component basket donut (USD/EUR/Gold/JPY/GBP/CNY/CHF), staggered segment animation (0.1s delay each), glow filter, NAV center label. Wired into DashboardSection top.
+- GOLD PARTICLE FIELD: Created ParticleField.tsx — 20 floating gold particles drifting upward in deep space, random sizes/durations/delays, gold glow boxShadow. Wired into HomeSection hero.
+- ANIMATED NUMBER FLASH: Added .mtqs-number-flash class — gold color + text-shadow glow + scale(1.05)→(1), 0.6s. Available for use on value updates.
+- AURORA BORDER: Added .mtqs-aurora-border class — animated border color cycling through gold→emerald→violet, 6s loop. Available for hero cards.
+- CONTRAST FIX: Improved text-white/40→55 across 45 files for WCAG AA compliance.
+- Verified: tsc 0, lint 0, HTTP 200, Vercel 200, 0 page errors, hasChart=true, hasParticles=true, title="MTQΣ — The Global Purchasing Power Unit", bg=rgb(6,8,15) deep space.
+- Pushed to GitHub (commit 11fd483) + Vercel auto-deployed.
