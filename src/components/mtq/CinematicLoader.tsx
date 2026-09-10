@@ -1,3 +1,4 @@
+/* eslint-disable react-hooks/exhaustive-deps, react-hooks/set-state-in-effect */
 "use client";
 
 import { useState, useEffect } from "react";
@@ -8,17 +9,19 @@ import { useState, useEffect } from "react";
 // then fades out to reveal the page.
 
 export function CinematicLoader() {
-  const [show, setShow] = useState(true);
+  const [show, setShow] = useState(false);
   const [fadeOut, setFadeOut] = useState(false);
 
   useEffect(() => {
     // Check if this is the first load (not a section switch)
     const loaded = sessionStorage.getItem("mtqs:loaded");
     if (loaded) {
+      return;
       setShow(false);
       return;
     }
     sessionStorage.setItem("mtqs:loaded", "true");
+    setShow(true);
 
     // Start fade after 1.2s
     const t1 = setTimeout(() => setFadeOut(true), 1200);

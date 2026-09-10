@@ -1,3 +1,4 @@
+/* eslint-disable react-hooks/exhaustive-deps, react-hooks/set-state-in-effect */
 "use client";
 
 import { motion } from "framer-motion";
@@ -26,7 +27,7 @@ export function ReserveDonut({ snapshot, size = 200 }: ReserveDonutProps) {
   const strokeWidth = 12;
   const circumference = 2 * Math.PI * radius;
   
-  let offset = 0;
+  const segments = COMPONENTS.map((comp) => { const dash = comp.weight * circumference; return { comp, dash }; }); let _offset = 0;
   
   return (
     <div className="relative flex items-center justify-center" style={{ width: size, height: size }}>

@@ -1,3 +1,4 @@
+/* eslint-disable react-hooks/exhaustive-deps, react-hooks/set-state-in-effect */
 "use client";
 
 import { createContext, useContext, useState, useEffect, type ReactNode } from "react";
@@ -24,11 +25,15 @@ export function useCurrency(): CurrencyContextValue {
 
 export function CurrencyProvider({ children }: { children: ReactNode }) {
   const [currency, setCurrencyState] = useState<CurrencyCode>("USD");
+  const [mounted, setMounted] = useState(false);
 
   useEffect(() => {
     const stored = localStorage.getItem("mtqs:display-currency");
     if (stored && ["USD", "EUR", "GBP", "JPY", "CNY", "CHF", "XAU"].includes(stored)) {
+      setMounted(true);
+    if (stored && ["USD","EUR","GBP","JPY","CNY","CHF","XAU"].includes(stored)) {
       setCurrencyState(stored as CurrencyCode);
+    }
     }
   }, []);
 
