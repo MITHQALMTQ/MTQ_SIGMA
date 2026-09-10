@@ -51,7 +51,7 @@ export const metadata: Metadata = {
     icon: [
       { url: "/brand/favicon.svg", type: "image/svg+xml" },
       { url: "/brand/mtqs-emblem.jpg", type: "image/jpeg" },
-      { url: "/brand/mtqs-emblem.png", type: "image/png" },
+      
     ],
     apple: "/brand/mtqs-emblem.jpg",
   },
