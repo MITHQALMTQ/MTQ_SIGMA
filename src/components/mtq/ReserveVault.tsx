@@ -218,10 +218,10 @@ function GoldWeightGauge({ snapshot }: { snapshot: MetricsSnapshot }) {
   return (
     <div>
       <div className="flex items-baseline justify-between mb-2">
-        <span className="text-[0.7rem] uppercase tracking-[0.2em] text-white/40">
+        <span className="text-[0.7rem] uppercase tracking-[0.2em] text-white/55">
           Gold Weight (§6.5 + §8)
         </span>
-        <span className="text-[0.7rem] text-white/40 font-mono">
+        <span className="text-[0.7rem] text-white/55 font-mono">
           bounds {lower.toFixed(0)}–{upper.toFixed(0)}% · base {base.toFixed(2)}%
         </span>
       </div>
@@ -266,13 +266,13 @@ function GoldWeightGauge({ snapshot }: { snapshot: MetricsSnapshot }) {
           </div>
         </motion.div>
       </div>
-      <div className="mt-4 flex flex-wrap gap-3 text-[0.7rem] text-white/40">
+      <div className="mt-4 flex flex-wrap gap-3 text-[0.7rem] text-white/55">
         <span>observed <span className="font-mono text-mtqs-gold">{obs.toFixed(2)}%</span></span>
         <span>target <span className="font-mono text-mtqs-gold">{tgt.toFixed(2)}%</span></span>
         <span>buffer-state <Pill tone={snapshot.bufferState === "EMERGENCY" ? "rose" : snapshot.bufferState === "STRESS" ? "amber" : "emerald"}>{snapshot.bufferState}</Pill></span>
         <span>buffer Au <span className="font-mono text-mtqs-gold">{(snapshot.bufferGoldRatio * 100).toFixed(2)}%</span></span>
       </div>
-      <p className="mt-2 text-[0.7rem] text-white/40 leading-relaxed">
+      <p className="mt-2 text-[0.7rem] text-white/55 leading-relaxed">
         Total target gold weight formula: <span className="font-mono text-mtqs-gold">W_target = clamp(0.20 + 0.10·B_gold(RR) + θ_smoothed, 22%, 30%)</span>
       </p>
     </div>
@@ -307,7 +307,7 @@ export function ReserveVault({ snapshot }: { snapshot: MetricsSnapshot | null })
       <Reveal>
         <Panel className="p-5">
           <div className="mb-3 flex items-center justify-between">
-            <span className="text-[0.625rem] uppercase tracking-[0.25em] text-white/40">Vault Composition</span>
+            <span className="text-[0.625rem] uppercase tracking-[0.25em] text-white/55">Vault Composition</span>
             <Pill tone="gold">§4 + §8.3</Pill>
           </div>
           <VaultDiagram snapshot={snapshot} />
@@ -318,8 +318,8 @@ export function ReserveVault({ snapshot }: { snapshot: MetricsSnapshot | null })
         <Reveal delay={0.05}>
           <Panel className="p-5">
             <div className="mb-3 flex items-center justify-between">
-              <span className="text-[0.625rem] uppercase tracking-[0.25em] text-white/40">Per-Asset Net Values</span>
-              <span className="text-[0.7rem] text-white/40 font-mono">after haircut</span>
+              <span className="text-[0.625rem] uppercase tracking-[0.25em] text-white/55">Per-Asset Net Values</span>
+              <span className="text-[0.7rem] text-white/55 font-mono">after haircut</span>
             </div>
             <div className="space-y-2.5">
               {assets.map((a, i) => (
@@ -336,7 +336,7 @@ export function ReserveVault({ snapshot }: { snapshot: MetricsSnapshot | null })
                   <span className="w-20 text-right text-[0.7rem] font-mono text-mtqs-gold">
                     {fmtUsdCompact(a.v)}
                   </span>
-                  <span className="w-10 text-right text-[0.65rem] font-mono text-white/40">
+                  <span className="w-10 text-right text-[0.65rem] font-mono text-white/55">
                     {((a.v / total) * 100).toFixed(1)}%
                   </span>
                 </div>

@@ -221,7 +221,7 @@ export function InvestorSection({
         <Panel className="p-5">
           <div className="flex items-start gap-3">
             <TrendingUp className="h-5 w-5 text-mtqs-gold/80 mt-0.5 shrink-0" aria-hidden="true" />
-            <p className="text-[0.82rem] text-white/40 leading-relaxed">
+            <p className="text-[0.82rem] text-white/55 leading-relaxed">
               This page is the investor diligence surface. Every cell is fetched live from the
               protocol&apos;s own API. Verify the canonical token contract on each chain, read the
               protocol&apos;s health from the live snapshot, review the honest findings (F1 &amp; F2
@@ -255,10 +255,10 @@ export function InvestorSection({
                 >
                   <div className="flex items-start justify-between gap-2">
                     <div>
-                      <div className="text-[0.6rem] uppercase tracking-[0.22em] text-white/40/75">
+                      <div className="text-[0.6rem] uppercase tracking-[0.22em] text-white/55/75">
                         {info.chain}
                       </div>
-                      <div className="font-mono text-[0.65rem] text-white/40/60 mt-0.5">
+                      <div className="font-mono text-[0.65rem] text-white/55/60 mt-0.5">
                         cid {String(info.chainId)}
                       </div>
                     </div>
@@ -294,7 +294,7 @@ export function InvestorSection({
                   ) : (
                     <>
                       <div className="text-[0.72rem]">
-                        <div className="text-white/40 text-[0.6rem] uppercase tracking-[0.18em]">
+                        <div className="text-white/55 text-[0.6rem] uppercase tracking-[0.18em]">
                           name · symbol
                         </div>
                         <div className="font-mono text-mtqs-gold">
@@ -307,7 +307,7 @@ export function InvestorSection({
                         </div>
                       </div>
                       <div className="text-[0.72rem]">
-                        <div className="text-white/40 text-[0.6rem] uppercase tracking-[0.18em]">
+                        <div className="text-white/55 text-[0.6rem] uppercase tracking-[0.18em]">
                           decimals
                         </div>
                         <div className="font-mono text-mtqs-gold">
@@ -316,7 +316,7 @@ export function InvestorSection({
                       </div>
                       {data?.roles && (
                         <div className="text-[0.68rem]">
-                          <div className="text-white/40 text-[0.6rem] uppercase tracking-[0.18em]">
+                          <div className="text-white/55 text-[0.6rem] uppercase tracking-[0.18em]">
                             roles (deployer)
                           </div>
                           <div className="font-mono flex flex-wrap gap-1.5 mt-0.5">
@@ -332,7 +332,7 @@ export function InvestorSection({
                         </div>
                       )}
                       {data?.latestBlock != null && (
-                        <div className="text-[0.62rem] text-white/40/60 font-mono mt-auto">
+                        <div className="text-[0.62rem] text-white/55/60 font-mono mt-auto">
                           block #{data.latestBlock} · verified {fmtAgo(data.verifiedAt ? new Date(data.verifiedAt).getTime() : null)}
                         </div>
                       )}
@@ -365,7 +365,7 @@ export function InvestorSection({
               amber: "text-mtqs-amber",
               rose: "text-mtqs-rose",
               gold: "text-mtqs-gold-light",
-              muted: "text-white/40",
+              muted: "text-white/55",
             };
             return (
               <Reveal key={c.label}>
@@ -375,7 +375,7 @@ export function InvestorSection({
                       className={`h-3.5 w-3.5 ${toneClasses[c.tone]}`}
                       aria-hidden="true"
                     />
-                    <span className="text-[0.6rem] uppercase tracking-[0.18em] text-white/40/75">
+                    <span className="text-[0.6rem] uppercase tracking-[0.18em] text-white/55/75">
                       {c.label}
                     </span>
                   </div>
@@ -384,7 +384,7 @@ export function InvestorSection({
                   >
                     {c.value ?? "—"}
                   </div>
-                  <div className="mt-1 text-[0.62rem] text-white/40 truncate">
+                  <div className="mt-1 text-[0.62rem] text-white/55 truncate">
                     {c.sub}
                   </div>
                 </Panel>
@@ -409,7 +409,7 @@ export function InvestorSection({
         <Reveal>
           <Panel className="p-5">
             {f1And2.length === 0 ? (
-              <div className="rounded-md border border-white/[0.06] bg-white/[0.03]/[0.02] p-4 text-center text-[0.75rem] text-white/40">
+              <div className="rounded-md border border-white/[0.06] bg-white/[0.03]/[0.02] p-4 text-center text-[0.75rem] text-white/55">
                 Loading reconciliation findings…
               </div>
             ) : (
@@ -429,11 +429,11 @@ export function InvestorSection({
                         fixed
                       </Pill>
                     </div>
-                    <p className="text-[0.75rem] text-white/40 leading-relaxed">
+                    <p className="text-[0.75rem] text-white/55 leading-relaxed">
                       {f.description}
                     </p>
                     {f.resolution && (
-                      <p className="mt-2 text-[0.72rem] text-white/40 leading-relaxed">
+                      <p className="mt-2 text-[0.72rem] text-white/55 leading-relaxed">
                         <span className="text-mtqs-gold/80 uppercase tracking-[0.18em] text-[0.6rem] font-medium mr-1">
                           Resolution
                         </span>
@@ -444,7 +444,7 @@ export function InvestorSection({
                 ))}
               </div>
             )}
-            <div className="mt-4 text-[0.72rem] text-white/40 leading-relaxed">
+            <div className="mt-4 text-[0.72rem] text-white/55 leading-relaxed">
               <span className="text-mtqs-emerald/85 font-medium">F1</span> — the §12.2 vs §3.4.2
               redemption price contradiction is reconciled (§3.4.2 canonical, §12.2 informational).
               <span className="text-mtqs-emerald/85 font-medium"> F2</span> — the §5.6 Circle
@@ -471,7 +471,7 @@ export function InvestorSection({
         <Reveal>
           <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
             <Panel className="p-4">
-              <div className="text-[0.6rem] uppercase tracking-[0.18em] text-white/40/75 mb-1">
+              <div className="text-[0.6rem] uppercase tracking-[0.18em] text-white/55/75 mb-1">
                 Total trials
               </div>
               <div className="font-mono tabular-nums text-2xl text-mtqs-gold-light">
@@ -479,7 +479,7 @@ export function InvestorSection({
               </div>
             </Panel>
             <Panel className="p-4">
-              <div className="text-[0.6rem] uppercase tracking-[0.18em] text-white/40/75 mb-1">
+              <div className="text-[0.6rem] uppercase tracking-[0.18em] text-white/55/75 mb-1">
                 Mints
               </div>
               <div className="font-mono tabular-nums text-2xl text-mtqs-emerald">
@@ -487,7 +487,7 @@ export function InvestorSection({
               </div>
             </Panel>
             <Panel className="p-4">
-              <div className="text-[0.6rem] uppercase tracking-[0.18em] text-white/40/75 mb-1">
+              <div className="text-[0.6rem] uppercase tracking-[0.18em] text-white/55/75 mb-1">
                 Redeems
               </div>
               <div className="font-mono tabular-nums text-2xl text-mtqs-amber">
@@ -495,7 +495,7 @@ export function InvestorSection({
               </div>
             </Panel>
             <Panel className="p-4">
-              <div className="text-[0.6rem] uppercase tracking-[0.18em] text-white/40/75 mb-1">
+              <div className="text-[0.6rem] uppercase tracking-[0.18em] text-white/55/75 mb-1">
                 Success rate
               </div>
               <div className="font-mono tabular-nums text-2xl text-mtqs-emerald">
@@ -520,7 +520,7 @@ export function InvestorSection({
             <div className="overflow-hidden rounded-md border border-white/[0.06]">
               <div className="max-h-96 overflow-y-auto mtqs-scroll">
                 <table className="w-full text-[0.72rem]">
-                  <thead className="bg-white/[0.03]/[0.02] text-white/40 sticky top-0">
+                  <thead className="bg-white/[0.03]/[0.02] text-white/55 sticky top-0">
                     <tr>
                       <th className="text-left px-3 py-2 font-medium">Endpoint</th>
                       <th className="text-left px-3 py-2 font-medium">Path</th>
@@ -536,7 +536,7 @@ export function InvestorSection({
                       >
                         <td className="px-3 py-2.5 text-white/90 font-medium">{ep.label}</td>
                         <td className="px-3 py-2.5 font-mono text-mtqs-gold break-all">{ep.url}</td>
-                        <td className="px-3 py-2.5 text-white/40/75 hidden sm:table-cell">
+                        <td className="px-3 py-2.5 text-white/55/75 hidden sm:table-cell">
                           {ep.desc}
                         </td>
                         <td className="px-3 py-2.5 text-right">
@@ -548,7 +548,7 @@ export function InvestorSection({
                 </table>
               </div>
             </div>
-            <div className="mt-3 flex items-start gap-2 text-[0.7rem] text-white/40">
+            <div className="mt-3 flex items-start gap-2 text-[0.7rem] text-white/55">
               <GlowDot color="gold" size="h-1.5 w-1.5" className="mt-1.5" />
               <p className="leading-relaxed">
                 All endpoints are read-only GET. Run a trial in the Trial section to populate the
@@ -562,7 +562,7 @@ export function InvestorSection({
       {/* Closing */}
       <Reveal>
         <Panel variant="emerald" className="p-5 sm:p-6 text-center">
-          <p className="text-[0.82rem] text-white/40 leading-relaxed max-w-2xl mx-auto mb-4">
+          <p className="text-[0.82rem] text-white/55 leading-relaxed max-w-2xl mx-auto mb-4">
             Investor diligence complete. Every metric above is reproducible from the endpoints
             listed. Review the Monte Carlo test suite for protocol resilience, or read the full
             blueprint reference in Docs.
@@ -593,7 +593,7 @@ export function InvestorSection({
 function RoleChip({ label, ok }: { label: string; ok: boolean | null }) {
   if (ok === null) {
     return (
-      <span className="inline-flex items-center gap-1 rounded border border-white/[0.1] bg-white/[0.03]/[0.02] text-white/40 px-1.5 py-0.5 font-mono text-[0.6rem]">
+      <span className="inline-flex items-center gap-1 rounded border border-white/[0.1] bg-white/[0.03]/[0.02] text-white/55 px-1.5 py-0.5 font-mono text-[0.6rem]">
         {label.toLowerCase()}?
       </span>
     );
@@ -603,7 +603,7 @@ function RoleChip({ label, ok }: { label: string; ok: boolean | null }) {
       className={`inline-flex items-center gap-1 rounded border px-1.5 py-0.5 font-mono text-[0.6rem] ${
         ok
           ? "border-mtqs-emerald/40 bg-mtqs-emerald/10 text-mtqs-emerald"
-          : "border-white/[0.1] bg-white/[0.03]/[0.02] text-white/40/60"
+          : "border-white/[0.1] bg-white/[0.03]/[0.02] text-white/55/60"
       }`}
     >
       {label.toLowerCase()}

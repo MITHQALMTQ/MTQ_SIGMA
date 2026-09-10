@@ -95,7 +95,7 @@ function ExposedBadge({ label, value, exposed }: { label: string; value: string;
       }`}
     >
       <div className="flex items-center justify-between gap-2 mb-1">
-        <span className="text-[0.6rem] uppercase tracking-[0.18em] text-white/40/75">
+        <span className="text-[0.6rem] uppercase tracking-[0.18em] text-white/55/75">
           {label}
         </span>
         {exposed ? (
@@ -156,7 +156,7 @@ export function SecuritySection({ onNavigate: _onNavigate }: { onNavigate: (id: 
         <Panel className="p-5">
           <div className="flex items-start gap-3">
             <ShieldCheck className="h-5 w-5 text-mtqs-gold/80 mt-0.5 shrink-0" aria-hidden="true" />
-            <p className="text-[0.82rem] text-white/40 leading-relaxed">
+            <p className="text-[0.82rem] text-white/55 leading-relaxed">
               {BRAND_VOICE.statusDeclaration}. The security section is intentionally honest: it
               surfaces what is secured, what is exposed by the pilot design, what the Monte Carlo
               audit found, and the regulatory posture (US + Sharia). Nothing here is production-claim.
@@ -180,63 +180,63 @@ export function SecuritySection({ onNavigate: _onNavigate }: { onNavigate: (id: 
         <Reveal>
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
             <Panel className="p-4">
-              <div className="text-[0.6rem] uppercase tracking-[0.18em] text-white/40/75 mb-1">
+              <div className="text-[0.6rem] uppercase tracking-[0.18em] text-white/55/75 mb-1">
                 Deployment status
               </div>
               <div className="text-sm text-white/90 font-medium">
                 {canonicalCount} canonical MTQΣ contracts live
               </div>
-              <div className="mt-1 text-[0.7rem] text-white/40 leading-relaxed">
+              <div className="mt-1 text-[0.7rem] text-white/55 leading-relaxed">
                 Monad · Arc · Robinhood · Solana testnets. Bytecode verified per chain in the
                 Investor section.
               </div>
             </Panel>
             <Panel className="p-4">
-              <div className="text-[0.6rem] uppercase tracking-[0.18em] text-white/40/75 mb-1">
+              <div className="text-[0.6rem] uppercase tracking-[0.18em] text-white/55/75 mb-1">
                 Reference engine
               </div>
               <div className="text-sm text-white/90 font-medium">In-process · TypeScript</div>
-              <div className="mt-1 text-[0.7rem] text-white/40 leading-relaxed">
+              <div className="mt-1 text-[0.7rem] text-white/55 leading-relaxed">
                 The live dashboard runs the blueprint math in-process; it does not depend on testnet
                 RPC for its monetary logic, so it is robust to RPC unreliability.
               </div>
             </Panel>
             <Panel className="p-4">
-              <div className="text-[0.6rem] uppercase tracking-[0.18em] text-white/40/75 mb-1">
+              <div className="text-[0.6rem] uppercase tracking-[0.18em] text-white/55/75 mb-1">
                 Attack surface
               </div>
               <div className="text-sm text-white/90 font-medium">Read-only GET API</div>
-              <div className="mt-1 text-[0.7rem] text-white/40 leading-relaxed">
+              <div className="mt-1 text-[0.7rem] text-white/55 leading-relaxed">
                 All public endpoints are GET. Mint/Redeem POST endpoints simulate; they do not move
                 real testnet funds in the dashboard.
               </div>
             </Panel>
             <Panel className="p-4">
-              <div className="text-[0.6rem] uppercase tracking-[0.18em] text-white/40/75 mb-1">
+              <div className="text-[0.6rem] uppercase tracking-[0.18em] text-white/55/75 mb-1">
                 Constitution
               </div>
               <div className="text-sm text-white/90 font-medium">7/7 Multi-Sig · 90d timelock</div>
-              <div className="mt-1 text-[0.7rem] text-white/40 leading-relaxed">
+              <div className="mt-1 text-[0.7rem] text-white/55 leading-relaxed">
                 Basket quantities (qᵢ) change only via constitutional governance. Risk thresholds via
                 Risk Council (4/7 · 24h). Emergency via Multi-Sig (4/7 · instant).
               </div>
             </Panel>
             <Panel className="p-4">
-              <div className="text-[0.6rem] uppercase tracking-[0.18em] text-white/40/75 mb-1">
+              <div className="text-[0.6rem] uppercase tracking-[0.18em] text-white/55/75 mb-1">
                 Oracle consensus
               </div>
               <div className="text-sm text-white/90 font-medium">3 sources · 3-of-3 valid</div>
-              <div className="mt-1 text-[0.7rem] text-white/40 leading-relaxed">
+              <div className="mt-1 text-[0.7rem] text-white/55 leading-relaxed">
                 Chainlink + Pyth + Chronicle per pair. Any deviation &gt; 2.5% or staleness &gt; 60s
                 pauses mint + rebalance (§9.2).
               </div>
             </Panel>
             <Panel className="p-4">
-              <div className="text-[0.6rem] uppercase tracking-[0.18em] text-white/40/75 mb-1">
+              <div className="text-[0.6rem] uppercase tracking-[0.18em] text-white/55/75 mb-1">
                 Geopolitical eject
               </div>
               <div className="text-sm text-white/90 font-medium">Staged 10 / 25 / 50 / 100%</div>
-              <div className="mt-1 text-[0.7rem] text-white/40 leading-relaxed">
+              <div className="mt-1 text-[0.7rem] text-white/55 leading-relaxed">
                 Depeg &gt; 12h triggers staged liquidation of the affected currency; reintegration
                 requires R_score &gt; 0.80 (§11.3).
               </div>
@@ -261,7 +261,7 @@ export function SecuritySection({ onNavigate: _onNavigate }: { onNavigate: (id: 
           <Panel className="p-5">
             <div className="flex items-start gap-3 mb-4">
               <KeyRound className="h-5 w-5 text-mtqs-rose/80 mt-0.5 shrink-0" aria-hidden="true" />
-              <p className="text-[0.78rem] text-white/40 leading-relaxed">
+              <p className="text-[0.78rem] text-white/55 leading-relaxed">
                 The pilot was deployed with a single deployer private key (held in .env, gitignored).
                 For the pilot this is honestly exposed; for production the protocol requires a 4/7
                 Multi-Sig (Safe) on every chain. The key was transmitted via chat and must be rotated
@@ -290,7 +290,7 @@ export function SecuritySection({ onNavigate: _onNavigate }: { onNavigate: (id: 
                 exposed={false}
               />
             </div>
-            <div className="mt-3 text-[0.68rem] text-white/40 leading-relaxed">
+            <div className="mt-3 text-[0.68rem] text-white/55 leading-relaxed">
               Production target: every role on every canonical MTQΣ contract (ADMIN, MINTER,
               PAUSER) is held by the 4/7 Safe, not by an EOA. The Investor Verification section reads
               on-chain role assignments live for each chain.
@@ -329,7 +329,7 @@ export function SecuritySection({ onNavigate: _onNavigate }: { onNavigate: (id: 
                 {INVARIANTS_TESTED.map((inv) => (
                   <span
                     key={inv}
-                    className="inline-flex items-center gap-1 rounded-full border border-white/[0.06] bg-white/[0.03]/[0.02] px-2.5 py-1 text-[0.62rem] font-mono text-white/40"
+                    className="inline-flex items-center gap-1 rounded-full border border-white/[0.06] bg-white/[0.03]/[0.02] px-2.5 py-1 text-[0.62rem] font-mono text-white/55"
                   >
                     <CheckCircle2 className="h-2.5 w-2.5 text-mtqs-emerald" aria-hidden="true" />
                     {inv}
@@ -340,7 +340,7 @@ export function SecuritySection({ onNavigate: _onNavigate }: { onNavigate: (id: 
             <div className="overflow-hidden rounded-md border border-white/[0.06]">
               <div className="max-h-72 overflow-y-auto mtqs-scroll">
                 <table className="w-full text-[0.72rem]">
-                  <thead className="bg-white/[0.03]/[0.02] text-white/40 sticky top-0">
+                  <thead className="bg-white/[0.03]/[0.02] text-white/55 sticky top-0">
                     <tr>
                       <th className="text-left px-3 py-2 font-medium">Suite</th>
                       <th className="text-right px-3 py-2 font-medium">Result</th>
@@ -354,7 +354,7 @@ export function SecuritySection({ onNavigate: _onNavigate }: { onNavigate: (id: 
                       >
                         <td className="px-3 py-2.5">
                           <div className="text-white/90">{f.title}</div>
-                          <div className="text-[0.62rem] text-white/40/60 mt-0.5 font-mono">
+                          <div className="text-[0.62rem] text-white/55/60 mt-0.5 font-mono">
                             {f.detail}
                           </div>
                         </td>
@@ -371,7 +371,7 @@ export function SecuritySection({ onNavigate: _onNavigate }: { onNavigate: (id: 
               </div>
             </div>
             <div className="mt-3 flex items-center justify-between gap-2">
-              <div className="text-[0.7rem] text-white/40">
+              <div className="text-[0.7rem] text-white/55">
                 Run the live suite yourself in the Tests section.
               </div>
               <button
@@ -404,7 +404,7 @@ export function SecuritySection({ onNavigate: _onNavigate }: { onNavigate: (id: 
                 </span>
               </div>
               <h4 className="text-sm font-semibold text-white/90 mb-2">US posture (pilot)</h4>
-              <ul className="space-y-1.5 text-[0.74rem] text-white/40 leading-relaxed">
+              <ul className="space-y-1.5 text-[0.74rem] text-white/55 leading-relaxed">
                 <li className="flex gap-2">
                   <XCircle className="h-3.5 w-3.5 text-mtqs-rose shrink-0 mt-0.5" aria-hidden="true" />
                   <span>Not a registered security. The pilot does not solicit US investment.</span>
@@ -435,7 +435,7 @@ export function SecuritySection({ onNavigate: _onNavigate }: { onNavigate: (id: 
                 </span>
               </div>
               <h4 className="text-sm font-semibold text-white/90 mb-2">Sharia posture (design)</h4>
-              <ul className="space-y-1.5 text-[0.74rem] text-white/40 leading-relaxed">
+              <ul className="space-y-1.5 text-[0.74rem] text-white/55 leading-relaxed">
                 <li className="flex gap-2">
                   <CheckCircle2 className="h-3.5 w-3.5 text-mtqs-emerald shrink-0 mt-0.5" aria-hidden="true" />
                   <span>Interest-free: MTQΣ is non-yield-bearing by design (no riba).</span>
@@ -479,7 +479,7 @@ export function SecuritySection({ onNavigate: _onNavigate }: { onNavigate: (id: 
         </div>
         <Reveal>
           <Panel className="p-5">
-            <ol className="space-y-2.5 text-[0.76rem] text-white/40 leading-relaxed">
+            <ol className="space-y-2.5 text-[0.76rem] text-white/55 leading-relaxed">
               <li className="flex gap-2">
                 <span className="font-mono text-mtqs-gold/70 shrink-0">01.</span>
                 <span>
@@ -551,7 +551,7 @@ export function SecuritySection({ onNavigate: _onNavigate }: { onNavigate: (id: 
       {/* Closing */}
       <Reveal>
         <Panel className="p-5 sm:p-6 text-center">
-          <p className="text-[0.82rem] text-white/40 leading-relaxed max-w-2xl mx-auto mb-4">
+          <p className="text-[0.82rem] text-white/55 leading-relaxed max-w-2xl mx-auto mb-4">
             Security posture is honestly disclosed: pilot-grade, key-rotation-pending, Sharia
             review-pending, audit-PASS. For the full reconciliation, see Docs; for live on-chain
             verification, see Investors.

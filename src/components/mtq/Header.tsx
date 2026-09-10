@@ -66,7 +66,7 @@ export function Header({
                 Global Purchasing Power Unit
               </span>
             </div>
-            <p className="truncate text-[0.65rem] sm:text-[0.7rem] text-white/40 tracking-[0.08em] mt-0.5">
+            <p className="truncate text-[0.65rem] sm:text-[0.7rem] text-white/55 tracking-[0.08em] mt-0.5">
               {BRAND_VOICE.tagline} · Closed-Loop Monetary Architecture
             </p>
           </div>
@@ -123,7 +123,7 @@ export function Header({
               <Pill tone="gold" className="font-mono tabular-nums">Σ-v1.2</Pill>
               <GlowDot color="gold" size="h-2 w-2" />
             </div>
-            <span className="text-[0.6rem] text-white/40 tracking-wide">
+            <span className="text-[0.6rem] text-white/55 tracking-wide">
               {BRAND_VOICE.statusDeclaration}
             </span>
           </div>
@@ -218,7 +218,7 @@ export function LiveTicker({ snapshot }: { snapshot: MetricsSnapshot | null }) {
               transition={{ duration: 0.25, delay: i * 0.03 }}
               className="flex items-center gap-1.5 sm:gap-2 px-3 sm:px-4 py-2.5 border-r border-white/[0.06] last:border-r-0 shrink-0"
             >
-              <span className="text-[0.55rem] sm:text-[0.6rem] uppercase tracking-[0.18em] sm:tracking-[0.22em] text-white/40 whitespace-nowrap">
+              <span className="text-[0.55rem] sm:text-[0.6rem] uppercase tracking-[0.18em] sm:tracking-[0.22em] text-white/55 whitespace-nowrap">
                 {it.label}
               </span>
               <span className="font-mono tabular-nums text-[0.72rem] sm:text-[0.8rem] font-medium whitespace-nowrap">

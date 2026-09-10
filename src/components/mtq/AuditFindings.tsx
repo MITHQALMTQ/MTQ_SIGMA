@@ -167,7 +167,7 @@ export function AuditFindings() {
               </h3>
             </div>
           </div>
-          <p className="text-[0.78rem] text-white/40 leading-relaxed pl-8">
+          <p className="text-[0.78rem] text-white/55 leading-relaxed pl-8">
             The audit was conducted in 4 parallel streams (static code, smart contract, stress tests, tokenomics) —
             3,111 lines across 5 reports. After the Master Reconciliation Prompt (39 sections), all 4 P0 findings are now
             <span className="text-mtqs-emerald/90 font-medium"> FIXED in V3</span>: chain-linked index (Listing 3),
@@ -225,10 +225,10 @@ export function AuditFindings() {
                     fixed (V3)
                   </Pill>
                 </div>
-                <p className="text-[0.72rem] text-white/40 leading-relaxed mb-1.5">
+                <p className="text-[0.72rem] text-white/55 leading-relaxed mb-1.5">
                   {f.detail}
                 </p>
-                <div className="flex flex-wrap gap-x-4 gap-y-1 text-[0.65rem] text-white/40 font-mono">
+                <div className="flex flex-wrap gap-x-4 gap-y-1 text-[0.65rem] text-white/55 font-mono">
                   <span>
                     <span className="text-mtqs-gold/80">owner:</span> {f.owner}
                   </span>
@@ -249,11 +249,11 @@ export function AuditFindings() {
               0x7FF honest mask — bit-by-bit audit verdict
             </h4>
           </div>
-          <p className="text-[0.72rem] text-white/40 mb-2 leading-relaxed">
+          <p className="text-[0.72rem] text-white/55 mb-2 leading-relaxed">
             V3 contract claims <span className="font-mono text-mtqs-gold">{CLAIMED_MASK}</span> (all 11 bits). After the Master Reconciliation implementation, V3 <span className="text-mtqs-emerald/90 font-medium">TRUTHFULLY EARNED</span> <span className="font-mono text-mtqs-emerald/90">{HONEST_MASK}</span> ({honestCount} of 11 bits verified). All 4 previously-overstated bits (chainLinkedIndex, maseWeightRegistry, marpExecution, daoGovernance) are now genuinely implemented per Master Listings 1, 2, 3, 13, 14. Status: <span className="text-mtqs-gold font-medium">VALIDATED, NOT PRODUCTION_AUTHORIZED</span> (per §25.4).
           </p>
           <div className="overflow-hidden rounded-md border border-white/[0.06]">
-            <div className="hidden sm:grid grid-cols-[44px_minmax(0,1.5fr)_minmax(0,2fr)_80px] gap-2 px-3 py-2 bg-white/[0.03]/[0.03] text-[0.6rem] uppercase tracking-[0.18em] text-white/40">
+            <div className="hidden sm:grid grid-cols-[44px_minmax(0,1.5fr)_minmax(0,2fr)_80px] gap-2 px-3 py-2 bg-white/[0.03]/[0.03] text-[0.6rem] uppercase tracking-[0.18em] text-white/55">
               <div>Bit</div>
               <div>Name</div>
               <div>Audit Note</div>
@@ -270,9 +270,9 @@ export function AuditFindings() {
                   }`}
                 >
                   <div className="hidden sm:grid grid-cols-[44px_minmax(0,1.5fr)_minmax(0,2fr)_80px] gap-2 items-center">
-                    <div className="font-mono text-[0.7rem] text-white/40">{b.bit}</div>
+                    <div className="font-mono text-[0.7rem] text-white/55">{b.bit}</div>
                     <div className="font-mono text-[0.72rem] text-white/90">{b.name}</div>
-                    <div className="text-[0.68rem] text-white/40 leading-snug">{b.note}</div>
+                    <div className="text-[0.68rem] text-white/55 leading-snug">{b.note}</div>
                     <div>
                       {b.honest ? (
                         <Pill tone="emerald" className="text-[0.55rem]">honest</Pill>
@@ -284,7 +284,7 @@ export function AuditFindings() {
                   {/* Mobile */}
                   <div className="sm:hidden space-y-1.5">
                     <div className="flex items-center gap-2">
-                      <span className="font-mono text-[0.65rem] text-white/40/60">bit {b.bit}</span>
+                      <span className="font-mono text-[0.65rem] text-white/55/60">bit {b.bit}</span>
                       <span className="font-mono text-[0.72rem] text-white/90">{b.name}</span>
                       {b.honest ? (
                         <Pill tone="emerald" className="text-[0.5rem] ml-auto">honest</Pill>
@@ -292,7 +292,7 @@ export function AuditFindings() {
                         <Pill tone="rose" className="text-[0.5rem] ml-auto">overstated</Pill>
                       )}
                     </div>
-                    <div className="text-[0.68rem] text-white/40 leading-snug">{b.note}</div>
+                    <div className="text-[0.68rem] text-white/55 leading-snug">{b.note}</div>
                   </div>
                 </div>
               ))}
@@ -309,7 +309,7 @@ export function AuditFindings() {
             </h4>
           </div>
           <div className="overflow-hidden rounded-md border border-white/[0.06]">
-            <div className="hidden sm:grid grid-cols-[44px_minmax(0,2fr)_minmax(0,1fr)_minmax(0,1fr)_minmax(0,1fr)] gap-2 px-3 py-2 bg-white/[0.03]/[0.03] text-[0.6rem] uppercase tracking-[0.18em] text-white/40">
+            <div className="hidden sm:grid grid-cols-[44px_minmax(0,2fr)_minmax(0,1fr)_minmax(0,1fr)_minmax(0,1fr)] gap-2 px-3 py-2 bg-white/[0.03]/[0.03] text-[0.6rem] uppercase tracking-[0.18em] text-white/55">
               <div>#</div>
               <div>Scenario</div>
               <div>Survival</div>
@@ -329,12 +329,12 @@ export function AuditFindings() {
                   }`}
                 >
                   <div className="hidden sm:grid grid-cols-[44px_minmax(0,2fr)_minmax(0,1fr)_minmax(0,1fr)_minmax(0,1fr)] gap-2 items-center">
-                    <div className="font-mono text-[0.7rem] text-white/40">{s.id}</div>
+                    <div className="font-mono text-[0.7rem] text-white/55">{s.id}</div>
                     <div className="text-[0.74rem] text-white/90 leading-snug">{s.scenario}</div>
                     <div className="font-mono text-[0.74rem] tabular-nums text-white/90">
                       {s.survival.toFixed(1)}%
                     </div>
-                    <div className="font-mono text-[0.72rem] tabular-nums text-white/40">
+                    <div className="font-mono text-[0.72rem] tabular-nums text-white/55">
                       ≥ {s.target}%
                     </div>
                     <div>
@@ -346,13 +346,13 @@ export function AuditFindings() {
                   {/* Mobile */}
                   <div className="sm:hidden space-y-1">
                     <div className="flex items-center gap-2">
-                      <span className="font-mono text-[0.65rem] text-white/40/60">{s.id}</span>
+                      <span className="font-mono text-[0.65rem] text-white/55/60">{s.id}</span>
                       <span className="text-[0.74rem] text-white/90 leading-snug flex-1">{s.scenario}</span>
                       <Pill tone={verdictTone(s.verdict)} className="text-[0.5rem]">
                         {verdictText(s.verdict)}
                       </Pill>
                     </div>
-                    <div className="font-mono text-[0.7rem] tabular-nums text-white/40">
+                    <div className="font-mono text-[0.7rem] tabular-nums text-white/55">
                       survival {s.survival.toFixed(1)}% · target ≥ {s.target}%
                     </div>
                   </div>
@@ -366,7 +366,7 @@ export function AuditFindings() {
         <div className="rounded-md border border-mtqs-gold/25 bg-mtqs-gold/5 p-3.5">
           <div className="flex items-start gap-2.5">
             <FileText className="h-4 w-4 text-mtqs-gold/80 mt-0.5 shrink-0" aria-hidden="true" />
-            <div className="text-[0.74rem] text-white/40/90 leading-relaxed space-y-1">
+            <div className="text-[0.74rem] text-white/55/90 leading-relaxed space-y-1">
               <p>
                 <span className="text-mtqs-gold/90 font-medium">Full audit report</span> — 5 documents, 3,111 lines:
               </p>

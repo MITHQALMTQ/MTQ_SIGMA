@@ -406,3 +406,52 @@ body {
   .mtqs-aurora-text, .mtqs-gold-text, .mtqs-holographic::before,
   .mtqs-pulse-dot, .mtqs-tick-flash { animation: none !important; }
 }
+
+/* ============================================================
+   Particle Field (gold dust in deep space)
+   ============================================================ */
+@keyframes mtqs-particle-rise {
+  0% { transform: translateY(0) translateX(0); opacity: 0; }
+  10% { opacity: 0.3; }
+  90% { opacity: 0.3; }
+  100% { transform: translateY(-100vh) translateX(20px); opacity: 0; }
+}
+
+/* ============================================================
+   Cinematic Page Entry (dramatic, visible)
+   ============================================================ */
+@keyframes mtqs-cinematic-page {
+  0% { opacity: 0; transform: scale(0.92); filter: blur(20px) brightness(0.3); }
+  30% { opacity: 0.3; filter: blur(12px) brightness(0.5); }
+  60% { opacity: 0.7; filter: blur(4px) brightness(0.8); }
+  100% { opacity: 1; transform: scale(1); filter: blur(0) brightness(1); }
+}
+
+.mtqs-cinematic-page {
+  animation: mtqs-cinematic-page 1.2s cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+
+/* ============================================================
+   Animated Number Ticker (gold flash on update)
+   ============================================================ */
+@keyframes mtqs-number-flash {
+  0% { color: #F0B90B; text-shadow: 0 0 12px rgba(240, 185, 11, 0.8); transform: scale(1.05); }
+  100% { color: inherit; text-shadow: none; transform: scale(1); }
+}
+
+.mtqs-number-flash {
+  animation: mtqs-number-flash 0.6s ease-out;
+}
+
+/* ============================================================
+   Aurora Glow Border (for hero cards)
+   ============================================================ */
+@keyframes mtqs-aurora-border {
+  0%, 100% { border-color: rgba(240, 185, 11, 0.2); box-shadow: 0 0 20px rgba(240, 185, 11, 0.1); }
+  33% { border-color: rgba(0, 214, 143, 0.2); box-shadow: 0 0 20px rgba(0, 214, 143, 0.1); }
+  66% { border-color: rgba(123, 97, 255, 0.2); box-shadow: 0 0 20px rgba(123, 97, 255, 0.1); }
+}
+
+.mtqs-aurora-border {
+  animation: mtqs-aurora-border 6s ease-in-out infinite;
+}

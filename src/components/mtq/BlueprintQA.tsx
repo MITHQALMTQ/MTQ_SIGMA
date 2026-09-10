@@ -165,7 +165,7 @@ export function BlueprintQA({ className = "" }: { className?: string }) {
           {item.citations.map((c, i) => (
             <span
               key={i}
-              className="inline-flex items-center rounded-full border border-white/[0.06] bg-white/[0.03]/[0.02] px-2 py-0.5 text-[0.6rem] font-mono text-white/40"
+              className="inline-flex items-center rounded-full border border-white/[0.06] bg-white/[0.03]/[0.02] px-2 py-0.5 text-[0.6rem] font-mono text-white/55"
             >
               §{c}
             </span>
@@ -195,7 +195,7 @@ export function BlueprintQA({ className = "" }: { className?: string }) {
             <div className="text-[0.78rem] font-medium text-mtqs-rose">
               Q&A unavailable
             </div>
-            <p className="mt-0.5 text-[0.7rem] text-white/40 leading-relaxed break-words">
+            <p className="mt-0.5 text-[0.7rem] text-white/55 leading-relaxed break-words">
               {error}
             </p>
           </div>
@@ -214,7 +214,7 @@ export function BlueprintQA({ className = "" }: { className?: string }) {
           </p>
           {citations && citations.length > 0 && (
             <div className="flex flex-wrap items-center gap-1.5 pt-1">
-              <span className="text-[0.6rem] uppercase tracking-[0.18em] text-white/40 mr-1">
+              <span className="text-[0.6rem] uppercase tracking-[0.18em] text-white/55 mr-1">
                 Cites
               </span>
               {citations.map((c, i) => (
@@ -225,7 +225,7 @@ export function BlueprintQA({ className = "" }: { className?: string }) {
             </div>
           )}
           {disclaimer && (
-            <p className="text-[0.62rem] text-white/40/55 leading-relaxed pt-1 border-t border-white/[0.06]">
+            <p className="text-[0.62rem] text-white/55/55 leading-relaxed pt-1 border-t border-white/[0.06]">
               {disclaimer}
             </p>
           )}
@@ -249,7 +249,7 @@ export function BlueprintQA({ className = "" }: { className?: string }) {
             <h3 className="text-base font-semibold text-white">
               Ask the Blueprint
             </h3>
-            <p className="text-[0.72rem] text-white/40/75 leading-relaxed">
+            <p className="text-[0.72rem] text-white/55/75 leading-relaxed">
               Gemini-powered Q&amp;A over the v1.0 Master Blueprint constants. Informational only.
             </p>
           </div>
@@ -271,7 +271,7 @@ export function BlueprintQA({ className = "" }: { className?: string }) {
               exit={{ opacity: 0, height: 0 }}
               className="mb-3"
             >
-              <div className="text-[0.6rem] uppercase tracking-[0.22em] text-white/40 mb-2">
+              <div className="text-[0.6rem] uppercase tracking-[0.22em] text-white/55 mb-2">
                 Recent Q&amp;A
               </div>
               <div className="space-y-2 max-h-72 overflow-y-auto mtqs-scroll pr-1">
@@ -290,7 +290,7 @@ export function BlueprintQA({ className = "" }: { className?: string }) {
         {/* ---------- Suggested questions (only when history empty) ---------- */}
         {history.length === 0 && !loading && !answer && !error && (
           <div className="mb-3">
-            <div className="text-[0.6rem] uppercase tracking-[0.22em] text-white/40 mb-2">
+            <div className="text-[0.6rem] uppercase tracking-[0.22em] text-white/55 mb-2">
               Try one of
             </div>
             <div className="flex flex-wrap gap-2">
@@ -317,7 +317,7 @@ export function BlueprintQA({ className = "" }: { className?: string }) {
               placeholder="Ask about the v1.0 Master Blueprint…"
               rows={2}
               aria-label="Question"
-              className="flex-1 resize-none rounded-md border border-white/[0.06] bg-white/[0.03]/[0.02] px-3 py-2 text-[0.8rem] text-white placeholder:text-white/40/50 focus:outline-none focus:border-mtqs-gold/40 focus:bg-white/[0.03]/[0.04] transition"
+              className="flex-1 resize-none rounded-md border border-white/[0.06] bg-white/[0.03]/[0.02] px-3 py-2 text-[0.8rem] text-white placeholder:text-white/55/50 focus:outline-none focus:border-mtqs-gold/40 focus:bg-white/[0.03]/[0.04] transition"
             />
             <button
               onClick={() => submit()}
@@ -336,7 +336,7 @@ export function BlueprintQA({ className = "" }: { className?: string }) {
                   ? "text-mtqs-rose"
                   : question.length > MAX_CHARS * 0.9
                   ? "text-mtqs-amber"
-                  : "text-white/40/60"
+                  : "text-white/55/60"
               }`}
             >
               {question.length}/{MAX_CHARS}

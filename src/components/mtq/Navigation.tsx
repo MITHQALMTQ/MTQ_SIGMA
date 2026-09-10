@@ -82,7 +82,7 @@ export function Navigation({
                     className={`relative flex items-center gap-1.5 px-3 py-1.5 text-[0.78rem] font-medium tracking-tight rounded-lg transition-colors duration-200 ${
                       isActive
                         ? "text-white"
-                        : "text-white/40/60 hover:text-white/40"
+                        : "text-white/55/60 hover:text-white/55"
                     }`}
                     aria-pressed={isActive}
                     aria-label={`${s.label} section`}
@@ -117,7 +117,7 @@ export function Navigation({
                 {SECTIONS.find((s) => s.id === active)?.label ?? "Home"}
               </span>
             </div>
-            <span className="text-[0.65rem] font-medium text-white/40/40 uppercase tracking-widest">
+            <span className="text-[0.65rem] font-medium text-white/55/40 uppercase tracking-widest">
               9 sections
             </span>
           </div>
@@ -146,7 +146,7 @@ export function Navigation({
                         className={`flex flex-col items-center justify-center gap-1.5 rounded-2xl py-3.5 transition-colors duration-200 ${
                           isActive
                             ? "bg-amber-400/15 text-mtqs-gold border border-amber-400/25"
-                            : "bg-white/[0.03]/[0.04] text-white/40 border border-white/[0.06] hover:bg-white/[0.03]/[0.08]"
+                            : "bg-white/[0.03]/[0.04] text-white/55 border border-white/[0.06] hover:bg-white/[0.03]/[0.08]"
                         }`}
                         aria-pressed={isActive}
                       >

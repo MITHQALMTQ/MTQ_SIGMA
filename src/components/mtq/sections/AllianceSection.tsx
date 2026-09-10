@@ -19,7 +19,7 @@ export function AllianceSection() {
           <div>
             <div className="mtqs-eyebrow">Strategic · R7</div>
             <h2 className="mtqs-section-title mt-1">MTQΣ Alliance — Integrators</h2>
-            <p className="text-sm text-white/40 mt-2">
+            <p className="text-sm text-white/55 mt-2">
               The MTQΣ Alliance is a group of protocols, wallets, and payment processors that integrate MTQΣ.
               Each integration creates network effects — making MTQΣ more useful for everyone.
             </p>
@@ -35,7 +35,7 @@ export function AllianceSection() {
                 </div>
                 <Pill tone="amber">{m.status}</Pill>
               </div>
-              <p className="text-xs text-white/40 leading-relaxed">{m.description}</p>
+              <p className="text-xs text-white/55 leading-relaxed">{m.description}</p>
             </div>
           ))}
         </div>

@@ -44,7 +44,7 @@ function ChainTab({ chain, active, onClick }: { chain: ChainInfo; active: boolea
     <button
       onClick={onClick}
       className={`mtqs-focus relative px-4 py-2.5 text-sm font-medium transition ${
-        active ? "text-mtqs-gold" : "text-white/40 hover:text-white/40"
+        active ? "text-mtqs-gold" : "text-white/55 hover:text-white/55"
       }`}
       aria-pressed={active}
     >
@@ -78,19 +78,19 @@ function CanonicalCard({ chainId }: { chainId: string }) {
       </div>
       <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 text-[0.72rem]">
         <div className="rounded-md border border-white/[0.06] bg-white/[0.03]/[0.02] p-2.5">
-          <div className="text-white/40">Name</div>
+          <div className="text-white/55">Name</div>
           <div className="font-mono text-mtqs-gold">{info.name}</div>
         </div>
         <div className="rounded-md border border-white/[0.06] bg-white/[0.03]/[0.02] p-2.5">
-          <div className="text-white/40">Symbol</div>
+          <div className="text-white/55">Symbol</div>
           <div className="font-mono text-mtqs-gold">{info.symbol}</div>
         </div>
         <div className="rounded-md border border-white/[0.06] bg-white/[0.03]/[0.02] p-2.5">
-          <div className="text-white/40">Decimals</div>
+          <div className="text-white/55">Decimals</div>
           <div className="font-mono text-mtqs-gold">{info.decimals}</div>
         </div>
         <div className="rounded-md border border-white/[0.06] bg-white/[0.03]/[0.02] p-2.5">
-          <div className="text-white/40">Chain ID</div>
+          <div className="text-white/55">Chain ID</div>
           <div className="font-mono text-mtqs-gold">{String(info.chainId)}</div>
         </div>
       </div>
@@ -134,7 +134,7 @@ function EcosystemTable({ chain, query }: { chain: ChainInfo; query: string }) {
     <div className="overflow-hidden rounded-md border border-white/[0.06]">
       <div className="max-h-96 overflow-y-auto mtqs-scroll">
         <table className="w-full text-[0.72rem]">
-          <thead className="bg-white/[0.03]/[0.02] text-white/40 sticky top-0 backdrop-blur">
+          <thead className="bg-white/[0.03]/[0.02] text-white/55 sticky top-0 backdrop-blur">
             <tr>
               <th className="text-left px-3 py-2 font-medium">Contract</th>
               <th className="text-left px-3 py-2 font-medium hidden sm:table-cell">Symbol</th>
@@ -145,7 +145,7 @@ function EcosystemTable({ chain, query }: { chain: ChainInfo; query: string }) {
           <tbody>
             {rows.length === 0 ? (
               <tr>
-                <td colSpan={4} className="px-3 py-6 text-center text-white/40/60">
+                <td colSpan={4} className="px-3 py-6 text-center text-white/55/60">
                   No contracts match &ldquo;{query}&rdquo;.
                 </td>
               </tr>
@@ -160,7 +160,7 @@ function EcosystemTable({ chain, query }: { chain: ChainInfo; query: string }) {
                     <td className="px-3 py-2.5">
                       <div className="text-white/90">{c.name}</div>
                       {c.note && (
-                        <div className="text-[0.62rem] text-white/40/60 mt-0.5">{c.note}</div>
+                        <div className="text-[0.62rem] text-white/55/60 mt-0.5">{c.note}</div>
                       )}
                     </td>
                     <td className="px-3 py-2.5 font-mono text-mtqs-gold/80 hidden sm:table-cell">
@@ -259,26 +259,26 @@ export function ContractsSection({ onNavigate: _onNavigate }: { onNavigate: (id:
               >
                 <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-2 text-[0.72rem]">
                   <div className="rounded-md border border-white/[0.06] bg-white/[0.03]/[0.02] p-2.5">
-                    <div className="text-white/40">Chain ID</div>
+                    <div className="text-white/55">Chain ID</div>
                     <div className="font-mono text-mtqs-gold">{String(active.chainId)}</div>
                   </div>
                   <div className="rounded-md border border-white/[0.06] bg-white/[0.03]/[0.02] p-2.5">
-                    <div className="text-white/40">Native Currency</div>
+                    <div className="text-white/55">Native Currency</div>
                     <div className="font-mono text-mtqs-gold">{active.nativeCurrency}</div>
                   </div>
                   <div className="rounded-md border border-white/[0.06] bg-white/[0.03]/[0.02] p-2.5 sm:col-span-2">
-                    <div className="text-white/40">RPC URL</div>
+                    <div className="text-white/55">RPC URL</div>
                     <div className="font-mono text-mtqs-gold truncate text-[0.7rem]">{active.rpcUrl}</div>
                   </div>
                   <div className="rounded-md border border-white/[0.06] bg-white/[0.03]/[0.02] p-2.5">
-                    <div className="text-white/40">Deployer Wallet</div>
+                    <div className="text-white/55">Deployer Wallet</div>
                     <div className="font-mono text-mtqs-gold flex items-center gap-1.5">
                       {shortAddr(active.wallet, 6, 4)}
                       <CopyButton value={active.wallet} label="deployer wallet" />
                     </div>
                   </div>
                   <div className="rounded-md border border-white/[0.06] bg-white/[0.03]/[0.02] p-2.5">
-                    <div className="text-white/40">Explorer</div>
+                    <div className="text-white/55">Explorer</div>
                     <a
                       href={active.explorer}
                       target="_blank"
@@ -289,7 +289,7 @@ export function ContractsSection({ onNavigate: _onNavigate }: { onNavigate: (id:
                     </a>
                   </div>
                   <div className="rounded-md border border-white/[0.06] bg-white/[0.03]/[0.02] p-2.5 sm:col-span-2">
-                    <div className="text-white/40">Network</div>
+                    <div className="text-white/55">Network</div>
                     <div className="text-mtqs-gold">{active.network}</div>
                   </div>
                 </div>
@@ -297,7 +297,7 @@ export function ContractsSection({ onNavigate: _onNavigate }: { onNavigate: (id:
                 {/* Search input */}
                 <div className="relative">
                   <Search
-                    className="absolute left-3 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-white/40/60"
+                    className="absolute left-3 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-white/55/60"
                     aria-hidden="true"
                   />
                   <input
@@ -305,7 +305,7 @@ export function ContractsSection({ onNavigate: _onNavigate }: { onNavigate: (id:
                     value={query}
                     onChange={(e) => setQuery(e.target.value)}
                     placeholder={`Filter ${active.contracts.length} ecosystem contracts by name, symbol, or address…`}
-                    className="w-full rounded-md border border-white/[0.06] bg-white/[0.03]/[0.02] pl-9 pr-3 py-2 text-[0.78rem] text-white placeholder:text-white/40/50 focus:outline-none focus:border-mtqs-gold/40 focus:bg-white/[0.03]/[0.04] transition"
+                    className="w-full rounded-md border border-white/[0.06] bg-white/[0.03]/[0.02] pl-9 pr-3 py-2 text-[0.78rem] text-white placeholder:text-white/55/50 focus:outline-none focus:border-mtqs-gold/40 focus:bg-white/[0.03]/[0.04] transition"
                     aria-label="Filter contracts"
                   />
                 </div>
@@ -321,7 +321,7 @@ export function ContractsSection({ onNavigate: _onNavigate }: { onNavigate: (id:
       {/* Honest note */}
       <Reveal delay={0.1}>
         <Panel className="p-4">
-          <div className="flex items-start gap-2 text-[0.7rem] text-white/40">
+          <div className="flex items-start gap-2 text-[0.7rem] text-white/55">
             <GlowDot color="gold" size="h-1.5 w-1.5" className="mt-1.5" />
             <p className="leading-relaxed">
               The canonical MTQΣ address per chain is the source-of-truth token contract.

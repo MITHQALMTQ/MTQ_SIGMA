@@ -52,7 +52,7 @@ export function TrialLog({
         <div className="mb-3 flex items-center justify-between">
           <div>
             <div className="text-sm font-semibold text-white/90">Pilot Trial Log</div>
-            <div className="text-[0.7rem] text-white/40">
+            <div className="text-[0.7rem] text-white/55">
               {trials.length} trial{trials.length === 1 ? "" : "s"} · most recent first · stored in SQLite
             </div>
           </div>
@@ -73,16 +73,16 @@ export function TrialLog({
         </div>
 
         {trials.length === 0 ? (
-          <div className="rounded-md border border-white/[0.06] bg-white/[0.03]/[0.02] p-6 text-center text-[0.75rem] text-white/40">
+          <div className="rounded-md border border-white/[0.06] bg-white/[0.03]/[0.02] p-6 text-center text-[0.75rem] text-white/55">
             <div className="font-medium mb-1">No trials yet</div>
-            <div className="text-[0.7rem] text-white/40/60">
+            <div className="text-[0.7rem] text-white/55/60">
               Run a mint or redeem simulation above. Each trial is logged for auditability with full market context.
             </div>
           </div>
         ) : (
           <div className="max-h-96 overflow-y-auto mtqs-scroll rounded-md border border-white/[0.06]">
             <table className="w-full text-[0.7rem] min-w-[860px]">
-              <thead className="sticky top-0 z-10 mtqs-glass text-white/40 backdrop-blur">
+              <thead className="sticky top-0 z-10 mtqs-glass text-white/55 backdrop-blur">
                 <tr>
                   <th className="text-left px-3 py-2 font-medium">Time</th>
                   <th className="text-left px-3 py-2 font-medium">Type</th>
@@ -108,7 +108,7 @@ export function TrialLog({
                       transition={{ duration: 0.2, delay: Math.min(i * 0.01, 0.2) }}
                       className={`border-t border-white/[0.06] ${i % 2 ? "bg-white/[0.03]/[0.01]" : ""} ${!t.ok ? "bg-mtqs-rose/5" : ""}`}
                     >
-                      <td className="px-3 py-2 text-white/40 font-mono whitespace-nowrap">{fmtTime(t.createdAt)}</td>
+                      <td className="px-3 py-2 text-white/55 font-mono whitespace-nowrap">{fmtTime(t.createdAt)}</td>
                       <td className="px-3 py-2">
                         <span className={`font-mono font-semibold ${isMint ? "text-mtqs-emerald" : "text-mtqs-amber"}`}>
                           {isMint ? "MINT" : "REDEEM"}
@@ -116,19 +116,19 @@ export function TrialLog({
                       </td>
                       <td className="px-3 py-2 font-mono text-mtqs-gold">{t.chain}</td>
                       <td className="px-3 py-2 font-mono">
-                        <span className="text-white/40">{fmtNum(t.inputAmount, 2)} {t.inputSymbol}</span>
-                        <span className="mx-1 text-white/40/50">→</span>
+                        <span className="text-white/55">{fmtNum(t.inputAmount, 2)} {t.inputSymbol}</span>
+                        <span className="mx-1 text-white/55/50">→</span>
                         <span className="text-mtqs-gold">{fmtNum(t.outputAmount, 4)} {t.outputSymbol}</span>
                       </td>
-                      <td className="px-3 py-2 text-right font-mono text-white/40">{fmtFixed(t.gfbIndex, 4)}</td>
+                      <td className="px-3 py-2 text-right font-mono text-white/55">{fmtFixed(t.gfbIndex, 4)}</td>
                       <td className="px-3 py-2 text-right font-mono text-mtqs-gold/80">${fmtFixed(t.mtqPrice, 4)}</td>
-                      <td className="px-3 py-2 text-right font-mono text-white/40">{fmtUsd(t.nav)}</td>
+                      <td className="px-3 py-2 text-right font-mono text-white/55">{fmtUsd(t.nav)}</td>
                       <td className="px-3 py-2 text-right font-mono">
                         <span className={t.reserveRatio >= 1.1 ? "text-mtqs-emerald" : t.reserveRatio >= 1.05 ? "text-mtqs-amber" : "text-mtqs-rose"}>
                           {Number.isFinite(t.reserveRatio) ? fmtRatio(t.reserveRatio) : "∞"}
                         </span>
                       </td>
-                      <td className="px-3 py-2 text-right font-mono text-white/40">
+                      <td className="px-3 py-2 text-right font-mono text-white/55">
                         {Number.isFinite(t.lcr) ? fmtRatio(t.lcr) : "∞"}
                       </td>
                       <td className="px-3 py-2">

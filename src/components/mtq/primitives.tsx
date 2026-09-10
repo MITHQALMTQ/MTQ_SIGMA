@@ -222,13 +222,13 @@ export function Stat({
 }) {
   return (
     <div className={`flex flex-col gap-1 ${className}`}>
-      <span className="text-[0.625rem] uppercase tracking-[0.22em] text-white/40">
+      <span className="text-[0.625rem] uppercase tracking-[0.22em] text-white/55">
         {label}
       </span>
       <span className={`font-mono tabular-nums text-white ${valueClass}`}>
         {value}
       </span>
-      {sub ? <span className="text-[0.7rem] text-white/40">{sub}</span> : null}
+      {sub ? <span className="text-[0.7rem] text-white/55">{sub}</span> : null}
     </div>
   );
 }
@@ -318,12 +318,12 @@ export function Pill({
   className?: string;
 }) {
   const tones: Record<string, string> = {
-    default: "border-white/[0.06] bg-white/[0.03]/[0.03] text-white/40",
+    default: "border-white/[0.06] bg-white/[0.03]/[0.03] text-white/55",
     gold: "border-mtqs-gold/30 bg-mtqs-gold/10 text-mtqs-gold",
     emerald: "border-mtqs-emerald/30 bg-mtqs-emerald/10 text-mtqs-emerald",
     rose: "border-mtqs-rose/30 bg-mtqs-rose/10 text-mtqs-rose",
     amber: "border-mtqs-amber/30 bg-mtqs-amber/10 text-mtqs-amber",
-    muted: "border-white/[0.06] bg-white/[0.03]/[0.02] text-white/40",
+    muted: "border-white/[0.06] bg-white/[0.03]/[0.02] text-white/55",
   };
   return (
     <span
@@ -339,7 +339,7 @@ export function BrandPrinciples({ className = "" }: { className?: string }) {
   const principles = ["Honest", "Sovereign", "Collateralized", "Calm"];
   return (
     <div
-      className={`flex flex-wrap items-center gap-x-3 gap-y-1 text-[0.65rem] uppercase tracking-[0.22em] text-white/40/75 ${className}`}
+      className={`flex flex-wrap items-center gap-x-3 gap-y-1 text-[0.65rem] uppercase tracking-[0.22em] text-white/55/75 ${className}`}
       aria-label="MTQΣ brand principles"
     >
       {principles.map((p, i) => (

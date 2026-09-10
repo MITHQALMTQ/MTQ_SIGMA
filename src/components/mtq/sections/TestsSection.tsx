@@ -136,7 +136,7 @@ export function TestsSection({ onNavigate: _onNavigate }: { onNavigate: (id: Sec
         <Panel className="p-5">
           <div className="flex items-start gap-3 mb-3">
             <TestTube className="h-5 w-5 text-mtqs-gold/80 mt-0.5 shrink-0" aria-hidden="true" />
-            <p className="text-[0.82rem] text-white/40 leading-relaxed">
+            <p className="text-[0.82rem] text-white/55 leading-relaxed">
               The Monte Carlo audit runs 10,300 survival simulations across 8 stress suites. Each
               suite seeds the protocol with realistic shocks (depeg cascade, oracle failure,
               liquidity crisis, hyperinflation, depression, black swan) and runs the full §3-§14
@@ -144,7 +144,7 @@ export function TestsSection({ onNavigate: _onNavigate }: { onNavigate: (id: Sec
               breaches the hard floor (RR ≥ 1.00). The audit verdict aggregates all 8 suites.
             </p>
           </div>
-          <div className="rounded-md border border-white/[0.06] bg-white/[0.03]/[0.02] p-3 text-[0.7rem] text-white/40 leading-relaxed">
+          <div className="rounded-md border border-white/[0.06] bg-white/[0.03]/[0.02] p-3 text-[0.7rem] text-white/55 leading-relaxed">
             <div className="text-[0.6rem] uppercase tracking-[0.22em] text-mtqs-gold/75 mb-1">
               Methodology disclosure
             </div>
@@ -180,7 +180,7 @@ export function TestsSection({ onNavigate: _onNavigate }: { onNavigate: (id: Sec
           <Panel className="p-6">
             <div className="flex items-center gap-3 mb-4">
               <RefreshCw className="h-4 w-4 text-mtqs-gold animate-spin" aria-hidden="true" />
-              <span className="text-[0.78rem] text-white/40">Loading audit results…</span>
+              <span className="text-[0.78rem] text-white/55">Loading audit results…</span>
             </div>
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
               {[...Array(8)].map((_, i) => (
@@ -227,7 +227,7 @@ export function TestsSection({ onNavigate: _onNavigate }: { onNavigate: (id: Sec
                     <XCircle className="h-7 w-7 text-mtqs-rose mt-0.5 shrink-0" aria-hidden="true" />
                   )}
                   <div>
-                    <div className="text-[0.6rem] uppercase tracking-[0.22em] text-white/40/75 mb-1">
+                    <div className="text-[0.6rem] uppercase tracking-[0.22em] text-white/55/75 mb-1">
                       Overall verdict
                     </div>
                     <div
@@ -237,7 +237,7 @@ export function TestsSection({ onNavigate: _onNavigate }: { onNavigate: (id: Sec
                     >
                       {isPass ? "PASS" : "FAIL"}
                     </div>
-                    <p className="mt-1 text-[0.78rem] text-white/40 leading-relaxed max-w-2xl">
+                    <p className="mt-1 text-[0.78rem] text-white/55 leading-relaxed max-w-2xl">
                       {verdict ?? "No verdict available."}
                     </p>
                   </div>
@@ -255,7 +255,7 @@ export function TestsSection({ onNavigate: _onNavigate }: { onNavigate: (id: Sec
               </div>
               {/* Re-run button */}
               <div className="mt-4 pt-4 border-t border-white/[0.06] flex items-center justify-between gap-2">
-                <div className="text-[0.68rem] text-white/40">
+                <div className="text-[0.68rem] text-white/55">
                   {data?.cached
                     ? "Showing cached results. Re-run to execute the full 10,300-run suite live."
                     : "Showing fresh results from the live Monte Carlo run."}
@@ -300,7 +300,7 @@ export function TestsSection({ onNavigate: _onNavigate }: { onNavigate: (id: Sec
                     <Panel className="p-4 h-full flex flex-col gap-2">
                       <div className="flex items-start justify-between gap-2">
                         <div className="min-w-0">
-                          <div className="text-[0.6rem] uppercase tracking-[0.18em] text-white/40/75">
+                          <div className="text-[0.6rem] uppercase tracking-[0.18em] text-white/55/75">
                             {s.id}
                           </div>
                           <div className="text-sm font-semibold text-white/90 truncate">
@@ -313,12 +313,12 @@ export function TestsSection({ onNavigate: _onNavigate }: { onNavigate: (id: Sec
                           <XCircle className="h-4 w-4 text-mtqs-rose shrink-0" aria-hidden="true" />
                         )}
                       </div>
-                      <div className="text-[0.68rem] text-white/40 leading-relaxed">
+                      <div className="text-[0.68rem] text-white/55 leading-relaxed">
                         {s.description}
                       </div>
                       <div className="mt-1 grid grid-cols-2 gap-2 text-[0.7rem]">
                         <div className="rounded-md border border-white/[0.06] bg-white/[0.03]/[0.02] p-2">
-                          <div className="text-[0.55rem] uppercase tracking-[0.18em] text-white/40">
+                          <div className="text-[0.55rem] uppercase tracking-[0.18em] text-white/55">
                             Survival
                           </div>
                           <div
@@ -334,7 +334,7 @@ export function TestsSection({ onNavigate: _onNavigate }: { onNavigate: (id: Sec
                           </div>
                         </div>
                         <div className="rounded-md border border-white/[0.06] bg-white/[0.03]/[0.02] p-2">
-                          <div className="text-[0.55rem] uppercase tracking-[0.18em] text-white/40">
+                          <div className="text-[0.55rem] uppercase tracking-[0.18em] text-white/55">
                             Worst min RR
                           </div>
                           <div
@@ -350,7 +350,7 @@ export function TestsSection({ onNavigate: _onNavigate }: { onNavigate: (id: Sec
                           </div>
                         </div>
                       </div>
-                      <div className="mt-auto flex items-center justify-between text-[0.6rem] text-white/40/65 font-mono">
+                      <div className="mt-auto flex items-center justify-between text-[0.6rem] text-white/55/65 font-mono">
                         <span>{s.runs.toLocaleString()} runs</span>
                         <span>peg {((s.summary?.pegStabilityPct ?? 0) * 100).toFixed(0)}%</span>
                       </div>
@@ -376,7 +376,7 @@ export function TestsSection({ onNavigate: _onNavigate }: { onNavigate: (id: Sec
             <Reveal>
               <Panel className="p-5">
                 {invariants.length === 0 ? (
-                  <div className="text-center text-[0.75rem] text-white/40 py-4">
+                  <div className="text-center text-[0.75rem] text-white/55 py-4">
                     No invariants loaded.
                   </div>
                 ) : (
@@ -414,14 +414,14 @@ export function TestsSection({ onNavigate: _onNavigate }: { onNavigate: (id: Sec
             <Reveal>
               <Panel className="p-5">
                 {findings.length === 0 ? (
-                  <div className="text-center text-[0.75rem] text-white/40 py-4">
+                  <div className="text-center text-[0.75rem] text-white/55 py-4">
                     No findings loaded (the audit response may not include <code>audit.findings</code>).
                   </div>
                 ) : (
                   <div className="overflow-hidden rounded-md border border-white/[0.06]">
                     <div className="max-h-80 overflow-y-auto mtqs-scroll">
                       <table className="w-full text-[0.72rem]">
-                        <thead className="bg-white/[0.03]/[0.02] text-white/40 sticky top-0">
+                        <thead className="bg-white/[0.03]/[0.02] text-white/55 sticky top-0">
                           <tr>
                             <th className="text-left px-3 py-2 font-medium">Finding</th>
                             <th className="text-left px-3 py-2 font-medium hidden sm:table-cell">Detail</th>
@@ -437,7 +437,7 @@ export function TestsSection({ onNavigate: _onNavigate }: { onNavigate: (id: Sec
                                 className={`border-t border-white/[0.06] ${i % 2 ? "bg-white/[0.03]/[0.01]" : ""}`}
                               >
                                 <td className="px-3 py-2.5 text-white/90">{f.title}</td>
-                                <td className="px-3 py-2.5 text-white/40/75 font-mono hidden sm:table-cell">
+                                <td className="px-3 py-2.5 text-white/55/75 font-mono hidden sm:table-cell">
                                   {f.detail}
                                 </td>
                                 <td className="px-3 py-2.5 text-right">
@@ -465,7 +465,7 @@ export function TestsSection({ onNavigate: _onNavigate }: { onNavigate: (id: Sec
           {/* Closing */}
           <Reveal>
             <Panel className="p-5 sm:p-6 text-center">
-              <p className="text-[0.82rem] text-white/40 leading-relaxed max-w-2xl mx-auto mb-4">
+              <p className="text-[0.82rem] text-white/55 leading-relaxed max-w-2xl mx-auto mb-4">
                 Audit complete. For the honest disclosure of what these results mean (and don&apos;t
                 mean), read the Security section. For the live protocol state driving the engine,
                 open the Dashboard.

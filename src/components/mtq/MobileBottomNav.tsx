@@ -17,8 +17,8 @@ export function MobileBottomNav({ active, onNavigate }: { active: SectionId; onN
           const Icon = item.icon;
           return (
             <button key={item.id} onClick={() => onNavigate(item.id)} className="relative flex flex-col items-center justify-center gap-0.5 py-2 px-3 flex-1 min-w-0 mtqs-focus" aria-label={`${item.label} section`} aria-current={isActive ? "page" : undefined}>
-              <Icon className={`h-5 w-5 ${isActive ? "text-mtqs-gold" : "text-white/40"}`} aria-hidden />
-              <span className={`text-[0.6rem] font-medium tracking-wide ${isActive ? "text-mtqs-gold" : "text-white/40"}`}>{item.label}</span>
+              <Icon className={`h-5 w-5 ${isActive ? "text-mtqs-gold" : "text-white/55"}`} aria-hidden />
+              <span className={`text-[0.6rem] font-medium tracking-wide ${isActive ? "text-mtqs-gold" : "text-white/55"}`}>{item.label}</span>
               {isActive && <div className="absolute -top-px h-0.5 w-8 rounded-full bg-mtqs-gold" aria-hidden />}
             </button>
           );

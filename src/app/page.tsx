@@ -70,7 +70,7 @@ export default function Page() {
 
   return (
     <MotionConfig reducedMotion="user" transition={{ duration: 0.5, ease: [0.16, 1, 0.3, 1] }}>
-      <div className="relative min-h-screen flex flex-col overflow-hidden mtqs-space-bg">
+      <div className="relative min-h-screen flex flex-col overflow-hidden mtqs-space-bg mtqs-cinematic-page">
         {/* Futuristic grid backdrop */}
         <div className="pointer-events-none fixed inset-0 mtqs-grid-bg" aria-hidden="true" />
 

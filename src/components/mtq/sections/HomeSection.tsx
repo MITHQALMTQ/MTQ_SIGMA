@@ -13,6 +13,8 @@ import Image from "next/image";
 import { motion } from "framer-motion";
 import { SectionHeading, Reveal, Panel, Pill, GlowDot, BrandPrinciples, Skeleton } from "@/components/mtq/primitives";
 import { ConstitutionalSeparation } from "@/components/mtq/ConstitutionalSeparation";
+import { GfbChart } from "@/components/mtq/GfbChart";
+import { ParticleField } from "@/components/mtq/ParticleField";
 import { BRAND_VOICE, BRAND_ASSETS, STATUS_COLORS } from "@/lib/mtq/brand";
 import { CANONICAL_MTQ_ADDRESSES } from "@/lib/mtq/contracts";
 import { fmtFixed, fmtUsdCompact, fmtRatio, shortAddr, copyToClipboard } from "@/components/mtq/format";
@@ -77,12 +79,17 @@ function LiveStatsBand({ snapshot }: { snapshot: MetricsSnapshot | null }) {
   ];
 
   return (
-    <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+    <div className="space-y-6">
+      <div className="relative">
+        <ParticleField count={20} />
+        <GfbChart snapshot={snapshot} height={160} />
+      </div>
+      <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
       {stats.map((s) => (
         <Panel key={s.label} className="p-4 sm:p-5">
           <div className="flex items-center gap-1.5 mb-2">
             <GlowDot color="gold" size="h-1.5 w-1.5" />
-            <span className="text-[0.6rem] uppercase tracking-[0.22em] text-white/40/75">
+            <span className="text-[0.6rem] uppercase tracking-[0.22em] text-white/55">
               {s.label}
             </span>
           </div>
@@ -96,6 +103,7 @@ function LiveStatsBand({ snapshot }: { snapshot: MetricsSnapshot | null }) {
         </Panel>
       ))}
     </div>
+    </div>
   );
 }
 
@@ -108,7 +116,7 @@ function TestnetCards() {
         <Panel key={id} className="p-4 flex flex-col gap-2">
           <div className="flex items-start justify-between gap-2">
             <div className="min-w-0">
-              <div className="text-[0.6rem] uppercase tracking-[0.22em] text-white/40">
+              <div className="text-[0.6rem] uppercase tracking-[0.22em] text-white/55">
                 {info.chain}
               </div>
               <div className="mtqs-display mtqs-gold-text text-base font-semibold leading-none mt-1">
@@ -209,7 +217,7 @@ export function HomeSection({ onNavigate }: { onNavigate: (id: SectionId) => voi
               <p className="mtqs-display mtqs-hero-subtitle text-amber-100/85 italic max-w-2xl mx-auto mtqs-fade-in mtqs-stagger-2">
                 {BRAND_VOICE.tagline}
               </p>
-              <p className="mtqs-body text-white/40 max-w-xl mx-auto mtqs-fade-in mtqs-stagger-3">
+              <p className="mtqs-body text-white/55 max-w-xl mx-auto mtqs-fade-in mtqs-stagger-3">
                 {BRAND_VOICE.coreObjective}
               </p>
               <div className="flex flex-wrap items-center justify-center gap-3 pt-3 mtqs-fade-in mtqs-stagger-4">
@@ -319,39 +327,39 @@ export function HomeSection({ onNavigate }: { onNavigate: (id: SectionId) => voi
           {/* Gold Weight gauge card */}
           <Reveal delay={0.1}>
             <Panel variant="emerald" className="p-5">
-              <div className="text-[0.625rem] uppercase tracking-[0.25em] text-white/40 mb-3">Gold Weight (§6.5 + §8, legacy buffer path)</div>
+              <div className="text-[0.625rem] uppercase tracking-[0.25em] text-white/55 mb-3">Gold Weight (§6.5 + §8, legacy buffer path)</div>
               <div className="grid grid-cols-2 gap-2">
                 <div>
-                  <div className="text-[0.65rem] text-white/40/60">Observed</div>
+                  <div className="text-[0.65rem] text-white/55/60">Observed</div>
                   <div className="text-xl font-mono text-mtqs-gold">{snapshot ? `${(snapshot.observedGoldWeight * 100).toFixed(2)}%` : "—"}</div>
                 </div>
                 <div>
-                  <div className="text-[0.65rem] text-white/40/60">Target</div>
+                  <div className="text-[0.65rem] text-white/55/60">Target</div>
                   <div className="text-xl font-mono text-mtqs-emerald">{snapshot ? `${(snapshot.targetGoldWeight * 100).toFixed(2)}%` : "—"}</div>
                 </div>
                 <div>
-                  <div className="text-[0.65rem] text-white/40/60">Buffer State</div>
+                  <div className="text-[0.65rem] text-white/55/60">Buffer State</div>
                   <div className="text-sm font-mono text-mtqs-gold">{snapshot?.bufferState ?? "—"}</div>
                 </div>
                 <div>
-                  <div className="text-[0.65rem] text-white/40/60">Buffer Au</div>
+                  <div className="text-[0.65rem] text-white/55/60">Buffer Au</div>
                   <div className="text-sm font-mono text-mtqs-gold">{snapshot ? `${(snapshot.bufferGoldRatio * 100).toFixed(1)}%` : "—"}</div>
                 </div>
               </div>
               <div className="mt-3 h-2 rounded-full bg-white/[0.03]/[0.05] overflow-hidden">
                 <div className="h-full bg-gradient-to-r from-amber-500/60 to-amber-300/80" style={{ width: `${(snapshot?.observedGoldWeight ?? 0) * 100 / 30 * 100}%` }} />
               </div>
-              <div className="flex justify-between text-[0.6rem] text-white/40/50 mt-1">
+              <div className="flex justify-between text-[0.6rem] text-white/55/50 mt-1">
                 <span>20% envelope floor</span>
                 <span>32% envelope ceiling</span>
               </div>
-              <div className="mt-2 text-[0.65rem] text-white/40/60">
+              <div className="mt-2 text-[0.65rem] text-white/55/60">
                 Total gold net: <span className="font-mono text-mtqs-gold">{snapshot ? fmtUsdCompact(snapshot.reserve.goldNet) : "—"}</span>
               </div>
             </Panel>
           </Reveal>
         </div>
-        <p className="mt-3 text-[0.7rem] text-white/40/60 max-w-3xl">
+        <p className="mt-3 text-[0.7rem] text-white/55/60 max-w-3xl">
           Gold is in <span className="text-mtqs-gold font-medium">BOTH</span> the GFB Index (26% strategic prior,
           20-32% admissibility envelope per §8.1) <span className="italic">and</span> the reserve portfolio
           (§4, §8.3). In v1.0 these two roles are <span className="text-mtqs-gold font-medium">mandatorily
@@ -384,7 +392,7 @@ export function HomeSection({ onNavigate }: { onNavigate: (id: SectionId) => voi
                     </span>
                   </div>
                   <h3 className="mtqs-display text-xl font-semibold text-white">{c.title}</h3>
-                  <p className="text-[0.78rem] text-white/40 leading-relaxed">{c.body}</p>
+                  <p className="text-[0.78rem] text-white/55 leading-relaxed">{c.body}</p>
                 </Panel>
               </Reveal>
             );
@@ -401,7 +409,7 @@ export function HomeSection({ onNavigate }: { onNavigate: (id: SectionId) => voi
         />
         <Reveal>
           <Panel className="p-5 sm:p-6">
-            <p className="mb-4 text-[0.78rem] text-white/40 leading-relaxed max-w-2xl">
+            <p className="mb-4 text-[0.78rem] text-white/55 leading-relaxed max-w-2xl">
               The GFB Index defines what one MTQΣ is intended to represent. The reserve
               portfolio exists to collateralize that obligation. The two are constitutionally
               separate: the reserve cannot dilute the index, and the index cannot be redefined
@@ -411,7 +419,7 @@ export function HomeSection({ onNavigate }: { onNavigate: (id: SectionId) => voi
               <ConstitutionalSeparation snapshot={snapshot} />
             </ClientOnly>
             <noscript>
-              <p className="text-[0.72rem] text-white/40">
+              <p className="text-[0.72rem] text-white/55">
                 The Constitutional Separation diagram requires JavaScript to render.
               </p>
             </noscript>
@@ -462,7 +470,7 @@ export function HomeSection({ onNavigate }: { onNavigate: (id: SectionId) => voi
                 Explore the closed-loop architecture
               </h3>
             </div>
-            <p className="text-[0.82rem] text-white/40 leading-relaxed max-w-2xl mx-auto mb-5">
+            <p className="text-[0.82rem] text-white/55 leading-relaxed max-w-2xl mx-auto mb-5">
               {BRAND_VOICE.designConstraint}. {BRAND_VOICE.statusDeclaration}. Every metric on this
               site is computed live by the reference engine and reconciled against the blueprint.
             </p>

@@ -45,7 +45,7 @@ function FeedChip({ feed, now }: { feed: OracleFeed; now: number }) {
       <div className={`font-mono tabular-nums text-[0.75rem] ${valid ? "text-white" : "text-mtqs-rose/60 line-through"}`}>
         {feed.price < 0.01 ? feed.price.toFixed(6) : feed.price < 10 ? feed.price.toFixed(5) : feed.price.toFixed(2)}
       </div>
-      <div className="text-[0.55rem] text-white/40 font-mono">
+      <div className="text-[0.55rem] text-white/55 font-mono">
         ±{confPct.toFixed(2)}% · {(ageMs / 1000).toFixed(0)}s
       </div>
     </div>
@@ -86,19 +86,19 @@ function PairRow({ pair, index }: { pair: OracleConsensusType; index: number }) 
         {/* Right — method, final, spread */}
         <div className="lg:w-64 shrink-0 grid grid-cols-3 gap-2 lg:text-right">
           <div>
-            <div className="text-[0.55rem] uppercase tracking-[0.2em] text-white/40">Method</div>
+            <div className="text-[0.55rem] uppercase tracking-[0.2em] text-white/55">Method</div>
             <Pill tone={methodTone as "rose" | "emerald" | "amber" | "muted"} className="mt-0.5">
               {pair.method}
             </Pill>
           </div>
           <div>
-            <div className="text-[0.55rem] uppercase tracking-[0.2em] text-white/40">Final</div>
+            <div className="text-[0.55rem] uppercase tracking-[0.2em] text-white/55">Final</div>
             <div className={`mt-0.5 font-mono tabular-nums text-sm font-semibold ${finalTone === "gold" ? "mtqs-gold-text" : "text-mtqs-rose"}`}>
               {pair.paused ? "—" : fmtPrice(pair.finalPrice)}
             </div>
           </div>
           <div>
-            <div className="text-[0.55rem] uppercase tracking-[0.2em] text-white/40">Spread</div>
+            <div className="text-[0.55rem] uppercase tracking-[0.2em] text-white/55">Spread</div>
             <div className="mt-0.5 font-mono tabular-nums text-sm text-mtqs-gold">
               {pair.spreadBps > 0 ? `${pair.spreadBps} bps` : "—"}
             </div>
@@ -133,7 +133,7 @@ export function OracleConsensus({
                 <div className="text-sm font-semibold text-white/90">
                   Oracle Consensus Board
                 </div>
-                <div className="text-[0.7rem] text-white/40">
+                <div className="text-[0.7rem] text-white/55">
                   {board ? `${validTotal}/${maxValid} feeds valid · sampled ${fmtAgo(board.sampledAt)}` : "loading…"}
                 </div>
               </div>
@@ -142,7 +142,7 @@ export function OracleConsensus({
               <Pill tone={paused ? "rose" : "emerald"}>
                 {paused ? "PAUSED — §9.3" : "All pairs healthy"}
               </Pill>
-              <span className="text-[0.7rem] text-white/40 font-mono">
+              <span className="text-[0.7rem] text-white/55 font-mono">
                 {board?.pairs.length ?? 0} pairs
               </span>
             </div>
@@ -151,19 +151,19 @@ export function OracleConsensus({
           {/* Legend of validation rules */}
           <div className="grid grid-cols-2 lg:grid-cols-4 gap-2 text-[0.7rem]">
             <div className="rounded-md border border-white/[0.06] bg-white/[0.03]/[0.02] px-2.5 py-1.5">
-              <div className="text-white/40">§9.2.1 · Staleness</div>
+              <div className="text-white/55">§9.2.1 · Staleness</div>
               <div className="font-mono text-mtqs-gold">≤ {ORACLE_STALENESS_MS / 1000}s</div>
             </div>
             <div className="rounded-md border border-white/[0.06] bg-white/[0.03]/[0.02] px-2.5 py-1.5">
-              <div className="text-white/40">§9.2.3 · Confidence</div>
+              <div className="text-white/55">§9.2.3 · Confidence</div>
               <div className="font-mono text-mtqs-gold">&lt; {(ORACLE_CONFIDENCE_MAX_PCT * 100).toFixed(1)}%</div>
             </div>
             <div className="rounded-md border border-white/[0.06] bg-white/[0.03]/[0.02] px-2.5 py-1.5">
-              <div className="text-white/40">§9.2.4 · Deviation</div>
+              <div className="text-white/55">§9.2.4 · Deviation</div>
               <div className="font-mono text-mtqs-gold">&lt; {(ORACLE_DEVIATION_MAX_PCT * 100).toFixed(1)}% from median</div>
             </div>
             <div className="rounded-md border border-white/[0.06] bg-white/[0.03]/[0.02] px-2.5 py-1.5">
-              <div className="text-white/40">§9.3 · Quorum</div>
+              <div className="text-white/55">§9.3 · Quorum</div>
               <div className="font-mono text-mtqs-gold">≥ 2 valid feeds / pair</div>
             </div>
           </div>
@@ -209,7 +209,7 @@ export function OracleConsensus({
       {/* Honest note */}
       <Reveal>
         <Panel className="p-4 border-amber-400/15">
-          <div className="flex items-start gap-2 text-[0.72rem] text-white/40">
+          <div className="flex items-start gap-2 text-[0.72rem] text-white/55">
             <span className="mtqs-eyebrow shrink-0">Honest Note</span>
             <p className="leading-relaxed">
               Pyth & Chronicle are modelled as independent synthetic witnesses around the live ECB/gold reference price for pilot validation of the §9 consensus pipeline. The validation rules (staleness, confidence, deviation, quorum) and median/average selection logic are exercised exactly as specified; only the underlying witness quotes are simulated. In production, these would be replaced by real Chainlink/Pyth/Chronicle on-chain feeds.

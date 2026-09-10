@@ -114,7 +114,7 @@ export function PitchSection({ onNavigate: _onNavigate }: { onNavigate: (id: Sec
         <Panel className="p-5">
           <div className="flex items-start gap-3">
             <Sparkles className="h-5 w-5 text-mtqs-gold/80 mt-0.5 shrink-0" aria-hidden="true" />
-            <p className="text-[0.82rem] text-white/40 leading-relaxed">
+            <p className="text-[0.82rem] text-white/55 leading-relaxed">
               {BRAND_VOICE.coreObjective} {BRAND_VOICE.designConstraint}. {BRAND_VOICE.statusDeclaration}.
               The six panels below are the full investor pitch — Problem, Solution, Market, Business
               Model, Traction, and The Ask — written in the brand voice: honest, sovereign,
@@ -175,7 +175,7 @@ export function PitchSection({ onNavigate: _onNavigate }: { onNavigate: (id: Sec
                       whileInView={{ opacity: 1, x: 0 }}
                       viewport={{ once: true }}
                       transition={{ duration: 0.3, delay: j * 0.04 }}
-                      className="flex gap-2 text-[0.78rem] text-white/40 leading-relaxed"
+                      className="flex gap-2 text-[0.78rem] text-white/55 leading-relaxed"
                     >
                       <span className="text-mtqs-gold/70 shrink-0 mt-0.5">·</span>
                       <span>{line}</span>
@@ -197,7 +197,7 @@ export function PitchSection({ onNavigate: _onNavigate }: { onNavigate: (id: Sec
               Read the full blueprint · verify on-chain
             </h3>
           </div>
-          <p className="text-[0.82rem] text-white/40 leading-relaxed max-w-2xl mx-auto mb-5">
+          <p className="text-[0.82rem] text-white/55 leading-relaxed max-w-2xl mx-auto mb-5">
             The pitch above is a summary. The blueprint reference, live on-chain verification, and
             the 10,300-run Monte Carlo audit are all available on this site — start with the
             Investor Verification section.

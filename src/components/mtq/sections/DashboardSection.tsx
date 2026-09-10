@@ -4,6 +4,7 @@
 // Shows a boot skeleton during the first fetch.
 
 "use client";
+import { ReserveDonut } from "../ReserveDonut";
 
 import { useCallback, useEffect, useRef, useState } from "react";
 import { motion } from "framer-motion";
@@ -91,7 +92,7 @@ function BootSkeleton() {
         ))}
       </div>
       <div className="space-y-2">
-        <div className="text-[0.7rem] uppercase tracking-[0.25em] text-white/40/60">
+        <div className="text-[0.7rem] uppercase tracking-[0.25em] text-white/55/60">
           Initialising Global Purchasing Power Unit…
         </div>
         <div className="h-px bg-gradient-to-r from-transparent via-mtqs-gold/40 to-transparent" />
@@ -202,6 +203,7 @@ export function DashboardSection() {
   return (
     <div className="space-y-16">
       {/* ===== 0 — Live System Health (8 subsystems at a glance) ===== */}
+      <ReserveDonut snapshot={snapshot} size={180} />
       <SystemHealth />
 
       {/* ===== 1 — Constitutional Separation ===== */}
@@ -216,12 +218,12 @@ export function DashboardSection() {
               <h3 className="mtqs-display text-2xl font-semibold text-white mb-3">
                 The Global Purchasing Power Unit
               </h3>
-              <p className="text-[0.82rem] text-white/40 leading-relaxed mb-4">
+              <p className="text-[0.82rem] text-white/55 leading-relaxed mb-4">
                 The GFB Index defines what one MTQΣ is intended to represent. The reserve
                 portfolio exists to collateralize that obligation. Mint and redeem flows
                 arbitrage back to the price, with the GFB Index as the immutable reference.
               </p>
-              <div className="rounded-md border border-white/[0.06] bg-white/[0.03]/[0.02] p-3 text-[0.72rem] text-white/40">
+              <div className="rounded-md border border-white/[0.06] bg-white/[0.03]/[0.02] p-3 text-[0.72rem] text-white/55">
                 <div className="font-mono text-mtqs-gold-light mb-1">§1.1 · Core Objective</div>
                 Status: {snapshot?.status ?? "NORMAL"} · RR {(snapshot?.reserveRatio ?? 0).toFixed(4)} · NAV {(snapshot?.nav ?? 0).toLocaleString("en-US", { maximumFractionDigits: 0 })}
               </div>
@@ -267,7 +269,7 @@ export function DashboardSection() {
         <Reveal>
           <Panel className="p-4 sm:p-5">
             <div className="mb-3 flex items-start justify-between gap-3 flex-wrap">
-              <p className="text-[0.78rem] text-white/40 leading-relaxed max-w-2xl">
+              <p className="text-[0.78rem] text-white/55 leading-relaxed max-w-2xl">
                 The GFB Index feeds the MTQ Reference Price; the price multiplied by circulating
                 supply gives the protocol liability. The Reserve NAV backs that liability at the
                 Reserve Ratio. Mint and Redeem flows arbitrage back to the price, with the GFB

@@ -44,7 +44,7 @@ function StepIndicator() {
             <div className="h-8 w-8 rounded-full border border-mtqs-gold/30 bg-mtqs-gold/5 flex items-center justify-center text-[0.78rem] font-mono font-semibold text-mtqs-gold-light">
               {s.n}
             </div>
-            <span className="text-[0.6rem] sm:text-[0.68rem] uppercase tracking-[0.12em] text-white/40/75 text-center">
+            <span className="text-[0.6rem] sm:text-[0.68rem] uppercase tracking-[0.12em] text-white/55/75 text-center">
               {s.label}
             </span>
           </div>
@@ -157,7 +157,7 @@ export function TrialSection({
       <Reveal>
         <Panel className="p-4 sm:p-5">
           <StepIndicator />
-          <p className="mt-4 text-[0.72rem] text-white/40 leading-relaxed">
+          <p className="mt-4 text-[0.72rem] text-white/55 leading-relaxed">
             Run the closed loop end-to-end: fund a testnet wallet from a faucet, copy the canonical
             MTQΣ address, mint MTQΣ against USDC, redeem MTQΣ back into the basket, and review your
             trial history. Every step is logged to SQLite for auditability.
@@ -178,7 +178,7 @@ export function TrialSection({
                 Faucets
               </h3>
             </div>
-            <p className="text-[0.72rem] text-white/40/75 mt-1 ml-9">
+            <p className="text-[0.72rem] text-white/55/75 mt-1 ml-9">
               Fund your testnet wallet before minting or redeeming.
             </p>
           </div>
@@ -199,14 +199,14 @@ export function TrialSection({
                       {f.chain}
                     </div>
                     <ExternalLink
-                      className="h-3.5 w-3.5 text-white/40/60 group-hover:text-mtqs-gold-light transition"
+                      className="h-3.5 w-3.5 text-white/55/60 group-hover:text-mtqs-gold-light transition"
                       aria-hidden="true"
                     />
                   </div>
                   <div className="text-sm font-semibold text-white/90 group-hover:text-mtqs-gold-light transition">
                     {f.label}
                   </div>
-                  <div className="mt-1 text-[0.68rem] text-white/40 leading-relaxed">
+                  <div className="mt-1 text-[0.68rem] text-white/55 leading-relaxed">
                     {f.note}
                   </div>
                 </Panel>
@@ -229,7 +229,7 @@ export function TrialSection({
                 Canonical MTQΣ Addresses
               </h3>
             </div>
-            <p className="text-[0.72rem] text-white/40/75 mt-1 ml-9">
+            <p className="text-[0.72rem] text-white/55/75 mt-1 ml-9">
               The source-of-truth token contract on each testnet. Verify on the explorer before minting.
             </p>
           </div>
@@ -252,7 +252,7 @@ export function TrialSection({
                 Mint Simulator
               </h3>
             </div>
-            <p className="text-[0.72rem] text-white/40/75 mt-1 ml-9">
+            <p className="text-[0.72rem] text-white/55/75 mt-1 ml-9">
               Deposit USDC → mint MTQΣ = X·(1−0.001)/P_MTQ (§12.1, fee 0.10%).
             </p>
           </div>
@@ -282,7 +282,7 @@ export function TrialSection({
                 Redeem Simulator
               </h3>
             </div>
-            <p className="text-[0.72rem] text-white/40/75 mt-1 ml-9">
+            <p className="text-[0.72rem] text-white/55/75 mt-1 ml-9">
               Burn MTQΣ → release the basket (§3.4.2 canonical, arbitrage-safe) + 0.15% fee.
             </p>
           </div>
@@ -312,7 +312,7 @@ export function TrialSection({
                 Trial Log
               </h3>
             </div>
-            <p className="text-[0.72rem] text-white/40/75 mt-1 ml-9">
+            <p className="text-[0.72rem] text-white/55/75 mt-1 ml-9">
               Every mint/redeem is stored in SQLite. Most recent first.
             </p>
           </div>
@@ -325,7 +325,7 @@ export function TrialSection({
       {/* Closing CTA */}
       <Reveal>
         <Panel variant="emerald" className="p-5 sm:p-6 text-center">
-          <p className="text-[0.82rem] text-white/40 leading-relaxed max-w-2xl mx-auto mb-4">
+          <p className="text-[0.82rem] text-white/55 leading-relaxed max-w-2xl mx-auto mb-4">
             Trial complete. Review the full reconciliation in the Docs section, or explore the
             contract registry to verify each deployment on-chain.
           </p>

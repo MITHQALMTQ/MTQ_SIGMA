@@ -55,7 +55,7 @@ export function RiskStateMachine({ snapshot }: { snapshot: MetricsSnapshot | nul
           <div className="mb-4 flex items-center justify-between">
             <div>
               <div className="text-sm font-semibold text-white/90">Risk State Machine (§14.1)</div>
-              <div className="text-[0.7rem] text-white/40">6-state protocol posture · current: {current}</div>
+              <div className="text-[0.7rem] text-white/55">6-state protocol posture · current: {current}</div>
             </div>
             <Pill tone={STATUS_TONES[current]}>
               <GlowDot color={STATUS_TONES[current] === "emerald" ? "emerald" : STATUS_TONES[current] === "rose" ? "rose" : "amber"} size="h-1.5 w-1.5" />
@@ -120,12 +120,12 @@ export function RiskStateMachine({ snapshot }: { snapshot: MetricsSnapshot | nul
       {/* Policy table */}
       <Reveal>
         <Panel className="p-5">
-          <div className="mb-2 text-[0.625rem] uppercase tracking-[0.25em] text-white/40">
+          <div className="mb-2 text-[0.625rem] uppercase tracking-[0.25em] text-white/55">
             §14.1 Policy Matrix
           </div>
           <div className="overflow-x-auto mtqs-scroll">
             <table className="w-full text-[0.72rem] min-w-[640px]">
-              <thead className="text-white/40">
+              <thead className="text-white/55">
                 <tr className="border-b border-white/[0.06]">
                   <th className="text-left py-2 pr-4 font-medium">Status</th>
                   <th className="text-left py-2 px-3 font-medium">Minting</th>
@@ -169,7 +169,7 @@ export function RiskStateMachine({ snapshot }: { snapshot: MetricsSnapshot | nul
           <div className="mb-3 flex items-center justify-between">
             <div>
               <div className="text-sm font-semibold text-white/90">Governance Hierarchy (§14.2)</div>
-              <div className="text-[0.7rem] text-white/40">4-tier authority structure · crest glyphs below</div>
+              <div className="text-[0.7rem] text-white/55">4-tier authority structure · crest glyphs below</div>
             </div>
           </div>
 
@@ -210,15 +210,15 @@ export function RiskStateMachine({ snapshot }: { snapshot: MetricsSnapshot | nul
                     style={{ color: tier.color }}
                   />
                   <div className="text-xs font-semibold text-white">{g.scope}</div>
-                  <div className="mt-1.5 text-[0.7rem] text-white/40">authority</div>
+                  <div className="mt-1.5 text-[0.7rem] text-white/55">authority</div>
                   <div className="font-mono text-[0.78rem]" style={{ color: tier.color }}>
                     {g.authority}
                   </div>
-                  <div className="mt-1.5 text-[0.7rem] text-white/40">timelock</div>
+                  <div className="mt-1.5 text-[0.7rem] text-white/55">timelock</div>
                   <div className="font-mono text-[0.78rem]" style={{ color: tier.color }}>
                     {g.timelock}
                   </div>
-                  <div className="mt-2 text-[0.6rem] uppercase tracking-[0.18em] text-white/40">
+                  <div className="mt-2 text-[0.6rem] uppercase tracking-[0.18em] text-white/55">
                     {tier.label}
                   </div>
                 </motion.div>

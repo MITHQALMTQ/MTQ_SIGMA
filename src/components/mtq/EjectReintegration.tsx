@@ -119,22 +119,22 @@ function CurrencyRow({ snapshot, cur }: { snapshot: MetricsSnapshot; cur: Cur })
       <div className="flex flex-col sm:flex-row sm:items-start gap-3 mb-3">
         <div className="sm:w-24 shrink-0">
           <div className="font-mono text-base font-semibold text-white/90">{cur}</div>
-          <div className="text-[0.65rem] text-white/40">peg vs ref</div>
+          <div className="text-[0.65rem] text-white/55">peg vs ref</div>
         </div>
 
         {/* Peg health + eject */}
         <div className="flex-1 grid grid-cols-2 gap-2">
           <div className="rounded-md border border-white/[0.06] bg-white/[0.03]/[0.02] p-2">
-            <div className="text-[0.6rem] uppercase tracking-[0.2em] text-white/40">Peg Health</div>
+            <div className="text-[0.6rem] uppercase tracking-[0.2em] text-white/55">Peg Health</div>
             <div className={`font-mono text-base font-semibold ${healthy ? "text-mtqs-emerald" : "text-mtqs-rose"}`}>
               {peg.toFixed(4)}
             </div>
-            <div className="text-[0.6rem] text-white/40/60">
+            <div className="text-[0.6rem] text-white/55/60">
               band [{EJECT_DEPEG_BAND_LOWER}, {EJECT_DEPEG_BAND_UPPER}]
             </div>
           </div>
           <div className="rounded-md border border-white/[0.06] bg-white/[0.03]/[0.02] p-2">
-            <div className="text-[0.6rem] uppercase tracking-[0.2em] text-white/40">Depeg Hours</div>
+            <div className="text-[0.6rem] uppercase tracking-[0.2em] text-white/55">Depeg Hours</div>
             <div className={`font-mono text-base font-semibold ${depegHours > 0 ? "text-mtqs-gold" : "text-mtqs-emerald"}`}>
               {depegHours.toFixed(1)}h
             </div>
@@ -145,7 +145,7 @@ function CurrencyRow({ snapshot, cur }: { snapshot: MetricsSnapshot; cur: Cur })
         {/* Gauge */}
         <div className="sm:w-28 shrink-0 flex flex-col items-center">
           <div className="w-20 h-20"><ReintegrationGauge score={rein.score} size={80} /></div>
-          <div className="mt-1 text-[0.6rem] text-white/40">
+          <div className="mt-1 text-[0.6rem] text-white/55">
             threshold <span className="font-mono text-mtqs-gold">{REINTEGRATION_THRESHOLD.toFixed(2)}</span>
           </div>
         </div>
@@ -159,9 +159,9 @@ function CurrencyRow({ snapshot, cur }: { snapshot: MetricsSnapshot; cur: Cur })
         <FactorBar label="1 − Volatility" value={1 - rein.volatility} max={1} color="emerald" />
       </div>
 
-      <div className="mt-2 flex items-center justify-between text-[0.65rem] text-white/40">
+      <div className="mt-2 flex items-center justify-between text-[0.65rem] text-white/55">
         <span>repurchase stage <span className="font-mono text-mtqs-gold">{repurchaseStage}/3</span></span>
-        <span>repurchased <span className={`font-mono ${repurchaseStage > 0 ? "text-mtqs-emerald" : "text-white/40"}`}>{repurchasePct.toFixed(0)}%</span></span>
+        <span>repurchased <span className={`font-mono ${repurchaseStage > 0 ? "text-mtqs-emerald" : "text-white/55"}`}>{repurchasePct.toFixed(0)}%</span></span>
       </div>
     </motion.div>
   );
@@ -170,14 +170,14 @@ function CurrencyRow({ snapshot, cur }: { snapshot: MetricsSnapshot; cur: Cur })
 function FactorBar({ label, value, max, color }: { label: string; value: number; max: number; color: "gold" | "emerald" }) {
   return (
     <div>
-      <div className="text-[0.6rem] uppercase tracking-[0.18em] text-white/40 mb-1">{label}</div>
+      <div className="text-[0.6rem] uppercase tracking-[0.18em] text-white/55 mb-1">{label}</div>
       <MiniBar
         value={value}
         max={max}
         colorClass={color === "gold" ? "bg-amber-400" : "bg-emerald-400"}
         height="h-1.5"
       />
-      <div className="text-[0.6rem] text-white/40 font-mono mt-0.5">{value.toFixed(2)}</div>
+      <div className="text-[0.6rem] text-white/55 font-mono mt-0.5">{value.toFixed(2)}</div>
     </div>
   );
 }
@@ -192,7 +192,7 @@ export function EjectReintegration({ snapshot }: { snapshot: MetricsSnapshot | n
               <div className="text-sm font-semibold text-white/90">
                 Geopolitical Eject + Reintegration (§11)
               </div>
-              <div className="text-[0.7rem] text-white/40">
+              <div className="text-[0.7rem] text-white/55">
                 5-currency staged liquidation ladder + R_score reintegration
               </div>
             </div>
@@ -202,8 +202,8 @@ export function EjectReintegration({ snapshot }: { snapshot: MetricsSnapshot | n
           <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 text-[0.7rem]">
             {EJECT_STAGES.map((s) => (
               <div key={s.stage} className="rounded-md border border-white/[0.06] bg-white/[0.03]/[0.02] p-2">
-                <div className="text-white/40">Stage {s.stage} · {(s.sellPct * 100).toFixed(0)}% sold</div>
-                <div className="text-[0.65rem] text-white/40/60">{s.condition}</div>
+                <div className="text-white/55">Stage {s.stage} · {(s.sellPct * 100).toFixed(0)}% sold</div>
+                <div className="text-[0.65rem] text-white/55/60">{s.condition}</div>
               </div>
             ))}
           </div>
@@ -225,7 +225,7 @@ export function EjectReintegration({ snapshot }: { snapshot: MetricsSnapshot | n
       {/* §11.3 formula */}
       <Reveal>
         <Panel className="p-4 sm:p-5">
-          <div className="mb-2 text-[0.625rem] uppercase tracking-[0.25em] text-white/40">
+          <div className="mb-2 text-[0.625rem] uppercase tracking-[0.25em] text-white/55">
             §11.3 Reintegration Score · Anti-Gaming Formula
           </div>
           <div className="font-mono text-sm text-mtqs-gold mb-2">
@@ -233,23 +233,23 @@ export function EjectReintegration({ snapshot }: { snapshot: MetricsSnapshot | n
           </div>
           <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 text-[0.72rem]">
             <div className="rounded-md border border-white/[0.06] bg-white/[0.03]/[0.02] p-2">
-              <div className="text-white/40">w₁ · Time-in-band</div>
+              <div className="text-white/55">w₁ · Time-in-band</div>
               <div className="font-mono text-mtqs-gold">{REINTEGRATION_WEIGHTS.w1_TimeInBand.toFixed(2)}</div>
             </div>
             <div className="rounded-md border border-white/[0.06] bg-white/[0.03]/[0.02] p-2">
-              <div className="text-white/40">w₂ · Liquidity</div>
+              <div className="text-white/55">w₂ · Liquidity</div>
               <div className="font-mono text-mtqs-gold">{REINTEGRATION_WEIGHTS.w2_LiquidityDepth.toFixed(2)}</div>
             </div>
             <div className="rounded-md border border-white/[0.06] bg-white/[0.03]/[0.02] p-2">
-              <div className="text-white/40">w₃ · Oracle agreement</div>
+              <div className="text-white/55">w₃ · Oracle agreement</div>
               <div className="font-mono text-mtqs-gold">{REINTEGRATION_WEIGHTS.w3_OracleAgreement.toFixed(2)}</div>
             </div>
             <div className="rounded-md border border-white/[0.06] bg-white/[0.03]/[0.02] p-2">
-              <div className="text-white/40">w₄ · 1−Volatility</div>
+              <div className="text-white/55">w₄ · 1−Volatility</div>
               <div className="font-mono text-mtqs-gold">{REINTEGRATION_WEIGHTS.w4_OneMinusVolatility.toFixed(2)}</div>
             </div>
           </div>
-          <p className="mt-3 text-[0.72rem] text-white/40 leading-relaxed">
+          <p className="mt-3 text-[0.72rem] text-white/55 leading-relaxed">
             When R_score &gt; {REINTEGRATION_THRESHOLD.toFixed(2)} the currency re-enters staged re-purchase: 25% → 50% → 100% of pre-eject exposure, one stage per cycle. A currency must score above threshold for several cycles before eject stage decrements.
           </p>
         </Panel>

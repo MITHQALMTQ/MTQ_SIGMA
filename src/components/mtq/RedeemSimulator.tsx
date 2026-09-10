@@ -89,14 +89,14 @@ export function RedeemSimulator({
       <div className="flex items-center justify-between">
         <div>
           <div className="text-sm font-semibold text-white/90">Redeem Simulator</div>
-          <div className="text-[0.7rem] text-white/40">burn MTQΣ → release basket</div>
+          <div className="text-[0.7rem] text-white/55">burn MTQΣ → release basket</div>
         </div>
         <Pill tone="gold">§12 · fee {(feeBps / 100).toFixed(2)}% ({currentStatus})</Pill>
       </div>
 
       <div className="space-y-3">
         <label className="block">
-          <span className="text-[0.625rem] uppercase tracking-[0.22em] text-white/40">Input · MTQΣ</span>
+          <span className="text-[0.625rem] uppercase tracking-[0.22em] text-white/55">Input · MTQΣ</span>
           <div className="mt-1 flex items-center rounded-md border border-white/[0.06] bg-white/[0.03]/[0.02] focus-within:border-mtqs-gold/40 transition">
             <input
               type="number"
@@ -108,13 +108,13 @@ export function RedeemSimulator({
               className="flex-1 bg-transparent px-3 py-2.5 font-mono text-lg text-white outline-none disabled:opacity-50"
               aria-label="MTQ amount to redeem"
             />
-            <span className="pr-3 text-white/40 text-xs font-mono">MTQ</span>
+            <span className="pr-3 text-white/55 text-xs font-mono">MTQ</span>
           </div>
         </label>
 
         <div className="grid grid-cols-2 gap-2">
           <label className="block">
-            <span className="text-[0.625rem] uppercase tracking-[0.22em] text-white/40">Chain</span>
+            <span className="text-[0.625rem] uppercase tracking-[0.22em] text-white/55">Chain</span>
             <select
               value={chain}
               onChange={(e) => setChain(e.target.value)}
@@ -130,14 +130,14 @@ export function RedeemSimulator({
             </select>
           </label>
           <label className="block">
-            <span className="text-[0.625rem] uppercase tracking-[0.22em] text-white/40">Wallet (optional)</span>
+            <span className="text-[0.625rem] uppercase tracking-[0.22em] text-white/55">Wallet (optional)</span>
             <input
               type="text"
               value={wallet}
               onChange={(e) => setWallet(e.target.value)}
               disabled={pending}
               placeholder="0x…"
-              className="mt-1 w-full rounded-md border border-white/[0.06] bg-white/[0.03]/[0.02] px-2.5 py-2 text-xs font-mono text-white outline-none focus:border-mtqs-gold/40 placeholder:text-white/40/40 disabled:opacity-50"
+              className="mt-1 w-full rounded-md border border-white/[0.06] bg-white/[0.03]/[0.02] px-2.5 py-2 text-xs font-mono text-white outline-none focus:border-mtqs-gold/40 placeholder:text-white/55/40 disabled:opacity-50"
               aria-label="Optional pilot wallet address"
             />
           </label>
@@ -163,7 +163,7 @@ export function RedeemSimulator({
           >
             <div className={`rounded-lg border p-4 ${result.ok ? "border-mtqs-emerald/30 bg-mtqs-emerald/5" : "border-mtqs-rose/30 bg-mtqs-rose/5"}`}>
               <div className="mb-2 flex items-center justify-between">
-                <div className="text-[0.7rem] uppercase tracking-[0.22em] text-white/40">
+                <div className="text-[0.7rem] uppercase tracking-[0.22em] text-white/55">
                   {result.ok ? "Redeem executed" : "Redeem rejected"}
                 </div>
                 {result.ok ? <Pill tone="emerald"><GlowDot color="emerald" size="h-1.5 w-1.5" /> ok</Pill> : <Pill tone="rose"><GlowDot color="rose" size="h-1.5 w-1.5" /> rejected</Pill>}
@@ -186,10 +186,10 @@ export function RedeemSimulator({
               {/* Released basket */}
               {result.ok && result.basket.length > 0 && (
                 <div className="mt-3">
-                  <div className="text-[0.65rem] uppercase tracking-[0.22em] text-white/40 mb-1.5">Released Basket</div>
+                  <div className="text-[0.65rem] uppercase tracking-[0.22em] text-white/55 mb-1.5">Released Basket</div>
                   <div className="overflow-hidden rounded-md border border-white/[0.06]">
                     <table className="w-full text-[0.7rem]">
-                      <thead className="bg-white/[0.03]/[0.02] text-white/40">
+                      <thead className="bg-white/[0.03]/[0.02] text-white/55">
                         <tr>
                           <th className="text-left px-2 py-1.5 font-medium">Currency</th>
                           <th className="text-left px-2 py-1.5 font-medium">Token</th>
@@ -205,7 +205,7 @@ export function RedeemSimulator({
                             <td className="px-2 py-1.5 font-mono text-mtqs-gold">{b.token}</td>
                             <td className="px-2 py-1.5 font-mono text-right">{fmtNum(b.nativeAmount, b.currency === "JPY" ? 0 : 4)}</td>
                             <td className="px-2 py-1.5 font-mono text-right text-mtqs-gold">{fmtUsd(b.usdValue)}</td>
-                            <td className="px-2 py-1.5 font-mono text-right text-white/40">{(b.weight * 100).toFixed(2)}%</td>
+                            <td className="px-2 py-1.5 font-mono text-right text-white/55">{(b.weight * 100).toFixed(2)}%</td>
                           </tr>
                         ))}
                       </tbody>
@@ -224,22 +224,22 @@ export function RedeemSimulator({
                 </div>
                 <div className="grid grid-cols-1 sm:grid-cols-3 gap-2 text-[0.72rem] mb-2">
                   <div className="rounded-md border border-white/[0.06] bg-white/[0.03]/[0.02] p-2">
-                    <div className="text-white/40">NAV per token (§12.2 · informational)</div>
+                    <div className="text-white/55">NAV per token (§12.2 · informational)</div>
                     <div className="font-mono text-mtqs-emerald">{fmtUsd(result.auditNavPerToken)}</div>
-                    <div className="text-[0.6rem] text-white/40/60">V_net / S · book value only</div>
+                    <div className="text-[0.6rem] text-white/55/60">V_net / S · book value only</div>
                   </div>
                   <div className="rounded-md border border-white/[0.06] bg-white/[0.03]/[0.02] p-2">
-                    <div className="text-white/40">§12.2 Gross (Y × NAV_per_token)</div>
+                    <div className="text-white/55">§12.2 Gross (Y × NAV_per_token)</div>
                     <div className="font-mono text-mtqs-emerald">{fmtUsd(result.auditGrossUsdNav)}</div>
-                    <div className="text-[0.6rem] text-white/40/60">informational valuation</div>
+                    <div className="text-[0.6rem] text-white/55/60">informational valuation</div>
                   </div>
                   <div className="rounded-md border border-mtqs-emerald/30 bg-mtqs-emerald/[0.08] p-2">
-                    <div className="text-white/40">Δ (§12.2 − §3.4.2)</div>
+                    <div className="text-white/55">Δ (§12.2 − §3.4.2)</div>
                     <div className="font-mono text-mtqs-emerald">{fmtUsd(result.auditDeltaUsd)}</div>
-                    <div className="text-[0.6rem] text-white/40/60">would drain buffer if paid — NOT paid</div>
+                    <div className="text-[0.6rem] text-white/55/60">would drain buffer if paid — NOT paid</div>
                   </div>
                 </div>
-                <p className="text-[0.72rem] text-white/40 leading-relaxed">
+                <p className="text-[0.72rem] text-white/55 leading-relaxed">
                   The v1.0 blueprint was internally inconsistent between §3.4.2 (redeem at{" "}
                   <span className="font-mono">P_MTQ</span>) and §12.2 (redeem at{" "}
                   <span className="font-mono">NAV_per_token = V_net/S</span>). At RR &gt; 100%, the §12.2 literal
@@ -248,7 +248,7 @@ export function RedeemSimulator({
                   the canonical settlement price; §12.2&apos;s NAV-per-token is retained as an informational book-value
                   metric only.</span>
                 </p>
-                <details className="mt-2 text-[0.68rem] text-white/40">
+                <details className="mt-2 text-[0.68rem] text-white/55">
                   <summary className="cursor-pointer text-mtqs-emerald/85">Full audit note</summary>
                   <p className="mt-1 leading-relaxed">{result.auditNote}</p>
                 </details>
@@ -265,7 +265,7 @@ function Row({ label, value, tone = "default" }: { label: string; value: string;
   const color = tone === "rose" ? "text-mtqs-rose" : tone === "gold" ? "text-mtqs-gold" : tone === "emerald" ? "text-mtqs-emerald" : "text-white";
   return (
     <div>
-      <div className="text-white/40 text-[0.65rem] uppercase tracking-[0.18em]">{label}</div>
+      <div className="text-white/55 text-[0.65rem] uppercase tracking-[0.18em]">{label}</div>
       <div className={`font-mono ${color}`}>{value}</div>
     </div>
   );

@@ -39,7 +39,7 @@ function ChainTab({ chain, active, onClick }: { chain: ChainInfo; active: boolea
       className={`mtqs-focus relative px-4 py-2.5 text-sm font-medium transition ${
         active
           ? "text-mtqs-gold"
-          : "text-white/40 hover:text-white/40"
+          : "text-white/55 hover:text-white/55"
       }`}
       aria-pressed={active}
     >
@@ -60,26 +60,26 @@ function ChainPanel({ chain }: { chain: ChainInfo }) {
       {/* Chain metadata */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-2 text-[0.72rem]">
         <div className="rounded-md border border-white/[0.06] bg-white/[0.03]/[0.02] p-2.5">
-          <div className="text-white/40">Chain ID</div>
+          <div className="text-white/55">Chain ID</div>
           <div className="font-mono text-mtqs-gold">{String(chain.chainId)}</div>
         </div>
         <div className="rounded-md border border-white/[0.06] bg-white/[0.03]/[0.02] p-2.5">
-          <div className="text-white/40">Native Currency</div>
+          <div className="text-white/55">Native Currency</div>
           <div className="font-mono text-mtqs-gold">{chain.nativeCurrency}</div>
         </div>
         <div className="rounded-md border border-white/[0.06] bg-white/[0.03]/[0.02] p-2.5 sm:col-span-2">
-          <div className="text-white/40">RPC URL</div>
+          <div className="text-white/55">RPC URL</div>
           <div className="font-mono text-mtqs-gold truncate text-[0.7rem]">{chain.rpcUrl}</div>
         </div>
         <div className="rounded-md border border-white/[0.06] bg-white/[0.03]/[0.02] p-2.5">
-          <div className="text-white/40">Deployer Wallet</div>
+          <div className="text-white/55">Deployer Wallet</div>
           <div className="font-mono text-mtqs-gold flex items-center gap-1.5">
             {shortAddr(chain.wallet, 6, 4)}
             <CopyButton value={chain.wallet} label="deployer wallet" />
           </div>
         </div>
         <div className="rounded-md border border-white/[0.06] bg-white/[0.03]/[0.02] p-2.5">
-          <div className="text-white/40">Explorer</div>
+          <div className="text-white/55">Explorer</div>
           <a
             href={chain.explorer}
             target="_blank"
@@ -90,7 +90,7 @@ function ChainPanel({ chain }: { chain: ChainInfo }) {
           </a>
         </div>
         <div className="rounded-md border border-white/[0.06] bg-white/[0.03]/[0.02] p-2.5 sm:col-span-2">
-          <div className="text-white/40">Network</div>
+          <div className="text-white/55">Network</div>
           <div className="text-mtqs-gold">{chain.network}</div>
         </div>
       </div>
@@ -110,7 +110,7 @@ function ChainPanel({ chain }: { chain: ChainInfo }) {
       {/* Contracts table */}
       <div className="overflow-hidden rounded-md border border-white/[0.06]">
         <table className="w-full text-[0.72rem]">
-          <thead className="bg-white/[0.03]/[0.02] text-white/40">
+          <thead className="bg-white/[0.03]/[0.02] text-white/55">
             <tr>
               <th className="text-left px-3 py-2 font-medium">Contract</th>
               <th className="text-left px-3 py-2 font-medium hidden sm:table-cell">Symbol</th>
@@ -125,7 +125,7 @@ function ChainPanel({ chain }: { chain: ChainInfo }) {
                 <tr key={c.address} className={`border-t border-white/[0.06] ${i % 2 ? "bg-white/[0.03]/[0.01]" : ""}`}>
                   <td className="px-3 py-2.5">
                     <div className="text-white/90">{c.name}</div>
-                    {c.note && <div className="text-[0.62rem] text-white/40/60 mt-0.5">{c.note}</div>}
+                    {c.note && <div className="text-[0.62rem] text-white/55/60 mt-0.5">{c.note}</div>}
                   </td>
                   <td className="px-3 py-2.5 font-mono text-mtqs-gold/80 hidden sm:table-cell">{c.symbol}</td>
                   <td className="px-3 py-2.5 font-mono text-mtqs-gold">
@@ -190,7 +190,7 @@ export function ContractRegistry() {
 
       <Reveal delay={0.05}>
         <Panel className="p-3.5">
-          <div className="flex items-start gap-2 text-[0.7rem] text-white/40">
+          <div className="flex items-start gap-2 text-[0.7rem] text-white/55">
             <GlowDot color="gold" size="h-1.5 w-1.5" className="mt-1.5" />
             <p className="leading-relaxed">
               Honest note: the pilot is a faithful reference implementation of the blueprint math that also surfaces the real deployed contract addresses for verification. We do not pretend to read on-chain state from these contracts in the pilot; the live monetary engine runs in-process (§3-§14) so the dashboard is robust to testnet RPC reliability.

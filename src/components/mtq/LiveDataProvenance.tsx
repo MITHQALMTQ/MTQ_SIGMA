@@ -258,12 +258,12 @@ export function LiveDataProvenance() {
           <div className="mb-4 flex flex-wrap items-center justify-between gap-3">
             <div className="flex items-center gap-2">
               <Radio className="h-4 w-4 text-mtqs-gold/80" aria-hidden="true" />
-              <span className="text-[0.7rem] uppercase tracking-[0.22em] text-white/40">
+              <span className="text-[0.7rem] uppercase tracking-[0.22em] text-white/55">
                 Independent verification of the 8/8 live claim
               </span>
             </div>
             <div className="flex items-center gap-3">
-              <div className="text-[0.7rem] text-white/40 font-mono tabular-nums">
+              <div className="text-[0.7rem] text-white/55 font-mono tabular-nums">
                 fetched {fmtAgo(fetchedAgoSec ?? NaN)}
               </div>
               <button
@@ -308,7 +308,7 @@ export function LiveDataProvenance() {
               <div className="overflow-x-auto">
                 <table className="w-full min-w-[640px] border-collapse text-[0.78rem]">
                   <thead>
-                    <tr className="text-left text-[0.62rem] uppercase tracking-[0.2em] text-white/40">
+                    <tr className="text-left text-[0.62rem] uppercase tracking-[0.2em] text-white/55">
                       <th scope="col" className="py-2 pr-3 font-medium">Signal</th>
                       <th scope="col" className="py-2 px-3 font-medium">Value</th>
                       <th scope="col" className="py-2 px-3 font-medium">Source</th>
@@ -332,7 +332,7 @@ export function LiveDataProvenance() {
                           <td className="py-2.5 px-3 font-mono tabular-nums text-mtqs-gold">
                             {fmtValue(row, fx)}
                           </td>
-                          <td className="py-2.5 px-3 text-white/40">
+                          <td className="py-2.5 px-3 text-white/55">
                             <span className="inline-flex items-center gap-1.5">
                               <Database className="h-3 w-3 text-mtqs-gold/70" aria-hidden="true" />
                               {source}
@@ -344,7 +344,7 @@ export function LiveDataProvenance() {
                               {live ? "LIVE" : "SIM/FALLBACK"}
                             </Pill>
                           </td>
-                          <td className="py-2.5 pl-3 text-right font-mono tabular-nums text-white/40/75">
+                          <td className="py-2.5 pl-3 text-right font-mono tabular-nums text-white/55/75">
                             {fmtAgo(agoSec)}
                           </td>
                         </tr>
@@ -357,7 +357,7 @@ export function LiveDataProvenance() {
               {/* Source string + fetchedAt timestamp */}
               <div className="mt-4 grid grid-cols-1 sm:grid-cols-2 gap-3">
                 <div className="rounded-md border border-white/[0.06] bg-white/[0.03]/[0.02] p-3">
-                  <div className="text-[0.6rem] uppercase tracking-[0.22em] text-white/40 mb-1">
+                  <div className="text-[0.6rem] uppercase tracking-[0.22em] text-white/55 mb-1">
                     source string (snapshot)
                   </div>
                   <div className="font-mono text-[0.72rem] text-mtqs-gold-light break-words leading-relaxed">
@@ -365,7 +365,7 @@ export function LiveDataProvenance() {
                   </div>
                 </div>
                 <div className="rounded-md border border-white/[0.06] bg-white/[0.03]/[0.02] p-3">
-                  <div className="text-[0.6rem] uppercase tracking-[0.22em] text-white/40 mb-1">
+                  <div className="text-[0.6rem] uppercase tracking-[0.22em] text-white/55 mb-1">
                     fetchedAt (ISO UTC)
                   </div>
                   <div className="font-mono text-[0.72rem] text-white/90 break-words">
@@ -375,7 +375,7 @@ export function LiveDataProvenance() {
               </div>
 
               {/* Honest note */}
-              <div className="mt-4 rounded-md border border-white/[0.06] bg-white/[0.03]/[0.02] p-3 text-[0.72rem] text-white/40 leading-relaxed">
+              <div className="mt-4 rounded-md border border-white/[0.06] bg-white/[0.03]/[0.02] p-3 text-[0.72rem] text-white/55 leading-relaxed">
                 <p className="flex items-start gap-2">
                   <ShieldCheck className="h-4 w-4 text-mtqs-emerald/80 mt-0.5 shrink-0" aria-hidden="true" />
                   <span>

@@ -390,7 +390,7 @@ export function ProductionReadinessDashboard() {
               </h3>
             </div>
           </div>
-          <p className="text-[0.78rem] text-white/40 leading-relaxed pl-8">
+          <p className="text-[0.78rem] text-white/55 leading-relaxed pl-8">
             Per Master Prompt §39J, every subsystem is rated with its production-readiness color
             and the evidence that backs the verdict. The dashboard is the single source of truth
             for the protocol&apos;s production-readiness state.{" "}
@@ -429,13 +429,13 @@ export function ProductionReadinessDashboard() {
                 <div className="mb-2 flex items-center gap-2">
                   <CategoryIcon category={cat} />
                   <h4 className="text-sm font-semibold text-white/90">{cat}</h4>
-                  <span className="text-[0.65rem] text-white/40 font-mono">
+                  <span className="text-[0.65rem] text-white/55 font-mono">
                     ({items.length} items)
                   </span>
                 </div>
                 {/* Subsystem rows */}
                 <div className="overflow-hidden rounded-md border border-white/[0.06]">
-                  <div className="hidden sm:grid grid-cols-[minmax(0,1.6fr)_minmax(0,1.4fr)_minmax(0,3fr)] gap-2 px-3 py-2 bg-white/[0.03]/[0.03] text-[0.6rem] uppercase tracking-[0.18em] text-white/40">
+                  <div className="hidden sm:grid grid-cols-[minmax(0,1.6fr)_minmax(0,1.4fr)_minmax(0,3fr)] gap-2 px-3 py-2 bg-white/[0.03]/[0.03] text-[0.6rem] uppercase tracking-[0.18em] text-white/55">
                     <div>Subsystem</div>
                     <div>Status</div>
                     <div>Evidence</div>
@@ -457,7 +457,7 @@ export function ProductionReadinessDashboard() {
                           <div>
                             <StatusBadge color={s.color} status={s.status} />
                           </div>
-                          <div className="text-[0.72rem] text-white/40 leading-snug">
+                          <div className="text-[0.72rem] text-white/55 leading-snug">
                             {s.evidence}
                           </div>
                         </div>
@@ -469,7 +469,7 @@ export function ProductionReadinessDashboard() {
                             </div>
                             <StatusBadge color={s.color} status={s.status} />
                           </div>
-                          <div className="text-[0.7rem] text-white/40 leading-snug">
+                          <div className="text-[0.7rem] text-white/55 leading-snug">
                             {s.evidence}
                           </div>
                         </div>
@@ -490,7 +490,7 @@ export function ProductionReadinessDashboard() {
               5 Production-Readiness Gates (COO-RECOMMENDATIONS §9)
             </h4>
           </div>
-          <p className="text-[0.72rem] text-white/40 mb-3 leading-relaxed">
+          <p className="text-[0.72rem] text-white/55 mb-3 leading-relaxed">
             All 5 gates must pass before any mainnet deployment approval. Gate 1 (chain-linking)
             is the only one complete. The protocol is honestly a strong pilot — but{" "}
             <span className="text-mtqs-rose/90 font-medium">NOT production-authorized</span>.
@@ -525,7 +525,7 @@ export function ProductionReadinessDashboard() {
                       {g.status}
                     </Pill>
                   </div>
-                  <p className="text-[0.7rem] text-white/40 leading-relaxed">
+                  <p className="text-[0.7rem] text-white/55 leading-relaxed">
                     {g.detail}
                   </p>
                 </Panel>
@@ -542,7 +542,7 @@ export function ProductionReadinessDashboard() {
               <div className="text-sm font-semibold text-white">
                 Final verdict: NOT PRODUCTION-AUTHORIZED — Candidate for Public Testing
               </div>
-              <p className="text-[0.74rem] text-white/40/90 leading-relaxed">
+              <p className="text-[0.74rem] text-white/55/90 leading-relaxed">
                 Per Master §38 stop conditions, the protocol may proceed to public testnet
                 testing but <span className="text-mtqs-rose/90 font-medium">MUST NOT be deployed to mainnet</span> until
                 all 5 production-readiness gates pass. <span className="text-mtqs-emerald/90 font-medium">3 of 5 gates now PASS</span>:
@@ -573,7 +573,7 @@ export function ProductionReadinessDashboard() {
         <div className="mt-4 rounded-md border border-mtqs-gold/25 bg-mtqs-gold/5 p-3.5">
           <div className="flex items-start gap-2.5">
             <ClipboardCheck className="h-4 w-4 text-mtqs-gold/80 mt-0.5 shrink-0" aria-hidden="true" />
-            <div className="text-[0.74rem] text-white/40/90 leading-relaxed space-y-1">
+            <div className="text-[0.74rem] text-white/55/90 leading-relaxed space-y-1">
               <p>
                 <span className="text-mtqs-gold/90 font-medium">Evidence package — </span>
                 The 141-test Layer 1-7 canonical invariants suite is at{" "}
