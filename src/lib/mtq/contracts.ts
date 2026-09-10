@@ -104,29 +104,6 @@ export const SOLANA_DEVNET: ChainInfo = {
   ],
 };
 
-// Arc Testnet — Pilot v2 (freshly deployed from this build, 2026-09-05)
-// Faithful minimal-but-complete on-chain implementation of the blueprint:
-//   §2 GFB Index, §3 MTQ price + safety band + circulating supply,
-//   §12 Mint/Redeem priced against GFB (§3.4.2 canonical), §14.1 risk state,
-//   §13.1 Genesis event, §3.6 PriceUpdated events.
-// Deployed via scripts/deploy.ts (solc 0.8.36 + ethers v6). Live mint+redeem verified.
-export const ARC_PILOT_V2: ChainInfo = {
-  id: "arc-pilot-v2",
-  chainId: 5042002,
-  label: "Arc Testnet — Pilot v2 (Fresh Deploy)",
-  network: "Arc Testnet",
-  rpcUrl: "https://rpc.testnet.arc.io",
-  explorer: "https://testnet.arcscan.app",
-  explorerAddrBase: "https://testnet.arcscan.app/address/",
-  explorerTxBase: "https://testnet.arcscan.app/tx/",
-  nativeCurrency: "USDC (18 decimals)",
-  wallet: DEPLOYER_WALLET,
-  isEvm: true,
-  contracts: [
-    { name: "MTQΣ Token (Pilot v2)", symbol: "MTQSigma.sol", address: "0x826b82F79FD6c5347cDC568B1d0A7918128B63c1", note: "Fresh deploy 2026-09-05. GFB-index pricing, §3.4.2 canonical redeem. Live mint+redeem verified." },
-    { name: "MockUSDC (Pilot collateral)", symbol: "MockUSDC.sol", address: "0x334D14E7E39e1f02a60fc1169CdF7b0BEDE30dEb", note: "Pilot collateral token (6 dec, free-mint). Genesis reserve funded with 1,100,000 USDC." },
-  ],
-};
 
 // Robinhood Chain Testnet — Chain ID 46630 (deployed 2026-09-05)
 export const ROBINHOOD_TESTNET: ChainInfo = {
