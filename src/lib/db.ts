@@ -1,5 +1,5 @@
 import { PrismaClient } from '@prisma/client'
-import { PrismaLibSql } from '@prisma/adapter-libsql'
+import { PrismaLibSQL } from '@prisma/adapter-libsql'
 import { createClient } from '@libsql/client'
 
 const globalForPrisma = globalThis as unknown as {
@@ -7,19 +7,21 @@ const globalForPrisma = globalThis as unknown as {
 }
 
 function createDb(): PrismaClient {
-  const url = process.env.DATABASE_URL || 'file:/home/z/my-project/db/custom.db'
+  const url = process.env.TURSO_DATABASE_URL || process.env.DATABASE_URL
+  const authToken = process.env.TURSO_AUTH_TOKEN
 
-  // Turso / libSQL remote: use the driver adapter
-  if (url.startsWith('libsql:') || url.startsWith('libsql+ws:') || url.startsWith('libsql+http:')) {
-    const client = createClient({
-      url,
-      authToken: process.env.TURSO_AUTH_TOKEN,
-    })
-    const adapter = new PrismaLibSql(client)
+  if (!url) {
+    throw new Error('TURSO_DATABASE_URL or DATABASE_URL must be set')
+  }
+
+  // If it's a libsql:// URL (Turso), use the libSQL adapter
+  if (url.startsWith('libsql://')) {
+    const libsql = createClient({ url, authToken })
+    const adapter = new PrismaLibSQL(libsql)
     return new PrismaClient({ adapter, log: ['error'] })
   }
 
-  // Local SQLite fallback (development)
+  // Fallback to local SQLite file
   return new PrismaClient({
     log: ['error'],
     datasources: { db: { url } },
