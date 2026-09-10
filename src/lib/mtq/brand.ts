@@ -109,8 +109,8 @@ export const LOGO_MARK_DESCRIPTION =
 
 // === Asset paths ===
 export const BRAND_ASSETS = {
-  logoMark: "/brand/mtqs-logo-mark.png",
-  emblem: "/brand/mtqs-emblem.png",
+  logoMark: "/brand/mtqs-logo-mark.jpg",
+  emblem: "/brand/mtqs-emblem.jpg",
   hero: "/brand/mtqs-hero.png",
   pattern: "/brand/mtqs-pattern.png",
   governanceCrests: "/brand/mtqs-governance-crests.png",

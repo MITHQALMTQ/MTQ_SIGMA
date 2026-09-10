@@ -50,9 +50,10 @@ export const metadata: Metadata = {
   icons: {
     icon: [
       { url: "/brand/favicon.svg", type: "image/svg+xml" },
+      { url: "/brand/mtqs-emblem.jpg", type: "image/jpeg" },
       { url: "/brand/mtqs-emblem.png", type: "image/png" },
     ],
-    apple: "/brand/mtqs-emblem.png",
+    apple: "/brand/mtqs-emblem.jpg",
   },
   openGraph: {
     title: "MTQΣ — The Global Purchasing Power Unit",
