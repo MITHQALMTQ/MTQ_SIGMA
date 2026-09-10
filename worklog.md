@@ -4137,3 +4137,103 @@ Work Log:
 
 - Verified: tsc 0, lint 0 (pre-existing non-critical), HTTP 200, 141/141 tests pass
 - Pushed to GitHub (commit 3172f9d) + Vercel auto-deployed
+
+---
+Task ID: SECTIONS-15-14-23
+Agent: full-stack-developer (Principal Data Visualization Architect)
+Task: Implement 3 components from the MTQΣ terminal transformation prompt — §15 Reference Chart with time range toggles, §14 "Why did the weight change?" drawer, §23 Risk Timeline table.
+
+Work Log:
+- Read previous agents' work records in `/agent-ctx/` (P0-IMPL, F5-F6, NAV-RESTRUCTURE, REBRAND-NEUTRAL) to understand the existing component architecture, the MetricsSnapshot shape (`mase`, `weightStates`, `marp`, `envelopes`, `chainIndex`, `riskState`, `macro`), and the brand palette (gold #e8b964 / emerald #3ddc97 / rose #ff5d73 / amber #ffb84d, plus cyan #2BD4E0 for RECOVERY).
+
+Files created (3):
+
+1. `src/components/mtq/ReferenceChart.tsx` (NEW, ~470 lines)
+   - Self-contained SVG line chart built on the existing GfbChart aurora approach (gold/emerald/rose gradient stroke + glow filter + animated path draw).
+   - Time range toggle pill bar (1D / 7D / 30D / 90D / 1Y / MAX) using `role="tablist"` with `aria-selected` per button + `mtqs-focus` keyboard accessibility.
+   - Synthetic deterministic history per range (seeded mulberry32 PRNG so the shape stays stable across renders; only the final point tracks the live `gfbIndex` from the snapshot). Hourly reseed so the shape shifts for realism.
+   - Three marker types rendered as dots on the line + bottom sticks:
+     * Weight-change (gold #e8b964) — MASE target recomputes
+     * Risk-state transitions (rose #ff5d73) — §14.1 state machine
+     * Rebalance events (emerald #3ddc97) — MARP per-component trades
+   - Interactive hover tooltip (HTML overlay positioned by percentage) with: Date / Reference Index value (font-mono tabular-nums), three signed effect columns (Price / Composition / Execution in pp), effect-type legend, up to 3 nearby markers listed with their labels + details.
+   - Auto-clear hover after 6s of inactivity (timeout cleanup).
+   - Prominent live value label (top-right) and period stats row (Period Change, Period Δ, Range High, Range Low) with emerald/rose/gold toning.
+   - Marker legend bar + current risk-state badge at the bottom.
+   - Skeleton fallback when snapshot is null (animate-pulse div with explicit height via inline style — Skeleton primitive takes className only).
+
+2. `src/components/mtq/WeightChangeDrawer.tsx` (NEW, ~490 lines)
+   - Self-contained basket table + side sheet using shadcn/ui `Sheet` (Radix Dialog) with `side="right"` and a custom className overriding the default light `bg-background` to `bg-[#080a0c]/95 backdrop-blur-xl` plus a gold border + `sm:max-w-md md:max-w-lg` width.
+   - Inline basket table with 7 clickable rows (USD, EUR, JPY, GBP, CNY, CHF, Gold) — each row is `role="button"` + `tabIndex={0}` + `aria-label` + keyboard activation (Enter / Space) per WAI-ARIA.
+   - Per-row data: W^Prior / W^Target / W^Smooth / W^Execution / Live (holdings/nav) + Constraint badge (ok/warn/breach) + MARP action arrow.
+   - Drawer contents (per clicked component, all from real MetricsSnapshot):
+     * Human-readable summary paragraph (MASE + envelope + smoothing + MARP)
+     * Four-State Weight Ladder (5-col grid: Prior/Target/Smoothed/Execution/Live)
+     * Attribution block (6 rows): Macro Regime (with VIX/DXY/z-scores), Risk Contribution (weight × synthetic vol), Diversification (1 − live), Purchasing-Power Signal (signed price-relative pp), Strategic-Prior Penalty (|W^Target − W^Prior| in pp), Constraint Status (envelope ok/warn/breach)
+     * MARP Decision block (direction icon + trade USD + reason + urgency bar)
+     * Decision ID (deterministic: DEC-YYYYMMDD-COMP-NNNN, derived from tick)
+     * Collapsible "Technical details" — chain-index lineage (I_t, G_t, baseDenominator, weight state floats, MARP path)
+   - Real data sources: `snapshot.weightStates.{prior,target,smoothed,execution}`, `snapshot.marp.decisions`, `snapshot.envelopes`, `snapshot.macro`, `snapshot.chainIndex`, `snapshot.reserve.*Net`, `snapshot.nav`, `STRATEGIC_PRIOR`, `ADMISSIBILITY_ENVELOPES` from blueprint.ts.
+
+3. `src/components/mtq/RiskTimeline.tsx` (NEW, ~530 lines)
+   - Self-contained table component with 10 synthetic transitions (deterministic per current state + enteredAt hour) anchored to `snapshot.status` and `snapshot.riskStateEnteredAt` so the history is stable within a state episode but shifts when the engine actually transitions.
+   - Columns: Date · State · RR · LCR · Trigger · Action · Evidence
+   - Each row is `role="button"` + `aria-expanded` + keyboard activation. The first row is flagged as "now" (current state).
+   - Click → expands an animated (opacity-fade) detail row with: Cause Attribution paragraph, Worse-Condition-Binds badge (rr/lcr/both/neither), Threshold Crossed (text from the §14.1 ladder), Confirmation Period (RECOVERY only — 48h hysteresis), Policy Changes Applied (list), Action (§14.1 policy row, mono text).
+   - Color-coded state pills using brand STATUS_COLORS:
+     * NORMAL = emerald (#00D68F)
+     * CAUTION = amber (#F0B90B)
+     * STRESS = amber/orange (#FF8C42)
+     * DEFENSIVE = rose (#FF6B6B)
+     * EMERGENCY = rose (#FF4D6D)
+     * RECOVERY = cyan (#2BD4E0)
+   - Legend bar with all 6 state colors at the top.
+   - Annotation footer: "Synthetic pilot history · deterministic per state episode. Production will replace this with rows from the RebalancingDecision + DailyStateVector audit-trail DB tables (Chapter 24)."
+
+Files edited (2, for wiring):
+
+4. `src/components/mtq/sections/HomeSection.tsx`
+   - Added `import { ReferenceChart } from "@/components/mtq/ReferenceChart";`
+   - Added a new `<section aria-labelledby="home-refchart">` after the existing "Live Monetary State" section (which contains GfbChart). The new section uses `SectionHeading` with eyebrow `§15 · time ranges`, title "Reference Index Chart", and a right-side `Pill` "chain-linked I_t". The ReferenceChart is wrapped in `<Reveal>` and receives the live snapshot.
+
+5. `src/components/mtq/sections/DashboardSection.tsx`
+   - Added imports for `WeightChangeDrawer` and `RiskTimeline`.
+   - Added a new `<Section id="weight-explainer">` after the MASE Ensemble section — eyebrow "§14 · interactive", title "Why did the weight change? · Click any component", passes `snapshot` and a tick counter `Math.floor((snapshot?.fetchedAt ?? Date.now()) / 4000)` to the drawer.
+   - Added a new `<Section id="risk-timeline">` after the Risk State Machine section — eyebrow "§23 · history", title "Risk Timeline · State Transitions", right-side Pill showing the current state, passes `snapshot` and `limit=10`.
+
+Design rules followed:
+- 2026 deep-space glassmorphic theme: all three components use the existing `Panel` primitive (`mtqs-glass` class) with the deep obsidian background (#080a0c / #0b0f0e). The WeightChangeDrawer overrides the Sheet's default light `bg-background` with `bg-[#080a0c]/95 backdrop-blur-xl` + gold border.
+- Gold / emerald / rose / amber accents: strict brand palette only. No blue / indigo (verified — none used anywhere in the 3 new files).
+- Tabular numerals: all financial data wrapped in `font-mono tabular-nums`.
+- Accessibility: `role="img"` on ReferenceChart SVG, `role="tablist"` + `aria-selected` on toggle, `role="tooltip"` on hover overlay, `aria-label` per tab; `aria-label="Open weight-change drawer for X"` per row, `role="button"` + `tabIndex={0}` + Enter/Space activation, Sheet uses Radix Dialog with `SheetTitle` + `SheetDescription` for `aria-labelledby`/`aria-describedby`; `aria-expanded` per RiskTimeline row, `role="button"` + `tabIndex={0}` + Enter/Space activation, `<caption>` (sr-only).
+- Responsive: full-width SVG with `preserveAspectRatio="none"`, range bar wraps with `flex-wrap`, period stats `grid-cols-2 sm:grid-cols-4`; basket table uses `overflow-x-auto`, drawer `w-full sm:max-w-md md:max-w-lg`, weight ladder `grid-cols-5`; risk timeline table `overflow-x-auto`, expanded detail `grid-cols-1 sm:grid-cols-2`.
+
+Verification:
+- `bun run lint` → 0 errors, 3 warnings (all pre-existing in CinematicLoader.tsx, CurrencySelector.tsx, ReserveDonut.tsx — none of which I touched).
+- `npx tsc --noEmit` → 0 errors in `src/`. 1 pre-existing error in `mobile/src/App.tsx` (react-native module) — outside `src/` scope, documented as pre-existing in prior worklog entries.
+- `curl -s http://localhost:3000/ -o /dev/null -w "%{http_code}\n"` → 200.
+- agent-browser verification (Playwright headless Chromium):
+  * Home page (`/`): hasRefChart=true, hasRangeBar=true (all 6 toggles 1D/7D/30D/90D/1Y/MAX render). Clicked the 1Y tab → period change switches to "▼ 0.68% · 1y", `aria-selected` correctly updates on the active tab.
+  * Reference section (renders DashboardSection): hasWeightChange=true, hasRiskTimeline=true, hasMase=true (snapshot is live).
+  * WeightChangeDrawer: 7 clickable rows in the basket table. Clicked USD → `[role=dialog]` opens with `title="Weight Change · USD"`. Drawer contains: HUMAN-READABLE SUMMARY + full explanation paragraph (mentions prior 27.00%, target 30.14%, smoothed 30.13%, execution 26.41%, live 26.41%, envelope 23-32%, MARP no-trade zone); FOUR-STATE WEIGHT LADDER (5 weight states); ATTRIBUTION (Macro Regime VIX 17.6/DXY 99.1, Risk Contribution 1.32%, Diversification 73.6%, Purchasing-Power Signal +0.00pp, Strategic-Prior Penalty 3.14pp, Constraint Status in band); MARP DECISION (§10) HOLD urgency 0.0%; DECISION ID `DEC-20260910-USD-1762` with audit pill; Technical details (chain index lineage) collapsible.
+  * RiskTimeline: 10 clickable rows in the risk-state table. Clicked row 1 → expanded detail row shows CAUSE ATTRIBUTION, WORSE CONDITION BINDS (§14.1), THRESHOLD CROSSED, POLICY CHANGES APPLIED, ACTION (§14.1 POLICY ROW).
+- Screenshots saved:
+  * `/agent-ctx/SECTIONS-15-14-23-reference-chart.png`
+  * `/agent-ctx/SECTIONS-15-14-23-weight-change-drawer.png`
+  * `/agent-ctx/SECTIONS-15-14-23-risk-timeline.png`
+  * `/agent-ctx/SECTIONS-15-14-23-home-final.png`
+- Work record written to `/agent-ctx/SECTIONS-15-14-23-full-stack-developer.md`.
+
+Synthetic-data honesty notes:
+- ReferenceChart historical data: synthetic deterministic per (range, hour). Live endpoint (right edge) tracks the engine's actual `gfbIndex`. Footer discloses: "Synthetic pilot history · live endpoint tracks the engine's chain-linked I_t."
+- WeightChangeDrawer: all live weights, MASE target, envelopes, MARP decisions, macro regime, chain index values are READ from the live `MetricsSnapshot`. The synthetic vols (used only for the Risk Contribution demo) are documented inline: "weight × component vol (synthetic vols for pilot)". Decision ID is deterministic per (component, tick) — production would read this from the Chapter 24 audit-trail DB.
+- RiskTimeline: synthetic deterministic per (current state, enteredAt hour). Footer discloses: "Synthetic pilot history · deterministic per state episode. Production will replace this with rows from the RebalancingDecision + DailyStateVector audit-trail DB tables (Chapter 24)."
+
+Stage Summary:
+- Files modified: 3 NEW + 2 EDITED = 5 total.
+- All required §15 / §14 / §23 features implemented and verified.
+- Lint: 0 new errors, 0 new warnings (3 pre-existing warnings in untouched files).
+- TSC: 0 new errors in `src/` (1 pre-existing mobile/react-native error outside scope).
+- HTTP: 200.
+- agent-browser: all 3 components render, range toggle switches, drawer opens with full attribution, timeline row expands with cause attribution.
+- Brand-palette compliant (no blue/indigo), tabular numerals, ARIA labels, keyboard navigation, responsive grids — all design rules met.

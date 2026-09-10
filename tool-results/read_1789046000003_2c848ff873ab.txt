@@ -1,0 +1,562 @@
+     1→// MTQΣ — MASE Ensemble + 4-State Weights + MARP (§6 / §7 / §8 / §10 — v1.0)
+     2→// Surfaces the live Multi-Asset Stochastic Ensemble output: the 6 candidate
+     3→// model weight vectors, the equal-weight ensemble target, the per-component
+     4→// admissibility envelope status, the four-state weight distinction
+     5→// (W^Prior ≠ W^Target ≠ W^Smooth ≠ W^Execution), and the MARP per-component
+     6→// rebalancing decisions (urgency, no-trade zone, cost-benefit gate, partial
+     7→// correction, daily-turnover cap, execute).
+     8→//
+     9→// The legacy §6 macro engine (VIX/DXY → θ ±3%) is retained above this section
+    10→// as one input to MASE. The legacy §7 rebalance engine (single-direction gold
+    11→// trade) is retained below as the live execution path; MARP shown here is the
+    12→// v1.0 production target. Both run in parallel so the pilot can be compared.
+    13→
+    14→"use client";
+    15→
+    16→import { motion } from "framer-motion";
+    17→import { ArrowDownRight, ArrowUpRight, Minus, ShieldCheck, AlertTriangle, ShieldAlert } from "lucide-react";
+    18→import { Panel, Reveal, TickNumber, Pill, GlowDot, MiniBar } from "./primitives";
+    19→import { fmtUsdCompact, fmtPct } from "./format";
+    20→import {
+    21→  STRATEGIC_PRIOR,
+    22→  ADMISSIBILITY_ENVELOPES,
+    23→  WEIGHT_STATE_DESCRIPTIONS,
+    24→  SMOOTHING_LAMBDA,
+    25→  MASE_MODELS,
+    26→} from "@/lib/mtq/blueprint";
+    27→import { COMPONENTS, type Component } from "@/lib/mtq/mase";
+    28→import type { MetricsSnapshot } from "@/lib/mtq/engine";
+    29→
+    30→/* ---------- Regime badge ---------- */
+    31→function RegimeBadge({ regime }: { regime: 0 | 1 | 2 | 3 }) {
+    32→  const labels: Record<number, { label: string; tone: "emerald" | "gold" | "amber" | "rose" }> = {
+    33→    0: { label: "Calm", tone: "emerald" },
+    34→    1: { label: "Normal", tone: "gold" },
+    35→    2: { label: "Stress", tone: "amber" },
+    36→    3: { label: "Crisis", tone: "rose" },
+    37→  };
+    38→  const l = labels[regime] ?? labels[1];
+    39→  return (
+    40→    <Pill tone={l.tone}>
+    41→      <GlowDot color={l.tone === "emerald" ? "emerald" : l.tone === "gold" ? "gold" : l.tone === "amber" ? "amber" : "rose"} size="h-1.5 w-1.5" />
+    42→      regime: {l.label}
+    43→    </Pill>
+    44→  );
+    45→}
+    46→
+    47→/* ---------- Weight heatmap cell ---------- */
+    48→function WeightCell({ value, isTarget }: { value: number; isTarget?: boolean }) {
+    49→  // Color intensity ∝ weight. Gold = warm gold, others = neutral amber.
+    50→  const pct = Math.max(0, Math.min(100, value * 100));
+    51→  const opacity = 0.06 + (pct / 100) * 0.32; // 0.06 → 0.38
+    52→  return (
+    53→    <td
+    54→      className={`px-2 py-1.5 text-right font-mono tabular-nums ${isTarget ? "text-mtqs-gold font-semibold" : "text-white"}`}
+    55→      style={{ backgroundColor: isTarget ? `rgba(232,185,100,${opacity + 0.06})` : `rgba(232,185,100,${opacity})` }}
+    56→    >
+    57→      {(value * 100).toFixed(2)}%
+    58→    </td>
+    59→  );
+    60→}
+    61→
+    62→/* ---------- Envelope status badge ---------- */
+    63→function EnvelopeStatusBadge({ status }: { status: "ok" | "warn" | "breach" }) {
+    64→  if (status === "ok") {
+    65→    return (
+    66→      <Pill tone="emerald">
+    67→        <ShieldCheck className="h-3 w-3" aria-hidden="true" />
+    68→        in band
+    69→      </Pill>
+    70→    );
+    71→  }
+    72→  if (status === "warn") {
+    73→    return (
+    74→      <Pill tone="amber">
+    75→        <AlertTriangle className="h-3 w-3" aria-hidden="true" />
+    76→        near edge
+    77→      </Pill>
+    78→    );
+    79→  }
+    80→  return (
+    81→    <Pill tone="rose">
+    82→      <ShieldAlert className="h-3 w-3" aria-hidden="true" />
+    83→      breach
+    84→    </Pill>
+    85→  );
+    86→}
+    87→
+    88→/* ---------- Direction badge for MARP ---------- */
+    89→function MarpDirectionBadge({ direction, shouldTrade }: { direction: string; shouldTrade: boolean }) {
+    90→  if (!shouldTrade || direction === "hold") {
+    91→    return (
+    92→      <Pill tone="muted">
+    93→        <Minus className="h-3 w-3" aria-hidden="true" />
+    94→        hold
+    95→      </Pill>
+    96→    );
+    97→  }
+    98→  if (direction === "buy") {
+    99→    return (
+   100→      <Pill tone="emerald">
+   101→        <ArrowUpRight className="h-3 w-3" aria-hidden="true" />
+   102→        buy
+   103→      </Pill>
+   104→    );
+   105→  }
+   106→  return (
+   107→    <Pill tone="rose">
+   108→      <ArrowDownRight className="h-3 w-3" aria-hidden="true" />
+   109→      sell
+   110→    </Pill>
+   111→  );
+   112→}
+   113→
+   114→/* ---------- Level badge (MARP 6-level hierarchy) ---------- */
+   115→function MarpLevelBadge({ level, shouldTrade }: { level: number; shouldTrade: boolean }) {
+   116→  const tone = shouldTrade ? "gold" : level <= 1 ? "muted" : "amber";
+   117→  const labels: Record<number, string> = {
+   118→    1: "L1 · no-trade zone",
+   119→    2: "L2 · low urgency",
+   120→    3: "L3 · sized",
+   121→    4: "L4 · cost-benefit fail",
+   122→    5: "L5 · turnover cap",
+   123→    6: "L6 · execute",
+   124→  };
+   125→  return <Pill tone={tone as "gold" | "muted" | "amber"}>{labels[level] ?? `L${level}`}</Pill>;
+   126→}
+   127→
+   128→/* ---------- Main component ---------- */
+   129→export function MaseEngine({ snapshot }: { snapshot: MetricsSnapshot | null }) {
+   130→  if (!snapshot) {
+   131→    return (
+   132→      <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+   133→        {[...Array(2)].map((_, i) => (
+   134→          <div key={i} className="h-64 animate-pulse rounded-lg bg-white/[0.03]/[0.03]" />
+   135→        ))}
+   136→      </div>
+   137→    );
+   138→  }
+   139→
+   140→  const mase = snapshot.mase;
+   141→  const ws = snapshot.weightStates;
+   142→  const marp = snapshot.marp;
+   143→  const envelopes = snapshot.envelopes;
+   144→
+   145→  // Regime inference from observed MASE target — recompute from macro VIX
+   146→  // (the engine uses fx.VIX for regime detection inside buildMaseSnapshot).
+   147→  const vix = snapshot.macro.vix;
+   148→  const dxy = snapshot.macro.dxy;
+   149→  let regime: 0 | 1 | 2 | 3 = 1;
+   150→  if (vix >= 30) regime = 3;
+   151→  else if (vix >= 22) regime = 2;
+   152→  else if (vix >= 15) regime = 1;
+   153→  else regime = 0;
+   154→  if ((dxy >= 115 || dxy <= 88) && regime < 2) regime = 2;
+   155→
+   156→  // Aggregate envelope status counts
+   157→  const envCounts = envelopes.reduce(
+   158→    (acc, e) => {
+   159→      acc[e.status] += 1;
+   160→      return acc;
+   161→    },
+   162→    { ok: 0, warn: 0, breach: 0 } as Record<"ok" | "warn" | "breach", number>,
+   163→  );
+   164→
+   165→  return (
+   166→    <div className="space-y-4">
+   167→      {/* ===== Header: regime + summary + MARP total ===== */}
+   168→      <Reveal>
+   169→        <Panel className="p-5">
+   170→          <div className="flex flex-wrap items-start justify-between gap-3">
+   171→            <div>
+   172→              <div className="text-sm font-semibold text-white/90">MASE Ensemble + 4-State Weights + MARP (v1.0)</div>
+   173→              <p className="mt-1 text-[0.72rem] text-white/55 leading-relaxed max-w-2xl">
+   174→                The Multi-Asset Stochastic Ensemble (§6 / §7) runs 6 candidate models, blends them with equal
+   175→                weights into a single target, clamps to per-component admissibility envelopes (§8.1), and
+   176→                EMA-smooths (λ = {(SMOOTHING_LAMBDA * 100).toFixed(0)}%) toward the constrained target (§8.4).
+   177→                MARP (§10) then decides per-component whether the deviation between the smoothed target and
+   178→                the observed execution weight justifies a trade (urgency → no-trade zone → cost-benefit gate
+   179→                → partial correction → turnover cap → execute). The published weight W<sub>t</sub> is always
+   180→                the <span className="text-mtqs-gold">execution weight</span> (I6).
+   181→              </p>
+   182→            </div>
+   183→            <div className="flex flex-wrap items-center gap-2">
+   184→              <RegimeBadge regime={regime} />
+   185→              <Pill tone={marp && marp.totalTradeUsd > 0 ? "gold" : "muted"}>
+   186→                <GlowDot color={marp && marp.totalTradeUsd > 0 ? "gold" : "emerald"} size="h-1.5 w-1.5" />
+   187→                MARP total: {marp ? fmtUsdCompact(marp.totalTradeUsd) : "—"}
+   188→              </Pill>
+   189→            </div>
+   190→          </div>
+   191→        </Panel>
+   192→      </Reveal>
+   193→
+   194→      {/* ===== Section A: MASE candidate models heatmap ===== */}
+   195→      <Reveal>
+   196→        <Panel className="p-5">
+   197→          <div className="mb-3 flex items-start justify-between gap-3 flex-wrap">
+   198→            <div>
+   199→              <div className="text-[0.625rem] uppercase tracking-[0.25em] text-white/55">
+   200→                §6 / §7 · MASE Candidate Models · 6-model equal-weight ensemble
+   201→              </div>
+   202→              <div className="text-sm font-semibold text-white/90 mt-1">Per-model weight vectors (W<sup>Target</sup> candidates)</div>
+   203→            </div>
+   204→            <Pill tone="gold">equal weight = 1/6</Pill>
+   205→          </div>
+   206→          {mase ? (
+   207→            <div className="overflow-x-auto">
+   208→              <table className="w-full text-[0.72rem]">
+   209→                <thead>
+   210→                  <tr className="text-white/55 border-b border-white/[0.06]">
+   211→                    <th className="text-left px-2 py-2 font-medium">Model</th>
+   212→                    {COMPONENTS.map((c) => (
+   213→                      <th key={c} className="text-right px-2 py-2 font-medium font-mono">{c}</th>
+   214→                    ))}
+   215→                  </tr>
+   216→                </thead>
+   217→                <tbody>
+   218→                  {mase.models.map((m) => (
+   219→                    <tr key={m.id} className="border-b border-white/[0.06] hover:bg-white/[0.03]/[0.01]">
+   220→                      <td className="px-2 py-1.5">
+   221→                        <div className="flex flex-col">
+   222→                          <span className="font-medium text-white/90">{m.name}</span>
+   223→                          <span className="text-[0.62rem] text-white/55/60 font-mono">{m.id}</span>
+   224→                        </div>
+   225→                      </td>
+   226→                      {COMPONENTS.map((c) => (
+   227→                        <WeightCell key={c} value={m.weights[c] ?? 0} />
+   228→                      ))}
+   229→                    </tr>
+   230→                  ))}
+   231→                  {/* Ensemble target row (highlighted) */}
+   232→                  <tr className="border-t-2 border-mtqs-amber/30 bg-mtqs-amber/5">
+   233→                    <td className="px-2 py-2">
+   234→                      <div className="flex flex-col">
+   235→                        <span className="font-semibold text-mtqs-gold">Ensemble Target</span>
+   236→                        <span className="text-[0.62rem] text-mtqs-gold/70 font-mono">W<sup>Target</sup> · pre-envelope</span>
+   237→                      </div>
+   238→                    </td>
+   239→                    {COMPONENTS.map((c) => (
+   240→                      <WeightCell key={c} value={mase.ensembleTarget[c] ?? 0} isTarget />
+   241→                    ))}
+   242→                  </tr>
+   243→                </tbody>
+   244→              </table>
+   245→            </div>
+   246→          ) : (
+   247→            <div className="rounded-md border border-white/[0.06] bg-white/[0.03]/[0.02] p-4 text-center text-[0.75rem] text-white/55">
+   248→              MASE ensemble not computed yet.
+   249→            </div>
+   250→          )}
+   251→          <p className="mt-3 text-[0.68rem] text-white/55 leading-relaxed">
+   252→            Each cell shows that model's recommended weight for the component. The <span className="text-mtqs-gold font-medium">Ensemble Target</span> row
+   253→            is the equal-weight average of all 6 models — this becomes W<sup>Target</sup> before envelope constraints are applied.
+   254→            Production will use adaptive ensemble weights (model-performance-driven); the pilot uses 1/6 each.
+   255→          </p>
+   256→        </Panel>
+   257→      </Reveal>
+   258→
+   259→      {/* ===== Section B: 4-state weight table ===== */}
+   260→      <Reveal>
+   261→        <Panel className="p-5">
+   262→          <div className="mb-3 flex items-start justify-between gap-3 flex-wrap">
+   263→            <div>
+   264→              <div className="text-[0.625rem] uppercase tracking-[0.25em] text-white/55">
+   265→                §2.3 · Four-State Weight Distinction
+   266→              </div>
+   267→              <div className="text-sm font-semibold text-white/90 mt-1">W<sup>Prior</sup> ≠ W<sup>Target</sup> ≠ W<sup>Smooth</sup> ≠ W<sup>Execution</sup></div>
+   268→            </div>
+   269→            <Pill tone="gold">published = execution (I6)</Pill>
+   270→          </div>
+   271→          {ws ? (
+   272→            <div className="overflow-x-auto">
+   273→              <table className="w-full text-[0.74rem]">
+   274→                <thead>
+   275→                  <tr className="text-white/55 border-b border-white/[0.06]">
+   276→                    <th className="text-left px-2 py-2 font-medium">Component</th>
+   277→                    <th className="text-right px-2 py-2 font-medium">
+   278→                      <span className="font-mono text-mtqs-gold">W<sup>Prior</sup></span>
+   279→                      <div className="text-[0.6rem] text-white/55/60 font-normal">soft anchor</div>
+   280→                    </th>
+   281→                    <th className="text-right px-2 py-2 font-medium">
+   282→                      <span className="font-mono text-mtqs-gold">W<sup>Target</sup></span>
+   283→                      <div className="text-[0.6rem] text-white/55/60 font-normal">MASE + envelope</div>
+   284→                    </th>
+   285→                    <th className="text-right px-2 py-2 font-medium">
+   286→                      <span className="font-mono text-mtqs-emerald/90">W<sup>Smooth</sup></span>
+   287→                      <div className="text-[0.6rem] text-white/55/60 font-normal">EMA λ={(SMOOTHING_LAMBDA * 100).toFixed(0)}%</div>
+   288→                    </th>
+   289→                    <th className="text-right px-2 py-2 font-medium">
+   290→                      <span className="font-mono text-mtqs-rose/90">W<sup>Execution</sup></span>
+   291→                      <div className="text-[0.6rem] text-white/55/60 font-normal">observed</div>
+   292→                    </th>
+   293→                    <th className="text-right px-2 py-2 font-medium">
+   294→                      <span className="font-mono text-white/90">Δ Smooth→Exec</span>
+   295→                      <div className="text-[0.6rem] text-white/55/60 font-normal">deviation</div>
+   296→                    </th>
+   297→                  </tr>
+   298→                </thead>
+   299→                <tbody>
+   300→                  {COMPONENTS.map((c) => {
+   301→                    const prior = ws.prior[c] ?? 0;
+   302→                    const target = ws.target[c] ?? 0;
+   303→                    const smoothed = ws.smoothed[c] ?? 0;
+   304→                    const execution = ws.execution[c] ?? 0;
+   305→                    const dev = execution - smoothed;
+   306→                    return (
+   307→                      <tr key={c} className="border-b border-white/[0.06] hover:bg-white/[0.03]/[0.01]">
+   308→                        <td className="px-2 py-2 font-mono font-medium text-mtqs-gold">{c}</td>
+   309→                        <td className="px-2 py-2 text-right font-mono tabular-nums text-white/55">{(prior * 100).toFixed(2)}%</td>
+   310→                        <td className="px-2 py-2 text-right font-mono tabular-nums text-mtqs-gold">{(target * 100).toFixed(2)}%</td>
+   311→                        <td className="px-2 py-2 text-right font-mono tabular-nums text-mtqs-emerald">{(smoothed * 100).toFixed(2)}%</td>
+   312→                        <td className="px-2 py-2 text-right font-mono tabular-nums text-rose-200">{(execution * 100).toFixed(2)}%</td>
+   313→                        <td className={`px-2 py-2 text-right font-mono tabular-nums ${Math.abs(dev) >= 0.005 ? (dev > 0 ? "text-mtqs-rose" : "text-mtqs-emerald") : "text-white/55"}`}>
+   314→                          {dev > 0 ? "+" : ""}{(dev * 100).toFixed(2)}%
+   315→                        </td>
+   316→                      </tr>
+   317→                    );
+   318→                  })}
+   319→                </tbody>
+   320→              </table>
+   321→            </div>
+   322→          ) : (
+   323→            <div className="rounded-md border border-white/[0.06] bg-white/[0.03]/[0.02] p-4 text-center text-[0.75rem] text-white/55">
+   324→              Weight states not computed yet.
+   325→            </div>
+   326→          )}
+   327→          <div className="mt-3 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-2">
+   328→            {WEIGHT_STATE_DESCRIPTIONS.map((row) => (
+   329→              <div key={row.state} className="rounded-md border border-white/[0.06] bg-white/[0.03]/[0.02] p-2.5">
+   330→                <div className="flex items-baseline justify-between gap-2 mb-1">
+   331→                  <span className="font-mono font-semibold text-[0.72rem] text-mtqs-gold">{row.state}</span>
+   332→                  <span className="font-mono text-[0.66rem] text-mtqs-emerald/80">{row.symbol}</span>
+   333→                </div>
+   334→                <div className="text-[0.66rem] text-white/55 leading-snug">{row.meaning}</div>
+   335→              </div>
+   336→            ))}
+   337→          </div>
+   338→        </Panel>
+   339→      </Reveal>
+   340→
+   341→      {/* ===== Section C: Admissibility envelopes ===== */}
+   342→      <Reveal>
+   343→        <Panel className="p-5">
+   344→          <div className="mb-3 flex items-start justify-between gap-3 flex-wrap">
+   345→            <div>
+   346→              <div className="text-[0.625rem] uppercase tracking-[0.25em] text-white/55">
+   347→                §8.1 · Per-Component Admissibility Envelopes
+   348→              </div>
+   349→              <div className="text-sm font-semibold text-white/90 mt-1">Live envelope status · execution weight vs constitutional bounds</div>
+   350→            </div>
+   351→            <div className="flex items-center gap-2">
+   352→              <Pill tone="emerald">
+   353→                <GlowDot color="emerald" size="h-1.5 w-1.5" />
+   354→                {envCounts.ok} in band
+   355→              </Pill>
+   356→              <Pill tone="amber">
+   357→                <GlowDot color="amber" size="h-1.5 w-1.5" />
+   358→                {envCounts.warn} near edge
+   359→              </Pill>
+   360→              <Pill tone="rose">
+   361→                <GlowDot color="rose" size="h-1.5 w-1.5" />
+   362→                {envCounts.breach} breach
+   363→              </Pill>
+   364→            </div>
+   365→          </div>
+   366→          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
+   367→            {envelopes.map((e) => {
+   368→              const prior = STRATEGIC_PRIOR[e.component as Component] ?? 0;
+   369→              const range = e.upper - e.lower;
+   370→              const priorPct = ((prior - e.lower) / range) * 100;
+   371→              const curPct = ((e.current - e.lower) / range) * 100;
+   372→              const barColor =
+   373→                e.status === "breach" ? "bg-rose-400"
+   374→                : e.status === "warn" ? "bg-amber-400"
+   375→                : "bg-emerald-400";
+   376→              return (
+   377→                <motion.div
+   378→                  key={e.component}
+   379→                  initial={{ opacity: 0, y: 6 }}
+   380→                  animate={{ opacity: 1, y: 0 }}
+   381→                  transition={{ duration: 0.3 }}
+   382→                  className={`rounded-md border p-3 ${
+   383→                    e.status === "breach"
+   384→                      ? "border-rose-400/40 bg-rose-500/[0.05]"
+   385→                      : e.status === "warn"
+   386→                      ? "border-mtqs-amber/30 bg-mtqs-amber/5"
+   387→                      : "border-mtqs-emerald/20 bg-emerald-500/[0.03]"
+   388→                  }`}
+   389→                >
+   390→                  <div className="flex items-center justify-between gap-2 mb-1.5">
+   391→                    <span className="font-mono font-semibold text-[0.78rem] text-mtqs-gold">{e.component}</span>
+   392→                    <EnvelopeStatusBadge status={e.status} />
+   393→                  </div>
+   394→                  <div className="flex items-baseline justify-between gap-2 mb-2">
+   395→                    <TickNumber value={e.current} format={(n) => `${(n * 100).toFixed(2)}%`} className="text-base font-semibold text-white" />
+   396→                    <span className="text-[0.62rem] font-mono text-white/55">
+   397→                      [{(e.lower * 100).toFixed(0)}%–{(e.upper * 100).toFixed(0)}%]
+   398→                    </span>
+   399→                  </div>
+   400→                  {/* Envelope bar — lower bound (left), upper bound (right), prior (gold tick), current (colored) */}
+   401→                  <div className="relative h-2 rounded-full bg-white/[0.03]/[0.05] overflow-hidden">
+   402→                    {/* Prior marker */}
+   403→                    <div
+   404→                      className="absolute top-0 bottom-0 w-px bg-amber-300/70"
+   405→                      style={{ left: `${Math.max(0, Math.min(100, priorPct))}%` }}
+   406→                      aria-label={`prior at ${(prior * 100).toFixed(1)}%`}
+   407→                    />
+   408→                    {/* Current marker — bar from lower bound to current position */}
+   409→                    <motion.div
+   410→                      className={`absolute top-0 bottom-0 ${barColor} rounded-full`}
+   411→                      initial={{ width: 0 }}
+   412→                      animate={{ width: `${Math.max(0, Math.min(100, curPct))}%` }}
+   413→                      transition={{ duration: 0.5 }}
+   414→                    />
+   415→                  </div>
+   416→                  <div className="mt-1 flex justify-between text-[0.6rem] font-mono text-white/55/60">
+   417→                    <span>{(e.lower * 100).toFixed(0)}% floor</span>
+   418→                    <span>prior {(prior * 100).toFixed(0)}%</span>
+   419→                    <span>{(e.upper * 100).toFixed(0)}% cap</span>
+   420→                  </div>
+   421→                </motion.div>
+   422→              );
+   423→            })}
+   424→          </div>
+   425→          <p className="mt-3 text-[0.68rem] text-white/55 leading-relaxed">
+   426→            Each bar shows the execution weight's position within the per-component admissibility envelope. The gold tick marks
+   427→            the strategic prior. <span className="text-mtqs-gold font-medium">Near-edge</span> = within 10% of the band width;
+   428→            <span className="text-mtqs-rose/90 font-medium"> breach</span> = outside the envelope (would require governance override
+   429→            to persist — MASE constrains the target so this should never happen for the smoothed weight).
+   430→          </p>
+   431→        </Panel>
+   432→      </Reveal>
+   433→
+   434→      {/* ===== Section D: MARP decisions ===== */}
+   435→      <Reveal>
+   436→        <Panel className="p-5">
+   437→          <div className="mb-3 flex items-start justify-between gap-3 flex-wrap">
+   438→            <div>
+   439→              <div className="text-[0.625rem] uppercase tracking-[0.25em] text-white/55">
+   440→                §10 · MARP · Monetary Adaptive Rebalancing Protocol
+   441→              </div>
+   442→              <div className="text-sm font-semibold text-white/90 mt-1">Per-component rebalance decision · daily calculation vs actual trade</div>
+   443→            </div>
+   444→            <div className="flex items-center gap-2">
+   445→              <Pill tone={marp && marp.totalTradeUsd > 0 ? "gold" : "emerald"}>
+   446→                <GlowDot color={marp && marp.totalTradeUsd > 0 ? "gold" : "emerald"} size="h-1.5 w-1.5" />
+   447→                {marp && marp.totalTradeUsd > 0 ? "trades pending" : "all in no-trade zone"}
+   448→              </Pill>
+   449→              {marp && (
+   450→                <Pill tone="muted">
+   451→                  total: {fmtUsdCompact(marp.totalTradeUsd)}
+   452→                </Pill>
+   453→              )}
+   454→            </div>
+   455→          </div>
+   456→          {marp ? (
+   457→            <div className="overflow-x-auto">
+   458→              <table className="w-full text-[0.72rem]">
+   459→                <thead>
+   460→                  <tr className="text-white/55 border-b border-white/[0.06]">
+   461→                    <th className="text-left px-2 py-2 font-medium">Component</th>
+   462→                    <th className="text-left px-2 py-2 font-medium">Direction</th>
+   463→                    <th className="text-right px-2 py-2 font-medium">Trade USD</th>
+   464→                    <th className="text-left px-2 py-2 font-medium w-32">Urgency</th>
+   465→                    <th className="text-left px-2 py-2 font-medium">Level</th>
+   466→                    <th className="text-left px-2 py-2 font-medium">Reason</th>
+   467→                  </tr>
+   468→                </thead>
+   469→                <tbody>
+   470→                  {marp.decisions.map((d) => (
+   471→                    <tr key={d.component} className={`border-b border-white/[0.06] ${d.shouldTrade ? "bg-amber-500/[0.03]" : ""}`}>
+   472→                      <td className="px-2 py-2 font-mono font-semibold text-mtqs-gold">{d.component}</td>
+   473→                      <td className="px-2 py-2"><MarpDirectionBadge direction={d.direction} shouldTrade={d.shouldTrade} /></td>
+   474→                      <td className="px-2 py-2 text-right font-mono tabular-nums">
+   475→                        {d.shouldTrade ? (
+   476→                          <span className="text-mtqs-gold font-medium">{fmtUsdCompact(d.tradeUsd)}</span>
+   477→                        ) : (
+   478→                          <span className="text-white/55/60">—</span>
+   479→                        )}
+   480→                      </td>
+   481→                      <td className="px-2 py-2">
+   482→                        <div className="flex items-center gap-2">
+   483→                          <MiniBar
+   484→                            value={d.urgency}
+   485→                            max={1}
+   486→                            colorClass={d.urgency >= 0.5 ? "bg-rose-400" : d.urgency >= 0.2 ? "bg-amber-400" : "bg-emerald-400"}
+   487→                            height="h-1.5"
+   488→                            className="w-20"
+   489→                          />
+   490→                          <span className="text-[0.66rem] font-mono text-white/55">{(d.urgency * 100).toFixed(1)}%</span>
+   491→                        </div>
+   492→                      </td>
+   493→                      <td className="px-2 py-2"><MarpLevelBadge level={d.level} shouldTrade={d.shouldTrade} /></td>
+   494→                      <td className="px-2 py-2 text-white/55 text-[0.7rem]">{d.reason}</td>
+   495→                    </tr>
+   496→                  ))}
+   497→                  <tr className="border-t-2 border-mtqs-amber/30 bg-mtqs-amber/5">
+   498→                    <td className="px-2 py-2 font-mono font-semibold text-mtqs-gold" colSpan={2}>Σ Total Trade USD</td>
+   499→                    <td className="px-2 py-2 text-right font-mono font-semibold text-mtqs-gold">{fmtUsdCompact(marp.totalTradeUsd)}</td>
+   500→                    <td className="px-2 py-2" colSpan={3}>
+   501→                      <span className="text-[0.66rem] text-white/55">
+   502→                        Max daily turnover = 5% of NAV ≈ {fmtUsdCompact(snapshot.nav * 0.05)}. Trades capped at this level (L5).
+   503→                      </span>
+   504→                    </td>
+   505→                  </tr>
+   506→                </tbody>
+   507→              </table>
+   508→            </div>
+   509→          ) : (
+   510→            <div className="rounded-md border border-white/[0.06] bg-white/[0.03]/[0.02] p-4 text-center text-[0.75rem] text-white/55">
+   511→              MARP decisions not computed yet.
+   512→            </div>
+   513→          )}
+   514→          <div className="mt-3 grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-2">
+   515→            {[
+   516→              { level: 1, label: "L1 · No-trade zone", desc: "deviation < 0.5%" },
+   517→              { level: 2, label: "L2 · Low urgency", desc: "urgency < 5%" },
+   518→              { level: 3, label: "L3 · Sized", desc: "50% correction" },
+   519→              { level: 4, label: "L4 · Cost-benefit fail", desc: "cost ≥ benefit" },
+   520→              { level: 5, label: "L5 · Turnover cap", desc: "capped at 5% NAV" },
+   521→              { level: 6, label: "L6 · Execute", desc: "trade fires" },
+   522→            ].map((l) => (
+   523→              <div key={l.level} className="rounded-md border border-white/[0.06] bg-white/[0.03]/[0.02] p-2">
+   524→                <div className="text-[0.62rem] uppercase tracking-[0.16em] text-white/55">{l.label}</div>
+   525→                <div className="text-[0.66rem] text-white/55 mt-0.5">{l.desc}</div>
+   526→              </div>
+   527→            ))}
+   528→          </div>
+   529→        </Panel>
+   530→      </Reveal>
+   531→
+   532→      {/* ===== Footer: constants + lineage note ===== */}
+   533→      <Reveal>
+   534→        <Panel className="p-4">
+   535→          <div className="flex flex-wrap items-center gap-x-3 gap-y-1 text-[0.66rem] text-white/55">
+   536→            <span className="text-[0.6rem] uppercase tracking-[0.22em] text-mtqs-gold/80">lineage</span>
+   537→            <span className="font-mono text-mtqs-gold">prices: P<sub>i,t</sub>/P<sub>i,0</sub></span>
+   538→            <span>→</span>
+   539→            <span className="font-mono text-mtqs-gold">MASE 6 models</span>
+   540→            <span>→</span>
+   541→            <span className="font-mono text-mtqs-gold">equal-weight ensemble</span>
+   542→            <span>→</span>
+   543→            <span className="font-mono text-mtqs-gold">§8.1 envelopes</span>
+   544→            <span>→</span>
+   545→            <span className="font-mono text-mtqs-emerald/90">EMA smooth (λ={(SMOOTHING_LAMBDA * 100).toFixed(0)}%)</span>
+   546→            <span>→</span>
+   547→            <span className="font-mono text-rose-200/90">MARP per-component decision</span>
+   548→            <span>→</span>
+   549→            <span className="font-mono text-white">execution (published)</span>
+   550→          </div>
+   551→          <p className="mt-2 text-[0.66rem] text-white/55/60 leading-relaxed">
+   552→            The legacy §6 single-engine (VIX/DXY → θ ±3%) and §7 single-direction rebalance (displayed in
+   553→            the sections above and below this one) are RETAINED in parallel as live pilot paths. MASE + MARP
+   554→            shown here is the v1.0 production target. Until MASE is wired into the actual rebalance execution
+   555→            (a future task), MARP's "shouldTrade" decisions are advisory — they do not mutate the reserve.
+   556→          </p>
+   557→        </Panel>
+   558→      </Reveal>
+   559→    </div>
+   560→  );
+   561→}
+   562→

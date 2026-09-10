@@ -21,11 +21,15 @@ export function Header({
   error,
 }: {
   snapshot: MetricsSnapshot | null;
-  oracleValidCount: number;
-  oracleTotalCount: number;
-  oracleAnyPaused: boolean;
-  error: string | null;
+  oracleValidCount?: number;
+  oracleTotalCount?: number;
+  oracleAnyPaused?: boolean;
+  error?: string | null;
 }) {
+  oracleValidCount = oracleValidCount ?? 0;
+  oracleTotalCount = oracleTotalCount ?? 0;
+  oracleAnyPaused = oracleAnyPaused ?? false;
+  error = error ?? null;
   const status = snapshot?.status ?? "NORMAL";
   const sc = statusColor(status);
   const scBrand = STATUS_COLORS[status] ?? STATUS_COLORS.NORMAL;

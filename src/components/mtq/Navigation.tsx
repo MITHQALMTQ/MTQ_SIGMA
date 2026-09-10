@@ -157,7 +157,7 @@ export function Navigation({
 
   return (
     <nav
-      className="sticky top-[57px] sm:top-[69px] z-30"
+      className="sticky top-[117px] sm:top-[129px] z-30"
       role="navigation"
       aria-label="MTQΣ institutional sections"
     >

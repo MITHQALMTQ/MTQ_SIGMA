@@ -14,6 +14,7 @@ import { motion } from "framer-motion";
 import { SectionHeading, Reveal, Panel, Pill, GlowDot, BrandPrinciples, Skeleton } from "@/components/mtq/primitives";
 import { ConstitutionalSeparation } from "@/components/mtq/ConstitutionalSeparation";
 import { GfbChart } from "@/components/mtq/GfbChart";
+import { ReferenceChart } from "@/components/mtq/ReferenceChart";
 import { ParticleField } from "@/components/mtq/ParticleField";
 import { BasketValueDisplay } from "@/components/mtq/BasketValueDisplay";
 import { BRAND_VOICE, BRAND_ASSETS, STATUS_COLORS } from "@/lib/mtq/brand";
@@ -442,6 +443,23 @@ export function HomeSection({ onNavigate }: { onNavigate: (id: SectionId) => voi
           }
         />
         <LiveStatsBand snapshot={snapshot} />
+      </section>
+
+      {/* ===== Reference Index Chart (§15) — time range + markers + tooltips ===== */}
+      <section aria-labelledby="home-refchart">
+        <SectionHeading
+          eyebrow="§15 · time ranges"
+          title="Reference Index Chart"
+          right={
+            <Pill tone="gold">
+              <GlowDot color="gold" size="h-1.5 w-1.5" />
+              chain-linked I_t
+            </Pill>
+          }
+        />
+        <Reveal>
+          <ReferenceChart snapshot={snapshot} height={260} />
+        </Reveal>
       </section>
 
       {/* ===== 4 testnet cards ===== */}

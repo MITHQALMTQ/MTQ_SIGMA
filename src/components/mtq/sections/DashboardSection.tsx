@@ -34,6 +34,10 @@ import { TrialLog, type PilotTrial } from "@/components/mtq/TrialLog";
 import { HonestStatus } from "@/components/mtq/HonestStatus";
 import { AIPolicyBriefing } from "@/components/mtq/AIPolicyBriefing";
 import { RiskSignals } from "@/components/mtq/RiskSignals";
+import { ParameterRegistry } from "@/components/mtq/ParameterRegistry";
+import { ReproducibilityPanel } from "@/components/mtq/ReproducibilityPanel";
+import { WeightChangeDrawer } from "@/components/mtq/WeightChangeDrawer";
+import { RiskTimeline } from "@/components/mtq/RiskTimeline";
 
 import type { MetricsSnapshot } from "@/lib/mtq/engine";
 import type { OracleBoard } from "@/lib/mtq/oracle";
@@ -331,6 +335,24 @@ export function DashboardSection() {
         <MaseEngine snapshot={snapshot} />
       </Section>
 
+      {/* ===== 7c — Weight Change Drawer (§14) — click any component to drill in ===== */}
+      <Section
+        id="weight-explainer"
+        eyebrow="§14 · interactive"
+        title="Why did the weight change? · Click any component"
+        right={
+          <Pill tone="gold">
+            <GlowDot color="gold" size="h-1.5 w-1.5" />
+            attribution drawer
+          </Pill>
+        }
+      >
+        <WeightChangeDrawer
+          snapshot={snapshot}
+          tick={Math.floor((snapshot?.fetchedAt ?? Date.now()) / 4000)}
+        />
+      </Section>
+
       {/* ===== 8 — Rebalancing Engine ===== */}
       <Section id="rebalance" eyebrow="§7" title="Rebalancing Engine">
         <RebalanceEngine snapshot={snapshot} />
@@ -392,6 +414,39 @@ export function DashboardSection() {
       {/* ===== 15 — Risk State + Governance ===== */}
       <Section id="risk" eyebrow="§14" title="Risk State Machine & Governance">
         <RiskStateMachine snapshot={snapshot} />
+      </Section>
+
+      {/* ===== 15b — Risk Timeline (§23) — historical risk-state transitions ===== */}
+      <Section
+        id="risk-timeline"
+        eyebrow="§23 · history"
+        title="Risk Timeline · State Transitions"
+        right={
+          <Pill tone={snapshot?.status === "NORMAL" ? "emerald" : "rose"}>
+            <GlowDot color={snapshot?.status === "NORMAL" ? "emerald" : "rose"} size="h-1.5 w-1.5" />
+            current: {snapshot?.status ?? "—"}
+          </Pill>
+        }
+      >
+        <RiskTimeline snapshot={snapshot} limit={10} />
+      </Section>
+
+      {/* ===== 15c — Parameter Registry (§37) + Reproducibility (§34) ===== */}
+      <Section
+        id="parameter-registry"
+        eyebrow="§37 · §34 · institutional"
+        title="Parameter Registry & Reproducibility"
+        right={
+          <Pill tone="gold">
+            <GlowDot color="gold" size="h-1.5 w-1.5" />
+            16 parameters · 6 calc
+          </Pill>
+        }
+      >
+        <ParameterRegistry />
+        <div className="mt-6">
+          <ReproducibilityPanel snapshot={snapshot} />
+        </div>
       </Section>
 
       {/* ===== 16 — GFB Basket ===== */}

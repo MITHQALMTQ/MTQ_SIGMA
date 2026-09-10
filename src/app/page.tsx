@@ -13,6 +13,8 @@ import { Footer } from "@/components/mtq/Footer";
 import { Navigation, type SectionId } from "@/components/mtq/Navigation";
 import { CinematicLoader } from '@/components/mtq/CinematicLoader';
 import { MobileBottomNav } from "@/components/mtq/MobileBottomNav";
+import { TestnetStatusBar } from "@/components/mtq/TestnetStatusBar";
+import { CommandLauncher } from "@/components/mtq/CommandLauncher";
 import { HomeSection } from "@/components/mtq/sections/HomeSection";
 import { DashboardSection } from "@/components/mtq/sections/DashboardSection";
 import { ContractsSection } from "@/components/mtq/sections/ContractsSection";
@@ -72,14 +74,17 @@ export default function Page() {
   return (
     <>
     <CinematicLoader />
+    <CommandLauncher onNavigate={handleNavigate} />
     <MotionConfig reducedMotion="user" transition={{ duration: 0.5, ease: [0.16, 1, 0.3, 1] }}>
       <div className="relative min-h-screen flex flex-col overflow-hidden mtqs-space-bg mtqs-cinematic-page">
         {/* Futuristic grid backdrop */}
         <div className="pointer-events-none fixed inset-0 mtqs-grid-bg" aria-hidden="true" />
 
         {/* Header + Ticker */}
+        <TestnetStatusBar snapshot={snapshot} />
         <Header snapshot={snapshot} oracleValidCount={snapshot?.oracle?.pairs.filter(p => !p.paused).length ?? 0} oracleTotalCount={snapshot?.oracle?.pairs.length ?? 0} oracleAnyPaused={snapshot?.oracle?.anyPaused ?? false} error={error} />
         <LiveTicker snapshot={snapshot} />
+        <TestnetStatusBar snapshot={snapshot} />
         <Navigation active={section} onChange={handleNavigate} />
 
         {/* Main content with cinematic transitions */}
@@ -152,6 +157,9 @@ export default function Page() {
         <MobileBottomNav active={section} onNavigate={handleNavigate} />
       </div>
     </MotionConfig>
+
+    {/* Cmd+K Command Launcher — global keyboard-driven command palette (§59) */}
+    <CommandLauncher onNavigate={handleNavigate} />
     </>
   );
 }
