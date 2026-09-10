@@ -11,6 +11,7 @@ import { MotionConfig } from "framer-motion";
 import { Header, LiveTicker } from "@/components/mtq/Header";
 import { Footer } from "@/components/mtq/Footer";
 import { Navigation, type SectionId } from "@/components/mtq/Navigation";
+import { CinematicLoader } from '@/components/mtq/CinematicLoader';
 import { MobileBottomNav } from "@/components/mtq/MobileBottomNav";
 import { HomeSection } from "@/components/mtq/sections/HomeSection";
 import { DashboardSection } from "@/components/mtq/sections/DashboardSection";
@@ -69,6 +70,8 @@ export default function Page() {
   }, []);
 
   return (
+    <>
+    <CinematicLoader />
     <MotionConfig reducedMotion="user" transition={{ duration: 0.5, ease: [0.16, 1, 0.3, 1] }}>
       <div className="relative min-h-screen flex flex-col overflow-hidden mtqs-space-bg mtqs-cinematic-page">
         {/* Futuristic grid backdrop */}
@@ -110,5 +113,6 @@ export default function Page() {
         <MobileBottomNav active={section} onNavigate={handleNavigate} />
       </div>
     </MotionConfig>
+    </>
   );
 }
