@@ -1,6 +1,5 @@
 import { PrismaClient } from '@prisma/client'
-import { PrismaLibSql } from '@prisma/adapter-libsql'
-import { createClient } from '@libsql/client'
+import { PrismaLibSQL } from '@prisma/adapter-libsql'
 
 const globalForPrisma = globalThis as unknown as {
   prisma: PrismaClient | undefined
@@ -14,10 +13,12 @@ function createDb(): PrismaClient {
     throw new Error('TURSO_DATABASE_URL or DATABASE_URL must be set')
   }
 
-  // If it's a libsql:// URL (Turso), use the libSQL adapter
+  // Turso (libsql://) — pass the config object to the adapter factory.
+  // PrismaLibSQL v6 expects `{ url, authToken }` as the first argument,
+  // NOT a pre-built libsql client instance. The factory creates the client
+  // internally via createClient(config) on first connect().
   if (url.startsWith('libsql://')) {
-    const libsql = createClient({ url, authToken })
-    const adapter = new PrismaLibSql(libsql)
+    const adapter = new PrismaLibSQL({ url, authToken })
     return new PrismaClient({ adapter, log: ['error'] })
   }
 
