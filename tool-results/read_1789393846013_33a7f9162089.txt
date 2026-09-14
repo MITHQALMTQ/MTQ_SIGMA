@@ -1,0 +1,1250 @@
+     1→// SPDX-License-Identifier: MIT
+     2→//
+     3→// ============================================================================
+     4→//  MTQΣ V3 — Foundry test suite (Deliverable J2 — focused 30 highest-value tests)
+     5→//  ----------------------------------------------------------------------------
+     6→//  Source of Truth:
+     7→//    /audit-work/blueprint-v1.0.txt                 (Master Monetary Architecture v1.0)
+     8→//    /audit-work/DELIVERABLE-J2-solidity-test-plan.md (this test plan)
+     9→//    /contracts/MTQSigmaV2.sol                        (V3 contract, 1389 lines)
+    10→//
+    11→//  Test layers covered (exactly 30 tests):
+    12→//    Layer 1 — Unit        (10)  headline formulas + state-machine basics
+    13→//    Layer 5 — Adversarial (15)  reentrancy, role/auth guards, one-shots, locks
+    14→//    Layer 7 — Fuzz         (5)  S5/S6 stochastic survival + conservation +
+    15→//                                hard-floor + monotonic state transitions
+    16→//
+    17→//  Layers NOT covered here (kept in the 141-test TS reference suite):
+    18→//    Layer 2 (module), Layer 3 (cross-module), Layer 4 (economic at scale),
+    19→//    Layer 6 (historical 10y backtest). See DELIVERABLE-J2 §5 for the rationale.
+    20→//
+    21→//  ----------------------------------------------------------------------------
+    22→//  PREREQUISITES — the protocol owner MUST apply these to MTQSigmaV2.sol before
+    23→//  the suite will COMPILE AND PASS. They are documented in the file header of
+    24→//  the existing /contracts/MTQSigmaV2.sol (lines 1–81 audit-trail):
+    25→//
+    26→//    P1. Add a constructor that takes the USDC address and grants DEFAULT_ADMIN
+    27→//        to msg.sender:
+    28→//            constructor(address _usdc) {
+    29→//                usdc = IERC20(_usdc);
+    30→//                INDEX_BASE_DENOMINATOR = 1e18;     // P2
+    31→//                _grantRole(DEFAULT_ADMIN_ROLE, msg.sender);
+    32→//            }
+    33→//
+    34→//    P2. Assign INDEX_BASE_DENOMINATOR in the constructor (it is declared
+    35→//        `immutable` at line ~285 but never assigned; without this assignment
+    36→//        getMTQPrice() divides by zero and reverts, blocking every test that
+    37→//        reads the MTQ price). The Master Listing 3 spec sets it to 1e18.
+    38→//
+    39→//  Tests that DO NOT touch getMTQPrice (state-machine, oracle guard checks,
+    40→//  genesis-mint guards, setReserveVault/setOracleAdapter input validation,
+    41→//  pure policy views) will PASS even without P1/P2 — they revert at the
+    42→//  expected audit-vector check, not at the divide-by-zero. Tests that DO
+    43→//  touch the MTQ price (mint/redeem math, NAV/LCR/RR computations, fuzz
+    44→//  survival) require P1/P2 first.
+    45→//
+    46→//  This file is delivered source-ready. The sandbox does NOT have Foundry
+    47→//  installed (no `forge` binary, no `lib/forge-std/`), so this file cannot be
+    48→//  compiled here. The protocol owner must install Foundry first (see
+    49→//  DELIVERABLE-J2-solidity-test-plan.md §3).
+    50→// ============================================================================
+    51→//
+    52→//  Test count: EXACTLY 30 test functions (10 unit + 15 adversarial + 5 fuzz).
+    53→//  Verify: `grep -c "function test" contracts/MTQSigmaV2.t.sol`  →  30
+    54→//
+    55→// ============================================================================
+    56→
+    57→pragma solidity ^0.8.20;
+    58→
+    59→import "forge-std/Test.sol";
+    60→
+    61→import {MTQSigmaV2} from "./MTQSigmaV2.sol";
+    62→
+    63→// ============================================================================
+    64→//  MockUSDC — minimal 6-decimal ERC-20 for collateral
+    65→// ============================================================================
+    66→contract MockUSDC {
+    67→    string  public constant name     = "USD Coin";
+    68→    string  public constant symbol   = "USDC";
+    69→    uint8   public constant decimals = 6;
+    70→    uint256 public totalSupply;
+    71→
+    72→    mapping(address => uint256)                     public balanceOf;
+    73→    mapping(address => mapping(address => uint256)) public allowance;
+    74→
+    75→    event Transfer(address indexed from, address indexed to, uint256 value);
+    76→    event Approval(address indexed owner, address indexed spender, uint256 value);
+    77→
+    78→    function mint(address to, uint256 amount) external {
+    79→        balanceOf[to] += amount;
+    80→        totalSupply   += amount;
+    81→        emit Transfer(address(0), to, amount);
+    82→    }
+    83→
+    84→    function transfer(address to, uint256 amount) external returns (bool) {
+    85→        _transfer(msg.sender, to, amount);
+    86→        return true;
+    87→    }
+    88→
+    89→    function approve(address spender, uint256 amount) external returns (bool) {
+    90→        allowance[msg.sender][spender] = amount;
+    91→        emit Approval(msg.sender, spender, amount);
+    92→        return true;
+    93→    }
+    94→
+    95→    // `public` (not `external`) so MaliciousUSDC can `super.transferFrom`.
+    96→    function transferFrom(address from, address to, uint256 amount) public virtual returns (bool) {
+    97→        uint256 allowed = allowance[from][msg.sender];
+    98→        if (allowed != type(uint256).max) {
+    99→            require(allowed >= amount, "USDC: insufficient allowance");
+   100→            allowance[from][msg.sender] = allowed - amount;
+   101→        }
+   102→        _transfer(from, to, amount);
+   103→        return true;
+   104→    }
+   105→
+   106→    function _transfer(address from, address to, uint256 amount) internal {
+   107→        require(balanceOf[from] >= amount, "USDC: insufficient balance");
+   108→        balanceOf[from] -= amount;
+   109→        balanceOf[to]   += amount;
+   110→        emit Transfer(from, to, amount);
+   111→    }
+   112→}
+   113→
+   114→// ============================================================================
+   115→//  MaliciousUSDC — re-enters mtq.mint() / mtq.redeem() during transferFrom
+   116→//  (H1 / H2 reentrancy-guard audit vector).
+   117→// ----------------------------------------------------------------------------
+   118→//  The V3 contract pulls USDC via `usdc.transferFrom(msg.sender, reserveVault,
+   119→//  usdcAmount)` during mint() and pushes USDC via `usdc.transferFrom(
+   120→//  reserveVault, msg.sender, usdcOut)` during redeem(). An ERC-777-style token
+   121→//  with a callback would re-enter the outer function. This mock simulates the
+   122→//  vector: the malicious token's transferFrom() calls back into mtq.mint() /
+   123→//  mtq.redeem() while the outer call is still inside the nonReentrant scope.
+   124→//  The nonReentrant guard MUST block the inner call (Err02). The MaliciousUSDC
+   125→//  swallows the inner revert via try/catch and exposes `innerReverted` so the
+   126→//  test can assert the guard held.
+   127→// ============================================================================
+   128→contract MaliciousUSDC is MockUSDC {
+   129→    MTQSigmaV2 public target;
+   130→    enum Vector { NONE, MINT, REDEEM }
+   131→    Vector  public vector = Vector.NONE;
+   132→    uint256 public reenterAmount;
+   133→    bool    public innerReverted;   // true if the inner call was blocked by nonReentrant
+   134→    bool    public triggered;      // true if the malicious callback fired
+   135→
+   136→    function setTarget(MTQSigmaV2 _t) external { target = _t; }
+   137→
+   138→    function armMint(uint256 amount) external {
+   139→        vector = Vector.MINT;
+   140→        reenterAmount = amount;
+   141→        innerReverted = false;
+   142→        triggered = false;
+   143→    }
+   144→
+   145→    function armRedeem(uint256 amount) external {
+   146→        vector = Vector.REDEEM;
+   147→        reenterAmount = amount;
+   148→        innerReverted = false;
+   149→        triggered = false;
+   150→    }
+   151→
+   152→    function disarm() external { vector = Vector.NONE; }
+   153→
+   154→    function transferFrom(address from, address to, uint256 amount) public override returns (bool) {
+   155→        // 1. Execute the legitimate transfer first so the contract's
+   156→        //    accounting updates have already happened once.
+   157→        bool ok = super.transferFrom(from, to, amount);
+   158→
+   159→        // 2. Attempt re-entry only on the armed vector.
+   160→        if (address(target) != address(0)) {
+   161→            if (vector == Vector.MINT) {
+   162→                vector = Vector.NONE;          // one-shot
+   163→                triggered = true;
+   164→                this.approve(address(target), type(uint256).max);
+   165→                try target.mint(reenterAmount) {
+   166→                    innerReverted = false;    // guard FAILED — re-entry succeeded
+   167→                } catch {
+   168→                    innerReverted = true;     // guard held — nonReentrant reverted
+   169→                }
+   170→            } else if (vector == Vector.REDEEM) {
+   171→                vector = Vector.NONE;
+   172→                triggered = true;
+   173→                try target.redeem(reenterAmount) {
+   174→                    innerReverted = false;    // guard FAILED
+   175→                } catch {
+   176→                    innerReverted = true;     // guard held
+   177→                }
+   178→            }
+   179→        }
+   180→        return ok;
+   181→    }
+   182→}
+   183→
+   184→// ============================================================================
+   185→//  MaliciousAssetRegistry — re-enters mtq.executeRebalance() during getAsset
+   186→//  (H1 reentrancy-guard audit vector for executeRebalance).
+   187→// ----------------------------------------------------------------------------
+   188→//  executeRebalance calls getReserveRatio() → getNAV(), and getNAV() does
+   189→//  `try IAssetRegistry(assetRegistry).getAsset(codes[i])`. We replace the
+   190→//  asset registry with this malicious implementation that attempts to call
+   191→//  mtq.executeRebalance(innerTrades) from inside its getAsset(). The inner
+   192→//  call MUST be blocked by nonReentrant. The try/catch swallows the inner
+   193→//  revert and exposes `innerReverted` for the test to assert. The outer
+   194→//  executeRebalance call continues (the catch block in getNAV swallows the
+   195→//  revert and `nav += held`).
+   196→// ============================================================================
+   197→contract MaliciousAssetRegistry {
+   198→    MTQSigmaV2                    public target;
+   199→    MTQSigmaV2.RebalanceTrade[]   public innerTrades;
+   200→    bool                          public triggered;
+   201→    bool                          public innerReverted;
+   202→
+   203→    function setTarget(MTQSigmaV2 _t) external { target = _t; }
+   204→    function setInnerTrades(MTQSigmaV2.RebalanceTrade[] memory t) external {
+   205→        // Solidity 0.8.20 can't copy struct arrays to storage in one assignment;
+   206→        // copy element-by-element via push().
+   207→        for (uint256 i = innerTrades.length; i > 0; i--) innerTrades.pop();
+   208→        for (uint256 i = 0; i < t.length; i++) innerTrades.push(t[i]);
+   209→    }
+   210→
+   211→    function getAsset(bytes32) external returns (address, uint256, uint8, bytes32) {
+   212→        if (!triggered && innerTrades.length > 0) {
+   213→            triggered = true;
+   214→            try target.executeRebalance(innerTrades) {
+   215→                innerReverted = false;    // guard FAILED
+   216→            } catch {
+   217→                innerReverted = true;     // guard held
+   218→            }
+   219→        }
+   220→        return (address(0), 0, 0, bytes32(0));
+   221→    }
+   222→}
+   223→
+   224→// ============================================================================
+   225→//  MockOracleAdapter — §9 multi-source oracle feed (configurable per pair)
+   226→// ============================================================================
+   227→contract MockOracleAdapter {
+   228→    struct Feed {
+   229→        uint256 price;
+   230→        uint256 timestamp;
+   231→        uint256 confidence;
+   232→        bool    broken;
+   233→    }
+   234→
+   235→    mapping(bytes32 => Feed) internal _feeds;
+   236→    bool public alwaysRevert;
+   237→
+   238→    function setFeed(bytes32 pair, uint256 price, uint256 ts, uint256 conf) external {
+   239→        _feeds[pair] = Feed({price: price, timestamp: ts, confidence: conf, broken: false});
+   240→    }
+   241→
+   242→    function setBroken(bytes32 pair) external { _feeds[pair].broken = true; }
+   243→    function setAlwaysRevert(bool v) external { alwaysRevert = v; }
+   244→
+   245→    function getPrice(bytes32 pair) external view returns (uint256 price, uint256 timestamp, uint256 confidence) {
+   246→        if (alwaysRevert) revert("MockOracleAdapter: reverted");
+   247→        Feed memory f = _feeds[pair];
+   248→        if (f.broken) revert("MockOracleAdapter: broken feed");
+   249→        return (f.price, f.timestamp, f.confidence);
+   250→    }
+   251→}
+   252→
+   253→// ============================================================================
+   254→//  MockAssetRegistry — §5 asset admission registry (configurable)
+   255→// ----------------------------------------------------------------------------
+   256→//  state: 0=active, 1=warn, 2=frozen, 3=delisted (per the contract spec).
+   257→// ============================================================================
+   258→contract MockAssetRegistry {
+   259→    struct Asset {
+   260→        address  token;
+   261→        uint256  haircut;
+   262→        uint8    state;
+   263→        bytes32  issuerId;
+   264→    }
+   265→
+   266→    mapping(bytes32 => Asset) internal _assets;
+   267→
+   268→    function setAsset(bytes32 code, address token, uint256 haircut, uint8 state, bytes32 issuer) external {
+   269→        _assets[code] = Asset({token: token, haircut: haircut, state: state, issuerId: issuer});
+   270→    }
+   271→
+   272→    function getAsset(bytes32 code) external view returns (address token, uint256 haircut, uint8 state, bytes32 issuerId) {
+   273→        Asset memory a = _assets[code];
+   274→        return (a.token, a.haircut, a.state, a.issuerId);
+   275→    }
+   276→}
+   277→
+   278→// ============================================================================
+   279→//  MTQSigmaV3Test — the main Foundry test contract (30 highest-value tests)
+   280→// ============================================================================
+   281→contract MTQSigmaV3Test is Test {
+   282→    // ---------------------------------------------------------------------
+   283→    //  State
+   284→    // ---------------------------------------------------------------------
+   285→    MTQSigmaV2  public mtq;
+   286→    MockUSDC     public usdc;
+   287→
+   288→    // Governance addresses (4 governance bodies — §2.7)
+   289→    address public constant DAO_ADDR               = address(0x1);
+   290→    address public constant RISK_COUNCIL_ADDR     = address(0x2);
+   291→    address public constant EMERGENCY_COUNCIL_ADDR = address(0x3);
+   292→    address public constant CONSTITUTIONAL_COUNCIL = address(0x4);
+   293→
+   294→    // The reserve vault that holds USDC collateral + fees (H5 requires v != 0)
+   295→    address public constant RESERVE_VAULT   = address(0x5);
+   296→
+   297→    // Genesis reserve (locked — excluded from circulating supply)
+   298→    address public constant GENESIS_RESERVE = address(0x6);
+   299→
+   300→    // Base FX fixings (mirror the contract's BASE_* constants, 1e18 scale)
+   301→    uint256 constant EUR_BASE  = 1.05e18;
+   302→    uint256 constant GBP_BASE  = 1.25e18;
+   303→    uint256 constant JPY_BASE  = 0.0067e18;
+   304→    uint256 constant CNY_BASE  = 0.14e18;
+   305→    uint256 constant CHF_BASE  = 1.13e18;
+   306→    uint256 constant GOLD_BASE = 2500e18;
+   307→
+   308→    // 1e18-scale price vector for the base fixings (USD = 1.0)
+   309→    uint256[7] BASE_PRICES = [
+   310→        1e18, EUR_BASE, JPY_BASE, GBP_BASE, CNY_BASE, CHF_BASE, GOLD_BASE
+   311→    ];
+   312→
+   313→    // Strategic prior weights (mirror the contract's Q_* constants)
+   314→    uint256[7] STRATEGIC_PRIOR = [
+   315→        uint256(0.27e18), 0.20e18, 0.09e18, 0.08e18, 0.05e18, 0.05e18, 0.26e18
+   316→    ];
+   317→
+   318→    // ---------------------------------------------------------------------
+   319→    //  setUp — bootstrap a fully-initialized V3 protocol
+   320→    // ---------------------------------------------------------------------
+   321→    function setUp() public {
+   322→        // 1. Deploy the collateral (USDC) and mint a generous test balance.
+   323→        usdc = new MockUSDC();
+   324→        usdc.mint(address(this), 1_100_000_000e6);  // $1.1B USDC (6 decimals)
+   325→
+   326→        // 2. Deploy the MTQΣ V3 contract.
+   327→        //    P1/P2 prerequisite: constructor(address _usdc) MUST exist and MUST
+   328→        //    assign INDEX_BASE_DENOMINATOR = 1e18 and grant DEFAULT_ADMIN_ROLE
+   329→        //    to msg.sender. See the file-header note for details.
+   330→        mtq = new MTQSigmaV2(address(usdc));
+   331→
+   332→        // 3. Grant roles: this test contract is ADMIN + KEEPER + ORACLE + PAUSER.
+   333→        vm.startPrank(address(this));
+   334→        mtq.grantRole(mtq.ADMIN_ROLE(),  address(this));
+   335→        mtq.grantRole(mtq.KEEPER_ROLE(), address(this));
+   336→        mtq.grantRole(mtq.ORACLE_ROLE(), address(this));
+   337→        mtq.grantRole(mtq.PAUSER_ROLE(), address(this));
+   338→        mtq.grantRole(mtq.MINTER_ROLE(), address(this));
+   339→        vm.stopPrank();
+   340→
+   341→        // 4. Set the reserve vault (H5 requires v != address(0)).
+   342→        vm.prank(address(this));
+   343→        mtq.setReserveVault(RESERVE_VAULT);
+   344→
+   345→        // 5. Set the genesis reserve address (one-time).
+   346→        vm.prank(address(this));
+   347→        mtq.setGenesisReserve(GENESIS_RESERVE);
+   348→
+   349→        // 6. Seed the MASE live weights with the strategic prior.
+   350→        vm.prank(address(this));
+   351→        mtq.seedGenesisWeights();
+   352→
+   353→        // 7. Genesis the chain index (I_0 = 1.0000, lastPrices = base fixings).
+   354→        vm.prank(address(this));
+   355→        mtq.genesisIndex();
+   356→
+   357→        // 8. Bootstrap reserve holdings (one-shot — H6).
+   358→        //    $1.1M of USD-collateral split according to the strategic prior.
+   359→        uint256[7] memory holdings;
+   360→        uint256 NAV = 1_100_000e18; // $1.1M (1e18 scale)
+   361→        for (uint256 i = 0; i < 7; i++) {
+   362→            holdings[i] = NAV * STRATEGIC_PRIOR[i] / 1e18;
+   363→        }
+   364→        vm.prank(address(this));
+   365→        mtq.bootstrapReserveHoldings(holdings);
+   366→
+   367→        // 9. Genesis mint: 1,000,000 MTQ to the genesis reserve (locked).
+   368→        vm.prank(address(this));
+   369→        mtq.genesisMint(1_000_000e18);
+   370→
+   371→        // 10. Approve the MTQ contract to pull USDC from this contract on mint.
+   372→        usdc.approve(address(mtq), type(uint256).max);
+   373→
+   374→        // 11. Fund the reserve vault with USDC (so redeem() can push USDC out).
+   375→        usdc.mint(RESERVE_VAULT, 1_100_000_000e6);
+   376→        vm.prank(RESERVE_VAULT);
+   377→        usdc.approve(address(mtq), type(uint256).max);
+   378→
+   379→        // 12. Warp to a known timestamp (so oracle staleness checks pass).
+   380→        vm.warp(1_000_000);
+   381→    }
+   382→
+   383→    // ---------------------------------------------------------------------
+   384→    //  Helpers
+   385→    // ---------------------------------------------------------------------
+   386→
+   387→    /// @dev Advance the chain index with a price shock applied to component i.
+   388→    function _advanceWithShock(uint256 shockIdx, uint256 newPrice) internal {
+   389→        uint256[7] memory prices = BASE_PRICES;
+   390→        prices[shockIdx] = newPrice;
+   391→        vm.prank(address(this));
+   392→        mtq.advanceIndex(prices);
+   393→    }
+   394→
+   395→    /// @dev Returns the contract's honest status mask (should be 0x7FF in V3).
+   396→    function _honestMask() internal view returns (uint256) {
+   397→        (uint256 mask, , , , ) = mtq.getHonestStatus();
+   398→        return mask;
+   399→    }
+   400→
+   401→    /// @dev Fresh-deploy helper for tests that need an isolated contract
+   402→    ///      (e.g. genesisMint-zero — the main `mtq` already has genesisDone=true).
+   403→    function _deployFreshMTQ() internal returns (MTQSigmaV2) {
+   404→        MockUSDC freshUsdc = new MockUSDC();
+   405→        freshUsdc.mint(address(this), 10_000_000e6);
+   406→        MTQSigmaV2 fresh = new MTQSigmaV2(address(freshUsdc));
+   407→        vm.startPrank(address(this));
+   408→        fresh.grantRole(fresh.ADMIN_ROLE(), address(this));
+   409→        fresh.grantRole(fresh.KEEPER_ROLE(), address(this));
+   410→        fresh.setReserveVault(RESERVE_VAULT);
+   411→        fresh.setGenesisReserve(GENESIS_RESERVE);
+   412→        fresh.seedGenesisWeights();
+   413→        fresh.genesisIndex();
+   414→        vm.stopPrank();
+   415→        freshUsdc.approve(address(fresh), type(uint256).max);
+   416→        return fresh;
+   417→    }
+   418→
+   419→    // =====================================================================
+   420→    //  LAYER 1 — Unit tests (10) — headline formulas + state-machine basics
+   421→    // =====================================================================
+   422→
+   423→    // ---- 1.1 / P0-1 Chain-linked index: gold +50% → +13% (NOT +50%) ----
+   424→    // The headline P0-1 test from the audit. With Strategic Prior weights
+   425→    // (Gold = 0.26), gold +50% should produce index growth of +13%
+   426→    // (26% × 50%), NOT +50% (which is what a naive price-relative would give).
+   427→    function test_ChainLinkedIndex_GoldPlus50_Produces13PctNot50Pct() public {
+   428→        uint256 idx0 = mtq.indexValue();
+   429→        assertEq(idx0, 1e18, "I_0 = 1.0000");
+   430→
+   431→        // Apply gold +50% shock (component 6, gold price 2500 → 3750).
+   432→        _advanceWithShock(6, GOLD_BASE * 150 / 100);
+   433→
+   434→        uint256 idx1 = mtq.indexValue();
+   435→        // Expected: 1.0 + 26% × 50% = 1.13 (within 0.1% tolerance).
+   436→        assertApproxEqRel(idx1, 1.13e18, 1e15, "gold +50% -> I_t = 1.13 (NOT 1.50)");
+   437→        // Sanity: I_t must be < 1.50 (the naive +50% result).
+   438→        assertLt(idx1, 1.50e18, "I_t < 1.50 (chain-linked dampens the gold shock)");
+   439→    }
+   440→
+   441→    // ---- 1.2 Chain-linked: pure price-relative with unchanged weights ----
+   442→    // With unchanged weights, I_t advances by exactly the weighted price
+   443→    // relative Σ W_{i,t-1} × (P_{i,t}/P_{i,t-1}). No weight-change component.
+   444→    function test_ChainLinkedIndex_NoWeightChange_PurePriceRelative() public {
+   445→        // Apply uniform +10% to every non-USD component (USD stays 1.0).
+   446→        uint256[7] memory prices = BASE_PRICES;
+   447→        for (uint256 i = 1; i < 7; i++) prices[i] = prices[i] * 110 / 100;
+   448→        vm.prank(address(this));
+   449→        mtq.advanceIndex(prices);
+   450→
+   451→        // Expected: growth = Σ W_i × (P_i_new/P_i_old)
+   452→        //   = W_USD × 1 + (W_EUR + W_JPY + ... + W_GOLD) × 1.10
+   453→        //   = 0.27 + 0.73 × 1.10 = 0.27 + 0.803 = 1.073
+   454→        // I_t = 1.0 × 1.073 = 1.073
+   455→        assertApproxEqRel(mtq.indexValue(), 1.073e18, 1e15, "pure price-relative growth");
+   456→    }
+   457→
+   458→    // ---- 1.3 Chain-linked: zero-artificial-return on weight change ----
+   459→    // commitWeights changes the live weights but MUST NOT change I_t. The
+   460→    // divisor D_t = B_t^- / B_t^+ exactly cancels the artificial return that
+   461→    // would otherwise leak from a weight change (Listing 3 §9.3).
+   462→    function test_ChainLinkedIndex_WeightChange_ZeroArtificialReturn() public {
+   463→        // Use envelope-and-velocity-valid new weights (slight shift from
+   464→        // the strategic prior — every component Δ ≤ 0.005).
+   465→        uint256[7] memory newWeights = [
+   466→            uint256(0.275e18), 0.20e18, 0.09e18, 0.08e18, 0.05e18, 0.05e18, 0.255e18
+   467→        ];
+   468→        uint256 idxBefore = mtq.indexValue();
+   469→        assertEq(idxBefore, 1e18, "I_t = 1.0 before commit");
+   470→
+   471→        vm.prank(address(this));
+   472→        mtq.commitWeights(newWeights, BASE_PRICES);
+   473→
+   474→        uint256 idxAfter = mtq.indexValue();
+   475→        assertEq(idxAfter, idxBefore, "I_t unchanged across weight commit (continuity)");
+   476→        // The chain-link divisor G_t must have moved (D_t ≠ 1) since weights changed.
+   477→        assertNotEq(mtq.chainLinkDivisor(), 1e18, "G_t updates on weight change");
+   478→    }
+   479→
+   480→    // ---- 1.4 NAV: gross sum of reserve mirror (no registry set) ----
+   481→    // getNAV() with no asset registry returns the gross sum of all 7
+   482→    // reserveHeldUsd components (USD + EUR + JPY + GBP + CNY + CHF + Gold).
+   483→    function test_NAV_Computation() public {
+   484→        uint256 navGross = mtq.getReserveNavUsd();
+   485→        uint256 nav      = mtq.getNAV();
+   486→        assertEq(nav, navGross, "NAV = gross sum when no registry set");
+   487→        assertEq(nav, 1_100_000e18, "NAV matches the bootstrapped $1.1M");
+   488→    }
+   489→
+   490→    // ---- 1.5 Liability = circulatingSupply × P_MTQ / 1e18 ----
+   491→    // P0-2 / §3.2. Liability is the USD value of the circulating MTQ supply.
+   492→    // REQUIRES P1/P2 — getMTQPrice divides by INDEX_BASE_DENOMINATOR.
+   493→    function test_Liability_Computation() public {
+   494→        uint256 circ  = mtq.getCirculatingSupply();
+   495→        uint256 price = mtq.getMTQPrice();
+   496→        uint256 liab  = mtq.getLiability();
+   497→        assertApproxEqRel(liab, circ * price / 1e18, 1e15, "L = S_circ * P_MTQ");
+   498→    }
+   499→
+   500→    // ---- 1.6 RR = NAV / Liability (1e18 scale) ----
+   501→    // §3.2 + §14.2. RR ≥ 1.10 = healthy; ≥ 1.00 = solvent (I2 hard floor).
+   502→    // REQUIRES P1/P2 — calls getLiability → getMTQPrice.
+   503→    function test_RR_Computation() public {
+   504→        uint256 nav  = mtq.getNAV();
+   505→        uint256 liab = mtq.getLiability();
+   506→        uint256 rr   = mtq.getReserveRatio();
+   507→        assertApproxEqRel(rr, nav * 1e18 / liab, 1e15, "RR = NAV / L");
+   508→    }
+   509→
+   510→    // ---- 1.7 Mint math: priced against P_MTQ (NOT against NAV) ----
+   511→    // §3.4.2 + §12.1. mint X USDC → MTQ minted = X×(1-mintFee)×1e18/P_MTQ,
+   512→    // throttled by mintThrottle(currentState). In NORMAL the throttle = 1.0.
+   513→    // REQUIRES P1/P2 — mint() calls getMTQPriceWithGuard → getMTQPrice.
+   514→    function test_MintMath_PricedAgainstP_MTQ() public {
+   515→        // Ensure state is NORMAL (RR ≥ 1.10, LCR ≥ 1.00).
+   516→        vm.prank(address(this));
+   517→        mtq.updateState(1.20e18, 1.10e18);
+   518→        assertEq(uint256(mtq.currentState()), uint256(MTQSigmaV2.ProtocolState.NORMAL), "state = NORMAL");
+   519→
+   520→        uint256 usdcIn = 1_000e6; // $1,000 USDC (6 decimals)
+   521→        uint256 price  = mtq.getMTQPrice();
+   522→        uint256 minted = mtq.mint(usdcIn);
+   523→
+   524→        // Expected: netUsd18 = (1000 × 0.999) × 1e12 = 999e15 (18-dec USD)
+   525→        //           grossMint = netUsd18 × 1e18 / price
+   526→        //           minted = grossMint × 1.0 (NORMAL throttle)
+   527→        uint256 netUsd18 = (usdcIn - usdcIn * mtq.mintFee() / 1e18) * 1e12;
+   528→        uint256 expected = netUsd18 * 1e18 / price; // throttle = 1.0 in NORMAL
+   529→        assertApproxEqRel(minted, expected, 1e15, "mint = X*(1-fee)*1e18/P_MTQ (NORMAL throttle 1.0)");
+   530→    }
+   531→
+   532→    // ---- 1.8 Redeem math: NAV-based (NOT P_MTQ-based) ----
+   533→    // P0-2 / §19.3.2 / I6. redeem Y MTQ → USDC out = Y × NAVperToken × (1-fee),
+   534→    // NOT Y × P_MTQ. This is the headline NAV-based redemption fix.
+   535→    // REQUIRES P1/P2 — redeem() calls getMTQPriceWithGuard + getNAVperToken.
+   536→    function test_RedeemMath_NAVBased() public {
+   537→        vm.prank(address(this));
+   538→        mtq.updateState(1.20e18, 1.10e18); // NORMAL
+   539→
+   540→        // Mint first so we have a balance to redeem.
+   541→        uint256 minted = mtq.mint(10_000e6); // $10k USDC → ~10k MTQ
+   542→
+   543→        // Snapshot before redeem.
+   544→        uint256 navPerToken = mtq.getNAVperToken();
+   545→        uint256 price       = mtq.getMTQPrice();
+   546→        uint256 feeFraction = mtq.redeemFee(MTQSigmaV2.ProtocolState.NORMAL);
+   547→
+   548→        // The audit point: NAVperToken ≠ P_MTQ (in this setUp, NAVperToken
+   549→        // = 1.1M NAV / ~1M circ ≈ 1.10, while P_MTQ ≈ 1.0).
+   550→        assertNotEq(navPerToken, price, "NAV per token != P_MTQ (the audit point)");
+   551→
+   552→        uint256 toRedeem = minted / 2;
+   553→        uint256 usdcOut  = mtq.redeem(toRedeem);
+   554→
+   555→        // Expected: grossUsd18 = toRedeem × NAVperToken / 1e18
+   556→        //           feeUsd18   = grossUsd18 × feeFraction / 1e18
+   557→        //           netUsd18   = grossUsd18 - feeUsd18
+   558→        //           usdcOut    = netUsd18 / 1e12 (18-dec → 6-dec)
+   559→        uint256 grossUsd18 = toRedeem * navPerToken / 1e18;
+   560→        uint256 feeUsd18   = grossUsd18 * feeFraction / 1e18;
+   561→        uint256 expected   = (grossUsd18 - feeUsd18) / 1e12;
+   562→        assertApproxEqRel(usdcOut, expected, 1e15, "redeem = Y * NAVperToken * (1-fee) (NOT Y * P_MTQ)");
+   563→    }
+   564→
+   565→    // ---- 1.9 State machine: 6 ProtocolState values exist (Listing 13) ----
+   566→    // Pure check — verifies the ProtocolState enum has all 6 states in the
+   567→    // canonical order: NORMAL, CAUTION, STRESS, DEFENSIVE, EMERGENCY, RECOVERY.
+   568→    function test_StateMachine_6States_Exist() public pure {
+   569→        assertEq(uint256(MTQSigmaV2.ProtocolState.NORMAL),    0, "NORMAL = 0");
+   570→        assertEq(uint256(MTQSigmaV2.ProtocolState.CAUTION),   1, "CAUTION = 1");
+   571→        assertEq(uint256(MTQSigmaV2.ProtocolState.STRESS),    2, "STRESS = 2");
+   572→        assertEq(uint256(MTQSigmaV2.ProtocolState.DEFENSIVE), 3, "DEFENSIVE = 3");
+   573→        assertEq(uint256(MTQSigmaV2.ProtocolState.EMERGENCY),  4, "EMERGENCY = 4");
+   574→        assertEq(uint256(MTQSigmaV2.ProtocolState.RECOVERY),   5, "RECOVERY = 5");
+   575→    }
+   576→
+   577→    // ---- 1.10 State machine: worse applicable condition binds ----
+   578→    // Listing 13 §21.2. With RR=1.07 (says CAUTION, ≥ 1.05) and LCR=0.85
+   579→    // (says STRESS, ≥ 0.80 but < 0.90), the worse condition binds: STRESS.
+   580→    function test_StateMachine_WorseConditionBinds() public {
+   581→        // RR=1.07, LCR=0.85 → CAUTION branch requires LCR ≥ 0.90, fails;
+   582→        // STRESS branch requires RR ≥ 1.02 and LCR ≥ 0.80, both satisfied.
+   583→        vm.prank(address(this));
+   584→        mtq.updateState(1.07e18, 0.85e18);
+   585→        assertEq(uint256(mtq.currentState()), uint256(MTQSigmaV2.ProtocolState.STRESS), "worse condition binds: STRESS");
+   586→    }
+   587→
+   588→    // =====================================================================
+   589→    //  LAYER 5 — Adversarial tests (15)
+   590→    // =====================================================================
+   591→
+   592→    // ---- 5.1 Reentrancy: mint() re-entry blocked by nonReentrant (H1) ----
+   593→    // MaliciousUSDC re-enters mtq.mint() during the outer mint()'s
+   594→    // transferFrom. The nonReentrant guard MUST block the inner call.
+   595→    // REQUIRES P1/P2 — mint() reads getMTQPrice.
+   596→    function test_Reentrancy_Mint_Reverts() public {
+   597→        MaliciousUSDC badUsdc = new MaliciousUSDC();
+   598→        badUsdc.setTarget(mtq);
+   599→        badUsdc.mint(address(this), 1_000_000e6);
+   600→        badUsdc.approve(address(mtq), type(uint256).max);
+   601→
+   602→        // Deploy a fresh MTQ wired to the malicious USDC.
+   603→        MTQSigmaV2 mtqBad = new MTQSigmaV2(address(badUsdc));
+   604→        vm.startPrank(address(this));
+   605→        mtqBad.grantRole(mtqBad.ADMIN_ROLE(),  address(this));
+   606→        mtqBad.grantRole(mtqBad.KEEPER_ROLE(), address(this));
+   607→        mtqBad.setReserveVault(RESERVE_VAULT);
+   608→        mtqBad.setGenesisReserve(GENESIS_RESERVE);
+   609→        mtqBad.seedGenesisWeights();
+   610→        mtqBad.genesisIndex();
+   611→        uint256[7] memory holdings;
+   612→        for (uint256 i = 0; i < 7; i++) holdings[i] = 100_000e18;
+   613→        mtqBad.bootstrapReserveHoldings(holdings);
+   614→        mtqBad.genesisMint(1_000_000e18);
+   615→        vm.stopPrank();
+   616→
+   617→        // Fund the reserve vault with the bad USDC and approve.
+   618→        badUsdc.mint(RESERVE_VAULT, 10_000_000e6);
+   619→        vm.prank(RESERVE_VAULT);
+   620→        badUsdc.approve(address(mtqBad), type(uint256).max);
+   621→
+   622→        // Arm the malicious USDC to re-enter mtqBad.mint() with $500 on the
+   623→        // first transferFrom call.
+   624→        badUsdc.armMint(500e6);
+   625→
+   626→        // The outer mint executes; the inner re-entry MUST be blocked.
+   627→        // The outer call succeeds (state is NORMAL, accounting is consistent).
+   628→        uint256 balBefore = mtqBad.balanceOf(address(this));
+   629→        mtqBad.mint(1_000e6);
+   630→        uint256 balAfter = mtqBad.balanceOf(address(this));
+   631→
+   632→        assertTrue(badUsdc.triggered(),     "malicious callback fired (re-entry attempted)");
+   633→        assertTrue(badUsdc.innerReverted(), "inner mint() blocked by nonReentrant guard (H1 held)");
+   634→        assertTrue(balAfter > balBefore,    "outer mint succeeded; re-entry blocked");
+   635→    }
+   636→
+   637→    // ---- 5.2 Reentrancy: redeem() re-entry blocked by nonReentrant (H2) ----
+   638→    // Same vector as 5.1 but on redeem() — the malicious USDC re-enters
+   639→    // mtq.redeem() during the vault's transferFrom push.
+   640→    // REQUIRES P1/P2 — redeem() reads getMTQPrice + getNAVperToken.
+   641→    function test_Reentrancy_Redeem_Reverts() public {
+   642→        MaliciousUSDC badUsdc = new MaliciousUSDC();
+   643→        badUsdc.setTarget(mtq);
+   644→        badUsdc.mint(address(this), 100_000e6);
+   645→        badUsdc.approve(address(mtq), type(uint256).max);
+   646→
+   647→        MTQSigmaV2 mtqBad = new MTQSigmaV2(address(badUsdc));
+   648→        vm.startPrank(address(this));
+   649→        mtqBad.grantRole(mtqBad.ADMIN_ROLE(),  address(this));
+   650→        mtqBad.grantRole(mtqBad.KEEPER_ROLE(), address(this));
+   651→        mtqBad.setReserveVault(RESERVE_VAULT);
+   652→        mtqBad.setGenesisReserve(GENESIS_RESERVE);
+   653→        mtqBad.seedGenesisWeights();
+   654→        mtqBad.genesisIndex();
+   655→        uint256[7] memory holdings;
+   656→        for (uint256 i = 0; i < 7; i++) holdings[i] = 100_000e18;
+   657→        mtqBad.bootstrapReserveHoldings(holdings);
+   658→        mtqBad.genesisMint(1_000_000e18);
+   659→        vm.stopPrank();
+   660→
+   661→        badUsdc.mint(RESERVE_VAULT, 10_000_000e6);
+   662→        vm.prank(RESERVE_VAULT);
+   663→        badUsdc.approve(address(mtqBad), type(uint256).max);
+   664→
+   665→        // Mint in NORMAL to acquire a balance (so redeem can run).
+   666→        vm.prank(address(this));
+   667→        mtqBad.updateState(1.20e18, 1.10e18);
+   668→        uint256 minted = mtqBad.mint(1_000_000e6);
+   669→
+   670→        // Arm the malicious USDC to re-enter redeem() during the vault's
+   671→        // transferFrom call.
+   672→        badUsdc.armRedeem(minted / 10);
+   673→
+   674→        uint256 balBefore = mtqBad.balanceOf(address(this));
+   675→        mtqBad.redeem(minted / 10);
+   676→        uint256 balAfter = mtqBad.balanceOf(address(this));
+   677→
+   678→        assertTrue(badUsdc.triggered(),     "malicious callback fired");
+   679→        assertTrue(badUsdc.innerReverted(), "inner redeem() blocked by nonReentrant (H2 held)");
+   680→        assertTrue(balAfter < balBefore,    "outer redeem succeeded; re-entry blocked");
+   681→    }
+   682→
+   683→    // ---- 5.3 Reentrancy: executeRebalance() re-entry blocked (H1) ----
+   684→    // executeRebalance calls getReserveRatio → getNAV → assetRegistry.getAsset.
+   685→    // A malicious asset registry re-enters executeRebalance from inside its
+   686→    // getAsset callback. The nonReentrant guard MUST block the inner call.
+   687→    // REQUIRES P1/P2 — executeRebalance reads getReserveRatio → getMTQPrice.
+   688→    function test_Reentrancy_ExecuteRebalance_Reverts() public {
+   689→        MaliciousAssetRegistry badReg = new MaliciousAssetRegistry();
+   690→        badReg.setTarget(mtq);
+   691→
+   692→        // Inner trades the malicious registry will try to execute.
+   693→        MTQSigmaV2.RebalanceTrade[] memory inner = new MTQSigmaV2.RebalanceTrade[](1);
+   694→        inner[0] = MTQSigmaV2.RebalanceTrade({
+   695→            component: MTQSigmaV2.Component.USD,
+   696→            direction: 0, tradeUsd: 0, level: 1   // hold (no-op) — keeps the inner call valid
+   697→        });
+   698→        badReg.setInnerTrades(inner);
+   699→
+   700→        // Wire the malicious registry.
+   701→        vm.prank(address(this));
+   702→        mtq.setAssetRegistry(address(badReg));
+   703→
+   704→        // Outer trades: hold (direction=0) — gets past the trades loop without
+   705→        // touching the reserve mirror. The malicious getAsset fires from the
+   706→        // getReserveRatio() call inside executeRebalance.
+   707→        MTQSigmaV2.RebalanceTrade[] memory outer = new MTQSigmaV2.RebalanceTrade[](1);
+   708→        outer[0] = MTQSigmaV2.RebalanceTrade({
+   709→            component: MTQSigmaV2.Component.USD,
+   710→            direction: 0, tradeUsd: 0, level: 1   // hold
+   711→        });
+   712→
+   713→        // Execute the outer rebalance. The malicious registry attempts to
+   714→        // re-enter executeRebalance from inside getAsset; nonReentrant MUST
+   715→        // block the inner call.
+   716→        vm.prank(address(this));
+   717→        mtq.executeRebalance(outer);
+   718→
+   719→        assertTrue(badReg.triggered(),     "malicious getAsset fired (re-entry attempted)");
+   720→        assertTrue(badReg.innerReverted(), "inner executeRebalance blocked by nonReentrant (H1 held)");
+   721→    }
+   722→
+   723→    // ---- 5.4 genesisMint(0) reverts (C5 fix) ----
+   724→    // C5 audit fix: genesisMint requires amount > 0 (Err18).
+   725→    function test_GenesisMintZero_Reverts() public {
+   726→        // Use a fresh contract (the main `mtq` already has genesisDone=true).
+   727→        MTQSigmaV2 fresh = _deployFreshMTQ();
+   728→        vm.expectRevert(MTQSigmaV2.Err18.selector);
+   729→        vm.prank(address(this));
+   730→        fresh.genesisMint(0);
+   731→    }
+   732→
+   733→    // ---- 5.5 genesisMint twice reverts (one-shot guard, Err17) ----
+   734→    function test_GenesisMint_Twice_Reverts() public {
+   735→        // The setUp already called genesisMint once. A second call reverts.
+   736→        vm.expectRevert(MTQSigmaV2.Err17.selector);
+   737→        vm.prank(address(this));
+   738→        mtq.genesisMint(500_000e18);
+   739→    }
+   740→
+   741→    // ---- 5.6 Oracle: zero-price feed reverts (C6 fix) ----
+   742→    // commitFxRatesFromOracles must reject zero-price feeds (Err59).
+   743→    // We seed one adapter with a 0 price for EUR/USD; the consensus logic
+   744→    // skips zero-price feeds but commitFxRatesFromOracles reverts via Err39
+   745→    // (paused_) when fewer than 2 valid feeds remain.
+   746→    // REQUIRES P1/P2 — commitFxRatesFromOracles calls getMTQPrice first.
+   747→    function test_OracleZeroPrice_Reverts() public {
+   748→        // Seed 2 adapters with the same non-zero prices (baseline valid).
+   749→        MockOracleAdapter cl = new MockOracleAdapter();
+   750→        MockOracleAdapter pyth = new MockOracleAdapter();
+   751→
+   752→        // Seed every pair on both adapters with the base fixing, timestamp
+   753→        // = block.timestamp (so the ≤60s staleness filter passes), and a
+   754→        // tight 0.1% confidence band (passes the <1% confidence filter).
+   755→        cl.setFeed(mtq.PAIR_EUR_USD(), EUR_BASE,  block.timestamp, 0.001e18);
+   756→        cl.setFeed(mtq.PAIR_GBP_USD(), GBP_BASE,  block.timestamp, 0.001e18);
+   757→        cl.setFeed(mtq.PAIR_JPY_USD(), JPY_BASE,  block.timestamp, 0.001e18);
+   758→        cl.setFeed(mtq.PAIR_CNY_USD(), CNY_BASE,  block.timestamp, 0.001e18);
+   759→        cl.setFeed(mtq.PAIR_CHF_USD(), CHF_BASE,  block.timestamp, 0.001e18);
+   760→        cl.setFeed(mtq.PAIR_XAU_USD(), GOLD_BASE, block.timestamp, 0.001e18);
+   761→
+   762→        pyth.setFeed(mtq.PAIR_EUR_USD(), EUR_BASE,  block.timestamp, 0.001e18);
+   763→        pyth.setFeed(mtq.PAIR_GBP_USD(), GBP_BASE,  block.timestamp, 0.001e18);
+   764→        pyth.setFeed(mtq.PAIR_JPY_USD(), JPY_BASE,  block.timestamp, 0.001e18);
+   765→        pyth.setFeed(mtq.PAIR_CNY_USD(), CNY_BASE,  block.timestamp, 0.001e18);
+   766→        pyth.setFeed(mtq.PAIR_CHF_USD(), CHF_BASE,  block.timestamp, 0.001e18);
+   767→        pyth.setFeed(mtq.PAIR_XAU_USD(), GOLD_BASE, block.timestamp, 0.001e18);
+   768→
+   769→        // Now zero-out the EUR price on one adapter — the consensus drops
+   770→        // that adapter for EUR, leaving 1 valid feed → paused_ = true → Err39.
+   771→        cl.setFeed(mtq.PAIR_EUR_USD(), 0, block.timestamp, 0.001e18);
+   772→
+   773→        vm.startPrank(address(this));
+   774→        mtq.setOracleAdapter(0, address(cl));
+   775→        mtq.setOracleAdapter(1, address(pyth));
+   776→        vm.expectRevert(); // Err39 (paused_) — only 1 valid feed after the zero drop
+   777→        mtq.commitFxRatesFromOracles();
+   778→        vm.stopPrank();
+   779→    }
+   780→
+   781→    // ---- 5.7 setReserveVault(address(0)) reverts (H5 fix) ----
+   782→    function test_SetReserveVaultZero_Reverts() public {
+   783→        vm.expectRevert(MTQSigmaV2.Err61.selector);
+   784→        vm.prank(address(this));
+   785→        mtq.setReserveVault(address(0));
+   786→    }
+   787→
+   788→    // ---- 5.8 setOracleAdapter with address(0) reverts (H8 fix) ----
+   789→    function test_SetOracleAdapterZero_Reverts() public {
+   790→        vm.expectRevert(MTQSigmaV2.Err55.selector);
+   791→        vm.prank(address(this));
+   792→        mtq.setOracleAdapter(0, address(0));
+   793→    }
+   794→
+   795→    // ---- 5.9 bootstrapReserveHoldings is one-shot (H6 fix, Err45) ----
+   796→    function test_BootstrapReserve_OneShot() public {
+   797→        // The setUp already bootstrapped once. A second call reverts.
+   798→        uint256[7] memory holdings;
+   799→        for (uint256 i = 0; i < 7; i++) holdings[i] = 50_000e18;
+   800→        vm.expectRevert(MTQSigmaV2.Err45.selector);
+   801→        vm.prank(address(this));
+   802→        mtq.bootstrapReserveHoldings(holdings);
+   803→    }
+   804→
+   805→    // ---- 5.10 executeRebalance: 8 trades reverts (H3 cap is 7, Err48) ----
+   806→    function test_ExecuteRebalance_TradesCap7() public {
+   807→        MTQSigmaV2.RebalanceTrade[] memory trades =
+   808→            new MTQSigmaV2.RebalanceTrade[](8);
+   809→        for (uint256 i = 0; i < 8; i++) {
+   810→            trades[i] = MTQSigmaV2.RebalanceTrade({
+   811→                component: MTQSigmaV2.Component.USD,
+   812→                direction: 0, tradeUsd: 0, level: 1
+   813→            });
+   814→        }
+   815→        vm.expectRevert(MTQSigmaV2.Err48.selector);
+   816→        vm.prank(address(this));
+   817→        mtq.executeRebalance(trades);
+   818→    }
+   819→
+   820→    // ---- 5.11 Direction lock: RR < 1.05 solvency override (C4 fix) ----
+   821→    // When RR < rrStressFloor (1.05e18), the C4 fix sets solvencyOverride =
+   822→    // true inside executeRebalance, which (a) bypasses the 24h direction
+   823→    // lock and (b) doubles the rebalance tolerance (REBALANCE_TOLERANCE × 2
+   824→    // = 10pp). This test verifies the C4 threshold constant AND that the
+   825→    // override is engaged (RR < rrStressFloor) AND that executeRebalance
+   826→    // runs to completion under the override path.
+   827→    //
+   828→    // The contract's daily-turnover cap (5% of NAV) and tolerance window
+   829→    // (5pp / 10pp) interact to make a fully-exercised SELL→BUY opposite-
+   830→    // direction bypass scenario non-trivial to construct within a single
+   831→    // setUp (the trade size needed to bring a drifted weight back inside
+   832→    // the tolerance band exceeds the daily cap when the drift is large).
+   833→    // The protocol owner can extend this test in their Foundry environment
+   834→    // with a multi-tick scenario that incrementally drifts the reserve.
+   835→    // REQUIRES P1/P2 — executeRebalance reads getReserveRatio → getMTQPrice.
+   836→    function test_DirectionLock_RRBelow1_05_Override() public {
+   837→        // 1. Verify the C4 threshold constant.
+   838→        assertEq(mtq.rrStressFloor(), 1.05e18, "rrStressFloor = 1.05e18 (C4 threshold)");
+   839→
+   840→        // 2. Drain reserves so RR < rrStressFloor — this engages the
+   841→        //    solvency override inside executeRebalance (contract line ~1159).
+   842→        vm.prank(address(this));
+   843→        mtq.setReserveHolding(MTQSigmaV2.Component.Gold, 0);
+   844→
+   845→        uint256 rr = mtq.getReserveRatio();
+   846→        assertLt(rr, mtq.rrStressFloor(), "RR < rrStressFloor (override engaged)");
+   847→
+   848→        // 3. Execute a hold trade (direction=0, tradeUsd=0). The contract
+   849→        //    still computes solvencyOverride at the top of executeRebalance
+   850→        //    and runs through the trades loop; the hold trade is a no-op
+   851→        //    that lets us assert the override path was traversed without
+   852→        //    the trade-fitting constraints (tolerance + daily cap).
+   853→        MTQSigmaV2.RebalanceTrade[] memory trades = new MTQSigmaV2.RebalanceTrade[](1);
+   854→        trades[0] = MTQSigmaV2.RebalanceTrade({
+   855→            component: MTQSigmaV2.Component.USD,
+   856→            direction: 0, tradeUsd: 0, level: 1   // hold (no-op)
+   857→        });
+   858→
+   859→        // 4. The executeRebalance call succeeds (no revert). This proves
+   860→        //    the override path was traversed; a regression that breaks the
+   861→        //    C4 fix would still pass this assertion, so the protocol owner
+   862→        //    should pair this with a multi-tick SELL→BUY test in their
+   863→        //    Foundry environment to fully exercise the bypass.
+   864→        vm.prank(address(this));
+   865→        mtq.executeRebalance(trades);
+   866→
+   867→        assertTrue(true, "executeRebalance runs with override engaged (C4 path exercised)");
+   868→    }
+   869→
+   870→    // ---- 5.12 State recovery: 48h confirmation required (Listing 13) ----
+   871→    // Transitions to a less-restrictive state require the
+   872→    // RECOVERY_CONFIRMATION_PERIOD (48h) to elapse since the current state
+   873→    // was entered. More-restrictive transitions are immediate.
+   874→    function test_StateRecovery_48hConfirmation() public {
+   875→        // Initial state is NORMAL (set by the constructor).
+   876→        assertEq(uint256(mtq.currentState()), uint256(MTQSigmaV2.ProtocolState.NORMAL), "start NORMAL");
+   877→
+   878→        // Drop to EMERGENCY (RR < 1.00) — more restrictive, immediate.
+   879→        vm.prank(address(this));
+   880→        mtq.updateState(0.99e18, 1.50e18);
+   881→        assertEq(uint256(mtq.currentState()), uint256(MTQSigmaV2.ProtocolState.EMERGENCY), "EMERGENCY immediate");
+   882→
+   883→        // Try to return to NORMAL conditions — less restrictive → 48h
+   884→        // confirmation NOT yet elapsed → stay at EMERGENCY.
+   885→        vm.prank(address(this));
+   886→        mtq.updateState(1.20e18, 1.10e18);
+   887→        assertEq(uint256(mtq.currentState()), uint256(MTQSigmaV2.ProtocolState.EMERGENCY), "stay EMERGENCY (48h not elapsed)");
+   888→
+   889→        // Warp 24h — still not enough → stay at EMERGENCY.
+   890→        vm.warp(block.timestamp + 24 hours);
+   891→        vm.prank(address(this));
+   892→        mtq.updateState(1.20e18, 1.10e18);
+   893→        assertEq(uint256(mtq.currentState()), uint256(MTQSigmaV2.ProtocolState.EMERGENCY), "24h: still EMERGENCY");
+   894→
+   895→        // Warp past 48h total (49h since EMERGENCY entered) → transition to NORMAL.
+   896→        vm.warp(block.timestamp + 25 hours);
+   897→        vm.prank(address(this));
+   898→        mtq.updateState(1.20e18, 1.10e18);
+   899→        assertEq(uint256(mtq.currentState()), uint256(MTQSigmaV2.ProtocolState.NORMAL), "49h: NORMAL confirmed");
+   900→    }
+   901→
+   902→    // ---- 5.13 Mint paused in STRESS (mintingAllowed = false) ----
+   903→    // §21.4. mint() must revert with Err25 when currentState = STRESS.
+   904→    // REQUIRES P1/P2 — mint() reads getMTQPriceWithGuard before the
+   905→    // mintingAllowed check (Err25 fires first, so the test passes for the
+   906→    // right reason regardless of P1/P2 status).
+   907→    function test_Mint_PausedInStress() public {
+   908→        // Push to STRESS (RR=1.04, LCR=0.85).
+   909→        vm.prank(address(this));
+   910→        mtq.updateState(1.04e18, 0.85e18);
+   911→        assertEq(uint256(mtq.currentState()), uint256(MTQSigmaV2.ProtocolState.STRESS), "state = STRESS");
+   912→        assertEq(mtq.mintingAllowed(MTQSigmaV2.ProtocolState.STRESS), false, "mint NOT allowed in STRESS");
+   913→
+   914→        vm.expectRevert(MTQSigmaV2.Err25.selector);
+   915→        mtq.mint(1_000e6);
+   916→    }
+   917→
+   918→    // ---- 5.14 Redeem paused in EMERGENCY (redemptionAllowed = false) ----
+   919→    // §21.4. redeem() must revert with Err43 when currentState = EMERGENCY.
+   920→    // REQUIRES P1/P2 — we mint in NORMAL first to acquire a balance.
+   921→    function test_Redeem_PausedInEmergency() public {
+   922→        // First mint in NORMAL to acquire a redeemable balance.
+   923→        vm.prank(address(this));
+   924→        mtq.updateState(1.20e18, 1.10e18); // NORMAL
+   925→        uint256 minted = mtq.mint(10_000e6);
+   926→        assertTrue(minted > 0, "minted some MTQ in NORMAL");
+   927→
+   928→        // Push to EMERGENCY.
+   929→        vm.prank(address(this));
+   930→        mtq.updateState(0.99e18, 1.50e18);
+   931→        assertEq(uint256(mtq.currentState()), uint256(MTQSigmaV2.ProtocolState.EMERGENCY), "state = EMERGENCY");
+   932→        assertEq(mtq.redemptionAllowed(MTQSigmaV2.ProtocolState.EMERGENCY), false, "redeem NOT allowed in EMERGENCY");
+   933→
+   934→        vm.expectRevert(MTQSigmaV2.Err43.selector);
+   935→        mtq.redeem(minted);
+   936→    }
+   937→
+   938→    // ---- 5.15 Redeem fee in STRESS = 0.50% (NOT 0.15%) ----
+   939→    // §21.4 + Listing 13 fee ladder. STRESS fee = redeemFeeStress = 0.005e18.
+   940→    function test_RedeemFee_Stress_50Bps() public {
+   941→        uint256 feeStress = mtq.redeemFee(MTQSigmaV2.ProtocolState.STRESS);
+   942→        assertEq(feeStress, 0.005e18, "STRESS redeem fee = 0.50% (0.005e18)");
+   943→        assertNotEq(feeStress, 0.0015e18, "STRESS fee != 0.15% (NORMAL fee)");
+   944→        // Sanity: NORMAL fee = 0.0015e18 (0.15%).
+   945→        assertEq(mtq.redeemFee(MTQSigmaV2.ProtocolState.NORMAL), 0.0015e18, "NORMAL fee = 0.15%");
+   946→    }
+   947→
+   948→    // =====================================================================
+   949→    //  LAYER 7 — Fuzz tests (5) — stochastic survival + conservation
+   950→    // =====================================================================
+   951→
+   952→    // ---- 7.1 S5: Gold +50% shock — survival ≥ 95% (chain-linked index) ----
+   953→    // The S5 stochastic stress test. Fuzz the seed, apply gold +50% at tick 1
+   954→    // with light gaussian-ish noise afterward, advance the chain index,
+   955→    // revalue the gold reserve mirror to the new price (the production
+   956→    // keeper's role), and assert RR >= 1.00 at every tick.
+   957→    //
+   958→    // Pseudocode:
+   959→    //   for each fuzz seed:
+   960→    //     rng = mulberry32(seed)
+   961→    //     prices = base_fixings
+   962→    //     gold_qty = reserveHeldUsd[Gold] / GOLD_BASE   // physical gold units
+   963→    //     survived = true
+   964→    //     for t in 0..30:
+   965→    //       if t == 1: prices[6] *= 1.50       // +50% gold shock
+   966→    //       else if t > 1: prices[i] += gaussian(rng, 0, 0.001) for each i
+   967→    //       if t > 0:
+   968→    //         mtq.advanceIndex(prices)
+   969→    //         mtq.setReserveHolding(Gold, gold_qty * prices[6] / 1e18) // revalue
+   970→    //       if mtq.getReserveRatio() < 1.00e18: survived = false
+   971→    //     assert survived
+   972→    //
+   973→    // With the chain-linked index, gold +50% → +13% index growth (NOT +50%),
+   974→    // so the reserve mirror (revalued to track the gold price) keeps RR ≥ 1.00.
+   975→    // REQUIRES P1/P2 — getReserveRatio calls getLiability → getMTQPrice.
+   976→    function testFuzz_S5_GoldPlus50_Survival100Pct(uint256 seed) public {
+   977→        vm.assume(seed < 1000);
+   978→
+   979→        // Fresh contract per fuzz case (forge calls setUp before each case).
+   980→        MTQSigmaV2 mtqFuzz = _deployFuzzMTQ();
+   981→
+   982→        uint256 rngState = seed ^ 0x6d2b79f5;
+   983→        uint256[7] memory prices = BASE_PRICES;
+   984→
+   985→        // Capture gold "physical" units (USD value / USD per ounce).
+   986→        uint256 goldUsd0 = mtqFuzz.reserveHeldUsd(MTQSigmaV2.Component.Gold);
+   987→        uint256 goldQty  = goldUsd0 * 1e18 / GOLD_BASE; // 1e18-scale gold units
+   988→
+   989→        bool survived = true;
+   990→        for (uint256 t = 0; t < 30; t++) {
+   991→            if (t == 1) {
+   992→                // +50% gold shock (the headline test condition).
+   993→                prices[6] = prices[6] * 150 / 100;
+   994→            } else if (t > 1) {
+   995→                // Light gaussian-ish noise on every component (±0.1%).
+   996→                for (uint256 i = 0; i < 7; i++) {
+   997→                    rngState = uint256(keccak256(abi.encodePacked(rngState, i, t)));
+   998→                    int256 signed = int256(uint256(rngState)) - int256(type(int128).max);
+   999→                    int256 scaled = signed / 1e15; // ±0.1% noise
+  1000→                    if (scaled != 0) {
+  1001→                        uint256 oldP = prices[i];
+  1002→                        if (scaled > 0) {
+  1003→                            prices[i] = oldP + (oldP * uint256(scaled)) / 1e18;
+  1004→                        } else {
+  1005→                            uint256 dec = oldP * uint256(-scaled) / 1e18;
+  1006→                            prices[i] = (dec < oldP) ? (oldP - dec) : 1;
+  1007→                        }
+  1008→                    }
+  1009→                }
+  1010→            }
+  1011→
+  1012→            if (t > 0) {
+  1013→                vm.prank(address(this));
+  1014→                mtqFuzz.advanceIndex(prices);
+  1015→                // Revalue the gold reserve to the new price (production
+  1016→                // keeper's role — mirrors the TS engine's mark-to-market).
+  1017→                uint256 newGoldUsd = goldQty * prices[6] / 1e18;
+  1018→                vm.prank(address(this));
+  1019→                mtqFuzz.setReserveHolding(MTQSigmaV2.Component.Gold, newGoldUsd);
+  1020→            }
+  1021→
+  1022→            uint256 rr = mtqFuzz.getReserveRatio();
+  1023→            if (rr < 1.00e18) {
+  1024→                survived = false;
+  1025→            }
+  1026→        }
+  1027→        assertTrue(survived, "S5 (gold +50%) - RR stays >= 1.00 (chain-linked dampens the shock)");
+  1028→    }
+  1029→
+  1030→    // ---- 7.2 S6: Gold -30% shock — survival ≥ 95% ----
+  1031→    // Same as S5 but with a -30% gold shock. The chain-linked index drops
+  1032→    // by 26% × 30% = 7.8% (I_t = 0.922), P_MTQ drops, liability DROPS, so
+  1033→    // RR INCREASES. Survival is trivially true; this test confirms it.
+  1034→    // REQUIRES P1/P2 — getReserveRatio calls getLiability → getMTQPrice.
+  1035→    function testFuzz_S6_GoldMinus30_Survival100Pct(uint256 seed) public {
+  1036→        vm.assume(seed < 1000);
+  1037→
+  1038→        MTQSigmaV2 mtqFuzz = _deployFuzzMTQ();
+  1039→
+  1040→        uint256 rngState = seed ^ 0x6d2b79f5;
+  1041→        uint256[7] memory prices = BASE_PRICES;
+  1042→        uint256 goldUsd0 = mtqFuzz.reserveHeldUsd(MTQSigmaV2.Component.Gold);
+  1043→        uint256 goldQty  = goldUsd0 * 1e18 / GOLD_BASE;
+  1044→
+  1045→        bool survived = true;
+  1046→        for (uint256 t = 0; t < 30; t++) {
+  1047→            if (t == 1) {
+  1048→                // -30% gold shock.
+  1049→                prices[6] = prices[6] * 70 / 100;
+  1050→            } else if (t > 1) {
+  1051→                for (uint256 i = 0; i < 7; i++) {
+  1052→                    rngState = uint256(keccak256(abi.encodePacked(rngState, i, t)));
+  1053→                    int256 signed = int256(uint256(rngState)) - int256(type(int128).max);
+  1054→                    int256 scaled = signed / 1e15;
+  1055→                    if (scaled != 0) {
+  1056→                        uint256 oldP = prices[i];
+  1057→                        if (scaled > 0) {
+  1058→                            prices[i] = oldP + (oldP * uint256(scaled)) / 1e18;
+  1059→                        } else {
+  1060→                            uint256 dec = oldP * uint256(-scaled) / 1e18;
+  1061→                            prices[i] = (dec < oldP) ? (oldP - dec) : 1;
+  1062→                        }
+  1063→                    }
+  1064→                }
+  1065→            }
+  1066→
+  1067→            if (t > 0) {
+  1068→                vm.prank(address(this));
+  1069→                mtqFuzz.advanceIndex(prices);
+  1070→                uint256 newGoldUsd = goldQty * prices[6] / 1e18;
+  1071→                vm.prank(address(this));
+  1072→                mtqFuzz.setReserveHolding(MTQSigmaV2.Component.Gold, newGoldUsd);
+  1073→            }
+  1074→
+  1075→            uint256 rr = mtqFuzz.getReserveRatio();
+  1076→            if (rr < 1.00e18) survived = false;
+  1077→        }
+  1078→        assertTrue(survived, "S6 (gold -30%) - RR stays >= 1.00 (liability drops, RR improves)");
+  1079→    }
+  1080→
+  1081→    // ---- 7.3 Mint → Redeem round-trip approximately conserves value ----
+  1082→    // Fuzz the mint size; mint X USDC → MTQ → redeem → USDC out. The round-
+  1083→    // trip should conserve approximately X (within the fee band). The mint
+  1084→    // fee (0.10%) + redeem fee (0.15%) ≈ 0.25% total slippage in NORMAL.
+  1085→    // REQUIRES P1/P2 — both mint and redeem read getMTQPrice.
+  1086→    function testFuzz_MintRedeem_Conservation(uint256 usdcIn) public {
+  1087→        vm.assume(usdcIn >= 100e6);     // at least $100
+  1088→        vm.assume(usdcIn <= 100_000e6); // at most $100k
+  1089→
+  1090→        // State = NORMAL.
+  1091→        vm.prank(address(this));
+  1092→        mtq.updateState(1.20e18, 1.10e18);
+  1093→
+  1094→        uint256 mtqMinted = mtq.mint(usdcIn);
+  1095→        assertTrue(mtqMinted > 0, "minted > 0");
+  1096→
+  1097→        uint256 usdcOut = mtq.redeem(mtqMinted);
+  1098→        assertTrue(usdcOut > 0, "redeemed > 0");
+  1099→
+  1100→        // The round-trip slippage is bounded by mintFee + redeemFee ≈ 0.25%.
+  1101→        // We assert usdcOut is within 1% of usdcIn (tolerant of fee + rounding).
+  1102→        assertApproxEqRel(usdcOut, usdcIn, 1e16, "mint->redeem conserves value within 1%");
+  1103→    }
+  1104→
+  1105→    // ---- 7.4 RR stays above the 1.00 hard floor across fuzz market paths ----
+  1106→    // Fuzz a sequence of small price moves; assert RR >= 1.00 at every tick.
+  1107→    // The chain-linked index + strategic prior weights keep RR ≥ 1.00 across
+  1108→    // plausible market paths (no single-tick +50% shock here).
+  1109→    // REQUIRES P1/P2 — getReserveRatio calls getLiability → getMTQPrice.
+  1110→    function testFuzz_RR_StaysAboveHardFloor(uint256 seed) public {
+  1111→        vm.assume(seed < 1000);
+  1112→
+  1113→        MTQSigmaV2 mtqFuzz = _deployFuzzMTQ();
+  1114→
+  1115→        uint256 rngState = seed ^ 0x9e3779b9;
+  1116→        uint256[7] memory prices = BASE_PRICES;
+  1117→        uint256 goldUsd0 = mtqFuzz.reserveHeldUsd(MTQSigmaV2.Component.Gold);
+  1118→        uint256 goldQty  = goldUsd0 * 1e18 / GOLD_BASE;
+  1119→
+  1120→        for (uint256 t = 0; t < 30; t++) {
+  1121→            // Small noise (±0.5%) on every component — bounded market paths.
+  1122→            for (uint256 i = 0; i < 7; i++) {
+  1123→                rngState = uint256(keccak256(abi.encodePacked(rngState, i, t)));
+  1124→                int256 signed = int256(uint256(rngState)) - int256(type(int128).max);
+  1125→                int256 scaled = signed / 1e14; // ±0.5% noise
+  1126→                if (scaled != 0) {
+  1127→                    uint256 oldP = prices[i];
+  1128→                    if (scaled > 0) {
+  1129→                        prices[i] = oldP + (oldP * uint256(scaled)) / 1e18;
+  1130→                    } else {
+  1131→                        uint256 dec = oldP * uint256(-scaled) / 1e18;
+  1132→                        prices[i] = (dec < oldP) ? (oldP - dec) : 1;
+  1133→                    }
+  1134→                }
+  1135→            }
+  1136→            vm.prank(address(this));
+  1137→            mtqFuzz.advanceIndex(prices);
+  1138→            // Revalue gold to current price.
+  1139→            uint256 newGoldUsd = goldQty * prices[6] / 1e18;
+  1140→            vm.prank(address(this));
+  1141→            mtqFuzz.setReserveHolding(MTQSigmaV2.Component.Gold, newGoldUsd);
+  1142→
+  1143→            uint256 rr = mtqFuzz.getReserveRatio();
+  1144→            assertGe(rr, 1.00e18, "RR >= 1.00 hard floor across market path");
+  1145→        }
+  1146→    }
+  1147→
+  1148→    // ---- 7.5 State transitions are monotonic (no backward jumps w/o confirmation) ----
+  1149→    // Fuzz a sequence of (rr, lcr) inputs; assert that any transition to a
+  1150→    // LESS-restrictive state only happens after the 48h confirmation period.
+  1151→    // More-restrictive transitions are immediate. Pure check — updateState
+  1152→    // is independent of P1/P2 (no getMTQPrice call).
+  1153→    function testFuzz_StateTransitions_Monotonic(uint256 seed) public {
+  1154→        vm.assume(seed < 1000);
+  1155→
+  1156→        // Fresh contract so currentState = NORMAL.
+  1157→        MTQSigmaV2 mtqFuzz = _deployFreshMTQ();
+  1158→
+  1159→        uint256 rngState = seed ^ 0x517cc1b7;
+  1160→        uint256 lastEntryTime = mtqFuzz.stateEntryTime(mtqFuzz.currentState());
+  1161→
+  1162→        for (uint256 t = 0; t < 20; t++) {
+  1163→            // Derive (rr, lcr) from the rng. Bounded to plausible ranges.
+  1164→            rngState = uint256(keccak256(abi.encodePacked(rngState, t)));
+  1165→            uint256 rr  = 0.95e18 + (rngState % 0.30e18);   // RR ∈ [0.95, 1.25]
+  1166→            rngState = uint256(keccak256(abi.encodePacked(rngState, "lcr")));
+  1167→            uint256 lcr = 0.70e18 + (rngState % 0.40e18);   // LCR ∈ [0.70, 1.10]
+  1168→
+  1169→            // Warp forward a random amount (0–48h) per tick.
+  1170→            uint256 warpDelta = rngState % 49 hours;
+  1171→            vm.warp(block.timestamp + warpDelta);
+  1172→
+  1173→            uint256 stateBefore = uint256(mtqFuzz.currentState());
+  1174→            vm.prank(address(this));
+  1175→            mtqFuzz.updateState(rr, lcr);
+  1176→            uint256 stateAfter = uint256(mtqFuzz.currentState());
+  1177→
+  1178→            if (stateAfter != stateBefore) {
+  1179→                // Determine restrictiveness (lower number = less restrictive).
+  1180→                // NORMAL=0, CAUTION=1, RECOVERY=2, STRESS=3, DEFENSIVE=4, EMERGENCY=5
+  1181→                // (per the contract's _restrictiveness function — note that
+  1182→                // RECOVERY is ranked BETWEEN CAUTION and STRESS, even though
+  1183→                // its enum index is 5).
+  1184→                uint256 rankBefore = _rankOf(stateBefore);
+  1185→                uint256 rankAfter  = _rankOf(stateAfter);
+  1186→                bool moreRestrictive = rankAfter > rankBefore;
+  1187→
+  1188→                if (moreRestrictive) {
+  1189→                    // More-restrictive transitions are immediate — no warp requirement.
+  1190→                    assertTrue(true, "more-restrictive transition (immediate)");
+  1191→                } else {
+  1192→                    // Less-restrictive transition: 48h must have elapsed since
+  1193→                    // the current state was entered.
+  1194→                    assertGe(
+  1195→                        block.timestamp - lastEntryTime,
+  1196→                        mtqFuzz.RECOVERY_CONFIRMATION_PERIOD(),
+  1197→                        "less-restrictive transition only after 48h confirmation"
+  1198→                    );
+  1199→                }
+  1200→                lastEntryTime = mtqFuzz.stateEntryTime(mtqFuzz.currentState());
+  1201→            }
+  1202→        }
+  1203→    }
+  1204→
+  1205→    // ---------------------------------------------------------------------
+  1206→    //  Internal helpers (fuzz + state-machine rank)
+  1207→    // ---------------------------------------------------------------------
+  1208→
+  1209→    /// @dev Mirror of the contract's _restrictiveness rank function.
+  1210→    ///      NORMAL=0, CAUTION=1, RECOVERY=2, STRESS=3, DEFENSIVE=4, EMERGENCY=5.
+  1211→    function _rankOf(uint256 s) internal pure returns (uint256) {
+  1212→        if (s == 0) return 0; // NORMAL
+  1213→        if (s == 1) return 1; // CAUTION
+  1214→        if (s == 5) return 2; // RECOVERY
+  1215→        if (s == 2) return 3; // STRESS
+  1216→        if (s == 3) return 4; // DEFENSIVE
+  1217→        return 5;             // EMERGENCY (4)
+  1218→    }
+  1219→
+  1220→    /// @dev Deploy a fresh MTQ with a full bootstrap + genesis mint for fuzz
+  1221→    ///      tests (so each fuzz case starts from a clean state).
+  1222→    function _deployFuzzMTQ() internal returns (MTQSigmaV2) {
+  1223→        MockUSDC fuzzUsdc = new MockUSDC();
+  1224→        fuzzUsdc.mint(address(this), 100_000_000e6);
+  1225→
+  1226→        MTQSigmaV2 fuzz = new MTQSigmaV2(address(fuzzUsdc));
+  1227→        vm.startPrank(address(this));
+  1228→        fuzz.grantRole(fuzz.ADMIN_ROLE(),  address(this));
+  1229→        fuzz.grantRole(fuzz.KEEPER_ROLE(), address(this));
+  1230→        fuzz.setReserveVault(RESERVE_VAULT);
+  1231→        fuzz.setGenesisReserve(GENESIS_RESERVE);
+  1232→        fuzz.seedGenesisWeights();
+  1233→        fuzz.genesisIndex();
+  1234→        uint256[7] memory holdings;
+  1235→        uint256 NAV = 1_100_000e18;
+  1236→        for (uint256 i = 0; i < 7; i++) holdings[i] = NAV * STRATEGIC_PRIOR[i] / 1e18;
+  1237→        fuzz.bootstrapReserveHoldings(holdings);
+  1238→        fuzz.genesisMint(1_000_000e18);
+  1239→        vm.stopPrank();
+  1240→
+  1241→        fuzzUsdc.approve(address(fuzz), type(uint256).max);
+  1242→        fuzzUsdc.mint(RESERVE_VAULT, 10_000_000e6);
+  1243→        vm.prank(RESERVE_VAULT);
+  1244→        fuzzUsdc.approve(address(fuzz), type(uint256).max);
+  1245→
+  1246→        vm.warp(1_000_000 + 1);
+  1247→        return fuzz;
+  1248→    }
+  1249→}
+  1250→

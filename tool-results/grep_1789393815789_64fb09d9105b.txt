@@ -1,0 +1,189 @@
+/home/z/my-project/audit-work/blueprint-v1.2.txt:38:11. Geopolitical Eject (Staged Liquidation) & Reintegration Score
+/home/z/my-project/audit-work/blueprint-v1.2.txt:536:during liquidation.
+/home/z/my-project/audit-work/blueprint-v1.2.txt:1045:               asset via the staged liquidation  confirmed de‑pegged or
+/home/z/my-project/audit-work/blueprint-v1.2.txt:3068:11. Geopolitical Eject (Staged Liquidation) & Reintegration Score
+/home/z/my-project/audit-work/blueprint-v1.2.txt:3075:11.2 Staged Liquidation (Not 100%)
+/home/z/my-project/audit-work/FINAL-TOP-TIER-AUDIT-REPORT.md:91:1. **Constitutional** — 7/7 Multi-Sig, 90-day timelock — for immutable parameters (architecture, envelopes, hard floors, liquidation staging).
+/home/z/my-project/audit-work/DELIVERABLE-E-governance-enforcement.md:38:| L1 | **Constitutional** | Immutable parameters — core architecture, constitutional envelopes, hard floors, fixed methodology, liquidation staging | **7/7 Multi-Sig** | 7/7 | **90 days** | `constitutionalCouncil` address (Listing 14 line 17071) + multisig wallet |
+/home/z/my-project/audit-work/DELIVERABLE-E-governance-enforcement.md:41:| L4 | **Emergency** | Pause / force / eject / resume — verbs only, never parameters | **Emergency Council (4/7)** | 4/7 | **Instant (0)** | `emergencyCouncil` address + `pauseMinting` / `pauseRedeeming` / `forceRebalance` / `resumeOperations` (Listing 14 lines 17368–17407); `emergencyLiquidate` on the operations contract (§21.6) |
+/home/z/my-project/audit-work/DELIVERABLE-E-governance-enforcement.md:70:- The liquidation staging ladder (§21.5.3) — cumulative 10% / 25% / 50% / 100%.
+/home/z/my-project/audit-work/DELIVERABLE-E-governance-enforcement.md:123:| `emergencyEject()` | Immediately ejects a de-pegged asset (bypasses staged liquidation ladder) | Issuer freeze confirmed | Emergency Council (4/7) — signed directly on operations contract (§21.6) |
+/home/z/my-project/audit-work/DELIVERABLE-E-governance-enforcement.md:130:**The emergency eject is the single exception to the dispatch pattern** (Listing 14 closing note): `emergencyLiquidate` is signed directly on the **operations contract** by the Emergency Council, not dispatched through the `GovernanceParameterRegistry`. This is because `emergencyLiquidate` bypasses the staged liquidation ladder (§21.5.3) and must execute at execution-plane speed without going through the registry's authorization hop.
+/home/z/my-project/audit-work/DELIVERABLE-E-governance-enforcement.md:177:| Liquidation staging ladder (10% / 25% / 50% / 100%) | §21.5.3 | The staged sale geometry for a de-pegged asset. Changing the ladder changes the protocol's wind-down shape. |
+/home/z/my-project/audit-work/DELIVERABLE-E-governance-enforcement.md:178:| Reintegration staging (25% → 50% → 100%) | §21.5.4 | The staged re-entry of an ejected asset. Mirror image of the liquidation ladder. |
+/home/z/my-project/audit-work/DELIVERABLE-E-governance-enforcement.md:359:| 7 | Liquidation staging ladder (10% / 25% / 50% / 100% cumulative) | Constitutional | 7/7 Multi-Sig | 90 days | The four cumulative percentages (immutable) | YES (C1) — encoded as `constant` arrays in the operations contract (Listing 13); no setter. | Per §21.5.3. The staged sale geometry for a de-pegged asset. |
+/home/z/my-project/audit-work/DELIVERABLE-E-governance-enforcement.md:397:| 35 | De-peg detection window (= 12 hours) | Risk | Risk Council (4/7) | 24 hours | `[6h, 48h]` (recommended) | GOV-CONTRACT (C2) — same path. | Per §21.5.2 / blueprint.ts (line 184 et seq). The window after which a sustained depeg triggers stage-1 liquidation. |
+/home/z/my-project/audit-work/DELIVERABLE-E-governance-enforcement.md:421:| 52 | `emergencyEject()` (via `emergencyLiquidate` on operations contract) | Emergency | Emergency Council (4/7) | Instant (0) | N/A | GOV-CONTRACT (C2) + MULTISIG (C3) — signed directly on the operations contract (Listing 13 / §21.6), bypassing the registry dispatch pattern. | Per §21.6 / §11.5.2. Immediately ejects a de-pegged asset (bypasses the staged liquidation ladder). Single exception to the dispatch pattern. |
+/home/z/my-project/audit-work/DELIVERABLE-E-governance-enforcement.md:444:| **C1 — Cryptographically enforced on-chain** (`constant` or hard `require`) | 11 | `PAR`, `RR_HARD_FLOOR`, the three timelocks, the liquidation ladder, the reintegration staging, the genesis deposit/supply, the base fixings, the strategic prior, the constitutional envelopes |
+/home/z/my-project/audit-work/DELIVERABLE-E-governance-enforcement.md:489:- The liquidation staging ladder (#7) and reintegration staging (#8).
+/home/z/my-project/audit-work/audit-d-tokenomics.md:344:The v1.0 blueprint explicitly chooses: **pause redemption in EMERGENCY** (§21.4 matrix S5 row). The rationale (§21.1, §13.6, I12): "solvency without liquidity is a solvency that cannot be delivered on time" and "no reserve asset may be used for secondary-market price support". Allowing redemptions at a stale/frozen price during EMERGENCY would force the protocol to liquidate real, devalued assets against an inflated last-known-good price — which is precisely the "market-price support" prohibited by I12.
+/home/z/my-project/tool-results/read_1789042585298_66ecdcd78362.txt:288:   288→* liquidation trading
+/home/z/my-project/audit-work/DELIVERABLE-F-cfo-solvency-model.md:699:- **Emergency eject** (Emergency Council, instant): If a specific asset is causing the imbalance (e.g., a depegged stablecoin), eject it via `emergencyLiquidate` (bypasses the staged liquidation ladder).
+/home/z/my-project/audit-work/DELIVERABLE-A-implementation-reconciliation.md:60:| 13 | §21.6 | Risk state machine, state-dependent actions and staged liquidation (adapts BP §14.6 + §11) | 15457–17000 | `engine.ts::determineStatus`, `blueprint.ts::RISK_STATE_MACHINE`, `MTQSigmaV2.sol::Status` enum + `setProtocolStatus` |
+/home/z/my-project/audit-work/DELIVERABLE-A-implementation-reconciliation.md:384:### Listing 13 — §21.6 Risk state machine, state-dependent actions, staged liquidation
+/home/z/my-project/tool-results/read_1788895479793_a18d6b3e160f.txt:151: 16718→                   floors, liquidation                               
+/home/z/my-project/tool-results/read_1788895479793_a18d6b3e160f.txt:177: 16744→liquidation ladder's shape. Monetary authority (DAO vote, 51% quorum,
+/home/z/my-project/tool-results/read_1788895479793_a18d6b3e160f.txt:250: 16817→  Liquidation       Constitutional   10% / 25% / 50%  Constitutional   §21.5.3
+/home/z/my-project/tool-results/read_1788895479793_a18d6b3e160f.txt:338: 16905→implementation: the liquidation ladder's cumulative percentages, the
+/home/z/my-project/tool-results/read_1788895479793_a18d6b3e160f.txt:399: 16966→staged liquidation ladder and executes through emergencyLiquidate
+/home/z/my-project/tool-results/read_1788895479793_a18d6b3e160f.txt:430: 16997→exception to the dispatch pattern: emergencyLiquidate is signed directly
+/home/z/my-project/audit-work/blueprint-v1.0.txt:524:  21.5 Geopolitical Eject — Staged Liquidation and Reintegration 570
+/home/z/my-project/audit-work/blueprint-v1.0.txt:530:  21.5.3 The Staged Liquidation Ladder 571
+/home/z/my-project/audit-work/blueprint-v1.0.txt:7631:liquidation logic, not by book-value optimism.
+/home/z/my-project/audit-work/blueprint-v1.0.txt:7645:measured in liquidation value, not in face value: it answers the
+/home/z/my-project/audit-work/blueprint-v1.0.txt:7943:operations and natural cash flows, and gold liquidation requires a
+/home/z/my-project/audit-work/blueprint-v1.0.txt:8106:  of an actual liquidation before they are discovered [BP §4.1].
+/home/z/my-project/audit-work/blueprint-v1.0.txt:8110:slippage during liquidation. Gross valuations systematically overstate
+/home/z/my-project/audit-work/blueprint-v1.0.txt:8152:covers realized liquidation costs in historical depeg and fire-sale
+/home/z/my-project/audit-work/blueprint-v1.0.txt:8352:audit and transport costs, and its liquidation is slower. The reserve
+/home/z/my-project/audit-work/blueprint-v1.0.txt:8398:be funded by liquidating the gold allocation, because a reserve that
+/home/z/my-project/audit-work/blueprint-v1.0.txt:8413:Gold liquidation requires a defined exceptional condition [MS §59].
+/home/z/my-project/audit-work/blueprint-v1.0.txt:8453:PAXG to physical bullion is not gold liquidation and is not gated by
+/home/z/my-project/audit-work/blueprint-v1.0.txt:8513:forced to liquidate into a dislocated market. This is a risk-control
+/home/z/my-project/audit-work/blueprint-v1.0.txt:9175:                          staged liquidation      de-pegged or issuer
+/home/z/my-project/audit-work/blueprint-v1.0.txt:9188:liquidation ladder of Chapter 11, which sizes and paces the exit to
+/home/z/my-project/audit-work/blueprint-v1.0.txt:9197:  warning or a forced liquidation.
+/home/z/my-project/audit-work/blueprint-v1.0.txt:15174:21.5 Geopolitical Eject — Staged Liquidation and Reintegration
+/home/z/my-project/audit-work/blueprint-v1.0.txt:15187:liquidation ladder that minimizes market impact and avoids crystallizing
+/home/z/my-project/audit-work/blueprint-v1.0.txt:15193:must be stated crisply: liquidation proceeds are redeployed into
+/home/z/my-project/audit-work/blueprint-v1.0.txt:15275:21.5.3 The Staged Liquidation Ladder
+/home/z/my-project/audit-work/blueprint-v1.0.txt:15277:Once a de-peg is confirmed, the protocol executes a staged liquidation
+/home/z/my-project/audit-work/blueprint-v1.0.txt:15305:Section 21.2, so a de-pegging asset is liquidated faster precisely as
+/home/z/my-project/audit-work/blueprint-v1.0.txt:15319:If, during a staged liquidation, the asset price drops more than 5% from
+/home/z/my-project/audit-work/blueprint-v1.0.txt:15384:liquidation ladder in reverse [BP §11.4.3]:
+/home/z/my-project/audit-work/blueprint-v1.0.txt:15413:liquidation [BP §11.5]. The logic is that a freeze or sanctions event is
+/home/z/my-project/audit-work/blueprint-v1.0.txt:15424:emergencyLiquidate function (Listing 13) sells the entire balance and
+/home/z/my-project/audit-work/blueprint-v1.0.txt:15458:liquidation (adapts BP §14.6 and §11)
+/home/z/my-project/audit-work/blueprint-v1.0.txt:15465:  liquidation.
+/home/z/my-project/audit-work/blueprint-v1.0.txt:15541:  mapping(bytes3 => uint256) public liquidationStage; // 0 = not
+/home/z/my-project/audit-work/blueprint-v1.0.txt:15595:  event LiquidationExecuted(bytes3 indexed currencyCode, uint256 amount,
+/home/z/my-project/audit-work/blueprint-v1.0.txt:15604:  event EmergencyLiquidation(bytes3 indexed currencyCode, uint256
+/home/z/my-project/audit-work/blueprint-v1.0.txt:15899:  liquidationStage[currencyCode] == 0
+/home/z/my-project/audit-work/blueprint-v1.0.txt:15968:  /// @dev Executes staged liquidation of a de-pegged asset.
+/home/z/my-project/audit-work/blueprint-v1.0.txt:15970:  /// @param currencyCode The currency code of the asset to liquidate.
+/home/z/my-project/audit-work/blueprint-v1.0.txt:15972:  function executeStagedLiquidation(bytes3 currencyCode) external {
+/home/z/my-project/audit-work/blueprint-v1.0.txt:15991:  if (depegDuration > depegWindow && liquidationStage[currencyCode] < 1)
+/home/z/my-project/audit-work/blueprint-v1.0.txt:15996:  liquidationStage[currencyCode] = 1;
+/home/z/my-project/audit-work/blueprint-v1.0.txt:16003:  liquidationStage[currencyCode] < 2) {
+/home/z/my-project/audit-work/blueprint-v1.0.txt:16007:  liquidationStage[currencyCode] = 2;
+/home/z/my-project/audit-work/blueprint-v1.0.txt:16014:  liquidationStage[currencyCode] < 3) {
+/home/z/my-project/audit-work/blueprint-v1.0.txt:16018:  liquidationStage[currencyCode] = 3;
+/home/z/my-project/audit-work/blueprint-v1.0.txt:16025:  liquidationStage[currencyCode] < 4) {
+/home/z/my-project/audit-work/blueprint-v1.0.txt:16029:  liquidationStage[currencyCode] = 4;
+/home/z/my-project/audit-work/blueprint-v1.0.txt:16044:  emit LiquidationExecuted(currencyCode, sellAmount,
+/home/z/my-project/audit-work/blueprint-v1.0.txt:16045:  liquidationStage[currencyCode]);
+/home/z/my-project/audit-work/blueprint-v1.0.txt:16088:  require(liquidationStage[currencyCode] > 0, "Asset not ejected");
+/home/z/my-project/audit-work/blueprint-v1.0.txt:16173:  /// @dev Immediately liquidates an asset (100%) when freeze or
+/home/z/my-project/audit-work/blueprint-v1.0.txt:16178:  function emergencyLiquidate(bytes3 currencyCode) external
+/home/z/my-project/audit-work/blueprint-v1.0.txt:16189:  emit EmergencyLiquidation(currencyCode, balance);
+/home/z/my-project/audit-work/blueprint-v1.0.txt:16452:  LiquidationExecuted(currencyCode,     Each executed liquidation tranche,
+/home/z/my-project/audit-work/blueprint-v1.0.txt:16462:  EmergencyLiquidation(currencyCode,    Immediate 100% liquidation on
+/home/z/my-project/audit-work/blueprint-v1.0.txt:16472:  Listing 13. Rejected or gated liquidation attempts leave the
+/home/z/my-project/audit-work/blueprint-v1.0.txt:16473:  liquidation stage unchanged and are observable from the absence of a
+/home/z/my-project/audit-work/blueprint-v1.0.txt:16474:  LiquidationExecuted event after a DepegDetected event — the
+/home/z/my-project/audit-work/blueprint-v1.0.txt:16531:  Liquidation Stages Constitutional    10% / 25% / 50% / Constitutional
+/home/z/my-project/audit-work/blueprint-v1.0.txt:16718:                   floors, liquidation                               
+/home/z/my-project/audit-work/blueprint-v1.0.txt:16744:liquidation ladder's shape. Monetary authority (DAO vote, 51% quorum,
+/home/z/my-project/audit-work/blueprint-v1.0.txt:16817:  Liquidation       Constitutional   10% / 25% / 50%  Constitutional   §21.5.3
+/home/z/my-project/audit-work/blueprint-v1.0.txt:16905:implementation: the liquidation ladder's cumulative percentages, the
+/home/z/my-project/audit-work/blueprint-v1.0.txt:16966:staged liquidation ladder and executes through emergencyLiquidate
+/home/z/my-project/audit-work/blueprint-v1.0.txt:16997:exception to the dispatch pattern: emergencyLiquidate is signed directly
+/home/z/my-project/audit-work/blueprint-v1.0.txt:17438:  which re-checks caller identity on arrival; emergencyLiquidate (the
+/home/z/my-project/audit-work/blueprint-v1.0.txt:18607:  The protocol includes a staged      De-pegged assets are liquidated in
+/home/z/my-project/audit-work/blueprint-v1.0.txt:18813:                          liquidation with        ladder; R_score ≥ 0.80
+/home/z/my-project/audit-work/blueprint-v1.0.txt:19360:-   The Geopolitical Eject system uses staged liquidation (10% → 25% →
+/home/z/my-project/audit-work/blueprint-v1.0.txt:20101:  Ch 21             Geopolitical      SPECIFIED         Staged liquidation
+/home/z/my-project/audit-work/blueprint-v1.0.txt:20508:  Staged liquidation      Eject ladder 10% → 25%  Chapter 21
+/home/z/my-project/audit-work/blueprint-v1.0.txt:20924:    Registry, haircut application and the staged-liquidation ladder of
+/home/z/my-project/audit-work/blueprint-v1.0.txt:21143:                                                  staged liquidation,
+/home/z/my-project/tool-results/read_1788892970245_e392e665bdab.txt:227:   227→                Depeg &gt; 12h triggers staged liquidation of the affected currency; reintegration
+/home/z/my-project/tool-results/bash_1788895485084_776b221d3c04.txt:151:                   floors, liquidation                               
+/home/z/my-project/tool-results/bash_1788895485084_776b221d3c04.txt:177:liquidation ladder's shape. Monetary authority (DAO vote, 51% quorum,
+/home/z/my-project/tool-results/bash_1788895485084_776b221d3c04.txt:250:  Liquidation       Constitutional   10% / 25% / 50%  Constitutional   §21.5.3
+/home/z/my-project/tool-results/bash_1788895485084_776b221d3c04.txt:338:implementation: the liquidation ladder's cumulative percentages, the
+/home/z/my-project/tool-results/bash_1788895485084_776b221d3c04.txt:399:staged liquidation ladder and executes through emergencyLiquidate
+/home/z/my-project/tool-results/bash_1788895485084_776b221d3c04.txt:430:exception to the dispatch pattern: emergencyLiquidate is signed directly
+/home/z/my-project/tool-results/bash_1788895485084_776b221d3c04.txt:871:  which re-checks caller identity on arrival; emergencyLiquidate (the
+/home/z/my-project/tool-results/read_1788891653943_05970837c1e1.txt:91:    91→1. **Constitutional** — 7/7 Multi-Sig, 90-day timelock — for immutable parameters (architecture, envelopes, hard floors, liquidation staging).
+/home/z/my-project/audit-work/MTQSIGMA-MASTER-BLUEPRINT-V1.0-FINAL.md:73:| **M8** | §22.3 The Four Governance Layers | Pilot governance had only the Monetary (DAO 48h) layer — 1 of 4 layers | Final implementation has all FOUR layers: Constitutional (7/7 Multi-Sig + 90d timelock), Monetary (DAO 51% + 48h timelock), Risk (4/7 + 24h timelock), Emergency (4/7 + instant) | The four-layer hierarchy is the protocol's separation-of-powers: the deepest changes (constitutional envelopes, hard floors, liquidation staging) require 7/7 + 90 days; monetary-policy changes (RR target, fee structure, smoothing) require 51% DAO + 48h; risk parameters (haircuts, thresholds, eject, LCR) require 4/7 Risk Council + 24h; emergency verbs (pause, force, eject) require 4/7 + instant. No layer can reach into another's domain. | ✅ IMPLEMENTED in `contracts/MTQSigmaV2.sol` Listing 14 — `IGovernance` interface exposes all four layers; parameter registry maps every tunable parameter to its layer |
+/home/z/my-project/audit-work/MTQSIGMA-MASTER-BLUEPRINT-V1.0-FINAL.md:245:| **14. De-peg eject mechanism** | YES — staged 10/25/50/100% liquidation ladder + anti-gaming reintegration score (R_score ≥ 0.80) | NO | NO | NO | NO (centralized freeze) | NO (centralized freeze) | NO |
+/home/z/my-project/audit-work/MTQSIGMA-MASTER-BLUEPRINT-V1.0-FINAL.md:2612:| RESTRICTED | Severe criterion failure; eject triggered. | No new deposits; staged liquidation per §21.5.3. |
+/home/z/my-project/audit-work/MTQSIGMA-MASTER-BLUEPRINT-V1.0-FINAL.md:2613:| EJECTED | Liquidation complete; asset removed from registry. | Cannot be deposited, traded, or held. |
+/home/z/my-project/audit-work/MTQSIGMA-MASTER-BLUEPRINT-V1.0-FINAL.md:2650:The issuer concentration limit is 30% per issuer (the hard limit), with a 25% warn threshold. If an issuer's share exceeds 25%, the registry flags it; if it exceeds 30%, the registry requires the protocol to reduce the concentration (via staged liquidation per §21.5.3).
+/home/z/my-project/audit-work/MTQSIGMA-MASTER-BLUEPRINT-V1.0-FINAL.md:3664:### 21.5 Geopolitical Eject — Staged Liquidation and Reintegration
+/home/z/my-project/audit-work/MTQSIGMA-MASTER-BLUEPRINT-V1.0-FINAL.md:3670:Unlike a simple sell-everything response, the module uses a staged liquidation ladder that minimizes market impact and avoids crystallizing losses during temporary dislocations, and a reintegration score that prevents gaming on the way back in [BP §11.1]. The module depends on three neighbors: the Asset Admission Registry for asset metadata (Chapter 15), the oracle architecture for price feeds (Chapter 17), and the execution layer for trade execution (Section 11.11). One boundary must be stated crisply: liquidation proceeds are redeployed into eligible reserve assets under the reserve rules (Chapters 13–15), because the eject module protects solvency — it never participates in secondary-market price support of the MTQ Σ token itself, which is constitutionally forbidden (Invariant I12, Section 13.6).
+/home/z/my-project/audit-work/MTQSIGMA-MASTER-BLUEPRINT-V1.0-FINAL.md:3692:If a stablecoin's price falls outside the warn band for the 12-hour window, the asset's state is set to WATCH (Asset Registry, §15.3). If it falls outside the eject band for the 12-hour window, the staged liquidation ladder (§21.5.3) is triggered.
+/home/z/my-project/audit-work/MTQSIGMA-MASTER-BLUEPRINT-V1.0-FINAL.md:3694:#### 21.5.3 The Staged Liquidation Ladder
+/home/z/my-project/audit-work/MTQSIGMA-MASTER-BLUEPRINT-V1.0-FINAL.md:3696:The staged liquidation ladder scales the exit velocity with the duration of the distress:
+/home/z/my-project/audit-work/MTQSIGMA-MASTER-BLUEPRINT-V1.0-FINAL.md:3698:| Stage | Trigger | Cumulative Liquidation | Description |
+/home/z/my-project/audit-work/MTQSIGMA-MASTER-BLUEPRINT-V1.0-FINAL.md:3707:The cumulative liquidation percentages are Constitutional (immutable): they cannot be changed by any on-chain path. They are the protocol's commitment to gradual exit, encoded in the contract.
+/home/z/my-project/audit-work/MTQSIGMA-MASTER-BLUEPRINT-V1.0-FINAL.md:3815:> **Rationale.** The four-layer hierarchy is the protocol's separation-of-powers: the deepest changes (constitutional envelopes, hard floors, liquidation staging) require 7/7 + 90 days; monetary-policy changes (RR target, fee structure, smoothing) require 51% DAO + 48h; risk parameters (haircuts, thresholds, eject, LCR) require 4/7 Risk Council + 24h; emergency verbs (pause, force, eject) require 4/7 + instant. No layer can reach into another's domain — Invariant I7.
+/home/z/my-project/audit-work/MTQSIGMA-MASTER-BLUEPRINT-V1.0-FINAL.md:3823:| Constitutional | Immutable parameters (core architecture, constitutional envelopes, hard floors, liquidation staging; the v1.2 GFB-quantity immutability is superseded by the fixed-methodology invariant I3) | 7/7 Multi-Sig | 90 days | 7/7 |
+/home/z/my-project/audit-work/MTQSIGMA-MASTER-BLUEPRINT-V1.0-FINAL.md:3828:Reading the table: Constitutional authority (a 7/7 Multi-Sig with a 90-day timelock) covers the immutable core — the architecture, the constitutional envelopes, the hard floors, the fixed methodology and the liquidation ladder's shape. Monetary authority (DAO vote, 51% quorum, 48-hour timelock) covers the monetary-policy parameters: the RR targets, the fee structure and the smoothing parameters. Risk authority (Risk Council, 4/7 with a 24-hour timelock) covers the technical risk parameters: haircuts, thresholds, eject parameters and LCR targets. Emergency authority (Emergency Council, 4/7, instant) covers only the pause/eject/rebalance action set of Section 22.5 — the one layer that trades deliberation for speed, and pays for it with the narrowest scope in the system.
+/home/z/my-project/audit-work/MTQSIGMA-MASTER-BLUEPRINT-V1.0-FINAL.md:3849:| Liquidation Stages 1–4 (cumulative) | Constitutional | 10% / 25% / 50% / 100% | Constitutional (immutable) | §21.5.3 |
+/home/z/my-project/audit-work/MTQSIGMA-MASTER-BLUEPRINT-V1.0-FINAL.md:3875:Rows with constitutional authority are immutable in the reference implementation: the liquidation ladder's cumulative percentages, the reintegration staging, the hard floor `RR = 1.00` and the three timelocks cannot be changed by any on-chain path — they require redeployment through the constitutional process. Rows marked Monetary and Risk are live-updatable through the proposal paths of Listing 14. Parameters introduced by later chapters — validation outputs of Chapter 23, publication intervals of Chapter 24 — are registered at deployment under the same rules; the matrix is closed under the registry, and any parameter not listed here has no update path at all. The Emergency layer deliberately registers actions rather than parameters: the emergency action set itself is constitutional, so the fastest authority in the system cannot create new knobs to turn.
+/home/z/my-project/audit-work/MTQSIGMA-MASTER-BLUEPRINT-V1.0-FINAL.md:4088:The tokenized-gold issuer failure test models a scenario where PAXG (or XAUT) becomes unredeemable (e.g., the issuer is sanctioned). The protocol's response: the Asset Registry sets PAXG to RESTRICTED; the eject module (§21.5) triggers the staged liquidation ladder; the loss is absorbed by the first-loss waterfall (§16.4). The test confirms the protocol survives the loss of a single tokenized-gold issuer.
+/home/z/my-project/audit-work/MTQSIGMA-MASTER-BLUEPRINT-V1.0-FINAL.md:4100:The currency-specific stress tests apply shocks to individual currencies. The EUR −10% depeg test (S8) is the headline test: it forces `s.pegHealth.EUR = 0.90` for 12 ticks × 12h = 144h and verifies the S1→S2→S3→S4 ladder progression matches the §21.5 EJECT_STAGES. The test confirms the staged eject works as specified (10% → 25% → 50% → 100% cumulative liquidation over 144h).
+/home/z/my-project/audit-work/MTQSIGMA-MASTER-BLUEPRINT-V1.0-FINAL.md:4242:| The protocol includes a staged de-peg eject mechanism. | De-pegged assets are liquidated in stages (10% → 25% → 50% → 100%) to minimize market impact, with an anti-gaming reintegration score (Chapter 21). |
+/home/z/my-project/audit-work/MTQSIGMA-MASTER-BLUEPRINT-V1.0-FINAL.md:4282:| Geopolitical Eject | SPECIFIED — staged liquidation with reintegration score | 10% → 25% → 50% → 100% ladder; `R_score ≥ 0.80` for re-entry (Chapter 21). |
+/home/z/my-project/audit-work/MTQSIGMA-MASTER-BLUEPRINT-V1.0-FINAL.md:4553:- The staged liquidation ladder (10/25/50/100%) — §21.5.3, immutable.
+/home/z/my-project/audit-work/MTQSIGMA-MASTER-BLUEPRINT-V1.0-FINAL.md:4701:| Geopolitical Eject | Staged liquidation + reintegration score | §21.5 |
+/home/z/my-project/audit-work/MTQSIGMA-MASTER-BLUEPRINT-V1.0-FINAL.md:4935:- **Assets — MOCKED.** All ERC-20 reserve assets are testnet mocks, except native USDC on Arc. Mock assets exercise the Asset Admission Registry, haircut application and the staged-liquidation ladder of Chapter 21 without touching real value.
+/home/z/my-project/audit-work/MTQSIGMA-MASTER-BLUEPRINT-V1.0-FINAL.md:5018:| Ch 21 | BP §11, §14.1–14.3 | Geopolitical eject, staged liquidation, reintegration score. |
+/home/z/my-project/audit-work/MTQSIGMA-MASTER-BLUEPRINT-V1.0-FINAL.md:5235:| 14 | De-peg eject mechanism | YES — staged 10/25/50/100% liquidation ladder + anti-gaming reintegration score (R_score ≥ 0.80) | NO | NO | NO | NO (centralized freeze) | NO (centralized freeze) | NO |
+/home/z/my-project/tool-results/read_1788895487144_9c7109c169d2.txt:151:   151→                   floors, liquidation                               
+/home/z/my-project/tool-results/read_1788895487144_9c7109c169d2.txt:177:   177→liquidation ladder's shape. Monetary authority (DAO vote, 51% quorum,
+/home/z/my-project/tool-results/read_1788895487144_9c7109c169d2.txt:250:   250→  Liquidation       Constitutional   10% / 25% / 50%  Constitutional   §21.5.3
+/home/z/my-project/tool-results/read_1788895487144_9c7109c169d2.txt:338:   338→implementation: the liquidation ladder's cumulative percentages, the
+/home/z/my-project/tool-results/read_1788895487144_9c7109c169d2.txt:399:   399→staged liquidation ladder and executes through emergencyLiquidate
+/home/z/my-project/tool-results/read_1788895487144_9c7109c169d2.txt:430:   430→exception to the dispatch pattern: emergencyLiquidate is signed directly
+/home/z/my-project/tool-results/read_1788895487144_9c7109c169d2.txt:871:   871→  which re-checks caller identity on arrival; emergencyLiquidate (the
+/home/z/my-project/tool-results/read_1788895453677_2000044f2d98.txt:524:   524→  21.5 Geopolitical Eject — Staged Liquidation and Reintegration 570
+/home/z/my-project/tool-results/read_1788895453677_2000044f2d98.txt:530:   530→  21.5.3 The Staged Liquidation Ladder 571
+/home/z/my-project/tool-results/read_1788888263387_2194794ac71e.txt:175: 15174→21.5 Geopolitical Eject — Staged Liquidation and Reintegration
+/home/z/my-project/tool-results/read_1788888263387_2194794ac71e.txt:188: 15187→liquidation ladder that minimizes market impact and avoids crystallizing
+/home/z/my-project/tool-results/read_1788888263387_2194794ac71e.txt:194: 15193→must be stated crisply: liquidation proceeds are redeployed into
+/home/z/my-project/tool-results/read_1788888263387_2194794ac71e.txt:276: 15275→21.5.3 The Staged Liquidation Ladder
+/home/z/my-project/tool-results/read_1788888263387_2194794ac71e.txt:278: 15277→Once a de-peg is confirmed, the protocol executes a staged liquidation
+/home/z/my-project/tool-results/read_1788888263387_2194794ac71e.txt:306: 15305→Section 21.2, so a de-pegging asset is liquidated faster precisely as
+/home/z/my-project/tool-results/read_1788888263387_2194794ac71e.txt:320: 15319→If, during a staged liquidation, the asset price drops more than 5% from
+/home/z/my-project/tool-results/read_1788888263387_2194794ac71e.txt:385: 15384→liquidation ladder in reverse [BP §11.4.3]:
+/home/z/my-project/tool-results/read_1788888263387_2194794ac71e.txt:414: 15413→liquidation [BP §11.5]. The logic is that a freeze or sanctions event is
+/home/z/my-project/tool-results/read_1788888263387_2194794ac71e.txt:425: 15424→emergencyLiquidate function (Listing 13) sells the entire balance and
+/home/z/my-project/tool-results/read_1788888263387_2194794ac71e.txt:459: 15458→liquidation (adapts BP §14.6 and §11)
+/home/z/my-project/tool-results/read_1788888263387_2194794ac71e.txt:466: 15465→  liquidation.
+/home/z/my-project/tool-results/read_1788888263387_2194794ac71e.txt:542: 15541→  mapping(bytes3 => uint256) public liquidationStage; // 0 = not
+/home/z/my-project/tool-results/read_1788888263387_2194794ac71e.txt:596: 15595→  event LiquidationExecuted(bytes3 indexed currencyCode, uint256 amount,
+/home/z/my-project/tool-results/read_1788888263387_2194794ac71e.txt:605: 15604→  event EmergencyLiquidation(bytes3 indexed currencyCode, uint256
+/home/z/my-project/tool-results/read_1788900219225_37be3360dbeb.txt:233:   233→                Depeg &gt; 12h triggers staged liquidation of the affected currency; reintegration
+/home/z/my-project/tool-results/read_1788895475333_6c789e391ea5.txt:32: 16531→  Liquidation Stages Constitutional    10% / 25% / 50% / Constitutional
+/home/z/my-project/tool-results/read_1788895475333_6c789e391ea5.txt:219: 16718→                   floors, liquidation                               
+/home/z/my-project/tool-results/read_1788895475333_6c789e391ea5.txt:245: 16744→liquidation ladder's shape. Monetary authority (DAO vote, 51% quorum,
+/home/z/my-project/tool-results/read_1788895475333_6c789e391ea5.txt:318: 16817→  Liquidation       Constitutional   10% / 25% / 50%  Constitutional   §21.5.3
+/home/z/my-project/tool-results/read_1788895475333_6c789e391ea5.txt:406: 16905→implementation: the liquidation ladder's cumulative percentages, the
+/home/z/my-project/tool-results/read_1788895475333_6c789e391ea5.txt:467: 16966→staged liquidation ladder and executes through emergencyLiquidate
+/home/z/my-project/tool-results/read_1788895475333_6c789e391ea5.txt:498: 16997→exception to the dispatch pattern: emergencyLiquidate is signed directly
+/home/z/my-project/tool-results/read_1788888148632_2000044f2d98.txt:524:   524→  21.5 Geopolitical Eject — Staged Liquidation and Reintegration 570
+/home/z/my-project/tool-results/read_1788888148632_2000044f2d98.txt:530:   530→  21.5.3 The Staged Liquidation Ladder 571
+/home/z/my-project/tool-results/read_1788888251909_bf2a2ec4b6ec.txt:235: 15174→21.5 Geopolitical Eject — Staged Liquidation and Reintegration
+/home/z/my-project/tool-results/read_1788888251909_bf2a2ec4b6ec.txt:248: 15187→liquidation ladder that minimizes market impact and avoids crystallizing
+/home/z/my-project/tool-results/read_1788888251909_bf2a2ec4b6ec.txt:254: 15193→must be stated crisply: liquidation proceeds are redeployed into
+/home/z/my-project/tool-results/read_1788888251909_bf2a2ec4b6ec.txt:336: 15275→21.5.3 The Staged Liquidation Ladder
+/home/z/my-project/tool-results/read_1788888251909_bf2a2ec4b6ec.txt:338: 15277→Once a de-peg is confirmed, the protocol executes a staged liquidation
+/home/z/my-project/tool-results/read_1788888251909_bf2a2ec4b6ec.txt:366: 15305→Section 21.2, so a de-pegging asset is liquidated faster precisely as
+/home/z/my-project/tool-results/read_1788888251909_bf2a2ec4b6ec.txt:380: 15319→If, during a staged liquidation, the asset price drops more than 5% from
+/home/z/my-project/tool-results/read_1788888251909_bf2a2ec4b6ec.txt:445: 15384→liquidation ladder in reverse [BP §11.4.3]:
+/home/z/my-project/tool-results/read_1788888251909_bf2a2ec4b6ec.txt:474: 15413→liquidation [BP §11.5]. The logic is that a freeze or sanctions event is
+/home/z/my-project/tool-results/read_1788888251909_bf2a2ec4b6ec.txt:485: 15424→emergencyLiquidate function (Listing 13) sells the entire balance and
+/home/z/my-project/tool-results/read_1788888251909_bf2a2ec4b6ec.txt:519: 15458→liquidation (adapts BP §14.6 and §11)
+/home/z/my-project/tool-results/read_1788888251909_bf2a2ec4b6ec.txt:526: 15465→  liquidation.
+/home/z/my-project/tool-results/read_1788895482581_2a579868cd6d.txt:151:   151→ 16718→                   floors, liquidation                               
+/home/z/my-project/tool-results/read_1788895482581_2a579868cd6d.txt:177:   177→ 16744→liquidation ladder's shape. Monetary authority (DAO vote, 51% quorum,
+/home/z/my-project/tool-results/read_1788895482581_2a579868cd6d.txt:250:   250→ 16817→  Liquidation       Constitutional   10% / 25% / 50%  Constitutional   §21.5.3
+/home/z/my-project/tool-results/read_1788895482581_2a579868cd6d.txt:338:   338→ 16905→implementation: the liquidation ladder's cumulative percentages, the
+/home/z/my-project/tool-results/read_1788895482581_2a579868cd6d.txt:399:   399→ 16966→staged liquidation ladder and executes through emergencyLiquidate
+/home/z/my-project/tool-results/read_1788895482581_2a579868cd6d.txt:430:   430→ 16997→exception to the dispatch pattern: emergencyLiquidate is signed directly
+/home/z/my-project/tool-results/read_1788891647747_4b191e25064b.txt:91:    91→1. **Constitutional** — 7/7 Multi-Sig, 90-day timelock — for immutable parameters (architecture, envelopes, hard floors, liquidation staging).
+/home/z/my-project/src/lib/mtq/blueprint.ts:200:    scope: "Immutable parameters (core architecture, envelopes, hard floors, liquidation staging)",
+/home/z/my-project/src/components/mtq/sections/SecuritySection.tsx:240:                Depeg &gt; 12h triggers staged liquidation of the affected currency; reintegration
+/home/z/my-project/src/components/mtq/EjectReintegration.tsx:196:                5-currency staged liquidation ladder + R_score reintegration
