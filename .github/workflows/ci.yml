@@ -69,7 +69,7 @@ jobs:
           DATABASE_URL: "file:/tmp/test.db"
 
       - name: Run canonical invariant tests
-        run: bun test src/lib/mtq/__tests__/canonical-invariants.ts
+        run: bun run src/lib/mtq/__tests__/canonical-invariants.ts
         env:
           DATABASE_URL: "file:/tmp/test.db"
           TURSO_DATABASE_URL: ""
@@ -101,7 +101,7 @@ jobs:
       - name: Verify Honest Status returns NOT PRODUCTION-AUTHORIZED
         run: |
           bun -e "
-          import { isProductionAuthorized, getHonestStatus, getValidationGates } from './src/lib/mtq/brand';
+          import { isProductionAuthorized, getHonestStatus, getValidationGates } from './src/lib/mtq/honest-status';
           const auth = isProductionAuthorized();
           const status = getHonestStatus();
           const gates = getValidationGates();
