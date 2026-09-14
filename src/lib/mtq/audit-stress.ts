@@ -781,11 +781,12 @@ function scenario7OracleDisagreement(): StressResult {
         finalPrice: 0,
         method: "paused" as const,
         paused: true,
+        governanceOverride: false,
         spreadBps: 0,
         sampledAt: Date.now(),
       };
     });
-    return { pairs, anyPaused: true, sampledAt: Date.now() };
+    return { pairs, anyPaused: true, governanceOverride: false, sampledAt: Date.now() };
   }
   void forcedSpike; void forcedStale;
   void buildOracleBoard;  // (we construct the paused board manually for deterministic test)
@@ -832,8 +833,10 @@ function scenario7OracleDisagreement(): StressResult {
       method: "paused" as const,
       finalPrice: 0,
       paused: true,
+      governanceOverride: false,
     })),
     anyPaused: true,
+    governanceOverride: false,
     sampledAt: Date.now(),
   };
 

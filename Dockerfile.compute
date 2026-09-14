@@ -1,0 +1,100 @@
+# ─────────────────────────────────────────────────────────────────────────────
+# MTQΣ — Deterministic Compute Engine (TASK-5)
+#
+# A slim, reproducible container that runs the MASE (Multi-model Adaptive
+# Stability Engine) weight-vector computation. The same image is used in two
+# modes:
+#
+#   1. Production (daily cron): reads the latest monetary state from Turso,
+#      computes the target weight vector, writes weight-vector.json.
+#
+#   2. Determinism test (CI): runs with --fixed-input (a frozen FX/macro
+#      snapshot) twice, compares the SHA-256 hashes. Same inputs → same hash
+#      is the determinism contract.
+#
+# WHY NODE/BUN (not Python):
+#   The MASE solver is already implemented in TypeScript (src/lib/mtq/mase.ts +
+#   engine.ts). Pinning node:20-slim + bun gives the same determinism
+# guarantees
+#   as pinning Python + numpy + scipy, with no extra runtime. The MASE math
+#   path is pure TypeScript (no Math.random, no Date.now in the solver) so
+#   byte-identical output is achievable across runs.
+#
+# IMAGE PINNING:
+#   We use `node:20-slim` (rolling tag) for convenience. For production
+# reproducibility
+#   you SHOULD pin the digest. To find the current digest:
+#     docker pull node:20-slim && docker inspect --format='{{index .RepoDigests 0}}' node:20-slim
+#   Then replace the FROM line with:
+#     FROM node:20-slim@sha256:<digest>
+#   The digest is also available at:
+#     https://hub.docker.com/_/node/tags?name=20-slim
+#
+# LOCK FILE:
+#   `bun.lock` IS the lock file (the Node equivalent of requirements.lock).
+#   It is committed at the repo root and `bun install --frozen-lockfile` refuses
+#   to install if it is out of sync with package.json — this is the determinism
+#   guarantee for the dependency tree.
+# ─────────────────────────────────────────────────────────────────────────────
+
+# ARG NODE_IMAGE=node:20-slim@sha256:<pin-me-after-first-pull>
+ARG NODE_IMAGE=node:20-slim
+FROM ${NODE_IMAGE}
+
+# ─── Determinism env vars ────────────────────────────────────────────────────
+# These eliminate thread-scheduling and hash-randomization non-determinism:
+#   PYTHONHASHSEED=0   — fixes Python's hash() seed (harmless here; set for any
+#                        future Python helper that might touch the output)
+#   OMP_NUM_THREADS=1  — OpenMP (used by native libs if ever linked)
+#   OPENBLAS_NUM_THREADS=1 — OpenBLAS (linear algebra; would be used by a
+#                            scipy/numpy port if ever added)
+#   MKL_NUM_THREADS=1  — Intel MKL (same)
+#   NODE_OPTIONS=--max-old-space-size=512 — cap heap so GC timing is stable
+ENV PYTHONHASHSEED=0 \
+    OMP_NUM_THREADS=1 \
+    OPENBLAS_NUM_THREADS=1 \
+    MKL_NUM_THREADS=1 \
+    NODE_OPTIONS=--max-old-space-size=512 \
+    TZ=UTC \
+    LC_ALL=C.UTF-8
+
+# Install bun (published to npm; works inside node:20-slim without curl)
+RUN npm install -g bun && bun --version
+
+WORKDIR /app
+
+# ─── Copy dependency manifests first (for layer caching) ────────────────────
+# bun.lock is THE lock file — --frozen-lockfile refuses to install if it is
+# out of sync with package.json. This is the dependency-tree determinism gate.
+COPY package.json bun.lock ./
+
+# Install only runtime dependencies (no devDependencies). --frozen-lockfile
+# ensures the installed tree matches bun.lock byte-for-byte.
+RUN bun install --frozen-lockfile --production
+
+# ─── Copy the application source ────────────────────────────────────────────
+# Only what the compute engine needs:
+#   - prisma/         — schema reference (the engine reads Turso directly via
+#                       @libsql/client, not Prisma, but the schema is kept for
+#                       documentation + future keeper use)
+#   - src/lib/mtq/    — the MASE solver + compute-engine entry point
+COPY prisma/ ./prisma/
+COPY src/lib/mtq/ ./src/lib/mtq/
+
+# ─── Non-root user for security ─────────────────────────────────────────────
+# node:20-slim ships with a `node` user (uid 1000). Run as it.
+USER node
+
+# ─── Output path ────────────────────────────────────────────────────────────
+# weight-vector.json is written to /app/weight-vector.json by default.
+# Override with COMPUTE_ENGINE_OUTPUT=/some/path/weight-vector.json.
+ENV COMPUTE_ENGINE_OUTPUT=/app/weight-vector.json
+
+# Default entry point: read from Turso (TURSO_DATABASE_URL + TURSO_AUTH_TOKEN
+# must be provided at runtime via -e or --env-file). For the determinism test,
+# override the command with --fixed-input.
+ENTRYPOINT ["bun", "run", "src/lib/mtq/compute-engine.ts"]
+
+# Default args: none → production mode (reads Turso). CI overrides with
+# `--fixed-input` for the determinism test.
+CMD []

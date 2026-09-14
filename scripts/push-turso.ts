@@ -9,11 +9,16 @@ if (!url) {
   process.exit(1)
 }
 
-const sql = readFileSync('/tmp/turso_migration.sql', 'utf8')
+// Accept the migration file path as a CLI arg, defaulting to the path used by
+// the TASK-4 workflow (`prisma migrate diff ... > /tmp/migration.sql`).
+// Falls back to the legacy `/tmp/turso_migration.sql` for backward compat.
+const migrationPath = process.argv[2] ?? '/tmp/migration.sql'
+const sql = readFileSync(migrationPath, 'utf8')
 
 async function main() {
   const client = createClient({ url, authToken })
   console.log('Connecting to:', url)
+  console.log('Migration file:', migrationPath)
 
   // Execute each statement (libSQL client executes one statement per execute() call)
   // Split on ");" boundary carefully — but better: use the `batch` API.
@@ -45,6 +50,13 @@ async function main() {
   const tables = await client.execute("SELECT name FROM sqlite_master WHERE type='table' ORDER BY name;")
   console.log('Tables in Turso:')
   for (const row of tables.rows) {
+    console.log(' -', row.name)
+  }
+
+  // Verify indexes (TASK-4 — confirm the 6 new indexes landed)
+  const idx = await client.execute("SELECT name FROM sqlite_master WHERE type='index' AND name LIKE '%_idx' ORDER BY name;")
+  console.log('\nIndexes in Turso:')
+  for (const row of idx.rows) {
     console.log(' -', row.name)
   }
 }

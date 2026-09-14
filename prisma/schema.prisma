@@ -27,6 +27,18 @@ model PilotTrial {
   reason       String?
   wallet       String?
   createdAt    DateTime @default(now())
+
+  // Indexes (TASK-4) — PilotTrial was previously unindexed, which made every
+  // dashboard query (by wallet / status / chain / time) a full table scan at
+  // scale. These four single-column indexes cover the dashboard's read paths:
+  //   - /api/trials/export  → findMany({ where: { wallet } })
+  //   - /api/trials         → findMany({ where: { status }, orderBy: { createdAt } })
+  //   - dashboard chain tab → findMany({ where: { chain } })
+  //   - dashboard recents   → findMany({ orderBy: { createdAt: 'desc' }, take: 50 })
+  @@index([wallet])
+  @@index([status])
+  @@index([chain])
+  @@index([createdAt])
 }
 
 model MetricSample {
@@ -42,6 +54,13 @@ model MetricSample {
   targetGold Float
   bufferState String
   createdAt DateTime @default(now())
+
+  // Indexes (TASK-4) — MetricSample was previously unindexed. The dashboard
+  // sparklines read the latest N samples by createdAt, and the risk-status
+  // filter narrows by status. Both would full-scan at scale (the pilot-state
+  // tick loop writes one row per ~4s → ~21k rows/day).
+  @@index([createdAt])
+  @@index([status])
 }
 
 // === Chapter 24 — Audit Trail (Auditability & Reproducibility) ===

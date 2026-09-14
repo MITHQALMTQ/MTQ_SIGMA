@@ -504,20 +504,30 @@ function runLayer2(): void {
       approx(c.divisor, bMinus / bPlus, 1e-9), `divisor=${c.divisor}, expected=${bMinus / bPlus}`);
   }
 
-  // --- 2.3 Oracle: 3-source consensus picks median for 3 valid, average for 2 valid, pauses for <2 ---
+  // --- 2.3 Oracle: strict I9 — median for 3 valid, PAUSE for <3 valid (override → degraded average) ---
   {
     // 3 valid feeds → median
     const c3 = buildOracleConsensus("EUR/USD", 1.0800, { now: 1000000 });
     assert(L, LNAME, "Oracle: 3 valid feeds → median method", c3.method === "median", `method=${c3.method}`);
     assert(L, LNAME, "Oracle: 3 valid feeds → not paused", c3.paused === false, `paused=${c3.paused}`);
-    // Force 1 stale → 2 valid feeds → average
+    // Force 1 stale → 2 valid feeds. Strict I9: PAUSED by default (no override).
     const c2 = buildOracleConsensus("EUR/USD", 1.0800, { now: 1000000, forcedStale: ["CHAINLINK"] });
-    assert(L, LNAME, "Oracle: 2 valid feeds → average method", c2.method === "average", `method=${c2.method}, validCount=${c2.validCount}`);
-    assert(L, LNAME, "Oracle: 2 valid feeds → not paused", c2.paused === false, `paused=${c2.paused}`);
-    // Force 2 stale → 1 valid feed → paused (need ≥2)
+    assert(L, LNAME, "Oracle: 2 valid feeds (no override) → paused method (strict I9)", c2.method === "paused", `method=${c2.method}, validCount=${c2.validCount}`);
+    assert(L, LNAME, "Oracle: 2 valid feeds (no override) → paused (strict I9)", c2.paused === true, `paused=${c2.paused}`);
+    assert(L, LNAME, "Oracle: 2 valid feeds (no override) → finalPrice = 0", c2.finalPrice === 0, `finalPrice=${c2.finalPrice}`);
+    assert(L, LNAME, "Oracle: 2 valid feeds (no override) → governanceOverride = false", c2.governanceOverride === false, `override=${c2.governanceOverride}`);
+    // 2 valid feeds WITH governanceOverride=true → degraded average (escape hatch)
+    const c2ov = buildOracleConsensus("EUR/USD", 1.0800, { now: 1000000, forcedStale: ["CHAINLINK"], governanceOverride: true });
+    assert(L, LNAME, "Oracle: 2 valid feeds + override → average method (degraded)", c2ov.method === "average", `method=${c2ov.method}, validCount=${c2ov.validCount}`);
+    assert(L, LNAME, "Oracle: 2 valid feeds + override → not paused (degraded)", c2ov.paused === false, `paused=${c2ov.paused}`);
+    assert(L, LNAME, "Oracle: 2 valid feeds + override → governanceOverride = true", c2ov.governanceOverride === true, `override=${c2ov.governanceOverride}`);
+    // Force 2 stale → 1 valid feed → paused (override has no effect when validCount < 2)
     const c1 = buildOracleConsensus("EUR/USD", 1.0800, { now: 1000000, forcedStale: ["CHAINLINK", "PYTH"] });
-    assert(L, LNAME, "Oracle: 1 valid feed → paused (need ≥2)", c1.paused === true, `paused=${c1.paused}, validCount=${c1.validCount}`);
+    assert(L, LNAME, "Oracle: 1 valid feed → paused (strict I9)", c1.paused === true, `paused=${c1.paused}, validCount=${c1.validCount}`);
     assert(L, LNAME, "Oracle: 1 valid feed → method = paused", c1.method === "paused", `method=${c1.method}`);
+    // 1 valid feed + override → STILL paused (cannot average < 2 sources)
+    const c1ov = buildOracleConsensus("EUR/USD", 1.0800, { now: 1000000, forcedStale: ["CHAINLINK", "PYTH"], governanceOverride: true });
+    assert(L, LNAME, "Oracle: 1 valid feed + override → still paused (cannot average <2)", c1ov.paused === true, `paused=${c1ov.paused}, override=${c1ov.governanceOverride}`);
     // Deviation > 2.5% → feed discarded
     const cSpike = buildOracleConsensus("EUR/USD", 1.0800, { now: 1000000, forcedSpike: ["CHRONICLE"] });
     // The spiked feed should have valid=false with deviation reason
@@ -952,12 +962,15 @@ function runLayer5(): void {
   const LNAME = "Adversarial (oracle failure, reentrancy, rounding, state manipulation)";
   console.log(`\n=== Layer ${L} — ${LNAME} ===`);
 
-  // --- 5.1 Oracle failure (1 stale, 2 stale, 3 stale, deviation > 2.5%) ---
+  // --- 5.1 Oracle failure (1 stale, 2 stale, 3 stale, deviation > 2.5%) — strict I9 ---
   {
-    // 1 stale → 2 valid → average
+    // 1 stale → 2 valid → PAUSED (strict I9, no override). Previously averaged.
     const c1 = buildOracleConsensus("EUR/USD", 1.08, { now: 1_000_000, forcedStale: ["CHAINLINK"] });
-    assert(L, LNAME, "Adversarial: 1 stale feed → 2 valid → average (not paused)", c1.method === "average" && !c1.paused, `method=${c1.method}, valid=${c1.validCount}`);
-    // 2 stale → 1 valid → paused
+    assert(L, LNAME, "Adversarial: 1 stale feed → 2 valid → paused (strict I9)", c1.method === "paused" && c1.paused, `method=${c1.method}, paused=${c1.paused}, valid=${c1.validCount}`);
+    // 1 stale + override → 2 valid → degraded average (escape hatch)
+    const c1ov = buildOracleConsensus("EUR/USD", 1.08, { now: 1_000_000, forcedStale: ["CHAINLINK"], governanceOverride: true });
+    assert(L, LNAME, "Adversarial: 1 stale + override → 2 valid → degraded average", c1ov.method === "average" && !c1ov.paused, `method=${c1ov.method}, paused=${c1ov.paused}, valid=${c1ov.validCount}`);
+    // 2 stale → 1 valid → paused (override has no effect when validCount < 2)
     const c2 = buildOracleConsensus("EUR/USD", 1.08, { now: 1_000_000, forcedStale: ["CHAINLINK", "PYTH"] });
     assert(L, LNAME, "Adversarial: 2 stale feeds → 1 valid → paused", c2.paused && c2.method === "paused", `paused=${c2.paused}, valid=${c2.validCount}`);
     // 3 stale → 0 valid → paused
