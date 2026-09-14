@@ -1,0 +1,195 @@
+# MTQΣ — Keeper Heartbeat (BACKUP, not primary)
+#
+# Per COO correction #1:
+#   • Koyeb free instances can restart at any time. Outbound pings from the
+#     keeper do NOT prevent restarts. The PRIMARY uptime monitor is an
+#     EXTERNAL service (UptimeRobot or cron-job.org, both free, no card)
+#     that pings https://<koyeb-url>/health every 5 minutes.
+#   • This GitHub Actions workflow is a BACKUP. It runs every 10 minutes
+#     (GitHub Actions minimum cron granularity is 5 min, but 10 min is the
+#     practical reliability floor) and:
+#       1. Pings /health.
+#       2. If /health fails, posts a Discord alert via webhook.
+#       3. Creates a GitHub issue so the failure is tracked.
+#
+# DO NOT rely on this as the primary monitor. Configure UptimeRobot first.
+# See mini-services/keeper/README.md → "External uptime monitor".
+
+name: Keeper Heartbeat (Backup)
+
+on:
+  schedule:
+    # Every 10 minutes. GitHub Actions cron minimum is 5 min, but 5-min
+    # crons on the free tier are heavily throttled and frequently skipped.
+    # 10 min is the reliable floor.
+    - cron: '*/10 * * * *'
+  workflow_dispatch: # manual trigger from the Actions tab
+
+permissions:
+  contents: read
+  issues: write # for creating the heartbeat-failure issue
+
+jobs:
+  heartbeat:
+    name: Ping keeper /health (backup)
+    runs-on: ubuntu-latest
+    timeout-minutes: 2
+    env:
+      # KEEPER_URL: the public Koyeb URL of the keeper service.
+      # Set this in repo Settings → Secrets and variables → Actions.
+      # Example: https://mtqs-keeper-abc123.koyeb.app
+      KEEPER_URL: ${{ secrets.KEEPER_URL }}
+      # DISCORD_WEBHOOK: the Discord webhook URL for alerts.
+      # Set this in repo Settings → Secrets and variables → Actions.
+      DISCORD_WEBHOOK: ${{ secrets.DISCORD_WEBHOOK }}
+
+    steps:
+      - name: Ping /health
+        id: ping
+        continue-on-error: true
+        run: |
+          if [ -z "$KEEPER_URL" ]; then
+            echo "::error::KEEPER_URL secret is not set — workflow cannot run. Configure it in repo Settings → Secrets → Actions."
+            exit 1
+          fi
+          # -f: fail on HTTP 4xx/5xx. -m 10: 10s timeout. -s: silent. -S: show errors.
+          # -o /dev/null: discard body. -w "%{http_code}": capture status.
+          HTTP_CODE=$(curl -fsS -m 10 -o /dev/null -w "%{http_code}" "$KEEPER_URL/health" 2>/dev/null || echo "000")
+          echo "http_code=$HTTP_CODE" >> "$GITHUB_OUTPUT"
+          echo "::notice::/health returned HTTP $HTTP_CODE from $KEEPER_URL"
+          if [ "$HTTP_CODE" != "200" ]; then
+            echo "healthy=false" >> "$GITHUB_OUTPUT"
+            exit 1
+          else
+            echo "healthy=true" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Discord alert on failure
+        if: failure() && steps.ping.outcome == 'failure'
+        run: |
+          if [ -z "$DISCORD_WEBHOOK" ]; then
+            echo "::warning::DISCORD_WEBHOOK secret is not set — cannot send alert. Configure it in repo Settings → Secrets → Actions."
+            exit 0
+          fi
+          HTTP_CODE="${{ steps.ping.outputs.http_code }}"
+          RUN_URL="${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}"
+          # Discord webhook expects JSON { "content": "..." }
+          # Use jq to safely escape the message.
+          MSG="⚠️ **MTQΣ Keeper health check FAILED** (backup heartbeat)
+          - URL: \`$KEEPER_URL/health\`
+          - HTTP code: \`$HTTP_CODE\` (expected 200)
+          - Time: $(date -u +"%Y-%m-%dT%H:%M:%SZ")
+          - Run: $RUN_URL
+          - This is the GitHub Actions BACKUP heartbeat (10-min granularity).
+            The PRIMARY monitor should be UptimeRobot (5-min). If you received
+            this alert, EITHER:
+              (a) UptimeRobot is also failing → check the keeper now (see RUNBOOK.md §1), or
+              (b) UptimeRobot is not configured → configure it now (see mini-services/keeper/README.md)."
+          PAYLOAD=$(jq -n --arg m "$MSG" '{content: $m}')
+          curl -fsS -X POST -H "Content-Type: application/json" -d "$PAYLOAD" "$DISCORD_WEBHOOK"
+          echo "::notice::Discord alert sent"
+
+      - name: Create / update GitHub issue on failure
+        if: failure() && steps.ping.outcome == 'failure'
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const httpCode = '${{ steps.ping.outputs.http_code }}';
+            const keeperUrl = process.env.KEEPER_URL;
+            const runUrl = `${context.serverUrl}/${context.repo.owner}/${context.repo.repo}/actions/runs/${context.runId}`;
+            const time = new Date().toISOString();
+
+            const title = '⚠️ Keeper health check FAILED (backup heartbeat)';
+            const body = [
+              `**The GitHub Actions backup heartbeat failed to reach the keeper.**`,
+              ``,
+              `- **Keeper URL:** ${keeperUrl}/health`,
+              `- **HTTP code:** \`${httpCode}\` (expected \`200\`)`,
+              `- **Time (UTC):** ${time}`,
+              `- **Run:** ${runUrl}`,
+              ``,
+              `This is the **BACKUP** heartbeat (GitHub Actions, 10-min cron). The **PRIMARY**`,
+              `monitor should be UptimeRobot (5-min). If you received this issue, EITHER:`,
+              ``,
+              `1. **UptimeRobot is also failing** → the keeper is down. Follow \`RUNBOOK.md §1\``,
+              `   (Emergency pause) and \`§2\` (Alert governance).`,
+              `2. **UptimeRobot is not configured** → configure it now. See`,
+              `   \`mini-services/keeper/README.md\` → "External uptime monitor".`,
+              ``,
+              `### Triage steps`,
+              `1. Check the keeper's last tick:`,
+              `   \`\`\`bash`,
+              `   curl -s ${keeperUrl}/health | jq .`,
+              `   \`\`\``,
+              `2. Check the audit trail in Turso:`,
+              `   \`\`\`sql`,
+              `   SELECT tick_epoch, step, status, message, datetime(tick_at/1000,'unixepoch') as t`,
+              `   FROM keeper_audit`,
+              `   WHERE tick_at > strftime('%s','now','-1 hour')*1000`,
+              `   ORDER BY tick_epoch DESC LIMIT 50;`,
+              `   \`\`\``,
+              `3. If the keeper is unreachable, check Koyeb dashboard → Service → Logs.`,
+              `4. If the keeper is reachable but \`/health\` is non-200, check the env vars`,
+              `   (especially \`KEEPER_PRIVATE_KEY\`, \`RPC_URL\`, \`CONTRACT_ADDRESS\`).`,
+              ``,
+              `This issue will be auto-closed when the next heartbeat succeeds.`,
+            ].join('\n');
+
+            // Search for an existing OPEN issue with this title (avoid spam).
+            const issues = await github.rest.issues.listForRepo({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              state: 'open',
+              labels: 'keeper-heartbeat',
+              per_page: 50,
+            });
+            const existing = issues.data.find(i => i.title === title);
+            if (existing) {
+              // Comment on the existing issue with the new failure time.
+              await github.rest.issues.createComment({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                issue_number: existing.number,
+                body: `**Still failing at ${time}** — HTTP ${httpCode}\nRun: ${runUrl}`,
+              });
+              core.info(`Commented on existing issue #${existing.number}`);
+            } else {
+              // Create a new issue.
+              await github.rest.issues.create({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                title,
+                body,
+                labels: ['keeper-heartbeat', 'sev2', 'bug'],
+              });
+              core.info('Created new keeper-heartbeat issue');
+            }
+
+      - name: Close stale heartbeat issues on success
+        if: success()
+        uses: actions/github-script@v7
+        with:
+          script: |
+            // If /health is healthy, close any open keeper-heartbeat issues.
+            const issues = await github.rest.issues.listForRepo({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              state: 'open',
+              labels: 'keeper-heartbeat',
+              per_page: 50,
+            });
+            for (const issue of issues.data) {
+              await github.rest.issues.createComment({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                issue_number: issue.number,
+                body: `✅ **Recovered** at ${new Date().toISOString()} — /health returned 200.\nClosing.`,
+              });
+              await github.rest.issues.update({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                issue_number: issue.number,
+                state: 'closed',
+              });
+              core.info(`Closed issue #${issue.number}`);
+            }

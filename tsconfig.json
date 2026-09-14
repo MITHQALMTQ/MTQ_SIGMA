@@ -41,6 +41,8 @@
     "scripts",
     "mini-services",
     "examples",
-    "skills"
+    "skills",
+    "mobile",
+    "contracts"
   ]
 }

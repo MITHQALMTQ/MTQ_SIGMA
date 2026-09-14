@@ -31,7 +31,10 @@ yarn-error.log*
 .pnpm-debug.log*
 
 # env files (can opt-in for committing if needed)
-.env*
+.env
+.env.local
+.env.*.local
+# .env.example IS committed — it has dummy values only
 
 # vercel
 .vercel
@@ -56,3 +59,11 @@ upload/*.txt
 upload/private_key.txt
 screenshots/
 agent-ctx/
+
+# TASK-5 — Deterministic compute engine output (do not commit; CI uploads as artifact)
+weight-vector.json
+/weight-vector.json
+
+# TASK-9 — Turso daily backups (do not commit; CI uploads as artifact + GitHub Release)
+/backups/
+backups/

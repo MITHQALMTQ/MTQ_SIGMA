@@ -175,7 +175,8 @@ async function tick(store: PilotStore) {
   store.oracle = buildOracleBoard({
     EUR_USD: store.fx.EUR_USD, GBP_USD: store.fx.GBP_USD, JPY_USD: store.fx.JPY_USD, CNY_USD: store.fx.CNY_USD, XAU_USD: store.fx.XAU_USD,
   });
-  // If oracle paused (<2 valid feeds for any pair), use validated FX from oracle; else use raw
+  // If oracle paused (<3 valid feeds for any pair — strict I9 invariant),
+  // use validated FX from oracle; else use raw
   if (!store.oracle.anyPaused) {
     const ofx = oracleFxRates(store.oracle);
     store.fx = { ...store.fx, ...ofx };
@@ -226,7 +227,9 @@ async function tick(store: PilotStore) {
   updateReintegration(store.state, store.oracle, SIM_TICK_HOURS);
   // §3.6 price events (0.5% threshold)
   maybePriceEvent(store.state, store.state.lastVix > 0 ? computeSnapshot(store.state, store.fx, { oracle: store.oracle, registry: store.registry }).mtqPrice : 1);
-  // §7 rebalance (skip if oracle paused — §9.3 requires pause on <2 valid feeds)
+  // §7 rebalance (skip if oracle paused — §9.3 strict I9 requires pause on
+  // <3 valid feeds for any pair; governance override degrades to 2-source but
+  // rebalance is still skipped to avoid acting on a sub-quorum price).
   const snap0 = computeSnapshot(store.state, store.fx, { oracle: store.oracle, registry: store.registry });
   // Stash the (decision + pre/post-trade state) so the §24.2 audit row is
   // written AFTER the tickCount increment — keeps all audit rows on the same
@@ -463,9 +466,19 @@ export interface TrialResp {
 
 export async function applyTrial(req: TrialReq): Promise<TrialResp> {
   const store = await ensureStore();
-  // §9.3: if oracle paused, minting is blocked
-  if (store.oracle.anyPaused && req.type === "MINT") {
-    return { ok: false, snapshot: getSnapshotSync(store), error: "Oracle consensus paused (<2 valid feeds). Minting suspended per §9.3." };
+  // §9.3 (strict I9 invariant, COO/PM directive): if oracle paused (<3 valid
+  // feeds for any pair AND no governance override), BOTH mint AND redeem are
+  // blocked. Redeem is gated here in addition to mint because redemption must
+  // also price against a valid oracle (NAV uses oracle-derived FX); allowing
+  // redeem under a sub-quorum oracle would let users exit at stale prices,
+  // harming remaining holders. Rebalance is gated separately in the tick loop.
+  if (store.oracle.anyPaused) {
+    const mode = store.oracle.governanceOverride ? "degraded (2-source override)" : "paused (<3 valid feeds)";
+    return {
+      ok: false,
+      snapshot: getSnapshotSync(store),
+      error: `Oracle consensus ${mode}. ${req.type} suspended per §9.3 strict I9 invariant.`,
+    };
   }
   const snap = computeSnapshot(store.state, store.fx, { oracle: store.oracle, registry: store.registry });
   if (req.type === "MINT") {

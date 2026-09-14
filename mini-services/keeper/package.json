@@ -1,0 +1,19 @@
+{
+  "name": "@mtqs/keeper",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "description": "MTQΣ Koyeb keeper — always-on Bun service that calls the Solidity contract's onlyKeeper functions (advanceIndex, commitWeights, executeRebalance) on a 4-second tick. Port 3040 (fixed).",
+  "scripts": {
+    "dev": "bun --hot index.ts",
+    "start": "bun run index.ts"
+  },
+  "dependencies": {
+    "ethers": "^6.17.0",
+    "@libsql/client": "^0.14.0",
+    "@upstash/redis": "^1.34.3"
+  },
+  "engines": {
+    "bun": ">=1.1.0"
+  }
+}
