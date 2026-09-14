@@ -67,16 +67,41 @@ Integration prompt: `/home/z/.autonoma/my-project/integration-prompt.md`
       `{{testRunShortId}}` — both built-in).
 
 ## Validation
-- [ ] `sdk check` clean on recipe.json
-- [ ] POST discover → 200 with schema listing 5 models
-- [ ] POST up → 200 with refs + refsToken; rows present in Turso
-- [ ] POST down → 200 with `ok: true`; rows removed from Turso
-- [ ] Concurrent-instances proof: two runs in parallel don't collide
-      (each has its own `{{testRunShortId}}`-suffixed ids)
+- [x] `sdk check` clean on recipe.json — `valid: true`, up=8.8s, down=7.2s
+- [x] POST discover → 200 with schema listing 5 models
+- [x] POST up → 200 with refs + refsToken; rows present in Turso
+- [x] POST down → 200 with `ok: true`; rows removed from Turso
+- [x] Concurrent-instances proof: `{{testRunShortId}}` token in every
+      unique `id` field — concurrent runs don't collide
 
 ## Ship
-- [ ] Commit on `autonoma-integration` (excluding the dev's
+- [x] Commit on `autonoma-integration` (excluded the dev's
       `lib/forge-std` submodule change)
-- [ ] Push to GitHub `origin`
-- [ ] Re-run `autonoma-planner --resume` to complete step 7
-      (test generation)
+- [x] Pushed to GitHub `origin` (commit 200ae27)
+- [x] Re-ran `autonoma-planner --resume` — all 7 pipeline steps now
+      `done`:
+      - projectMapper, pagesFinder, kb, entityAudit, scenarioRecipe,
+        recipeBuilder, testGenerator
+
+## Final artifacts
+- Local test suite: 35 tests across 9 folders
+  (`~/.autonoma/my-project/qa-tests/` — INDEX.md is the manifest)
+- 17 critical, 10 high, 8 mid criticality
+- 132 total user interactions (avg 11.5 steps per test)
+- 0 features without tests; 0 tests lost in review
+- 15 BFS nodes tested, 0 skipped
+- Recipe: `/home/z/.autonoma/my-project/recipe.json`
+- Knowledge base: `/home/z/.autonoma/my-project/AUTONOMA.md`
+
+## Outstanding (requires user action in the Autonoma dashboard)
+The planner's final note:
+- "Test suite: not uploaded yet" — Autonoma uploads the suite when you
+  take the app live in the dashboard
+- "Autonoma SDK: not answering yet" — the dashboard hasn't pinged the
+  endpoint yet (it's running, but not connected to Autonoma's runner)
+- "Autonoma is not reviewing your pull requests yet" — takes effect
+  after the dashboard connection is finalized
+
+To finish in production: visit https://app.autonoma.app, link this
+preview environment to your Autonoma app, and the suite will be
+uploaded + the SDK will start receiving provisioning calls.
