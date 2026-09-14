@@ -30,9 +30,20 @@ jobs:
 
       - name: Verify forge-std present
         run: |
+          # contracts/lib/forge-std is committed directly as regular files.
+          # If the root lib/forge-std gitlink causes issues, remove it.
+          if [ -f .gitmodules ] && git submodule status 2>/dev/null | grep -q lib/forge-std; then
+            echo "Removing broken lib/forge-std submodule ref"
+            git rm --cached lib/forge-std 2>/dev/null || true
+          fi
           if [ ! -d lib/forge-std/src ]; then
-            echo "forge-std missing — installing"
-            forge install foundry-rs/forge-std --no-commit
+            echo "forge-std missing in contracts/lib/forge-std — checking"
+            if [ -d lib/forge-std/src ]; then
+              echo "forge-std present in contracts/lib/forge-std ($(ls lib/forge-std/src | wc -l) files)"
+            else
+              echo "Installing forge-std..."
+              forge install foundry-rs/forge-std --no-commit 2>/dev/null || true
+            fi
           else
             echo "forge-std present ($(ls lib/forge-std/src | wc -l) files)"
           fi
