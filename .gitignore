@@ -68,3 +68,4 @@ weight-vector.json
 /backups/
 backups/
 lib/forge-std/
+contracts/lib/forge-std/

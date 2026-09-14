@@ -109,7 +109,7 @@ jobs:
           console.log('getHonestStatus:', honest.status);
           console.log('validationGates all passed:', gates.every(g => g.passed));
           if (auth) { console.error('FAIL: isProductionAuthorized returned true on testnet'); process.exit(1); }
-          if (honest.status.includes('PRODUCTION-AUTHORIZED')) { console.error('FAIL: status says PRODUCTION-AUTHORIZED'); process.exit(1); }
+          if (honest.status === 'PRODUCTION-AUTHORIZED') { console.error('FAIL: status says PRODUCTION-AUTHORIZED'); process.exit(1); }
           if (gates.some(g => g.passed)) { console.error('FAIL: some validation gates passed'); process.exit(1); }
           console.log('PASS: Honest Status correctly returns NOT PRODUCTION-AUTHORIZED');
           "
