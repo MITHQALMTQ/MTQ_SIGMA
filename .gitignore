@@ -67,3 +67,5 @@ weight-vector.json
 # TASK-9 — Turso daily backups (do not commit; CI uploads as artifact + GitHub Release)
 /backups/
 backups/
+contracts/cache/
+contracts/foundry-out/

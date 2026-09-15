@@ -186,6 +186,9 @@ contract MTQSigmaV2 {
     error Err60();
     error Err61();
     error Err62();
+    error Err63(); // B12: duplicate oracle adapter (source-independence violation)
+    error Err64(); // B5: reserve-holding delta > 5% per call
+    error Err65(); // B2: renounceRole caller != account
 
     // ============================================================
     // Section 1: AccessControl (inlined) + Pausable + ReentrancyGuard
@@ -203,6 +206,9 @@ contract MTQSigmaV2 {
 
     event RoleGranted(bytes32 indexed role, address indexed account, address indexed sender);
     event RoleRevoked(bytes32 indexed role, address indexed account, address indexed sender);
+    // B1 FIX: Governance body setters — Listing 14 was dead code without these.
+    // which: 0=dao, 1=riskCouncil, 2=emergencyCouncil, 3=constitutionalCouncil.
+    event GovernanceBodySet(uint8 indexed which, address indexed oldAddr, address indexed newAddr);
 
     modifier onlyRole(bytes32 role) {
         if (!(_roles[role][msg.sender] || _roles[DEFAULT_ADMIN_ROLE][msg.sender])) revert Err30();
@@ -252,6 +258,10 @@ contract MTQSigmaV2 {
     event Mint(address indexed user, uint256 usdcIn, uint256 feeUsd, uint256 mtqMinted, uint256 price);
     event Redeem(address indexed user, uint256 mtqIn, uint256 feeUsd, uint256 usdcOut, uint256 navPerToken);
     event PriceUpdated(uint256 oldPrice, uint256 newPrice);
+    // B5 FIX: Reserve-holding update audit trail (per-call 5% cap is enforced
+    // inline in setReserveHolding; TODO MAINNET: wrap that function in a 48h
+    // TimelockController — not yet implemented in this pass).
+    event ReserveHoldingUpdated(uint256 indexed component, uint256 oldValue, uint256 newValue, address indexed by);
 
     // ============================================================
     // === Listing 1: Core Variables + Constitutional Constants ===
@@ -462,6 +472,45 @@ contract MTQSigmaV2 {
         emit GenesisVerified(INDEX_BASE_DENOMINATOR, block.timestamp);
     }
 
+    // ============================================================
+    // === B1 FIX: Governance body setters (§2.7 + Listing 14) ===
+    // ------------------------------------------------------------
+    // The four governance bodies (dao / riskCouncil / emergencyCouncil /
+    // constitutionalCouncil) were declared at L298-301 but never had
+    // initializers or setters — they defaulted to address(0), which made
+    // every onlyDAO / onlyRiskCouncil / onlyEmergencyCouncil /
+    // onlyConstitutionalCouncil gate unreachable except via the
+    // DEFAULT_ADMIN_ROLE bypass (and therefore made Listing 14's propose
+    // → execute → veto flow dead code in production where DEFAULT_ADMIN
+    // is rotated away from the deployer EOA).
+    //
+    // Each setter is gated by onlyConstitutionalCouncil (the 7/7 multi-sig)
+    // and the modifier already grants a DEFAULT_ADMIN_ROLE bypass, so the
+    // deployer/Safe can configure the initial set in a single setup tx and
+    // then hand constitutionalCouncil control to the production 7/7.
+    // ============================================================
+    function setDao(address _dao) external onlyConstitutionalCouncil {
+        // B1 FIX: Governance body setters — Listing 14 was dead code without these.
+        address old = dao;
+        dao = _dao;
+        emit GovernanceBodySet(0, old, _dao);
+    }
+    function setRiskCouncil(address _rc) external onlyConstitutionalCouncil {
+        address old = riskCouncil;
+        riskCouncil = _rc;
+        emit GovernanceBodySet(1, old, _rc);
+    }
+    function setEmergencyCouncil(address _ec) external onlyConstitutionalCouncil {
+        address old = emergencyCouncil;
+        emergencyCouncil = _ec;
+        emit GovernanceBodySet(2, old, _ec);
+    }
+    function setConstitutionalCouncil(address _cc) external onlyConstitutionalCouncil {
+        address old = constitutionalCouncil;
+        constitutionalCouncil = _cc;
+        emit GovernanceBodySet(3, old, _cc);
+    }
+
     /// @notice Listing 2 (§7.7) submitTargetWeights — MASE verification + smoothing.
     /// @dev   Only the MASE submitter (KEEPER_ROLE). Enforces sum=1, positivity,
     ///        admissibility envelopes, per-component velocity, then applies
@@ -577,6 +626,16 @@ contract MTQSigmaV2 {
     ///         itself — ZERO artificial return (the recursion is continuous).
     function commitWeights(uint256[7] calldata newWeights, uint256[7] calldata currentPrices) external onlyKeeper whenNotPaused {
         if (!(indexValue > 0)) revert Err20();
+
+        // B11 FIX: Validate weights sum to 1e18 (within 1e14 tolerance = 0.01%).
+        // Without this, a buggy keeper can commit weights summing to 0.79 or 1.21,
+        // causing the chain-linked index to drift systematically. Err54 mirrors
+        // the sum-to-one check already enforced in submitTargetWeights (L480).
+        uint256 weightSum = 0;
+        for (uint256 i = 0; i < 7; i++) {
+            weightSum += newWeights[i];
+        }
+        if (weightSum > 1e18 + 1e14 || weightSum < 1e18 - 1e14) revert Err54();
 
         // 1. B_t^- and B_t^+ are base-relative aggregates measured against
         //    the genesis fixings (§9.3, MS §75).
@@ -910,6 +969,14 @@ contract MTQSigmaV2 {
     function setOracleAdapter(uint8 source, address adapter) external onlyRole(ORACLE_ROLE) {
         if (!(source <= 2)) revert Err10();
         if (!(adapter != address(0))) revert Err55(); // H8 source-independence
+        // B12 FIX: Enforce 3 distinct adapters — source independence (I9).
+        // Reject any (source, adapter) pair that would collide with an already-
+        // configured adapter. Without this, an admin could (maliciously or by
+        // mistake) point two of the three source slots at the same adapter,
+        // collapsing the 3-source median into a 2-of-1 self-consensus.
+        if (source == 0 && (adapter == address(pythAdapter)       || adapter == address(chronicleAdapter))) revert Err63();
+        if (source == 1 && (adapter == address(chainlinkAdapter)  || adapter == address(chronicleAdapter))) revert Err63();
+        if (source == 2 && (adapter == address(chainlinkAdapter)  || adapter == address(pythAdapter)))      revert Err63();
         if (source == 0)      chainlinkAdapter  = IOracleAdapter(adapter);
         else if (source == 1) pythAdapter       = IOracleAdapter(adapter);
         else                  chronicleAdapter = IOracleAdapter(adapter);
@@ -919,8 +986,8 @@ contract MTQSigmaV2 {
     /// @notice §9.1-9.3 Consensus across all 3 adapters for a single pair.
     /// @return finalPrice  USD-per-unit, 1e18 scale (0 if paused)
     /// @return validCount  Number of valid feeds after all filters
-    /// @return method      0=paused, 1=average(2), 2=median(3)
-    /// @return paused_     True if fewer than 2 feeds are valid
+    /// @return method      0=paused, 1=average(2) [DEPRECATED by B6], 2=median(3)
+    /// @return paused_     True if fewer than 3 feeds are valid (B6: strict I9)
     /// @return prices      Raw prices per adapter (1e18) — index 0/1/2 = CL/Pyth/Cro
     /// @return valid       Per-adapter validity flag after all filters
     function getOracleConsensus(bytes32 pair) public view returns (
@@ -984,21 +1051,19 @@ contract MTQSigmaV2 {
             }
         }
 
-        if (validCount < 2) {
-            paused_ = true; method = 0;
+        // B6 FIX: Strict I9 — pause when <3 valid sources.
+        // No 2-source averaging (governance override is off-chain only;
+        // on-chain must always enforce strict 3-source quorum).
+        paused_ = validCount < 3;
+        if (paused_) {
+            method     = 0; // paused (existing convention: 0 = paused)
+            finalPrice = 0;
             return (finalPrice, validCount, method, paused_, prices, valid);
         }
 
-        paused_ = false;
-        if (validCount == 3) {
-            finalPrice = med;
-            method     = 2; // median(3)
-        } else {
-            uint256 sum = 0; uint8 cnt = 0;
-            for (uint8 i = 0; i < 3; i++) if (valid[i]) { sum += raw[i]; cnt++; }
-            finalPrice = sum / cnt;
-            method     = 1; // average(2)
-        }
+        // validCount == 3 — final price is the median.
+        finalPrice = med;
+        method     = 2; // median(3)
     }
 
     /// @notice §9 → §3  Commit FX rates from oracle consensus (keeper path).
@@ -1362,8 +1427,27 @@ contract MTQSigmaV2 {
     }
 
     /// @notice Adjust a single component's reserve holding (ADMIN_ROLE).
+    ///         B5 FIX (simplified mainnet pre-pass):
+    ///           - emits ReserveHoldingUpdated for every change (audit trail)
+    ///           - rejects per-call deltas > 5% (prevents a single admin tx
+    ///             from catastrophically rewriting NAV); bypassed ONLY when
+    ///             oldValue == 0 (initial bootstrap, no prior value to cap
+    ///             against).
+    ///         TODO MAINNET: wrap this in a 48h TimelockController (not yet
+    ///         implemented — that's a larger change requiring a dedicated
+    ///         TimelockController contract + queue/exec flow). The 5% cap +
+    ///         event here are an interim mitigation, not a full replacement.
     function setReserveHolding(Component c, uint256 usd) external onlyAdmin {
+        // B5 FIX: Emit event for audit trail + cap delta at 5% per call.
+        uint256 oldValue = reserveHeldUsd[c];
+        if (oldValue > 0) {
+            // Cap delta at 5% to prevent catastrophic NAV rewrite.
+            uint256 upper = oldValue * 105 / 100;
+            uint256 lower = oldValue * 95 / 100;
+            if (usd > upper || usd < lower) revert Err64();
+        }
         reserveHeldUsd[c] = usd;
+        emit ReserveHoldingUpdated(uint256(c), oldValue, usd, msg.sender);
     }
 
     /// @notice Seed the MASE live weights with the strategic prior (ADMIN_ROLE,
@@ -1430,6 +1514,15 @@ contract MTQSigmaV2 {
         _grantRole(role, account);
     }
     function revokeRole(bytes32 role, address account) external onlyRole(DEFAULT_ADMIN_ROLE) {
+        _revokeRole(role, account);
+    }
+    /// @notice B2 FIX: Allow an account to self-revoke a role. Critical for
+    ///         key rotation: after transferring DEFAULT_ADMIN to a Safe, the
+    ///         deployer EOA calls renounceRole(DEFAULT_ADMIN, deployer) to
+    ///         permanently give up admin power. Without this, a compromised
+    ///         deployer key retains admin forever.
+    function renounceRole(bytes32 role, address account) external {
+        if (!(msg.sender == account)) revert Err65(); // B2: only self-renounce
         _revokeRole(role, account);
     }
     function hasRole(bytes32 role, address account) external view returns (bool) {

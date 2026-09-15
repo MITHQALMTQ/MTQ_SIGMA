@@ -267,12 +267,16 @@ async function fetchCurrentPrices(): Promise<PriceVector | null> {
     const fxRes = await fetch("https://api.frankfurter.app/latest?from=USD&to=EUR,JPY,GBP,CNY,CHF", { signal: AbortSignal.timeout(2500) });
     if (!fxRes.ok) throw new Error(`frankfurter HTTP ${fxRes.status}`);
     const fx = await fxRes.json() as { rates: Record<string, number> };
-    // Frankfurter returns "1 USD = X EUR" etc., so EUR/USD = fx.rates.EUR.
-    const eur = fx.rates.EUR;
-    const jpy = 1 / fx.rates.JPY; // JPY is quoted as 1 USD = 149 JPY → invert
-    const gbp = fx.rates.GBP;
-    const cny = fx.rates.CNY;
-    const chf = fx.rates.CHF;
+    // B7 FIX: Frankfurter returns "1 USD = X foreign" for ALL currencies.
+    // The contract expects "USD per 1 unit of foreign" (USD/EUR ≈ 1.087).
+    // So we must INVERT every rate: USD_per_F = 1 / (F_per_USD).
+    // Previously EUR/GBP/CNY/CHF were pushed uninverted (≈0.92 instead of ≈1.087),
+    // which would corrupt the chain-linked index within one tick.
+    const eur = 1 / fx.rates.EUR;
+    const jpy = 1 / fx.rates.JPY;
+    const gbp = 1 / fx.rates.GBP;
+    const cny = 1 / fx.rates.CNY;
+    const chf = 1 / fx.rates.CHF;
 
     // Gold: try metals.live (free, no key). If it fails, fall back to a
     // placeholder — the contract will still advance with stale gold, just

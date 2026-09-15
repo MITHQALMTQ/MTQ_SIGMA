@@ -1235,21 +1235,63 @@ export function applyRedeem(
 
   // Mutate reserve: burn MTQ from circulating (reduce totalSupply), release assets
   // USD released proportionally across USDC + USDP + USDT; gold across PAXG + XAUT
-  s.totalSupply -= inputMtq;
+  // B9 FIX: Pre-check that every component has sufficient holdings before
+  // mutating. Previously, Math.max(0, holding - amount) silently floored
+  // negative holdings to 0 — the deficit disappeared, breaking conservation
+  // of value and creating phantom surplus over time. Now we revert the entire
+  // redeem if any component is short. This is the safe choice for mainnet.
   const usdRelease = basket[0].nativeAmount;
   const usdThirdRelease = usdRelease / 3;
-  s.usdc = Math.max(0, s.usdc - usdThirdRelease);
-  s.usdp = Math.max(0, s.usdp - usdThirdRelease);
-  s.usdt = Math.max(0, s.usdt - usdThirdRelease);
-  s.eurc = Math.max(0, s.eurc - basket[1].nativeAmount);
-  s.jpy  = Math.max(0, s.jpy  - basket[2].nativeAmount);
-  s.gbp  = Math.max(0, s.gbp  - basket[3].nativeAmount);
-  s.cny  = Math.max(0, s.cny  - basket[4].nativeAmount);
-  s.chf  = Math.max(0, s.chf  - basket[5].nativeAmount); // NEW v1.0
-  // Gold released 50/50 PAXG + XAUT
   const goldHalf = goldPaxg / 2;
-  s.paxg = Math.max(0, s.paxg - goldHalf);
-  s.xaut = Math.max(0, s.xaut - goldHalf);
+
+  // B9: Check all holdings are sufficient. If any is short, return ok:false
+  // with a clear reason — do NOT silently floor to 0.
+  if (s.usdc < usdThirdRelease || s.usdp < usdThirdRelease || s.usdt < usdThirdRelease) {
+    return {
+      ok: false, reason: "Insufficient USD stable holdings for redemption basket (B9 conservation guard).",
+      inputMtq, mtqPrice: price, grossUsd: 0, feeBps: 0, feeUsd: 0, netUsd: 0,
+      goldUsd: 0, goldPaxg: 0, basket: [], newCirculatingSupply: circ,
+      newReserveRatio: computeReserveRatio(vals0.nav, computeLiability(s, price)),
+      navPerMtq, auditNavPerToken, auditGrossUsdNav, auditGrossUsdIndex,
+      auditDeltaUsd: auditGrossUsdNav - auditGrossUsdIndex, auditNote,
+    };
+  }
+  if (s.eurc < basket[1].nativeAmount || s.jpy < basket[2].nativeAmount ||
+      s.gbp < basket[3].nativeAmount || s.cny < basket[4].nativeAmount ||
+      s.chf < basket[5].nativeAmount) {
+    return {
+      ok: false, reason: "Insufficient fiat token holdings for redemption basket (B9 conservation guard).",
+      inputMtq, mtqPrice: price, grossUsd: 0, feeBps: 0, feeUsd: 0, netUsd: 0,
+      goldUsd: 0, goldPaxg: 0, basket: [], newCirculatingSupply: circ,
+      newReserveRatio: computeReserveRatio(vals0.nav, computeLiability(s, price)),
+      navPerMtq, auditNavPerToken, auditGrossUsdNav, auditGrossUsdIndex,
+      auditDeltaUsd: auditGrossUsdNav - auditGrossUsdIndex, auditNote,
+    };
+  }
+  if (s.paxg < goldHalf || s.xaut < goldHalf) {
+    return {
+      ok: false, reason: "Insufficient gold (PAXG/XAUT) holdings for redemption basket (B9 conservation guard).",
+      inputMtq, mtqPrice: price, grossUsd: 0, feeBps: 0, feeUsd: 0, netUsd: 0,
+      goldUsd: 0, goldPaxg: 0, basket: [], newCirculatingSupply: circ,
+      newReserveRatio: computeReserveRatio(vals0.nav, computeLiability(s, price)),
+      navPerMtq, auditNavPerToken, auditGrossUsdNav, auditGrossUsdIndex,
+      auditDeltaUsd: auditGrossUsdNav - auditGrossUsdIndex, auditNote,
+    };
+  }
+
+  s.totalSupply -= inputMtq;
+  // B9: All holdings verified sufficient above — subtract directly (no Math.max needed).
+  s.usdc -= usdThirdRelease;
+  s.usdp -= usdThirdRelease;
+  s.usdt -= usdThirdRelease;
+  s.eurc -= basket[1].nativeAmount;
+  s.jpy  -= basket[2].nativeAmount;
+  s.gbp  -= basket[3].nativeAmount;
+  s.cny  -= basket[4].nativeAmount;
+  s.chf  -= basket[5].nativeAmount; // NEW v1.0
+  // Gold released 50/50 PAXG + XAUT
+  s.paxg -= goldHalf;
+  s.xaut -= goldHalf;
   // §14.1 — gold released to the redeemer comes from the RESERVE buffer first
   // (index gold is locked). syncReserveFromTotal re-derives reserve = total − index
   // so the invariant paxg = indexPaxg + reservePaxg is preserved.
