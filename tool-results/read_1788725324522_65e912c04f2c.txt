@@ -1,0 +1,748 @@
+     1→// MTQΣ — Home Section (landing page)
+     2→// Polished, cinematic first impression of MTQΣ for a new user. Renders:
+     3→//  1. Hero (existing mtqs-hero.png + ConstitutionalSeparation radial diagram +
+     4→//     Cormorant Garamond gold-gradient title + the blueprint core objective quote +
+     5→//     two CTAs: "Start a Testnet Trial" → Trial section, "View Live Dashboard" → Dashboard section).
+     6→//  2. "What is MTQΣ?" — 3-card explainer (reference index · monetary unit · reserve portfolio).
+     7→//  3. "How it works" — 4-step animated SVG flow (Deposit USDC → Mint MTQΣ → Hold/Transfer → Redeem for basket).
+     8→//  4. Live stats band — GFB Index, MTQ Price, NAV, Reserve Ratio (polls /api/metrics via shared snapshot).
+     9→//  5. "Deployed on 4 testnets" — cards for Monad, Arc, Robinhood, Solana with chain logo + canonical address + "View contracts" link.
+    10→//  6. The 4 brand principles: Honest · Sovereign · Collateralized · Calm.
+    11→//  7. Honest status callout — candidate for public testing, designed for Sharia review.
+    12→//  8. Footer CTA — "Ready to try? Start your testnet trial →"
+    13→
+    14→"use client";
+    15→
+    16→import Image from "next/image";
+    17→import { motion } from "framer-motion";
+    18→import {
+    19→  Panel,
+    20→  Reveal,
+    21→  Pill,
+    22→  GlowDot,
+    23→  TickNumber,
+    24→  BrandPrinciples,
+    25→} from "../primitives";
+    26→import { ConstitutionalSeparation } from "../ConstitutionalSeparation";
+    27→import { fmtFixed, fmtUsdCompact, fmtRatio, shortAddr, copyToClipboard } from "../format";
+    28→import { BRAND_VOICE, BRAND_ASSETS } from "@/lib/mtq/brand";
+    29→import {
+    30→  ALL_CHAINS,
+    31→  CANONICAL_MTQ_ADDRESSES,
+    32→  buildExplorerAddressUrl,
+    33→} from "@/lib/mtq/contracts";
+    34→import type { MetricsSnapshot } from "@/lib/mtq/engine";
+    35→import { toast } from "sonner";
+    36→import {
+    37→  ArrowRight,
+    38→  Coins,
+    39→  Scale,
+    40→  Sparkles,
+    41→  Landmark,
+    42→  Shield,
+    43→} from "lucide-react";
+    44→import type { SectionId } from "../Navigation";
+    45→
+    46→/* ---------- Hero ---------- */
+    47→function Hero({ onCta }: { onCta: (s: SectionId) => void }) {
+    48→  return (
+    49→    <section className="relative" aria-label="MTQΣ hero">
+    50→      <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-12 items-center">
+    51→        {/* Left — hero image + title + subtitle + CTAs */}
+    52→        <Reveal>
+    53→          <div className="relative aspect-[4/3] sm:aspect-[16/10] w-full max-w-[680px] mx-auto lg:mx-0 overflow-hidden rounded-2xl border border-mtqs-gold/15 mtqs-glow">
+    54→            <Image
+    55→              src={BRAND_ASSETS.hero}
+    56→              alt="MTQΣ hero — the closed-loop monetary architecture visualised as a gold monolith on obsidian"
+    57→              fill
+    58→              sizes="(max-width: 1024px) 100vw, 50vw"
+    59→              className="object-cover opacity-70"
+    60→              priority
+    61→            />
+    62→            <div className="absolute inset-0 bg-gradient-to-tr from-[#080a0c] via-[#080a0c]/65 to-transparent" />
+    63→            <div className="absolute inset-0 bg-gradient-to-b from-[#080a0c]/40 via-transparent to-[#080a0c]/85" />
+    64→            {/* Hero title */}
+    65→            <div className="absolute top-5 left-5 right-5 sm:top-7 sm:left-7 sm:right-7">
+    66→              <div className="text-[0.65rem] uppercase tracking-[0.28em] text-mtqs-gold/75">
+    67→                MTQΣ · {BRAND_VOICE.tagline}
+    68→              </div>
+    69→              <h1 className="mtqs-display mtqs-gold-text mt-2 text-3xl sm:text-4xl lg:text-5xl font-semibold leading-[1.05]">
+    70→                The Global Purchasing
+    71→                <br className="hidden sm:inline" /> Power Unit
+    72→              </h1>
+    73→            </div>
+    74→            {/* Hero subtitle (core objective quote) */}
+    75→            <div className="absolute bottom-5 left-5 right-5 sm:bottom-7 sm:left-7 sm:right-7">
+    76→              <blockquote className="text-sm sm:text-base text-amber-100/90 font-medium leading-relaxed italic">
+    77→                &ldquo;{BRAND_VOICE.coreObjective}&rdquo;
+    78→              </blockquote>
+    79→              <div className="mt-2 text-[0.65rem] uppercase tracking-[0.25em] text-amber-200/70">
+    80→                §1.1 · Core Objective
+    81→              </div>
+    82→            </div>
+    83→          </div>
+    84→          {/* Brand principles row */}
+    85→          <div className="mt-5 max-w-[680px] mx-auto lg:mx-0">
+    86→            <BrandPrinciples />
+    87→          </div>
+    88→          {/* CTAs */}
+    89→          <div className="mt-6 flex flex-col sm:flex-row gap-3 max-w-[680px] mx-auto lg:mx-0">
+    90→            <button
+    91→              onClick={() => onCta("trial")}
+    92→              className="mtqs-focus group inline-flex items-center justify-center gap-2 rounded-lg bg-gradient-to-b from-amber-300 to-amber-500 px-5 py-3 text-sm font-semibold text-[#1a1208] shadow-lg shadow-amber-500/15 transition hover:from-amber-200 hover:to-amber-400"
+    93→              aria-label="Start a Testnet Trial"
+    94→            >
+    95→              Start a Testnet Trial
+    96→              <ArrowRight size={16} className="transition-transform group-hover:translate-x-0.5" />
+    97→            </button>
+    98→            <button
+    99→              onClick={() => onCta("dashboard")}
+   100→              className="mtqs-focus group inline-flex items-center justify-center gap-2 rounded-lg border border-mtqs-emerald/35 bg-mtqs-emerald/[0.06] px-5 py-3 text-sm font-semibold text-[#6ff0c0] transition hover:bg-mtqs-emerald/[0.10]"
+   101→              aria-label="View Live Dashboard"
+   102→            >
+   103→              <GlowDot color="emerald" size="h-1.5 w-1.5" />
+   104→              View Live Dashboard
+   105→            </button>
+   106→          </div>
+   107→        </Reveal>
+   108→
+   109→        {/* Right — Constitutional Separation diagram */}
+   110→        <Reveal delay={0.12}>
+   111→          <div className="max-w-[520px] mx-auto">
+   112→            <ConstitutionalSeparation snapshot={null} />
+   113→          </div>
+   114→        </Reveal>
+   115→      </div>
+   116→    </section>
+   117→  );
+   118→}
+   119→
+   120→/* ---------- 3-card explainer: "What is MTQΣ?" ---------- */
+   121→function WhatIsMtqs() {
+   122→  const cards = [
+   123→    {
+   124→      icon: Scale,
+   125→      title: "A Reference Index",
+   126→      sub: "GFB — the 5-currency basket",
+   127→      body: "The GFB Index is the immutable constitutional reference. It is a weighted basket of 5 currencies (USD, EUR, GBP, JPY, CNY) that defines what one MTQΣ is intended to represent in global purchasing power.",
+   128→      tone: "gold" as const,
+   129→    },
+   130→    {
+   131→      icon: Coins,
+   132→      title: "A Monetary Unit",
+   133→      sub: "MTQΣ — a claim on the index",
+   134→      body: "The MTQΣ token is the on-chain unit minted against the GFB Index. Mint price = (USDC × (1−fee)) / P_MTQ. Redeem burns MTQΣ and releases the basket. The total supply is the protocol liability.",
+   135→      tone: "emerald" as const,
+   136→    },
+   137→    {
+   138→      icon: Landmark,
+   139→      title: "A Reserve Portfolio",
+   140→      sub: "real collateral — stablecoins + gold",
+   141→      body: "The reserve portfolio is the collateral that backs the liability. Stablecoins (USDC, USDP, USDT, EURC…) + tokenised gold (PAXG, XAUT). NAV / liability = the Reserve Ratio. Target 110%.",
+   142→      tone: "amber" as const,
+   143→    },
+   144→  ];
+   145→  return (
+   146→    <section className="mt-16" aria-labelledby="what-is-mtqs-heading">
+   147→      <SectionLabel
+   148→        eyebrow="The Constitutional Separation"
+   149→        title="What is MTQΣ?"
+   150→        sub="Three layers, deliberately separated. The index defines the unit; the reserve collateralises it."
+   151→      />
+   152→      <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mt-6">
+   153→        {cards.map((c, i) => {
+   154→          const Icon = c.icon;
+   155→          const tone =
+   156→            c.tone === "gold"
+   157→              ? "border-mtqs-gold/25 bg-mtqs-gold/[0.04]"
+   158→              : c.tone === "emerald"
+   159→              ? "border-mtqs-emerald/25 bg-mtqs-emerald/[0.04]"
+   160→              : "border-mtqs-amber/25 bg-mtqs-amber/[0.04]";
+   161→          const dotColor =
+   162→            c.tone === "gold" ? "gold" : c.tone === "emerald" ? "emerald" : "amber";
+   163→          const iconColor =
+   164→            c.tone === "gold"
+   165→              ? "text-mtqs-gold"
+   166→              : c.tone === "emerald"
+   167→              ? "text-[#6ff0c0]"
+   168→              : "text-[#ffd07a]";
+   169→          return (
+   170→            <Reveal key={c.title} delay={i * 0.06}>
+   171→              <Panel className={`p-5 sm:p-6 h-full flex flex-col gap-3 ${tone}`}>
+   172→                <div className="flex items-start justify-between">
+   173→                  <div className="flex items-center gap-2">
+   174→                    <span className={iconColor}>
+   175→                      <Icon size={22} strokeWidth={1.6} />
+   176→                    </span>
+   177→                    <div>
+   178→                      <div className="text-base font-semibold text-foreground/95 leading-tight">
+   179→                        {c.title}
+   180→                      </div>
+   181→                      <div className="text-[0.7rem] text-muted-foreground/80 mt-0.5">{c.sub}</div>
+   182→                    </div>
+   183→                  </div>
+   184→                  <GlowDot color={dotColor} size="h-2 w-2" />
+   185→                </div>
+   186→                <p className="text-[0.82rem] text-muted-foreground/85 leading-relaxed">
+   187→                  {c.body}
+   188→                </p>
+   189→              </Panel>
+   190→            </Reveal>
+   191→          );
+   192→        })}
+   193→      </div>
+   194→    </section>
+   195→  );
+   196→}
+   197→
+   198→/* ---------- How it works — 4-step flow ---------- */
+   199→function HowItWorks() {
+   200→  const steps = [
+   201→    {
+   202→      n: 1,
+   203→      label: "Deposit USDC",
+   204→      body: "Pilot users deposit testnet USDC into the Mint contract on any of the 4 chains.",
+   205→      glyph: "$",
+   206→      tone: "gold" as const,
+   207→    },
+   208→    {
+   209→      n: 2,
+   210→      label: "Mint MTQΣ",
+   211→      body: "MTQ minted = (USDC × (1 − 0.10%)) / P_MTQ where P_MTQ tracks the GFB Index.",
+   212→      glyph: "Σ",
+   213→      tone: "emerald" as const,
+   214→    },
+   215→    {
+   216→      n: 3,
+   217→      label: "Hold / Transfer",
+   218→      body: "MTQΣ is a normal ERC-20 / SPL token. Hold it, send it, or list it — supply is the protocol liability.",
+   219→      glyph: "→",
+   220→      tone: "amber" as const,
+   221→    },
+   222→    {
+   223→      n: 4,
+   224→      label: "Redeem for the Basket",
+   225→      body: "Burn MTQΣ (fee 0.15%) → receive the basket: stablecoins + gold. Arbitrage keeps price = GFB Index.",
+   226→      glyph: "↺",
+   227→      tone: "gold" as const,
+   228→    },
+   229→  ];
+   230→  return (
+   231→    <section className="mt-16" aria-labelledby="how-it-works-heading">
+   232→      <SectionLabel
+   233→        eyebrow="§12 · Closed-Loop Mint / Redeem"
+   234→        title="How it works"
+   235→        sub="A self-balancing closed loop: mint pushes supply up, redeem burns it down — both priced against the same GFB Index."
+   236→      />
+   237→      <Reveal>
+   238→        <Panel className="p-5 sm:p-6 mt-6">
+   239→          {/* SVG flow diagram */}
+   240→          <div className="relative overflow-x-auto mtqs-no-scrollbar">
+   241→            <svg
+   242→              viewBox="0 0 920 220"
+   243→              className="w-full min-w-[760px] h-auto"
+   244→              role="img"
+   245→              aria-label="Four-step flow: Deposit USDC, Mint MTQΣ against the GFB Index, Hold or transfer, Redeem for the basket."
+   246→            >
+   247→              <defs>
+   248→                <linearGradient id="flow-gold" x1="0" y1="0" x2="1" y2="0">
+   249→                  <stop offset="0%" stopColor="#f5d27a" />
+   250→                  <stop offset="100%" stopColor="#b8860b" />
+   251→                </linearGradient>
+   252→                <linearGradient id="flow-emerald" x1="0" y1="0" x2="1" y2="0">
+   253→                  <stop offset="0%" stopColor="#6effc0" />
+   254→                  <stop offset="100%" stopColor="#16a97a" />
+   255→                </linearGradient>
+   256→                <linearGradient id="flow-amber" x1="0" y1="0" x2="1" y2="0">
+   257→                  <stop offset="0%" stopColor="#ffd07a" />
+   258→                  <stop offset="100%" stopColor="#cc8421" />
+   259→                </linearGradient>
+   260→                <filter id="flow-glow" x="-30%" y="-30%" width="160%" height="160%">
+   261→                  <feGaussianBlur stdDeviation="3" result="blur" />
+   262→                  <feMerge>
+   263→                    <feMergeNode in="blur" />
+   264→                    <feMergeNode in="SourceGraphic" />
+   265→                  </feMerge>
+   266→                </filter>
+   267→              </defs>
+   268→
+   269→              {/* Connecting dashed flow lines */}
+   270→              {[
+   271→                { x1: 200, x2: 320, grad: "url(#flow-gold)" },
+   272→                { x1: 500, x2: 620, grad: "url(#flow-emerald)" },
+   273→                { x1: 800, x2: 700, grad: "url(#flow-amber)" },
+   274→              ].map((l, i) => (
+   275→                <line
+   276→                  key={i}
+   277→                  x1={l.x1}
+   278→                  y1={110}
+   279→                  x2={l.x2}
+   280→                  y2={110}
+   281→                  stroke={l.grad}
+   282→                  strokeWidth={2}
+   283→                  strokeDasharray="6 6"
+   284→                  className="mtqs-flow-dash-slow"
+   285→                />
+   286→              ))}
+   287→
+   288→              {/* Nodes (4 steps) */}
+   289→              {steps.map((s, i) => {
+   290→                const cx = 110 + i * 240;
+   291→                const tone =
+   292→                  s.tone === "gold"
+   293→                    ? "#e8b964"
+   294→                    : s.tone === "emerald"
+   295→                    ? "#3ddc97"
+   296→                    : "#ffb84d";
+   297→                return (
+   298→                  <g key={s.n}>
+   299→                    <circle
+   300→                      cx={cx}
+   301→                      cy={110}
+   302→                      r={62}
+   303→                      fill="rgba(232,185,100,0.04)"
+   304→                      stroke={tone}
+   305→                      strokeWidth={1.2}
+   306→                      opacity={0.9}
+   307→                      filter="url(#flow-glow)"
+   308→                    />
+   309→                    {/* Step number ring */}
+   310→                    <circle
+   311→                      cx={cx}
+   312→                      cy={50}
+   313→                      r={14}
+   314→                      fill="#080a0c"
+   315→                      stroke={tone}
+   316→                      strokeWidth={1.4}
+   317→                    />
+   318→                    <text
+   319→                      x={cx}
+   320→                      y={55}
+   321→                      textAnchor="middle"
+   322→                      fontSize="13"
+   323→                      fill={tone}
+   324→                      fontFamily="var(--font-geist-mono), monospace"
+   325→                      fontWeight={600}
+   326→                    >
+   327→                      {s.n}
+   328→                    </text>
+   329→                    {/* Glyph */}
+   330→                    <text
+   331→                      x={cx}
+   332→                      y={122}
+   333→                      textAnchor="middle"
+   334→                      fontSize="38"
+   335→                      fill={tone}
+   336→                      fontFamily="var(--font-geist-mono), monospace"
+   337→                      fontWeight={600}
+   338→                    >
+   339→                      {s.glyph}
+   340→                    </text>
+   341→                    {/* Label */}
+   342→                    <text
+   343→                      x={cx}
+   344→                      y={185}
+   345→                      textAnchor="middle"
+   346→                      fontSize="13"
+   347→                      fill="rgba(244,241,236,0.92)"
+   348→                      fontFamily="var(--font-geist-sans), sans-serif"
+   349→                      fontWeight={600}
+   350→                    >
+   351→                      {s.label}
+   352→                    </text>
+   353→                  </g>
+   354→                );
+   355→              })}
+   356→            </svg>
+   357→          </div>
+   358→
+   359→          {/* Body cards under the SVG */}
+   360→          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 mt-5">
+   361→            {steps.map((s, i) => {
+   362→              const tone =
+   363→                s.tone === "gold"
+   364→                  ? "border-mtqs-gold/25 bg-mtqs-gold/[0.03]"
+   365→                  : s.tone === "emerald"
+   366→                  ? "border-mtqs-emerald/25 bg-mtqs-emerald/[0.03]"
+   367→                  : "border-mtqs-amber/25 bg-mtqs-amber/[0.03]";
+   368→              return (
+   369→                <motion.div
+   370→                  key={s.n}
+   371→                  initial={{ opacity: 0, y: 6 }}
+   372→                  whileInView={{ opacity: 1, y: 0 }}
+   373→                  viewport={{ once: true, margin: "0px 0px -8% 0px" }}
+   374→                  transition={{ duration: 0.3, delay: i * 0.06 }}
+   375→                  className={`rounded-lg border p-3 ${tone}`}
+   376→                >
+   377→                  <div className="text-[0.65rem] uppercase tracking-[0.22em] text-muted-foreground/70">
+   378→                    Step {s.n}
+   379→                  </div>
+   380→                  <div className="mt-0.5 text-sm font-semibold text-foreground/95">{s.label}</div>
+   381→                  <div className="mt-1.5 text-[0.72rem] text-muted-foreground/85 leading-relaxed">
+   382→                    {s.body}
+   383→                  </div>
+   384→                </motion.div>
+   385→              );
+   386→            })}
+   387→          </div>
+   388→        </Panel>
+   389→      </Reveal>
+   390→    </section>
+   391→  );
+   392→}
+   393→
+   394→/* ---------- Live stats band (polls /api/metrics via shared snapshot) ---------- */
+   395→function LiveStatsBand({ snapshot }: { snapshot: MetricsSnapshot | null }) {
+   396→  const stats = [
+   397→    {
+   398→      label: "GFB Index",
+   399→      value: snapshot ? fmtFixed(snapshot.gfbIndex, 4) : null,
+   400→      hint: "global fixed basket · §2",
+   401→      tone: "gold" as const,
+   402→    },
+   403→    {
+   404→      label: "MTQ Price",
+   405→      value: snapshot ? `$${fmtFixed(snapshot.mtqPrice, 4)}` : null,
+   406→      hint: snapshot?.priceInBand ? "in safety band" : "circuit breaker",
+   407→      tone: snapshot?.priceInBand ? ("emerald" as const) : ("rose" as const),
+   408→    },
+   409→    {
+   410→      label: "NAV",
+   411→      value: snapshot ? fmtUsdCompact(snapshot.nav) : null,
+   412→      hint: "reserve net asset value",
+   413→      tone: "gold" as const,
+   414→    },
+   415→    {
+   416→      label: "Reserve Ratio",
+   417→      value: snapshot
+   418→        ? Number.isFinite(snapshot.reserveRatio)
+   419→          ? fmtRatio(snapshot.reserveRatio)
+   420→          : "∞"
+   421→        : null,
+   422→      hint: snapshot
+   423→        ? snapshot.reserveRatio >= 1.1
+   424→          ? "fully backed"
+   425→          : snapshot.reserveRatio >= 1.05
+   426→          ? "stress tier"
+   427→          : "below target"
+   428→        : "",
+   429→      tone: snapshot
+   430→        ? snapshot.reserveRatio >= 1.1
+   431→          ? ("emerald" as const)
+   432→          : snapshot.reserveRatio >= 1.05
+   433→          ? ("amber" as const)
+   434→          : ("rose" as const)
+   435→        : "gold",
+   436→    },
+   437→  ];
+   438→
+   439→  return (
+   440→    <section className="mt-16" aria-labelledby="live-stats-heading">
+   441→      <SectionLabel
+   442→        eyebrow="Live · polls every 4s"
+   443→        title="Live Stats"
+   444→        sub="Snapshot of the protocol's current monetary state. Updates automatically."
+   445→        right={
+   446→          !snapshot ? (
+   447→            <Pill tone="muted">
+   448→              <GlowDot color="gold" size="h-1.5 w-1.5" /> loading…
+   449→            </Pill>
+   450→          ) : (
+   451→            <Pill tone={snapshot.oraclePaused ? "rose" : "emerald"}>
+   452→              <GlowDot color={snapshot.oraclePaused ? "rose" : "emerald"} size="h-1.5 w-1.5" />
+   453→              {snapshot.oraclePaused ? "oracle paused" : "oracle live"}
+   454→            </Pill>
+   455→          )
+   456→        }
+   457→      />
+   458→      <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 mt-6">
+   459→        {stats.map((s, i) => {
+   460→          const tone =
+   461→            s.tone === "gold"
+   462→              ? "border-mtqs-gold/25 bg-mtqs-gold/[0.04]"
+   463→              : s.tone === "emerald"
+   464→              ? "border-mtqs-emerald/25 bg-mtqs-emerald/[0.04]"
+   465→              : s.tone === "rose"
+   466→              ? "border-mtqs-rose/30 bg-mtqs-rose/[0.04]"
+   467→              : "border-mtqs-amber/25 bg-mtqs-amber/[0.04]";
+   468→          const valueColor =
+   469→            s.tone === "gold"
+   470→              ? "text-mtqs-gold"
+   471→              : s.tone === "emerald"
+   472→              ? "text-[#6ff0c0]"
+   473→              : s.tone === "rose"
+   474→              ? "text-[#ff8ea3]"
+   475→              : "text-[#ffd07a]";
+   476→          return (
+   477→            <Reveal key={s.label} delay={i * 0.05}>
+   478→              <Panel className={`p-4 sm:p-5 ${tone}`}>
+   479→                <div className="text-[0.625rem] uppercase tracking-[0.22em] text-muted-foreground/80">
+   480→                  {s.label}
+   481→                </div>
+   482→                <div className={`mt-2 font-mono tabular-nums text-xl sm:text-2xl ${valueColor}`}>
+   483→                  {s.value ? (
+   484→                    <TickNumber value={1} format={() => s.value ?? ""} flash={false} />
+   485→                  ) : (
+   486→                    <span className="animate-pulse">—</span>
+   487→                  )}
+   488→                </div>
+   489→                <div className="mt-1 text-[0.7rem] text-muted-foreground/70">{s.hint}</div>
+   490→              </Panel>
+   491→            </Reveal>
+   492→          );
+   493→        })}
+   494→      </div>
+   495→    </section>
+   496→  );
+   497→}
+   498→
+   499→/* ---------- Deployed on 4 testnets ---------- */
+   500→function DeployedOn({ onCta }: { onCta: (s: SectionId) => void }) {
+   501→  return (
+   502→    <section className="mt-16" aria-labelledby="deployed-heading">
+   503→      <SectionLabel
+   504→        eyebrow="Multi-chain deployment"
+   505→        title="Deployed on 4 testnets"
+   506→        sub="Canonical MTQΣ on Monad, Arc, Robinhood (EVM) and Solana (SPL). Each chain has its own canonical MTQΣ address."
+   507→      />
+   508→      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mt-6">
+   509→        {ALL_CHAINS.map((chain, i) => {
+   510→          const canonical = CANONICAL_MTQ_ADDRESSES[chain.id];
+   511→          const url = canonical ? buildExplorerAddressUrl(chain, canonical.address) : chain.explorer;
+   512→          return (
+   513→            <Reveal key={chain.id} delay={i * 0.05}>
+   514→              <Panel className="p-4 sm:p-5 h-full flex flex-col gap-3 border-mtqs-gold/15">
+   515→                <div className="flex items-start justify-between gap-3">
+   516→                  <div className="flex items-center gap-3 min-w-0">
+   517→                    <div className="relative h-9 w-9 shrink-0 mtqs-glow rounded-md overflow-hidden">
+   518→                      <Image
+   519→                        src={BRAND_ASSETS.emblem}
+   520→                        alt=""
+   521→                        fill
+   522→                        sizes="36px"
+   523→                        className="object-contain"
+   524→                        aria-hidden="true"
+   525→                      />
+   526→                    </div>
+   527→                    <div className="min-w-0">
+   528→                      <div className="text-sm font-semibold text-foreground/95 truncate">
+   529→                        {chain.label}
+   530→                      </div>
+   531→                      <div className="text-[0.7rem] text-muted-foreground/70 font-mono">
+   532→                        chainId {String(chain.chainId)} · {chain.nativeCurrency}
+   533→                      </div>
+   534→                    </div>
+   535→                  </div>
+   536→                  <Pill tone="gold">
+   537→                    <GlowDot color="gold" size="h-1.5 w-1.5" />
+   538→                    canonical
+   539→                  </Pill>
+   540→                </div>
+   541→
+   542→                {/* Canonical MTQΣ address row */}
+   543→                <div className="rounded-md border border-mtqs-gold/25 bg-mtqs-gold/[0.06] p-2.5">
+   544→                  <div className="text-[0.6rem] uppercase tracking-[0.22em] text-mtqs-gold/80">
+   545→                    Canonical MTQΣ
+   546→                  </div>
+   547→                  <div className="mt-1 flex items-center justify-between gap-2">
+   548→                    <span
+   549→                      className="font-mono text-[0.78rem] text-mtqs-gold truncate"
+   550→                      title={canonical?.address}
+   551→                    >
+   552→                      {canonical ? shortAddr(canonical.address, 10, 8) : "—"}
+   553→                    </span>
+   554→                    <div className="flex items-center gap-1.5 shrink-0">
+   555→                      {canonical && (
+   556→                        <button
+   557→                          onClick={async () => {
+   558→                            const ok = await copyToClipboard(canonical.address);
+   559→                            if (ok)
+   560→                              toast.success(`Copied ${chain.label} MTQΣ`, {
+   561→                                description: shortAddr(canonical.address, 8, 6),
+   562→                              });
+   563→                            else toast.error("Copy failed");
+   564→                          }}
+   565→                          className="text-[0.65rem] font-mono text-mtqs-gold/70 hover:text-mtqs-gold transition px-1.5 py-0.5 rounded border border-transparent hover:border-mtqs-gold/30"
+   566→                          aria-label={`Copy ${chain.label} MTQΣ address`}
+   567→                        >
+   568→                          copy
+   569→                        </button>
+   570→                      )}
+   571→                      <a
+   572→                        href={url}
+   573→                        target="_blank"
+   574→                        rel="noopener noreferrer"
+   575→                        className="text-[0.65rem] text-mtqs-emerald/80 hover:text-mtqs-emerald transition"
+   576→                      >
+   577→                        explorer ↗
+   578→                      </a>
+   579→                    </div>
+   580→                  </div>
+   581→                </div>
+   582→
+   583→                {/* View contracts CTA */}
+   584→                <button
+   585→                  onClick={() => onCta("contracts")}
+   586→                  className="mtqs-focus mt-auto group inline-flex items-center justify-between gap-2 rounded-md border border-white/[0.08] bg-white/[0.02] px-3 py-2 text-xs text-muted-foreground/85 hover:border-mtqs-gold/30 hover:text-mtqs-gold transition"
+   587→                  aria-label={`View ${chain.label} contracts`}
+   588→                >
+   589→                  <span>View {chain.label} contracts</span>
+   590→                  <ArrowRight size={14} className="transition-transform group-hover:translate-x-0.5" />
+   591→                </button>
+   592→              </Panel>
+   593→            </Reveal>
+   594→          );
+   595→        })}
+   596→      </div>
+   597→    </section>
+   598→  );
+   599→}
+   600→
+   601→/* ---------- Brand principles ---------- */
+   602→function BrandPrinciplesRow() {
+   603→  const principles = BRAND_VOICE.principles.map((p, i) => ({
+   604→    name: p,
+   605→    icon: [Shield, Sparkles, Landmark, Scale][i],
+   606→    blurb: [
+   607→      "Honest about what it is and is not.",
+   608→      "Sovereign — non-sovereign issuance.",
+   609→      "Collateralized — every MTQΣ backed.",
+   610→      "Calm — designed to resist panic.",
+   611→    ][i],
+   612→  }));
+   613→  return (
+   614→    <section className="mt-16" aria-labelledby="principles-heading">
+   615→      <SectionLabel
+   616→        eyebrow="§15 · brand voice"
+   617→        title="The 4 brand principles"
+   618→        sub="What the system is designed to be — and what it is honest about."
+   619→      />
+   620→      <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 mt-6">
+   621→        {principles.map((p, i) => {
+   622→          const Icon = p.icon;
+   623→          return (
+   624→            <Reveal key={p.name} delay={i * 0.05}>
+   625→              <Panel className="p-4 sm:p-5 h-full flex flex-col items-center text-center gap-2">
+   626→                <span className="text-mtqs-gold">
+   627→                  <Icon size={26} strokeWidth={1.4} />
+   628→                </span>
+   629→                <div className="mtqs-display mtqs-gold-text text-xl font-semibold">{p.name}</div>
+   630→                <div className="text-[0.7rem] text-muted-foreground/70 leading-relaxed">
+   631→                  {p.blurb}
+   632→                </div>
+   633→              </Panel>
+   634→            </Reveal>
+   635→          );
+   636→        })}
+   637→      </div>
+   638→    </section>
+   639→  );
+   640→}
+   641→
+   642→/* ---------- Honest status callout ---------- */
+   643→function HonestCallout() {
+   644→  return (
+   645→    <section className="mt-16" aria-labelledby="honest-callout-heading">
+   646→      <Reveal>
+   647→        <Panel className="p-5 sm:p-6 border-mtqs-amber/25 bg-mtqs-amber/[0.04]">
+   648→          <div className="flex items-start gap-3">
+   649→            <span className="text-[#ffd07a] mt-0.5">
+   650→              <Shield size={20} strokeWidth={1.6} />
+   651→            </span>
+   652→            <div className="space-y-1.5">
+   653→              <div className="text-sm font-semibold text-foreground/95">
+   654→                {BRAND_VOICE.statusDeclaration}
+   655→              </div>
+   656→              <p className="text-[0.82rem] text-muted-foreground/85 leading-relaxed">
+   657→                {BRAND_VOICE.designConstraint}. This pilot is a faithful reference
+   658→                implementation of the closed-loop blueprint math, not a deployed production
+   659→                system. Independent Sharia review is required before any production use.
+   660→              </p>
+   661→            </div>
+   662→          </div>
+   663→        </Panel>
+   664→      </Reveal>
+   665→    </section>
+   666→  );
+   667→}
+   668→
+   669→/* ---------- Footer CTA ---------- */
+   670→function FooterCta({ onCta }: { onCta: (s: SectionId) => void }) {
+   671→  return (
+   672→    <section className="mt-16" aria-labelledby="footer-cta-heading">
+   673→      <Reveal>
+   674→        <Panel className="p-6 sm:p-8 mtqs-glow flex flex-col md:flex-row items-center justify-between gap-4 text-center md:text-left">
+   675→          <div>
+   676→            <div className="mtqs-display mtqs-gold-text text-2xl sm:text-3xl font-semibold">
+   677→              Ready to try?
+   678→            </div>
+   679→            <p className="mt-1.5 text-sm text-muted-foreground/85 max-w-md mx-auto md:mx-0">
+   680→              Walk through a guided testnet trial — get testnet tokens, simulate a mint,
+   681→              simulate a redeem, and watch your trial log build up.
+   682→            </p>
+   683→          </div>
+   684→          <button
+   685→            onClick={() => onCta("trial")}
+   686→            className="mtqs-focus group inline-flex items-center gap-2 rounded-lg bg-gradient-to-b from-amber-300 to-amber-500 px-6 py-3 text-sm font-semibold text-[#1a1208] shadow-lg shadow-amber-500/20 transition hover:from-amber-200 hover:to-amber-400 shrink-0"
+   687→            aria-label="Start your testnet trial"
+   688→          >
+   689→            Start your testnet trial
+   690→            <ArrowRight size={16} className="transition-transform group-hover:translate-x-0.5" />
+   691→          </button>
+   692→        </Panel>
+   693→      </Reveal>
+   694→    </section>
+   695→  );
+   696→}
+   697→
+   698→/* ---------- Section label ---------- */
+   699→function SectionLabel({
+   700→  eyebrow,
+   701→  title,
+   702→  sub,
+   703→  right,
+   704→}: {
+   705→  eyebrow: string;
+   706→  title: string;
+   707→  sub?: string;
+   708→  right?: React.ReactNode;
+   709→}) {
+   710→  return (
+   711→    <div className="flex items-end justify-between gap-4 flex-wrap">
+   712→      <div className="space-y-1.5 max-w-2xl">
+   713→        <span className="mtqs-eyebrow">{eyebrow}</span>
+   714→        <h2
+   715→          id={`${title.toLowerCase().replace(/[^a-z0-9]+/g, "-")}-heading`}
+   716→          className="text-xl sm:text-2xl font-semibold tracking-tight text-foreground/95"
+   717→        >
+   718→          {title}
+   719→        </h2>
+   720→        {sub ? <p className="text-[0.82rem] text-muted-foreground/80 leading-relaxed">{sub}</p> : null}
+   721→      </div>
+   722→      {right ? <div className="shrink-0">{right}</div> : null}
+   723→    </div>
+   724→  );
+   725→}
+   726→
+   727→/* ---------- Home section ---------- */
+   728→export function HomeSection({
+   729→  snapshot,
+   730→  onCta,
+   731→}: {
+   732→  snapshot: MetricsSnapshot | null;
+   733→  onCta: (s: SectionId) => void;
+   734→}) {
+   735→  return (
+   736→    <div className="space-y-4">
+   737→      <Hero onCta={onCta} />
+   738→      <WhatIsMtqs />
+   739→      <HowItWorks />
+   740→      <LiveStatsBand snapshot={snapshot} />
+   741→      <DeployedOn onCta={onCta} />
+   742→      <BrandPrinciplesRow />
+   743→      <HonestCallout />
+   744→      <FooterCta onCta={onCta} />
+   745→    </div>
+   746→  );
+   747→}
+   748→

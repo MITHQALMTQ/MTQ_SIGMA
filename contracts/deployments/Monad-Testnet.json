@@ -1,0 +1,30 @@
+{
+  "chain": "Monad Testnet",
+  "chainId": 10143,
+  "rpc": "https://testnet-rpc.monad.xyz",
+  "explorer": "https://testnet.monadscan.com",
+  "deployer": "0x3C3932F865892EFabE45892f453f81B64f6c8d8c",
+  "deployedAt": "2026-09-06T14:07:45.714Z",
+  "contracts": {
+    "MTQSigma": {
+      "address": "0x5D9564C27111EA65Da3228a79833F0FF129bfd4a",
+      "abi": "MTQSigma",
+      "tx": "0x89c47bb8aa1950a0077703056ec7013bc5bf6b8795ba0cbca17e023cf8fe26b0"
+    },
+    "MockUSDC": {
+      "address": "0x28a2f9812BeC1252eee3992D56e5Bbd51393d6DE",
+      "abi": "MockUSDC",
+      "tx": "0x212da690728c621d44e69b00d3906427459413187ff9a531e96b60b877c576a9"
+    }
+  },
+  "genesis": {
+    "supply": "1000000",
+    "circulating": "0",
+    "reserveUsdc": "1100000"
+  },
+  "readBack": {
+    "gfb": "1.0",
+    "price": "1.0",
+    "totalSupply": "1000000.0"
+  }
+}

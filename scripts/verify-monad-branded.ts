@@ -1,0 +1,30 @@
+import { ethers } from "ethers";
+import { readFileSync } from "fs";
+const env = readFileSync(".env","utf8");
+const pk = env.match(/^DEPLOYER_PRIVATE_KEY=(0x[0-9a-fA-F]{64})/m)![1];
+const provider = new ethers.JsonRpcProvider("https://testnet-rpc.monad.xyz", { chainId: 10143, name: "monad" }, { staticNetwork: true });
+const w = new ethers.Wallet(pk, provider);
+const MTQ = "0x5D9564C27111EA65Da3228a79833F0FF129bfd4a";
+const USDC = "0x28a2f9812BeC1252eee3992D56e5Bbd51393d6DE";
+const ABI = ["function name() view returns (string)","function symbol() view returns (string)","function decimals() view returns (uint8)","function totalSupply() view returns (uint256)","function brandIconUri() view returns (string)","function mint(uint256) returns (uint256)","function redeem(uint256) returns (uint256)","function getGFB() view returns (uint256)","function getMTQPrice() view returns (uint256)","function getCirculatingSupply() view returns (uint256)"];
+const mtq = new ethers.Contract(MTQ, ABI, w);
+(async () => {
+  const name = await mtq.name();
+  console.log("Monad branded MTQΣ:");
+  console.log("  address:", MTQ);
+  console.log("  name():", JSON.stringify(name), "(has Σ:", name.includes("Σ"), ")");
+  console.log("  symbol():", JSON.stringify(await mtq.symbol()));
+  console.log("  decimals():", await mtq.decimals());
+  console.log("  totalSupply:", ethers.formatEther(await mtq.totalSupply()), "MTQ");
+  console.log("  brandIconUri:", await mtq.brandIconUri());
+  console.log("  deployer MON balance:", ethers.formatEther(await provider.getBalance(w.address)));
+  // Live mint 10,000 USDC → 9,990 MTQ
+  console.log("\n=== LIVE MINT 10,000 USDC → MTQΣ ===");
+  const usdc = new ethers.Contract(USDC, ["function approve(address,uint256) returns (bool)"], w);
+  await (await usdc.approve(MTQ, ethers.MaxUint256)).wait();
+  const t1 = await mtq.mint(10_000n * 10n**6n);
+  const r1 = await t1.wait();
+  console.log("  tx:", t1.hash, "status:", r1?.status===1?"✓":"✗");
+  console.log("  GFB:", ethers.formatEther(await mtq.getGFB()), "price $", ethers.formatEther(await mtq.getMTQPrice()));
+  console.log("  circulating:", ethers.formatEther(await mtq.getCirculatingSupply()), "MTQ");
+})();
