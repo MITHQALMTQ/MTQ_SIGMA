@@ -5010,3 +5010,49 @@ Stage Summary:
 - Distributed lock: Upstash Redis NX+EX 8s TTL; fail-open if Redis down (with Discord alert); single-instance mode if UPSTASH_* unset ✓
 - Discord alerts: rate-limited 1 per 5 min per topic; fires on init errors, RPC read failures, rebalance execution, uncaughtException ✓
 - Emergency response target: 5-15 min best-effort (NOT 60 seconds) — applied in README.md, RUNBOOK.md §1/§2/§5, and the keeper's own Discord alert cooldown (5 min) ✓
+
+---
+Task ID: BRANDING-UPDATE
+Agent: general-purpose
+Task: Apply PAR1D.jpg official logo to full UI branding
+
+Work Log:
+- Files read:
+  - /home/z/my-project/worklog.md (project history; confirmed prior tasks complete; located BRANDING-UPDATE context)
+  - /home/z/my-project/src/lib/mtq/brand.ts (BRAND_ASSETS object — old paths: logoMark=mtqs-logo-mark.jpg, emblem=mtqs-emblem.jpg)
+  - /home/z/my-project/src/components/mtq/Header.tsx (logo-mark in h-9 w-9 sm:h-11 sm:w-11 container, hard-coded src /brand/mtqs-logo-mark.jpg)
+  - /home/z/my-project/src/app/layout.tsx (metadata.icons array — old: favicon.jpg/png/svg)
+  - /home/z/my-project/src/components/mtq/InstitutionalHero.tsx (hero had NO logo — only the "MTQΣ" wordmark text)
+  - /home/z/my-project/src/app/globals.css (no logo-container classes existed)
+  - /home/z/my-project/src/components/mtq/MobileBottomNav.tsx (uses Lucide icons only — no logo, no changes needed)
+  - /home/z/my-project/src/components/mtq/Footer.tsx (uses BRAND_ASSETS.emblem in h-10 w-10 container — already used object-contain, but no bg-black)
+  - /home/z/my-project/src/components/mtq/CinematicLoader.tsx (showed animated Σ character + aurora rings, no actual logo image)
+  - /home/z/my-project/public/brand/ directory listing (confirmed PAR1D.jpg 203621 bytes, apple-touch-icon.png 203621 bytes, favicon.svg exists)
+  - /home/z/my-project/dev.log (verified dev server running on :3000, / returning 200)
+  - /home/z/my-project/package.json (scripts: typecheck = tsc --noEmit, lint = eslint .)
+- Files modified:
+  - /home/z/my-project/src/lib/mtq/brand.ts — BRAND_ASSETS object: added `logoCanonical: "/brand/PAR1D.jpg"` as the single source of truth; repointed `logoMark` and `emblem` to `/brand/PAR1D.jpg`; kept hero, pattern, governanceCrests, favicon.svg unchanged per spec; added explanatory comment block
+  - /home/z/my-project/src/components/mtq/Header.tsx — logo-mark container: added `bg-black` + `mtqs-logo-container` class so the logo's #0D0D0D backdrop blends into the obsidian chrome; switched Image src to `BRAND_ASSETS.logoCanonical`; added `mtqs-logo-image` class + inline `style={{ objectFit: 'contain' }}`; updated alt to "MTQΣ official logo"; kept `mtqs-glow`, `rounded-lg`, `overflow-hidden`, sizes, priority
+  - /home/z/my-project/src/app/layout.tsx — `icons` metadata: `icon` array now lists `/brand/PAR1D.jpg` 32x32 + 96x96 (image/jpeg) + `/brand/favicon.svg` (image/svg+xml); `apple` → `/brand/apple-touch-icon.png`; added `other: [{ rel: 'icon', url: '/brand/favicon.svg', type: 'image/svg+xml' }]`
+  - /home/z/my-project/src/components/mtq/InstitutionalHero.tsx — added `Image` + `BRAND_ASSETS` imports; replaced the standalone `<h1>MTQΣ</h1>` with a motion.div row containing: (a) the official PAR1D emblem at `h-24 w-24 sm:h-32 sm:w-32 lg:h-40 lg:w-40` inside a `.mtqs-logo-hero` rounded-xl container with gold-halo box-shadow, `object-contain`, priority; (b) the wordmark "MTQΣ" at slightly smaller size (text-5xl→7xl) plus a new "Sovereign · Collateralized · Calm" eyebrow tag. Spring-blur entry animation. The hero now reads as a true brand lockup, not just typography.
+  - /home/z/my-project/src/app/globals.css — appended a new "Official Logo (PAR1D.jpg) Display" section after the aurora-border block: `.mtqs-logo-container` (bg #0D0D0D, border-radius 0.5rem, overflow hidden, flex center), `.mtqs-logo-image` (object-fit contain, w/h 100%), and `.mtqs-logo-hero` (larger presentation: bg #0D0D0D, border-radius 1rem, gold halo + deep drop-shadow) + `.mtqs-logo-hero img` (object-contain). No brand colors changed.
+  - /home/z/my-project/src/components/mtq/Footer.tsx — brand-lockup logo container: added `bg-black` + `mtqs-logo-container`; switched Image to `mtqs-logo-image` class + inline `style={{ objectFit: 'contain' }}`; updated alt text to "MTQΣ official logo — luxury hexagonal Σ emblem"; src still `BRAND_ASSETS.emblem` (now an alias for PAR1D.jpg)
+  - /home/z/my-project/src/components/mtq/CinematicLoader.tsx — replaced the animated Σ character with the actual PAR1D.jpg emblem (150x150, object-contain, priority) centered inside the rotating aurora rings; loader canvas now `bg-[#0D0D0D]` (was `bg-[#06080F]`) so the emblem's own obsidian backdrop blends seamlessly; kept the pulsing emerald solvency line + tagline; added role="status"/aria-live for accessibility; preserved the sessionStorage first-load gate + 1.2s/1.8s fade timing
+- Files created:
+  - /home/z/my-project/public/brand/favicon.svg — OVERWRITTEN with a new 32x32 hand-built vector echo of the PAR1D mark: obsidian field (#0D0D0D rounded rect), vertical hexagonal shield frame (gold gradient stroke, ~0.67 aspect matching the source portrait), inner platinum hairline for heraldic-tech-noir feel, gold metallic Σ letterform (Cormorant Garamond font-family fallback chain) at center, and a glowing golden sphere at the geometric center using a radial gradient + feGaussianBlur filter. Uses two filter IDs (`glow`, `coreGlow`) for layered luminance without recoloring the source artwork. Crisp at 16/32/96px.
+
+Stage Summary:
+- PAR1D.jpg logo applied to: Header (44px square container, bg-black, object-contain), Hero (96-160px responsive hero-size with gold halo, object-contain, spring-blur entry), Footer (40px square container, bg-black, object-contain), CinematicLoader (150px centered inside aurora rings, bg #0D0D0D for seamless blend), layout icons metadata (32x32 + 96x96 JPEG + SVG + apple-touch-icon)
+- Created favicon.svg matching logo design: obsidian field, vertical gold hexagon frame, gold Σ letterform, glowing golden sphere center — matches the source emblem's heraldic-tech-noir style without copying any raster pixels
+- All containers use object-contain with black bg (bg-black + #0D0D0D via .mtqs-logo-container / .mtqs-logo-hero CSS classes) so the portrait logo's own backdrop blends into the obsidian chrome — no cropping, no recolor, no overlay
+- Brand colors unchanged (obsidian #06080F/#0D0D0D, gold #F0B90B/#FCD535, emerald #00D68F, rose #FF4D6D, amber #FFB84D) — the PAR1D logo's palette matches the existing token system
+- Verification:
+  - `bun run typecheck` (tsc --noEmit) → PASS (exit 0, no output)
+  - `bun run lint` → 2 pre-existing errors in CommandLauncher.tsx + 3 pre-existing warnings in CurrencySelector.tsx/ReserveDonut.tsx — NONE in any file touched by this task
+  - `curl http://localhost:3000/` → HTTP 200 (462ms)
+  - `curl http://localhost:3000/brand/PAR1D.jpg` → HTTP 200 (203621 bytes, matches source)
+  - `curl http://localhost:3000/brand/favicon.svg` → HTTP 200 (2873 bytes, the new SVG)
+  - `curl http://localhost:3000/brand/apple-touch-icon.png` → HTTP 200 (203621 bytes, matches PAR1D.jpg)
+  - Rendered HTML head contains all 4 favicon links (PAR1D.jpg 32x32, PAR1D.jpg 96x96, favicon.svg, apple-touch-icon.png)
+  - Rendered HTML body contains 3 PAR1D.jpg `<img>` instances (Header sizes=44px, Hero sizes=160px/128px/96px responsive, Footer sizes=40px) — all with `object-contain` + `mtqs-logo-image`/`mtqs-logo-hero` classes. CinematicLoader is client-only (SSR-hidden on first paint by design).
+- typecheck: PASS

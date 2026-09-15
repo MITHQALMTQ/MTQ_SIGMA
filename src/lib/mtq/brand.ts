@@ -108,9 +108,15 @@ export const LOGO_MARK_DESCRIPTION =
   "accent line at the base representing solvency. No text accompanies the mark itself.";
 
 // === Asset paths ===
+// logoCanonical is the single source of truth — the official PAR1D.jpg
+// luxury emblem (vertical hexagon, obsidian + gold + silver, Σ letterform).
+// logoMark + emblem both alias it so every component that consumes the
+// brand stays in sync without a sweep. The favicon.svg is a hand-built
+// vector echo of the same mark for crisp rendering at 16-32px.
 export const BRAND_ASSETS = {
-  logoMark: "/brand/mtqs-logo-mark.jpg",
-  emblem: "/brand/mtqs-emblem.jpg",
+  logoCanonical: "/brand/PAR1D.jpg",
+  logoMark: "/brand/PAR1D.jpg",
+  emblem: "/brand/PAR1D.jpg",
   hero: "/brand/mtqs-hero.png",
   pattern: "/brand/mtqs-pattern.png",
   governanceCrests: "/brand/mtqs-governance-crests.png",

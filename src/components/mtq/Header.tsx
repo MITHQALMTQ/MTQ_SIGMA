@@ -44,15 +44,23 @@ export function Header({
       <div className="mx-auto flex max-w-[1400px] items-center justify-between gap-3 px-4 sm:px-6 lg:px-8 py-3">
         {/* Left — logo-mark + wordmark + tagline */}
         <div className="flex items-center gap-2.5 sm:gap-3 min-w-0">
-                    {/* Animated Logo-mark — original Σ-gold-ingot with glow + pulsing emerald line */}
-                    {/* Logo-mark — using the official MTQΣ brand image */}
-          <div className="relative h-9 w-9 sm:h-11 sm:w-11 shrink-0 rounded-lg overflow-hidden mtqs-glow" aria-label="MTQΣ logo mark">
+                    {/* Logo-mark — the official MTQΣ PAR1D emblem.
+                        Portrait hexagon (aspect ~0.67) on a black field.
+                        Container gets bg-black so the logo's own #0D0D0D
+                        backdrop blends seamlessly into the obsidian chrome.
+                        object-contain keeps the full emblem visible (no crop),
+                        with height-faithful sizing so the gold Σ reads. */}
+          <div
+            className="relative h-9 w-9 sm:h-11 sm:w-11 shrink-0 rounded-lg overflow-hidden mtqs-glow bg-black mtqs-logo-container"
+            aria-label="MTQΣ logo mark"
+          >
             <Image
-              src="/brand/mtqs-logo-mark.jpg"
-              alt="MTQΣ logo mark"
+              src={BRAND_ASSETS.logoCanonical}
+              alt="MTQΣ official logo"
               fill
               sizes="44px"
-              className="object-contain"
+              className="object-contain mtqs-logo-image"
+              style={{ objectFit: "contain" }}
               priority
             />
           </div>
