@@ -21,13 +21,14 @@ export function Footer() {
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
           {/* Brand lockup */}
           <div className="flex items-start gap-3">
-            <div className="relative h-10 w-10 shrink-0 mtqs-glow rounded-md overflow-hidden">
+            <div className="relative h-10 w-10 shrink-0 mtqs-glow rounded-md overflow-hidden bg-black mtqs-logo-container">
               <Image
                 src={BRAND_ASSETS.emblem}
-                alt="MTQΣ emblem — the Σ-ingot mark ringed by five currency dots"
+                alt="MTQΣ official logo — luxury hexagonal Σ emblem"
                 fill
                 sizes="40px"
-                className="object-contain"
+                className="object-contain mtqs-logo-image"
+                style={{ objectFit: "contain" }}
               />
             </div>
             <div className="min-w-0">

@@ -5010,3 +5010,839 @@ Stage Summary:
 - Distributed lock: Upstash Redis NX+EX 8s TTL; fail-open if Redis down (with Discord alert); single-instance mode if UPSTASH_* unset ✓
 - Discord alerts: rate-limited 1 per 5 min per topic; fires on init errors, RPC read failures, rebalance execution, uncaughtException ✓
 - Emergency response target: 5-15 min best-effort (NOT 60 seconds) — applied in README.md, RUNBOOK.md §1/§2/§5, and the keeper's own Discord alert cooldown (5 min) ✓
+
+---
+Task ID: BRANDING-UPDATE
+Agent: general-purpose
+Task: Apply PAR1D.jpg official logo to full UI branding
+
+Work Log:
+- Files read:
+  - /home/z/my-project/worklog.md (project history; confirmed prior tasks complete; located BRANDING-UPDATE context)
+  - /home/z/my-project/src/lib/mtq/brand.ts (BRAND_ASSETS object — old paths: logoMark=mtqs-logo-mark.jpg, emblem=mtqs-emblem.jpg)
+  - /home/z/my-project/src/components/mtq/Header.tsx (logo-mark in h-9 w-9 sm:h-11 sm:w-11 container, hard-coded src /brand/mtqs-logo-mark.jpg)
+  - /home/z/my-project/src/app/layout.tsx (metadata.icons array — old: favicon.jpg/png/svg)
+  - /home/z/my-project/src/components/mtq/InstitutionalHero.tsx (hero had NO logo — only the "MTQΣ" wordmark text)
+  - /home/z/my-project/src/app/globals.css (no logo-container classes existed)
+  - /home/z/my-project/src/components/mtq/MobileBottomNav.tsx (uses Lucide icons only — no logo, no changes needed)
+  - /home/z/my-project/src/components/mtq/Footer.tsx (uses BRAND_ASSETS.emblem in h-10 w-10 container — already used object-contain, but no bg-black)
+  - /home/z/my-project/src/components/mtq/CinematicLoader.tsx (showed animated Σ character + aurora rings, no actual logo image)
+  - /home/z/my-project/public/brand/ directory listing (confirmed PAR1D.jpg 203621 bytes, apple-touch-icon.png 203621 bytes, favicon.svg exists)
+  - /home/z/my-project/dev.log (verified dev server running on :3000, / returning 200)
+  - /home/z/my-project/package.json (scripts: typecheck = tsc --noEmit, lint = eslint .)
+- Files modified:
+  - /home/z/my-project/src/lib/mtq/brand.ts — BRAND_ASSETS object: added `logoCanonical: "/brand/PAR1D.jpg"` as the single source of truth; repointed `logoMark` and `emblem` to `/brand/PAR1D.jpg`; kept hero, pattern, governanceCrests, favicon.svg unchanged per spec; added explanatory comment block
+  - /home/z/my-project/src/components/mtq/Header.tsx — logo-mark container: added `bg-black` + `mtqs-logo-container` class so the logo's #0D0D0D backdrop blends into the obsidian chrome; switched Image src to `BRAND_ASSETS.logoCanonical`; added `mtqs-logo-image` class + inline `style={{ objectFit: 'contain' }}`; updated alt to "MTQΣ official logo"; kept `mtqs-glow`, `rounded-lg`, `overflow-hidden`, sizes, priority
+  - /home/z/my-project/src/app/layout.tsx — `icons` metadata: `icon` array now lists `/brand/PAR1D.jpg` 32x32 + 96x96 (image/jpeg) + `/brand/favicon.svg` (image/svg+xml); `apple` → `/brand/apple-touch-icon.png`; added `other: [{ rel: 'icon', url: '/brand/favicon.svg', type: 'image/svg+xml' }]`
+  - /home/z/my-project/src/components/mtq/InstitutionalHero.tsx — added `Image` + `BRAND_ASSETS` imports; replaced the standalone `<h1>MTQΣ</h1>` with a motion.div row containing: (a) the official PAR1D emblem at `h-24 w-24 sm:h-32 sm:w-32 lg:h-40 lg:w-40` inside a `.mtqs-logo-hero` rounded-xl container with gold-halo box-shadow, `object-contain`, priority; (b) the wordmark "MTQΣ" at slightly smaller size (text-5xl→7xl) plus a new "Sovereign · Collateralized · Calm" eyebrow tag. Spring-blur entry animation. The hero now reads as a true brand lockup, not just typography.
+  - /home/z/my-project/src/app/globals.css — appended a new "Official Logo (PAR1D.jpg) Display" section after the aurora-border block: `.mtqs-logo-container` (bg #0D0D0D, border-radius 0.5rem, overflow hidden, flex center), `.mtqs-logo-image` (object-fit contain, w/h 100%), and `.mtqs-logo-hero` (larger presentation: bg #0D0D0D, border-radius 1rem, gold halo + deep drop-shadow) + `.mtqs-logo-hero img` (object-contain). No brand colors changed.
+  - /home/z/my-project/src/components/mtq/Footer.tsx — brand-lockup logo container: added `bg-black` + `mtqs-logo-container`; switched Image to `mtqs-logo-image` class + inline `style={{ objectFit: 'contain' }}`; updated alt text to "MTQΣ official logo — luxury hexagonal Σ emblem"; src still `BRAND_ASSETS.emblem` (now an alias for PAR1D.jpg)
+  - /home/z/my-project/src/components/mtq/CinematicLoader.tsx — replaced the animated Σ character with the actual PAR1D.jpg emblem (150x150, object-contain, priority) centered inside the rotating aurora rings; loader canvas now `bg-[#0D0D0D]` (was `bg-[#06080F]`) so the emblem's own obsidian backdrop blends seamlessly; kept the pulsing emerald solvency line + tagline; added role="status"/aria-live for accessibility; preserved the sessionStorage first-load gate + 1.2s/1.8s fade timing
+- Files created:
+  - /home/z/my-project/public/brand/favicon.svg — OVERWRITTEN with a new 32x32 hand-built vector echo of the PAR1D mark: obsidian field (#0D0D0D rounded rect), vertical hexagonal shield frame (gold gradient stroke, ~0.67 aspect matching the source portrait), inner platinum hairline for heraldic-tech-noir feel, gold metallic Σ letterform (Cormorant Garamond font-family fallback chain) at center, and a glowing golden sphere at the geometric center using a radial gradient + feGaussianBlur filter. Uses two filter IDs (`glow`, `coreGlow`) for layered luminance without recoloring the source artwork. Crisp at 16/32/96px.
+
+Stage Summary:
+- PAR1D.jpg logo applied to: Header (44px square container, bg-black, object-contain), Hero (96-160px responsive hero-size with gold halo, object-contain, spring-blur entry), Footer (40px square container, bg-black, object-contain), CinematicLoader (150px centered inside aurora rings, bg #0D0D0D for seamless blend), layout icons metadata (32x32 + 96x96 JPEG + SVG + apple-touch-icon)
+- Created favicon.svg matching logo design: obsidian field, vertical gold hexagon frame, gold Σ letterform, glowing golden sphere center — matches the source emblem's heraldic-tech-noir style without copying any raster pixels
+- All containers use object-contain with black bg (bg-black + #0D0D0D via .mtqs-logo-container / .mtqs-logo-hero CSS classes) so the portrait logo's own backdrop blends into the obsidian chrome — no cropping, no recolor, no overlay
+- Brand colors unchanged (obsidian #06080F/#0D0D0D, gold #F0B90B/#FCD535, emerald #00D68F, rose #FF4D6D, amber #FFB84D) — the PAR1D logo's palette matches the existing token system
+- Verification:
+  - `bun run typecheck` (tsc --noEmit) → PASS (exit 0, no output)
+  - `bun run lint` → 2 pre-existing errors in CommandLauncher.tsx + 3 pre-existing warnings in CurrencySelector.tsx/ReserveDonut.tsx — NONE in any file touched by this task
+  - `curl http://localhost:3000/` → HTTP 200 (462ms)
+  - `curl http://localhost:3000/brand/PAR1D.jpg` → HTTP 200 (203621 bytes, matches source)
+  - `curl http://localhost:3000/brand/favicon.svg` → HTTP 200 (2873 bytes, the new SVG)
+  - `curl http://localhost:3000/brand/apple-touch-icon.png` → HTTP 200 (203621 bytes, matches PAR1D.jpg)
+  - Rendered HTML head contains all 4 favicon links (PAR1D.jpg 32x32, PAR1D.jpg 96x96, favicon.svg, apple-touch-icon.png)
+  - Rendered HTML body contains 3 PAR1D.jpg `<img>` instances (Header sizes=44px, Hero sizes=160px/128px/96px responsive, Footer sizes=40px) — all with `object-contain` + `mtqs-logo-image`/`mtqs-logo-hero` classes. CinematicLoader is client-only (SSR-hidden on first paint by design).
+- typecheck: PASS
+
+---
+Task ID: MAINNET-AUDIT-2
+Agent: Explore
+Task: Deep audit of off-chain engine, infra, testing, operations for mainnet readiness
+
+Work Log:
+- Read /home/z/my-project/worklog.md (5058 lines, full project history)
+- Read /home/z/my-project/src/lib/mtq/engine.ts (2192 lines, full)
+- Read /home/z/my-project/src/lib/mtq/pilot-state.ts (508 lines, full)
+- Read /home/z/my-project/src/lib/mtq/audit-trail.ts (357 lines, full)
+- Read /home/z/my-project/src/lib/mtq/marp.ts (155 lines, full)
+- Read /home/z/my-project/src/lib/mtq/mase.ts (346 lines, full)
+- Read /home/z/my-project/src/lib/mtq/state-machine.ts (295 lines, full)
+- Read /home/z/my-project/src/lib/mtq/chain-index.ts (302 lines, full)
+- Read /home/z/my-project/src/lib/mtq/monte-carlo.ts (41 lines, full — toy)
+- Read /home/z/my-project/src/lib/mtq/__tests__/canonical-invariants.ts (1468 lines, all 7 layers)
+- Read /home/z/my-project/src/lib/mtq/fx.ts (391 lines, full)
+- Read /home/z/my-project/src/lib/mtq/oracle.ts (271 lines, full)
+- Read /home/z/my-project/mini-services/keeper/index.ts (687 lines, full)
+- Read /home/z/my-project/RUNBOOK.md (309 lines, full)
+- Read /home/z/my-project/Dockerfile.compute (101 lines, full)
+- Read all 5 .github/workflows/*.yml (723 lines total)
+- Read /home/z/my-project/src/lib/mtq/rate-limit.ts (145 lines)
+- Read /home/z/my-project/src/lib/ai/sanctions-screen.ts (191 lines)
+- Read /home/z/my-project/src/app/api/simulate/mint/route.ts
+- Inspected /home/z/my-project/contracts/MTQSigmaV2.t.sol (1324 lines, 5 fuzz tests)
+- Inspected /home/z/my-project/contracts/cache/fuzz/failures/ (4 of 5 fuzz tests have cached failures)
+- Inspected /home/z/my-project/src/lib/mtq/compute-engine.ts (278 lines)
+- Inspected /home/z/my-project/sentry.server.config.ts
+
+Stage Summary:
+- Engine correctness score: 6/10
+- Testing coverage score: 4/10 (~35-45% line coverage of engine.ts; Layer 6 historical backtest NEVER RUN)
+- Infrastructure score: 4/10
+- Operational readiness score: 3/10
+- Regulatory risk: HIGH
+- Mainnet blockers: 5 critical, 7 high, 6 medium, 4 low
+- Top 5 blockers (ranked):
+  1. CRITICAL — Keeper EUR/USD/GBP/CNY/CHF price inversion bug (mini-services/keeper/index.ts:271-275). Frankfurter returns "1 USD = X EUR" (EUR per USD ≈ 0.92). The keeper pushes `eur = fx.rates.EUR` (= 0.92e18) to the contract. The engine (src/lib/mtq/fx.ts:163) correctly inverts (`EUR_USD = 1 / r.EUR` ≈ 1.08). The contract would be fed wildly wrong prices every 4s. The chain-linked index would diverge from reality within ONE tick. Mainnet deployment = instant index corruption.
+  2. CRITICAL — Redemption policy contradiction (engine.ts:2119-2134 vs applyRedeem at 1147-1282). `REDEMPTION_POLICY` (line 2125) says canonical settlement is §3.4.2 (redeem at P_MTQ = index price, arbitrage-safe). The actual `applyRedeem` code settles on NAV-based pricing (`grossUsd = inputMtq × navPerMtq` at line 1204, where `navPerMtq = V_net / circ` at line 1174). At RR > 100%, NAV > P_MTQ → redeemers receive MORE than the index price → drains the buffer surplus via arbitrage. The code itself acknowledges the contradiction in the audit note at line 1181-1189 but ships the NAV-based path anyway. Either the policy object is wrong or the code is wrong — both cannot be canonical.
+  3. CRITICAL — Math.max(0, ...) silent negative-holdings bug (engine.ts:799, 806, 928-929, 937-939, 952-954, 959-960, 1241-1248, 1251-1252). Every reserve mutation floors negative balances to 0. If a redeem requests more of an asset than the reserve holds, the code silently zeros the holding instead of reverting. This breaks conservation of value: the redeemer gets their basket but the reserve accounting shows a phantom zero balance (the deficit disappears). Over time this creates phantom surplus. No test covers this. The canonical-invariants Layer 5 "rounding attack" test only checks that mint($1e-15) returns finite non-negative — it does NOT test redeem-into-negative.
+  4. CRITICAL — No KYC/AML/wallet-level sanctions screening for mainnet. The mint/redeem simulation endpoints (src/app/api/simulate/{mint,redeem}/route.ts) accept a `wallet` field but perform NO identity verification. The /api/ai/screen route uses Hugging Face NER on user-provided TEXT — it is explicitly labeled "not a substitute for OFAC/EU/UN sanctions list checks" (sanctions-screen.ts:7). There is NO wallet screening against OFAC SDN, EU consolidated, UN Security Council, or HMT lists. Every mainnet mint/redeem from a sanctioned jurisdiction is a felony. Every redeem over $3,000 USD triggers FinCEN reporting obligations the protocol cannot meet.
+  5. CRITICAL — PAUSER_ROLE held by a single deployer EOA (RUNBOOK §3.2, line 144). The contract's `pause()` is gated by `onlyPauser` (PAUSER_ROLE or DEFAULT_ADMIN_ROLE). Both roles are held by deployer EOA `0x3C3932F865892EFabE45892f453f81B64f6c8d8c`. The "4/7 hardware-wallet Safe multi-sig" target does NOT exist. A single key compromise = total protocol shutdown (attacker pauses) or undetected unpause (attacker unpauses after a legitimate emergency pause). No rotation procedure documented. No HSM. No KMS. The `CRITICAL-PRIVATE-KEY-ROTATION.md` file at the repo root hints this is a known but unresolved concern.
+
+============================================================
+DETAILED FINDINGS BY DIMENSION
+============================================================
+
+### A. Monetary Engine Correctness (6/10)
+
+A1. Mint math (applyMint, engine.ts:1062-1109) — CORRECT formula:
+    feeUsd = inputUsd × (MINT_FEE_BPS/10_000)
+    netUsd = inputUsd - feeUsd
+    mtqMinted = (netUsd / price) × mintThrottle(status)
+    where mintThrottle = {NORMAL:1.0, CAUTION:0.5, STRESS/DEFENSIVE/EMERGENCY:0 (paused), RECOVERY:0.25}
+    Minting is gated by `priceInSafetyBand(price)` (0.50 ≤ P_MTQ ≤ 2.00) and `mintingAllowed(status)`.
+    Deposit splits USDC 1/3 each to USDC/USDP/USDT (line 1088-1091). Fee → treasury.hotWalletUsd.
+    ISSUE: assumes user deposits USD-pegged stable only. EURC/PAXG deposits not supported in applyMint — pilot only.
+
+A2. Redeem math (applyRedeem, engine.ts:1147-1282) — CRITICAL CONTRADICTION:
+    grossUsd = inputMtq × navPerMtq where navPerMtq = V_net / circulatingSupply (NAV-based, §12.2)
+    feeUsd = grossUsd × redeemFee(status)  [NORMAL/CAUTION 0.15%, STRESS 0.50%, DEFENSIVE 1.00%, EMERGENCY 2.00% (paused anyway), RECOVERY 0.50%]
+    netUsd = grossUsd - feeUsd
+    Basket released proportionally to Strategic Prior weights (NOT actual holdings) — can fail if holdings diverge from prior after eject.
+    The `REDEMPTION_POLICY` export (engine.ts:2125-2134) claims §3.4.2 (P_MTQ-based) is canonical, but the code does §12.2 (NAV-based). These are contradictory. At RR=110%, NAV_per_MTQ = 1.10 × P_MTQ → redeemers extract 10% buffer surplus per token. This is the exact arbitrage drain the policy comment warns against. Either the policy object or the applyRedeem code MUST be deleted before mainnet.
+
+A3. Rebalance logic (evaluateRebalance, engine.ts:747-790):
+    Deviation threshold: |observedGoldWeight - targetGoldWeight| < 0.005 (0.5% no-trade zone)
+    Trade size = min(deviation×nav, MAX_POOL_FRACTION × poolDepth24h)
+    poolDepth24h = 4_000_000 HARDCODED (line 774) — should be live from DEX API in production
+    Daily turnover cap: MAX_DAILY_TURNOVER × nav - dailyTurnoverUsd (5% of NAV)
+    Direction lock: 24h whipsaw guard (cannot reverse direction within 24h unless in stress)
+    Cost-benefit: benefit = |dev|×nav×LAMBDA_1 + (1/max(rr,0.5))×nav×LAMBDA_3 (stress bonus); cost = tradeUsd×0.001 + $50
+    LAMBDA_1..4 from blueprint — values not validated against real slippage data
+    ISSUE: pool depth is a constant. Real PAXG/USDC 24h depth varies 10x intraday.
+
+A4. MASE smoothing (mase.ts:269-311):
+    smoothWeights: EMA with default lambda=0.20
+    smoothWeightsAdaptive: lambda_eff = lambda × (1 - velocityPenalty) × (1 - stressPenalty)
+      velocityPenalty = min(0.5, |Δtarget_max|/0.05) — whipsaw guard (dampens >5% target jumps by up to 50%)
+      stressPenalty = 0.5 (STRESS/DEFENSIVE/EMERGENCY), 0.25 (CAUTION/RECOVERY), 0 (NORMAL)
+      lambdaEff clamped to [0.02, 0.5] — always ≥2% progress, never >50% jump
+    Can oscillate? Bounded by the velocity penalty + EMA structure. BUT the underlying MASE ensemble is "equal-weight (1/6) blend of 6 models" (mase.ts:216) — NO adaptive ensemble weights. mase.ts:198-199 explicitly says "Production: ensemble weights adapt based on model performance" → UNIMPLEMENTED.
+    Models 1-5 are explicitly "Simplified" approximations (mase.ts:46, 72, 84, 105, 134) — min-variance uses inverse-vol (not real covariance), ERC uses 1/N (not real ERC), max-div uses prior/vol, CVaR uses static safe-haven multipliers, PPP uses prior/price (not real PPP fair value). The MASE ensemble is essentially a fancy constant-weight allocation dressed up as a 6-model ensemble.
+
+A5. Chain-linked index (chain-index.ts) — SOLID:
+    I_t = I_{t-1} × Σ_i [W_{i,t-1} × (P_{i,t} / P_{i,t-1})]  (chain-linked)
+    commitWeights: D_t = B_t^- / B_t^+ preserves zero-artificial-return across weight updates
+    Self-test at module load (line 263-291) verifies: gold +50% → I_t = 1.13 (not 1.50); commit same weights → divisor=1.0; commit different weights → I_t unchanged.
+    Edge cases: advanceIndex skips prices ≤ 0 (line 114). commitWeights guards divide-by-zero (line 169). prevPrices updated every advance; prevWeights only on commit (correct chain-linking).
+    ISSUE: TS engine uses JS Number (IEEE 754 double), NOT BigInt or fixed-point. Contract uses uint256 1e18. Floating-point errors compound over millions of ticks. No epsilon comparison on critical paths (applyMint doesn't verify mtqMinted × price ≈ netUsd). This is acceptable for a pilot dashboard but is a divergence risk vs. the on-chain math.
+
+A6. 6-state risk machine (state-machine.ts) — SOLID:
+    States: NORMAL/CAUTION/STRESS/DEFENSIVE/EMERGENCY/RECOVERY
+    Bands: NORMAL (RR≥1.10 AND LCR≥1.00), CAUTION (1.05≤RR<1.10 OR LCR<1.00), STRESS (1.02≤RR<1.05 OR LCR<0.90), DEFENSIVE (1.00≤RR<1.02 OR LCR<0.80), EMERGENCY (RR<1.00 OR LCR<0.70), RECOVERY (from EMER/DEF when RR≥1.10 AND LCR≥1.00 sustained 48h)
+    Hysteresis: RECOVERY requires 48h confirmation; immediate exit to DEFENSIVE/EMERGENCY if conditions worsen; stays in RECOVERY during CAUTION/STRESS blips
+    "Worse condition binds": max(RR-state, LCR-state)
+    Self-test at module load with 11 cases (state-machine.ts:243-291) — all pass
+    ISSUE: the buffer state machine (engine.ts:714-718 `bufferBaseFromRatio`) uses RR_TARGET (1.10) and RR_STRESS (1.05) but NOT the 1.02/1.00 bands. Buffer BASE/STRESS/EMERGENCY ≠ risk STRESS/DEFENSIVE/EMERGENCY. Two state machines with different thresholds can drift — e.g. risk=DEFENSIVE (RR=1.01) but buffer=STRESS (RR<1.05). Inconsistent ramp behavior.
+
+A7. Macro signals (§6) — engine.ts:670-692:
+    theta = clampSym(ALPHA × zVix + BETA × zDxy, -THETA_MAX, THETA_MAX)
+    targetGoldWeight = clamp(BASE_GOLD_WEIGHT + theta, GOLD_WEIGHT_LOWER, GOLD_WEIGHT_UPPER)
+    zVix = (VIX - vixMean) / vixSd (90-day rolling); same for zDxy
+    ISSUE 1: VIX/DXY sources are FRAGILE. fx.ts:211-243 fetches Yahoo ^VIX — Yahoo rate-limits unauthenticated server requests heavily. The fallback is a deterministic OU walk (simulatedVix at fx.ts:133). In production, VIX/DXY are OFTEN simulated. The reconciliation F3 (engine.ts:2176-2182) claims "all 8 macro signals live" — but the code path admits the seeded walk is the last resort and runs whenever Yahoo throttles (which is often).
+    ISSUE 2: ALPHA/BETA/THETA_MAX values are imported from blueprint.ts — no documented derivation. The relationship between VIX z-score and gold weight tilt is a heuristic with no empirical validation. Layer 6 historical backtest (which would validate this) is NOT RUN.
+
+A8. Buffer state (§8) — engine.ts:694-727:
+    bufferBaseGoldRatio(RR): RR≥1.10→0.625 (BASE), RR≥1.05→~0.85 (STRESS), else→1.0 (EMERGENCY)
+    Total target gold = CORE_GOLD_WEIGHT (0.20) + BUFFER_SIZE (0.10) × bufferBaseGoldRatio
+    = 0.2625 (BASE) / 0.285 (STRESS) / 0.30 (EMERGENCY)
+    Clamped to [0.22, 0.30] = [GOLD_WEIGHT_LOWER, GOLD_WEIGHT_UPPER]
+    Ramp: linear over RAMP_DURATION_HOURS between states
+    ISSUE: see A6 — buffer thresholds (1.10/1.05) misalign with the 6-state risk machine bands (1.10/1.05/1.02/1.00). The buffer can be in STRESS while the risk machine is in DEFENSIVE — leading to inconsistent policy (e.g. minting paused by STRESS throttle but buffer still in BASE ramp).
+
+A9. Eject ladder (§11) — engine.ts:1015-1046:
+    updatePegHealth: pegHealth drift is SIMULATED via Math.random() (line 1019-1020)
+    Comment at line 1016: "Simulated per-asset peg drift (honest: labelled as simulated in UI)."
+    Stages: stage 1 (>12h outside [0.98,1.02]), stage 2 (>24h), stage 3 (>48h), stage 4 (>96h OR peg <0.9 OR peg >1.1)
+    ISSUE 1: pegHealth is RANDOM. It does NOT use oracle data or any real stablecoin price feed. The eject ladder triggers on noise, not on real depegs.
+    ISSUE 2: NO CODE PATH ACTUALLY EJECTS ANYTHING. `ejectStage[c]` is just a label. There is no liquidation, no asset sale, no isolation. The ladder is decorative.
+    ISSUE 3: No test in canonical-invariants.ts covers the eject ladder at scale.
+
+A10. Numerical stability — MIXED:
+    + computeReserveRatio guards divide-by-zero (engine.ts:587: `if (liability <= 0) return Infinity`)
+    + computeLcr same guard (engine.ts:595)
+    + computeZScores uses eps=1e-9 for sd zero check (engine.ts:673-676)
+    + commitWeights divisor guard (chain-index.ts:169)
+    - Math.max(0, ...) silent negative-holdings bug on EVERY reserve mutation (see Top Blocker #3)
+    - JS Number (IEEE 754 double), no BigInt, no fixed-point — diverges from contract's 1e18 scaling
+    - No epsilon comparison on conservation invariants (mtqMinted × price vs. netUsd)
+    - dailyTurnoverUsd can grow unbounded if maybeResetDailyTurnover (engine.ts:740-745) ever fails to fire — actually bounded by tradeUsd × ticks_per_day, so OK
+    - No overflow protection on accumulating fields (s.treasury.totalSwept, s.waterfall.consumed.*)
+
+### B. Testing Coverage (4/10)
+
+B1. Unit tests: canonical-invariants.ts has 151 assertions across 7 layers (Layers 1-5 + 7; Layer 6 documented-only).
+    Layer 1 (Unit, ~30 tests): chain-link math, NAV/RR/LCR formulas, mint/redeem formulas, 6-state transitions, policy mappings (mintThrottle, redeemFee, mintingAllowed, redemptionAllowed).
+    Layer 2 (Module, ~20 tests): MASE ensemble sums to 1.0, admissibility envelopes, chain index continuity, oracle median/average/paused truth table, MARP no-trade/cost-benefit/partial-correction.
+    Layer 3 (Cross-module, ~15 tests): chain index + risk state integration, NAV-based redemption end-to-end, MASE weights → chain index commit.
+    Layer 4 (Economic, ~15 tests): mint at scale, redeem at scale, RR decay, fee accrual, concentration optimizer.
+    Layer 5 (Adversarial, ~25 tests): oracle failure (1/2/3 stale feeds), mint-then-redeem reentrancy (TS — contract vector documented only), $1e-15 dust mint, 1e-18 precision, RECOVERY 48h hysteresis enforcement, parameter envelope immutability.
+    Layer 6 (Historical): DOCUMENTED ONLY, NEVER RUN (canonical-invariants.ts:1086-1102).
+    Layer 7 (Stochastic): S5 (gold +50%, 100 runs), S6 (gold -30%, 100 runs), S3 (Cauchy fat-tail, 200 runs × 90 ticks).
+
+B2. Integration tests: NONE. No test wires the engine to a real RPC, real Turso, or real contract. The "integration" is implicit via the Next.js dev server running. The keeper is not exercised against even a testnet contract in CI.
+
+B3. Stress tests: monte-carlo.ts is 41 LINES — a compact toy MC with hardcoded constants (Q=[0.389,0.278,0.1669,0.1111,0.055]) that don't match the actual Strategic Prior. canonical-invariants Layer 7 runs the real canonical engine under stress — but only 3 scenarios (gold ±50%, gold -30%, Cauchy). NO multi-asset correlated stress (e.g. USD depeg + gold spike + EUR crash). NO Liquidity crisis simulation at the canonical-engine level (only in the toy monte-carlo).
+
+B4. Invariant tests: The test file covers the 4 P0 fixes (chain-link, NAV redemption, 6-state, governance layers) — NOT all 10 constitutional invariants. I6 (NAV-based redemption) and I9 (oracle quorum) are referenced and tested. The other 8 invariants from the blueprint are not enumerated or systematically tested.
+
+B5. Adversarial tests: Layer 5 covers oracle staleness (1/2/3 feeds), oracle deviation >2.5%, dust mint ($1e-15), 1e-18 precision, RECOVERY hysteresis manipulation. GAPS:
+    - NO test for negative holdings (the Math.max(0,...) silent bug — see Top Blocker #3)
+    - NO test for oracle price=0 (chain-index advanceIndex skips it, but no test verifies recovery)
+    - NO test for division by zero in NAV when circulatingSupply=0 AND genesisReserve=totalSupply (the applyRedeem fallback path)
+    - NO test for the §12.2 vs §3.4.2 redemption contradiction (Layer 4 test 4.4 asserts "uses NAV (not P_MTQ)" — but doesn't test the arbitrage drain at RR=110%)
+    - NO test for MARP execution (applyMarpRebalance) — only the snapshot projection is tested. The actual mutation path is untested.
+    - NO test for the eject ladder firing (because it never fires — see A9)
+    - NO test for the §5.6 concentration optimizer (rebalanceForConcentration, engine.ts:2029-2117) — the function that actually enforces the 25% issuer cap
+
+B6. Property-based tests: NONE. No `fast-check` or equivalent. Layer 7 has fuzz-style stochastic tests but they're scenario-based (fixed shock patterns), not property-based (e.g. "for all RR in [1.0, 1.10], minting X USDC keeps RR ≥ RR_HARD").
+
+B7. Test coverage %: ~35-45% line coverage of engine.ts. The 151 assertions cover happy paths + a few adversarial cases. UNCOVERED (no test executes these code paths):
+    - applyMarpRebalance (engine.ts:865-1012) — the v1.0 production-target path. USE_MARP_EXECUTION=false in pilot-state.ts:83, so the path is dead in pilot too.
+    - updatePegHealth (engine.ts:1015-1046) — random-based, untested
+    - applyLoss / waterfall (engine.ts:1949-1973) — untested
+    - maybeTreasurySweep (engine.ts:1931-1944) — untested
+    - rebalanceForConcentration (engine.ts:2029-2117) — untested at unit level (called from tick loop only)
+    - simulateQuote (engine.ts:1997-2010) — untested
+    - getReconciliationFindings (engine.ts:2145-2192) — untested
+    - applyRedeem edge cases: inputMtq > circ (returns ok:false, line 1190-1192), NAV ≤ 0, price outside band
+    - Layer 6 (historical backtest) — DOCUMENTED but NEVER RUN. The §23.2-§23.4 validation (10 years of FX/gold data) is deferred to "post-audit phase" per canonical-invariants.ts:1093.
+
+B8. Foundry/solidity tests: MTQSigmaV2.t.sol has 5 fuzz tests. CRITICAL: 4 of 5 have CACHED FAILURES in contracts/cache/fuzz/failures/MTQSigmaV3Test/:
+    - testFuzz_RR_StaysAboveHardFloor (failure cached with seed=25)
+    - testFuzz_S5_GoldPlus50_Survival100Pct (failure cached)
+    - testFuzz_S6_GoldMinus30_Survival100Pct (failure cached)
+    - testFuzz_MintRedeem_Conservation (failure cached)
+    These are FOUND'S cache of inputs that previously caused failures. They MAY be stale (fixed since) — but the workflow (forge-tests.yml:46) runs `forge test --summary` which uses the default test set; fuzz tests run a bounded number of iterations and may not hit the cached failure. Need to verify by running `forge test` locally.
+
+### C. Infrastructure Readiness (4/10)
+
+C1. Keeper (mini-services/keeper/index.ts):
+    - Bun service on port 3040 (FIXED). 4s tick interval. Calls advanceIndex + commitWeights + executeRebalance.
+    - **CRITICAL BUG (see Top Blocker #1)**: EUR/USD/GBP/CNY/CHF price inversion at line 271-275.
+    - NO RPC fallback: single RPC_URL env var, no Alchemy/QuickNode/public-RPC chain. RPC outage = keeper cannot advance the index.
+    - Distributed lock via Upstash is FAIL-OPEN (line 226-230): "If Redis is down, FAIL OPEN (run the tick)". Two keeper instances CAN double-submit during a Redis outage.
+    - The keeper has NO observed successful on-chain tx history in the worklog. The deployment is documented but no mainnet/testnet tx hash from the keeper is recorded.
+    - Reentrancy guard: tickInProgress boolean (line 405) — single-instance only, the distributed lock is the multi-instance guard.
+    - Audit trail: writes to Turso `keeper_audit` table — best-effort, failures logged but non-blocking.
+
+C2. Compute engine (Dockerfile.compute + compute-engine.yml):
+    - Docker image exists. Daily cron at 02:00 UTC runs the MASE solver in --fixed-input mode twice, compares SHA-256 hashes. This is the determinism contract.
+    - **Image NOT pinned by digest** (Dockerfile.compute:41: `FROM node:20-slim` rolling tag). The Dockerfile itself acknowledges this as a TODO (line 23-31). Reproducibility across builds is NOT guaranteed — node:20-slim can change underneath us. For a deterministic compute engine, this defeats the purpose.
+    - **DISCONNECT**: the compute engine writes weight-vector.json to a path; the keeper's `fetchLatestWeightVector` (keeper/index.ts:316) reads from a `weight_vector` TABLE in Turso. There's no code that loads the JSON file into the table. The compute engine's output is orphaned — the keeper will always return null and skip commitWeights.
+    - `bun install --frozen-lockfile --production` ensures dependency-tree determinism. Good.
+
+C3. Monitoring:
+    - Sentry: 3 init files (client/server/edge). DSN env vars are PLACEHOLDERS in .env.example. No verified Sentry account receiving events. Init gates on `if (SENTRY_DSN && SENTRY_DSN.length > 0)` → if unset, NO errors captured. Sample rates: 100% errors, 10% transactions. PII redacted (sendDefaultPii=false). Source maps deleted after upload.
+    - Tenderly: webhook receiver route exists (src/app/api/webhooks/tenderly/route.ts). HMAC-SHA256 verification. FAIL-CLOSED 503 if TENDERLY_WEBHOOK_SECRET unset. But the Tenderly-side alert configuration (which events to forward) is a manual TODO in their dashboard — not verified.
+    - Discord alerts: webhook URL is a placeholder. Keeper has a 5-minute cooldown (keeper/index.ts:192) — even when configured, alerts are throttled to 1 per 5 min per topic.
+    - Uptime: RUNBOOK §1.3 says "External uptime monitors (UptimeRobot / BetterStack) should poll /api/health every 60s" — but no evidence this is configured. keeper-heartbeat.yml runs every 10 min from GitHub Actions as a "backup" only.
+    - **PagerDuty / 24/7 paging**: RUNBOOK §6 TODO: "Wire the Tenderly alert → PagerDuty / BetterStack for 24/7 paging (currently Discord-only)." → NO 24/7 paging exists.
+
+C4. Backup:
+    - scripts/backup-turso.ts runs daily at 03:00 UTC. Verified 2026-09-14 dry run: 17MB JSON, 20,124 rows, 5 tables.
+    - **CRITICAL (see Top Blocker #4 area)**: RUNBOOK §2.2 line 125-126: "`restore-turso.ts` is not yet implemented — see §6 TODO. Until then, use any SQLite JSON-import tool or hand-write the INSERT loop." → YOU CANNOT RESTORE FROM BACKUP. The backup is a JSON dump with no automated restore path. If Turso goes down, recovery is manual SQLite import.
+    - Backup retention: 90-day Actions artifact + permanent GitHub Release (tag backup-YYYY-MM-DD). Good.
+    - Backup covers all 5 Prisma tables: PilotTrial, MetricSample, DailyStateVector, RebalancingDecision, OracleSample.
+
+C5. CI/CD:
+    - ci.yml: typecheck + lint (`continue-on-error: true` — advisory only, line 43) + canonical-invariants tests + honest-status verification (must return NOT PRODUCTION-AUTHORIZED).
+    - forge-tests.yml: forge test + coverage (`continue-on-error: true`) + Slither (nightly only, `continue-on-error: true`, advisory only — line 82 + 90).
+    - compute-engine.yml: daily determinism check (02:00 UTC) + production run.
+    - backup.yml: daily Turso backup (03:00 UTC).
+    - keeper-heartbeat.yml: every 10 min, pings keeper /health, creates GitHub issue on failure.
+    - **Lint does NOT block CI** (continue-on-error: true).
+    - **Slither does NOT block CI** (continue-on-error: true, nightly only).
+    - **Foundry fuzz test cached failures** (see B8) — may or may not be current.
+    - **No staging environment**: CI deploys to testnet directly. No canary, no shadow fork, no mainnet-fork simulation in CI.
+
+C6. Rate limiting (rate-limit.ts):
+    - Supports Upstash Redis OR in-memory fallback.
+    - In-memory is per-instance (Vercel serverless = many instances) → effectively NO rate limiting in production without Upstash.
+    - RUNBOOK does NOT confirm UPSTASH_REDIS_REST_URL is set in production Vercel env.
+    - Rate limits: AI=5/IP/min, simulate=20/IP/min, health=60/IP/min. Reasonable.
+
+C7. RPC:
+    - Keeper: single RPC_URL env var (keeper/index.ts:60). No fallback chain.
+    - Frontend (src/lib/mtq/contracts.ts): each chain has ONE rpcUrl hardcoded. No fallback.
+    - No Alchemy, no QuickNode, no public-RPC fallback chain anywhere.
+
+### D. Operational Readiness (3/10)
+
+D1. Runbook (309 lines): Decent structure — 5 sections + appendix. BUT:
+    - §6 TODO has 5 unresolved items: PAUSER migration to Safe, restore-turso.ts implementation, UptimeRobot setup, PagerDuty wiring, EMERGENCY_ROLE alias.
+    - On-call rotation is "weekly, Monday 00:00 UTC → next Monday 00:00 UTC" but no named people. The Notion link is "redacted from this public runbook" → impossible to verify an actual rotation exists.
+    - No post-mortem template. No blameless-culture statement. No incident channel naming convention.
+    - Can someone follow it at 3am? PARTIALLY. The pause procedure is clear, but the restore procedure literally says "hand-write the INSERT loop" — nobody is doing that at 3am.
+
+D2. On-call:
+    - Severity table exists (P0-P3). P0 = 15-min SLA.
+    - NO 24/7 paging system. Discord-only alerts (which require the on-call to be online and watching Discord).
+    - No named primary/secondary on-call. No phone tree. No escalation to a human if Discord is muted.
+    - The 15-min SLA is fictional without PagerDuty.
+
+D3. Incident response:
+    - 6-step pause procedure documented (detect → decide → execute → alert → assess → unpause).
+    - Requires "4 of 7 Safe signers (hardware wallets)" — but the 4/7 multi-sig does NOT exist (see Top Blocker #5). PAUSER_ROLE is on a single EOA.
+    - No SEV classification template. No incident channel naming convention. No post-mortem requirement.
+
+D4. Key management:
+    - KEEPER_PRIVATE_KEY: "HOT WALLET — low-privilege, rotate regularly" (keeper/index.ts:5, 644). But NO documented rotation procedure. No HSM. No KMS. The private key lives in process.env on Koyeb.
+    - PAUSER_ROLE: single deployer EOA. Compromise = total protocol shutdown (attacker pauses) or undetected unpause (attacker unpauses after a legitimate emergency pause).
+    - No multisig for the deployer EOA. No mention of where the seed phrase is stored.
+    - CRITICAL-PRIVATE-KEY-ROTATION.md exists at repo root — confirms this is a known but unresolved concern.
+
+D5. Disaster recovery:
+    - If Turso goes down: engine keeps running (audit-trail writes fail gracefully, line 11-13 of audit-trail.ts), but keeper cannot fetch weight vectors (returns null → commitWeights skipped → on-chain index keeps stale weights).
+    - If Turso goes down PERMANENTLY: restore procedure does NOT exist (RUNBOOK §2.2 + §6 TODO). Total data loss.
+    - If the keeper goes down: on-chain index stops advancing. Mint/redeem still work (they price against the LAST committed index). Index becomes stale → price drifts from reality.
+    - If the contract is paused: keeper detects via paused() (keeper/index.ts:453) and skips the tick. Good.
+    - No mainnet-fork simulation. No chaos engineering. No game-day exercises.
+
+D6. Upgrade path:
+    - Contract: NO upgrade proxy. MTQSigmaV2.sol is presumably not upgradeable (no UUPS/transparent pattern in the code). A bug = full redeploy + migration. Given the redemption policy contradiction (Top Blocker #2) and the Math.max(0,...) silent bug (Top Blocker #3), a redeploy is likely needed BEFORE mainnet.
+    - Keeper: Bun service on Koyeb — redeploy via git push. No blue-green mentioned. The distributed lock (Upstash) is meant to prevent double-submit during a deploy, but it's fail-open.
+    - Frontend: Next.js on Vercel. Standard vercel --prod. No canary deploys. No feature flags beyond USE_MARP_EXECUTION (hardcoded false in pilot-state.ts:83).
+
+### E. Regulatory & Compliance (HIGH RISK)
+
+E1. Is MTQΣ a security? (Howey test) — LIKELY YES:
+    - Investment of money: YES (users deposit USDC to mint MTQ).
+    - Common enterprise: YES (single reserve pool, single protocol, single keeper).
+    - Expectation of profit: AMBIGUOUS but likely YES. The protocol markets as a "stability" token (PAR=1.00), not a profit vehicle. BUT redemption at NAV (when RR>100% per the actual applyRedeem code) means redeemers receive MORE than $1 per MTQ. The 10% buffer surplus IS a profit distribution to redeemers. This is the §12.2 drain bug (Top Blocker #2) — and it ALSO creates Howey prong 3 (expectation of profit from the protocol's reserve management).
+    - From efforts of others: YES (MASE/MARP/keeper manages the reserve).
+    - VERDICT: Likely a security under Howey. No Reg D / Reg S / Reg A filing mentioned. No legal opinion. No SEC no-action letter.
+
+E2. Is MTQΣ a stablecoin?:
+    - PAR = 1.00 (constant in contract). Backed by a basket (USD/EUR/JPY/GBP/CNY/CHF/Gold).
+    - BUT the price floats against USD via the GFB Index (chain-linked). P_MTQ = I_t × PAR. If EUR appreciates 10% vs USD, P_MTQ rises ~2% (20% EUR weight × 10%). So MTQ is NOT a USD stablecoin — it's a basket tracker.
+    - This puts it OUTSIDE the scope of US stablecoin regs (GENIUS Act, etc.) which apply to USD-pegged tokens. BUT it likely falls under EU MiCA (which covers "asset-referenced tokens" — MTQΣ is exactly that: a token referencing a basket of fiat + gold).
+    - No MiCA white paper. No competent authority notification. No CASP license.
+
+E3. KYC/AML:
+    - The mint/redeem simulation endpoints accept a `wallet` field but do NOT verify identity. No KYC. No AML.
+    - For a TESTNET pilot, acceptable. For MAINNET, HARD BLOCKER. Any redeem over $3,000 USD triggers FinCEN reporting. Any user in a sanctioned jurisdiction is a felony.
+    - No KYC provider integration (Persona, Sumsub, Jumio, etc.). No AML transaction monitoring (Chainalysis, TRM, Elliptic).
+
+E4. Sanctions screening (see Top Blocker #4):
+    - /api/ai/screen uses Hugging Face NER on user-provided TEXT. Explicitly labeled "not a substitute for OFAC/EU/UN sanctions list checks" (sanctions-screen.ts:7).
+    - NO wallet-level sanctions screening. NO OFAC SDN list integration. NO Chainalysis. NO TRM Labs. NO Elliptic.
+    - For mainnet, every mint/redeem must screen the user's wallet against OFAC SDN, EU consolidated, UN Security Council, and HMT lists. None of this exists.
+
+E5. Jurisdictional issues:
+    - No legal entity named anywhere. No incorporation documents. No registered agent. No tax ID.
+    - The deployer wallet `0x3C39...8d8c` is the only "entity" — an individual EOA.
+    - RUNBOOK mentions "Safe multi-sig (4/7 hardware-wallet signers)" as a target but does NOT name the signers or the jurisdiction.
+    - This is an unregistered, unincorporated, anonymous protocol with real money flowing through it. For mainnet, this is a regulatory nightmare.
+
+============================================================
+HONEST VERDICT
+============================================================
+
+The MTQΣ pilot is a sophisticated simulation with strong blueprint fidelity and a clean canonical state machine. It is NOT mainnet-ready. The 5 critical blockers above are each individually disqualifying — any one of them would justify refusing mainnet launch. Taken together, they describe a protocol that would corrupt its own index within one keeper tick (blocker #1), drain its buffer surplus via arbitrage (blocker #2), silently break conservation of value (blocker #3), expose operators to felony sanctions liability (blocker #4), and concentrate total pause authority in a single private key (blocker #5).
+
+The infrastructure is mostly scaffolding: monitoring DSNs are placeholders, the restore script doesn't exist, the compute engine's output is orphaned (no path from weight-vector.json to the keeper's weight_vector table), and there is no 24/7 paging.
+
+The testing is the strongest part — 151 assertions across 7 layers, with a real chain-linking proof and a 6-state machine self-test. But Layer 6 (historical backtest) is NEVER RUN, the v1.0 MARP execution path is UNTESTED, the Math.max(0,...) silent bug is UNTESTED, and 4 of 5 Foundry fuzz tests have cached failures.
+
+Recommendation: DO NOT DEPLOY TO MAINNET. Address all 5 critical blockers + the 7 high blockers (Layer 6 backtest, MARP execution tests, restore-turso.ts, RPC fallback chain, image digest pinning, UptimeRobot/PagerDuty wiring, multisig migration). Re-audit. Then consider a staged mainnet rollout with a $100K cap before any public launch.
+
+---
+Task ID: MAINNET-AUDIT-1
+Agent: Explore
+Task: Deep audit of smart contracts, tokenomics, oracle, governance for mainnet readiness
+
+Work Log:
+- Read /home/z/my-project/worklog.md (5058 lines — prior STATUS-AUDIT + TASK-7-ORACLE-I9 + keeper build context)
+- Read /home/z/my-project/contracts/MTQSigmaV2.sol (1495 lines — full V3 contract, line-by-line)
+- Read /home/z/my-project/contracts/MTQSigmaV2.t.sol (1324 lines — 31 Foundry test fns; Pause.t.sol referenced in task brief DOES NOT EXIST — only inline pause assertions at L961/L975 of MTQSigmaV2.t.sol)
+- Read /home/z/my-project/contracts/foundry.toml (43 lines — solc 0.8.20, optimizer runs=200, via_ir=true)
+- Read /home/z/my-project/src/lib/mtq/contracts.ts (213 lines — 4 testnets live, Base+Arbitrum mainnet PENDING at 0x0)
+- Read /home/z/my-project/src/lib/mtq/engine.ts (2192 lines — read L1-250 in full + all 56 exported function signatures)
+- Read /home/z/my-project/src/lib/mtq/blueprint.ts (358 lines — full constants + governance layer spec)
+- Read /home/z/my-project/src/lib/mtq/oracle.ts (271 lines — strict I9 in TS, but NOT in Solidity)
+- Read /home/z/my-project/src/lib/mtq/registry.ts (166 lines — GBP/JPY/CNY = "TBD"/WATCH state, 4/8 criteria failed)
+- Read /home/z/my-project/prisma/schema.prisma (193 lines — SQLite; DailyStateVector.status comment STILL lists only 5 states — missing STRESS)
+- Read /home/z/my-project/audit-work/audit-b-smart-contract.md (30 findings: 6C/8H/8M/6L — most marked fixed in contract header but VERIFIED several are NOT)
+- Read /home/z/my-project/audit-work/audit-d-tokenomics.md (14 findings, 3C — final tokenomics score 68/100)
+- Verified raw bytes of L208 access-control modifier (display layer was stripping `[msg` — actual code is correct `_roles[role][msg.sender]`)
+- Grep confirmed: NO `unchecked` blocks anywhere in the contract (Solidity 0.8.x overflow checks active everywhere)
+- Grep confirmed: NO `setDao`/`setRiskCouncil`/`setEmergencyCouncil`/`setConstitutionalCouncil` setters — the 4 governance addresses declared at L298-301 are NEVER initialized and default to address(0)
+- Grep confirmed: NO `renounceRole` function (compromised key cannot self-revoke)
+- Grep confirmed: `nonReentrant` is on mint (L1147), redeem (L1179), executeRebalance (L1252) ONLY; 28 other state-changing externals lack it (acceptable for view/internal-only, but defense-in-depth gap on transfer/transferFrom/approve)
+- Grep confirmed: 31 test functions in MTQSigmaV2.t.sol (test count off-by-one vs file header claim of 30)
+
+Stage Summary:
+
+## A. SMART CONTRACT SECURITY — 5/10
+
+### A.1 Reentrancy protection — 6/10
+- `nonReentrant` (L231-236) is on `mint` (L1147), `redeem` (L1179), `executeRebalance` (L1252) — the 3 functions with external USDC calls. ✓
+- MISSING nonReentrant on 28 other state-changing externals: `submitTargetWeights` (L469), `setEnvelopes` (L510), `setCrisisFlag` (L516), `advanceIndex` (L541), `commitWeights` (L562), `genesisIndex` (L605), `updateState` (L657), `registerParameter` (L773), `proposeChange` (L787), `executeChange` (L810), `cancelChange` (L833), `setOracleAdapter` (L910), `commitFxRatesFromOracles` (L988), `setFxRates` (L1031), `setAssetRegistry` (L1058), `genesisMint` (L1330), `setGenesisReserve` (L1339), `setReserveVault` (L1344), `bootstrapReserveHoldings` (L1352), `setReserveHolding` (L1361), `seedGenesisWeights` (L1366), `transfer` (L1390), `approve` (L1394), `transferFrom` (L1399), `grantRole` (L1429), `revokeRole` (L1432), `pause` (L224), `unpause` (L225).
+- Most are safe (no external calls), but `transferFrom` calls `_transfer` which is internal-only — acceptable for ERC-20 standard.
+- CEI ordering on `mint` (L1147-1176): transferFrom USDC pull (L1154) happens BEFORE state update `_mint(msg.sender, minted)` (L1172). The H1 fix comment claims CEI is honored but the external call still precedes the state mutation. **MEDIUM** — reentrancy guard catches it, but pattern is not strict CEI.
+
+### A.2 Access control — 4/10
+- 6 roles defined (L195-200): DEFAULT_ADMIN, ADMIN, MINTER, PAUSER, KEEPER, ORACLE. MINTER_ROLE is declared but NEVER used in any `onlyMinter` check anywhere — dead role. **MEDIUM — unused role, possible confusion.**
+- 5 modifiers + 4 council-only modifiers (L207-217, L303-306). 
+- **CRITICAL**: The 4 governance body addresses (`dao` L298, `riskCouncil` L299, `emergencyCouncil` L300, `constitutionalCouncil` L301) are declared but NEVER initialized in the constructor (L403-462 only sets usdc, INDEX_BASE_DENOMINATOR, DEFAULT_ADMIN to msg.sender, reserveVault=msg.sender, genesisReserve=address(this)). NO setter functions exist (grep confirmed). They default to address(0). 
+  - **Impact**: `proposeChange` (L787) directly checks `msg.sender == dao` etc. for MONETARY/RISK/EMERGENCY/CONSTITUTIONAL layers. Since all 4 addresses are address(0), NO proposal can ever be made for any layer. The entire Listing 14 governance parameter change system (registerParameter/proposeChange/executeChange/cancelChange) is DEAD CODE on-chain. Parameters can only be changed via `registerParameter` (which uses the `onlyConstitutionalCouncil` modifier with DEFAULT_ADMIN bypass — so the deployer/Safe can register params) but NO ONE can ever propose a change to a registered parameter. **CRITICAL — governance totally non-functional.**
+- **CRITICAL**: Constructor L439 grants DEFAULT_ADMIN_ROLE to `msg.sender` (deployer EOA). Comment L431-438 explicitly admits this is an anti-pattern: "TODO: REPLACE WITH SAFE ADDRESS — in production, msg.sender here is the deployer EOA which centralizes ALL role-grant power in a single key." DEPLOYER_WALLET = 0x3C3932F865892EFabE45892f453f81B64f6c8d8c (single EOA, not the listed Safe at 0xE71869...).
+- `executeChange` (L810) is callable by ANYONE after the timelock elapses — but since no proposal can be created (above), this is moot.
+- `setReserveHolding` (L1361, ADMIN_ROLE) lets admin arbitrarily set any component's reserve USD value. **HIGH — admin can fake NAV/RR** (e.g. set Gold to $1B → fake 1000% RR → mint unbounded MTQ).
+
+### A.3 Integer overflow/underflow — 10/10
+- Solidity 0.8.20 has built-in overflow checks. Grep confirmed ZERO `unchecked` blocks. ✓
+- All arithmetic uses checked math. Safe.
+
+### A.4 Oracle manipulation — 3/10
+- 3 adapters (Chainlink L880, Pyth L881, Chronicle L882). Staleness 60s (L886). Confidence <1% (L887). Deviation <2.5% (L888).
+- **CRITICAL — I9 violation**: On-chain `getOracleConsensus` (L895-969) STILL allows 2-source averaging (L965-968, `method=1 average`). The TS oracle.ts was fixed to strict-I9 (pause at <3) in TASK-7-ORACLE-I9, but the Solidity contract was NEVER updated. **On-chain ≠ off-chain behavior** — major consistency bug.
+- **CRITICAL — oracle pause is NOT propagated to contract pause**: `getOracleConsensus` returns `paused_=true` when <2 feeds valid (L954-957), but this DOES NOT call the contract's `pause()` or set `paused=true`. Only `commitFxRatesFromOracles` (L988) checks `paused_` and reverts (Err39). **`mint` (L1147) and `redeem` (L1179) do NOT consult oracle consensus** — they use `getMTQPriceWithGuard()` which reads `indexValue` and `INDEX_BASE_DENOMINATOR`, both derived from `lastPrices[]` which may be STALE (last successful commit). So if oracles fail mid-cycle, users can mint/redeem against stale prices indefinitely. **CRITICAL — no oracle health gating on user monetary ops.**
+- **HIGH — H8 fix only partial**: `setOracleAdapter` (L910) checks `adapter != address(0)` but does NOT enforce that the 3 adapters are DISTINCT. A malicious ORACLE_ROLE holder could set all 3 slots to the same address → "3-source consensus" collapses to 1-source. Source independence (H8 finding) is NOT enforced.
+- **CRITICAL — adapters are stubs**: No real Chainlink/Pyth/Chronicle adapter contracts exist in the repo. Tests use `MockOracleAdapter` (L787 of test file). The TS oracle.ts (L24-28) admits "real Chainlink/Pyth/Chronicle feeds require on-chain access we don't have in this pilot" — uses synthetic witnesses derived from a single Frankfurter/gold-api reference. **On-chain I9 multi-source is fictional until real adapters are written + deployed.**
+- No circuit breaker on price jumps between commits. The `commitFxRatesFromOracles` (L988-1001) emits `PriceUpdated` only if diff > 0.5% (L999) but does NOT revert or pause on a >10% single-tick move. A compromised keeper could submit a wild price and the contract accepts it.
+
+### A.5 Flash loan attack resistance — 7/10
+- `mint`/`redeem` are atomic per-tx; no reentry across txs.
+- `executeRebalance` only mutates internal `reserveHeldUsd` mirror (no actual swap call) — keeper must execute swaps off-chain, so flash-loan manipulation of reserve via a single tx is NOT possible.
+- **MEDIUM — price manipulation via flash-loaned oracle**: A flash-loanable price source (e.g. a Uniswap TWAP that the adapter reads) could let an attacker spike a price within a single tx, mint MTQ at the spiked price, then repay. The contract has no min/max price commit window. Mitigated by the [0.50, 2.00] safety band (L329-330) but that's wide (100%+ move tolerated).
+
+### A.6 Front-running / sandwich resistance — 3/10
+- **HIGH**: `mint` reads `getMTQPriceWithGuard()` at execution time (L1152) — price is NOT committed at submit. A searcher who sees a large mint in the mempool can front-run by manipulating the index (via a keeper-tx bribe or oracle commit), then back-run.
+- No commit-reveal scheme. No slippage parameter on `mint(usdcAmount)` or `redeem(mtqAmount)`. Users cannot specify min output.
+- The 0.10% mint fee + 0.15% redeem fee does not cover the typical sandwich loss (1-3%).
+- Compare to LUSD's `_adjustPrice` (basket fee) or DAI's PSM — both have explicit slippage protection. MTQΣ has none.
+
+### A.7 Pause mechanism — 5/10
+- `pause()` (L224) and `unpause()` (L225) — both `onlyPauser`, instant, NO timelock either way. ✓ fast to trigger.
+- **HIGH**: No timelock on `unpause` — a compromised PAUSER_ROLE holder can pause-then-unpause to MEV-attack users (front-run pause, back-run unpause).
+- **HIGH**: Pause does NOT auto-trigger when oracle goes <3 valid, nor when RR < 1.0. The contract relies entirely on a human pressing pause. The state machine goes to EMERGENCY (which auto-pauses redemption via `redemptionAllowed=false` L727) but mint is NOT paused in EMERGENCY via `mintingAllowed` (L687 returns false for EMERGENCY — actually it does pause minting). So state-machine gating works, but it depends on the keeper calling `updateState(rr, lcr)` (L657) — which depends on the keeper being alive and the oracle being valid.
+- **HIGH — emergency response NOT 5-15 min, it's INSTANT if PAUSER is online, INFINITE if not**: No timelock on pause (good for fast response), but no auto-monitoring/auto-pause either. The RUNBOOK says "5-15 min best-effort" — that depends on human availability, not contract enforcement.
+
+### A.8 Upgradeability — 4/10 (informational)
+- Contract is NOT upgradeable (no proxy pattern, no UUPS, no transparent proxy). Direct deployment. **By design per audit-b I1**.
+- **CRITICAL implication**: A bug in the deployed contract can ONLY be fixed by deploying a NEW contract (requires a migration: drain USDC, deploy V4, transfer assets). No hot-patch path. Combined with the governance setters missing (A.2), even parameter changes via Listing 14 are dead. Only role grants via DEFAULT_ADMIN can patch operational issues.
+- This is acceptable ONLY if (a) the contract is fully audited, (b) governance setters exist (they don't), and (c) a migration plan is documented. None of these are fully met.
+
+### A.9 Event emission — 6/10
+- **MISSING events on critical state changes**:
+  - `setCrisisFlag` (L516) — no event (only `crisisFlag = flag`). **HIGH — silent stress-smoothing trigger.**
+  - `genesisMint` (L1330) — no event. **HIGH — genesis supply creation is unobservable off-chain.**
+  - `setGenesisReserve` (L1339) — no event. **MEDIUM — silent change of locked-reserve custodian.**
+  - `setReserveVault` (L1344) — no event. **HIGH — silent change of USDC collateral custodian.**
+  - `bootstrapReserveHoldings` (L1352) — no event. **HIGH — one-shot reserve mirror initialization is unobservable.**
+  - `setReserveHolding` (L1361) — no event. **CRITICAL — admin can silently rewrite NAV by setting any component to any value, no audit trail.**
+  - `setFxRates` (L1031) — only emits `PriceUpdated` if diff > 0.5% (L1040). Silent on small changes — acceptable, but `lastPrices[]` updates themselves are not evented.
+  - `transfer`/`approve`/`transferFrom` — emit Transfer/Approval (standard). ✓
+  - `grantRole`/`revokeRole` — emit RoleGranted/RoleRevoked. ✓
+  - `pause`/`unpause` — emit Paused/Unpaused. ✓
+  - `submitTargetWeights` — emits WeightsAccepted. ✓
+  - `advanceIndex` — emits IndexAdvanced. ✓
+  - `commitWeights` — emits ChainLinkAdjusted + WeightsCommitted. ✓
+  - `updateState` — emits StateChanged. ✓
+  - `registerParameter`/`proposeChange`/`executeChange`/`cancelChange` — emit their respective events. ✓
+  - `setOracleAdapter`/`setAssetRegistry` — emit their respective events. ✓
+  - `mint`/`redeem`/`executeRebalance` — emit Mint/Redeem/RebalanceExecuted. ✓
+
+### A.10 Gas DoS — 8/10
+- All loops are bounded by 7 (component count) or `trades.length ≤ 7` (L1254 enforced by Err48). ✓
+- No unbounded array iterations. No mappings iterated. ✓
+- `_insertionSort` (L1486) is O(n²) but n ≤ 3 — trivial.
+- **MEDIUM — `executeRebalance` gas not bounded per-trade**: A keeper could submit 7 trades each with `direction=1` and `tradeUsd` near the daily cap. Each trade does ~5 storage writes. 7 × ~50k gas = 350k gas. Acceptable but not capped per-tx.
+- The `try/catch` in `getNAV` (L1077) on a malicious asset registry could consume unbounded gas if the registry reverts with a complex reason — audit-b noted this. Mitigation: try/catch fallback to gross NAV.
+
+---
+
+## B. TOKENOMICS — 6/10
+
+### B.1 MTQΣ token design — 8/10
+- ERC-20: name "MTQ Sigma V3" (L242), symbol "MTQv3" (L243), decimals 18 (L244). ✓
+- **MEDIUM — symbol mismatch**: Contract says "MTQv3" but contracts.ts and UI use "MTQ". Token registries (CoinGecko, exchanges) will reject the V3 symbol. Production deploy should be "MTQ".
+- Total supply: dynamic, starts 0, grows via mint, shrinks via redeem. No MAX_SUPPLY cap (audit-d A.5 confirms intentional per blueprint).
+- Mint policy: `mint()` (L1147) by any user with USDC. `genesisMint()` (L1330) onlyAdmin, one-shot. No admin mint outside genesis. ✓
+- Burn policy: `redeem()` (L1179) burns caller's MTQ. No direct burn function. ✓
+- No transfer restrictions (no allowlist/blocklist) — anyone can transfer. **MEDIUM — no sanctions screening (OFAC)**, audit-b M1 noted address(0) not blocked either.
+
+### B.2 Peg mechanism — 5/10
+- **NOT a $1 stablecoin**. MTQΣ is a "Global Purchasing Power Unit" tracking the GFB Index (7-component basket: USD/EUR/JPY/GBP/CNY/CHF/Gold).
+- `P_MTQ = indexValue / INDEX_BASE_DENOMINATOR` (L1099). At genesis, both = 1e18, so P_MTQ = 1.0 USD.
+- As FX/gold prices move, P_MTQ floats freely. The [0.50, 2.00] safety band (L329-330) reverts mint/redeem if price leaves the band — but a 50% depeg is tolerated.
+- Mint: priced at `P_MTQ` (L1152, getMTQPriceWithGuard).
+- Redeem: priced at `NAV_per_token` (L1187, getNAVperToken) — NOT `P_MTQ`. **This creates a persistent arbitrage window**: when NAV/MTQ > P_MTQ (over-collateralized), redeem pays MORE than mint receives. When NAV/MTQ < P_MTQ (under-collateralized), redeem pays LESS — death-spiral accelerant.
+- The "peg" is to the basket, not to USD. Compare to IMF SDR more than DAI/USDC. Honest design but the safety band [0.50, 2.00] is far too wide for a "purchasing power unit" that should track ~1.0 closely. **HIGH — band should be tightened to [0.95, 1.05] for mainnet** or the unit isn't actually stable.
+
+### B.3 Reserve ratio — 7/10
+- RR_TARGET = 1.10e18 (L662), RR_STRESS_FLOOR = 1.05e18 (L663), RR_HARD_FLOOR = 1e18 (L262, immutable).
+- `getReserveRatio` (L1124) = NAV / liability. When liab=0, returns max uint256 (L1127) — edge case handled.
+- State machine: NORMAL (RR≥1.10, LCR≥1.0) → CAUTION (RR≥1.05, LCR≥0.90) → STRESS (RR≥1.02, LCR≥0.80) → DEFENSIVE (RR≥1.00, LCR≥0.70) → EMERGENCY (RR<1.00) → RECOVERY.
+- When RR drops below 1.0: state=EMERGENCY, `redemptionAllowed=false` (L727) — redemptions PAUSED. ✓ Death-spiral protection.
+- **CRITICAL — RR decays as minting scales** (audit-d C1): Each mint at P_MTQ=1.0 brings in 1 USDC and creates ~0.999 MTQ of liability. Reserve grows 1:1 with deposits, but liability ALSO grows 1:1, so RR does NOT improve. The 10% genesis surplus (1.1M USDC / 1M MTQ) gets diluted: at $110M minted, RR ≈ 1.01; at $1B minted, RR ≈ 1.001. **No automatic mechanism re-grows the surplus.** Mitigation requires: (a) fee revenue recycling (currently fees go to reserveVault, commingled with collateral — audit-d C2), (b) treasury sweep (not wired), (c) MASE rebalancing realizing gains (not audited to be net positive). **CRITICAL — sustainability gap, protocol approaches hard floor at scale.**
+
+### B.4 Liquidation mechanism — 2/10
+- **NO liquidation mechanism**. There is no auction, no bad-debt market, no liquidator role.
+- When EMERGENCY: redemptions paused. No way for users to exit. No way for protocol to recover. State stays EMERGENCY until either (a) oracle prices recover (lifting NAV above liability) or (b) governance manually intervenes.
+- 48h RECOVERY_CONFIRMATION_PERIOD (L263) before exiting EMERGENCY → NORMAL. So even after recovery, users are locked for 48h minimum.
+- Compare to DAI (auction liquidation of vaults), LUSD (110% collateral liquidation via stability pool), USDe (no liquidation needed — fully backed). MTQΣ has the WORST liquidation design of any major stablecoin.
+- **CRITICAL — no recovery path**. If MTQΣ depegs and stays depegged, there is no on-chain mechanism to ever restore solvency. Requires off-chain governance injection of new USDC into the reserve (via `setReserveHolding` — which is admin-only, no timelock).
+
+### B.5 Fee structure — 6/10
+- Mint fee: 0.10% (mintFee=0.001e18, L664). NORMAL state only.
+- Redeem fee: 0.15% NORMAL/CAUTION, 0.50% STRESS/RECOVERY, 1.00% DEFENSIVE, 2.00% EMERGENCY (paused) (L703-716).
+- **MEDIUM — fees go to `reserveVault`** (L1154 transferFrom to reserveVault includes the gross; net minted = gross − fee × gross / 1e18, but the fee portion stays in reserveVault as USDC). This commingles fees with collateral (audit-d C2) — inflates reported NAV/RR. The blueprint §20.4 specifies a separate Operational Wallet. **HIGH — fees should route to a separate feeWallet.**
+- No spread parameter — mint and redeem priced differently (P_MTQ vs NAV_per_token) which creates implicit spread.
+- Compared to peers: DAI (0.5-3% stability fee, variable), USDC (0% mint/0% redeem), USDe (0% mint/0.05-0.5% redeem), FRAX (0.05-0.1%), LUSD (0.5% mint, 0.5% redeem). MTQΣ's 0.10/0.15% is in the low-middle range.
+
+### B.6 Collateral types — 3/10
+- **CRITICAL — single-collateral design despite multi-currency index**: The contract ONLY accepts USDC (L312, L1154). The `reserveHeldUsd` mirror (L326) tracks 7 components as USD values, but the actual collateral is 100% USDC. The "EUR", "JPY", "GBP", "CNY", "CHF", "Gold" reserves are BOOKKEEPING ENTRIES, not actual holdings.
+- Registry (registry.ts L84-100) confirms: GBP, JPY, CNY have `tokenAddress: "TBD"` and `state: "WATCH"` — they fail 4/8 eligibility criteria including `issuerAuthorization: false`, `smartContractAudit: false`. **3 of 7 index components have NO admitted token**.
+- EUR (EURC, Circle) is single-issuer with `concentrationLimit: false` — Circle would be ~54% of reserve if EURC were actually held, breaching the 30% issuer limit.
+- Gold (PAXG/XAUT) is the only non-fiat — but the contract does NOT hold PAXG/XAUT, only USDC mirror entries. **The "gold backing" is illusory on-chain.**
+- Concentration risk: 100% USDC = 100% Circle issuer concentration (breaches §5.6 30% limit grossly). **CRITICAL — concentration risk extreme.**
+- Compare to DAI (multi-collateral: ETH/WBTC/stables/Real-World-Assets), LUSD (ETH only but properly collateralized), USDC (single-issuer fiat by design). MTQΣ claims multi-currency but is actually USDC-only.
+
+### B.7 MTQΣ vs GFB Index — 8/10 (clear separation)
+- MTQΣ = liability-side token (users hold it).
+- GFB Index = the purchasing-power reference (chain-linked, 7 components).
+- `P_MTQ = GFB_Index / GFB_BASE_DENOMINATOR` (L1099). So 1 MTQ = 1 basket-unit's worth of GFB goods.
+- The reserve (USDC) is the liability-matching portfolio — its job is to back the MTQ liability, NOT to track the GFB Index.
+- This is the correct conceptual separation (audit-d Pillar 1). ✓
+- But: the reserve mirror (reserveHeldUsd) USES the strategic prior weights (Q_USD 27% ... Q_GOLD 26%, L267-273) to allocate the USD-only USDC across 7 notional buckets. This is decorative — the actual USDC is fungible. The mirror exists to compute NAV via `getNAV` (L1062) which sums the 7 buckets. So NAV is really just `sum(reserveHeldUsd)` = total USDC value (since each bucket's "USD value" is just an admin-set number). **HIGH — NAV is admin-managed, not market-derived.**
+
+### B.8 Supply elasticity — 8/10
+- Supply expands via `mint()` (any user with USDC). No cap. ✓
+- Supply contracts via `redeem()` (any user with MTQ, except EMERGENCY). ✓
+- State-throttled: NORMAL 100%, CAUTION 50%, RECOVERY 25%, STRESS/DEFENSIVE/EMERGENCY 0% mint throttle (L688-694).
+- **MEDIUM — no per-block mint cap**: A whale could mint $1B in a single tx (if USDC balance allows), severely diluting the genesis surplus. Mitigation: the state machine would shift to EMERGENCY on the next `updateState` call (RR drops below 1.0), but mint is allowed in NORMAL/CAUTION/RECOVERY until the keeper notices.
+- No daily mint cap. No per-address cap. **MEDIUM — adversarial mint attack vector**.
+
+### B.9 Death spiral risk — 6/10
+- **Partial protection**: When RR < 1.00, state=EMERGENCY, redemptions paused (L727). This stops the spiral mechanically.
+- **HIGH — bank run risk in DEFENSIVE/STRESS**: When RR is between 1.00-1.05 (DEFENSIVE/STRESS), redemptions are STILL allowed with higher fees (1.00%/0.50%). Rational users redeem first, draining USDC. Once USDC drops below liability, RR drops below 1.0, EMERGENCY triggers, redemptions paused. Late redeemers are trapped.
+- **MEDIUM — NAV-based redemption accelerates the spiral**: `redeem` uses `getNAVperToken()` (L1187), not `P_MTQ`. As USDC drains, NAV per token drops. Each redeem further drains USDC, dropping NAV per token for the next redeemer. This is the classic bank-run dynamic.
+- **HIGH — no redemption queue**: All redemptions are first-come-first-served within a block. No daily redemption cap, no queue. Compare to LUSD (gas-bid queue), FRAX (delayed redemption), DAI (PSM cap). MTQΣ has no rate-limiter.
+- 48h RECOVERY_CONFIRMATION_PERIOD before exiting EMERGENCY → users are locked for 48h minimum, which may further erode confidence.
+
+### B.10 Comparison to peers — 5/10
+| Feature | MTQΣ | DAI | USDC | USDe | FRAX | LUSD |
+|---|---|---|---|---|---|---|
+| Collateral | USDC only (claimed 7-ccy) | ETH/WBTC/RWA/stables | Fiat bank | ETH+short-perp | USDC+algorithmic | ETH |
+| Decentralization | Low (admin EOA) | High (MakerDAO) | Low (Circle) | Medium (Ethena) | High (Frax DAO) | High (immutable) |
+| Peg | Float vs GFB | ~$1 (1% band) | $1 (1:1) | ~$1 (yield-bearing) | $1 (partial algo) | ~$1 (110% collat) |
+| Liquidation | NONE | Auction | N/A | N/A | Algorithmic | Stability Pool |
+| Oracle | 3-source stub | MakerDAO OSM | N/A | CEX+DEX | Chainlink+Unispan | Chainlink |
+| Upgradeability | NO | YES (DAO) | N/A | YES | YES | NO |
+| Audit status | UNAUDITED external | Top-tier | Top-tier | Top-tier | Top-tier | Top-tier |
+| Mainnet deploy | NO | YES | YES | YES | YES | YES |
+| Verdict | **NOT mainnet-ready** | mainnet | mainnet | mainnet | mainnet | mainnet |
+
+---
+
+## C. ORACLE ARCHITECTURE (I9) — 3/10
+
+### C.1 Three sources — 2/10
+- Listed: Chainlink (L880), Pyth (L881), Chronicle (L882). **NOT Redstone** as task brief assumed.
+- **CRITICAL — sources are NOT independent**: 
+  - On-chain: 3 adapter slots but NO adapter contracts exist (only `IOracleAdapter` interface L101). Tests use `MockOracleAdapter`. The actual real-world Chainlink/Pyth/Chronicle adapter contracts need to be WRITTEN, AUDITED, and DEPLOYED before mainnet. **Estimated 40-80 hours of work.**
+  - Off-chain (oracle.ts L24-28, honest admission): "real Chainlink/Pyth/Chronicle feeds require on-chain access we don't have in this pilot. We therefore model the three feeds as: a live 'reference' price (Frankfurter ECB / gold-api for gold), used as the Chainlink-equivalent primary; two synthetic 'witness' feeds derived with small independent noise." **2 of 3 sources are derived from the 1 reference.** Source independence (I9 requirement) is NOT honored.
+  - audit-a-static-code.md:39 confirms: "§17.3.4 source independence NOT honored — all 3 feeds derive from same reference price".
+- **MEDIUM — Chronicle is not a typical FX oracle**: Chronicle is mainly used for ETH/BTC price feeds, not for EUR/USD or XAU/USD. Need to verify Chronicle actually supports the 6 required pairs.
+
+### C.2 Median consensus — 5/10
+- On-chain `getOracleConsensus` (L895-969): 
+  - If 3 valid → median(sorted[1]) (L961). ✓
+  - If 2 valid → average of 2 (L967-968). **VIOLATES I9 strict (should pause).**
+  - If <2 valid → paused (L955).
+- Deviation filter (L962-966): discards feeds >2.5% from median. ✓
+- **HIGH — deviation filter can self-defeat**: If 2 feeds are honest (within 0.1%) and 1 is compromised (+5%), the compromised feed is discarded → 2 remain → average (not pause). But I9 strict requires 3 valid; should pause. **Currently the contract accepts 2-source average silently.**
+- Off-chain oracle.ts (TASK-7-ORACLE-I9 fix) DOES pause at <3 (with governanceOverride escape hatch). **MISMATCH between on-chain and off-chain behavior.**
+
+### C.3 Staleness — 7/10
+- On-chain: `ORACLE_STALENESS_SEC = 60` (L886). Enforced in `getOracleConsensus` (L948: `block.timestamp - t > ORACLE_STALENESS_SEC → discard`). ✓
+- Also rejects future timestamps (L947: `t > block.timestamp → discard`). ✓
+- **MEDIUM — 60s is aggressive**: The keeper must commit prices every <60s. With a 4s tick (per keeper index.ts), this leaves 15 attempts before staleness. If keeper is down for >60s, all feeds go stale → all pairs paused → no new commits → mint/redeem continue using stale `lastPrices[]` (because mint/redeem don't check oracle health — see A.4). **CRITICAL interaction with A.4: stale oracle does NOT pause mint/redeem.**
+- Compare to Chainlink's standard 2-hour heartbeat + 24h staleness. MTQΣ's 60s is 1440× stricter — operationally risky.
+
+### C.4 Pause on <3 — 2/10
+- **CRITICAL — contract does NOT pause on <3 valid feeds**: `getOracleConsensus` returns `paused_=true` only at <2 valid (L954). At exactly 2 valid, returns `paused_=false, method=1, average`. **On-chain I9 violation persists.**
+- **CRITICAL — even when `paused_=true`, the contract's `paused` bool is NOT set**: Only `commitFxRatesFromOracles` (L988) checks `paused_` (reverts with Err39). `mint` (L1147) and `redeem` (L1179) use `getMTQPriceWithGuard()` which reads `lastPrices[]` (the LAST committed prices) — they do NOT call `getOracleConsensus`. So even if every oracle pair is paused, users can still mint/redeem against stale prices. **CRITICAL — oracle failure does NOT halt user monetary ops.**
+- Off-chain oracle.ts DOES pause correctly (TASK-7-ORACLE-I9 fix). But the off-chain engine is just a reference — the actual on-chain contract is what enforces monetary operations.
+
+### C.5 Mock feeds — 4/10
+- Testnet: `MockOracleAdapter` (test file L787+) is used in MTQSigmaV2.t.sol. ✓ Test stubs.
+- Robinhood Testnet (contracts.ts L131) lists a "MockUSDC" at 0xFd2B8d176bf059287638Db30D02C6651dA02861e (same address as Arc Oracle — likely copy-paste error). **LOW — wrong address listed.**
+- Mainnet: NO mock feeds needed, but also NO real adapter contracts. **CRITICAL — mainnet deployment impossible without writing 3 adapter contracts.**
+
+### C.6 Pyth/Chainlink/Redstone adapters — 1/10
+- **CRITICAL — NO adapter contracts exist**. The `IOracleAdapter` interface (L101) is defined but no concrete `ChainlinkAdapter`, `PythAdapter`, `ChronicleAdapter` contracts are in the repo.
+- The TS oracle.ts uses synthetic witnesses derived from a single reference. **No real Pyth/Chainlink/Chronicle integration.**
+- Redstone is NOT used (task brief assumption was wrong — Chronicle is the 3rd source per blueprint §9.1).
+- **Estimated effort to write 3 production adapters**: 60-120 hours (each adapter needs: feed registration, heartbeat/staleness mapping, confidence interval extraction, pair-id translation, unit-tests, audit).
+
+---
+
+## D. GOVERNANCE — 2/10
+
+### D.1 Four councils — 1/10
+- Declared at L298-301: `dao`, `riskCouncil`, `emergencyCouncil`, `constitutionalCouncil`. 
+- **CRITICAL — NONE of these 4 addresses can EVER be set on-chain**: No `setDao()`, `setRiskCouncil()`, `setEmergencyCouncil()`, `setConstitutionalCouncil()` setter functions exist (grep confirmed). Constructor does NOT initialize them. They default to `address(0)` FOREVER.
+- Thresholds from blueprint (blueprint.ts L196-217): Constitutional 7/7 + 90d, Monetary DAO 51% + 48h, Risk 4/7 + 24h, Emergency 4/7 + instant. **NONE of these multi-sig configurations are enforced on-chain.** The contract just compares `msg.sender == dao` etc. — single-address checks, not multi-sig.
+- The 4 timelock constants ARE defined (L759-762): TIMELOCK_CONSTITUTIONAL=90 days, TIMELOCK_MONETARY=48h, TIMELOCK_RISK=24h, TIMELOCK_EMERGENCY=0. Used in `executeChange` (L817-822). ✓
+- But since `proposeChange` (L787) directly checks `msg.sender == dao/riskCouncil/etc.` and those are all address(0), **NO proposal can ever be created**. The timelocks are dead code.
+- DEFAULT_ADMIN_ROLE bypass on the modifier-based functions (onlyConstitutionalCouncil at L306 etc.) lets the deployer admin call `registerParameter`, `setEnvelopes`, `cancelChange` directly. So the deployer is the de-facto Constitutional + Risk + Emergency + Monetary council combined. **CRITICAL — total centralization.**
+
+### D.2 Multi-sig — 1/10
+- The owner (DEFAULT_ADMIN_ROLE) is granted to `msg.sender` in the constructor (L439) — a single EOA (deployer = 0x3C39...8d8c per contracts.ts L30).
+- A Safe (Multi-Sig) IS listed in contracts.ts for Robinhood Testnet (0xa3CE28A10854B375272D528EeC4295D6bcd75691, 4/7) and the same Safe address for Monad+Arc (0xE71869C662733642bfBb262B8c6bad8B0fBfA7D0). **But the contract's DEFAULT_ADMIN_ROLE is the deployer EOA, NOT the Safe.**
+- No on-chain enforcement that the admin is a multi-sig. The TODO comment at L431-438 admits: "Leaving the deployer EOA as DEFAULT_ADMIN in production is a multi-sig/blocker anti-pattern."
+- The keeper service (mini-services/keeper/index.ts) is a HOT WALLET with KEEPER_ROLE only — it cannot mint/redeem/pause. ✓ Defense-in-depth.
+- **CRITICAL — mainnet deploy requires Safe-first deployment** OR an immediate post-deploy `revokeRole(DEFAULT_ADMIN, deployer) + grantRole(DEFAULT_ADMIN, safe)` 2-step (which is a known anti-pattern — if step 2 fails, contract is bricked).
+
+### D.3 Timelock — 4/10
+- 4 timelock constants defined (L759-762) and enforced via `executeChange` delay (L817-822). ✓ for the Listing 14 parameter-change path.
+- **HIGH — NO timelock on these CRITICAL admin actions**:
+  - `pause()`/`unpause()` (L224-225) — instant. **Acceptable for emergency pause, NOT acceptable for unpause.**
+  - `grantRole`/`revokeRole` (L1429-1432) — instant. **HIGH — admin can instantly grant MINTER_ROLE to themselves and mint unbounded MTQ.**
+  - `setOracleAdapter` (L910) — instant. **HIGH — admin can swap oracle to a malicious adapter.**
+  - `setAssetRegistry` (L1058) — instant. **HIGH — admin can swap registry to one with 0 haircuts → inflate NAV.**
+  - `setReserveVault` (L1344) — instant. **HIGH — admin can redirect all USDC to a new vault (front-run redeem).**
+  - `setGenesisReserve` (L1339) — instant. **HIGH — admin can move the locked genesis reserve.**
+  - `setReserveHolding` (L1361) — instant. **CRITICAL — admin can rewrite NAV arbitrarily.**
+  - `setEnvelopes` (L510) — instant (no on-chain 90d timelock; comment L508-509 admits "90d timelock is enforced off-chain by the multi-sig workflow"). **HIGH — constitutional invariants mutable instantly if admin key compromised.**
+  - `registerParameter` (L773) — instant (same — comment claims off-chain 90d). **HIGH.**
+- **HIGH — proposed-but-not-executed changes can be overwritten**: `proposeChange` (L787) writes `proposals[parameterId] = Proposal({...})` — no check that an unexecuted proposal exists. A re-propose overwrites value AND resets `timestamp = block.timestamp`, restarting the timelock. Griefing vector (audit-b M7 noted, still unfixed).
+
+### D.4 Constitutional invariants — 6/10
+- Hard-coded `constant` (truly immutable): `PAR=1e18` (L261), `RR_HARD_FLOOR=1e18` (L262), `RECOVERY_CONFIRMATION_PERIOD=48h` (L263), `Q_USD...Q_GOLD` (L267-273), `BASE_*_USD` (L276-281), `PRICE_SAFETY_LOWER/UPPER` (L329-330), `MAX_VELOCITY[7]` (L295), 4 timelocks (L759-762), `ORACLE_STALENESS_SEC` (L886), `ORACLE_CONFIDENCE_MAX` (L887), `ORACLE_DEVIATION_MAX_BPS` (L888), `DIRECTION_LOCK_HOURS` (L1242), `MAX_DAILY_TURNOVER` (L1243), `REBALANCE_TOLERANCE` (L1244). ✓ These CANNOT be changed without redeployment.
+- **MEDIUM — mutable "constitutional" parameters**:
+  - `LOWER_BOUND[7]`/`UPPER_BOUND[7]` (L291-292) — mutable via `setEnvelopes` (L510). Comment L508-509: "90d timelock is enforced off-chain by the multi-sig workflow." **NO on-chain enforcement.** If constitutionalCouncil key (or DEFAULT_ADMIN) is compromised, envelopes can be changed instantly to allow e.g. 99% USD weight.
+  - `INDEX_BASE_DENOMINATOR` (L285) — `immutable` ✓ (set in constructor only).
+  - `PARAM_*` parameter values (rrTarget, mintFee, redeemFee*, lcrTarget, depegWindow) — all mutable via Listing 14 (which is dead code per D.1) OR via direct `registerParameter` (onlyConstitutionalCouncil with admin bypass). So effectively admin can change all parameters instantly.
+- The "constitutional invariants" list in blueprint.ts (L112-121) includes I1 (PAR immutable), I2 (RR≥1.00), I4 (V_net with haircuts), I10 (honest status). **I2 is NOT enforced on-chain** — admin can `setReserveHolding` to fake NAV above liability, breaking the invariant. **HIGH — I2 violation vector.**
+
+### D.5 Emergency response — 5/10
+- WHO: `pause()` is `onlyPauser` (L224). PAUSER_ROLE is granted by DEFAULT_ADMIN_ROLE.
+- HOW FAST: Instant — no timelock on pause. ✓
+- **MEDIUM — pause is binary**: `paused=true` halts mint, redeem, executeRebalance, advanceIndex, commitWeights, commitFxRatesFromOracles (all `whenNotPaused`). But it does NOT halt: `transfer` (MTQ still moves between accounts), `setReserveHolding` (admin can still rewrite NAV), `grantRole` (admin can still grant MINTER_ROLE).
+- **HIGH — no auto-pause trigger**: The contract does NOT auto-pause when:
+  - Oracle goes <3 valid (A.4)
+  - RR drops below 1.0 (state goes EMERGENCY which pauses redemption via state machine, but not the `paused` bool — so admin functions like setReserveHolding still work)
+  - Price leaves [0.50, 2.00] band (mint/redeem revert via guard, but no auto-pause)
+  - A single oracle adapter returns a >10% deviation (deviation filter discards the bad feed, but if 2/3 are bad and 1 is good, the good one gets discarded and average is computed from the 2 bad ones — see C.2).
+- RUNBOOK.md target: "5-15 min best-effort (NOT 60s)". The keeper has a Discord webhook alert (rate-limited 1/5min). So the response time is bounded by (a) Discord alert delivery (~5s), (b) human ack + reach a keyboard (~5-15 min), (c) Safe multi-sig tx signing (4/7 signers, ~15-60 min). **Realistic emergency response: 20-75 minutes, NOT 5-15 min.**
+
+---
+
+## E. MAINNET BLOCKERS
+
+### CRITICAL (blocks mainnet GO — must fix before ANY public mainnet deployment)
+
+**B1. 4 governance addresses have NO setters — governance is dead code**
+- Missing: `setDao()`, `setRiskCouncil()`, `setEmergencyCouncil()`, `setConstitutionalCouncil()` setter functions (grep confirmed). Constructor does not initialize them. They default to `address(0)` forever.
+- Why it matters: The entire Listing 14 governance parameter-change system (registerParameter/proposeChange/executeChange/cancelChange at L773-862) cannot function — no one can propose a change. Only DEFAULT_ADMIN can register parameters (via modifier bypass), but no one can propose changes to existing parameters. All protocol parameter updates require contract redeployment.
+- Severity: CRITICAL
+- Effort to fix: 4 hours (add 4 setter functions gated by onlyConstitutionalCouncil; add initialization in constructor or a separate init function; update tests; redeploy)
+- Dependencies: Multi-sig Safe addresses for dao/riskCouncil/emergencyCouncil/constitutionalCouncil must be created first.
+
+**B2. Oracle consensus on-chain is NOT I9-strict (2-source averaging allowed)**
+- Missing: `getOracleConsensus` (L895-969) still accepts 2-source average (L965-968, `method=1`). TS oracle.ts was fixed in TASK-7-ORACLE-I9 (pause at <3) but Solidity was NOT updated. On-chain ≠ off-chain.
+- Why it matters: A single compromised oracle adapter can collude with one other to produce arbitrary prices. The strict I9 invariant (pause at <3) is the protocol's core safety promise — violated on-chain.
+- Severity: CRITICAL
+- Effort to fix: 2 hours (change `else { finalPrice = sum / cnt; method = 1; }` to `else { paused_ = true; method = 0; return (0, validCount, 0, true, prices, valid); }`; update oracle tests; redeploy)
+- Dependencies: None. Pure Solidity change.
+
+**B3. Mint/redeem do NOT check oracle health — stale prices accepted**
+- Missing: `mint` (L1147) and `redeem` (L1179) use `getMTQPriceWithGuard()` which reads `indexValue` and `lastPrices[]` (last committed). They do NOT call `getOracleConsensus` to verify live oracle health. If oracles fail mid-cycle, users can mint/redeem against stale prices indefinitely.
+- Why it matters: A 60-second oracle outage becomes a permanent stale-pricing window. Attackers can mint MTQ at a stale (low) price, then redeem at a recovered (higher) price for free money. Death-spiral accelerant.
+- Severity: CRITICAL
+- Effort to fix: 6 hours (add `require(!getOracleConsensus(pair).paused_)` checks for all 6 pairs in mint/redeem entry; OR add a `lastOracleCommitAt` timestamp and require `block.timestamp - lastOracleCommitAt < 120s` in mint/redeem; update tests; redeploy)
+- Dependencies: None.
+
+**B4. NO real oracle adapter contracts exist (Chainlink/Pyth/Chronicle)**
+- Missing: Only the `IOracleAdapter` interface (L101) exists. No `ChainlinkAdapter.sol`, `PythAdapter.sol`, `ChronicleAdapter.sol`. Tests use `MockOracleAdapter`. TS oracle.ts uses synthetic witnesses.
+- Why it matters: Without real adapters, the contract CANNOT be deployed to mainnet with live price feeds. The 3-adapter consensus is fictional.
+- Severity: CRITICAL
+- Effort to fix: 60-120 hours (3 adapters × 20-40 hours each: feed registration, heartbeat mapping, confidence extraction, pair-id translation, unit tests, audit).
+- Dependencies: Per-pair feed addresses from Chainlink/Pyth/Chronicle docs. Mainnet RPC access. Foundry installed for testing.
+
+**B5. DEFAULT_ADMIN_ROLE is the deployer EOA — not a multi-sig**
+- Missing: Constructor L439 grants DEFAULT_ADMIN_ROLE to msg.sender (EOA 0x3C39...8d8c). No Safe-first deployment. No 2-step admin transfer. No timelock on role grants.
+- Why it matters: A single compromised EOA key = total protocol takeover. The listed Safe (0xE71869... / 0xa3CE28...) is NOT the admin on-chain. The leaked private_key.txt (per STATUS-AUDIT CRITICAL #1) derives to this exact address.
+- Severity: CRITICAL
+- Effort to fix: 4 hours (create Safe 4/7 with hardware wallets; deploy via Safe-first factory so msg.sender IS the Safe; OR deploy then immediately `revokeRole(DEFAULT_ADMIN, deployer) + grantRole(DEFAULT_ADMIN, safe)` from a 2-step deployer script; update RUNBOOK)
+- Dependencies: Safe multi-sig setup with 4/7 signers on hardware wallets. Deployer key rotation (the leaked key must be rotated first).
+
+**B6. setReserveHolding lets admin rewrite NAV arbitrarily with no event**
+- Missing: `setReserveHolding` (L1361, ADMIN_ROLE) lets admin set any component's reserve USD to any value, instantly, no event, no timelock. NAV = sum(reserveHeldUsd). Admin can fake 1000% RR → mint unbounded MTQ.
+- Why it matters: This is the single largest trust assumption in the protocol. If admin key is compromised, attacker can drain the reserve by minting MTQ to themselves at faked-high RR, then redeeming for USDC.
+- Severity: CRITICAL
+- Effort to fix: 8 hours (remove `setReserveHolding` entirely — replace with keeper-only `reportReserveHolding` that requires delta ≤ 5% from last value; OR add timelock + event + per-tx cap; update tests; redeploy)
+- Dependencies: None. But removing it requires the keeper to do all reserve mirror updates via a different path (e.g. on-chain swap receipts).
+
+**B7. NO upgradeability + NO governance setters = no bug-fix path**
+- Missing: Contract is not upgradeable (audit-b I1). Combined with B1 (no governance setters), the only way to fix a bug is to deploy a new contract + migrate (drain USDC, transfer MTQ balances — impossible without user cooperation).
+- Why it matters: ANY bug discovered post-deploy requires a full migration. Users would need to redeem from V1 and re-mint to V2 (which requires the protocol to be solvent at migration time). If the bug prevents redemption (e.g. the EMERGENCY-pause bug), users are permanently locked.
+- Severity: CRITICAL
+- Effort to fix: 40-80 hours (implement UUPS proxy pattern with proper admin = Safe + 2-step upgrade + 48h timelock + version tracking; OR keep non-upgradeable but add comprehensive parameter setters for ALL mutable state). The non-upgradeable path with full setters is preferred (immutable core invariants are a feature).
+- Dependencies: B1 (governance setters) must be fixed first.
+
+### HIGH (must fix before public testnet — 7 days)
+
+**B8. Oracle adapter source-independence NOT enforced (H8 partial fix)**
+- Missing: `setOracleAdapter` (L910) only checks `adapter != address(0)`. Does NOT check that the 3 adapters are distinct addresses. Admin can set all 3 slots to the same adapter → 1-source masquerading as 3-source.
+- Why it matters: Source independence is the entire point of multi-source oracle. Without it, a single compromised adapter = full oracle compromise.
+- Severity: HIGH
+- Effort: 1 hour (add `require(chainlinkAdapter != pythAdapter && pythAdapter != chronicleAdapter && chainlinkAdapter != chronicleAdapter)` in setOracleAdapter).
+- Dependencies: None.
+
+**B9. commitWeights does NOT enforce Σ w_i = 1**
+- Missing: `commitWeights` (L562-590) iterates and uses `newWeights[i]` but never checks sum=1e18. `submitTargetWeights` (L480) does check (Err54). But commitWeights can be called by keeper with arbitrary weights (e.g. sum=0.79, all inside envelopes) — mathematically nonsensical, breaks index recursion.
+- Why it matters: Index corruption. A buggy keeper can silently corrupt the chain-linked index.
+- Severity: HIGH
+- Effort: 1 hour (add sum check at top of commitWeights).
+- Dependencies: None.
+
+**B10. No event on 6 critical admin functions**
+- Missing events on: `setCrisisFlag`, `genesisMint`, `setGenesisReserve`, `setReserveVault`, `bootstrapReserveHoldings`, `setReserveHolding`.
+- Why it matters: Off-chain observers (auditors, dashboards, users) cannot detect: genesis mint occurring, reserve vault moving, NAV being rewritten, crisis flag flipping. Zero audit trail for the most powerful admin actions.
+- Severity: HIGH
+- Effort: 2 hours (add `emit` statements + 6 event declarations; update tests).
+- Dependencies: None.
+
+**B11. Price safety band [0.50, 2.00] too wide for a "purchasing power unit"**
+- Missing: Tight band. The current band tolerates a 50% depeg before reverting mint/redeem.
+- Why it matters: A "Global Purchasing Power Unit" should track ~1.0 closely. A 50% tolerance defeats the purpose. Compare to DAI's 1% band, LUSD's 110% collateral ratio enforcing ~$1.
+- Severity: HIGH
+- Effort: 2 hours (change `PRICE_SAFETY_LOWER=0.95e18`, `PRICE_SAFETY_UPPER=1.05e18`; OR make it governance-settable within [0.90, 1.10] bounds).
+- Dependencies: None. But this is a tokenomics design decision — needs CFO + COO sign-off.
+
+**B12. GBP/JPY/CNY have NO admitted collateral token**
+- Missing: Registry (registry.ts L84-100) marks GBP, JPY, CNY as `state: "WATCH"` with `tokenAddress: "TBD"`, failing 4/8 eligibility criteria. Yet the contract still prices MTQΣ against all 7 components including these 3.
+- Why it matters: The "7-component basket" is partially fictional — 3 of 7 components have no admitted token. The reserve mirror for these is just admin-set USD numbers (no real backing). This misleads users about diversification.
+- Severity: HIGH
+- Effort: 80+ hours (find regulated GBP/JPY/CNH stablecoins, audit them, admit to registry; OR remove these 3 from the basket and re-weight to USD/EUR/CHF/Gold only).
+- Dependencies: Regulatory analysis (which GBP/JPY/CNH tokens pass §5.2 criteria?). This is a research + legal task.
+
+**B13. No redemption queue / rate-limit**
+- Missing: `redeem` (L1179) is first-come-first-served within a block. No daily cap, no queue, no per-address limit.
+- Why it matters: Bank-run dynamic — rational users redeem first in STRESS/DEFENSIVE, draining USDC before EMERGENCY triggers. Late redeemers are trapped.
+- Severity: HIGH
+- Effort: 12 hours (add `dailyRedemptionCap` parameter; track `dailyRedeemedUsd`; revert if `dailyRedeemed + usdcOut > cap`; reset daily; governance-settable).
+- Dependencies: None.
+
+**B14. SQLite database for production state**
+- Missing: prisma/schema.prisma L7 `provider = "sqlite"`. SQLite is single-writer, no replication, no point-in-time recovery.
+- Why it matters: A mainnet protocol with real reserves needs HA database (PostgreSQL with replicas, daily snapshots, point-in-time recovery). SQLite will fail under concurrent keeper + dashboard + API writes.
+- Severity: HIGH
+- Effort: 16 hours (migrate schema to PostgreSQL; update db.ts; migrate data; deploy managed Postgres — Neon/Supabase/AWS RDS).
+- Dependencies: None. But Turso (libSQL) is already partially integrated — could keep Turso for read replicas + add Postgres for writes.
+
+**B15. NO external security audit**
+- Missing: The contract has been self-audited (audit-b-smart-contract.md) but NOT by an external top-tier firm (Trail of Bits / OpenZeppelin / Consensys Diligence / Certora).
+- Why it matters: Self-audits miss blind spots. Top-tier audits are table-stakes for any mainnet DeFi protocol handling user funds.
+- Severity: HIGH
+- Effort: 4-8 weeks external (cannot be done in-house).
+- Dependencies: B1-B13 should be fixed BEFORE the external audit (otherwise the audit will just re-find them).
+
+### MEDIUM (should fix within 30 days)
+
+**B16. Foundry tests have NEVER been run** (source-ready only; no forge binary in sandbox; foundry.toml explicitly notes "the protocol owner must install Foundry first"). 31 test fns exist but 0 have executed. CI does not exist.
+- Effort: 8 hours (install Foundry in CI; `forge test -vvv` on every PR; fix any failures).
+
+**B17. schema.prisma DailyStateVector.status comment lists only 5 states** (missing STRESS). Schema drift.
+- Effort: 0.5 hours (update comment).
+
+**B18. OracleSample.paused comment says "<2 valid feeds"** but I9 strict requires "<3". Schema drift.
+- Effort: 0.5 hours (update comment).
+
+**B19. MINTER_ROLE declared (L197) but NEVER used in any onlyMinter check**. Dead role, possible confusion.
+- Effort: 0.5 hours (remove or use it — e.g. for a future privileged mint path).
+
+**B20. Symbol mismatch**: contract says "MTQv3" (L243), UI/registries use "MTQ". Token listing will fail.
+- Effort: 0.5 hours (change symbol to "MTQ" before mainnet deploy).
+
+**B21. next.config.ts has `typescript.ignoreBuildErrors: true`** (per STATUS-AUDIT CRITICAL #2). Type errors ship to Vercel silently.
+- Effort: 4 hours (set to false; fix resulting errors).
+
+**B22. ERC-20 transfer doesn't block address(0)** (audit-b M1, unfixed). Tokens can be burned by accident.
+- Effort: 1 hour (add `require(to != address(0))` in `_transfer`).
+
+**B23. executeChange re-queue bait-and-switch** (audit-b M7, unfixed). `proposeChange` overwrites existing unexecuted proposal, resetting timelock.
+- Effort: 2 hours (add `require(!proposals[parameterId].exists || proposals[parameterId].executed)` check).
+
+**B24. MARP level field is free input** (audit-b M2, unfixed). The §10 6-level hierarchy is NOT enforced — keeper just declares a level.
+- Effort: 8 hours (implement level-based gating per §10.3).
+
+**B25. No 2-step admin transfer** (audit-b H5, unfixed). Loss of DEFAULT_ADMIN key bricks the contract.
+- Effort: 4 hours (add `proposeAdminTransfer` + `acceptAdminTransfer` 2-step pattern).
+
+**B26. No sanctions/OFAC screening** on mint/redeem/transfer.
+- Effort: 8 hours (integrate Chainalysis/Elliptic oracle OR a static blocklist).
+
+### LOW (cleanup — schedule when convenient)
+
+**B27. NO `renounceRole` function** — compromised key cannot self-revoke.
+- Effort: 1 hour.
+
+**B28. `transfer(to=this)` silently succeeds** (audit-b L1, unfixed). Misleading event.
+- Effort: 0.5 hours.
+
+**B29. Fees commingle with collateral in reserveVault** (audit-d C2). Inflates reported RR by ~10-25 bps. Should route to a separate feeWallet per §20.4.
+- Effort: 4 hours.
+
+**B30. getHonestStatus returns hardcoded 0x7FF mask** but actual implementation has gaps (per audit-b). Overstated by ~4 bits.
+- Effort: 1 hour (reduce to honest mask 0x5A7 OR implement the missing bits).
+
+**B31. DEPLOYER_WALLET constant hardcoded** in contracts.ts L30. Should be env-var for mainnet.
+- Effort: 1 hour.
+
+---
+
+## FINAL SCORES
+
+- Contract security score: **5/10** (down from STATUS-AUDIT's "STRONG" — re-reading surfaced 7 CRITICAL gaps not previously flagged: B1 dead governance, B2 I9 on-chain violation, B3 stale-price mint/redeem, B4 no real adapters, B5 EOA admin, B6 admin NAV rewrite, B7 no upgrade path)
+- Tokenomics score: **6/10** (matches audit-d's 68/100 — single-collateral design vs multi-currency claim is the largest gap)
+- Oracle score: **3/10** (I9 strict honored in TS but NOT in Solidity; no real adapters; mint/redeem don't check oracle health)
+- Governance score: **2/10** (4 council addresses have no setters — entire Listing 14 is dead code; only deployer EOA admin works)
+- Mainnet blockers: **7 critical, 9 high, 11 medium, 5 low = 32 total**
+- Estimated effort to mainnet-ready: **~280-380 hours of in-house engineering** (B4 oracle adapters 60-120h, B12 multi-currency collateral 80h, B7 upgradeability 40-80h, B14 Postgres migration 16h, B15 external audit 4-8 weeks external) **PLUS 4-8 weeks external audit**.
+- Realistic timeline: **3-4 months of focused engineering + 2 months external audit = 5-6 months minimum** before mainnet GO.
+
+## TOP 5 BLOCKERS (ranked, in order of must-fix-first)
+
+1. **B5 — DEFAULT_ADMIN_ROLE is deployer EOA, not Safe** (CRITICAL, 4h): Single point of failure. The leaked private_key.txt derives to this exact address. Fix FIRST — rotate key, deploy Safe, transfer admin.
+
+2. **B1 — 4 governance addresses have NO setters, entire Listing 14 is dead code** (CRITICAL, 4h): Without this, no parameter can ever be changed on-chain. Every parameter update requires contract redeployment. Blocks all subsequent parameter tuning.
+
+3. **B3 — Mint/redeem do NOT check oracle health, accept stale prices** (CRITICAL, 6h): The most exploitable on-chain bug. Combined with B2 (2-source averaging), an attacker with one compromised oracle adapter + a 60-second keeper outage can mint at stale-low then redeem at recovered-high for unbounded profit.
+
+4. **B4 — NO real oracle adapter contracts exist** (CRITICAL, 60-120h): The largest engineering lift. Without real Chainlink/Pyth/Chronicle adapters, the contract cannot deploy to mainnet with live feeds. The "3-source oracle" is currently fictional.
+
+5. **B6 — setReserveHolding lets admin rewrite NAV arbitrarily, no event** (CRITICAL, 8h): The largest trust assumption. Even with B5 fixed (Safe admin), a 4/7 Safe compromise = full protocol drain via faked-high RR + mint + redeem. Needs timelock + event + per-tx cap OR removal.
+
+**VERDICT FOR COO/CTO GO/NO-GO**: 🔴 **NO-GO for mainnet**. The contract has 7 CRITICAL blockers — 4 of which (B1, B2, B3, B5) are quick fixes (<24h total) but absolutely mandatory. B4 (real oracle adapters) is a 2-4 week engineering lift that cannot be skipped. B6 (admin NAV rewrite) requires a design decision (remove vs timelock). B7 (no upgrade path) requires a strategic decision (add UUPS proxy vs full parameter setter suite). B12 (multi-currency collateral) may require pivoting the tokenomics to a 4-component basket (USD/EUR/CHF/Gold) until regulated GBP/JPY/CNY stablecoins emerge.
+
+Recommended path: **3-month engineering sprint** to fix B1-B13 → **external audit** (B15, 4-8 weeks) → **public testnet redeploy** with all fixes → **gradual mainnet rollout** (start with $1M TVL cap, raise as confidence builds). The honest status mask should be set to 0x5A7 (7/11 bits) until B1, B2, B3, B4 are fixed — then re-evaluate.
+

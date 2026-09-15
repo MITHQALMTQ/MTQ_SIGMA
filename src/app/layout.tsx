@@ -49,11 +49,15 @@ export const metadata: Metadata = {
   authors: [{ name: "MTQΣ Protocol" }],
   icons: {
     icon: [
-      { url: "/brand/favicon.jpg", type: "image/jpeg" },
-      { url: "/brand/favicon.png", type: "image/png" },
+      // The official PAR1D.jpg luxury emblem — JPEG entries for max device support.
+      { url: "/brand/PAR1D.jpg", type: "image/jpeg", sizes: "32x32" },
+      { url: "/brand/PAR1D.jpg", type: "image/jpeg", sizes: "96x96" },
       { url: "/brand/favicon.svg", type: "image/svg+xml" },
     ],
     apple: "/brand/apple-touch-icon.png",
+    other: [
+      { rel: "icon", url: "/brand/favicon.svg", type: "image/svg+xml" },
+    ],
   },
   openGraph: {
     title: "MTQΣ — The Global Purchasing Power Unit",

@@ -69,7 +69,7 @@ jobs:
           DATABASE_URL: "file:/tmp/test.db"
 
       - name: Run canonical invariant tests
-        run: bun test src/lib/mtq/__tests__/canonical-invariants.ts
+        run: bun run src/lib/mtq/__tests__/canonical-invariants.ts
         env:
           DATABASE_URL: "file:/tmp/test.db"
           TURSO_DATABASE_URL: ""
@@ -101,15 +101,15 @@ jobs:
       - name: Verify Honest Status returns NOT PRODUCTION-AUTHORIZED
         run: |
           bun -e "
-          import { isProductionAuthorized, getHonestStatus, getValidationGates } from './src/lib/mtq/brand';
+          import { isProductionAuthorized, getHonestStatus, getValidationGates } from './src/lib/mtq/honest-status';
           const auth = isProductionAuthorized();
-          const status = getHonestStatus();
+          const honest = getHonestStatus();
           const gates = getValidationGates();
           console.log('isProductionAuthorized:', auth);
-          console.log('getHonestStatus:', status);
+          console.log('getHonestStatus:', honest.status);
           console.log('validationGates all passed:', gates.every(g => g.passed));
           if (auth) { console.error('FAIL: isProductionAuthorized returned true on testnet'); process.exit(1); }
-          if (status.includes('PRODUCTION-AUTHORIZED')) { console.error('FAIL: status says PRODUCTION-AUTHORIZED'); process.exit(1); }
+          if (honest.status === 'PRODUCTION-AUTHORIZED') { console.error('FAIL: status says PRODUCTION-AUTHORIZED'); process.exit(1); }
           if (gates.some(g => g.passed)) { console.error('FAIL: some validation gates passed'); process.exit(1); }
           console.log('PASS: Honest Status correctly returns NOT PRODUCTION-AUTHORIZED');
           "

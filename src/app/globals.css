@@ -456,3 +456,47 @@ body {
 .mtqs-aurora-border {
   animation: mtqs-aurora-border 6s ease-in-out infinite;
 }
+
+/* ============================================================
+   Official Logo (PAR1D.jpg) Display
+   The luxury emblem is a portrait hexagon on a #0D0D0D field.
+   Containers must paint their own black so the logo's backdrop
+   blends seamlessly into the obsidian chrome. object-contain
+   preserves the full mark (never crops the Σ / sphere / frame).
+   ============================================================ */
+.mtqs-logo-container {
+  background: #0D0D0D;
+  border-radius: 0.5rem;
+  overflow: hidden;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.mtqs-logo-image {
+  object-fit: contain;
+  width: 100%;
+  height: 100%;
+}
+
+/* Larger hero / cinematic presentation of the emblem.
+   A subtle gold halo lifts the mark off the obsidian field
+   without recoloring or overlaying the source artwork. */
+.mtqs-logo-hero {
+  background: #0D0D0D;
+  border-radius: 1rem;
+  overflow: hidden;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow:
+    0 0 0 1px rgba(240, 185, 11, 0.18),
+    0 0 48px rgba(240, 185, 11, 0.18),
+    0 24px 80px rgba(0, 0, 0, 0.55);
+}
+
+.mtqs-logo-hero img {
+  object-fit: contain;
+  width: 100%;
+  height: 100%;
+}

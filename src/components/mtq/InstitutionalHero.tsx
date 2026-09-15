@@ -15,11 +15,12 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import Image from "next/image";
 import { motion } from "framer-motion";
 import { ArrowRight, ChevronRight, Clock, Activity } from "lucide-react";
 import { Panel, GlowDot, Pill, Skeleton } from "./primitives";
 import { fmtFixed, fmtRatio, fmtNum, fmtTime } from "./format";
-import { STATUS_COLORS } from "@/lib/mtq/brand";
+import { STATUS_COLORS, BRAND_ASSETS } from "@/lib/mtq/brand";
 import { PAR } from "@/lib/mtq/blueprint";
 import type { MetricsSnapshot } from "@/lib/mtq/engine";
 import type { SectionId } from "./Navigation";
@@ -269,12 +270,42 @@ export function InstitutionalHero({
           className="relative mt-6 grid grid-cols-1 lg:grid-cols-[1.3fr_1fr] gap-6 lg:gap-10"
         >
           <div className="space-y-4">
-            <h1
-              className="mtqs-display mtqs-gold-text text-6xl sm:text-7xl lg:text-8xl leading-none"
-              style={{ fontWeight: 600 }}
+            {/* Official PAR1D emblem — portrait hexagon on obsidian.
+                Displayed at hero scale with a soft gold halo (mtqs-logo-hero).
+                object-contain preserves the full mark; the #0D0D0D field
+                matches the logo's own backdrop so it reads as a single piece. */}
+            <motion.div
+              initial={{ opacity: 0, scale: 0.92, filter: "blur(8px)" }}
+              animate={{ opacity: 1, scale: 1, filter: "blur(0)" }}
+              transition={{ type: "spring", stiffness: 220, damping: 24, delay: 0.02 }}
+              className="flex items-center gap-4 sm:gap-6"
             >
-              MTQΣ
-            </h1>
+              <div
+                className="relative h-24 w-24 sm:h-32 sm:w-32 lg:h-40 lg:w-40 shrink-0 mtqs-logo-hero rounded-xl"
+                aria-label="MTQΣ official logo"
+              >
+                <Image
+                  src={BRAND_ASSETS.logoCanonical}
+                  alt="MTQΣ official logo — luxury hexagonal Σ emblem with golden sphere"
+                  fill
+                  sizes="(min-width: 1024px) 160px, (min-width: 640px) 128px, 96px"
+                  className="object-contain"
+                  style={{ objectFit: "contain" }}
+                  priority
+                />
+              </div>
+              <div className="flex flex-col gap-1 min-w-0">
+                <h1
+                  className="mtqs-display mtqs-gold-text text-5xl sm:text-6xl lg:text-7xl leading-none"
+                  style={{ fontWeight: 600 }}
+                >
+                  MTQΣ
+                </h1>
+                <span className="text-[0.6rem] sm:text-[0.65rem] uppercase tracking-[0.22em] text-mtqs-gold/70 font-mono">
+                  Sovereign · Collateralized · Calm
+                </span>
+              </div>
+            </motion.div>
             <p className="mtqs-display text-lg sm:text-xl text-amber-100/85 leading-snug max-w-xl">
               A neutral, adaptive global purchasing-power reference unit.
             </p>
