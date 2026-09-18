@@ -39,6 +39,7 @@ import {
   computeSnapshot,
   updateBufferState,
   getParameterGovernance,
+  computeTargetGoldWeight,
   type ReserveState,
 } from "../engine";
 import {
@@ -336,7 +337,7 @@ function runLayer1(): void {
     assert(L, LNAME, "Mint: fee_usd = X × MINT_FEE_BPS/10000", approx(r.feeUsd, feeUsd, 1e-6), `fee=${r.feeUsd}`);
   }
 
-  // --- 1.7 Redeem math: RedeemValue = Y × NAV_t × (1 - fee) ---
+  // --- 1.7 Redeem math: B8 FIX — RedeemValue = Y × P_MTQ × (1 - fee) (arbitrage-safe) ---
   {
     const s = initReserveState(BASE_FIXINGS.XAU_USD);
     const fx = makeFx();
@@ -346,16 +347,14 @@ function runLayer1(): void {
     const snap1 = computeSnapshot(s, fx);
     const status = snap1.status;
     const inputMtq = 1000;
-    const circ = circulatingSupply(s);
-    const vals0 = reserveAssetValues(s, fx);
-    const navPerMtq = circ > 0 ? vals0.nav / circ : getMtqPriceFromState(s);
+    const price = getMtqPriceFromState(s); // P_MTQ (index price)
     const feeFrac = redeemFee(status);
-    const expectedGross = inputMtq * navPerMtq;
+    const expectedGross = inputMtq * price; // §3.4.2 — P_MTQ-based
     const expectedNet = expectedGross * (1 - feeFrac);
     const r = applyRedeem(s, fx, status, inputMtq);
-    assert(L, LNAME, "Redeem: grossUsd = Y × NAV_t (NAV-based, not P_MTQ-based)", approx(r.grossUsd, expectedGross, 1e-3), `gross=${r.grossUsd}, expected=${expectedGross}, navPerMtq=${navPerMtq}, P_MTQ=${r.mtqPrice}`);
-    assert(L, LNAME, "Redeem: netUsd = Y × NAV_t × (1 - fee)", approx(r.netUsd, expectedNet, 1e-3), `net=${r.netUsd}, expected=${expectedNet}, fee=${feeFrac}`);
-    assert(L, LNAME, "Redeem: uses NAV (not P_MTQ) for settlement", r.grossUsd !== inputMtq * r.mtqPrice || navPerMtq === r.mtqPrice, `gross=${r.grossUsd}, Y*P_MTQ=${inputMtq * r.mtqPrice}, Y*NAV=${expectedGross}`);
+    assert(L, LNAME, "Redeem: grossUsd = Y × P_MTQ (B8: arbitrage-safe, not NAV)", approx(r.grossUsd, expectedGross, 1e-3), `gross=${r.grossUsd}, expected=${expectedGross}, P_MTQ=${price}`);
+    assert(L, LNAME, "Redeem: netUsd = Y × P_MTQ × (1 - fee)", approx(r.netUsd, expectedNet, 1e-3), `net=${r.netUsd}, expected=${expectedNet}, fee=${feeFrac}`);
+    assert(L, LNAME, "Redeem: uses P_MTQ (not NAV) for settlement — B8 arbitrage-safe", approx(r.grossUsd, inputMtq * price, 1e-3), `gross=${r.grossUsd}, Y*P_MTQ=${inputMtq * price}`);
   }
 
   // --- 1.8 State machine: each of 6 states for known (RR, LCR) inputs ---
@@ -747,7 +746,7 @@ function runLayer3(): void {
     assert(L, LNAME, "Cross: snapshot.mtqPrice = chain index I_t", approx(snap1.mtqPrice, price, 1e-6), `snap=${snap1.mtqPrice}, chain=${price}`);
   }
 
-  // --- 3.5 Redemption uses NAV (not P_MTQ) ---
+  // --- 3.5 Redemption uses P_MTQ (B8 FIX — arbitrage-safe, not NAV) ---
   {
     const s = initReserveState(BASE_FIXINGS.XAU_USD);
     const fx = makeFx();
@@ -755,10 +754,10 @@ function runLayer3(): void {
     applyMint(s, fx, snap0.status, 9_000_000);
     const snap1 = computeSnapshot(s, fx);
     const r = applyRedeem(s, fx, snap1.status, 100);
-    // grossUsd should equal Y × navPerMtq (NOT Y × mtqPrice)
-    const expectedNav = 100 * snap1.indexNavDivergence.navPerMtq;
-    assert(L, LNAME, "Cross: redeem grossUsd = Y × NAV (not Y × P_MTQ)", approx(r.grossUsd, expectedNav, 1e-3), `gross=${r.grossUsd}, expected=${expectedNav}`);
-    // If NAV ≠ P_MTQ, the divergence audit field is non-zero
+    // B8: grossUsd should equal Y × P_MTQ (NOT Y × navPerMtq)
+    const expectedPmtq = 100 * snap1.mtqPrice;
+    assert(L, LNAME, "Cross: redeem grossUsd = Y × P_MTQ (B8: arbitrage-safe, not Y × NAV)", approx(r.grossUsd, expectedPmtq, 1e-3), `gross=${r.grossUsd}, expected=${expectedPmtq}`);
+    // The divergence audit field still reflects the NAV vs P_MTQ gap
     assert(L, LNAME, "Cross: redeem auditDeltaUsd reflects NAV vs P_MTQ gap", approx(r.auditDeltaUsd, r.auditGrossUsdNav - r.auditGrossUsdIndex, 1e-6), `delta=${r.auditDeltaUsd}`);
   }
 
@@ -1076,6 +1075,108 @@ function runLayer5(): void {
     // At t=49h — exit to NORMAL
     advanceRiskState(s, 1.10, 1.10, 49 * 60 * 60 * 1000);
     assert(L, LNAME, "Adversarial: 49h in RECOVERY — exit to NORMAL (48h elapsed)", s.riskState.state === "NORMAL", `state=${s.riskState.state}`);
+  }
+
+  // --- 5.6 B9-FIX: redeem-into-negative does NOT silently zero — it records the deficit ---
+  // The headline B9 conservation-of-value test. Before the fix, every reserve
+  // mutation used `Math.max(0, holding - amount)` which silently floored a
+  // negative holding to 0 — the deficit disappeared, breaking conservation.
+  // Now the redeem pre-check REJECTS the redeem (ok:false) AND records the
+  // would-be deficit (in USD) into both the RedeemResult and the cumulative
+  // `s.deficitUsd` ledger. The holdings themselves are NEVER mutated.
+  {
+    // Setup: mint a large amount so circulating supply is high and the NAV-per-MTQ
+    // is well below the holdings ratio — redeeming ALL of it will require more
+    // gold than the reserve holds (gold is the tightest constraint at genesis:
+    // only ~57 oz PAXG vs. hundreds of oz needed for a full redeem).
+    const s = initReserveState(BASE_FIXINGS.XAU_USD);
+    const fx = makeFx();
+    const snap0 = computeSnapshot(s, fx);
+    applyMint(s, fx, snap0.status, 9_000_000);
+    const circ = circulatingSupply(s);
+    assert(L, LNAME, "B9: setup — circulating supply > 0 after $9M mint", circ > 0, `circ=${circ}`);
+
+    // Snapshot every reserve holding BEFORE the redeem attempt.
+    const before = {
+      usdc: s.usdc, usdp: s.usdp, usdt: s.usdt,
+      eurc: s.eurc, jpy: s.jpy, gbp: s.gbp, cny: s.cny, chf: s.chf,
+      paxg: s.paxg, xaut: s.xaut,
+      reservePaxg: s.reservePaxg, reserveXaut: s.reserveXaut,
+      totalSupply: s.totalSupply,
+    };
+    assert(L, LNAME, "B9: setup — deficitUsd starts at 0", s.deficitUsd === 0, `deficitUsd=${s.deficitUsd}`);
+
+    // Attempt to redeem the ENTIRE circulating supply — this is far more than
+    // the gold reserve can cover at genesis (gold ≈ 13% of NAV but the basket
+    // asks for 26% of netUsd in gold).
+    const r = applyRedeem(s, fx, snap0.status, circ);
+
+    // (1) The redeem is REJECTED — never silently zero.
+    assert(L, LNAME, "B9: redeem-into-negative → ok=false (rejected, not silently zeroed)",
+      r.ok === false, `ok=${r.ok}, reason=${r.reason}`);
+
+    // (2) The deficit is RECORDED in the RedeemResult.
+    assert(L, LNAME, "B9: redeem-into-negative → r.deficitUsd > 0 (deficit recorded in result)",
+      r.deficitUsd > 0, `deficitUsd=${r.deficitUsd}`);
+
+    // (3) The same deficit is RECORDED in the cumulative state ledger.
+    assert(L, LNAME, "B9: redeem-into-negative → s.deficitUsd === r.deficitUsd (ledger updated)",
+      approx(s.deficitUsd, r.deficitUsd, 1e-6), `s.deficitUsd=${s.deficitUsd}, r.deficitUsd=${r.deficitUsd}`);
+
+    // (4) NO holding was silently zeroed — every reserve balance is unchanged.
+    // This is the core conservation invariant: a rejected redeem must NOT mutate
+    // state. Before the fix, Math.max(0, holding - amount) would have floored
+    // s.paxg to 0 (and the deficit would have disappeared).
+    const holdingsUnchanged =
+      s.usdc === before.usdc && s.usdp === before.usdp && s.usdt === before.usdt &&
+      s.eurc === before.eurc && s.jpy === before.jpy && s.gbp === before.gbp &&
+      s.cny === before.cny && s.chf === before.chf &&
+      s.paxg === before.paxg && s.xaut === before.xaut &&
+      s.reservePaxg === before.reservePaxg && s.reserveXaut === before.reserveXaut &&
+      s.totalSupply === before.totalSupply;
+    assert(L, LNAME, "B9: redeem-into-negative → NO holding silently zeroed (all balances unchanged)",
+      holdingsUnchanged,
+      `paxg: ${before.paxg}→${s.paxg}, xaut: ${before.xaut}→${s.xaut}, usdc: ${before.usdc}→${s.usdc}, totalSupply: ${before.totalSupply}→${s.totalSupply}`);
+
+    // (5) Math check: the recorded deficit equals the independently-computed
+    // gold shortfall (the dominant component when redeeming all of circ supply
+    // at genesis). goldPaxg = (netUsd * wGold) / goldPrice; goldHalf = goldPaxg/2.
+    // Per-issuer shortfall (PAXG + XAUT) = max(0, goldHalf - s.paxg) + max(0, goldHalf - s.xaut),
+    // converted to USD via goldPrice. We verify r.deficitUsd ≥ goldShortfallOnly
+    // (it can be slightly higher if any USD/fiat component is also short, but
+    // gold dominates this scenario by construction).
+    const vals0 = reserveAssetValues({ ...s, /* unchanged state */ } as ReserveState, fx);
+    void vals0;
+    // Recompute the expected gold shortfall using the snapshot of `before`.
+    // We need navPerMtq, wGold, feeFraction, goldPrice — recompute from before.
+    const sBefore = { ...s, ...before } as ReserveState;
+    const vBefore = reserveAssetValues(sBefore, fx);
+    const navPerMtqBefore = vBefore.nav / circ;
+    const grossUsdBefore = circ * navPerMtqBefore;
+    const feeFractionBefore = redeemFee(snap0.status as RiskState);
+    const netUsdBefore = grossUsdBefore * (1 - feeFractionBefore);
+    const rrBefore = computeReserveRatio(vBefore.nav, computeLiability(sBefore, getMtqPriceFromState(sBefore)));
+    const wGoldBefore = computeTargetGoldWeight(sBefore, rrBefore);
+    const goldUsdBefore = netUsdBefore * wGoldBefore;
+    const goldPaxgBefore = goldUsdBefore / vBefore.goldPrice;
+    const goldHalfBefore = goldPaxgBefore / 2;
+    const expectedGoldShortfallUsd =
+      (Math.max(0, goldHalfBefore - before.paxg) + Math.max(0, goldHalfBefore - before.xaut)) * vBefore.goldPrice;
+    assert(L, LNAME, "B9: redeem-into-negative → r.deficitUsd ≥ gold shortfall (gold is the dominant deficit)",
+      r.deficitUsd >= expectedGoldShortfallUsd * 0.999,  // tiny tolerance for fp
+      `r.deficitUsd=${r.deficitUsd}, expectedGoldShortfall=${expectedGoldShortfallUsd}, wGold=${wGoldBefore}, goldHalf=${goldHalfBefore}, paxg=${before.paxg}, xaut=${before.xaut}`);
+
+    // (6) Cumulative ledger: a SECOND redeem-into-negative adds to the deficit
+    // (the ledger is monotonic — deficits accumulate across the lifetime of
+    // the engine instance so the books stay closed).
+    const deficitAfterFirst = s.deficitUsd;
+    const r2 = applyRedeem(s, fx, snap0.status, circ);
+    assert(L, LNAME, "B9: second redeem-into-negative → ok=false again", r2.ok === false, `ok=${r2.ok}`);
+    assert(L, LNAME, "B9: second redeem-into-negative → s.deficitUsd grows (cumulative ledger)",
+      s.deficitUsd > deficitAfterFirst, `before=${deficitAfterFirst}, after=${s.deficitUsd}`);
+    assert(L, LNAME, "B9: cumulative deficit ≈ 2× single deficit (same redeem attempted twice)",
+      approx(s.deficitUsd, 2 * r.deficitUsd, 1e-3),
+      `cumulative=${s.deficitUsd}, 2×single=${2 * r.deficitUsd}`);
   }
 }
 

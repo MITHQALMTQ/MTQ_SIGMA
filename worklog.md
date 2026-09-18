@@ -5846,3 +5846,31 @@ Stage Summary:
 
 Recommended path: **3-month engineering sprint** to fix B1-B13 → **external audit** (B15, 4-8 weeks) → **public testnet redeploy** with all fixes → **gradual mainnet rollout** (start with $1M TVL cap, raise as confidence builds). The honest status mask should be set to 0x5A7 (7/11 bits) until B1, B2, B3, B4 are fixed — then re-evaluate.
 
+
+---
+Task ID: B9-FIX
+Agent: general-purpose
+Task: Fix Math.max(0,...) silent negative-holdings bug in engine.ts
+
+Work Log:
+- Audited src/lib/mtq/engine.ts: 37 `Math.max(0, ...)` occurrences pre-fix (~40 per the original audit report's count; final count was 37 with the broader `Math.max(0, <lowercase-letter>` pattern).
+- Categorised every occurrence:
+  * 21 reserve-mutation sites (the silent-zeroing bug): 3 in `applyRebalanceTrade` (s.paxg, s.reservePaxg, s.usdc) + 18 in `applyMarpRebalance` (2 reservePaxg/Xaut + 3 usdc/usdp/usdt × 3 trade branches + 5 eurc/jpy/gbp/cny/chf + 3 usdc/usdp/usdt buy-fiat). The audit cited 12 of these (lines 799, 806, 928-929, 937-939, 952-954, 959-960) — the audit undercounted: it missed L802 (s.reservePaxg in applyRebalanceTrade) and L981-985 (5 fiat sites in applyMarpRebalance sell-component branch).
+  * 16 mathematical-clamp sites correctly left as-is: §14.1 invariant sync helpers (syncReserveFromTotal/syncTotalFromReserve, L409-417), commitIndexGold input validation (L431-432), reserveAssetValues read-only fallback (L582-583), circulatingSupply display clamp (L600), turnover throttle caps in computeRebalanceDecision/applyMarpRebalance (L800, L963), pegHealth time-decay (L1106), reintegration time-decay (L2061), ejectStage integer decrement (L2087), concentration-optimizer capacity budgets (L2224, L2226, L2245, L2252).
+- Implementation:
+  * Added `deficitUsd: number` field to `ReserveState` interface (with a §B9-FIX doc block explaining the conservation-of-value ledger).
+  * Initialised `deficitUsd: 0` in `initReserveState()`.
+  * Added a private `subtractReserve(s, current, amount, usdPerUnit, component)` helper that: (a) computes newValue = current − amount; (b) if newValue < 0, console.warn's the deficit (component, old, subtracted, deficitNative, deficitUsd, cumulativeDeficitUsd), accumulates the USD-equivalent deficit into `s.deficitUsd`, and returns 0; (c) else returns newValue. The helper is invoked as `s.field = subtractReserve(s, s.field, amount, usdPerUnit, label)` so each call site is a 1-line drop-in replacement.
+  * Replaced all 21 reserve-mutation `Math.max(0, holding − amount)` sites with `subtractReserve(...)` calls. usdPerUnit is 1 for USD stablecoins, fx.EUR_USD/JPY_USD/GBP_USD/CNY_USD/CHF_USD for fiat tokens, and goldPrice for PAXG/XAUT — so the deficit ledger is always in USD across every component.
+  * Enhanced the existing redeem pre-check (B9 conservation guard, already present at L1318-1358) to compute the TOTAL would-be deficit across USD stable + fiat + gold components, accumulate it into `s.deficitUsd`, and surface it on `RedeemResult` via a new `deficitUsd: number` field. The redeem still returns `ok: false` (no state mutation of holdings), but the deficit is now RECORDED instead of silently lost. The success path returns `deficitUsd: 0`; the two non-conservation failure paths (insufficient circulating supply, redemption paused) also return `deficitUsd: 0`.
+- Count of Math.max(0,...) found: 37 (pre-fix)
+- Count changed to deficit-tracking: 21 (3 in applyRebalanceTrade + 18 in applyMarpRebalance) — plus the redeem pre-check now records the would-be deficit via 11 new `Math.max(0, release − holding)` SHORTFALL-CALCULATION lines (these are the deficit formula itself, not silent floor-clamps; they correctly return 0 when there is no shortfall).
+- Count left as mathematical clamps: 16 (sync helpers ×4, input validation ×2, read-only fallback ×2, display clamp ×1, throttle caps ×2, time-decay counters ×2, integer stage decrement ×1, capacity budgets ×4) — all correctly floor at 0 per the task instructions.
+
+Stage Summary:
+- Reserve mutations now track deficits instead of silently zeroing. Every `s.<holding> = Math.max(0, s.<holding> − amount)` in the rebalance paths is now `s.<holding> = subtractReserve(...)`, which clamps to 0 AND records the USD-equivalent deficit into `s.deficitUsd`.
+- `deficitUsd` field added to `ReserveState` (initialised to 0 at genesis; additive-only across the engine lifetime) and to `RedeemResult` (set to the would-be shortfall on conservation-guard failures, 0 otherwise).
+- The redeem path was already protected by a pre-check that returns `ok: false` before mutating (the B9 conservation guard); this fix ENHANCES that path to also record the deficit into `s.deficitUsd` and `RedeemResult.deficitUsd` so the loss is auditable. The redeem never silently zeroes — it rejects AND records.
+- New Layer 5 test "5.6 B9-FIX: redeem-into-negative does NOT silently zero — it records the deficit" added to `src/lib/mtq/__tests__/canonical-invariants.ts` (10 new assertions): verifies (1) redeem-into-negative → ok=false; (2) r.deficitUsd > 0; (3) s.deficitUsd === r.deficitUsd (ledger updated); (4) NO holding silently zeroed (every reserve balance unchanged); (5) r.deficitUsd ≥ independently-computed gold shortfall; (6) cumulative ledger grows on second redeem-into-negative (≈ 2× single deficit).
+- New test for redeem-into-negative: PASS (10/10 assertions)
+- All existing tests: PASS — canonical-invariants 158/158 (was 148/148 + 10 new), stress-rerun 11/11, audit-retention PASS, audit-stress exit 0. `bun run typecheck` shows 0 new errors (the 8 pre-existing errors in src/lib/ai/nvidia.ts and src/lib/autonoma/* are unrelated to this fix and were present before).

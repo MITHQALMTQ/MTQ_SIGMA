@@ -218,6 +218,25 @@ export interface ReserveState {
     confirmationPeriodEnds: number | null; // RECOVERY only — end of 48h window
   };
 
+  // === B9-FIX — conservation-of-value deficit ledger (USD) ===
+  // Every reserve mutation that would push a holding below 0 used to silently
+  // floor it to 0 via `Math.max(0, holding - amount)`. That made the deficit
+  // disappear, breaking conservation of value and creating phantom surplus.
+  // The deficit is now recorded here (in USD, native-unit deficit × spot FX
+  // or gold price) so the books stay closed: assets + deficitUsd = liabilities.
+  //
+  // Two paths write to this ledger:
+  //   - applyRebalanceTrade / applyMarpRebalance: subtractReserve() clamps the
+  //     holding to 0 AND adds the USD-equivalent deficit here (so the trade
+  //     still "executes" but the loss is auditable instead of silent).
+  //   - applyRedeem pre-check: when a redeem would push any holding below 0,
+  //     the redeem is REJECTED (ok:false) AND the would-be deficit is recorded
+  //     here for audit. The redeem never mutates state in this case.
+  //
+  // This field is additive-only across the lifetime of an engine instance and
+  // is reset to 0 only by initReserveState().
+  deficitUsd: number;
+
   updatedAt: number;
 }
 
@@ -359,6 +378,8 @@ export function initReserveState(goldPrice: number): ReserveState {
       enteredAt: Date.now(),
       confirmationPeriodEnds: null,
     },
+    // === B9-FIX — conservation-of-value deficit ledger starts at 0 at genesis.
+    deficitUsd: 0,
     updatedAt: Date.now(),
   };
 }
@@ -789,6 +810,48 @@ export function evaluateRebalance(
   return { shouldRebalance: true, direction, observedGoldWeight: observed, targetGoldWeight: target, deviation, tradeUsd, reason: "Benefit > cost; executing" };
 }
 
+// --- B9-FIX — conservation-of-value subtraction helper -----------------------
+// Replaces `Math.max(0, holding - amount)` on every reserve mutation path.
+// When the subtraction would push the holding below 0, the deficit (in native
+// units) is converted to USD via `usdPerUnit` and accumulated into
+// `s.deficitUsd`. The holding is then clamped to 0 (the trade still executes)
+// — but the deficit is now visible on the books instead of silently
+// disappearing. This preserves the conservation invariant
+//   assets + deficitUsd = liabilities + injectedValue
+// across every rebalance/marp trade.
+//
+// `usdPerUnit` is the spot USD value of one native unit:
+//   - USD stablecoins (USDC/USDP/USDT): 1
+//   - EURC: fx.EUR_USD · JPY: fx.JPY_USD · GBP: fx.GBP_USD
+//   - CNY: fx.CNY_USD · CHF: fx.CHF_USD
+//   - PAXG/XAUT: goldPrice (XAU_USD)
+//
+// `component` is a human-readable label for the warn log (e.g. "paxg", "usdc").
+function subtractReserve(
+  s: ReserveState,
+  current: number,
+  amount: number,
+  usdPerUnit: number,
+  component: string,
+): number {
+  const newValue = current - amount;
+  if (newValue < 0) {
+    const deficitNative = -newValue;
+    const deficitUsd = deficitNative * usdPerUnit;
+    console.warn('[engine] B9: negative holding detected', {
+      component,
+      old: current,
+      subtracted: amount,
+      deficitNative,
+      deficitUsd,
+      cumulativeDeficitUsd: (s.deficitUsd ?? 0) + deficitUsd,
+    });
+    s.deficitUsd = (s.deficitUsd ?? 0) + deficitUsd;
+    return 0;
+  }
+  return newValue;
+}
+
 // Apply a rebalance trade in USD terms (mutates state).
 export function applyRebalanceTrade(s: ReserveState, decision: RebalanceDecision, goldPrice: number): void {
   if (!decision.shouldRebalance) return;
@@ -796,14 +859,16 @@ export function applyRebalanceTrade(s: ReserveState, decision: RebalanceDecision
   if (decision.direction === -1) {
     // sell gold → buy USDC (simplified: convert to USDC)
     const goldUnits = usd / goldPrice;
-    s.paxg = Math.max(0, s.paxg - goldUnits);
+    // B9-FIX: track any deficit instead of silently zeroing.
+    s.paxg = subtractReserve(s, s.paxg, goldUnits, goldPrice, 'paxg');
     // §14.1 — the sold gold comes from the RESERVE buffer (index gold is locked).
     // Maintain the invariant paxg = indexPaxg + reservePaxg.
-    s.reservePaxg = Math.max(0, s.reservePaxg - goldUnits);
+    s.reservePaxg = subtractReserve(s, s.reservePaxg, goldUnits, goldPrice, 'reservePaxg');
     s.usdc += usd;
   } else {
     // buy gold → spend USDC
-    s.usdc = Math.max(0, s.usdc - usd);
+    // B9-FIX: track any deficit instead of silently zeroing.
+    s.usdc = subtractReserve(s, s.usdc, usd, 1, 'usdc');
     const goldUnits = usd / goldPrice;
     s.paxg += goldUnits;
     // §14.1 — the bought gold goes to the RESERVE buffer (index gold is locked).
@@ -925,8 +990,9 @@ export function applyMarpRebalance(
       const half = goldUnits / 2;
       if (dir === -1) {
         // sell gold → USD
-        s.reservePaxg = Math.max(0, s.reservePaxg - half);
-        s.reserveXaut = Math.max(0, s.reserveXaut - half);
+        // B9-FIX: track any deficit instead of silently zeroing.
+        s.reservePaxg = subtractReserve(s, s.reservePaxg, half, goldPrice, 'reservePaxg');
+        s.reserveXaut = subtractReserve(s, s.reserveXaut, half, goldPrice, 'reserveXaut');
         const usdThird = tradeUsd / 3;
         s.usdc += usdThird;
         s.usdp += usdThird;
@@ -934,9 +1000,10 @@ export function applyMarpRebalance(
       } else {
         // buy gold ← USD
         const usdThird = tradeUsd / 3;
-        s.usdc = Math.max(0, s.usdc - usdThird);
-        s.usdp = Math.max(0, s.usdp - usdThird);
-        s.usdt = Math.max(0, s.usdt - usdThird);
+        // B9-FIX: track any deficit instead of silently zeroing.
+        s.usdc = subtractReserve(s, s.usdc, usdThird, 1, 'usdc');
+        s.usdp = subtractReserve(s, s.usdp, usdThird, 1, 'usdp');
+        s.usdt = subtractReserve(s, s.usdt, usdThird, 1, 'usdt');
         s.reservePaxg += half;
         s.reserveXaut += half;
       }
@@ -949,15 +1016,17 @@ export function applyMarpRebalance(
       if (dir === -1) {
         // sell USD → gold
         const usdThird = tradeUsd / 3;
-        s.usdc = Math.max(0, s.usdc - usdThird);
-        s.usdp = Math.max(0, s.usdp - usdThird);
-        s.usdt = Math.max(0, s.usdt - usdThird);
+        // B9-FIX: track any deficit instead of silently zeroing.
+        s.usdc = subtractReserve(s, s.usdc, usdThird, 1, 'usdc');
+        s.usdp = subtractReserve(s, s.usdp, usdThird, 1, 'usdp');
+        s.usdt = subtractReserve(s, s.usdt, usdThird, 1, 'usdt');
         s.reservePaxg += half;
         s.reserveXaut += half;
       } else {
         // buy USD ← gold
-        s.reservePaxg = Math.max(0, s.reservePaxg - half);
-        s.reserveXaut = Math.max(0, s.reserveXaut - half);
+        // B9-FIX: track any deficit instead of silently zeroing.
+        s.reservePaxg = subtractReserve(s, s.reservePaxg, half, goldPrice, 'reservePaxg');
+        s.reserveXaut = subtractReserve(s, s.reserveXaut, half, goldPrice, 'reserveXaut');
         const usdThird = tradeUsd / 3;
         s.usdc += usdThird;
         s.usdp += usdThird;
@@ -978,19 +1047,21 @@ export function applyMarpRebalance(
       const usdThird = tradeUsd / 3;
       if (dir === -1) {
         // sell component → USD
-        if (d.component === 'EUR') s.eurc = Math.max(0, s.eurc - nativeUnits);
-        else if (d.component === 'JPY') s.jpy = Math.max(0, s.jpy - nativeUnits);
-        else if (d.component === 'GBP') s.gbp = Math.max(0, s.gbp - nativeUnits);
-        else if (d.component === 'CNY') s.cny = Math.max(0, s.cny - nativeUnits);
-        else if (d.component === 'CHF') s.chf = Math.max(0, s.chf - nativeUnits);
+        // B9-FIX: track any deficit instead of silently zeroing.
+        if (d.component === 'EUR') s.eurc = subtractReserve(s, s.eurc, nativeUnits, fx.EUR_USD, 'eurc');
+        else if (d.component === 'JPY') s.jpy = subtractReserve(s, s.jpy, nativeUnits, fx.JPY_USD, 'jpy');
+        else if (d.component === 'GBP') s.gbp = subtractReserve(s, s.gbp, nativeUnits, fx.GBP_USD, 'gbp');
+        else if (d.component === 'CNY') s.cny = subtractReserve(s, s.cny, nativeUnits, fx.CNY_USD, 'cny');
+        else if (d.component === 'CHF') s.chf = subtractReserve(s, s.chf, nativeUnits, fx.CHF_USD, 'chf');
         s.usdc += usdThird;
         s.usdp += usdThird;
         s.usdt += usdThird;
       } else {
         // buy component ← USD
-        s.usdc = Math.max(0, s.usdc - usdThird);
-        s.usdp = Math.max(0, s.usdp - usdThird);
-        s.usdt = Math.max(0, s.usdt - usdThird);
+        // B9-FIX: track any deficit instead of silently zeroing.
+        s.usdc = subtractReserve(s, s.usdc, usdThird, 1, 'usdc');
+        s.usdp = subtractReserve(s, s.usdp, usdThird, 1, 'usdp');
+        s.usdt = subtractReserve(s, s.usdt, usdThird, 1, 'usdt');
         if (d.component === 'EUR') s.eurc += nativeUnits;
         else if (d.component === 'JPY') s.jpy += nativeUnits;
         else if (d.component === 'GBP') s.gbp += nativeUnits;
@@ -1142,6 +1213,13 @@ export interface RedeemResult {
   auditGrossUsdIndex: number;    // Y × P_MTQ (§3.4.2 — now the AUDIT-ONLY alternative)
   auditDeltaUsd: number;          // §12.2 − §3.4.2 (positive → NAV pays more than index)
   auditNote: string;
+  // B9-FIX: when ok=false because a reserve holding would go negative, the
+  // would-be deficit (USD-equivalent shortfall across all components that are
+  // short) is recorded here AND accumulated into `s.deficitUsd` for the
+  // lifetime-of-engine conservation-of-value ledger. Undefined / 0 when ok=true
+  // or when the failure is NOT a conservation-guard failure (e.g. paused,
+  // insufficient circulating supply, price band).
+  deficitUsd: number;
 }
 
 export function applyRedeem(
@@ -1188,20 +1266,24 @@ export function applyRedeem(
     "§12 Index/NAV divergence analysis surfaces when this gap becomes material " +
     "(>5% monitor, >10% stress).";
   if (inputMtq > circ) {
-    return { ok: false, reason: "Insufficient circulating supply for this redemption in pilot state.", inputMtq, mtqPrice: price, grossUsd: 0, feeBps: 0, feeUsd: 0, netUsd: 0, goldUsd: 0, goldPaxg: 0, basket: [], newCirculatingSupply: circ, newReserveRatio: computeReserveRatio(vals0.nav, computeLiability(s, price)), navPerMtq, auditNavPerToken, auditGrossUsdNav, auditGrossUsdIndex, auditDeltaUsd: auditGrossUsdNav - auditGrossUsdIndex, auditNote };
+    return { ok: false, reason: "Insufficient circulating supply for this redemption in pilot state.", inputMtq, mtqPrice: price, grossUsd: 0, feeBps: 0, feeUsd: 0, netUsd: 0, goldUsd: 0, goldPaxg: 0, basket: [], newCirculatingSupply: circ, newReserveRatio: computeReserveRatio(vals0.nav, computeLiability(s, price)), navPerMtq, auditNavPerToken, auditGrossUsdNav, auditGrossUsdIndex, auditDeltaUsd: auditGrossUsdNav - auditGrossUsdIndex, auditNote, deficitUsd: 0 };
   }
   // P0-FIX-3: §21.4 — redemption is PAUSED in EMERGENCY (the reconciliation
   // resolves the §16.2 vs §21.4 contradiction in favour of §21.4: pause).
   if (!redemptionAllowed(status)) {
-    return { ok: false, reason: `${status}: redemption paused per §21.4 (canonical Risk State Machine).`, inputMtq, mtqPrice: price, grossUsd: 0, feeBps: 0, feeUsd: 0, netUsd: 0, goldUsd: 0, goldPaxg: 0, basket: [], newCirculatingSupply: circ, newReserveRatio: computeReserveRatio(vals0.nav, computeLiability(s, price)), navPerMtq, auditNavPerToken, auditGrossUsdNav, auditGrossUsdIndex, auditDeltaUsd: auditGrossUsdNav - auditGrossUsdIndex, auditNote };
+    return { ok: false, reason: `${status}: redemption paused per §21.4 (canonical Risk State Machine).`, inputMtq, mtqPrice: price, grossUsd: 0, feeBps: 0, feeUsd: 0, netUsd: 0, goldUsd: 0, goldPaxg: 0, basket: [], newCirculatingSupply: circ, newReserveRatio: computeReserveRatio(vals0.nav, computeLiability(s, price)), navPerMtq, auditNavPerToken, auditGrossUsdNav, auditGrossUsdIndex, auditDeltaUsd: auditGrossUsdNav - auditGrossUsdIndex, auditNote, deficitUsd: 0 };
   }
   // P0-FIX-3: state-dependent fee from the canonical 6-state risk machine.
   // NORMAL/CAUTION 0.15% (15 bps), STRESS 0.50% (50 bps), DEFENSIVE 1.00%
   // (100 bps), EMERGENCY 2.00% (200 bps), RECOVERY 0.50% (50 bps).
   const feeFraction = redeemFee(status);
   const feeBps = Math.round(feeFraction * 10_000);
-  // P0-FIX-2: grossUsd is now NAV-based (was index-based in the legacy engine).
-  const grossUsd = inputMtq * navPerMtq;
+  // B8 FIX: REDEMPTION_POLICY says §3.4.2 (P_MTQ-based) is canonical.
+  // Previously the code used navPerMtq (§12.2) which at RR>100% pays redeemers
+  // MORE than the index price, draining the 10% buffer surplus via arbitrage.
+  // Now we settle at P_MTQ (arbitrage-safe). navPerMtq is still computed as
+  // an informational book-value metric (auditGrossUsdNav below).
+  const grossUsd = inputMtq * price; // §3.4.2 — P_MTQ-based (arbitrage-safe)
   const feeUsd = grossUsd * feeFraction;
   const netUsd = grossUsd - feeUsd;
 
@@ -1239,14 +1321,43 @@ export function applyRedeem(
   // mutating. Previously, Math.max(0, holding - amount) silently floored
   // negative holdings to 0 — the deficit disappeared, breaking conservation
   // of value and creating phantom surplus over time. Now we revert the entire
-  // redeem if any component is short. This is the safe choice for mainnet.
+  // redeem if any component is short AND record the would-be deficit (in USD)
+  // into `s.deficitUsd` and the RedeemResult so the books stay closed.
   const usdRelease = basket[0].nativeAmount;
   const usdThirdRelease = usdRelease / 3;
   const goldHalf = goldPaxg / 2;
 
-  // B9: Check all holdings are sufficient. If any is short, return ok:false
-  // with a clear reason — do NOT silently floor to 0.
+  // B9-FIX: compute the TOTAL would-be deficit (in USD) across every component
+  // that is short. This is recorded into s.deficitUsd and the RedeemResult so
+  // the loss is auditable instead of silently disappearing. The redeem itself
+  // is REJECTED (ok:false) — no state mutation occurs. Each of the three
+  // category-specific returns below records the SAME totalDeficitUsd (so the
+  // reason string still reflects the first short category for diagnostics,
+  // but the deficit ledger always reflects the full shortfall).
+  const usdShortfall =
+    Math.max(0, usdThirdRelease - s.usdc) +
+    Math.max(0, usdThirdRelease - s.usdp) +
+    Math.max(0, usdThirdRelease - s.usdt); // 1:1 USD stablecoins
+  const fiatShortfall =
+    Math.max(0, basket[1].nativeAmount - s.eurc) * fx.EUR_USD +
+    Math.max(0, basket[2].nativeAmount - s.jpy)  * fx.JPY_USD +
+    Math.max(0, basket[3].nativeAmount - s.gbp)  * fx.GBP_USD +
+    Math.max(0, basket[4].nativeAmount - s.cny)  * fx.CNY_USD +
+    Math.max(0, basket[5].nativeAmount - s.chf)  * fx.CHF_USD;
+  const goldShortfall =
+    (Math.max(0, goldHalf - s.paxg) + Math.max(0, goldHalf - s.xaut)) * goldPrice;
+  const totalDeficitUsd = usdShortfall + fiatShortfall + goldShortfall;
+
+  // B9: Check all holdings are sufficient. If any is short, record the deficit
+  // and return ok:false with a clear reason — do NOT silently floor to 0.
   if (s.usdc < usdThirdRelease || s.usdp < usdThirdRelease || s.usdt < usdThirdRelease) {
+    if (totalDeficitUsd > 0) {
+      console.warn('[engine] B9: redeem-into-negative rejected (USD stable short)', {
+        usdShortfall, fiatShortfall, goldShortfall, totalDeficitUsd,
+        cumulativeDeficitUsd: (s.deficitUsd ?? 0) + totalDeficitUsd,
+      });
+      s.deficitUsd = (s.deficitUsd ?? 0) + totalDeficitUsd;
+    }
     return {
       ok: false, reason: "Insufficient USD stable holdings for redemption basket (B9 conservation guard).",
       inputMtq, mtqPrice: price, grossUsd: 0, feeBps: 0, feeUsd: 0, netUsd: 0,
@@ -1254,11 +1365,19 @@ export function applyRedeem(
       newReserveRatio: computeReserveRatio(vals0.nav, computeLiability(s, price)),
       navPerMtq, auditNavPerToken, auditGrossUsdNav, auditGrossUsdIndex,
       auditDeltaUsd: auditGrossUsdNav - auditGrossUsdIndex, auditNote,
+      deficitUsd: totalDeficitUsd,
     };
   }
   if (s.eurc < basket[1].nativeAmount || s.jpy < basket[2].nativeAmount ||
       s.gbp < basket[3].nativeAmount || s.cny < basket[4].nativeAmount ||
       s.chf < basket[5].nativeAmount) {
+    if (totalDeficitUsd > 0) {
+      console.warn('[engine] B9: redeem-into-negative rejected (fiat short)', {
+        usdShortfall, fiatShortfall, goldShortfall, totalDeficitUsd,
+        cumulativeDeficitUsd: (s.deficitUsd ?? 0) + totalDeficitUsd,
+      });
+      s.deficitUsd = (s.deficitUsd ?? 0) + totalDeficitUsd;
+    }
     return {
       ok: false, reason: "Insufficient fiat token holdings for redemption basket (B9 conservation guard).",
       inputMtq, mtqPrice: price, grossUsd: 0, feeBps: 0, feeUsd: 0, netUsd: 0,
@@ -1266,9 +1385,17 @@ export function applyRedeem(
       newReserveRatio: computeReserveRatio(vals0.nav, computeLiability(s, price)),
       navPerMtq, auditNavPerToken, auditGrossUsdNav, auditGrossUsdIndex,
       auditDeltaUsd: auditGrossUsdNav - auditGrossUsdIndex, auditNote,
+      deficitUsd: totalDeficitUsd,
     };
   }
   if (s.paxg < goldHalf || s.xaut < goldHalf) {
+    if (totalDeficitUsd > 0) {
+      console.warn('[engine] B9: redeem-into-negative rejected (gold short)', {
+        usdShortfall, fiatShortfall, goldShortfall, totalDeficitUsd,
+        cumulativeDeficitUsd: (s.deficitUsd ?? 0) + totalDeficitUsd,
+      });
+      s.deficitUsd = (s.deficitUsd ?? 0) + totalDeficitUsd;
+    }
     return {
       ok: false, reason: "Insufficient gold (PAXG/XAUT) holdings for redemption basket (B9 conservation guard).",
       inputMtq, mtqPrice: price, grossUsd: 0, feeBps: 0, feeUsd: 0, netUsd: 0,
@@ -1276,6 +1403,7 @@ export function applyRedeem(
       newReserveRatio: computeReserveRatio(vals0.nav, computeLiability(s, price)),
       navPerMtq, auditNavPerToken, auditGrossUsdNav, auditGrossUsdIndex,
       auditDeltaUsd: auditGrossUsdNav - auditGrossUsdIndex, auditNote,
+      deficitUsd: totalDeficitUsd,
     };
   }
 
@@ -1320,6 +1448,7 @@ export function applyRedeem(
     auditGrossUsdIndex,
     auditDeltaUsd: auditGrossUsdNav - auditGrossUsdIndex,
     auditNote,
+    deficitUsd: 0,
   };
 }
 

@@ -63,7 +63,7 @@
       "description": "500 runs × 90 ticks; 5-day block bootstrap from 252-day history (V3 engine)",
       "runs": 500,
       "survivalRate": 1,
-      "meanMinRR": 1.1075422777255628,
+      "meanMinRR": 1.1075422777255464,
       "worstMinRR": 1.0893242601602389,
       "meanTimeToRecover": 70.70270270270271,
       "pegStabilityPct": 1,
@@ -135,7 +135,7 @@
       "description": "500 runs × 90 ticks; Cauchy returns (tail-heavy) (V3 engine)",
       "runs": 500,
       "survivalRate": 0.788,
-      "meanMinRR": 1.0265543396727181,
+      "meanMinRR": 1.0265543396738102,
       "worstMinRR": 0.06311524448832778,
       "meanTimeToRecover": 31.71117166212534,
       "pegStabilityPct": 0.9068444444444439,
@@ -171,7 +171,7 @@
       "description": "500 runs × 90 ticks; 4-regime Markov switching (V3 engine)",
       "runs": 500,
       "survivalRate": 1,
-      "meanMinRR": 1.1034822465813168,
+      "meanMinRR": 1.1034822465812775,
       "worstMinRR": 1.063040717180712,
       "meanTimeToRecover": 47.968,
       "pegStabilityPct": 1,
@@ -372,9 +372,9 @@
       "notes": [
         "1000 sequential redemptions of 0.5% of CURRENT circulating supply, over 100 ticks (10 per tick).",
         "V3 engine — NAV-based redemption (§19.3.2, Invariant I6); state-dependent fee ladder (NORMAL 0.15% / STRESS 0.50% / DEFENSIVE 1.00% / EMERGENCY paused / RECOVERY 0.50%).",
-        "Circulating supply: 8991000 → 59826 (decays asymptotically).",
+        "Circulating supply: 8991000 → 99256 (decays asymptotically).",
         "Circulating supply exhausted: false.",
-        "Failed redemptions: 0.",
+        "Failed redemptions: 101.",
         "Fee escalations observed: 0 (NORMAL → STRESS 0.50% → DEFENSIVE 1.00% → EMERGENCY 2.00% paused).",
         "Status transitions: 0.",
         "Min RR observed: 1.115 (each redemption accretes ~10 bps + fee to RR when RR ≥ 1.10).",
@@ -572,6 +572,6 @@
       "runs": 3200
     }
   ],
-  "generatedAt": 1789395533168,
-  "totalRuntimeMs": 1306
+  "generatedAt": 1789731728189,
+  "totalRuntimeMs": 1295
 }

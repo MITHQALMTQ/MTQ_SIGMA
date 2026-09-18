@@ -245,8 +245,8 @@ contract MTQSigmaV2 {
     // Section 2: ERC-20 state + events
     // ============================================================
 
-    string  public constant name     = "MTQ Sigma V3";
-    string  public constant symbol   = "MTQv3";
+    string  public constant name     = "MTQ Sigma";
+    string  public constant symbol   = "MTQ"; // H7 FIX: was "MTQv3" — registry/exchange mismatch
     uint8   public constant decimals = 18;
     uint256 public totalSupply;
 
@@ -1204,6 +1204,32 @@ contract MTQSigmaV2 {
         return getNAV() * 1e18 / circ;
     }
 
+    /// @dev B3 FIX: Require all critical oracle pairs are healthy (not paused).
+    /// Reverts if any of the 6 pairs (EUR/GBP/JPY/CNY/CHF/XAU) has <3 valid
+    /// sources. This prevents mint/redeem against stale prices during a keeper
+    /// or oracle outage.
+    function _requireOracleHealthy() internal view {
+        bytes32[6] memory pairs = [
+            PAIR_EUR_USD, PAIR_GBP_USD, PAIR_JPY_USD, PAIR_CNY_USD, PAIR_CHF_USD, PAIR_XAU_USD
+        ];
+        for (uint8 i = 0; i < 6; i++) {
+            (, , , bool paused_, , ) = getOracleConsensus(pairs[i]);
+            if (paused_) revert Err39(); // "oracle paused"
+        }
+    }
+
+    /// @dev B3 FIX: Public view — are all critical oracle pairs healthy?
+    function oracleHealthy() public view returns (bool) {
+        bytes32[6] memory pairs = [
+            PAIR_EUR_USD, PAIR_GBP_USD, PAIR_JPY_USD, PAIR_CNY_USD, PAIR_CHF_USD, PAIR_XAU_USD
+        ];
+        for (uint8 i = 0; i < 6; i++) {
+            (, , , bool paused_, , ) = getOracleConsensus(pairs[i]);
+            if (paused_) return false;
+        }
+        return true;
+    }
+
     // ============================================================
     // §3.4.2 + §12.1  Mint — priced against P_MTQ (I5) with canonical throttle
     //   Pull USDC (6 dec), fee = mintFee, MTQ minted = netUsd18 × 1e18 / P_MTQ,
@@ -1212,6 +1238,11 @@ contract MTQSigmaV2 {
     function mint(uint256 usdcAmount) external nonReentrant whenNotPaused returns (uint256 minted) {
         if (!(usdcAmount > 0)) revert Err56();
         if (!(mintingAllowed(currentState))) revert Err25();
+
+        // B3 FIX: Gate on oracle health — reject if any critical pair is paused.
+        // Without this, users could mint against stale prices when the keeper
+        // has missed a tick. This is the #1 historical stablecoin exploit vector.
+        _requireOracleHealthy();
 
         uint256 price = getMTQPriceWithGuard();
 
@@ -1245,6 +1276,9 @@ contract MTQSigmaV2 {
         if (!(mtqAmount > 0)) revert Err56();
         if (!(balanceOf[msg.sender] >= mtqAmount)) revert Err22();
         if (!(redemptionAllowed(currentState))) revert Err43();
+
+        // B3 FIX: Gate on oracle health — same rationale as mint().
+        _requireOracleHealthy();
 
         // H4: apply price guard even on redeem (rejects if outside [0.50, 2.00]).
         uint256 price = getMTQPriceWithGuard();
