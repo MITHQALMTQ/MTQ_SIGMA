@@ -191,3 +191,86 @@ model OracleSample {
   @@index([pair])
   @@index([paused])
 }
+
+// ============================================================================
+// V3 — MBG (MITHQAL Bank Gateway) Mint Request (Blueprint v25.3 §6/§8)
+// ----------------------------------------------------------------------------
+// Off-chain persistence of every mint request submitted by an authorized bank
+// to the MBG Gateway. The on-chain source of truth is
+// MTQSigmaV3.mintRequests[requestId]; this table is the operator-facing
+// mirror used by the dashboard / status page. The MBG Gateway writes a row
+// here at BM-01 (PENDING) and updates it on every workflow advance.
+// ============================================================================
+
+model MbzMintRequest {
+  id                     String   @id @default(cuid())
+  requestId              String   @unique                  // on-chain 0x... 32-byte hash
+  bank                   String                             // EIP-55 bank address
+  corporateCustomerHash  String                             // hash of the corporate customer identity
+  amountUsd              Float                              // USD amount (1 USD = 1 unit)
+  backingCertificateId   String                             // on-chain 0x... 32-byte hash
+  jurisdiction           String                             // ISO 3166-1 alpha-2
+  nonce                  BigInt                             // bank-unique anti-replay
+  expiry                 BigInt                             // unix seconds
+
+  // Workflow state (mirror of MTQSigmaV3.WorkflowState)
+  state                  String   @default("BM01_PENDING") // BM01..BM16 | REJECTED
+  rejectReason           String?
+
+  // Ledger timestamps (mirror of MTQSigmaV3.MintRequest fields)
+  createdAt              DateTime @default(now())
+  authorizedAt           BigInt?
+  mintedAt               BigInt?
+  mintedAmount           Float?
+
+  // MBG Gateway audit fields
+  apiAuthMethod          String   @default("hmac")          // "hmac" | "apikey" | "testnet"
+  apiRemoteIp            String?
+  apiUserAgent           String?
+
+  @@index([bank])
+  @@index([state])
+  @@index([createdAt])
+  @@index([jurisdiction])
+}
+
+// V3 — AvailableBackingCertificate (Blueprint v25.3 §7). Off-chain persistence
+// of every ABC submitted by a bank. The on-chain source of truth is
+// MTQSigmaV3.backingCertificates[certificateId]; this table is the operator-
+// facing mirror.
+model MbzBackingCertificate {
+  id                          String   @id @default(cuid())
+  certificateId               String   @unique              // on-chain 0x... 32-byte hash
+  bank                        String                         // EIP-55 bank address
+  amountUsd                   Float                          // USD amount backed
+  custodianAttestationHash    String                         // SHA-256 hash of the custodian attestation
+  custodianAttestationExpiry  BigInt                         // unix seconds
+  reserveAssetBreakdownHash   String                         // SHA-256 hash of the reserve composition
+  issuedAt                    BigInt                         // unix seconds
+  verified                    Boolean  @default(false)       // keeper-verified?
+
+  createdAt                   DateTime @default(now())
+
+  @@index([bank])
+  @@index([verified])
+  @@index([custodianAttestationExpiry])
+}
+
+// V3 — Bank registry (Blueprint v25.3 §6). Off-chain persistence of the bank
+// registry. The on-chain source of truth is MTQSigmaV3.bankRegistry[address];
+// this table is the operator-facing mirror.
+model MbzBank {
+  id              String   @id @default(cuid())
+  address         String   @unique              // EIP-55 bank address
+  name            String
+  jurisdiction    String                         // ISO 3166-1 alpha-2
+  isAuthorized    Boolean  @default(false)
+  dailyMintCap    Float                          // USD
+  dailyMintUsed   Float    @default(0)           // USD (resets UTC midnight)
+  authorizedAt    DateTime?
+  apiKeyHash      String?                        // SHA-256 of the bank's HMAC API key
+  createdAt       DateTime @default(now())
+
+  @@index([isAuthorized])
+  @@index([jurisdiction])
+}
