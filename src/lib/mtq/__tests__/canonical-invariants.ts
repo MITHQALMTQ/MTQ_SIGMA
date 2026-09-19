@@ -1181,24 +1181,41 @@ function runLayer5(): void {
 }
 
 // =========================================================================
-// LAYER 6 — Historical / backtest (DOCUMENTED — not run in this task)
+// LAYER 6 — Historical / backtest (RUNNABLE — see historical-backtest.ts)
 // =========================================================================
 
 function runLayer6(): void {
   const L = 6;
-  const LNAME = "Historical / backtest (requires historical data — NOT RUN in this task)";
+  const LNAME = "Historical / backtest (RUNNABLE in historical-backtest.ts)";
   console.log(`\n=== Layer ${L} — ${LNAME} ===`);
 
-  // These tests are DOCUMENTED but not RUN because they require historical
-  // FX/gold data that this pilot does not have access to. The COO-RECOMMENDATIONS
-  // §3 task list explicitly defers §23.2-§23.4 to the post-audit phase.
+  // Layer 6 is now IMPLEMENTED and RUNNABLE as a separate file:
+  //   src/lib/mtq/__tests__/historical-backtest.ts
+  // Run with:  `bun run test:backtest`
+  //            (or `bun run src/lib/mtq/__tests__/historical-backtest.ts`)
+  //
+  // The canonical-invariants suite (this file) is a deterministic unit/integration
+  // test that does NOT make network calls. The historical backtest fetches 10
+  // years of real FX/gold data (FRED + Frankfurter + Yahoo Finance) and replays
+  // it through the engine — it is therefore a SEPARATE runnable file with its
+  // own JSON output (audit-work/historical-backtest-results.json) rather than
+  // an inline test in this suite. This separation keeps the canonical-invariants
+  // suite offline-reproducible while making the Layer 6 backtest available
+  // on-demand for the bank-grade audit.
+  //
+  // The 5 invariants checked by the Layer 6 historical backtest:
+  //   INV-1  RR >= 1.00 (RR_HARD absolute solvency floor — I2)
+  //   INV-2  P_MTQ in [0.95, 1.05] of PAR (purchasing-power stability)
+  //   INV-3  No state reaches EMERGENCY and stays there >48h without recovery
+  //   INV-4  Oracle consensus >=3 sources valid for >=99% of ticks (strict I9)
+  //   INV-5  Chain-linked index diverges <5% from the actual basket value
   const documented = [
-    "§23.2 — Historical backtest (10 years of FX/gold data — needs data acquisition from ECB/Frankfurter + gold-api historical endpoint)",
-    "§23.3 — Walk-forward validation (rolling-window re-fit, out-of-sample evaluation)",
-    "§23.4 — Purged + leakage-controlled validation (no overlapping samples, no future information leakage)",
+    "§23.2 — Historical backtest (10 years of FX/gold data — IMPLEMENTED in historical-backtest.ts, runnable via `bun run test:backtest`)",
+    "§23.3 — Walk-forward validation (rolling-window re-fit, out-of-sample evaluation) — DOCUMENTED (not run)",
+    "§23.4 — Purged + leakage-controlled validation (no overlapping samples, no future information leakage) — DOCUMENTED (not run)",
   ];
   for (const note of documented) {
-    assert(L, LNAME, `DOCUMENTED (not run): ${note}`, true, "Requires historical data acquisition — deferred to post-audit phase.");
+    assert(L, LNAME, `DOCUMENTED: ${note}`, true, "§23.2 now runnable in historical-backtest.ts; §23.3/§23.4 deferred to post-audit phase.");
   }
 }
 

@@ -11,6 +11,7 @@
     "typecheck": "tsc --noEmit",
     "check:no-neon": "bun run scripts/check-no-neon.ts",
     "test": "bun test",
+    "test:backtest": "bun run src/lib/mtq/__tests__/historical-backtest.ts",
     "db:push": "prisma db push --accept-data-loss",
     "db:generate": "prisma generate",
     "db:migrate": "prisma migrate dev",
