@@ -69,3 +69,5 @@ weight-vector.json
 backups/
 lib/forge-std/
 contracts/lib/forge-std/
+contracts/lib/openzeppelin-contracts/
+lib/openzeppelin-contracts/
