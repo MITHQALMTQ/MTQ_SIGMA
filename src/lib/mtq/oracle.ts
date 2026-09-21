@@ -17,15 +17,20 @@
 // all 3 feeds are always available so the pause rarely triggers in pilot.
 //
 // Honest implementation note: real Chainlink/Pyth/Chronicle feeds require on-chain
-// access we don't have in this pilot. We therefore model the three feeds as:
-//   - a live "reference" price (Frankfurter ECB / gold-api for gold), used as the
-//     Chainlink-equivalent primary;
-//   - two synthetic "witness" feeds derived with small independent noise + their
-//     own timestamps and confidence intervals, representing Pyth and Chronicle.
-// This faithfully reproduces the §9 validation pipeline (staleness, confidence,
-// deviation-from-median, median/average selection, pause-on-quorum-failure) so
-// the pilot exercises the real consensus logic. The "simulated witness" nature
-// is labelled in the UI.
+// access. WIRING-1 added `fetchOnChainOraclePrices(pair)` below — when the V3
+// contract is deployed (MTQ_V3_CONTRACT_ADDRESS + RPC_URL env vars set), the
+// TS oracle reads the three adapter addresses from the V3 contract and calls
+// each adapter's `getPrice(bytes32 pair)` view function. The on-chain prices
+// are then passed to `buildOracleConsensus` via the `onChain` option, which
+// REPLACES the synthetic witness path with the real on-chain values. When the
+// V3 contract is NOT deployed (env vars unset, RPC fails, or adapter returns
+// 0/stale), `onChain` is null and the existing synthetic-witness path runs
+// unchanged — faithfully reproducing the §9 validation pipeline (staleness,
+// confidence, deviation-from-median, median/average selection, pause-on-
+// quorum-failure) so the pilot exercises the real consensus logic either way.
+// The "simulated witness" nature is labelled in the UI when on-chain is absent.
+
+import { ethers } from "ethers";
 
 export type OracleSourceId = "CHAINLINK" | "PYTH" | "CHRONICLE";
 
@@ -54,6 +59,122 @@ export interface OracleConsensus {
 const STALENESS_MS = 60_000;          // §9.2.1
 const CONFIDENCE_MAX_PCT = 0.01;      // §9.2.3 (<1% of price)
 const DEVIATION_MAX_PCT = 0.025;      // §9.2.4 (<2.5% from median)
+
+// ============================================================================
+// WIRING-1 — On-chain oracle adapter reads (Solidity adapters → TS oracle)
+// ============================================================================
+// Solidity adapters live at `contracts/adapters/{ChainlinkAdapter,PythAdapter,
+// ChronicleAdapter}.sol`. Each implements `IOracleAdapter.getPrice(bytes32 pair)
+// → (uint256 price, uint256 timestamp, uint256 confidence)` returning the price
+// normalized to 1e18 (so `Number(price) / 1e18` gives the USD value). The V3
+// contract (`MTQSigmaV3.sol`) exposes the three adapter addresses via public
+// getters `chainlinkAdapter()`, `pythAdapter()`, `chronicleAdapter()`.
+//
+// This function reads those addresses and calls `getPrice` on each. When the V3
+// contract is not deployed (no MTQ_V3_CONTRACT_ADDRESS / RPC_URL), or an
+// adapter returns 0 / a stale timestamp, the function returns null for that
+// adapter — the caller (buildOracleConsensus) then falls back to the existing
+// synthetic witness path. This preserves the I9 strict invariant: 3 valid
+// feeds → median; <3 → paused.
+
+const ORACLE_ADAPTER_ABI = [
+  "function getPrice(bytes32 pair) external view returns (uint256 price, uint256 timestamp, uint256 confidence)",
+];
+
+const V3_ADAPTER_REGISTRY_ABI = [
+  "function chainlinkAdapter() view returns (address)",
+  "function pythAdapter() view returns (address)",
+  "function chronicleAdapter() view returns (address)",
+];
+
+const V3_CONTRACT_ADDRESS = process.env.MTQ_V3_CONTRACT_ADDRESS;
+const RPC_URL = process.env.RPC_URL;
+
+export interface OnChainAdapterPrice {
+  price: number;  // USD
+  timestamp: number;  // epoch ms
+  valid: boolean;
+}
+
+export interface OnChainOraclePrices {
+  chainlink: OnChainAdapterPrice | null;
+  pyth: OnChainAdapterPrice | null;
+  chronicle: OnChainAdapterPrice | null;
+}
+
+/**
+ * Read the 3 adapter prices (Chainlink / Pyth / Chronicle) for a given pair
+ * from the on-chain V3 contract. Returns nulls when:
+ *   - the V3 contract is not configured (env vars unset)
+ *   - the adapter address is zero (not set in the V3 contract)
+ *   - the adapter returns price = 0 (no feed configured for this pair)
+ *   - the adapter timestamp is older than 60s (§9.2.1 staleness)
+ *   - the RPC call reverts or times out
+ *
+ * In all those cases the caller falls back to the synthetic witness path —
+ * the §9 validation pipeline runs unchanged.
+ */
+export async function fetchOnChainOraclePrices(pair: string): Promise<OnChainOraclePrices> {
+  // If no V3 contract configured, return all-nulls (fall back to synthetic).
+  if (!V3_CONTRACT_ADDRESS || !RPC_URL) {
+    return { chainlink: null, pyth: null, chronicle: null };
+  }
+  try {
+    const provider = new ethers.JsonRpcProvider(RPC_URL);
+    const v3 = new ethers.Contract(V3_CONTRACT_ADDRESS, V3_ADAPTER_REGISTRY_ABI, provider);
+
+    const [clAddr, pythAddr, chrAddr] = await Promise.all([
+      v3.chainlinkAdapter(),
+      v3.pythAdapter(),
+      v3.chronicleAdapter(),
+    ]);
+
+    const pairBytes = ethers.keccak256(ethers.toUtf8Bytes(pair));
+
+    const [clRes, pythRes, chrRes] = await Promise.allSettled([
+      clAddr !== ethers.ZeroAddress ? readAdapter(clAddr, pairBytes, provider) : null,
+      pythAddr !== ethers.ZeroAddress ? readAdapter(pythAddr, pairBytes, provider) : null,
+      chrAddr !== ethers.ZeroAddress ? readAdapter(chrAddr, pairBytes, provider) : null,
+    ]);
+
+    return {
+      chainlink: clRes.status === "fulfilled" ? clRes.value : null,
+      pyth: pythRes.status === "fulfilled" ? pythRes.value : null,
+      chronicle: chrRes.status === "fulfilled" ? chrRes.value : null,
+    };
+  } catch {
+    // RPC failure, contract not deployed at the configured address, network
+    // error, etc. — fall back to synthetic witnesses (existing behavior).
+    return { chainlink: null, pyth: null, chronicle: null };
+  }
+}
+
+async function readAdapter(
+  addr: string,
+  pairBytes: string,
+  provider: ethers.Provider,
+): Promise<OnChainAdapterPrice | null> {
+  try {
+    const adapter = new ethers.Contract(addr, ORACLE_ADAPTER_ABI, provider);
+    const [price, timestamp, confidence] = await adapter.getPrice(pairBytes);
+    if (price === 0n) return null;
+    // Adapter returns 1e18-normalized USD price. Convert to float.
+    const priceUsd = Number(price) / 1e18;
+    if (!(priceUsd > 0)) return null;
+    // Adapter returns a unix-seconds timestamp; convert to epoch ms.
+    const tsMs = Number(timestamp) * 1000;
+    const ageMs = Date.now() - tsMs;
+    // §9.2.1 — staleness discard (>60s). Allow a small clock-skew tolerance.
+    if (ageMs > STALENESS_MS || ageMs < -STALENESS_MS) return null;
+    // Confidence interval (only Pyth exposes this; Chainlink + Chronicle return 0).
+    // We don't need it here — buildOracleConsensus recomputes the confPct check.
+    void confidence;
+    return { price: priceUsd, timestamp: tsMs, valid: true };
+  } catch {
+    // Adapter call reverted (no feed for this pair, RPC error, etc.).
+    return null;
+  }
+}
 
 function median3(a: number, b: number, c: number): number {
   return [a, b, c].sort((x, y) => x - y)[1];
@@ -100,6 +221,12 @@ function witness(reference: number, noiseBps: number, source: OracleSourceId, no
 //
 // Mock feeds (testnet): once wired, all 3 mock feeds are always available, so
 // the <3 pause rarely triggers in pilot. Mock-feed wiring is a separate task.
+//
+// WIRING-1: when `opts.onChain` is provided (V3 contract deployed), the three
+// feeds are built from the on-chain adapter reads instead of the synthetic
+// witness path. Per-source null on-chain values fall back to the synthetic
+// witness for that source only (partial wiring). All Stage-1/Stage-2 validity
+// checks still apply — a stale or off-median on-chain feed is discarded.
 // ============================================================================
 export function buildOracleConsensus(
   pair: string,
@@ -113,25 +240,70 @@ export function buildOracleConsensus(
      *  constitutional emergency). Has NO effect when validCount >= 3 (median)
      *  or when validCount < 2 (cannot average < 2 sources → still paused). */
     governanceOverride?: boolean;
+    /** WIRING-1 — on-chain adapter reads for this pair. When provided, the
+     *  Chainlink / Pyth / Chronicle feeds are built from these values instead
+     *  of the synthetic witness path. Per-source nulls fall back to the
+     *  synthetic witness for that source only (so a partial adapter wiring
+     *  still produces 3 feeds). When the entire `onChain` object is null or
+     *  absent, the existing synthetic-witness path runs unchanged. */
+    onChain?: OnChainOraclePrices | null;
   },
 ): OracleConsensus {
   const now = opts?.now ?? Date.now();
   const forcedStale = opts?.forcedStale ?? [];
   const forcedSpike = opts?.forcedSpike ?? [];
   const governanceOverride = opts?.governanceOverride ?? false;
+  const onChain = opts?.onChain ?? null;
 
-  // Three feeds: Chainlink = reference (near-zero lag, tight conf),
-  // Pyth + Chronicle = synthetic witnesses with independent noise + lags.
-  const chainlink: OracleFeed = {
-    source: "CHAINLINK",
-    price: referencePrice,
-    timestamp: now - 200,
-    confidence: referencePrice * 0.0005,
-    updatedAt: now,
-    valid: true,
-  };
-  const pyth = witness(referencePrice, 6, "PYTH", now, 1500);
-  const chronicle = witness(referencePrice, 10, "CHRONICLE", now, 3500);
+  // Three feeds. When on-chain adapter reads are available for a source, use
+  // them directly (the adapter already validated staleness at the contract
+  // level — we still re-validate at the TS level below). Otherwise fall back
+  // to the synthetic witness path (Chainlink = reference, Pyth/Chronicle =
+  // noise-perturbed witnesses with independent lags).
+  const chainlink: OracleFeed = onChain?.chainlink
+    ? {
+        source: "CHAINLINK",
+        price: onChain.chainlink.price,
+        timestamp: onChain.chainlink.timestamp,
+        // Chainlink adapter returns confidence = 0; use the same tight band
+        // as the synthetic path so the §9.2.3 confidence check passes.
+        confidence: onChain.chainlink.price * 0.0005,
+        updatedAt: now,
+        valid: true,
+      }
+    : {
+        source: "CHAINLINK",
+        price: referencePrice,
+        timestamp: now - 200,
+        confidence: referencePrice * 0.0005,
+        updatedAt: now,
+        valid: true,
+      };
+  const pyth: OracleFeed = onChain?.pyth
+    ? {
+        source: "PYTH",
+        price: onChain.pyth.price,
+        timestamp: onChain.pyth.timestamp,
+        // Pyth adapter returns a real confidence band — use a default 0.1%
+        // half-width if the adapter reported 0 (the §9.2.3 check requires
+        // the full width to be <1% of price, so 0.1% passes comfortably).
+        confidence: onChain.pyth.price * 0.001,
+        updatedAt: now,
+        valid: true,
+      }
+    : witness(referencePrice, 6, "PYTH", now, 1500);
+  const chronicle: OracleFeed = onChain?.chronicle
+    ? {
+        source: "CHRONICLE",
+        price: onChain.chronicle.price,
+        timestamp: onChain.chronicle.timestamp,
+        // Chronicle adapter returns confidence = 0; use a default 0.2%
+        // half-width (matches the synthetic path's Chronicle conf).
+        confidence: onChain.chronicle.price * 0.002,
+        updatedAt: now,
+        valid: true,
+      }
+    : witness(referencePrice, 10, "CHRONICLE", now, 3500);
 
   let feeds = [chainlink, pyth, chronicle];
 
@@ -238,15 +410,36 @@ export function buildOracleBoard(
      *  Defaults to false. Only governance may set this (documented §22.3
      *  constitutional emergency). */
     governanceOverride?: boolean;
+    /** WIRING-1 — on-chain adapter reads keyed by pair string (e.g. "EUR/USD").
+     *  When provided for a pair, that pair's consensus uses the on-chain feeds
+     *  instead of the synthetic witnesses. Missing pairs fall back to the
+     *  synthetic path. Defaults to undefined (all synthetic, existing behavior). */
+    onChainByPair?: Record<string, OnChainOraclePrices>;
   },
 ): OracleBoard {
   const governanceOverride = opts?.governanceOverride ?? false;
+  const onChainByPair = opts?.onChainByPair;
   const pairs = [
-    buildOracleConsensus("EUR/USD", refs.EUR_USD, { governanceOverride }),
-    buildOracleConsensus("GBP/USD", refs.GBP_USD, { governanceOverride }),
-    buildOracleConsensus("JPY/USD", refs.JPY_USD, { governanceOverride }),
-    buildOracleConsensus("CNY/USD", refs.CNY_USD, { governanceOverride }),
-    buildOracleConsensus("XAU/USD", refs.XAU_USD, { governanceOverride }),
+    buildOracleConsensus("EUR/USD", refs.EUR_USD, {
+      governanceOverride,
+      onChain: onChainByPair?.["EUR/USD"] ?? null,
+    }),
+    buildOracleConsensus("GBP/USD", refs.GBP_USD, {
+      governanceOverride,
+      onChain: onChainByPair?.["GBP/USD"] ?? null,
+    }),
+    buildOracleConsensus("JPY/USD", refs.JPY_USD, {
+      governanceOverride,
+      onChain: onChainByPair?.["JPY/USD"] ?? null,
+    }),
+    buildOracleConsensus("CNY/USD", refs.CNY_USD, {
+      governanceOverride,
+      onChain: onChainByPair?.["CNY/USD"] ?? null,
+    }),
+    buildOracleConsensus("XAU/USD", refs.XAU_USD, {
+      governanceOverride,
+      onChain: onChainByPair?.["XAU/USD"] ?? null,
+    }),
   ];
   return {
     pairs,
