@@ -5981,3 +5981,83 @@ Stage Summary:
 - Daily redeem cap: IMPLEMENTED — `dailyRedeemCap` = $500K default, 24h rolling window, `setDailyRedeemCap` setter (onlyConstitutionalCouncil). 5 tests (cumulative revert + 24h reset + 3 admin).
 - Circuit breaker: IMPLEMENTED — `_circuitBreakerCheck` auto-pauses on `jumpPct > 10%` per commit; wired into advanceIndex + commitFxRatesFromOracles + setFxRates. 3 tests (trigger + first-commit-no-trigger + 10% boundary).
 - New tests: 14 (3 slippage + 3 per-tx + 2 daily-cap + 3 breaker + 3 admin)
+
+---
+Task ID: STABILITY-POOL-FEES-POR
+Agent: general-purpose
+Task: Add stability pool, fee separation, proof of reserve
+
+Work Log:
+- Modified: contracts/MTQSigmaV3.sol
+    • Added new error codes Err96..Err102 (stability pool + fee wallet guards).
+    • Added §11.5 Stability Pool state (stabilityAsset, stabilityDeposits,
+      totalStabilityPool, stabilityRewardRate, accumulatedRewardPerShare,
+      stabilityRewardDebt, lastRewardUpdate) + events (StabilityDeposit,
+      StabilityWithdrawal, StabilityPoolUsed, StabilityRewardRateSet,
+      StabilityAssetSet).
+    • Added §11.5.b Fee Separation state (feeWallet, accumulatedFees) +
+      events (FeeWalletSet, FeesCollected).
+    • Wired mint fee accrual into executeMint (does NOT change minted MTQ
+      amount — backward-compat with LIQ-MGMT H5 tests).
+    • Wired redeem fee accrual into redeem (uses the existing feeUsd18
+      computation, routes to accumulatedFees).
+    • Added setStabilityAsset / setStabilityRewardRate / depositToStabilityPool
+      / withdrawFromStabilityPool / pendingStabilityReward /
+      useStabilityPoolForDeficit / setFeeWallet functions (all nonReentrant
+      where state-changing; whenNotPaused on deposit).
+    • Added _pendingStabilityReward + _updateStabilityRewards internal
+      helpers (MasterChef-style single-asset reward accrual).
+    • Initialized lastRewardUpdate in constructor.
+    • Updated getHonestStatus(): implementedMask 0xFFF → 0x3FFF (added bit 12
+      stabilityPool + bit 13 feeWalletSeparated) + updated statusDeclaration.
+- Modified: contracts/test/MTQSigmaV3.t.sol
+    • Appended MTQSigmaV3StabilityPoolTest contract (12 new tests) +
+      MockUSDCv3 helper contract.
+- Created: src/lib/mtq/proof-of-reserve.ts
+    • ReserveAttestation interface, fetchReserveAttestation,
+      verifyReserveAttestation, calculateRR, isReserveSufficient,
+      getPorStatus, canonicalAttestationPayload,
+      fetchReserveAttestationFromChainlink (stub for Chainlink PoR feed).
+    • Custodian allowlist + ECDSA signature recovery via ethers v6.
+- Created: src/app/api/por/route.ts
+    • GET /api/por — public PoR status (rate-limited 60/min per IP).
+    • Returns attestation + RR + sufficient flag + composition + targets.
+    • Clearly marks the pilot fallback so downstream consumers do NOT
+      treat the testnet pilot response as production proof.
+- Modified: src/lib/mtq/rate-limit.ts
+    • Added `por` rate-limit category (60 req/min, same as health).
+
+Stage Summary:
+- Stability pool: IMPLEMENTED — full deposit/withdraw/deficit-cover surface
+  with MasterChef-style single-asset reward accrual. The pool is the SOLE
+  USDC custody point in V3 (every other reserve is held by the banks'
+  qualified custodians per the ABC architecture). useStabilityPoolForDeficit
+  is callable ONLY in EMERGENCY (currentState == EMERGENCY, i.e. RR<1.0)
+  by the keeper; covers up to min(deficitUsd, totalStabilityPool).
+- Fee separation: IMPLEMENTED — dedicated feeWallet (Constitutional Council
+  set, rejects address(0)) + accumulatedFees running total. Both executeMint
+  and redeem accrue fees into accumulatedFees and emit FeesCollected. The
+  mint fee does NOT reduce the minted MTQ amount (preserves backward compat
+  with the LIQ-MGMT H5 tests that assert minted == amountUsd at P_MTQ=1.0).
+- Proof of reserve: IMPLEMENTED — TypeScript PoR module with custodian
+  attestation verification (allowlist + ECDSA recovery) + Chainlink PoR
+  feed stub for production upgrade. Public /api/por route exposes the
+  current attestation + RR + sufficient flag.
+- New tests: 12 Foundry tests (7 stability pool + 5 fee separation) in
+  MTQSigmaV3StabilityPoolTest. Verification: V3 contract compiles cleanly
+  under solcjs 0.8.36 (only the pre-existing 24576-byte code-size warning,
+  unchanged from before). typecheck passes; check:no-neon passes (24 route
+  files scanned, 0 violations); canonical-invariants 158/158 still passes.
+
+Next Actions:
+- Protocol owner: install Foundry + run `forge test -vvv --match-contract
+  MTQSigmaV3StabilityPoolTest` to execute the 12 new tests.
+- Protocol owner: deploy a Chainlink Proof of Reserve adapter contract
+  (mirroring the existing ChainlinkAdapter in
+  contracts/foundry-out/ChainlinkAdapter.sol) and wire
+  fetchReserveAttestationFromChainlink in src/lib/mtq/proof-of-reserve.ts.
+- Protocol owner: rotate the feeWallet to a Safe (multi-sig) before mainnet.
+- Protocol owner: align the canonical attestation payload hash function
+  (currently SHA-256 for cross-platform Web Crypto) with the on-chain
+  keccak256 used by MTQSigmaV3 — see src/lib/mtq/available-backing-certificate.ts
+  for the same caveat.

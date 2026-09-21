@@ -538,3 +538,420 @@ contract MTQSigmaV3LiqMgmtTest is Test {
         mtq.setDailyRedeemCap(1_000_000e18);
     }
 }
+
+// ============================================================================
+//  MTQSigmaV3StabilityPoolTest — STABILITY-POOL-FEES-POR test suite
+//  ----------------------------------------------------------------------------
+//  Task ID: STABILITY-POOL-FEES-POR
+//  Scope:   T3 (stability pool / liquidation mechanism) + T4 (fee separation)
+//
+//  Test count: 12 (7 stability pool + 5 fee separation)
+//
+//  Tests covered:
+//    T3.a  setStabilityAsset — non-council reverts
+//    T3.b  depositToStabilityPool — happy path: pulls USDC, updates balances
+//    T3.c  depositToStabilityPool — reverts on zero amount
+//    T3.d  withdrawFromStabilityPool — happy path: returns USDC, updates pool
+//    T3.e  withdrawFromStabilityPool — reverts on insufficient balance
+//    T3.f  useStabilityPoolForDeficit — reverts outside EMERGENCY
+//    T3.g  useStabilityPoolForDeficit — succeeds in EMERGENCY, covers deficit
+//    T4.a  setFeeWallet — rejects zero address
+//    T4.a2 setFeeWallet — reverts from non-council caller
+//    T4.b  setFeeWallet — emits FeeWalletSet event with old/new
+//    T4.c  redeem accrues fee in accumulatedFees
+//    T4.d  executeMint accrues mint fee in accumulatedFees
+//
+//  PREREQUISITES — same as the LIQ-MGMT suite (Foundry installed).
+// ============================================================================
+
+/// @notice Minimal 6-decimal USDC mock for the stability pool. Mirrors the
+///         MockUSDC contract in MTQSigmaV2.t.sol but kept self-contained here
+///         so this test file has no cross-file dependencies.
+contract MockUSDCv3 {
+    string  public constant name     = "USD Coin";
+    string  public constant symbol   = "USDC";
+    uint8   public constant decimals = 6;
+    uint256 public totalSupply;
+
+    mapping(address => uint256)                     public balanceOf;
+    mapping(address => mapping(address => uint256)) public allowance;
+
+    event Transfer(address indexed from, address indexed to, uint256 value);
+    event Approval(address indexed owner, address indexed spender, uint256 value);
+
+    function mint(address to, uint256 amount) external {
+        balanceOf[to] += amount;
+        totalSupply   += amount;
+        emit Transfer(address(0), to, amount);
+    }
+
+    function transfer(address to, uint256 amount) external returns (bool) {
+        _transfer(msg.sender, to, amount);
+        return true;
+    }
+
+    function approve(address spender, uint256 amount) external returns (bool) {
+        allowance[msg.sender][spender] = amount;
+        emit Approval(msg.sender, spender, amount);
+        return true;
+    }
+
+    function transferFrom(address from, address to, uint256 amount) public returns (bool) {
+        uint256 allowed = allowance[from][msg.sender];
+        if (allowed != type(uint256).max) {
+            require(allowed >= amount, "USDC: insufficient allowance");
+            allowance[from][msg.sender] = allowed - amount;
+        }
+        _transfer(from, to, amount);
+        return true;
+    }
+
+    function _transfer(address from, address to, uint256 amount) internal {
+        require(balanceOf[from] >= amount, "USDC: insufficient balance");
+        balanceOf[from] -= amount;
+        balanceOf[to]   += amount;
+        emit Transfer(from, to, amount);
+    }
+}
+
+contract MTQSigmaV3StabilityPoolTest is Test {
+    MTQSigmaV3       public mtq;
+    MockUSDCv3       public usdc;
+
+    // A depositor (random address) for the stability pool.
+    address public constant DEPOSITOR = address(0xD0D0);
+    // The dedicated fee wallet.
+    address public constant FEE_WALLET = address(0xFEE);
+
+    // Base FX fixings (mirror the contract's BASE_* constants, 1e18 scale).
+    uint256 constant EUR = 1.05e18;
+    uint256 constant GBP = 1.25e18;
+    uint256 constant JPY = 0.0067e18;
+    uint256 constant CNY = 0.14e18;
+    uint256 constant CHF = 1.13e18;
+    uint256 constant XAU = 2500e18;
+
+    uint256[7] BASE_PRICES = [
+        uint256(1e18), EUR, JPY, GBP, CNY, CHF, XAU
+    ];
+
+    uint256[7] STRATEGIC_PRIOR = [
+        uint256(0.27e18), 0.20e18, 0.09e18, 0.08e18, 0.05e18, 0.05e18, 0.26e18
+    ];
+
+    // Three oracle adapters (we re-use the MockOracleAdapter from above).
+    MockOracleAdapter public cl;
+    MockOracleAdapter public py;
+    MockOracleAdapter public chr;
+
+    address public constant BANK     = address(0xBABE);
+    address public constant REDEEMER = address(0xBEEF);
+
+    function setUp() public {
+        mtq = new MTQSigmaV3();
+        // Grant all roles to this test contract.
+        mtq.grantRole(mtq.ADMIN_ROLE(),            address(this));
+        mtq.grantRole(mtq.KEEPER_ROLE(),           address(this));
+        mtq.grantRole(mtq.ORACLE_ROLE(),           address(this));
+        mtq.grantRole(mtq.PAUSER_ROLE(),           address(this));
+        mtq.grantRole(mtq.MONETARY_CONTROL_ROLE(), address(this));
+        mtq.setConstitutionalCouncil(address(this));
+        mtq.setDao(address(this));
+        mtq.setRiskCouncil(address(this));
+        mtq.setEmergencyCouncil(address(this));
+
+        // Deploy + wire 3 oracles.
+        cl  = new MockOracleAdapter();
+        py  = new MockOracleAdapter();
+        chr = new MockOracleAdapter();
+        mtq.setOracleAdapter(0, address(cl));
+        mtq.setOracleAdapter(1, address(py));
+        mtq.setOracleAdapter(2, address(chr));
+
+        // Seed weights + genesis index.
+        mtq.seedGenesisWeights();
+        mtq.genesisIndex();
+
+        // Bootstrap reserve holdings ($1.1M split per prior).
+        uint256[7] memory holdings;
+        uint256 NAV = 1_100_000e18;
+        for (uint256 i = 0; i < 7; i++) {
+            holdings[i] = NAV * STRATEGIC_PRIOR[i] / 1e18;
+        }
+        mtq.bootstrapReserveHoldings(holdings);
+
+        // Genesis mint 1M MTQ.
+        mtq.genesisMint(1_000_000e18);
+
+        // Authorize the bank.
+        mtq.authorizeBank(BANK, "TestBank", "US", 2_000_000e18);
+
+        // Warp + refresh oracles.
+        vm.warp(1_000_000);
+        _refreshOracles();
+
+        // Submit + verify a $2M ABC for the bank.
+        _submitAndVerifyABC(keccak256("cert-sp-1"), 2_000_000e18);
+
+        // Deploy MockUSDC + set it as the stability asset.
+        usdc = new MockUSDCv3();
+        mtq.setStabilityAsset(address(usdc));
+
+        // Mint 1M USDC to the depositor.
+        usdc.mint(DEPOSITOR, 1_000_000e6);
+
+        // Approve the contract to spend the depositor's USDC.
+        vm.prank(DEPOSITOR);
+        usdc.approve(address(mtq), type(uint256).max);
+
+        // Set the fee wallet.
+        mtq.setFeeWallet(FEE_WALLET);
+    }
+
+    function _refreshOracles() internal {
+        bytes32[6] memory pairs = _sixPairs();
+        uint256[6] memory prices = [uint256(EUR), GBP, JPY, CNY, CHF, XAU];
+        for (uint256 i = 0; i < 6; i++) {
+            cl.setFeed(pairs[i],  prices[i], block.timestamp, 0);
+            py.setFeed(pairs[i],  prices[i], block.timestamp, 0);
+            chr.setFeed(pairs[i], prices[i], block.timestamp, 0);
+        }
+    }
+
+    function _sixPairs() internal view returns (bytes32[6] memory pairs) {
+        pairs[0] = mtq.PAIR_EUR_USD();
+        pairs[1] = mtq.PAIR_GBP_USD();
+        pairs[2] = mtq.PAIR_JPY_USD();
+        pairs[3] = mtq.PAIR_CNY_USD();
+        pairs[4] = mtq.PAIR_CHF_USD();
+        pairs[5] = mtq.PAIR_XAU_USD();
+    }
+
+    function _submitAndVerifyABC(bytes32 certId, uint256 amountUsd) internal {
+        vm.startPrank(BANK);
+        mtq.submitBackingCertificate(MTQSigmaV3.AvailableBackingCertificate({
+            certificateId:              certId,
+            bank:                       BANK,
+            amountUsd:                  amountUsd,
+            custodianAttestationHash:   keccak256("attestation"),
+            custodianAttestationExpiry: block.timestamp + 30 days,
+            reserveAssetBreakdownHash:  keccak256("breakdown"),
+            issuedAt:                   0,
+            verified:                   false
+        }));
+        vm.stopPrank();
+        mtq.verifyBackingCertificate(certId);
+    }
+
+    // ========================================================================
+    //  === T3: Stability Pool (7 tests) ===
+    // ========================================================================
+
+    /// @notice T3.a: setStabilityAsset from a non-council address reverts.
+    function test_SetStabilityAsset_RevertsForNonCouncil() public {
+        vm.prank(address(0xDEAD));
+        vm.expectRevert(MTQSigmaV3.Err35.selector);
+        mtq.setStabilityAsset(address(usdc));
+    }
+
+    /// @notice T3.b: depositToStabilityPool happy path — pulls USDC, updates
+    ///         balances, emits StabilityDeposit.
+    function test_DepositToStabilityPool_HappyPath() public {
+        uint256 amt = 10_000e6; // 10,000 USDC (6-dec)
+        uint256 contractBefore = usdc.balanceOf(address(mtq));
+
+        vm.expectEmit(true, true, false, true, address(mtq));
+        emit MTQSigmaV3.StabilityDeposit(DEPOSITOR, amt, amt, block.timestamp);
+        vm.prank(DEPOSITOR);
+        mtq.depositToStabilityPool(amt);
+
+        assertEq(mtq.stabilityDeposits(DEPOSITOR), amt, "depositor balance");
+        assertEq(mtq.totalStabilityPool(), amt, "total pool");
+        assertEq(usdc.balanceOf(address(mtq)) - contractBefore, amt, "contract received USDC");
+        assertEq(usdc.balanceOf(DEPOSITOR), 1_000_000e6 - amt, "depositor balance after");
+    }
+
+    /// @notice T3.c: depositToStabilityPool reverts on zero amount and when
+    ///         the asset is not set.
+    function test_DepositToStabilityPool_RevertsOnZeroAmount() public {
+        vm.prank(DEPOSITOR);
+        vm.expectRevert(MTQSigmaV3.Err96_StabilityZeroAmount.selector);
+        mtq.depositToStabilityPool(0);
+    }
+
+    /// @notice T3.c: withdrawFromStabilityPool happy path — returns USDC,
+    ///         updates balances, emits StabilityWithdrawal.
+    function test_WithdrawFromStabilityPool_HappyPath() public {
+        uint256 amt = 10_000e6;
+        vm.prank(DEPOSITOR);
+        mtq.depositToStabilityPool(amt);
+
+        uint256 contractBefore = usdc.balanceOf(address(mtq));
+        uint256 depositorBefore = usdc.balanceOf(DEPOSITOR);
+
+        vm.expectEmit(true, true, false, true, address(mtq));
+        emit MTQSigmaV3.StabilityWithdrawal(DEPOSITOR, amt, 0, block.timestamp);
+        vm.prank(DEPOSITOR);
+        mtq.withdrawFromStabilityPool(amt);
+
+        assertEq(mtq.stabilityDeposits(DEPOSITOR), 0, "depositor drained");
+        assertEq(mtq.totalStabilityPool(), 0, "pool drained");
+        assertEq(usdc.balanceOf(address(mtq)), contractBefore - amt, "contract sent USDC");
+        assertEq(usdc.balanceOf(DEPOSITOR), depositorBefore + amt, "depositor got USDC");
+    }
+
+    /// @notice T3.c: withdrawFromStabilityPool reverts when the depositor has
+    ///         insufficient balance.
+    function test_WithdrawFromStabilityPool_RevertsOnInsufficient() public {
+        uint256 amt = 10_000e6;
+        vm.prank(DEPOSITOR);
+        mtq.depositToStabilityPool(amt);
+
+        vm.prank(DEPOSITOR);
+        vm.expectRevert(MTQSigmaV3.Err97_StabilityInsufficient.selector);
+        mtq.withdrawFromStabilityPool(amt + 1); // 1 over balance
+    }
+
+    /// @notice T3.f: useStabilityPoolForDeficit reverts when the protocol is
+    ///         NOT in EMERGENCY (the default setUp state is NORMAL).
+    function test_UseStabilityPoolForDeficit_RevertsOutsideEmergency() public {
+        // Seed the pool with 10K USDC.
+        vm.prank(DEPOSITOR);
+        mtq.depositToStabilityPool(10_000e6);
+
+        // Protocol is in NORMAL (default). Deficit call must revert.
+        vm.expectRevert(MTQSigmaV3.Err100_NotEmergencyState.selector);
+        mtq.useStabilityPoolForDeficit(5_000e18);
+    }
+
+    /// @notice T3.g: useStabilityPoolForDeficit succeeds in EMERGENCY, covers
+    ///         the deficit up to the pool's balance, and emits StabilityPoolUsed.
+    function test_UseStabilityPoolForDeficit_SucceedsInEmergency() public {
+        // Seed the pool with 10K USDC.
+        vm.prank(DEPOSITOR);
+        mtq.depositToStabilityPool(10_000e6);
+
+        // Force the protocol into EMERGENCY by calling updateState with
+        // rr < RR_HARD_FLOOR (1.0e18) and lcr < 0.70e18. The state machine
+        // will transition to EMERGENCY immediately (more restrictive).
+        mtq.updateState(0.95e18, 0.50e18);
+        assertEq(uint256(mtq.currentState()), uint256(MTQSigmaV3.ProtocolState.EMERGENCY), "in EMERGENCY");
+
+        // Cover $5K deficit (5_000e18 USD = 5_000e6 USDC).
+        vm.expectEmit(false, false, true, true, address(mtq));
+        emit MTQSigmaV3.StabilityPoolUsed(5_000e6, 5_000e6, address(this), block.timestamp);
+        uint256 covered = mtq.useStabilityPoolForDeficit(5_000e18);
+
+        assertEq(covered, 5_000e6, "covered = 5K USDC");
+        assertEq(mtq.totalStabilityPool(), 5_000e6, "pool remaining = 5K USDC");
+    }
+
+    // ========================================================================
+    //  === T4: Fee Separation (4 tests) ===
+    // ========================================================================
+
+    /// @notice T4.a: setFeeWallet rejects address(0).
+    function test_SetFeeWallet_RejectsZero() public {
+        vm.expectRevert(MTQSigmaV3.Err101_ZeroFeeWallet.selector);
+        mtq.setFeeWallet(address(0));
+    }
+
+    /// @notice T4.a: setFeeWallet reverts from a non-council caller.
+    function test_SetFeeWallet_RevertsForNonCouncil() public {
+        vm.prank(address(0xDEAD));
+        vm.expectRevert(MTQSigmaV3.Err35.selector);
+        mtq.setFeeWallet(address(0xBEEF));
+    }
+
+    /// @notice T4.b: setFeeWallet emits FeeWalletSet with old + new wallet.
+    function test_SetFeeWallet_EmitsEvent() public {
+        address newWallet = address(0xCAFE);
+        vm.expectEmit(true, true, true, true, address(mtq));
+        emit MTQSigmaV3.FeeWalletSet(FEE_WALLET, newWallet, address(this));
+        mtq.setFeeWallet(newWallet);
+        assertEq(mtq.feeWallet(), newWallet, "feeWallet updated");
+    }
+
+    /// @notice T4.c: redeem accrues the redeem fee in accumulatedFees and
+    ///         emits FeesCollected. We mint $100K (100K MTQ at P_MTQ=1.0),
+    ///         transfer to REDEEMER, then redeem 10K MTQ. At NORMAL state
+    ///         redeemFee = 0.0015e18 (0.15%). navPerToken = $11.0.
+    ///         grossUsd18 = 10K * $11 = $110K. feeUsd18 = $110K * 0.15% = $165.
+    function test_Redeem_AccruesFeeInAccumulatedFees() public {
+        // Mint $100K to the bank (100K MTQ at P_MTQ=$1.0).
+        _fullMint(keccak256("cert-sp-1"), 100_000e18, 1, 0);
+        // Transfer to REDEEMER + approve.
+        vm.prank(BANK);
+        mtq.transfer(REDEEMER, 60_000e18);
+        vm.prank(REDEEMER);
+        mtq.approve(BANK, type(uint256).max);
+
+        uint256 feesBefore = mtq.accumulatedFees();
+        // Redeem 10K MTQ → grossUsd18 = 10K * $11 = $110K. feeUsd18 = $165.
+        vm.prank(BANK);
+        mtq.redeem(10_000e18, REDEEMER);
+
+        uint256 feesAfter = mtq.accumulatedFees();
+        uint256 delta = feesAfter - feesBefore;
+        // feeUsd18 = 110_000e18 * 0.0015e18 / 1e18 = 165e18.
+        assertEq(delta, 165e18, "redeem fee accrued");
+        assertGt(feesAfter, feesBefore, "accumulatedFees increased");
+    }
+
+    /// @notice T4.d: executeMint accrues the mint fee in accumulatedFees.
+    ///         mintFee = 0.001e18 (0.10%). At NORMAL, throttle = 1.0, P_MTQ=$1.0,
+    ///         minted = amountUsd = 100K MTQ. mintFeeUsd18 = 100K * 0.10% = $100.
+    function test_ExecuteMint_AccruesMintFee() public {
+        uint256 feesBefore = mtq.accumulatedFees();
+        _fullMint(keccak256("cert-sp-1"), 100_000e18, 1, 0);
+        uint256 feesAfter = mtq.accumulatedFees();
+        uint256 delta = feesAfter - feesBefore;
+        // mintFeeUsd18 = 100_000e18 * 0.001e18 / 1e18 = 100e18.
+        assertEq(delta, 100e18, "mint fee accrued");
+    }
+
+    // ---- Internal helpers (mirrors of the LIQ-MGMT suite) ----
+
+    function _requestAndAdvanceToAuthorized(
+        bytes32 certId,
+        uint256 amountUsd,
+        uint256 nonce
+    ) internal returns (bytes32 requestId) {
+        vm.startPrank(BANK);
+        requestId = mtq.requestMint(MTQSigmaV3.BankMintRequest({
+            bank:                    BANK,
+            corporateCustomerHash:   keccak256(abi.encodePacked("customer", nonce)),
+            amountUsd:               amountUsd,
+            backingCertificateId:    certId,
+            jurisdiction:            "US",
+            nonce:                   nonce,
+            expiry:                  block.timestamp + 1 hours
+        }));
+        vm.stopPrank();
+        mtq.advanceWorkflow(requestId, MTQSigmaV3.WorkflowState.BM02_RECEIVED);
+        mtq.advanceWorkflow(requestId, MTQSigmaV3.WorkflowState.BM03_KYC);
+        mtq.advanceWorkflow(requestId, MTQSigmaV3.WorkflowState.BM04_AML);
+        mtq.advanceWorkflow(requestId, MTQSigmaV3.WorkflowState.BM05_BACKING);
+        mtq.advanceWorkflow(requestId, MTQSigmaV3.WorkflowState.BM06_EVIDENCE);
+        mtq.advanceWorkflow(requestId, MTQSigmaV3.WorkflowState.BM07_REQUESTED);
+        mtq.advanceWorkflow(requestId, MTQSigmaV3.WorkflowState.BM08_TRANSLATED);
+        mtq.advanceWorkflow(requestId, MTQSigmaV3.WorkflowState.BM09_ELIGIBLE);
+        mtq.advanceWorkflow(requestId, MTQSigmaV3.WorkflowState.BM10_JURISDICTION);
+        mtq.advanceWorkflow(requestId, MTQSigmaV3.WorkflowState.BM11_BACKING_VERIFIED);
+        mtq.advanceWorkflow(requestId, MTQSigmaV3.WorkflowState.BM12_BANK_RISK);
+        mtq.advanceWorkflow(requestId, MTQSigmaV3.WorkflowState.BM13_SYSTEM_RISK);
+        mtq.advanceWorkflow(requestId, MTQSigmaV3.WorkflowState.BM14_DMCE);
+        mtq.advanceWorkflow(requestId, MTQSigmaV3.WorkflowState.BM15_AUTHORIZED);
+    }
+
+    function _fullMint(
+        bytes32 certId,
+        uint256 amountUsd,
+        uint256 nonce,
+        uint256 minMinted
+    ) internal returns (uint256 minted) {
+        bytes32 requestId = _requestAndAdvanceToAuthorized(certId, amountUsd, nonce);
+        minted = mtq.executeMint(requestId, minMinted);
+    }
+}
+
