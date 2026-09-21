@@ -134,6 +134,10 @@ contract MTQSigmaV3 {
     error Err90_NotAuthorizedBank();
     error Err91_InvalidExpiry();
     error Err92_BackdingCertMismatch();
+    // LIQ-MGMT new error codes (93+): audit H4/H5/M2/T7/O1
+    error Err93_SlippageExceeded();       // H5: minted < minMinted
+    error Err94_PerTxCapExceeded();       // M2: single mint/redeem > MAX_*_PER_TX
+    error Err95_DailyRedeemCapExceeded(); // T7: 24h redeemed > dailyRedeemCap
 
     // ============================================================
     // Section 1: AccessControl (inlined) + Pausable + ReentrancyGuard
@@ -315,6 +319,47 @@ contract MTQSigmaV3 {
     // ---- §3.5 Price safety band (circuit breakers) ----
     uint256 public constant PRICE_SAFETY_LOWER = 0.50e18;
     uint256 public constant PRICE_SAFETY_UPPER = 2.00e18;
+
+    // ============================================================
+    // === LIQ-MGMT: Liquidity Management (audit H4 / H5 / M2 / T7 / O1)
+    // ------------------------------------------------------------
+    //  H5  Slippage protection — executeMint accepts a `minMinted`
+    //                           parameter; reverts if minted < minMinted.
+    //  M2  Per-transaction cap — max USD value per single mint or redeem.
+    //  T7  Daily redemption cap — max total gross-USD redeemed per 24h
+    //                             window (resets on first redeem after
+    //                             dailyRedeemResetAt + 1 days).
+    //  H4  Circuit breaker     — auto-pause if the MTQ price moves
+    //  O1                           more than MAX_PRICE_JUMP_PCT (10%)
+    //                             in a single price-commit call.
+    // ============================================================
+
+    /// @dev M2: per-transaction caps (1e18 scale = USD). $500K mint cap.
+    uint256 public constant MAX_MINT_PER_TX   = 500_000e18;
+    /// @dev M2: per-transaction caps (1e18 scale = USD). $500K redeem cap.
+    uint256 public constant MAX_REDEEM_PER_TX = 500_000e18;
+
+    /// @dev T7: daily redemption cap (1e18 scale = USD). Default $500K/day,
+    ///      ~= 5% of a $10M NAV. Configurable via setDailyRedeemCap().
+    uint256 public dailyRedeemCap = 500_000e18;
+    /// @dev T7: gross-USD redeemed in the current 24h window.
+    uint256 public dailyRedeemedUsd;
+    /// @dev T7: unix seconds of the start of the current 24h window.
+    ///      0 = never reset (the first redeem initializes it).
+    uint256 public dailyRedeemResetAt;
+
+    /// @dev H4/O1: last MTQ price observed at a price-commit call (1e18 scale).
+    ///      0 = no prior commit; the first commit never triggers the breaker.
+    uint256 public lastCommitPrice;
+    /// @dev H4/O1: max % move allowed in a single price-commit before the
+    ///      circuit breaker auto-pauses the contract. 10 = 10%.
+    uint256 public constant MAX_PRICE_JUMP_PCT = 10;
+
+    /// @dev H5/M2/T7/H4-O1 events.
+    event DailyRedeemCapReset(uint256 resetFromUsd, uint256 resetToUsd, uint256 resetAt);
+    event DailyRedeemCapSet(uint256 oldCap, uint256 newCap, address indexed setter);
+    event DailyRedeemCapConsumed(address indexed bank, uint256 redeemUsd, uint256 totalUsed, uint256 cap, uint256 timestamp);
+    event CircuitBreakerTriggered(uint256 newPrice, uint256 oldPrice, uint256 jumpPct);
 
     // ============================================================
     // === Listing 2: MASE Weight Registry (§7.7) ===
@@ -799,7 +844,14 @@ contract MTQSigmaV3 {
     ///         recheck), keeper signature (L7). Single transaction = atomic
     ///         write (L6). Mints MTQ to the bank; the bank distributes to the
     ///         corporate customer off-chain (sovereign currency settlement).
-    function executeMint(bytes32 requestId) external onlyKeeper whenNotPaused nonReentrant returns (uint256 minted) {
+    /// @dev LIQ-MGMT (audit H5 + M2): the caller passes a `minMinted` floor
+    ///      (1e18 scale MTQ). The mint reverts with Err93_SlippageExceeded if
+    ///      the actual minted amount (after price + throttle) falls below it.
+    ///      The mint also reverts with Err94_PerTxCapExceeded if the requested
+    ///      USD amount exceeds MAX_MINT_PER_TX ($500K). Pass minMinted = 0 to
+    ///      disable slippage protection (e.g. for keeper-relayed bank requests
+    ///      where the bank has signed off on the exact expected output).
+    function executeMint(bytes32 requestId, uint256 minMinted) external onlyKeeper whenNotPaused nonReentrant returns (uint256 minted) {
         MintRequest storage r = mintRequests[requestId];
         if (r.createdAt == 0) revert Err86_InvalidRequest();
         // L2 WORKFLOW GATE — must be at BM15_AUTHORIZED.
@@ -812,6 +864,12 @@ contract MTQSigmaV3 {
         if (r.request.expiry <= block.timestamp) revert Err68_RequestExpired();
         // Re-check backing is still verified and sufficient (defence in depth).
         if (backingVerified[r.request.bank] < r.request.amountUsd) revert Err73_BackdingCertInsufficient();
+
+        // LIQ-MGMT M2: per-transaction cap (audit M2). Reject if the requested
+        // USD amount exceeds MAX_MINT_PER_TX. This caps the largest single
+        // mint the keeper can land per tx, limiting blast radius if the keeper
+        // key or the L4 monetary-control signer is compromised.
+        if (r.request.amountUsd > MAX_MINT_PER_TX) revert Err94_PerTxCapExceeded();
 
         // L4 MONETARY AUTHORIZATION — already enforced at advanceWorkflow(BM15)
         // by the onlyMonetaryControl modifier (we re-verify authorizedAt > 0).
@@ -830,6 +888,13 @@ contract MTQSigmaV3 {
         // §21.4 canonical throttle (NORMAL 1.0, CAUTION 0.5, RECOVERY 0.25).
         uint256 throttle = mintThrottle(currentState);
         minted = grossMint * throttle / 1e18;
+
+        // LIQ-MGMT H5: slippage protection. The caller (keeper, relaying the
+        // bank's signed quote) commits to a minimum acceptable minted amount.
+        // If the on-chain computed minted (price + throttle) is below it, the
+        // whole tx reverts — protecting the bank's corporate customer from
+        // receiving fewer MTQ than their quote promised.
+        if (minted < minMinted) revert Err93_SlippageExceeded();
 
         // State transitions + accounting.
         r.state = WorkflowState.BM16_MINTED;
@@ -888,6 +953,29 @@ contract MTQSigmaV3 {
         uint256 grossUsd18 = mtqAmount * navPerToken / 1e18;
         uint256 feeUsd18   = grossUsd18 * feeFraction / 1e18;
         netUsd             = grossUsd18 - feeUsd18;
+
+        // LIQ-MGMT M2: per-transaction cap (audit M2). The gross USD value of
+        // a single redeem is capped at MAX_REDEEM_PER_TX ($500K). This is
+        // measured against grossUsd18 (NAV-per-token × mtqAmount), which is
+        // the actual settlement obligation the bank incurs — NOT the net the
+        // redeemer receives. Caps the largest single burn the protocol will
+        // honour per tx.
+        if (grossUsd18 > MAX_REDEEM_PER_TX) revert Err94_PerTxCapExceeded();
+
+        // LIQ-MGMT T7: daily redemption cap (audit T7). Rolls the 24h window
+        // first (idempotent within the same day), then enforces that adding
+        // this redeem's gross USD does not exceed dailyRedeemCap. The cap is
+        // measured in gross-USD (pre-fee) since that is the reserve outflow
+        // the protocol must honour. First redeem initializes the window.
+        if (dailyRedeemResetAt == 0 || block.timestamp >= dailyRedeemResetAt + 1 days) {
+            uint256 oldUsed = dailyRedeemedUsd;
+            dailyRedeemedUsd = 0;
+            dailyRedeemResetAt = block.timestamp;
+            emit DailyRedeemCapReset(oldUsed, 0, block.timestamp);
+        }
+        if (dailyRedeemedUsd + grossUsd18 > dailyRedeemCap) revert Err95_DailyRedeemCapExceeded();
+        dailyRedeemedUsd += grossUsd18;
+        emit DailyRedeemCapConsumed(msg.sender, grossUsd18, dailyRedeemedUsd, dailyRedeemCap, block.timestamp);
 
         _burn(redeemer, mtqAmount);
 
@@ -979,6 +1067,46 @@ contract MTQSigmaV3 {
         dmceBankConcentrationCap = cap;
     }
 
+    /// @notice LIQ-MGMT T7: Constitutional Council sets the daily redemption
+    ///         cap (1e18 scale USD). The cap MUST be > 0; passing 0 reverts
+    ///         with Err87_DailyCapZero. The change takes effect immediately
+    ///         for the current 24h window (does not reset dailyRedeemedUsd).
+    function setDailyRedeemCap(uint256 cap) external onlyConstitutionalCouncil {
+        if (cap == 0) revert Err87_DailyCapZero();
+        uint256 old = dailyRedeemCap;
+        dailyRedeemCap = cap;
+        emit DailyRedeemCapSet(old, cap, msg.sender);
+    }
+
+    /// @notice LIQ-MGMT H4/O1: circuit-breaker helper. Compares the new MTQ
+    ///         price (1e18 scale) against the price observed at the last
+    ///         price-commit call. If the move exceeds MAX_PRICE_JUMP_PCT (10%),
+    ///         the contract is auto-paused and `CircuitBreakerTriggered` is
+    ///         emitted. `lastCommitPrice` is then updated to the new price.
+    ///         The first commit (lastCommitPrice == 0) never triggers.
+    /// @dev Uses getMTQPrice() (no guard) so the breaker can fire even when
+    ///      the new price has exited the [0.50, 2.00] safety band — that is
+    ///      exactly the scenario the breaker exists to catch. The pause takes
+    ///      effect for all subsequent calls; the current commit call completes
+    ///      (its state changes are NOT rolled back) so the offending price is
+    ///      recorded on-chain for forensic review.
+    function _circuitBreakerCheck(uint256 newPrice) internal {
+        if (lastCommitPrice > 0 && newPrice > 0) {
+            uint256 jumpPct = newPrice > lastCommitPrice
+                ? ((newPrice - lastCommitPrice) * 100) / lastCommitPrice
+                : ((lastCommitPrice - newPrice) * 100) / lastCommitPrice;
+            if (jumpPct > MAX_PRICE_JUMP_PCT) {
+                // Auto-pause on >10% price jump. The Pauser role can unpause
+                // after the keeper has root-caused the move (oracle fault,
+                // market shock, etc.) and re-verified the new price.
+                paused = true;
+                emit CircuitBreakerTriggered(newPrice, lastCommitPrice, jumpPct);
+                emit Paused(msg.sender);
+            }
+        }
+        lastCommitPrice = newPrice;
+    }
+
     // ============================================================
     // === Listing 2 (§7.7) MASE weight registry (unchanged vs V2) ===
     // ============================================================
@@ -1052,6 +1180,8 @@ contract MTQSigmaV3 {
         for (uint256 i = 0; i < 7; i++) lastPrices[i] = currentPrices[i];
         lastIndexUpdate = block.timestamp;
         emit IndexAdvanced(indexValue, block.timestamp);
+        // LIQ-MGMT H4/O1: circuit breaker on the post-commit MTQ price.
+        _circuitBreakerCheck(getMTQPrice());
     }
 
     function commitWeights(uint256[7] calldata newWeights, uint256[7] calldata currentPrices) external onlyKeeper whenNotPaused {
@@ -1351,6 +1481,12 @@ contract MTQSigmaV3 {
         uint256 newPrice = getMTQPrice();
         uint256 diff = (newPrice > oldPrice) ? newPrice - oldPrice : oldPrice - newPrice;
         if (diff * 200 > oldPrice) emit PriceUpdated(oldPrice, newPrice);
+        // LIQ-MGMT H4/O1: circuit breaker (audit H4/O1). Even though this
+        // function only updates lastPrices (indexValue is advanced separately
+        // by advanceIndex), the breaker is wired here for defense in depth —
+        // any keeper price-commit path that ends in a >10% MTQ-price move vs.
+        // the last commit auto-pauses. See also advanceIndex / setFxRates.
+        _circuitBreakerCheck(newPrice);
     }
 
     event PriceUpdated(uint256 oldPrice, uint256 newPrice);
@@ -1372,6 +1508,10 @@ contract MTQSigmaV3 {
         uint256 newPrice = getMTQPrice();
         uint256 diff = (newPrice > oldPrice) ? newPrice - oldPrice : oldPrice - newPrice;
         if (diff * 200 > oldPrice) emit PriceUpdated(oldPrice, newPrice);
+        // LIQ-MGMT H4/O1: circuit breaker (audit H4/O1). Same rationale as in
+        // commitFxRatesFromOracles — setFxRates is the ORACLE_ROLE bypass path
+        // for emergencies and must be covered by the breaker too.
+        _circuitBreakerCheck(newPrice);
     }
 
     // ============================================================
