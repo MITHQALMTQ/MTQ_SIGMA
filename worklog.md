@@ -5949,3 +5949,63 @@ Stage Summary:
 - typecheck: PASS (0 errors across the new + modified files; `bunx tsc --noEmit` exit 0).
 - canonical-invariants suite: PASS (158/158 tests; Layer 6 now references the runnable historical-backtest.ts).
 - Runnable: `bun run src/lib/mtq/__tests__/historical-backtest.ts` (or `bun run test:backtest`); runtime ~500ms including network fetches; exit code 1 (2 invariants failed honestly, as documented above).
+
+---
+Task ID: BLUEPRINT-MODULES
+Agent: general-purpose
+Task: Create all 10 missing blueprint modules + 8 API routes
+
+Work Log:
+- Read MTQΣ/MITHQAL Master Blueprint v25.3.1 source: converted upload/MITHQAL_v25.3.1_Harmonized_Fully_Integrated.docx → /tmp/mithqal-v25.3.md (68,587 lines) via pandoc; grepped for §47, §48, §49, §50, §51, §52, §54, §77, §87 + §0.12.1 Module Inventory.
+- Inspected existing src/lib/mtq/{rate-limit,finality,available-backing-certificate,bank-registry,blueprint,honest-status,state-machine}.ts to mirror conventions (module header, `as const` exports, honest-state pattern, report-generator pattern).
+- Created 10 modules under src/lib/ (one per blueprint section). Each module exports its MODULE_ID, SECTION, honest-state invariants, key interfaces, the canonical constants from the blueprint, a `generateXReport()` function, and helper functions where applicable.
+- Created 8 API routes under src/app/api/ — one per module — each using the existing `rateLimit` + `getClientIP` from src/lib/mtq/rate-limit.ts (health category, 60 req/min/IP). All routes return `NextResponse.json({ report, generatedAt }, { status: 200, ... })` and pass `X-RateLimit-Remaining`.
+- Fixed 5 TypeScript errors during initial typecheck:
+  • `as const` on string-concatenation expressions (PBC_ANTI_DOUBLE_COUNT_RULE, MITHQAL_ROLE_NEVER_GUARANTOR) — replaced with single template-literal strings.
+  • `FinalityLayerId` symbol conflict between the re-exported upstream type from ./mtq/finality and the locally-defined bypass-route type — aliased the upstream re-export to `UpstreamFinalityLayerId`.
+  • Literal-typed interface fields (`totalRoutesTested: 10`, `requirementsTotal: 10`, etc.) that received `.length` (a `number`) — relaxed to `number` in the interface.
+- Verified all 10 modules' `generateXReport()` functions by running them in-process via bun; verified all honest-state invariants match the blueprint exactly.
+- Started Next.js dev server on port 3009, hit each of the 8 new routes with curl — all 8 returned HTTP 200 with valid JSON (sizes ranged 3 KB → 38 KB depending on the module's data shape).
+
+Files created:
+- src/lib/protected-backing-cell.ts (766 lines, §47)
+- src/lib/bank-default-resolution.ts (589 lines, §48)
+- src/lib/legal-liability-framework.ts (428 lines, §49)
+- src/lib/licensing-entity-matrix.ts (418 lines, §50)
+- src/lib/three-book-separation.ts (598 lines, §51)
+- src/lib/systemic-exposure-engine.ts (735 lines, §52)
+- src/lib/finality-before-mint.ts (426 lines, §54)
+- src/lib/contradiction-scan.ts (381 lines, §77)
+- src/lib/mtq-final-reserve-spec.ts (564 lines, §§16-46)
+- src/lib/implementation-status-report.ts (446 lines, §87)
+- src/app/api/implementation-status/route.ts (24 lines)
+- src/app/api/systemic-risk/route.ts (24 lines)
+- src/app/api/three-book/route.ts (24 lines)
+- src/app/api/protected-backing/route.ts (31 lines)
+- src/app/api/bank-default/route.ts (24 lines)
+- src/app/api/legal-registry/route.ts (24 lines)
+- src/app/api/licensing-matrix/route.ts (24 lines)
+- src/app/api/contradiction-scan/route.ts (24 lines)
+
+Total new code: 5,550 lines (5,351 in modules + 199 in API routes).
+
+Honest-state invariants (verified at runtime, all match blueprint §74):
+- protectedBackingLiveCells = 0 (4 SIMULATED reference cells only) ✓
+- 10/10 bypass routes blocked, 0 bypassed (finalityBypassRisk = MITIGATED_AT_CODE_LEVEL) ✓
+- 19/23 acceptance criteria met (83%) ✓
+- 0/13 institutional validation gates passed ✓
+- 8 jurisdictions ALL JURISDICTION_PENDING; VALIDATED_JURISDICTIONS = 0; LEGAL_OPINIONS_OBTAINED = false ✓
+- 72 licensing matrix entries ALL REQUIRED_NOT_OBTAINED; licensesObtained = 0 ✓
+- 4 §49 conflicts reconciled; RR = 1.30; composition 0.80/0.18/0.02; perCurrencyCap = 0.20 ✓
+- threeBookOperational = false; threeBookEnforced = false ✓
+- systemicRiskMonitoringLive = false; systemicRiskProductionValidated = false ✓
+- reservePolicyStatus = CANDIDATE_MODEL_VALIDATION_PENDING ✓
+- productionAuthorized = false (operating posture: APPROVED CANDIDATE FOR CONTROLLED TESTING — NOT PRODUCTION-AUTHORIZED) ✓
+
+Stage Summary:
+- 10 modules created: protected-backing-cell (§47), bank-default-resolution (§48), legal-liability-framework (§49), licensing-entity-matrix (§50), three-book-separation (§51), systemic-exposure-engine (§52), finality-before-mint (§54), contradiction-scan (§77), mtq-final-reserve-spec (§§16-46), implementation-status-report (§87)
+- 8 API routes created: /api/implementation-status, /api/systemic-risk, /api/three-book, /api/protected-backing, /api/bank-default, /api/legal-registry, /api/licensing-matrix, /api/contradiction-scan (all rate-limited via existing `rateLimit` helper, all return HTTP 200)
+- Total new code: 5,550 lines
+- typecheck: PASS (`bun run typecheck` — 0 errors)
+- check:no-neon: PASS (`bun run check:no-neon` — 31 route files scanned, 0 violations)
+- All 8 API routes return HTTP 200 with valid JSON
