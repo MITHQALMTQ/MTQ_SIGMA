@@ -7,15 +7,22 @@
 //      https://api.frankfurter.app/v1/latest?base=USD  (fallback)
 //  - Gold (XAU/USD): gold-api.com (free, no key)
 //      https://api.gold-api.com/price/XAU
-//  - VIX: Yahoo Finance ^VIX (free, no key, server-side fetch with User-Agent)
+//  - VIX + DXY (PRIMARY): FRED (Federal Reserve Economic Data) — official
+//      VIXCLS (CBOE VIX daily close) + DTWEXBGS (Fed's Nominal Broad Dollar
+//      Index). Requires FRED_API_KEY. Daily frequency, lags by ~1 business day.
+//      Used as the AUTHORITATIVE macro source when available.
+//  - VIX (FALLBACK): Yahoo Finance ^VIX (free, no key, server-side fetch with
+//      User-Agent)
 //      https://query1.finance.yahoo.com/v8/finance/chart/%5EVIX
 //      https://query2.finance.yahoo.com/v8/finance/chart/%5EVIX
 //      (falls back to a seeded stochastic walk if Yahoo rate-limits or fails)
-//  - DXY: no free no-key REST API found. SIMULATED honestly as a "pilot macro
-//      signal" via a seeded Ornstein-Uhlenbeck stochastic walk (deterministic
-//      per UTC day so all fetches within the same day return the same value —
-//      reproducibility for the §23 validation program). Clearly labelled in
-//      the UI as "simulated pilot macro signals" so we never misrepresent it.
+//  - DXY (FALLBACK): Yahoo Finance ^DX-Y.NYB (ICE US Dollar Index) or the
+//      Frankfurter-ECB-rate self-calculated DXY via the official geometric
+//      formula; otherwise SIMULATED honestly as a "pilot macro signal" via a
+//      seeded Ornstein-Uhlenbeck stochastic walk (deterministic per UTC day so
+//      all fetches within the same day return the same value — reproducibility
+//      for the §23 validation program). Clearly labelled in the UI as
+//      "simulated pilot macro signals" so we never misrepresent it.
 //
 // Audit finding F-CHF-01 (Master Reconciliation): the legacy fallback
 // CHF_USD = 0.88 understated CHF by ~28%. The Master Blueprint v1.0 specifies
@@ -242,6 +249,29 @@ async function fetchLiveVix(): Promise<number | undefined> {
   return undefined;
 }
 
+// --- FRED (Federal Reserve Economic Data) — official VIX + DXY source ---
+// FRED provides the canonical Federal-Reserve-published VIX (VIXCLS, CBOE daily
+// close) and DXY (DTWEXBGS, the Fed's Nominal Broad U.S. Dollar Index). Both
+// are daily-frequency and lag real-time by ~1 business day, but they are the
+// AUTHORITATIVE official source — preferred over Yahoo when available.
+//
+// Used as the PRIMARY macro source before Yahoo Finance. If FRED_API_KEY is
+// unset or the fetch fails, gracefully returns undefined so the caller falls
+// through to Yahoo ^VIX / DX-Y.NYB (the existing live path), then to the
+// deterministic seeded OU walk (the existing simulation path).
+async function fetchFredVixDxy(): Promise<{ vix: number; dxy: number } | undefined> {
+  try {
+    const { fetchFredMacroSignals } = await import("./fred");
+    const fred = await fetchFredMacroSignals();
+    if (fred.vix != null && fred.dxy != null && fred.vix > 1 && fred.vix < 200 && fred.dxy > 50 && fred.dxy < 150) {
+      return { vix: fred.vix, dxy: fred.dxy };
+    }
+  } catch {
+    // FRED_API_KEY not set, network failure, or API error → fall through.
+  }
+  return undefined;
+}
+
 // --- Live DXY (ICE US Dollar Index) ---
 // Primary: Yahoo Finance ^DX-Y.NYB (the ICE US Dollar Index futures ticker).
 //   Returns the canonical DXY the financial world references.
@@ -318,12 +348,27 @@ export async function fetchFxSnapshot(force = false): Promise<FxSnapshot> {
 
   const { fx, raw } = await fetchFrankfurter();
   const gold = await fetchGold();
-  const liveVix = await fetchLiveVix();
-  const liveDxy = await fetchLiveDxy(raw);
+  // WIRING-1: FRED is the PRIMARY macro source (official Federal Reserve data).
+  // Try FRED FIRST — if it returns both VIX + DXY (FRED_API_KEY set, network OK),
+  // those are the authoritative values; skip the Yahoo fetch entirely. If FRED
+  // is unavailable (no key, network error, out-of-range values), fall through
+  // to the existing Yahoo ^VIX / DX-Y.NYB path.
+  const fred = await fetchFredVixDxy();
+  let liveVix: number | undefined;
+  let liveDxy: number | undefined;
+  let fredUsed = false;
+  if (fred) {
+    liveVix = fred.vix;
+    liveDxy = fred.dxy;
+    fredUsed = true;
+  } else {
+    liveVix = await fetchLiveVix();
+    liveDxy = await fetchLiveDxy(raw);
+  }
 
-  // VIX: live (Yahoo) → simulated seeded walk → DEFAULTS (last resort)
+  // VIX: FRED (VIXCLS, official) → Yahoo → simulated seeded walk → DEFAULTS
   const VIX = liveVix ?? simulatedVix(now);
-  // DXY: live (Yahoo DX-Y.NYB) → Frankfurter self-calc (official formula) → simulated seeded walk
+  // DXY: FRED (DTWEXBGS, official) → Yahoo DX-Y.NYB → Frankfurter self-calc → simulated seeded walk
   const DXY = liveDxy ?? simulatedDxy(now);
 
   // Count of live signals (max 8 — all of EUR/GBP/JPY/CNY/CHF/XAU/VIX/DXY can be live).
@@ -341,8 +386,12 @@ export async function fetchFxSnapshot(force = false): Promise<FxSnapshot> {
   const liveBits: string[] = [];
   if (fx.EUR_USD && fx.GBP_USD && fx.JPY_USD && fx.CNY_USD) liveBits.push("Frankfurter ECB");
   if (gold) liveBits.push("gold-api");
-  if (liveVix) liveBits.push("Yahoo ^VIX");
-  if (liveDxy) liveBits.push("Yahoo DX-Y.NYB (or Frankfurter self-calc)");
+  if (fredUsed && liveVix && liveDxy) {
+    liveBits.push("FRED (VIXCLS + DTWEXBGS)");
+  } else {
+    if (liveVix) liveBits.push("Yahoo ^VIX");
+    if (liveDxy) liveBits.push("Yahoo DX-Y.NYB (or Frankfurter self-calc)");
+  }
   const simBits: string[] = [];
   if (!liveVix) simBits.push("VIX");
   if (!liveDxy) simBits.push("DXY");

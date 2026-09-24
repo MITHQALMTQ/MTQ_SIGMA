@@ -50,6 +50,11 @@ local-*
 dev.log
 dev.out.log
 test
+# Allow the Solidity Foundry test directory (contracts/test/) — needed for
+# the LIQ-MGMT test suite and future V3 tests. The blanket `test` rule above
+# would otherwise ignore it.
+!contracts/test/
+!contracts/test/**
 prompt
 
 server.log

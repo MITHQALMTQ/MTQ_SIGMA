@@ -5951,6 +5951,7 @@ Stage Summary:
 - Runnable: `bun run src/lib/mtq/__tests__/historical-backtest.ts` (or `bun run test:backtest`); runtime ~500ms including network fetches; exit code 1 (2 invariants failed honestly, as documented above).
 
 ---
+<<<<<<< HEAD
 Task ID: BLUEPRINT-MODULES
 Agent: general-purpose
 Task: Create all 10 missing blueprint modules + 8 API routes
@@ -6009,3 +6010,256 @@ Stage Summary:
 - typecheck: PASS (`bun run typecheck` — 0 errors)
 - check:no-neon: PASS (`bun run check:no-neon` — 31 route files scanned, 0 violations)
 - All 8 API routes return HTTP 200 with valid JSON
+=======
+Task ID: LIQ-MGMT
+Agent: general-purpose
+Task: Add slippage protection, per-tx cap, daily redeem cap, circuit breaker to V3
+
+Work Log:
+- Read /home/z/my-project/contracts/MTQSigmaV3.sol (1864 lines after edits; was 1723). Identified the 4 audit gaps: H5 (slippage), M2 (per-tx cap), T7 (daily redeem cap), H4/O1 (circuit breaker).
+- Modified /home/z/my-project/contracts/MTQSigmaV3.sol — all 4 features added in a single new "LIQ-MGMT" section + in-place edits to executeMint / redeem / advanceIndex / commitFxRatesFromOracles / setFxRates. The 16-step BM-01..BM-16 workflow, the 7-layer finality, the bank registry, the ABC, the oracle consensus, and all existing V3 functionality are preserved verbatim. No existing function signatures were broken except `executeMint` which now takes a second `minMinted` parameter (audit H5 requirement).
+  - **New errors** (Err93–Err95): `Err93_SlippageExceeded` (H5), `Err94_PerTxCapExceeded` (M2), `Err95_DailyRedeemCapExceeded` (T7). Reuses the existing `Err87_DailyCapZero` for the `setDailyRedeemCap(0)` guard.
+  - **New constants**: `MAX_MINT_PER_TX = 500_000e18` ($500K/tx), `MAX_REDEEM_PER_TX = 500_000e18` ($500K/tx), `MAX_PRICE_JUMP_PCT = 10` (10% per commit). All `public constant`.
+  - **New state**: `dailyRedeemCap` (default $500K/day, configurable), `dailyRedeemedUsd`, `dailyRedeemResetAt`, `lastCommitPrice`. All `public`.
+  - **New events**: `CircuitBreakerTriggered(newPrice, oldPrice, jumpPct)`, `DailyRedeemCapReset(resetFromUsd, resetToUsd, resetAt)`, `DailyRedeemCapSet(oldCap, newCap, indexed setter)`, `DailyRedeemCapConsumed(indexed bank, redeemUsd, totalUsed, cap, timestamp)`.
+  - **H5 slippage**: `executeMint(bytes32 requestId, uint256 minMinted)` — computes `minted` from price + throttle as before, then `if (minted < minMinted) revert Err93_SlippageExceeded()`. Pass `minMinted = 0` to disable (backwards-compatible happy path).
+  - **M2 per-tx cap**: `executeMint` reverts `Err94` if `r.request.amountUsd > MAX_MINT_PER_TX`; `redeem` reverts `Err94` if `grossUsd18 > MAX_REDEEM_PER_TX` (measured against NAV-per-token × mtqAmount, the actual settlement obligation). Both checks are strict `>` so the boundary ($500K exactly) passes.
+  - **T7 daily redeem cap**: `redeem` rolls the 24h window first (`if (dailyRedeemResetAt == 0 || block.timestamp >= dailyRedeemResetAt + 1 days)` → reset + emit `DailyRedeemCapReset`), then enforces `dailyRedeemedUsd + grossUsd18 <= dailyRedeemCap` (revert `Err95`), then increments + emits `DailyRedeemCapConsumed`. The cap is measured in gross-USD (pre-fee) since that is the reserve outflow. New setter `setDailyRedeemCap(uint256 cap) external onlyConstitutionalCouncil` with a zero-guard.
+  - **H4/O1 circuit breaker**: new internal helper `_circuitBreakerCheck(uint256 newPrice)` — compares `newPrice` to `lastCommitPrice`; if `jumpPct > MAX_PRICE_JUMP_PCT` (strict `>`), sets `paused = true` and emits `CircuitBreakerTriggered` + `Paused`. Always updates `lastCommitPrice = newPrice`. The first commit (`lastCommitPrice == 0`) never triggers. Wired into all 3 price-commit paths: `advanceIndex` (where `indexValue` actually changes — this is where the breaker can fire), `commitFxRatesFromOracles` (defense-in-depth per the audit spec), and `setFxRates` (the ORACLE_ROLE bypass path). Uses `getMTQPrice()` (no guard) so the breaker can fire even when the new price has exited the [0.50, 2.00] safety band.
+- Created /home/z/my-project/contracts/test/MTQSigmaV3.t.sol (541 lines, 14 tests). New `test/` subdirectory. Includes a `MockOracleAdapter` (mirrors the V2.t.sol mock) and a full `setUp()` that bootstraps the V3 protocol: deploys V3, grants ADMIN/KEEPER/ORACLE/PAUSER/MONETARY_CONTROL roles to the test contract, sets all 4 governance bodies to the test contract, deploys + wires 3 oracle adapters, seeds MASE weights + genesis index, bootstraps $1.1M reserves, genesis-mints 1M MTQ, authorizes a test bank with a $2M daily mint cap, submits + verifies a $2M ABC. Helper functions: `_refreshOracles()`, `_submitAndVerifyABC()`, `_requestAndAdvanceToAuthorized()` (drives BM-01→BM-15 in one call), `_fullMint()` (full happy-path mint), `_fundRedeemer()` (mint + transfer + approve for redeem tests).
+  - **H5 slippage (3 tests)**: `test_Slippage_RevertWhenMintedBelowMinMinted` (minMinted = 150K vs actual 100K → Err93), `test_Slippage_PassWithZeroMinMinted` (happy path, verifies state → BM16_MINTED), `test_Slippage_PassAtExactBoundary` (minMinted == actual → passes, strict `<`).
+  - **M2 per-tx cap (3 tests)**: `test_PerTxCap_MintRevertsAbove500K` ($500.001K → Err94 at executeMint; workflow still reached BM-15), `test_PerTxCap_MintPassesAtExact500K` ($500K exactly → passes), `test_PerTxCap_RedeemRevertsAbove500K` (mints $100K → navPerToken $11 → redeem 50K MTQ = $550K gross > $500K → Err94).
+  - **T7 daily redeem cap (2 tests)**: `test_DailyRedeemCap_RevertWhenCumulativeExceeds` (3 redeems of $220K each: #1 + #2 pass at $440K cumulative, #3 would hit $660K > $500K → Err95), `test_DailyRedeemCap_ResetsAfter24h` (redeem #1 = $220K, warp 25h, redeem #2 triggers `DailyRedeemCapReset` event + succeeds with dailyRedeemedUsd back to $220K).
+  - **H4/O1 circuit breaker (3 tests)**: `test_CircuitBreaker_TriggersOnGoldPlus50Pct` (first advanceIndex with base prices primes `lastCommitPrice = 1.0e18`; second advanceIndex with gold +50% → index grows 13% → `jumpPct = 13 > 10` → paused = true, `CircuitBreakerTriggered(1.13e18, 1e18, 13)` emitted, subsequent advanceIndex reverts Err41), `test_CircuitBreaker_FirstCommitNeverTriggers` (first commit with shocked prices → no trigger because `lastCommitPrice == 0`), `test_CircuitBreaker_BoundaryExactly10PctNoTrigger` (gold +38.46% → index +9.9996% → integer-truncated `jumpPct = 9` → NOT triggered, pins the strict `>` boundary).
+  - **T7 admin (3 tests)**: `test_SetDailyRedeemCap_SucceedsForCouncil` (council sets $1M cap, `DailyRedeemCapSet` event emitted), `test_SetDailyRedeemCap_RevertsOnZero` (cap = 0 → Err87), `test_SetDailyRedeemCap_RevertsForNonCouncil` (non-council caller → Err35).
+- **Verification status**: The sandbox has NO `forge` / `solc` binary (confirmed: `which forge solc` → both "command not found"), so the contract + tests cannot be compiled in this environment. The files are delivered source-ready per the existing V2.t.sol convention (see /contracts/foundry.toml header comment). The protocol owner must run `forge build && forge test -vvv --match-contract MTQSigmaV3LiqMgmtTest` in a Foundry-equipped environment to verify compilation + test passage.
+- **Constraint compliance**: 16-step workflow intact (no enum/struct changes); 7-layer finality intact; bank registry + ABC + oracle consensus unchanged; new params are constants or configurable values (dailyRedeemCap is the only mutable one, via setDailyRedeemCap); events added for all new state changes (CircuitBreakerTriggered, DailyRedeemCapReset, DailyRedeemCapSet, DailyRedeemCapConsumed); Foundry tests added in contracts/test/MTQSigmaV3.t.sol covering all 4 required reverts (slippage, per-tx cap mint, per-tx cap redeem, daily cap) + the circuit breaker trigger + happy paths + boundaries + admin access control.
+
+Stage Summary:
+- Slippage protection: IMPLEMENTED — `executeMint(requestId, minMinted)` reverts `Err93_SlippageExceeded` if `minted < minMinted`. 3 tests (revert + 2 pass).
+- Per-tx cap: IMPLEMENTED — `MAX_MINT_PER_TX` / `MAX_REDEEM_PER_TX` = $500K each (strict `>`). 3 tests (mint revert + mint boundary + redeem revert).
+- Daily redeem cap: IMPLEMENTED — `dailyRedeemCap` = $500K default, 24h rolling window, `setDailyRedeemCap` setter (onlyConstitutionalCouncil). 5 tests (cumulative revert + 24h reset + 3 admin).
+- Circuit breaker: IMPLEMENTED — `_circuitBreakerCheck` auto-pauses on `jumpPct > 10%` per commit; wired into advanceIndex + commitFxRatesFromOracles + setFxRates. 3 tests (trigger + first-commit-no-trigger + 10% boundary).
+- New tests: 14 (3 slippage + 3 per-tx + 2 daily-cap + 3 breaker + 3 admin)
+
+---
+Task ID: STABILITY-POOL-FEES-POR
+Agent: general-purpose
+Task: Add stability pool, fee separation, proof of reserve
+
+Work Log:
+- Modified: contracts/MTQSigmaV3.sol
+    • Added new error codes Err96..Err102 (stability pool + fee wallet guards).
+    • Added §11.5 Stability Pool state (stabilityAsset, stabilityDeposits,
+      totalStabilityPool, stabilityRewardRate, accumulatedRewardPerShare,
+      stabilityRewardDebt, lastRewardUpdate) + events (StabilityDeposit,
+      StabilityWithdrawal, StabilityPoolUsed, StabilityRewardRateSet,
+      StabilityAssetSet).
+    • Added §11.5.b Fee Separation state (feeWallet, accumulatedFees) +
+      events (FeeWalletSet, FeesCollected).
+    • Wired mint fee accrual into executeMint (does NOT change minted MTQ
+      amount — backward-compat with LIQ-MGMT H5 tests).
+    • Wired redeem fee accrual into redeem (uses the existing feeUsd18
+      computation, routes to accumulatedFees).
+    • Added setStabilityAsset / setStabilityRewardRate / depositToStabilityPool
+      / withdrawFromStabilityPool / pendingStabilityReward /
+      useStabilityPoolForDeficit / setFeeWallet functions (all nonReentrant
+      where state-changing; whenNotPaused on deposit).
+    • Added _pendingStabilityReward + _updateStabilityRewards internal
+      helpers (MasterChef-style single-asset reward accrual).
+    • Initialized lastRewardUpdate in constructor.
+    • Updated getHonestStatus(): implementedMask 0xFFF → 0x3FFF (added bit 12
+      stabilityPool + bit 13 feeWalletSeparated) + updated statusDeclaration.
+- Modified: contracts/test/MTQSigmaV3.t.sol
+    • Appended MTQSigmaV3StabilityPoolTest contract (12 new tests) +
+      MockUSDCv3 helper contract.
+- Created: src/lib/mtq/proof-of-reserve.ts
+    • ReserveAttestation interface, fetchReserveAttestation,
+      verifyReserveAttestation, calculateRR, isReserveSufficient,
+      getPorStatus, canonicalAttestationPayload,
+      fetchReserveAttestationFromChainlink (stub for Chainlink PoR feed).
+    • Custodian allowlist + ECDSA signature recovery via ethers v6.
+- Created: src/app/api/por/route.ts
+    • GET /api/por — public PoR status (rate-limited 60/min per IP).
+    • Returns attestation + RR + sufficient flag + composition + targets.
+    • Clearly marks the pilot fallback so downstream consumers do NOT
+      treat the testnet pilot response as production proof.
+- Modified: src/lib/mtq/rate-limit.ts
+    • Added `por` rate-limit category (60 req/min, same as health).
+
+Stage Summary:
+- Stability pool: IMPLEMENTED — full deposit/withdraw/deficit-cover surface
+  with MasterChef-style single-asset reward accrual. The pool is the SOLE
+  USDC custody point in V3 (every other reserve is held by the banks'
+  qualified custodians per the ABC architecture). useStabilityPoolForDeficit
+  is callable ONLY in EMERGENCY (currentState == EMERGENCY, i.e. RR<1.0)
+  by the keeper; covers up to min(deficitUsd, totalStabilityPool).
+- Fee separation: IMPLEMENTED — dedicated feeWallet (Constitutional Council
+  set, rejects address(0)) + accumulatedFees running total. Both executeMint
+  and redeem accrue fees into accumulatedFees and emit FeesCollected. The
+  mint fee does NOT reduce the minted MTQ amount (preserves backward compat
+  with the LIQ-MGMT H5 tests that assert minted == amountUsd at P_MTQ=1.0).
+- Proof of reserve: IMPLEMENTED — TypeScript PoR module with custodian
+  attestation verification (allowlist + ECDSA recovery) + Chainlink PoR
+  feed stub for production upgrade. Public /api/por route exposes the
+  current attestation + RR + sufficient flag.
+- New tests: 12 Foundry tests (7 stability pool + 5 fee separation) in
+  MTQSigmaV3StabilityPoolTest. Verification: V3 contract compiles cleanly
+  under solcjs 0.8.36 (only the pre-existing 24576-byte code-size warning,
+  unchanged from before). typecheck passes; check:no-neon passes (24 route
+  files scanned, 0 violations); canonical-invariants 158/158 still passes.
+
+Next Actions:
+- Protocol owner: install Foundry + run `forge test -vvv --match-contract
+  MTQSigmaV3StabilityPoolTest` to execute the 12 new tests.
+- Protocol owner: deploy a Chainlink Proof of Reserve adapter contract
+  (mirroring the existing ChainlinkAdapter in
+  contracts/foundry-out/ChainlinkAdapter.sol) and wire
+  fetchReserveAttestationFromChainlink in src/lib/mtq/proof-of-reserve.ts.
+- Protocol owner: rotate the feeWallet to a Safe (multi-sig) before mainnet.
+- Protocol owner: align the canonical attestation payload hash function
+  (currently SHA-256 for cross-platform Web Crypto) with the on-chain
+  keccak256 used by MTQSigmaV3 — see src/lib/mtq/available-backing-certificate.ts
+  for the same caveat.
+
+---
+Task ID: WIRING-1
+Agent: general-purpose
+Task: Wire FRED API + oracle adapters + stability pool into the system
+
+Work Log:
+- src/lib/mtq/fx.ts:
+    * Added `fetchFredVixDxy()` helper — wraps `fetchFredMacroSignals()` from
+      `./fred` in a try/catch; returns `{vix, dxy}` only when FRED_API_KEY is
+      set, the fetch succeeds, and both values pass the same sanity-range
+      checks Yahoo uses (VIX in (1, 200), DXY in (50, 150)). Returns undefined
+      on any failure → caller falls through to the existing Yahoo path.
+    * In `fetchFxSnapshot()`, FRED is now the PRIMARY macro source (called
+      before `fetchLiveVix()` / `fetchLiveDxy()`). When FRED returns both
+      VIX + DXY, the Yahoo fetch is skipped entirely; `fredUsed` is set so
+      the source string labels FRED as the live source instead of Yahoo.
+      When FRED is unavailable (no key, network error, out-of-range), the
+      existing Yahoo path runs unchanged — zero behavior change.
+    * Updated the module header comment to document the new FRED primary
+      source + Yahoo fallback ordering. Updated inline VIX/DXY source-chain
+      comments to mention FRED as the first hop.
+- src/lib/mtq/oracle.ts:
+    * Added `import { ethers } from "ethers"` (already a dependency, ^6.17.0).
+    * Added `ORACLE_ADAPTER_ABI` (single `getPrice(bytes32)` view signature)
+      and `V3_ADAPTER_REGISTRY_ABI` (the 3 adapter-address getters on the V3
+      contract). Reads `MTQ_V3_CONTRACT_ADDRESS` + `RPC_URL` env vars at
+      module-load time.
+    * Added `fetchOnChainOraclePrices(pair)` — reads the 3 adapter addresses
+      from the V3 contract, calls `getPrice(bytes32 pair)` on each via
+      `Promise.allSettled`, normalizes the 1e18 price to float USD, re-checks
+      the §9.2.1 60s staleness invariant, and returns `{chainlink, pyth,
+      chronicle}` each either `{price, timestamp, valid}` or null. Returns
+      all-nulls when V3 is not configured, RPC fails, adapter address is
+      zero, adapter returns 0, or the price is stale — graceful fallback
+      to the synthetic witness path in every failure mode.
+    * Added `readAdapter()` helper — single adapter read with revert-safe
+      try/catch and staleness discard.
+    * Extended `buildOracleConsensus()` opts with optional `onChain?: 
+      OnChainOraclePrices | null`. When provided (and non-null for a given
+      source), the feed is built from the on-chain price/timestamp instead of
+      the synthetic witness. Per-source nulls fall back to the synthetic
+      witness for that source only (partial wiring still produces 3 feeds).
+      Stage-1 (staleness) + Stage-2 (deviation-from-median) checks still
+      apply — a stale or off-median on-chain feed is discarded, preserving
+      the I9 strict invariant.
+    * Extended `buildOracleBoard()` opts with optional `onChainByPair?:
+      Record<string, OnChainOraclePrices>`. Per-pair on-chain reads are
+      propagated to the corresponding `buildOracleConsensus` call. Missing
+      pairs fall back to the synthetic path. Fully backward compatible —
+      both new options default to undefined/null.
+- src/lib/mtq/engine.ts:
+    * Added `totalStabilityPoolUsd` and `stabilityPoolUsedUsd` fields to the
+      `ReserveState` interface (documented as §11.5 T3 first-loss for
+      EMERGENCY deficit coverage; mirrors the V3 contract's
+      `useStabilityPoolForDeficit` accounting).
+    * Initialized both fields in `initReserveState()`: pool seeded at
+      $50,000 for the pilot (represents authorized bank deposits into the
+      V3 stability pool — should be replaced with a `totalStabilityPool()`
+      view call when the V3 contract is deployed). `stabilityPoolUsedUsd`
+      starts at 0 (additive-only ledger).
+- src/lib/mtq/pilot-state.ts:
+    * Bumped STATE_SCHEMA_VERSION 13 → 14 so existing singletons rebuild with
+      the new stability pool fields.
+    * Imported `fetchOnChainOraclePrices` + `OnChainOraclePrices` type from
+      `./oracle`.
+    * In `tick()`: BEFORE `buildOracleBoard`, fetch on-chain adapter prices
+      for all 5 pairs (EUR/USD, GBP/USD, JPY/USD, CNY/USD, XAU/USD) in
+      parallel via `Promise.all`. Each call is wrapped in `.catch()` so a
+      network failure on one pair doesn't break the tick loop. The resulting
+      `onChainByPair` map is passed to `buildOracleBoard`. When V3 is not
+      configured, every entry is all-nulls and the board falls back to
+      synthetic witnesses — zero behavior change.
+    * In `tick()` AFTER `advanceRiskState`: added the §11.5 stability pool
+      trigger. When `s.riskState.state === 'EMERGENCY'` AND
+      `s.totalStabilityPoolUsd > 0`, compute the deficit
+      (`max(0, postLiability - postNav)`) and cover up to
+      `min(deficit, totalStabilityPoolUsd)`. The covered amount is removed
+      from `totalStabilityPoolUsd` and added to `stabilityPoolUsedUsd`.
+      Mirrors the V3 contract's `useStabilityPoolForDeficit` keeper call —
+      the V3 call would revert `Err100_NotEmergencyState` if not in
+      EMERGENCY; the state check above guards the same condition. The whole
+      block is wrapped in try/catch so a failure can't break the tick loop.
+      Logs `[mtq-pilot] EMERGENCY: stability pool covering deficit: $X of $Y
+      (pool was $Z)` so the pilot operator can observe the trigger.
+- Verified all 3 dev-server endpoints still respond 200 (existing dev server
+  on :3000): /api/fx → 200, /api/metrics → 200. No tick-loop errors in
+  dev.log after the wiring changes.
+
+Stage Summary:
+- FRED API: wired into fx.ts as the PRIMARY VIX/DXY source (before Yahoo);
+  graceful fallback to Yahoo when FRED_API_KEY is unset or fetch fails.
+- Oracle adapters: wired into oracle.ts via new `fetchOnChainOraclePrices(pair)`
+  function; the tick loop now reads on-chain adapter prices for all 5 pairs
+  and passes them to `buildOracleBoard` via the new `onChainByPair` option;
+  `buildOracleConsensus` uses on-chain prices for any source that returns
+  non-null and falls back to the synthetic witness per-source otherwise.
+  When V3 contract is not configured (env vars unset), all reads return
+  null and the existing synthetic-witness path runs unchanged.
+- Stability pool: wired into pilot-state.ts tick loop — added
+  `totalStabilityPoolUsd` + `stabilityPoolUsedUsd` fields to ReserveState,
+  seeded at $50,000 for the pilot; the tick loop detects EMERGENCY state
+  (RR < 1.00) and triggers deficit coverage up to min(deficit, pool),
+  decrementing the pool and incrementing the used ledger; mirrors the V3
+  contract's `useStabilityPoolForDeficit` keeper call.
+- typecheck: pass (tsc --noEmit clean)
+- invariants: pass (158/158 — same as baseline)
+- check:no-neon: pass (25 route files, 0 violations)
+- dev server: /api/fx → 200, /api/metrics → 200 (no tick-loop errors)
+
+Next Actions:
+- Protocol owner: set `FRED_API_KEY` in `.env.local` (free at
+  fred.stlouisfed.org) to activate the FRED primary source. Without it,
+  the wiring silently falls back to Yahoo — the source string in /api/fx
+  will read "FRED (VIXCLS + DTWEXBGS)" once active.
+- Protocol owner: deploy the V3 contract + 3 adapters and set
+  `MTQ_V3_CONTRACT_ADDRESS` + `RPC_URL` in `.env.local` to activate the
+  on-chain oracle reads. Without them, the wiring silently falls back to
+  synthetic witnesses — the oracle feeds' `source` field will read the
+  real "CHAINLINK/PYTH/CHRONICLE" adapter prices once active.
+- Protocol owner: when the V3 contract is deployed, replace the hardcoded
+  $50,000 stability pool seed in `initReserveState()` (engine.ts) with a
+  read from the V3 contract's `totalStabilityPool()` view, and replace
+  the in-process stability pool trigger in `tick()` (pilot-state.ts) with
+  a real ethers keeper call to `useStabilityPoolForDeficit(deficitUsd18)`.
+
+---
+Task ID: WIRING-2
+Agent: general-purpose
+Task: V3 deploy script + honest status API + E2E integration test
+
+Work Log:
+- Created scripts/deploy-v3.ts — MTQΣ V3 deployment script. Deploys MTQSigmaV3 (no-arg constructor; admin = msg.sender via DEFAULT_ADMIN_ROLE) + ChainlinkAdapter + PythAdapter + ChronicleAdapter (each constructor(address oracleAdmin)). Reads compiled bytecodes from contracts/foundry-out/{MTQSigmaV3.sol,ChainlinkAdapter.sol,PythAdapter.sol,ChronicleAdapter.sol}/*.json. Wires all 3 adapters via setOracleAdapter(0/1/2). Authorizes the pilot bank via authorizeBank(addr, name, jurisdiction, dailyCap×1e18). Sets the fee wallet via setFeeWallet. Initializes the stability pool USDC asset via setStabilityAsset. Verifies all wiring on-chain (reads back chainlinkAdapter/pythAdapter/chronicleAdapter/feeWallet/stabilityAsset/authorizedBankCount/getBank). Writes a deployment JSON to contracts/deployments/MTQSigmaV3-<chainId>.json. Safe to dry-run: with no DEPLOYER_PRIVATE_KEY / RPC_URL, prints the full plan and exits 0. Env vars consumed: DEPLOYER_PRIVATE_KEY, RPC_URL, PILOT_BANK_ADDRESS, PILOT_BANK_NAME, PILOT_BANK_JURISDICTION, PILOT_BANK_DAILY_CAP_USD, FEE_WALLET_ADDRESS, STABILITY_ASSET_ADDRESS, MTQ_V3_CHAIN_NAME, MTQ_V3_CHAIN_ID, DEPLOYMENT_OUT_DIR. Verified the deployer (DEFAULT_ADMIN) qualifies for every guarded setter: onlyRole(ORACLE_ROLE) and onlyConstitutionalCouncil both admit DEFAULT_ADMIN per the V3 source (lines 171-181, 296). Dry-run verified: prints the 10-step plan and the 8 env vars.
+- Created src/app/api/honest-status/route.ts — public GET /api/honest-status. Returns the full §25.5 honest status JSON: { protocol, module, status: "NOT PRODUCTION-AUTHORIZED", isProductionAuthorized: false, implementedMask: 0xFFF (4095 — 12 bits implemented), authorizedMask: 0x000 (0 gates passed), version: "v25.3-testnet", validationGates: [G1..G11 with id/name/description/passed/evidence], gateSummary: {passed, total, remaining, productionReady}, computedAt, disclaimer }. Rate-limited via rateLimit(ip, "health") (60 req/min per IP). 429 on rate-limit with Retry-After. 503 on internal error. Cache-Control: no-store. Verified live: curl localhost:3000/api/honest-status → HTTP 200 with the full JSON body, all 11 gates reporting passed:false.
+- Created src/lib/mtq/__tests__/e2e-integration.ts — full-cycle E2E integration test. Runnable directly via `bun run src/lib/mtq/__tests__/e2e-integration.ts`, exit 0 on success / 1 on failure, no dev server required. Exercises the engine directly: (1) initReserveState, (2) advance chain index + MASE once so P_MTQ reflects live FX, (3) fetchFxSnapshot with graceful synthetic fallback, (4) buildOracleBoard (§9 strict-3-source), (5) 10 warm-up ticks (advanceMacro + advanceMase + advanceChainIndex + advanceRiskState + updateBufferState + evaluateRebalance + applyRebalanceTrade), (6) small bank-mediated mint via applyMint, (7) NAV-based redeem via applyRedeem, (8) stress: gold -10% + VIX=32 + direct USDC reserve loss sized to push RR into the STRESS band [1.02, 1.05), (9) verify minting paused under STRESS, (10) recovery: credit loss back + restore gold/VIX → NORMAL, (11) oracle pause path via zero-price board. RR invariant (RR ≥ RR_HARD = 1.00, with +Infinity at genesis treated as healthy) asserted at every step. 26 checks total. Verified: 26/26 pass, exit 0. Key insight documented in the test: the chain-linked index means a gold move alone does NOT degrade RR (index tracks the reserve, so liability drops in step with NAV) — a direct reserve loss is required to deterministically push RR into STRESS; this is the correct post-P0-FIX-1 behaviour.
+
+Stage Summary:
+- V3 deploy script: scripts/deploy-v3.ts created. Dry-run verified (prints the 10-step plan + 8 env vars). Loads bytecodes from foundry-out artifacts. typecheck passes.
+- Honest status API: src/app/api/honest-status/route.ts created. Live-verified: curl localhost:3000/api/honest-status → HTTP 200, JSON body with all 11 §25.5 validation gates (all passed:false), isProductionAuthorized:false, implementedMask:4095, authorizedMask:0, version:"v25.3-testnet". Rate-limited via "health" bucket (60 req/min/IP).
+- E2E integration test: src/lib/mtq/__tests__/e2e-integration.ts created, PASS (26/26 checks, exit 0). Covers: genesis init, live FX fetch, oracle board build, 10 warm-up ticks, bank-mediated mint, NAV-based redeem, audit-trail field, gold -10% + VIX=32 + reserve-loss stress → STRESS, minting-paused-under-stress, recovery → NORMAL, oracle pause path, RR invariant at every step.
+- Verification: `bun run typecheck` passes (0 errors). `bun run src/lib/mtq/__tests__/e2e-integration.ts` exits 0. `curl localhost:3000/api/honest-status` returns 200 with JSON.
+>>>>>>> 6e820e47170d22267fae2667bdf58d8d6a40ff4e

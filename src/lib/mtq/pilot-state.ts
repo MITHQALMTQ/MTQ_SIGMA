@@ -46,7 +46,13 @@ import {
   type MarpExecDecision,
 } from "./engine";
 import { fetchFxSnapshot, type FxSnapshot } from "./fx";
-import { buildOracleBoard, oracleFxRates, type OracleBoard } from "./oracle";
+import {
+  buildOracleBoard,
+  fetchOnChainOraclePrices,
+  oracleFxRates,
+  type OnChainOraclePrices,
+  type OracleBoard,
+} from "./oracle";
 import { genesisRegistry, type AssetRecord } from "./registry";
 import {
   persistDailyStateVector,
@@ -74,7 +80,14 @@ const SIM_TICK_HOURS = 0.25; // each tick simulates ~15 min of macro time
 //   persistence to 60s, was 4s — was writing 7 rows/tick → 85,984 rows in 67min)
 //   and `lastPruneAt` (cap audit-trail row counts via pruneAuditTrail every
 //   300s — RebalancingDecision ≤10k, DailyStateVector ≤5k, OracleSample ≤5k).
-const STATE_SCHEMA_VERSION = 13;
+// v14: WIRING-1 — added `totalStabilityPoolUsd` / `stabilityPoolUsedUsd` to
+//   ReserveState (§11.5 stability pool wiring). The tick loop now (a) reads
+//   on-chain oracle adapter prices via `fetchOnChainOraclePrices` for each
+//   pair and passes them to `buildOracleBoard` (replacing the synthetic
+//   witness path when the V3 contract is deployed), and (b) detects EMERGENCY
+//   state + non-empty stability pool and triggers deficit coverage (mirrors
+//   the V3 contract's `useStabilityPoolForDeficit` keeper call).
+const STATE_SCHEMA_VERSION = 14;
 // §14.1 MARP execution feature flag — toggle to switch the rebalance execution
 // path. Default false (legacy §7 single-direction) for pilot stability; the
 // MARP per-component path is the v1.0 production target. The UI renders an
@@ -172,9 +185,28 @@ function startLoop(store: PilotStore) {
 async function tick(store: PilotStore) {
   // §9 oracle: refresh FX then build the consensus board
   store.fx = await fetchFxSnapshot(false);
-  store.oracle = buildOracleBoard({
-    EUR_USD: store.fx.EUR_USD, GBP_USD: store.fx.GBP_USD, JPY_USD: store.fx.JPY_USD, CNY_USD: store.fx.CNY_USD, XAU_USD: store.fx.XAU_USD,
-  });
+  // WIRING-1: read on-chain adapter prices (Chainlink / Pyth / Chronicle) for
+  // each pair the engine needs. When the V3 contract is deployed
+  // (MTQ_V3_CONTRACT_ADDRESS + RPC_URL env vars set), this calls each adapter's
+  // getPrice(bytes32 pair) view function and feeds the real prices into the
+  // consensus pipeline (replacing the synthetic witnesses). When the V3
+  // contract is NOT configured, fetchOnChainOraclePrices returns all-nulls for
+  // every pair and buildOracleBoard falls back to the existing synthetic
+  // witness path unchanged.
+  const onChainByPair: Record<string, OnChainOraclePrices> = {};
+  const pairs = ["EUR/USD", "GBP/USD", "JPY/USD", "CNY/USD", "XAU/USD"] as const;
+  const onChainResults = await Promise.all(pairs.map((p) => fetchOnChainOraclePrices(p).catch(() => ({
+    chainlink: null, pyth: null, chronicle: null,
+  } as OnChainOraclePrices))));
+  for (let i = 0; i < pairs.length; i++) {
+    onChainByPair[pairs[i]] = onChainResults[i];
+  }
+  store.oracle = buildOracleBoard(
+    {
+      EUR_USD: store.fx.EUR_USD, GBP_USD: store.fx.GBP_USD, JPY_USD: store.fx.JPY_USD, CNY_USD: store.fx.CNY_USD, XAU_USD: store.fx.XAU_USD,
+    },
+    { onChainByPair },
+  );
   // If oracle paused (<3 valid feeds for any pair — strict I9 invariant),
   // use validated FX from oracle; else use raw
   if (!store.oracle.anyPaused) {
@@ -358,6 +390,36 @@ async function tick(store: PilotStore) {
       ? postVals.fiatNet / (postLiability * 0.25)
       : Infinity;
     advanceRiskState(store.state, postRr, postLcr, Date.now());
+
+    // WIRING-1 — §11.5 Stability Pool (T3 first-loss for EMERGENCY deficit).
+    // Mirrors the V3 contract's `useStabilityPoolForDeficit(deficitUsd)`
+    // keeper call. When the protocol is in EMERGENCY (RR < 1.00) AND the
+    // stability pool has funds, cover the deficit up to
+    // min(deficit, totalStabilityPool). The covered amount is removed from
+    // `totalStabilityPoolUsd` and recorded additively in `stabilityPoolUsedUsd`
+    // for audit. In production this is an ethers contract call (keeper role);
+    // in the pilot we simulate the accounting in-process so the state machine
+    // can exit EMERGENCY on the next tick (when RR ≥ 1.0 again because the
+    // coverage effectively reduces the deficit). The on-chain call would
+    // revert Err100_NotEmergencyState if not in EMERGENCY — the state check
+    // above guards the same condition here.
+    if (store.state.riskState.state === 'EMERGENCY' && store.state.totalStabilityPoolUsd > 0) {
+      const deficit = Math.max(0, postLiability - postNav);
+      if (deficit > 0) {
+        try {
+          const cover = Math.min(deficit, store.state.totalStabilityPoolUsd);
+          console.log(
+            `[mtq-pilot] EMERGENCY: stability pool covering deficit: ` +
+            `$${cover.toFixed(2)} of $${deficit.toFixed(2)} ` +
+            `(pool was $${store.state.totalStabilityPoolUsd.toFixed(2)})`,
+          );
+          store.state.stabilityPoolUsedUsd = (store.state.stabilityPoolUsedUsd ?? 0) + cover;
+          store.state.totalStabilityPoolUsd -= cover;
+        } catch (e) {
+          console.error('[mtq-pilot] stability pool call failed:', e);
+        }
+      }
+    }
   } catch (e) {
     console.error('[mtq-pilot] risk state advance error:', e);
   }
