@@ -1,13 +1,10 @@
-// MTQΣ — Inngest Functions (6 scheduled jobs)
-//
-// Jobs: keeper tick, Turso→Neon sync, backup, oracle monitor, FRED refresh, prune
+// MTQΣ — Inngest Functions (v4 API — triggers in options object)
 
 import { inngest } from "./client";
 
 // 1. Keeper Tick — every 15 seconds
 export const keeperTick = (inngest as any).createFunction(
-  { id: "keeper-tick", name: "MTQΣ Keeper Tick", retries: 3 },
-  { cron: "*/15 * * * * *" },
+  { id: "keeper-tick", name: "MTQΣ Keeper Tick", retries: 3, triggers: [{ cron: "*/15 * * * * *" }] },
   async ({ step, logger }: any) => {
     const fx = await step.run("fetch-fx", async () => {
       const { fetchFxSnapshot } = await import("@/lib/mtq/fx");
@@ -37,8 +34,7 @@ export const keeperTick = (inngest as any).createFunction(
 
 // 2. Turso→Neon Sync — hourly
 export const tursoNeonSync = (inngest as any).createFunction(
-  { id: "turso-neon-sync", name: "Turso → Neon Analytical Sync", retries: 2 },
-  { cron: "0 * * * *" },
+  { id: "turso-neon-sync", name: "Turso → Neon Sync", retries: 2, triggers: [{ cron: "0 * * * *" }] },
   async ({ step, logger }: any) => {
     const neonUrl = process.env.NEON_DATABASE_URL;
     if (!neonUrl) {
@@ -61,8 +57,7 @@ export const tursoNeonSync = (inngest as any).createFunction(
 
 // 3. Daily Backup — 03:00 UTC
 export const dailyBackup = (inngest as any).createFunction(
-  { id: "daily-backup", name: "Daily Turso Backup", retries: 1 },
-  { cron: "0 3 * * *" },
+  { id: "daily-backup", name: "Daily Turso Backup", retries: 1, triggers: [{ cron: "0 3 * * *" }] },
   async ({ step, logger }: any) => {
     const result = await step.run("backup", async () => {
       const { createClient } = await import("@libsql/client");
@@ -82,8 +77,7 @@ export const dailyBackup = (inngest as any).createFunction(
 
 // 4. Oracle Health Monitor — every 5 minutes
 export const oracleHealthMonitor = (inngest as any).createFunction(
-  { id: "oracle-health", name: "Oracle Health Monitor", retries: 2 },
-  { cron: "*/5 * * * *" },
+  { id: "oracle-health", name: "Oracle Health Monitor", retries: 2, triggers: [{ cron: "*/5 * * * *" }] },
   async ({ step, logger }: any) => {
     const health = await step.run("check", async () => {
       const { getSnapshot } = await import("@/lib/mtq/pilot-state");
@@ -99,8 +93,7 @@ export const oracleHealthMonitor = (inngest as any).createFunction(
 
 // 5. FRED Data Refresh — hourly
 export const fredDataRefresh = (inngest as any).createFunction(
-  { id: "fred-refresh", name: "FRED Economic Data Refresh", retries: 2 },
-  { cron: "0 * * * *" },
+  { id: "fred-refresh", name: "FRED Data Refresh", retries: 2, triggers: [{ cron: "0 * * * *" }] },
   async ({ step, logger }: any) => {
     const data = await step.run("fetch-fred", async () => {
       const { fetchFredMacroSignals } = await import("@/lib/mtq/fred");
@@ -113,8 +106,7 @@ export const fredDataRefresh = (inngest as any).createFunction(
 
 // 6. Audit Trail Prune — every 6 hours
 export const auditTrailPrune = (inngest as any).createFunction(
-  { id: "audit-prune", name: "Audit Trail Prune", retries: 1 },
-  { cron: "0 */6 * * *" },
+  { id: "audit-prune", name: "Audit Trail Prune", retries: 1, triggers: [{ cron: "0 */6 * * *" }] },
   async ({ step, logger }: any) => {
     const result = await step.run("prune", async () => {
       const { db } = await import("@/lib/db");
