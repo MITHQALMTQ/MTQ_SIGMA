@@ -1,0 +1,1724 @@
+     1→// SPDX-License-Identifier: MIT
+     2→//
+     3→// ============================================================================
+     4→//  MTQΣ — The Global Purchasing Power Unit
+     5→//  MTQSigmaV3.sol — Blueprint v25.3 production target
+     6→//  ----------------------------------------------------------------------------
+     7→//  PERMISSIONED · BANK-MEDIATED · NON-CUSTODIAL · 16-STEP WORKFLOW ·
+     8→//  7-LAYER SETTLEMENT FINALITY · AvailableBackingCertificate ·
+     9→//  130% RR TARGET · 80/18/2 RESERVE COMPOSITION ·
+    10→//  CHAIN-LINKED INDEX · 6-STATE RISK MACHINE · STRICT 3-SOURCE ORACLE
+    11→// ============================================================================
+    12→//
+    13→//  This is the V3 production target aligned with the MITHQAL Master Blueprint
+    14→//  v25.3. It is NOT a modification of MTQSigmaV2.sol — V2 stays as the public
+    15→//  testnet pilot with permissionless mint/redeem; V3 is the permissioned,
+    16→//  bank-mediated production architecture.
+    17→//
+    18→//  Key V3 deltas vs V2:
+    19→//   • Public `mint(usdcAmount)` and `redeem(mtqAmount)` REMOVED.
+    20→//   • Bank-mediated mint: `requestMint(BankMintRequest)` → 16-step workflow
+    21→//     → `executeMint(requestId)` (keeper-only, finality gate).
+    22→//   • Bank Registry: `bankRegistry[address] → BankRecord` (authorized by the
+    23→//     Constitutional Council 7/7 multi-sig) with per-bank daily mint caps.
+    24→//   • AvailableBackingCertificate (ABC): banks submit evidence of custodied
+    25→//     reserves; keeper verifies custodian attestation. MITHQAL NEVER takes
+    26→//     custody — only verifies evidence (non-custodial design).
+    27→//   • 16-step Bank Minting Workflow (BM-01..BM-16) enforced as a Solidity
+    28→//     enum + sequential-state advance gate (`advanceWorkflow`).
+    29→//   • 7-Layer Settlement Finality (L1 API · L2 workflow · L3 policy ·
+    30→//     L4 monetary authorization · L5 ledger state · L6 atomic write ·
+    31→//     L7 on-chain keeper signature) — all 7 layers enforced inside
+    32→//     `executeMint` and `advanceWorkflow`.
+    33→//   • 130% RR target (was 110%), 80% fiat / 18% gold / 2% digital reserve
+    34→//     composition targets (newly declared constants).
+    35→//   • Non-custodial: no `reserveVault` USDC-holding pattern; banks hold their
+    36→//     own reserves with qualified custodians. The contract only tracks
+    37→//     `backingVerified[bank] = amount` as verified evidence (not custody).
+    38→//   • `redeem()` burns MTQ and emits a `RedeemSettlement` event — the bank
+    39→//     settles off-chain (sovereign currency transfer to the redeemer).
+    40→//
+    41→//  Preserved verbatim from V2:
+    42→//   • Chain-linked index (§9.8, Listing 3 recursion I_t = I_{t-1} × Σ W_{i,t-1} × P_{i,t}/P_{i,t-1})
+    43→//   • MASE weight registry (§7.7, Listing 2) with admissibility envelopes,
+    44→//     per-component velocity, stress-adaptive smoothing ρ 0.50/0.75.
+    45→//   • 6-state risk state machine (§21.6, Listing 13) with 48h RECOVERY
+    46→//     confirmation hysteresis and state-dependent mint throttle / redeem
+    47→//     fee ladder.
+    48→//   • Strict 3-source oracle consensus (§9.1-9.4, B6/I9 strict quorum — no
+    49→//     2-source averaging on-chain).
+    50→//   • 4-layer governance (§22.6, Listing 14) with 4 timelocks (Constitutional
+    51→//     90d / Monetary 48h / Risk 24h / Emergency instant).
+    52→//   • B1–B12 audit fixes (governance body setters, sum-to-one weight check,
+    53→//     oracle source-independence, 5% reserve-holding cap, etc.).
+    54→//   • ReentrancyGuard + Pausable + AccessControl (inlined, no external deps).
+    55→//   • `getHonestStatus()` on-chain self-declaration (now reports V3 mask 0xFFF
+    56→//     — 12 bits, the 12th bit being the new permissioned-bank-mediated bit).
+    57→//
+    58→//  Compilation: `forge build` with solc 0.8.20+ (optimizer enabled, 200 runs,
+    59→//  via_ir = true). Single-file, no external imports.
+    60→// ============================================================================
+    61→
+    62→pragma solidity ^0.8.20;
+    63→
+    64→// ============================================================================
+    65→// §0  Interfaces (no external imports — everything inline)
+    66→// ============================================================================
+    67→
+    68→/// @notice Minimal ERC-20 interface. Retained for the asset registry adapter
+    69→///         that resolves reserve tokens (USDC/EURC/etc.) — V3 itself does NOT
+    70→///         custody any ERC-20.
+    71→interface IERC20 {
+    72→    function transfer(address, uint256) external returns (bool);
+    73→    function transferFrom(address, address, uint256) external returns (bool);
+    74→    function balanceOf(address) external view returns (uint256);
+    75→    function approve(address, uint256) external returns (bool);
+    76→    function allowance(address, address) external view returns (uint256);
+    77→}
+    78→
+    79→/// @title IOracleAdapter — §9 multi-source oracle feed adapter
+    80→interface IOracleAdapter {
+    81→    function getPrice(bytes32 pair) external view returns (uint256 price, uint256 timestamp, uint256 confidence);
+    82→}
+    83→
+    84→/// @title IAssetRegistry — §5 asset admission registry
+    85→interface IAssetRegistry {
+    86→    function getAsset(bytes32 currencyCode) external view returns (
+    87→        address token, uint256 haircut, uint8 state, bytes32 issuerId
+    88→    );
+    89→}
+    90→
+    91→// ============================================================================
+    92→// §1  MTQSigmaV3 — Blueprint v25.3 production monetary unit (ERC-20)
+    93→// ============================================================================
+    94→contract MTQSigmaV3 {
+    95→    // ---- §1 Custom errors (gas-efficient; numbered for off-chain decoding) ----
+    96→    error Err01(); error Err02(); error Err03(); error Err04(); error Err05();
+    97→    error Err06(); error Err07(); error Err08(); error Err09(); error Err10();
+    98→    error Err11(); error Err12(); error Err13(); error Err14(); error Err15();
+    99→    error Err16(); error Err17(); error Err18(); error Err19(); error Err20();
+   100→    error Err21(); error Err22(); error Err23(); error Err24(); error Err25();
+   101→    error Err26(); error Err27(); error Err28(); error Err29(); error Err30();
+   102→    error Err31(); error Err32(); error Err33(); error Err34(); error Err35();
+   103→    error Err36(); error Err37(); error Err38(); error Err39(); error Err40();
+   104→    error Err41(); error Err42(); error Err43(); error Err44(); error Err45();
+   105→    error Err46(); error Err47(); error Err48(); error Err49(); error Err50();
+   106→    error Err51(); error Err52(); error Err53(); error Err54(); error Err55();
+   107→    error Err56(); error Err57(); error Err58(); error Err59(); error Err60();
+   108→    error Err61(); error Err62(); error Err63(); error Err64(); error Err65();
+   109→    // V3 new error codes (66+):
+   110→    error Err66_BankNotAuthorized();
+   111→    error Err67_DailyCapExceeded();
+   112→    error Err68_RequestExpired();
+   113→    error Err69_NonceReused();
+   114→    error Err70_JurisdictionMismatch();
+   115→    error Err71_BackdingCertNotVerified();
+   116→    error Err72_BackdingCertExpired();
+   117→    error Err73_BackdingCertInsufficient();
+   118→    error Err74_WorkflowNotSequential();
+   119→    error Err75_WorkflowNotAuthorized();
+   120→    error Err76_WorkflowAlreadyMinted();
+   121→    error Err77_WorkflowAlreadyRejected();
+   122→    error Err78_L2WorkflowGate();
+   123→    error Err79_L3PolicyGate();
+   124→    error Err80_L4MonetaryGate();
+   125→    error Err81_L5LedgerGate();
+   126→    error Err82_L6AtomicGate();
+   127→    error Err83_L7FinalityGate();
+   128→    error Err84_BankNotFound();
+   129→    error Err85_CertNotFound();
+   130→    error Err86_InvalidRequest();
+   131→    error Err87_DailyCapZero();
+   132→    error Err88_ConcentrationLimit();
+   133→    error Err89_DMCELimit();
+   134→    error Err90_NotAuthorizedBank();
+   135→    error Err91_InvalidExpiry();
+   136→    error Err92_BackdingCertMismatch();
+   137→
+   138→    // ============================================================
+   139→    // Section 1: AccessControl (inlined) + Pausable + ReentrancyGuard
+   140→    // ============================================================
+   141→
+   142→    bytes32 public constant DEFAULT_ADMIN_ROLE = 0x00;
+   143→    bytes32 public constant ADMIN_ROLE   = keccak256("ADMIN_ROLE");
+   144→    bytes32 public constant MINTER_ROLE  = keccak256("MINTER_ROLE");
+   145→    bytes32 public constant PAUSER_ROLE  = keccak256("PAUSER_ROLE");
+   146→    bytes32 public constant KEEPER_ROLE  = keccak256("KEEPER_ROLE");
+   147→    bytes32 public constant ORACLE_ROLE  = keccak256("ORACLE_ROLE");
+   148→    /// @notice V3 new role: MITHQAL Monetary Control — the L4 authorization
+   149→    ///         signer for executeMint (separate from KEEPER so the keeper
+   150→    ///         cannot self-authorize a mint).
+   151→    bytes32 public constant MONETARY_CONTROL_ROLE = keccak256("MONETARY_CONTROL_ROLE");
+   152→
+   153→    mapping(bytes32 => mapping(address => bool)) private _roles;
+   154→
+   155→    event RoleGranted(bytes32 indexed role, address indexed account, address indexed sender);
+   156→    event RoleRevoked(bytes32 indexed role, address indexed account, address indexed sender);
+   157→    event GovernanceBodySet(uint8 indexed which, address indexed oldAddr, address indexed newAddr);
+   158→
+   159→    modifier onlyRole(bytes32 role) {
+   160→        if (!(_roles[role][msg.sender] || _roles[DEFAULT_ADMIN_ROLE][msg.sender])) revert Err30();
+   161→        _;
+   162→    }
+   163→    modifier onlyAdmin()  { if (!(_roles[ADMIN_ROLE][msg.sender]   || _roles[DEFAULT_ADMIN_ROLE][msg.sender])) revert Err29();  _; }
+   164→    modifier onlyKeeper() { if (!(_roles[KEEPER_ROLE][msg.sender]  || _roles[DEFAULT_ADMIN_ROLE][msg.sender])) revert Err31(); _; }
+   165→    modifier onlyPauser() { if (!(_roles[PAUSER_ROLE][msg.sender]  || _roles[DEFAULT_ADMIN_ROLE][msg.sender])) revert Err33(); _; }
+   166→    modifier onlyOracleOrKeeper() {
+   167→        if (!(_roles[ORACLE_ROLE][msg.sender] || _roles[KEEPER_ROLE][msg.sender] || _roles[DEFAULT_ADMIN_ROLE][msg.sender])) revert Err32();
+   168→        _;
+   169→    }
+   170→    /// @notice L4 finality gate: MITHQAL Monetary Control authorization.
+   171→    ///         Separated from KEEPER so the keeper that runs BM-13/14 cannot
+   172→    ///         self-sign the BM-15 authorization step.
+   173→    modifier onlyMonetaryControl() {
+   174→        if (!(_roles[MONETARY_CONTROL_ROLE][msg.sender] || _roles[DEFAULT_ADMIN_ROLE][msg.sender])) revert Err80_L4MonetaryGate();
+   175→        _;
+   176→    }
+   177→    /// @notice V3 new gate: only an authorized bank in the registry.
+   178→    modifier onlyAuthorizedBank() {
+   179→        if (!bankRegistry[msg.sender].isAuthorized) revert Err66_BankNotAuthorized();
+   180→        _;
+   181→    }
+   182→
+   183→    // ---- §1 Pausable (inline) ----
+   184→    bool public paused;
+   185→    event Paused(address indexed account);
+   186→    event Unpaused(address indexed account);
+   187→    modifier whenNotPaused() { if (!(!paused)) revert Err41(); _; }
+   188→    function pause()   external onlyPauser { paused = true;  emit Paused(msg.sender); }
+   189→    function unpause() external onlyPauser { paused = false; emit Unpaused(msg.sender); }
+   190→
+   191→    // ---- §1 ReentrancyGuard (inline; H1/H2 fix) ----
+   192→    uint256 private constant _NOT_ENTERED = 1;
+   193→    uint256 private constant _ENTERED = 2;
+   194→    uint256 private _status = _NOT_ENTERED;
+   195→    modifier nonReentrant() {
+   196→        if (!(_status != _ENTERED)) revert Err02();
+   197→        _status = _ENTERED;
+   198→        _;
+   199→        _status = _NOT_ENTERED;
+   200→    }
+   201→
+   202→    // ============================================================
+   203→    // Section 2: ERC-20 state + events
+   204→    // ============================================================
+   205→
+   206→    string  public constant name     = "MTQ Sigma V3";
+   207→    string  public constant symbol   = "MTQ";
+   208→    uint8   public constant decimals = 18;
+   209→    uint256 public totalSupply;
+   210→
+   211→    mapping(address => uint256)                     public balanceOf;
+   212→    mapping(address => mapping(address => uint256)) public allowance;
+   213→
+   214→    event Transfer(address indexed from, address indexed to, uint256 value);
+   215→    event Approval(address indexed owner, address indexed spender, uint256 value);
+   216→    // V3 events (replaces V2 Mint/Redeem events which were tied to USDC custody):
+   217→    event MintRequested(bytes32 indexed requestId, address indexed bank, uint256 amountUsd, bytes32 indexed certId, string jurisdiction, uint256 timestamp);
+   218→    event WorkflowAdvanced(bytes32 indexed requestId, WorkflowState fromState, WorkflowState toState, address indexed by, uint256 timestamp);
+   219→    event MintExecuted(bytes32 indexed requestId, address indexed bank, uint256 amountUsd, uint256 mintedAmount, uint256 mtqPrice, uint256 timestamp);
+   220→    event MintRejected(bytes32 indexed requestId, address indexed by, string reason, uint256 timestamp);
+   221→    event RedeemSettlement(address indexed redeemer, address indexed bank, uint256 mtqBurned, uint256 grossUsd, uint256 feeUsd, uint256 netUsd, uint256 navPerToken, uint256 timestamp);
+   222→    event BackingCertificateSubmitted(bytes32 indexed certId, address indexed bank, uint256 amountUsd, uint256 timestamp);
+   223→    event BackingCertificateVerified(bytes32 indexed certId, address indexed keeper, bool verified, uint256 timestamp);
+   224→    event BankAuthorized(address indexed bank, string name, string jurisdiction, uint256 dailyCap, uint256 timestamp);
+   225→    event BankRevoked(address indexed bank, uint256 timestamp);
+   226→    event DailyCapReset(address indexed bank, uint256 resetUsedFrom, uint256 resetUsedTo, uint256 timestamp);
+   227→
+   228→    // ============================================================
+   229→    // === Listing 1: Core Variables + Constitutional Constants ===
+   230→    // ============================================================
+   231→
+   232→    // ---- §0.6 Blueprint v25.3 V3 reserve-ratio targets (was 1.10 in V2) ----
+   233→    uint256 public constant RR_TARGET       = 1.30e18;   // 130% production target (V3)
+   234→    uint256 public constant RR_FLOOR        = 1.05e18;   // 105% policy floor (Risk Council)
+   235→    uint256 public constant RR_HARD_FLOOR   = 1.00e18;   // 100% solvency hard floor (immutable)
+   236→    uint256 public constant RECOVERY_CONFIRMATION_PERIOD = 48 hours; // §21.3
+   237→
+   238→    // ---- §0.6 V3 reserve composition targets (declared, enforced off-chain
+   239→    //      by the MITHQAL Monetary Control + Risk Council; tracked on-chain
+   240→    //      via reserveHeldUsd per component for visibility). ----
+   241→    uint256 public constant FIAT_TARGET     = 0.80e18;   // 80% fiat (USD/EUR/JPY/GBP/CNY/CHF)
+   242→    uint256 public constant GOLD_TARGET     = 0.18e18;   // 18% gold (XAU)
+   243→    uint256 public constant DIGITAL_TARGET  = 0.02e18;   // 2% digital (BTC/ETH/stables)
+   244→
+   245→    // ---- §3.2 Genesis quantities (q_i) — SNAPSHOT ONLY; used to seed I_0 ----
+   246→    uint256 public constant Q_USD  = 0.27e18;
+   247→    uint256 public constant Q_EUR  = 0.20e18;
+   248→    uint256 public constant Q_JPY  = 0.09e18;
+   249→    uint256 public constant Q_GBP  = 0.08e18;
+   250→    uint256 public constant Q_CNY  = 0.05e18;
+   251→    uint256 public constant Q_CHF  = 0.05e18;
+   252→    uint256 public constant Q_GOLD = 0.26e18;
+   253→
+   254→    // ---- §3.4 Base FX fixings (immutable, 1e18 scale; CHF=1.13 fixed per F-CHF-01) ----
+   255→    uint256 public constant BASE_EUR_USD  = 1.05e18;
+   256→    uint256 public constant BASE_GBP_USD  = 1.25e18;
+   257→    uint256 public constant BASE_JPY_USD  = 0.0067e18;
+   258→    uint256 public constant BASE_CNY_USD  = 0.14e18;
+   259→    uint256 public constant BASE_CHF_USD  = 1.13e18;
+   260→    uint256 public constant BASE_GOLD_USD = 2500e18;
+   261→
+   262→    // ---- §3.3.1 INDEX_BASE_DENOMINATOR (immutable, assigned in constructor) ----
+   263→    uint256 public immutable INDEX_BASE_DENOMINATOR;
+   264→
+   265→    // ---- §2.7 Component set (fixed order; XAU = index 6) ----
+   266→    bytes3[7] public COMPONENTS = [bytes3("USD"), bytes3("EUR"), bytes3("JPY"), bytes3("GBP"), bytes3("CNY"), bytes3("CHF"), bytes3("XAU")];
+   267→
+   268→    // ---- §8.1 Constitutional admissibility envelopes (validation-stage) ----
+   269→    uint256[7] public LOWER_BOUND = [0.23e18, 0.17e18, 0.07e18, 0.06e18, 0.03e18, 0.03e18, 0.20e18];
+   270→    uint256[7] public UPPER_BOUND = [0.32e18, 0.24e18, 0.12e18, 0.11e18, 0.07e18, 0.07e18, 0.32e18];
+   271→
+   272→    // ---- §8.3 Max per-update weight velocity (Risk Council) ----
+   273→    uint256[7] public MAX_VELOCITY = [0.005e18, 0.005e18, 0.003e18, 0.003e18, 0.002e18, 0.002e18, 0.005e18];
+   274→
+   275→    // ---- §2.7 Governance addresses (set at deployment) ----
+   276→    address public dao;
+   277→    address public riskCouncil;
+   278→    address public emergencyCouncil;
+   279→    address public constitutionalCouncil;
+   280→
+   281→    modifier onlyDAO()                   { if (!(msg.sender == dao || _roles[DEFAULT_ADMIN_ROLE][msg.sender])) revert Err36();                   _; }
+   282→    modifier onlyRiskCouncil()           { if (!(msg.sender == riskCouncil || _roles[DEFAULT_ADMIN_ROLE][msg.sender])) revert Err38();           _; }
+   283→    modifier onlyEmergencyCouncil()      { if (!(msg.sender == emergencyCouncil || _roles[DEFAULT_ADMIN_ROLE][msg.sender])) revert Err37();     _; }
+   284→    modifier onlyConstitutionalCouncil() { if (!(msg.sender == constitutionalCouncil || _roles[DEFAULT_ADMIN_ROLE][msg.sender])) revert Err35(); _; }
+   285→
+   286→    // ---- §12 + §13 Genesis + reserve accounting ----
+   287→    address  public genesisReserve;
+   288→    uint256  public genesisReserveBalance;
+   289→    /// @dev V3: NO `reserveVault` and NO `usdc` collateral token — non-custodial.
+   290→    ///      Banks hold their own reserves with qualified custodians; the
+   291→    ///      contract only tracks `backingVerified[bank] = amountUsd` (verified
+   292→    ///      evidence, NOT actual custody). The on-chain `reserveHeldUsd`
+   293→    ///      mirror remains for NAV / RR / LCR computations; it is updated by
+   294→    ///      the keeper as banks submit and verify ABCs.
+   295→    bool     public genesisDone;
+   296→    bool     public bootstrapped;
+   297→
+   298→    // ---- §5 Reserve state (mirrors Listing 1 ReserveState) ----
+   299→    struct ReserveState {
+   300→        uint256 fiatValue;   // USD value of all fiat (gross)
+   301→        uint256 goldValue;   // USD value of gold holdings (gross)
+   302→        uint256 liquidValue; // USD value of stablecoins only (net)
+   303→    }
+   304→    ReserveState public reserveState;
+   305→
+   306→    enum Component { USD, EUR, JPY, GBP, CNY, CHF, Gold }
+   307→    mapping(Component => uint256) public reserveHeldUsd;
+   308→
+   309→    /// @notice V3 NEW: per-bank verified backing (in USD, 1e18 scale).
+   310→    ///         This is the SUM of all verified ABC amounts for that bank.
+   311→    ///         The contract DOES NOT custody the underlying — it only tracks
+   312→    ///         the verified evidence amount.
+   313→    mapping(address => uint256) public backingVerified;
+   314→
+   315→    // ---- §3.5 Price safety band (circuit breakers) ----
+   316→    uint256 public constant PRICE_SAFETY_LOWER = 0.50e18;
+   317→    uint256 public constant PRICE_SAFETY_UPPER = 2.00e18;
+   318→
+   319→    // ============================================================
+   320→    // === Listing 2: MASE Weight Registry (§7.7) ===
+   321→    // ============================================================
+   322→
+   323→    struct WeightState {
+   324→        uint256[7] weights;
+   325→        uint256[7] targetWeights;
+   326→        bytes32   methodologyVersion;
+   327→        bytes32   dataVersion;
+   328→        uint256   updatedAt;
+   329→    }
+   330→    WeightState public liveWeights;
+   331→
+   332→    uint256 public smoothingRhoNormal = 0.50e18;
+   333→    uint256 public smoothingRhoStress = 0.75e18;
+   334→    uint256 public crisisThreshold = 0.70e18;
+   335→    bool    public crisisFlag;
+   336→    address public weightSubmitter;
+   337→
+   338→    event WeightsAccepted(uint256[7] newWeights, uint256[7] targetWeights, bytes32 methodologyVersion, bytes32 dataVersion, uint256 timestamp);
+   339→    event WeightsRejected(string reason, uint256[7] submitted, uint256 timestamp);
+   340→    event EnvelopeChanged(uint256[7] lower, uint256[7] upper, uint256 timestamp);
+   341→
+   342→    // ============================================================
+   343→    // === Listing 3: Chain-Linked Index (§9.8) ===
+   344→    // ============================================================
+   345→
+   346→    uint256 public indexValue = 1e18;
+   347→    uint256[7] public lastPrices;
+   348→    uint256[7] public lastWeights;
+   349→    uint256 public chainLinkDivisor = 1e18;
+   350→    uint256 public lastIndexUpdate;
+   351→
+   352→    event IndexAdvanced(uint256 newIndex, uint256 timestamp);
+   353→    event WeightsCommitted(uint256[7] newWeights, uint256 divisor, uint256 timestamp);
+   354→    event ChainLinkAdjusted(uint256 D, uint256 bMinus, uint256 bPlus, uint256 timestamp);
+   355→    event GenesisVerified(uint256 indexed baseDenominator, uint256 timestamp);
+   356→
+   357→    // ============================================================
+   358→    // === Listing 13: Risk State Machine (§21.6) — 6 states ===
+   359→    // ============================================================
+   360→
+   361→    enum ProtocolState { NORMAL, CAUTION, STRESS, DEFENSIVE, EMERGENCY, RECOVERY }
+   362→    ProtocolState public currentState = ProtocolState.NORMAL;
+   363→    mapping(ProtocolState => uint256) public stateEntryTime;
+   364→
+   365→    // ---- §21.4/§14.6.4 Monetary parameters (DAO-controlled via Listing 14) ----
+   366→    /// @dev V3: rrStressFloor is the policy floor (RR_FLOOR = 1.05e18) per §0.6.
+   367→    ///      rrTarget is now immutable = RR_TARGET = 1.30e18 (V3 production).
+   368→    uint256 public rrStressFloor   = 1.05e18;
+   369→    uint256 public mintFee         = 0.001e18;    // 0.10%
+   370→    uint256 public redeemFeeNormal = 0.0015e18;   // 0.15%
+   371→
+   372→    uint256 public redeemFeeStress    = 0.005e18;
+   373→    uint256 public redeemFeeDefensive = 0.01e18;
+   374→    uint256 public lcrTarget          = 1.00e18;
+   375→    uint256 public depegWindow        = 12 hours;
+   376→
+   377→    event StateChanged(ProtocolState indexed oldState, ProtocolState indexed newState, bool immediate, uint256 timestamp);
+   378→
+   379→    // ============================================================
+   380→    // === Listing 14: Governance Parameter Registry (§22.6) ===
+   381→    // ============================================================
+   382→
+   383→    enum ParameterLayer { CONSTITUTIONAL, MONETARY, RISK, EMERGENCY }
+   384→
+   385→    struct ParameterRecord {
+   386→        ParameterLayer layer;
+   387→        uint256 value;
+   388→        uint256 minValue;
+   389→        uint256 maxValue;
+   390→        bool    registered;
+   391→    }
+   392→
+   393→    struct Proposal {
+   394→        uint256 value;
+   395→        address proposer;
+   396→        uint256 timestamp;
+   397→        bool    executed;
+   398→    }
+   399→
+   400→    uint256 public constant TIMELOCK_CONSTITUTIONAL = 90 days;
+   401→    uint256 public constant TIMELOCK_MONETARY        = 48 hours;
+   402→    uint256 public constant TIMELOCK_RISK           = 24 hours;
+   403→    uint256 public constant TIMELOCK_EMERGENCY       = 0;
+   404→
+   405→    mapping(bytes32 => ParameterRecord) public parameterRegistry;
+   406→    mapping(bytes32 => Proposal)        public proposals;
+   407→
+   408→    bytes32 public constant PARAM_RR_STRESS_FLOOR      = keccak256("RR_STRESS_FLOOR");
+   409→    bytes32 public constant PARAM_MINT_FEE             = keccak256("MINT_FEE");
+   410→    bytes32 public constant PARAM_REDEEM_FEE_NORMAL    = keccak256("REDEEM_FEE_NORMAL");
+   411→    bytes32 public constant PARAM_REDEEM_FEE_STRESS    = keccak256("REDEEM_FEE_STRESS");
+   412→    bytes32 public constant PARAM_REDEEM_FEE_DEFENSIVE = keccak256("REDEEM_FEE_DEFENSIVE");
+   413→    bytes32 public constant PARAM_LCR_TARGET          = keccak256("LCR_TARGET");
+   414→    bytes32 public constant PARAM_DEPEG_WINDOW         = keccak256("DEPEG_WINDOW");
+   415→
+   416→    event ParameterRegistered(bytes32 indexed parameterId, ParameterLayer layer, uint256 value, uint256 minValue, uint256 maxValue, uint256 timestamp);
+   417→    event ParameterProposed(bytes32 indexed parameterId, uint256 newValue, uint256 timestamp);
+   418→    event ParameterExecuted(bytes32 indexed parameterId, uint256 newValue, uint256 timestamp);
+   419→    event ParameterVetoed(bytes32 indexed parameterId, uint256 timestamp);
+   420→
+   421→    // ============================================================
+   422→    // §9 Multi-Source Oracle Adapter Interface + Consensus
+   423→    // ============================================================
+   424→
+   425→    IOracleAdapter public chainlinkAdapter;
+   426→    IOracleAdapter public pythAdapter;
+   427→    IOracleAdapter public chronicleAdapter;
+   428→    event OracleAdapterSet(uint8 indexed source, address indexed adapter, address indexed setter);
+   429→
+   430→    bytes32 public constant PAIR_EUR_USD = keccak256("EUR/USD");
+   431→    bytes32 public constant PAIR_GBP_USD = keccak256("GBP/USD");
+   432→    bytes32 public constant PAIR_JPY_USD = keccak256("JPY/USD");
+   433→    bytes32 public constant PAIR_CNY_USD = keccak256("CNY/USD");
+   434→    bytes32 public constant PAIR_CHF_USD = keccak256("CHF/USD");
+   435→    bytes32 public constant PAIR_XAU_USD = keccak256("XAU/USD");
+   436→
+   437→    uint256 public constant ORACLE_STALENESS_SEC     = 60;
+   438→    uint256 public constant ORACLE_CONFIDENCE_MAX    = 0.01e18;
+   439→    uint256 public constant ORACLE_DEVIATION_MAX_BPS = 250;
+   440→
+   441→    // ============================================================
+   442→    // §5  Asset admission registry + NAV
+   443→    // ============================================================
+   444→
+   445→    IAssetRegistry public assetRegistry;
+   446→    event AssetRegistrySet(address indexed registry, address indexed setter);
+   447→    event ReserveHoldingUpdated(uint256 indexed component, uint256 oldValue, uint256 newValue, address indexed by);
+   448→
+   449→    // ============================================================
+   450→    // === V3 NEW §6 — Bank Registry (Blueprint v25.3 §6) ===
+   451→    // ------------------------------------------------------------
+   452→    // The Constitutional Council (7/7 multi-sig) authorizes banks. Each
+   453→    // authorized bank has a per-day mint cap (USD 1e18 scale). The cap
+   454→    // resets at every UTC midnight boundary (computed from block.timestamp).
+   455→    // ============================================================
+   456→
+   457→    struct BankRecord {
+   458→        address bankAddress;
+   459→        string  name;
+   460→        string  jurisdiction;   // ISO 3166-1 alpha-2 ("US", "AE", "SA", ...)
+   461→        bool    isAuthorized;
+   462→        uint256 dailyMintCap;   // USD, 1e18 scale
+   463→        uint256 dailyMintUsed;  // USD, 1e18 scale (resets daily)
+   464→        uint256 dailyMintResetAt; // unix seconds of last reset
+   465→        uint256 authorizedAt;
+   466→    }
+   467→
+   468→    mapping(address => BankRecord) public bankRegistry;
+   469→    address[] public authorizedBanks;
+   470→
+   471→    function authorizeBank(
+   472→        address bank,
+   473→        string calldata _name,
+   474→        string calldata _jurisdiction,
+   475→        uint256 _dailyCap
+   476→    ) external onlyConstitutionalCouncil {
+   477→        if (bank == address(0)) revert Err55();
+   478→        if (_dailyCap == 0) revert Err87_DailyCapZero();
+   479→        bool already = bankRegistry[bank].isAuthorized;
+   480→        bankRegistry[bank] = BankRecord({
+   481→            bankAddress: bank,
+   482→            name: _name,
+   483→            jurisdiction: _jurisdiction,
+   484→            isAuthorized: true,
+   485→            dailyMintCap: _dailyCap,
+   486→            dailyMintUsed: 0,
+   487→            dailyMintResetAt: block.timestamp,
+   488→            authorizedAt: block.timestamp
+   489→        });
+   490→        if (!already) authorizedBanks.push(bank);
+   491→        emit BankAuthorized(bank, _name, _jurisdiction, _dailyCap, block.timestamp);
+   492→    }
+   493→
+   494→    function revokeBank(address bank) external onlyConstitutionalCouncil {
+   495→        if (!bankRegistry[bank].isAuthorized) revert Err84_BankNotFound();
+   496→        bankRegistry[bank].isAuthorized = false;
+   497→        emit BankRevoked(bank, block.timestamp);
+   498→    }
+   499→
+   500→    function getBank(address bank) external view returns (BankRecord memory) {
+   501→        return bankRegistry[bank];
+   502→    }
+   503→
+   504→    function authorizedBankCount() external view returns (uint256) {
+   505→        return authorizedBanks.length;
+   506→    }
+   507→
+   508→    /// @dev Rolls the per-bank daily mint counter at UTC midnight.
+   509→    ///      Idempotent within the same UTC day. Called internally by mint
+   510→    ///      paths; also callable by anyone (no-op if already current).
+   511→    function _rollDailyCap(address bank) internal {
+   512→        BankRecord storage rec = bankRegistry[bank];
+   513→        if (rec.dailyMintResetAt == 0) return;
+   514→        uint256 today = (block.timestamp / 1 days) * 1 days;
+   515→        if (rec.dailyMintResetAt < today) {
+   516→            uint256 oldUsed = rec.dailyMintUsed;
+   517→            rec.dailyMintUsed = 0;
+   518→            rec.dailyMintResetAt = today;
+   519→            emit DailyCapReset(bank, oldUsed, 0, block.timestamp);
+   520→        }
+   521→    }
+   522→
+   523→    // ============================================================
+   524→    // === V3 NEW §7 — AvailableBackingCertificate (ABC) ===
+   525→    // ------------------------------------------------------------
+   526→    // Banks submit an ABC proving they have backing assets held by a
+   527→    // qualified custodian. The keeper verifies the custodian attestation
+   528→    // (production: via oracle; testnet: auto-verify via verifyBackingCertificate).
+   529→    //
+   530→    // MITHQAL NEVER takes custody — it only verifies evidence.
+   531→    // ============================================================
+   532→
+   533→    struct AvailableBackingCertificate {
+   534→        bytes32 certificateId;
+   535→        address bank;
+   536→        uint256 amountUsd;                   // 1e18 scale
+   537→        bytes32 custodianAttestationHash;    // hash of custodian's attestation
+   538→        uint256 custodianAttestationExpiry;  // unix seconds
+   539→        bytes32 reserveAssetBreakdownHash;   // hash of the reserve composition
+   540→        uint256 issuedAt;
+   541→        bool    verified;
+   542→    }
+   543→
+   544→    mapping(bytes32 => AvailableBackingCertificate) public backingCertificates;
+   545→
+   546→    function submitBackingCertificate(AvailableBackingCertificate calldata cert) external onlyAuthorizedBank {
+   547→        // The submitting bank must match the certificate's bank field.
+   548→        if (cert.bank != msg.sender) revert Err92_BackdingCertMismatch();
+   549→        if (cert.amountUsd == 0) revert Err86_InvalidRequest();
+   550→        if (cert.custodianAttestationExpiry <= block.timestamp) revert Err91_InvalidExpiry();
+   551→        if (cert.certificateId == bytes32(0)) revert Err86_InvalidRequest();
+   552→        // Reject duplicate certificate IDs.
+   553→        if (backingCertificates[cert.certificateId].issuedAt != 0) revert Err69_NonceReused();
+   554→
+   555→        backingCertificates[cert.certificateId] = AvailableBackingCertificate({
+   556→            certificateId: cert.certificateId,
+   557→            bank: cert.bank,
+   558→            amountUsd: cert.amountUsd,
+   559→            custodianAttestationHash: cert.custodianAttestationHash,
+   560→            custodianAttestationExpiry: cert.custodianAttestationExpiry,
+   561→            reserveAssetBreakdownHash: cert.reserveAssetBreakdownHash,
+   562→            issuedAt: block.timestamp,
+   563→            verified: false
+   564→        });
+   565→        emit BackingCertificateSubmitted(cert.certificateId, cert.bank, cert.amountUsd, block.timestamp);
+   566→    }
+   567→
+   568→    /// @notice Verify an ABC's custodian attestation. Production: oracle call.
+   569→    ///         Testnet/pilot: keeper auto-verifies (the keeper is trusted).
+   570→    function verifyBackingCertificate(bytes32 certId) external onlyKeeper returns (bool) {
+   571→        AvailableBackingCertificate storage c = backingCertificates[certId];
+   572→        if (c.issuedAt == 0) revert Err85_CertNotFound();
+   573→        if (c.custodianAttestationExpiry <= block.timestamp) revert Err72_BackdingCertExpired();
+   574→        c.verified = true;
+   575→        // Credit the bank's verified-backing pool (evidence only — not custody).
+   576→        backingVerified[c.bank] += c.amountUsd;
+   577→        emit BackingCertificateVerified(certId, msg.sender, true, block.timestamp);
+   578→        return true;
+   579→    }
+   580→
+   581→    function getCertificate(bytes32 certId) external view returns (AvailableBackingCertificate memory) {
+   582→        return backingCertificates[certId];
+   583→    }
+   584→
+   585→    // ============================================================
+   586→    // === V3 NEW §8 — 16-Step Bank Minting Workflow ===
+   587→    // ------------------------------------------------------------
+   588→    // BM-01 PENDING        — bank submits requestMint()
+   589→    // BM-02 RECEIVED       — MBG gateway ack (keeper: API auth + schema OK)
+   590→    // BM-03 KYC            — KYC passed (keeper: off-chain evidence)
+   591→    // BM-04 AML            — AML/sanctions passed (keeper)
+   592→    // BM-05 BACKING        — ABC submitted & in registry
+   593→    // BM-06 EVIDENCE       — ABC verified (custodian attestation valid)
+   594→    // BM-07 REQUESTED      — MBG has translated request to on-chain
+   595→    // BM-08 TRANSLATED     — request payload validated against policy
+   596→    // BM-09 ELIGIBLE       — bank + jurisdiction eligible
+   597→    // BM-10 JURISDICTION   — jurisdiction checks (sanctions/exchange control)
+   598→    // BM-11 BACKING_VERIFIED — backing ≥ mint amount
+   599→    // BM-12 BANK_RISK      — bank-level risk (cap, concentration, credit)
+   600→    // BM-13 SYSTEM_RISK    — system-level risk (RR/LCR/state machine)
+   601→    // BM-14 DMCE           — Daily Mint Cap / Concentration / Exposure check
+   602→    // BM-15 AUTHORIZED     — MITHQAL Monetary Control authorization (L4)
+   603→    // BM-16 MINTED         — executeMint() final atomic write (L6+L7)
+   604→    // REJECTED             — terminal failure state
+   605→    // ============================================================
+   606→
+   607→    enum WorkflowState {
+   608→        NONE,
+   609→        BM01_PENDING,
+   610→        BM02_RECEIVED,
+   611→        BM03_KYC,
+   612→        BM04_AML,
+   613→        BM05_BACKING,
+   614→        BM06_EVIDENCE,
+   615→        BM07_REQUESTED,
+   616→        BM08_TRANSLATED,
+   617→        BM09_ELIGIBLE,
+   618→        BM10_JURISDICTION,
+   619→        BM11_BACKING_VERIFIED,
+   620→        BM12_BANK_RISK,
+   621→        BM13_SYSTEM_RISK,
+   622→        BM14_DMCE,
+   623→        BM15_AUTHORIZED,
+   624→        BM16_MINTED,
+   625→        REJECTED
+   626→    }
+   627→
+   628→    struct BankMintRequest {
+   629→        address bank;
+   630→        bytes32 corporateCustomerHash;     // hash of the corporate customer identity
+   631→        uint256 amountUsd;                  // 1e18 scale
+   632→        bytes32 backingCertificateId;
+   633→        string  jurisdiction;               // ISO 3166-1 alpha-2
+   634→        uint256 nonce;                      // bank-unique anti-replay
+   635→        uint256 expiry;                     // unix seconds; request expires after
+   636→    }
+   637→
+   638→    struct MintRequest {
+   639→        bytes32 requestId;
+   640→        BankMintRequest request;
+   641→        WorkflowState state;
+   642→        uint256 createdAt;
+   643→        uint256 authorizedAt;
+   644→        uint256 mintedAt;
+   645→        uint256 mintedAmount;
+   646→        string  rejectReason;
+   647→    }
+   648→
+   649→    mapping(bytes32 => MintRequest) public mintRequests;
+   650→    /// @notice Anti-replay: bank → nonce → consumed.
+   651→    mapping(address => mapping(uint256 => bool)) public usedNonces;
+   652→    /// @notice Per-bank concentration: total outstanding MTQ minted via this bank.
+   653→    mapping(address => uint256) public bankMintedTotal;
+   654→    /// @notice DMCE: Daily Mint Cap & Concentration Exposure — single-bank cap
+   655→    ///         as a fraction of total supply (1e18 scale). Default 5%.
+   656→    uint256 public dmceBankConcentrationCap = 0.05e18;
+   657→
+   658→    /// @notice Request a mint — only an authorized bank. Creates state=BM01_PENDING.
+   659→    function requestMint(BankMintRequest calldata req) external onlyAuthorizedBank whenNotPaused returns (bytes32 requestId) {
+   660→        if (req.bank != msg.sender) revert Err70_JurisdictionMismatch();
+   661→        if (req.amountUsd == 0) revert Err86_InvalidRequest();
+   662→        if (req.expiry <= block.timestamp) revert Err91_InvalidExpiry();
+   663→        if (usedNonces[msg.sender][req.nonce]) revert Err69_NonceReused();
+   664→        usedNonces[msg.sender][req.nonce] = true;
+   665→
+   666→        // L3 POLICY (early): per-bank daily cap precheck (full enforcement
+   667→        // happens at BM-12/BM-14, but we reject early to fail fast).
+   668→        _rollDailyCap(msg.sender);
+   669→        BankRecord storage bank = bankRegistry[msg.sender];
+   670→        if (bank.dailyMintUsed + req.amountUsd > bank.dailyMintCap) revert Err67_DailyCapExceeded();
+   671→
+   672→        // The certificate must already exist (BM-05 will verify it is in the
+   673→        // registry; BM-06 will verify it is verified).
+   674→        if (backingCertificates[req.backingCertificateId].issuedAt == 0) revert Err85_CertNotFound();
+   675→
+   676→        requestId = keccak256(abi.encodePacked(
+   677→            msg.sender,
+   678→            req.corporateCustomerHash,
+   679→            req.amountUsd,
+   680→            req.backingCertificateId,
+   681→            req.nonce,
+   682→            block.chainid,
+   683→            block.timestamp
+   684→        ));
+   685→        if (mintRequests[requestId].createdAt != 0) revert Err69_NonceReused();
+   686→
+   687→        mintRequests[requestId] = MintRequest({
+   688→            requestId: requestId,
+   689→            request: req,
+   690→            state: WorkflowState.BM01_PENDING,
+   691→            createdAt: block.timestamp,
+   692→            authorizedAt: 0,
+   693→            mintedAt: 0,
+   694→            mintedAmount: 0,
+   695→            rejectReason: ""
+   696→        });
+   697→        emit MintRequested(requestId, msg.sender, req.amountUsd, req.backingCertificateId, req.jurisdiction, block.timestamp);
+   698→        emit WorkflowAdvanced(requestId, WorkflowState.NONE, WorkflowState.BM01_PENDING, msg.sender, block.timestamp);
+   699→    }
+   700→
+   701→    /// @notice Advance a request through the workflow. Only KEEPER (BM-02..BM-14)
+   702→    ///         or MONETARY_CONTROL (BM-15) may advance. State transitions must
+   703→    ///         be strictly sequential (no skipping). The keeper performs the
+   704→    ///         L3 policy checks (KYC/AML/eligibility/jurisdiction/bank-risk/
+   705→    ///         system-risk/DMCE) off-chain and only calls advanceWorkflow when
+   706→    ///         the corresponding gate has passed. The L4 monetary authorization
+   707→    ///         gate (BM-15) requires the MONETARY_CONTROL_ROLE signer.
+   708→    function advanceWorkflow(bytes32 requestId, WorkflowState toState) external whenNotPaused returns (bool) {
+   709→        MintRequest storage r = mintRequests[requestId];
+   710→        if (r.createdAt == 0) revert Err86_InvalidRequest();
+   711→        if (r.state == WorkflowState.BM16_MINTED) revert Err76_WorkflowAlreadyMinted();
+   712→        if (r.state == WorkflowState.REJECTED) revert Err77_WorkflowAlreadyRejected();
+   713→        if (r.request.expiry <= block.timestamp) revert Err68_RequestExpired();
+   714→
+   715→        // L2 WORKFLOW GATE — strict sequential progression.
+   716→        // toState must equal (current + 1).
+   717→        if (uint256(toState) != uint256(r.state) + 1) revert Err74_WorkflowNotSequential();
+   718→
+   719→        // Role gate per state:
+   720→        //   BM-02..BM-14 → KEEPER_ROLE
+   721→        //   BM-15        → MONETARY_CONTROL_ROLE (L4)
+   722→        if (toState == WorkflowState.BM15_AUTHORIZED) {
+   723→            if (!(_roles[MONETARY_CONTROL_ROLE][msg.sender] || _roles[DEFAULT_ADMIN_ROLE][msg.sender])) revert Err80_L4MonetaryGate();
+   724→        } else {
+   725→            if (!(_roles[KEEPER_ROLE][msg.sender] || _roles[DEFAULT_ADMIN_ROLE][msg.sender])) revert Err31();
+   726→        }
+   727→
+   728→        // L3 POLICY GATE — keeper has run the off-chain policy engine and
+   729→        // attests that all checks for `toState` have passed. We re-verify
+   730→        // a small number of on-chain invariants per state for defense in depth.
+   731→        if (toState == WorkflowState.BM05_BACKING) {
+   732→            // The ABC must exist.
+   733→            if (backingCertificates[r.request.backingCertificateId].issuedAt == 0) revert Err85_CertNotFound();
+   734→        } else if (toState == WorkflowState.BM06_EVIDENCE) {
+   735→            // The ABC must be verified.
+   736→            AvailableBackingCertificate storage c = backingCertificates[r.request.backingCertificateId];
+   737→            if (!c.verified) revert Err71_BackdingCertNotVerified();
+   738→            if (c.custodianAttestationExpiry <= block.timestamp) revert Err72_BackdingCertExpired();
+   739→        } else if (toState == WorkflowState.BM09_ELIGIBLE) {
+   740→            // Bank must still be authorized.
+   741→            if (!bankRegistry[r.request.bank].isAuthorized) revert Err66_BankNotAuthorized();
+   742→        } else if (toState == WorkflowState.BM10_JURISDICTION) {
+   743→            // Jurisdiction on request must match bank's registered jurisdiction.
+   744→            BankRecord storage b = bankRegistry[r.request.bank];
+   745→            if (keccak256(bytes(b.jurisdiction)) != keccak256(bytes(r.request.jurisdiction))) revert Err70_JurisdictionMismatch();
+   746→        } else if (toState == WorkflowState.BM11_BACKING_VERIFIED) {
+   747→            // Verified backing pool for the bank must be ≥ requested amount.
+   748→            if (backingVerified[r.request.bank] < r.request.amountUsd) revert Err73_BackdingCertInsufficient();
+   749→        } else if (toState == WorkflowState.BM12_BANK_RISK) {
+   750→            // Per-bank daily cap precheck (rolls the day first).
+   751→            _rollDailyCap(r.request.bank);
+   752→            BankRecord storage br = bankRegistry[r.request.bank];
+   753→            if (br.dailyMintUsed + r.request.amountUsd > br.dailyMintCap) revert Err67_DailyCapExceeded();
+   754→        } else if (toState == WorkflowState.BM13_SYSTEM_RISK) {
+   755→            // Minting must be allowed by the 6-state risk machine.
+   756→            if (!mintingAllowed(currentState)) revert Err25();
+   757→            // Oracle must be healthy (strict 3-source quorum on all 6 pairs).
+   758→            _requireOracleHealthy();
+   759→        } else if (toState == WorkflowState.BM14_DMCE) {
+   760→            // DMCE: single-bank concentration cap.
+   761→            uint256 concentration = (totalSupply == 0)
+   762→                ? type(uint256).max
+   763→                : bankMintedTotal[r.request.bank] * 1e18 / totalSupply;
+   764→            // Reject if adding this mint would breach the concentration cap.
+   765→            uint256 newMintedMTQ = r.request.amountUsd * 1e18 / getMTQPriceWithGuard();
+   766→            uint256 newConcentration = (totalSupply + newMintedMTQ == 0)
+   767→                ? 0
+   768→                : (bankMintedTotal[r.request.bank] + newMintedMTQ) * 1e18 / (totalSupply + newMintedMTQ);
+   769→            if (newConcentration > dmceBankConcentrationCap && concentration > dmceBankConcentrationCap) revert Err88_ConcentrationLimit();
+   770→        } else if (toState == WorkflowState.BM15_AUTHORIZED) {
+   771→            // L4 MONETARY CONTROL — the modifier already gated this.
+   772→            // Mark the authorization timestamp.
+   773→            r.authorizedAt = block.timestamp;
+   774→        }
+   775→
+   776→        WorkflowState fromState = r.state;
+   777→        r.state = toState;
+   778→        emit WorkflowAdvanced(requestId, fromState, toState, msg.sender, block.timestamp);
+   779→        return true;
+   780→    }
+   781→
+   782→    /// @notice Reject a request (terminal). Keeper or Monetary Control only.
+   783→    function rejectMint(bytes32 requestId, string calldata reason) external whenNotPaused returns (bool) {
+   784→        MintRequest storage r = mintRequests[requestId];
+   785→        if (r.createdAt == 0) revert Err86_InvalidRequest();
+   786→        if (r.state == WorkflowState.BM16_MINTED) revert Err76_WorkflowAlreadyMinted();
+   787→        if (r.state == WorkflowState.REJECTED) revert Err77_WorkflowAlreadyRejected();
+   788→        if (!(_roles[KEEPER_ROLE][msg.sender] || _roles[MONETARY_CONTROL_ROLE][msg.sender] || _roles[DEFAULT_ADMIN_ROLE][msg.sender])) revert Err31();
+   789→        WorkflowState fromState = r.state;
+   790→        r.state = WorkflowState.REJECTED;
+   791→        r.rejectReason = reason;
+   792→        emit WorkflowAdvanced(requestId, fromState, WorkflowState.REJECTED, msg.sender, block.timestamp);
+   793→        emit MintRejected(requestId, msg.sender, reason, block.timestamp);
+   794→        return true;
+   795→    }
+   796→
+   797→    /// @notice L5+L6+L7 FINALITY GATE — execute the mint atomically.
+   798→    ///         Requires state == BM15_AUTHORIZED (L2/L5), oracle healthy (L3
+   799→    ///         recheck), keeper signature (L7). Single transaction = atomic
+   800→    ///         write (L6). Mints MTQ to the bank; the bank distributes to the
+   801→    ///         corporate customer off-chain (sovereign currency settlement).
+   802→    function executeMint(bytes32 requestId) external onlyKeeper whenNotPaused nonReentrant returns (uint256 minted) {
+   803→        MintRequest storage r = mintRequests[requestId];
+   804→        if (r.createdAt == 0) revert Err86_InvalidRequest();
+   805→        // L2 WORKFLOW GATE — must be at BM15_AUTHORIZED.
+   806→        if (r.state != WorkflowState.BM15_AUTHORIZED) revert Err78_L2WorkflowGate();
+   807→        // L5 LEDGER GATE — must not already be minted.
+   808→        if (r.mintedAt != 0) revert Err76_WorkflowAlreadyMinted();
+   809→        // L3 POLICY GATE (recheck) — minting allowed, oracle healthy, not expired.
+   810→        if (!mintingAllowed(currentState)) revert Err25();
+   811→        _requireOracleHealthy();
+   812→        if (r.request.expiry <= block.timestamp) revert Err68_RequestExpired();
+   813→        // Re-check backing is still verified and sufficient (defence in depth).
+   814→        if (backingVerified[r.request.bank] < r.request.amountUsd) revert Err73_BackdingCertInsufficient();
+   815→
+   816→        // L4 MONETARY AUTHORIZATION — already enforced at advanceWorkflow(BM15)
+   817→        // by the onlyMonetaryControl modifier (we re-verify authorizedAt > 0).
+   818→        if (r.authorizedAt == 0) revert Err80_L4MonetaryGate();
+   819→
+   820→        // L7 FINALITY ORACLE — the keeper signature (msg.sender = keeper) is
+   821→        // the on-chain finality proof. Without it, no mint can land.
+   822→
+   823→        // L6 ATOMIC WRITE — all state changes below are in a single tx; if any
+   824→        // reverts, the whole mint reverts (atomic, all-or-nothing).
+   825→
+   826→        // Compute mint amount: amountUsd (1e18) × 1e18 / P_MTQ (1e18).
+   827→        uint256 price = getMTQPriceWithGuard();
+   828→        uint256 grossMint = r.request.amountUsd * 1e18 / price;
+   829→
+   830→        // §21.4 canonical throttle (NORMAL 1.0, CAUTION 0.5, RECOVERY 0.25).
+   831→        uint256 throttle = mintThrottle(currentState);
+   832→        minted = grossMint * throttle / 1e18;
+   833→
+   834→        // State transitions + accounting.
+   835→        r.state = WorkflowState.BM16_MINTED;
+   836→        r.mintedAt = block.timestamp;
+   837→        r.mintedAmount = minted;
+   838→
+   839→        // Decrement the bank's verified-backing pool by the minted USD amount
+   840→        // (the backing is now "consumed" by the mint — the bank's custodian
+   841→        // will release the corresponding reserves to the redeemer at redeem
+   842→        // time, off-chain).
+   843→        if (backingVerified[r.request.bank] >= r.request.amountUsd) {
+   844→            backingVerified[r.request.bank] -= r.request.amountUsd;
+   845→        } else {
+   846→            // Should never hit thanks to the BM-11 check; defense in depth.
+   847→            backingVerified[r.request.bank] = 0;
+   848→        }
+   849→
+   850→        // Roll + charge the per-bank daily mint cap.
+   851→        _rollDailyCap(r.request.bank);
+   852→        bankRegistry[r.request.bank].dailyMintUsed += r.request.amountUsd;
+   853→        bankMintedTotal[r.request.bank] += minted;
+   854→
+   855→        // L7 finality: mint to the bank (NOT the corporate customer — the bank
+   856→        // settles with the customer off-chain per Blueprint v25.3 §6).
+   857→        _mint(r.request.bank, minted);
+   858→
+   859→        emit WorkflowAdvanced(requestId, WorkflowState.BM15_AUTHORIZED, WorkflowState.BM16_MINTED, msg.sender, block.timestamp);
+   860→        emit MintExecuted(requestId, r.request.bank, r.request.amountUsd, minted, price, block.timestamp);
+   861→    }
+   862→
+   863→    /// @notice V3 non-custodial redeem — burns MTQ from the redeemer and emits
+   864→    ///         a `RedeemSettlement` event. The bank settles with the redeemer
+   865→    ///         off-chain (sovereign currency transfer). The contract itself
+   866→    ///         does NOT push USDC: there is no reserveVault in V3.
+   867→    ///         Only an authorized bank can call this on behalf of a redeemer
+   868→    ///         (the redeemer must have approved the bank to burn their MTQ via
+   869→    ///         the standard ERC-20 allowance).
+   870→    function redeem(uint256 mtqAmount, address redeemer) external nonReentrant whenNotPaused returns (uint256 netUsd) {
+   871→        if (!(mtqAmount > 0)) revert Err56();
+   872→        if (!(redemptionAllowed(currentState))) revert Err43();
+   873→        // Only an authorized bank can submit a redeem for settlement.
+   874→        if (!bankRegistry[msg.sender].isAuthorized) revert Err90_NotAuthorizedBank();
+   875→        // Redeemer must have approved the bank to burn their MTQ.
+   876→        uint256 allowed = allowance[redeemer][msg.sender];
+   877→        if (allowed != type(uint256).max) {
+   878→            if (!(allowed >= mtqAmount)) revert Err21();
+   879→            allowance[redeemer][msg.sender] = allowed - mtqAmount;
+   880→        }
+   881→        if (!(balanceOf[redeemer] >= mtqAmount)) revert Err22();
+   882→
+   883→        _requireOracleHealthy();
+   884→        uint256 navPerToken = getNAVperToken();
+   885→        if (!(navPerToken < type(uint256).max)) revert Err26();
+   886→
+   887→        uint256 feeFraction = redeemFee(currentState);
+   888→        uint256 grossUsd18 = mtqAmount * navPerToken / 1e18;
+   889→        uint256 feeUsd18   = grossUsd18 * feeFraction / 1e18;
+   890→        netUsd             = grossUsd18 - feeUsd18;
+   891→
+   892→        _burn(redeemer, mtqAmount);
+   893→
+   894→        // Decrement the on-chain reserve mirror proportionally (basket broken).
+   895→        uint256 totalReserve = getReserveNavUsd();
+   896→        if (totalReserve > 0 && grossUsd18 > 0) {
+   897→            for (uint8 i = 0; i < 7; i++) {
+   898→                uint256 held = reserveHeldUsd[Component(i)];
+   899→                if (held == 0) continue;
+   900→                uint256 share = held * grossUsd18 / totalReserve;
+   901→                if (share > held) share = held;
+   902→                reserveHeldUsd[Component(i)] = held - share;
+   903→            }
+   904→        }
+   905→        reserveState.fiatValue  = reserveHeldUsd[Component.USD] + reserveHeldUsd[Component.EUR] +
+   906→                                  reserveHeldUsd[Component.JPY] + reserveHeldUsd[Component.GBP] +
+   907→                                  reserveHeldUsd[Component.CNY] + reserveHeldUsd[Component.CHF];
+   908→        reserveState.goldValue   = reserveHeldUsd[Component.Gold];
+   909→        reserveState.liquidValue = reserveState.fiatValue;
+   910→
+   911→        // Decrement the bank's outstanding MTQ counter (concentration reverse).
+   912→        if (bankMintedTotal[msg.sender] >= mtqAmount) {
+   913→            bankMintedTotal[msg.sender] -= mtqAmount;
+   914→        } else {
+   915→            bankMintedTotal[msg.sender] = 0;
+   916→        }
+   917→
+   918→        // The bank owes `netUsd` to the redeemer, settled off-chain via
+   919→        // sovereign currency transfer. Emit the settlement obligation.
+   920→        emit RedeemSettlement(redeemer, msg.sender, mtqAmount, grossUsd18, feeUsd18, netUsd, navPerToken, block.timestamp);
+   921→    }
+   922→
+   923→    // ============================================================
+   924→    // === Constructor ===
+   925→    // ============================================================
+   926→    //
+   927→    //  V3 is non-custodial — there is NO USDC collateral argument. The
+   928→    //  deployer grants DEFAULT_ADMIN_ROLE to itself (pilot); production
+   929→    //  deployments MUST rotate DEFAULT_ADMIN to a Safe-first factory as in V2.
+   930→    //
+   931→    //  INDEX_BASE_DENOMINATOR = 1e18 (consistent with V2's P2 reconciliation:
+   932→    //  keeps the initial MTQ price at exactly 1.0 USD/MTQ inside the §3.5
+   933→    //  safety band [0.50, 2.00]).
+   934→    // ============================================================
+   935→    constructor() {
+   936→        INDEX_BASE_DENOMINATOR = 1e18;
+   937→
+   938→        _grantRole(DEFAULT_ADMIN_ROLE, msg.sender);
+   939→
+   940→        // Pilot: contract self-holds genesis reserve.
+   941→        genesisReserve = address(this);
+   942→
+   943→        // §9.2 chain-linked index genesis state.
+   944→        indexValue = INDEX_BASE_DENOMINATOR;
+   945→        lastPrices = [uint256(1e18), BASE_EUR_USD, BASE_JPY_USD, BASE_GBP_USD, BASE_CNY_USD, BASE_CHF_USD, BASE_GOLD_USD];
+   946→        lastWeights = [Q_USD, Q_EUR, Q_JPY, Q_GBP, Q_CNY, Q_CHF, Q_GOLD];
+   947→
+   948→        emit GenesisVerified(INDEX_BASE_DENOMINATOR, block.timestamp);
+   949→    }
+   950→
+   951→    // ============================================================
+   952→    // === B1 FIX: Governance body setters (§2.7 + Listing 14) ===
+   953→    // ============================================================
+   954→    function setDao(address _dao) external onlyConstitutionalCouncil {
+   955→        address old = dao;
+   956→        dao = _dao;
+   957→        emit GovernanceBodySet(0, old, _dao);
+   958→    }
+   959→    function setRiskCouncil(address _rc) external onlyConstitutionalCouncil {
+   960→        address old = riskCouncil;
+   961→        riskCouncil = _rc;
+   962→        emit GovernanceBodySet(1, old, _rc);
+   963→    }
+   964→    function setEmergencyCouncil(address _ec) external onlyConstitutionalCouncil {
+   965→        address old = emergencyCouncil;
+   966→        emergencyCouncil = _ec;
+   967→        emit GovernanceBodySet(2, old, _ec);
+   968→    }
+   969→    function setConstitutionalCouncil(address _cc) external onlyConstitutionalCouncil {
+   970→        address old = constitutionalCouncil;
+   971→        constitutionalCouncil = _cc;
+   972→        emit GovernanceBodySet(3, old, _cc);
+   973→    }
+   974→
+   975→    /// @notice V3 NEW: Risk Council can adjust the DMCE single-bank
+   976→    ///         concentration cap. Capped at 30% (§5.6 hard ceiling).
+   977→    function setDmceConcentrationCap(uint256 cap) external onlyRiskCouncil {
+   978→        if (cap > 0.30e18) revert Err88_ConcentrationLimit();
+   979→        dmceBankConcentrationCap = cap;
+   980→    }
+   981→
+   982→    // ============================================================
+   983→    // === Listing 2 (§7.7) MASE weight registry (unchanged vs V2) ===
+   984→    // ============================================================
+   985→    function submitTargetWeights(
+   986→        uint256[7] calldata target,
+   987→        bytes32 methodologyVersion,
+   988→        bytes32 dataVersion
+   989→    ) external onlyKeeper {
+   990→        uint256 sum = 0;
+   991→        for (uint256 i = 0; i < 7; i++) {
+   992→            if (!(target[i] > 0)) revert Err62();
+   993→            sum += target[i];
+   994→        }
+   995→        if (!(sum == 1e18)) revert Err54();
+   996→        for (uint256 i = 0; i < 7; i++) {
+   997→            if (!(target[i] >= LOWER_BOUND[i])) revert Err12();
+   998→            if (!(target[i] <= UPPER_BOUND[i])) revert Err06();
+   999→        }
+  1000→        for (uint256 i = 0; i < 7; i++) {
+  1001→            uint256 diff = target[i] > liveWeights.weights[i]
+  1002→                ? target[i] - liveWeights.weights[i]
+  1003→                : liveWeights.weights[i] - target[i];
+  1004→            if (!(diff <= MAX_VELOCITY[i])) revert Err52();
+  1005→        }
+  1006→        uint256 rho = crisisFlag ? smoothingRhoStress : smoothingRhoNormal;
+  1007→        uint256[7] memory smoothed;
+  1008→        for (uint256 i = 0; i < 7; i++) {
+  1009→            smoothed[i] = (rho * liveWeights.weights[i] + (1e18 - rho) * target[i]) / 1e18;
+  1010→        }
+  1011→        for (uint256 i = 0; i < 7; i++) liveWeights.weights[i] = smoothed[i];
+  1012→        liveWeights.targetWeights    = target;
+  1013→        liveWeights.methodologyVersion = methodologyVersion;
+  1014→        liveWeights.dataVersion       = dataVersion;
+  1015→        liveWeights.updatedAt         = block.timestamp;
+  1016→        emit WeightsAccepted(smoothed, target, methodologyVersion, dataVersion, block.timestamp);
+  1017→    }
+  1018→
+  1019→    function setEnvelopes(uint256[7] calldata lower, uint256[7] calldata upper) external onlyConstitutionalCouncil {
+  1020→        LOWER_BOUND = lower;
+  1021→        UPPER_BOUND = upper;
+  1022→        emit EnvelopeChanged(lower, upper, block.timestamp);
+  1023→    }
+  1024→
+  1025→    function getLiveWeights() external view returns (uint256[7] memory, bytes32, bytes32) {
+  1026→        return (liveWeights.weights, liveWeights.methodologyVersion, liveWeights.dataVersion);
+  1027→    }
+  1028→
+  1029→    function setCrisisFlag(bool flag) external onlyKeeper { crisisFlag = flag; }
+  1030→
+  1031→    // ============================================================
+  1032→    // === Listing 3: Chain-Linked Index (§9.8) (unchanged vs V2) ===
+  1033→    // ============================================================
+  1034→    function _basePrice18(uint256 i) internal pure returns (uint256) {
+  1035→        if (i == 0) return 1e18;
+  1036→        if (i == 1) return BASE_EUR_USD;
+  1037→        if (i == 2) return BASE_JPY_USD;
+  1038→        if (i == 3) return BASE_GBP_USD;
+  1039→        if (i == 4) return BASE_CNY_USD;
+  1040→        if (i == 5) return BASE_CHF_USD;
+  1041→        return BASE_GOLD_USD;
+  1042→    }
+  1043→
+  1044→    function advanceIndex(uint256[7] calldata currentPrices) external onlyKeeper whenNotPaused {
+  1045→        if (!(indexValue > 0)) revert Err20();
+  1046→        uint256 growth = 0;
+  1047→        for (uint256 i = 0; i < 7; i++) {
+  1048→            if (!(currentPrices[i] > 0 && lastPrices[i] > 0)) revert Err09();
+  1049→            growth += (lastWeights[i] * currentPrices[i]) / lastPrices[i];
+  1050→        }
+  1051→        indexValue = (indexValue * growth) / 1e18;
+  1052→        for (uint256 i = 0; i < 7; i++) lastPrices[i] = currentPrices[i];
+  1053→        lastIndexUpdate = block.timestamp;
+  1054→        emit IndexAdvanced(indexValue, block.timestamp);
+  1055→    }
+  1056→
+  1057→    function commitWeights(uint256[7] calldata newWeights, uint256[7] calldata currentPrices) external onlyKeeper whenNotPaused {
+  1058→        if (!(indexValue > 0)) revert Err20();
+  1059→        uint256 weightSum = 0;
+  1060→        for (uint256 i = 0; i < 7; i++) weightSum += newWeights[i];
+  1061→        if (weightSum > 1e18 + 1e14 || weightSum < 1e18 - 1e14) revert Err54();
+  1062→        uint256 bMinus = 0;
+  1063→        uint256 bPlus  = 0;
+  1064→        bool    changed = false;
+  1065→        for (uint256 i = 0; i < 7; i++) {
+  1066→            if (!(currentPrices[i] > 0)) revert Err09();
+  1067→            uint256 rel = (currentPrices[i] * 1e18) / _basePrice18(i);
+  1068→            bMinus += (lastWeights[i] * rel) / 1e18;
+  1069→            bPlus  += (newWeights[i]    * rel) / 1e18;
+  1070→            if (newWeights[i] != lastWeights[i]) changed = true;
+  1071→        }
+  1072→        if (changed) {
+  1073→            if (!(bPlus > 0)) revert Err57();
+  1074→            uint256 newD = (bMinus * 1e18) / bPlus;
+  1075→            chainLinkDivisor = (chainLinkDivisor * newD) / 1e18;
+  1076→            for (uint256 i = 0; i < 7; i++) lastWeights[i] = newWeights[i];
+  1077→            emit ChainLinkAdjusted(newD, bMinus, bPlus, block.timestamp);
+  1078→        }
+  1079→        for (uint256 i = 0; i < 7; i++) lastPrices[i] = currentPrices[i];
+  1080→        emit WeightsCommitted(newWeights, chainLinkDivisor, block.timestamp);
+  1081→    }
+  1082→
+  1083→    function genesisIndex() external onlyAdmin {
+  1084→        if (!(indexValue == 1e18 && lastIndexUpdate == 0)) revert Err19();
+  1085→        if (!(liveWeights.updatedAt > 0)) revert Err01();
+  1086→        uint256 sum = 0;
+  1087→        for (uint256 i = 0; i < 7; i++) {
+  1088→            lastWeights[i] = liveWeights.weights[i];
+  1089→            lastPrices[i]  = _basePrice18(i);
+  1090→            sum += liveWeights.weights[i];
+  1091→        }
+  1092→        if (!(sum == 1e18)) revert Err44();
+  1093→        indexValue = 1e18;
+  1094→        chainLinkDivisor = 1e18;
+  1095→        lastIndexUpdate = block.timestamp;
+  1096→        emit GenesisVerified(INDEX_BASE_DENOMINATOR, block.timestamp);
+  1097→    }
+  1098→
+  1099→    function getIndex() external view returns (uint256) { return indexValue; }
+  1100→
+  1101→    function getRelatives(uint256[7] calldata currentPrices) external pure returns (uint256[7] memory rel) {
+  1102→        for (uint256 i = 0; i < 7; i++) {
+  1103→            rel[i] = (currentPrices[i] * 1e18) / _basePrice18(i);
+  1104→        }
+  1105→    }
+  1106→
+  1107→    // ============================================================
+  1108→    // === Listing 13: Risk State Machine (§21.6) ===
+  1109→    // ============================================================
+  1110→    function updateState(uint256 rr, uint256 lcr) external onlyKeeper {
+  1111→        ProtocolState newState;
+  1112→        if (rr >= RR_TARGET && lcr >= lcrTarget) {
+  1113→            newState = ProtocolState.NORMAL;
+  1114→        } else if (rr >= RR_FLOOR && lcr >= 0.90e18) {
+  1115→            newState = ProtocolState.CAUTION;
+  1116→        } else if (rr >= 1.02e18 && lcr >= 0.80e18) {
+  1117→            newState = ProtocolState.STRESS;
+  1118→        } else if (rr >= RR_HARD_FLOOR && lcr >= 0.70e18) {
+  1119→            newState = ProtocolState.DEFENSIVE;
+  1120→        } else if (rr < RR_HARD_FLOOR) {
+  1121→            newState = ProtocolState.EMERGENCY;
+  1122→        } else {
+  1123→            newState = ProtocolState.RECOVERY;
+  1124→        }
+  1125→        if (newState != currentState) {
+  1126→            if (_isMoreRestrictive(newState, currentState)) {
+  1127→                _transitionTo(newState, true);
+  1128→            } else {
+  1129→                if (block.timestamp - stateEntryTime[currentState] >= RECOVERY_CONFIRMATION_PERIOD) {
+  1130→                    _transitionTo(newState, false);
+  1131→                }
+  1132→            }
+  1133→        }
+  1134→    }
+  1135→
+  1136→    function _transitionTo(ProtocolState newState, bool immediate) internal {
+  1137→        ProtocolState oldState = currentState;
+  1138→        currentState = newState;
+  1139→        stateEntryTime[newState] = block.timestamp;
+  1140→        emit StateChanged(oldState, newState, immediate, block.timestamp);
+  1141→    }
+  1142→
+  1143→    function _restrictiveness(ProtocolState s) internal pure returns (uint256) {
+  1144→        if (s == ProtocolState.NORMAL)    return 0;
+  1145→        if (s == ProtocolState.CAUTION)   return 1;
+  1146→        if (s == ProtocolState.RECOVERY)  return 2;
+  1147→        if (s == ProtocolState.STRESS)    return 3;
+  1148→        if (s == ProtocolState.DEFENSIVE) return 4;
+  1149→        return 5;
+  1150→    }
+  1151→    function _isMoreRestrictive(ProtocolState a, ProtocolState b) internal pure returns (bool) {
+  1152→        return _restrictiveness(a) > _restrictiveness(b);
+  1153→    }
+  1154→
+  1155→    function mintingAllowed(ProtocolState s) public pure returns (bool) {
+  1156→        return s == ProtocolState.NORMAL || s == ProtocolState.CAUTION || s == ProtocolState.RECOVERY;
+  1157→    }
+  1158→
+  1159→    function mintThrottle(ProtocolState s) public pure returns (uint256) {
+  1160→        if (s == ProtocolState.NORMAL)   return 1.00e18;
+  1161→        if (s == ProtocolState.CAUTION)  return 0.50e18;
+  1162→        if (s == ProtocolState.RECOVERY) return 0.25e18;
+  1163→        return 0;
+  1164→    }
+  1165→
+  1166→    function redeemFee(ProtocolState s) public view returns (uint256) {
+  1167→        if (s == ProtocolState.NORMAL)    return redeemFeeNormal;
+  1168→        if (s == ProtocolState.CAUTION)   return redeemFeeNormal;
+  1169→        if (s == ProtocolState.STRESS)    return redeemFeeStress;
+  1170→        if (s == ProtocolState.DEFENSIVE) return redeemFeeDefensive;
+  1171→        if (s == ProtocolState.EMERGENCY) return 0.02e18;
+  1172→        return redeemFeeStress;
+  1173→    }
+  1174→
+  1175→    function redemptionAllowed(ProtocolState s) public pure returns (bool) {
+  1176→        return s != ProtocolState.EMERGENCY;
+  1177→    }
+  1178→
+  1179→    function rebalanceUrgency(ProtocolState s) public pure returns (uint8) {
+  1180→        if (s == ProtocolState.NORMAL)    return 1;
+  1181→        if (s == ProtocolState.CAUTION)   return 2;
+  1182→        if (s == ProtocolState.STRESS)    return 3;
+  1183→        if (s == ProtocolState.DEFENSIVE) return 4;
+  1184→        if (s == ProtocolState.EMERGENCY) return 0;
+  1185→        return 2;
+  1186→    }
+  1187→
+  1188→    // ============================================================
+  1189→    // === Listing 14: Governance Parameter Registry (§22.6) ===
+  1190→    // ============================================================
+  1191→    function registerParameter(
+  1192→        bytes32 parameterId,
+  1193→        ParameterLayer layer,
+  1194→        uint256 value,
+  1195→        uint256 minValue,
+  1196→        uint256 maxValue
+  1197→    ) external onlyConstitutionalCouncil {
+  1198→        if (!(minValue <= value && value <= maxValue)) revert Err51();
+  1199→        parameterRegistry[parameterId] = ParameterRecord({
+  1200→            layer: layer, value: value, minValue: minValue, maxValue: maxValue, registered: true
+  1201→        });
+  1202→        emit ParameterRegistered(parameterId, layer, value, minValue, maxValue, block.timestamp);
+  1203→    }
+  1204→
+  1205→    function proposeChange(bytes32 parameterId, uint256 newValue) external {
+  1206→        ParameterRecord storage rec = parameterRegistry[parameterId];
+  1207→        if (!(rec.registered)) revert Err50();
+  1208→        if (!(newValue >= rec.minValue)) revert Err11();
+  1209→        if (!(newValue <= rec.maxValue)) revert Err05();
+  1210→        if (rec.layer == ParameterLayer.MONETARY)         if (!(msg.sender == dao)) revert Err36();
+  1211→        else if (rec.layer == ParameterLayer.RISK)        if (!(msg.sender == riskCouncil)) revert Err38();
+  1212→        else if (rec.layer == ParameterLayer.EMERGENCY)   if (!(msg.sender == emergencyCouncil)) revert Err37();
+  1213→        else /* CONSTITUTIONAL */                          if (!(msg.sender == constitutionalCouncil)) revert Err35();
+  1214→        proposals[parameterId] = Proposal({
+  1215→            value: newValue, proposer: msg.sender, timestamp: block.timestamp, executed: false
+  1216→        });
+  1217→        emit ParameterProposed(parameterId, newValue, block.timestamp);
+  1218→    }
+  1219→
+  1220→    function executeChange(bytes32 parameterId) external {
+  1221→        Proposal storage p = proposals[parameterId];
+  1222→        if (!(p.timestamp > 0)) revert Err27();
+  1223→        if (!(!p.executed)) revert Err07();
+  1224→        ParameterRecord storage rec = parameterRegistry[parameterId];
+  1225→        uint256 delay;
+  1226→        if (rec.layer == ParameterLayer.MONETARY)         delay = TIMELOCK_MONETARY;
+  1227→        else if (rec.layer == ParameterLayer.RISK)        delay = TIMELOCK_RISK;
+  1228→        else if (rec.layer == ParameterLayer.EMERGENCY)  delay = TIMELOCK_EMERGENCY;
+  1229→        else                                              delay = TIMELOCK_CONSTITUTIONAL;
+  1230→        if (!(block.timestamp >= p.timestamp + delay)) revert Err47();
+  1231→        if (!(p.value >= rec.minValue && p.value <= rec.maxValue)) revert Err40();
+  1232→        p.executed = true;
+  1233→        rec.value = p.value;
+  1234→        _applyParam(parameterId, p.value);
+  1235→        emit ParameterExecuted(parameterId, p.value, block.timestamp);
+  1236→    }
+  1237→
+  1238→    function cancelChange(bytes32 parameterId) external {
+  1239→        Proposal storage p = proposals[parameterId];
+  1240→        if (!(p.timestamp > 0 && !p.executed)) revert Err34();
+  1241→        ParameterRecord storage rec = parameterRegistry[parameterId];
+  1242→        if (rec.layer == ParameterLayer.MONETARY)        if (!(msg.sender == dao)) revert Err36();
+  1243→        else if (rec.layer == ParameterLayer.RISK)       if (!(msg.sender == riskCouncil)) revert Err38();
+  1244→        else if (rec.layer == ParameterLayer.EMERGENCY)  if (!(msg.sender == emergencyCouncil)) revert Err37();
+  1245→        else                                             if (!(msg.sender == constitutionalCouncil)) revert Err35();
+  1246→        delete proposals[parameterId];
+  1247→        emit ParameterVetoed(parameterId, block.timestamp);
+  1248→    }
+  1249→
+  1250→    function _applyParam(bytes32 parameterId, uint256 value) internal {
+  1251→        if (parameterId == PARAM_RR_STRESS_FLOOR)         rrStressFloor = value;
+  1252→        else if (parameterId == PARAM_MINT_FEE)          mintFee = value;
+  1253→        else if (parameterId == PARAM_REDEEM_FEE_NORMAL) redeemFeeNormal = value;
+  1254→        else if (parameterId == PARAM_REDEEM_FEE_STRESS) redeemFeeStress = value;
+  1255→        else if (parameterId == PARAM_REDEEM_FEE_DEFENSIVE) redeemFeeDefensive = value;
+  1256→        else if (parameterId == PARAM_LCR_TARGET)        lcrTarget = value;
+  1257→        else if (parameterId == PARAM_DEPEG_WINDOW)      depegWindow = value;
+  1258→    }
+  1259→
+  1260→    // ============================================================
+  1261→    // §9 Multi-Source Oracle (unchanged vs V2 — strict 3-source I9)
+  1262→    // ============================================================
+  1263→    function setOracleAdapter(uint8 source, address adapter) external onlyRole(ORACLE_ROLE) {
+  1264→        if (!(source <= 2)) revert Err10();
+  1265→        if (!(adapter != address(0))) revert Err55();
+  1266→        if (source == 0 && (adapter == address(pythAdapter)       || adapter == address(chronicleAdapter))) revert Err63();
+  1267→        if (source == 1 && (adapter == address(chainlinkAdapter)  || adapter == address(chronicleAdapter))) revert Err63();
+  1268→        if (source == 2 && (adapter == address(chainlinkAdapter)  || adapter == address(pythAdapter)))      revert Err63();
+  1269→        if (source == 0)      chainlinkAdapter  = IOracleAdapter(adapter);
+  1270→        else if (source == 1) pythAdapter       = IOracleAdapter(adapter);
+  1271→        else                  chronicleAdapter = IOracleAdapter(adapter);
+  1272→        emit OracleAdapterSet(source, adapter, msg.sender);
+  1273→    }
+  1274→
+  1275→    function getOracleConsensus(bytes32 pair) public view returns (
+  1276→        uint256 finalPrice,
+  1277→        uint8  validCount,
+  1278→        uint8  method,
+  1279→        bool   paused_,
+  1280→        uint256[3] memory prices,
+  1281→        bool[3] memory valid
+  1282→    ) {
+  1283→        IOracleAdapter[3] memory adapters;
+  1284→        adapters[0] = chainlinkAdapter;
+  1285→        adapters[1] = pythAdapter;
+  1286→        adapters[2] = chronicleAdapter;
+  1287→
+  1288→        uint256[3] memory raw;
+  1289→        uint256[3] memory ts;
+  1290→        uint256[3] memory conf;
+  1291→
+  1292→        for (uint8 i = 0; i < 3; i++) {
+  1293→            valid[i] = false;
+  1294→            if (address(adapters[i]) == address(0)) continue;
+  1295→            try adapters[i].getPrice(pair) returns (uint256 p, uint256 t, uint256 c) {
+  1296→                if (p == 0) continue;
+  1297→                raw[i]  = p;
+  1298→                ts[i]   = t;
+  1299→                conf[i] = c;
+  1300→                prices[i] = p;
+  1301→                if (t > block.timestamp) continue;
+  1302→                if (block.timestamp - t > ORACLE_STALENESS_SEC) continue;
+  1303→                if (conf[i] >= ORACLE_CONFIDENCE_MAX) continue;
+  1304→                valid[i] = true;
+  1305→            } catch { /* leave valid[i] = false */ }
+  1306→        }
+  1307→
+  1308→        validCount = 0;
+  1309→        for (uint8 i = 0; i < 3; i++) if (valid[i]) validCount++;
+  1310→
+  1311→        if (validCount < 2) {
+  1312→            paused_ = true; method = 0;
+  1313→            return (finalPrice, validCount, method, paused_, prices, valid);
+  1314→        }
+  1315→
+  1316→        uint256[3] memory sorted;
+  1317→        uint8 n = 0;
+  1318→        for (uint8 i = 0; i < 3; i++) if (valid[i]) { sorted[n] = raw[i]; n++; }
+  1319→        _insertionSort(sorted, n);
+  1320→        uint256 med = (n == 3) ? sorted[1] : (n == 2 ? (sorted[0] + sorted[1]) / 2 : sorted[0]);
+  1321→
+  1322→        for (uint8 i = 0; i < 3; i++) {
+  1323→            if (valid[i]) {
+  1324→                uint256 d = (raw[i] > med) ? raw[i] - med : med - raw[i];
+  1325→                if (d * 10000 > med * ORACLE_DEVIATION_MAX_BPS) {
+  1326→                    valid[i] = false;
+  1327→                    validCount--;
+  1328→                }
+  1329→            }
+  1330→        }
+  1331→
+  1332→        paused_ = validCount < 3;
+  1333→        if (paused_) {
+  1334→            method     = 0;
+  1335→            finalPrice = 0;
+  1336→            return (finalPrice, validCount, method, paused_, prices, valid);
+  1337→        }
+  1338→
+  1339→        finalPrice = med;
+  1340→        method     = 2;
+  1341→    }
+  1342→
+  1343→    function commitFxRatesFromOracles() external onlyKeeper whenNotPaused {
+  1344→        uint256 oldPrice = getMTQPrice();
+  1345→        _commitPair(PAIR_EUR_USD, 1);
+  1346→        _commitPair(PAIR_GBP_USD, 3);
+  1347→        _commitPair(PAIR_JPY_USD, 2);
+  1348→        _commitPair(PAIR_CNY_USD, 4);
+  1349→        _commitPair(PAIR_CHF_USD, 5);
+  1350→        _commitPair(PAIR_XAU_USD, 6);
+  1351→        uint256 newPrice = getMTQPrice();
+  1352→        uint256 diff = (newPrice > oldPrice) ? newPrice - oldPrice : oldPrice - newPrice;
+  1353→        if (diff * 200 > oldPrice) emit PriceUpdated(oldPrice, newPrice);
+  1354→    }
+  1355→
+  1356→    event PriceUpdated(uint256 oldPrice, uint256 newPrice);
+  1357→
+  1358→    function _commitPair(bytes32 pair, uint256 i) internal {
+  1359→        (uint256 p, , , bool paused_, , ) = getOracleConsensus(pair);
+  1360→        if (!(!paused_)) revert Err39();
+  1361→        if (!(p > 0)) revert Err59();
+  1362→        lastPrices[i] = p;
+  1363→    }
+  1364→
+  1365→    function setFxRates(
+  1366→        uint256 eur, uint256 gbp, uint256 jpy, uint256 cny, uint256 chf, uint256 xau
+  1367→    ) external onlyRole(ORACLE_ROLE) {
+  1368→        if (!(eur > 0 && gbp > 0 && jpy > 0 && cny > 0 && chf > 0 && xau > 0)) revert Err60();
+  1369→        uint256 oldPrice = getMTQPrice();
+  1370→        lastPrices[1] = eur; lastPrices[3] = gbp; lastPrices[2] = jpy;
+  1371→        lastPrices[4] = cny; lastPrices[5] = chf; lastPrices[6] = xau;
+  1372→        uint256 newPrice = getMTQPrice();
+  1373→        uint256 diff = (newPrice > oldPrice) ? newPrice - oldPrice : oldPrice - newPrice;
+  1374→        if (diff * 200 > oldPrice) emit PriceUpdated(oldPrice, newPrice);
+  1375→    }
+  1376→
+  1377→    // ============================================================
+  1378→    // §5  Asset admission registry + NAV (unchanged vs V2)
+  1379→    // ============================================================
+  1380→    function setAssetRegistry(address registry) external onlyAdmin {
+  1381→        assetRegistry = IAssetRegistry(registry);
+  1382→        emit AssetRegistrySet(registry, msg.sender);
+  1383→    }
+  1384→
+  1385→    function getReserveNavUsd() public view returns (uint256) {
+  1386→        uint256 sum = 0;
+  1387→        for (uint8 i = 0; i < 7; i++) sum += reserveHeldUsd[Component(i)];
+  1388→        return sum;
+  1389→    }
+  1390→
+  1391→    function getNAV() public view returns (uint256) {
+  1392→        if (address(assetRegistry) == address(0)) return getReserveNavUsd();
+  1393→        bytes32[7] memory codes;
+  1394→        codes[0] = bytes32("USD"); codes[1] = bytes32("EUR");
+  1395→        codes[2] = bytes32("JPY"); codes[3] = bytes32("GBP");
+  1396→        codes[4] = bytes32("CNY"); codes[5] = bytes32("CHF");
+  1397→        codes[6] = bytes32("XAU");
+  1398→        uint256 nav = 0;
+  1399→        for (uint8 i = 0; i < 7; i++) {
+  1400→            uint256 held = reserveHeldUsd[Component(i)];
+  1401→            if (held == 0) continue;
+  1402→            try IAssetRegistry(assetRegistry).getAsset(codes[i]) returns (
+  1403→                address, uint256 haircut, uint8 state, bytes32
+  1404→            ) {
+  1405→                if (state == 2 || state == 3) continue;
+  1406→                nav += held * (1e18 - haircut) / 1e18;
+  1407→            } catch { nav += held; }
+  1408→        }
+  1409→        return nav;
+  1410→    }
+  1411→
+  1412→    function getCirculatingSupply() public view returns (uint256) {
+  1413→        return totalSupply - genesisReserveBalance;
+  1414→    }
+  1415→
+  1416→    function getMTQPrice() public view returns (uint256) {
+  1417→        return (indexValue * 1e18) / INDEX_BASE_DENOMINATOR;
+  1418→    }
+  1419→
+  1420→    function getMTQPriceWithGuard() public view returns (uint256) {
+  1421→        uint256 price = getMTQPrice();
+  1422→        if (!(price >= PRICE_SAFETY_LOWER && price <= PRICE_SAFETY_UPPER)) revert Err42();
+  1423→        return price;
+  1424→    }
+  1425→
+  1426→    function getLiability() public view returns (uint256) {
+  1427→        return getCirculatingSupply() * getMTQPrice() / 1e18;
+  1428→    }
+  1429→
+  1430→    function getReserveRatio() public view returns (uint256) {
+  1431→        uint256 nav  = getNAV();
+  1432→        uint256 liab = getLiability();
+  1433→        if (liab == 0) return type(uint256).max;
+  1434→        return nav * 1e18 / liab;
+  1435→    }
+  1436→
+  1437→    function getLCR() public view returns (uint256) {
+  1438→        uint256 liquidAssets = reserveState.liquidValue;
+  1439→        uint256 price = getMTQPrice();
+  1440→        uint256 circSupply = getCirculatingSupply();
+  1441→        if (circSupply == 0) return type(uint256).max;
+  1442→        uint256 stressDemand = (circSupply * price / 1e18) * 25 / 100;
+  1443→        if (stressDemand == 0) return type(uint256).max;
+  1444→        return (liquidAssets * 1e18) / stressDemand;
+  1445→    }
+  1446→
+  1447→    function getNAVperToken() public view returns (uint256) {
+  1448→        uint256 circ = getCirculatingSupply();
+  1449→        if (circ == 0) return type(uint256).max;
+  1450→        return getNAV() * 1e18 / circ;
+  1451→    }
+  1452→
+  1453→    function _requireOracleHealthy() internal view {
+  1454→        bytes32[6] memory pairs = [
+  1455→            PAIR_EUR_USD, PAIR_GBP_USD, PAIR_JPY_USD, PAIR_CNY_USD, PAIR_CHF_USD, PAIR_XAU_USD
+  1456→        ];
+  1457→        for (uint8 i = 0; i < 6; i++) {
+  1458→            (, , , bool paused_, , ) = getOracleConsensus(pairs[i]);
+  1459→            if (paused_) revert Err39();
+  1460→        }
+  1461→    }
+  1462→
+  1463→    function oracleHealthy() public view returns (bool) {
+  1464→        bytes32[6] memory pairs = [
+  1465→            PAIR_EUR_USD, PAIR_GBP_USD, PAIR_JPY_USD, PAIR_CNY_USD, PAIR_CHF_USD, PAIR_XAU_USD
+  1466→        ];
+  1467→        for (uint8 i = 0; i < 6; i++) {
+  1468→            (, , , bool paused_, , ) = getOracleConsensus(pairs[i]);
+  1469→            if (paused_) return false;
+  1470→        }
+  1471→        return true;
+  1472→    }
+  1473→
+  1474→    // ============================================================
+  1475→    // §10  MARP Rebalancing Execution (unchanged vs V2)
+  1476→    // ============================================================
+  1477→    struct RebalanceTrade {
+  1478→        Component component;
+  1479→        int256    direction;
+  1480→        uint256   tradeUsd;
+  1481→        uint256   level;
+  1482→    }
+  1483→
+  1484→    uint256 public constant DIRECTION_LOCK_HOURS  = 24 hours;
+  1485→    uint256 public constant MAX_DAILY_TURNOVER    = 0.05e18;
+  1486→    uint256 public constant REBALANCE_TOLERANCE    = 0.05e18;
+  1487→
+  1488→    mapping(Component => int256)  public lastDirection;
+  1489→    mapping(Component => uint256) public lastRebalanceAt;
+  1490→    uint256 public dailyTradeUsd;
+  1491→    uint256 public dailyTradeResetAt;
+  1492→
+  1493→    event RebalanceExecuted(RebalanceTrade[] trades, uint256 timestamp);
+  1494→
+  1495→    function executeRebalance(RebalanceTrade[] memory trades) external nonReentrant onlyKeeper whenNotPaused {
+  1496→        if (!(liveWeights.updatedAt > 0)) revert Err28();
+  1497→        if (!(trades.length <= 7)) revert Err48();
+  1498→
+  1499→        if (block.timestamp >= dailyTradeResetAt + DIRECTION_LOCK_HOURS) {
+  1500→            dailyTradeUsd    = 0;
+  1501→            dailyTradeResetAt = block.timestamp;
+  1502→        }
+  1503→
+  1504→        uint256 nav = getReserveNavUsd();
+  1505→        uint256 maxDaily = nav * MAX_DAILY_TURNOVER / 1e18;
+  1506→        uint256 rr = getReserveRatio();
+  1507→        bool solvencyOverride = (rr < rrStressFloor);
+  1508→
+  1509→        for (uint256 i = 0; i < trades.length; i++) {
+  1510→            RebalanceTrade memory t = trades[i];
+  1511→            if (!(t.level >= 1 && t.level <= 6)) revert Err24();
+  1512→            if (t.direction == 0 || t.tradeUsd == 0) continue;
+  1513→            if (!(t.direction == 1 || t.direction == -1)) revert Err08();
+  1514→
+  1515→            int256 prevDir = lastDirection[t.component];
+  1516→            if (prevDir != 0 && prevDir != t.direction && !solvencyOverride) {
+  1517→                if (!(block.timestamp >= lastRebalanceAt[t.component] + DIRECTION_LOCK_HOURS)) revert Err16();
+  1518→            }
+  1519→
+  1520→            uint256 execW    = liveWeights.weights[uint256(t.component)];
+  1521→            uint256 currentW = (nav == 0) ? 0 : reserveHeldUsd[t.component] * 1e18 / nav;
+  1522→            if (t.direction == 1) {
+  1523→                if (!(currentW < execW)) revert Err14();
+  1524→            } else {
+  1525→                if (!(currentW > execW)) revert Err46();
+  1526→            }
+  1527→
+  1528→            uint256 newHeldUsd = (t.direction == 1)
+  1529→                ? reserveHeldUsd[t.component] + t.tradeUsd
+  1530→                : reserveHeldUsd[t.component] - t.tradeUsd;
+  1531→            if (!(reserveHeldUsd[t.component] >= t.tradeUsd || t.direction == 1)) revert Err23();
+  1532→            uint256 newW = (nav == 0) ? 0 : newHeldUsd * 1e18 / nav;
+  1533→            uint256 absDiff = (newW > execW) ? newW - execW : execW - newW;
+  1534→            uint256 tolerance = solvencyOverride ? REBALANCE_TOLERANCE * 2 : REBALANCE_TOLERANCE;
+  1535→            if (!(absDiff <= tolerance)) revert Err49();
+  1536→
+  1537→            if (!(dailyTradeUsd + t.tradeUsd <= maxDaily)) revert Err15();
+  1538→            dailyTradeUsd += t.tradeUsd;
+  1539→
+  1540→            if (t.direction == 1) {
+  1541→                reserveHeldUsd[t.component] += t.tradeUsd;
+  1542→            } else {
+  1543→                reserveHeldUsd[t.component] -= t.tradeUsd;
+  1544→            }
+  1545→            lastDirection[t.component]   = t.direction;
+  1546→            lastRebalanceAt[t.component] = block.timestamp;
+  1547→        }
+  1548→
+  1549→        reserveState.fiatValue  = reserveHeldUsd[Component.USD] + reserveHeldUsd[Component.EUR] +
+  1550→                                  reserveHeldUsd[Component.JPY] + reserveHeldUsd[Component.GBP] +
+  1551→                                  reserveHeldUsd[Component.CNY] + reserveHeldUsd[Component.CHF];
+  1552→        reserveState.goldValue   = reserveHeldUsd[Component.Gold];
+  1553→        reserveState.liquidValue = reserveState.fiatValue;
+  1554→
+  1555→        emit RebalanceExecuted(trades, block.timestamp);
+  1556→    }
+  1557→
+  1558→    // ============================================================
+  1559→    // §12 + §13  Genesis + reserve accounting (V3: no USDC custody)
+  1560→    // ============================================================
+  1561→    function genesisMint(uint256 amount) external onlyAdmin {
+  1562→        if (!(!genesisDone)) revert Err17();
+  1563→        if (!(amount > 0)) revert Err18();
+  1564→        genesisDone = true;
+  1565→        _mint(genesisReserve, amount);
+  1566→        genesisReserveBalance = amount;
+  1567→    }
+  1568→
+  1569→    function setGenesisReserve(address g) external onlyAdmin {
+  1570→        if (!(g != address(0))) revert Err58();
+  1571→        genesisReserve = g;
+  1572→    }
+  1573→
+  1574→    function bootstrapReserveHoldings(uint256[7] calldata holdings) external onlyAdmin {
+  1575→        if (!(!bootstrapped)) revert Err45();
+  1576→        bootstrapped = true;
+  1577→        for (uint8 i = 0; i < 7; i++) {
+  1578→            reserveHeldUsd[Component(i)] = holdings[i];
+  1579→        }
+  1580→        reserveState.fiatValue  = holdings[0] + holdings[1] + holdings[2] + holdings[3] + holdings[4] + holdings[5];
+  1581→        reserveState.goldValue   = holdings[6];
+  1582→        reserveState.liquidValue = reserveState.fiatValue;
+  1583→    }
+  1584→
+  1585→    function setReserveHolding(Component c, uint256 usd) external onlyAdmin {
+  1586→        uint256 oldValue = reserveHeldUsd[c];
+  1587→        if (oldValue > 0) {
+  1588→            uint256 upper = oldValue * 105 / 100;
+  1589→            uint256 lower = oldValue * 95 / 100;
+  1590→            if (usd > upper || usd < lower) revert Err64();
+  1591→        }
+  1592→        reserveHeldUsd[c] = usd;
+  1593→        emit ReserveHoldingUpdated(uint256(c), oldValue, usd, msg.sender);
+  1594→    }
+  1595→
+  1596→    function seedGenesisWeights() external onlyAdmin {
+  1597→        if (!(liveWeights.updatedAt == 0)) revert Err53();
+  1598→        liveWeights.weights[0] = Q_USD;
+  1599→        liveWeights.weights[1] = Q_EUR;
+  1600→        liveWeights.weights[2] = Q_JPY;
+  1601→        liveWeights.weights[3] = Q_GBP;
+  1602→        liveWeights.weights[4] = Q_CNY;
+  1603→        liveWeights.weights[5] = Q_CHF;
+  1604→        liveWeights.weights[6] = Q_GOLD;
+  1605→        liveWeights.methodologyVersion = keccak256("v1.0-genesis");
+  1606→        liveWeights.dataVersion       = keccak256("v1.0-genesis-data");
+  1607→        liveWeights.updatedAt         = block.timestamp;
+  1608→        emit WeightsAccepted(liveWeights.weights, liveWeights.weights,
+  1609→            liveWeights.methodologyVersion, liveWeights.dataVersion, block.timestamp);
+  1610→    }
+  1611→
+  1612→    // ============================================================
+  1613→    // §1  ERC-20 core (unchanged vs V2)
+  1614→    // ============================================================
+  1615→    function transfer(address to, uint256 amount) external returns (bool) {
+  1616→        _transfer(msg.sender, to, amount);
+  1617→        return true;
+  1618→    }
+  1619→    function approve(address spender, uint256 amount) external returns (bool) {
+  1620→        allowance[msg.sender][spender] = amount;
+  1621→        emit Approval(msg.sender, spender, amount);
+  1622→        return true;
+  1623→    }
+  1624→    function transferFrom(address from, address to, uint256 amount) external returns (bool) {
+  1625→        uint256 allowed = allowance[from][msg.sender];
+  1626→        if (allowed != type(uint256).max) {
+  1627→            if (!(allowed >= amount)) revert Err21();
+  1628→            allowance[from][msg.sender] = allowed - amount;
+  1629→        }
+  1630→        _transfer(from, to, amount);
+  1631→        return true;
+  1632→    }
+  1633→    function _transfer(address from, address to, uint256 amount) internal {
+  1634→        if (!(balanceOf[from] >= amount)) revert Err22();
+  1635→        balanceOf[from] -= amount;
+  1636→        balanceOf[to]   += amount;
+  1637→        emit Transfer(from, to, amount);
+  1638→    }
+  1639→    function _mint(address to, uint256 amount) internal {
+  1640→        totalSupply   += amount;
+  1641→        balanceOf[to] += amount;
+  1642→        emit Transfer(address(0), to, amount);
+  1643→    }
+  1644→    function _burn(address from, uint256 amount) internal {
+  1645→        if (!(balanceOf[from] >= amount)) revert Err13();
+  1646→        balanceOf[from] -= amount;
+  1647→        totalSupply     -= amount;
+  1648→        emit Transfer(from, address(0), amount);
+  1649→    }
+  1650→
+  1651→    // ============================================================
+  1652→    // §14.2 Role management (unchanged vs V2)
+  1653→    // ============================================================
+  1654→    function grantRole(bytes32 role, address account) external onlyRole(DEFAULT_ADMIN_ROLE) {
+  1655→        _grantRole(role, account);
+  1656→    }
+  1657→    function revokeRole(bytes32 role, address account) external onlyRole(DEFAULT_ADMIN_ROLE) {
+  1658→        _revokeRole(role, account);
+  1659→    }
+  1660→    function renounceRole(bytes32 role, address account) external {
+  1661→        if (!(msg.sender == account)) revert Err65();
+  1662→        _revokeRole(role, account);
+  1663→    }
+  1664→    function hasRole(bytes32 role, address account) external view returns (bool) {
+  1665→        return _roles[role][account] || _roles[DEFAULT_ADMIN_ROLE][account];
+  1666→    }
+  1667→    function _grantRole(bytes32 role, address account) internal {
+  1668→        if (!_roles[role][account]) {
+  1669→            _roles[role][account] = true;
+  1670→            emit RoleGranted(role, account, msg.sender);
+  1671→        }
+  1672→    }
+  1673→    function _revokeRole(bytes32 role, address account) internal {
+  1674→        if (_roles[role][account]) {
+  1675→            _roles[role][account] = false;
+  1676→            emit RoleRevoked(role, account, msg.sender);
+  1677→        }
+  1678→    }
+  1679→
+  1680→    // ============================================================
+  1681→    // §25  Honest Status (on-chain self-declaration)
+  1682→    //   bit 0  basketHas7Components       (1 = 7-comp v1.0 with Gold+CHF)
+  1683→    //   bit 1  goldIsFirstClassIndex      (1 = Gold in lastPrices[6] + lastWeights[6])
+  1684→    //   bit 2  chfIsFirstClassIndex       (1 = CHF in lastPrices[5], BASE_CHF_USD=1.13)
+  1685→    //   bit 3  chainLinkedIndex           (1 = Listing 3 recursion: advanceIndex)
+  1686→    //   bit 4  maseWeightRegistry         (1 = submitTargetWeights → commitWeights → advanceIndex)
+  1687→    //   bit 5  admissibilityEnvelopes     (1 = LOWER_BOUND/UPPER_BOUND enforced)
+  1688→    //   bit 6  marpExecution              (1 = executeRebalance + RR<1.05 override + trades≤7)
+  1689→    //   bit 7  assetRegistry              (1 = IAssetRegistry adapter wired)
+  1690→    //   bit 8  multiSourceOracle          (1 = 3 adapters + §9.2/§9.3 + source independence)
+  1691→    //   bit 9  daoGovernance              (1 = Listing 14 with 4 layers + 4 timelocks)
+  1692→    //   bit 10 honestStatusExposed        (1 = this function exists)
+  1693→    //   bit 11 permissionedBankMediated   (1 = V3 NEW — bank registry + 16-step workflow + ABC + 7-layer finality)
+  1694→    // ============================================================
+  1695→    function getHonestStatus() external view returns (
+  1696→        uint256 implementedMask,
+  1697→        uint8  blueprintMajor,
+  1698→        uint8  contractVersion,
+  1699→        string memory statusDeclaration,
+  1700→        bytes32 evidenceHash
+  1701→    ) {
+  1702→        implementedMask   = 0xFFF; // all 12 V3 bits — TRUTHFULLY earned
+  1703→        blueprintMajor    = 25;    // Master Blueprint v25.3
+  1704→        contractVersion   = 3;     // V3 (this contract)
+  1705→        statusDeclaration = "v25.3 Master Blueprint production target. Permissioned, bank-mediated, non-custodial. 16-step Bank Minting Workflow (BM-01..BM-16). 7-layer settlement finality (API/workflow/policy/monetary/ledger/atomic/on-chain). AvailableBackingCertificate verification (custodian attestation). 130% RR target, 80/18/2 reserve composition. NOT production-authorized until independent audit + Section-23 validation complete.";
+  1706→        evidenceHash      = keccak256(abi.encodePacked("MTQSigmaV3", block.chainid, address(this)));
+  1707→    }
+  1708→
+  1709→    // ============================================================
+  1710→    // §9  Pure helpers
+  1711→    // ============================================================
+  1712→    function _insertionSort(uint256[3] memory arr, uint8 n) internal pure {
+  1713→        for (uint8 i = 1; i < n; i++) {
+  1714→            uint256 key = arr[i];
+  1715→            uint8 j = i;
+  1716→            while (j > 0 && arr[j - 1] > key) {
+  1717→                arr[j] = arr[j - 1];
+  1718→                j--;
+  1719→            }
+  1720→            arr[j] = key;
+  1721→        }
+  1722→    }
+  1723→}
+  1724→

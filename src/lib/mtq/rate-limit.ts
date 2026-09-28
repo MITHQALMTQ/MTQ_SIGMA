@@ -45,6 +45,10 @@ export const RATE_LIMITS = {
   ai: { capacity: 5, refillPerSec: 5 / 60 },
   simulate: { capacity: 20, refillPerSec: 20 / 60 },
   health: { capacity: 60, refillPerSec: 1 },
+  // Proof of Reserve (PoR) public API: 60 req per IP per minute. Same
+  // budget as health — PoR is a public good, but the underlying pilot
+  // state computation is non-trivial. STABILITY-POOL-FEES-POR.
+  por: { capacity: 60, refillPerSec: 1 },
 } as const;
 
 export interface RateLimitResult {

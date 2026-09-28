@@ -237,6 +237,23 @@ export interface ReserveState {
   // is reset to 0 only by initReserveState().
   deficitUsd: number;
 
+  // === WIRING-1 — §11.5 Stability Pool (T3 first-loss for EMERGENCY deficit) ===
+  // The V3 contract's `useStabilityPoolForDeficit(deficitUsd)` is the SOLE
+  // recovery path out of EMERGENCY (RR < 1.00). When the protocol is in
+  // EMERGENCY and the stability pool has funds, the keeper calls the V3
+  // function to cover the deficit up to min(deficit, totalStabilityPool).
+  // The covered amount is removed from `totalStabilityPoolUsd` and recorded
+  // additively in `stabilityPoolUsedUsd` for audit. In the pilot (V3 contract
+  // not deployed), the tick loop simulates this accounting in-process so the
+  // state machine can exit EMERGENCY without a real on-chain call.
+  //
+  // Seeded to $50,000 at genesis (pilot-only — represents authorized bank
+  // deposits into the V3 stability pool). When the V3 contract is deployed
+  // and the keeper is wired, this field should be initialized from the V3
+  // contract's `totalStabilityPool()` view instead.
+  totalStabilityPoolUsd: number;
+  stabilityPoolUsedUsd: number;
+
   updatedAt: number;
 }
 
@@ -380,6 +397,12 @@ export function initReserveState(goldPrice: number): ReserveState {
     },
     // === B9-FIX — conservation-of-value deficit ledger starts at 0 at genesis.
     deficitUsd: 0,
+    // === WIRING-1 — §11.5 Stability Pool seeded at $50,000 for the pilot ===
+    // (represents authorized bank deposits into the V3 stability pool — when
+    // the V3 contract is deployed this should be initialized from the V3
+    // contract's `totalStabilityPool()` view instead of this hardcoded seed).
+    totalStabilityPoolUsd: 50_000,
+    stabilityPoolUsedUsd: 0,
     updatedAt: Date.now(),
   };
 }

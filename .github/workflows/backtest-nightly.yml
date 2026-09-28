@@ -1,0 +1,56 @@
+name: Layer 6 Historical Backtest (Nightly)
+
+on:
+  schedule:
+    # Nightly at 04:00 UTC (offset from compute-engine 02:00 and backup 03:00)
+    - cron: '0 4 * * *'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  backtest:
+    name: 10-Year Historical Backtest
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Bun
+        uses: oven-sh/setup-bun@v2
+        with:
+          bun-version: latest
+
+      - name: Install dependencies
+        run: bun install --frozen-lockfile
+
+      - name: Generate Prisma client
+        run: bun run db:generate
+        env:
+          DATABASE_URL: "file:/tmp/backtest.db"
+
+      - name: Run Layer 6 historical backtest (10 years)
+        run: bun run test:backtest
+        env:
+          FRED_API_KEY: ${{ secrets.FRED_API_KEY }}
+
+      - name: Upload backtest results
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: historical-backtest-results
+          path: audit-work/historical-backtest-results.json
+          retention-days: 90
+
+      - name: Alert on failure
+        if: failure()
+        uses: actions/github-script@v7
+        with:
+          script: |
+            github.rest.issues.create({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              title: `Layer 6 Backtest FAILED — ${new Date().toISOString().slice(0,10)}`,
+              body: `The nightly historical backtest failed. Check the run: ${context.runId}`,
+              labels: ['backtest-failed', 'automated']
+            })

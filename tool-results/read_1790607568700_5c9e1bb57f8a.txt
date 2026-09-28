@@ -1,0 +1,736 @@
+     1→// ============================================================================
+     2→//  MITHQAL — Systemic Exposure Engine (Blueprint v25.3 §52)
+     3→//  ----------------------------------------------------------------------------
+     4→//  Module ID:   v25.2-systemic-exposure-engine-1.0
+     5→//  Section:     §52
+     6→//  Source file: `src/lib/systemic-exposure-engine.ts`
+     7→//
+     8→//  The §52 framework implements the System-Wide Exposure & Concentration
+     9→//  Engine. It provides:
+    10→//    1. A 13-dimension concentration measurement framework.
+    11→//    2. The two pivotal systemic-risk questions (Question A: individual-limit;
+    12→//       Question B: system-wide-growth).
+    13→//    3. A `SystemicExposureSnapshot` — a cross-dimensional view of all
+    14→//       institutional exposures.
+    15→//    4. A per-bank `BankVsSystemWideResult` answering Questions A & B.
+    16→//    5. A reference input bundle for the §3 DMCE engine.
+    17→//
+    18→//  Honest state (§74):
+    19→//    systemicRiskEngineDesigned:       true
+    20→//    systemicRiskEngineImplemented:    true
+    21→//    systemicRiskMonitoringLive:       false   // NO live institutional feeds
+    22→//    systemicRiskProductionValidated:  false   // NO production deployment
+    23→//
+    24→//  The engine is a DESIGN-TIME systemic exposure measurement engine. It
+    25→//  operates on declarative bank / custodian / provider / asset inputs
+    26→//  (currently SIMULATED reference data). It does NOT poll live bank
+    27→//  balances, live custodian holdings, or live oracle feeds.
+    28→// ============================================================================
+    29→
+    30→export const SYSTEMIC_EXPOSURE_MODULE_ID = "v25.2-systemic-exposure-engine-1.0" as const;
+    31→export const SYSTEMIC_EXPOSURE_SECTION = 52 as const;
+    32→
+    33→// ----------------------------------------------------------------------------
+    34→// §20.1 — Honest state (§74)
+    35→// ----------------------------------------------------------------------------
+    36→
+    37→export interface SystemicExposureHonestState {
+    38→  systemicRiskEngineDesigned: true;
+    39→  systemicRiskEngineImplemented: true;
+    40→  systemicRiskMonitoringLive: false;
+    41→  systemicRiskProductionValidated: false;
+    42→}
+    43→
+    44→export function systemicExposureHonestState(): SystemicExposureHonestState {
+    45→  return {
+    46→    systemicRiskEngineDesigned: true,
+    47→    systemicRiskEngineImplemented: true,
+    48→    systemicRiskMonitoringLive: false,
+    49→    systemicRiskProductionValidated: false,
+    50→  };
+    51→}
+    52→
+    53→export const SYSTEMIC_EXPOSURE_HONEST_STATE = systemicExposureHonestState();
+    54→
+    55→// ----------------------------------------------------------------------------
+    56→// §20.2 — The 13 concentration dimensions
+    57→// ----------------------------------------------------------------------------
+    58→
+    59→export type ConcentrationDimension =
+    60→  | "bank"
+    61→  | "banking-group"
+    62→  | "country"
+    63→  | "currency"
+    64→  | "custodian"
+    65→  | "correspondent"
+    66→  | "settlement-rail"
+    67→  | "liquidity-provider"
+    68→  | "stablecoin-issuer"
+    69→  | "technology-provider"
+    70→  | "geopolitical-correlation"
+    71→  | "operational-correlation"
+    72→  | "bank-exposure";
+    73→
+    74→export const ALL_DIMENSIONS: ReadonlyArray<ConcentrationDimension> = [
+    75→  "bank",                            // 1
+    76→  "banking-group",                   // 2
+    77→  "country",                         // 3
+    78→  "currency",                        // 4
+    79→  "custodian",                       // 5
+    80→  "correspondent",                   // 6
+    81→  "settlement-rail",                 // 7
+    82→  "liquidity-provider",              // 8
+    83→  "stablecoin-issuer",               // 9
+    84→  "technology-provider",             // 10
+    85→  "geopolitical-correlation",        // 11
+    86→  "operational-correlation",         // 12
+    87→  "bank-exposure",                   // 13 (§76 — also a distinct dimension)
+    88→];
+    89→
+    90→// ----------------------------------------------------------------------------
+    91→// §20.3 — Concentration limits (§76)
+    92→// ----------------------------------------------------------------------------
+    93→
+    94→export const CONCENTRATION_LIMITS = {
+    95→  // Currency (§76) — preferred 15%, hard 20%
+    96→  preferredCurrencyExposure: 0.15,
+    97→  hardCurrencyExposure: 0.20,
+    98→  // Bank (§76) — preferred 10-15% (upper bound adopted), hard 20%
+    99→  preferredBankExposure: 0.15,
+   100→  hardBankExposure: 0.20,
+   101→  // Custodian (§76) — preferred 15%, hard 20%
+   102→  preferredCustodianExposure: 0.15,
+   103→  hardCustodianExposure: 0.20,
+   104→  // Country (§76) — preferred 20%, hard 25%
+   105→  preferredCountryExposure: 0.20,
+   106→  hardCountryExposure: 0.25,
+   107→  // Banking group — preferred 15%, hard 20%
+   108→  preferredBankingGroupExposure: 0.15,
+   109→  hardBankingGroupExposure: 0.20,
+   110→  // Correspondent — preferred 15%, hard 20%
+   111→  preferredCorrespondentExposure: 0.15,
+   112→  hardCorrespondentExposure: 0.20,
+   113→  // Settlement rail — preferred 25%, hard 35%
+   114→  preferredSettlementRailExposure: 0.25,
+   115→  hardSettlementRailExposure: 0.35,
+   116→  // Liquidity provider — preferred 20%, hard 30%
+   117→  preferredLiquidityProviderExposure: 0.20,
+   118→  hardLiquidityProviderExposure: 0.30,
+   119→  // Stablecoin issuer — preferred 10%, hard 15%
+   120→  preferredStablecoinIssuerExposure: 0.10,
+   121→  hardStablecoinIssuerExposure: 0.15,
+   122→  // Technology provider — preferred 15%, hard 20%
+   123→  preferredTechnologyProviderExposure: 0.15,
+   124→  hardTechnologyProviderExposure: 0.20,
+   125→  // Geopolitical correlation block — preferred 30%, hard 40%
+   126→  preferredGeopoliticalCorrelationExposure: 0.30,
+   127→  hardGeopoliticalCorrelationExposure: 0.40,
+   128→  // Operational correlation block — preferred 30%, hard 40%
+   129→  preferredOperationalCorrelationExposure: 0.30,
+   130→  hardOperationalCorrelationExposure: 0.40,
+   131→  // Bank-exposure dimension (§76) — preferred 10-15% (upper bound), hard 20%
+   132→  preferredBankExposureDimension: 0.15,
+   133→  hardBankExposureDimension: 0.20,
+   134→} as const;
+   135→
+   136→export interface DimensionLimits {
+   137→  preferred: number;
+   138→  hard: number;
+   139→}
+   140→
+   141→export function limitsForDimension(d: ConcentrationDimension): DimensionLimits {
+   142→  switch (d) {
+   143→    case "bank": return { preferred: CONCENTRATION_LIMITS.preferredBankExposure, hard: CONCENTRATION_LIMITS.hardBankExposure };
+   144→    case "banking-group": return { preferred: CONCENTRATION_LIMITS.preferredBankingGroupExposure, hard: CONCENTRATION_LIMITS.hardBankingGroupExposure };
+   145→    case "country": return { preferred: CONCENTRATION_LIMITS.preferredCountryExposure, hard: CONCENTRATION_LIMITS.hardCountryExposure };
+   146→    case "currency": return { preferred: CONCENTRATION_LIMITS.preferredCurrencyExposure, hard: CONCENTRATION_LIMITS.hardCurrencyExposure };
+   147→    case "custodian": return { preferred: CONCENTRATION_LIMITS.preferredCustodianExposure, hard: CONCENTRATION_LIMITS.hardCustodianExposure };
+   148→    case "correspondent": return { preferred: CONCENTRATION_LIMITS.preferredCorrespondentExposure, hard: CONCENTRATION_LIMITS.hardCorrespondentExposure };
+   149→    case "settlement-rail": return { preferred: CONCENTRATION_LIMITS.preferredSettlementRailExposure, hard: CONCENTRATION_LIMITS.hardSettlementRailExposure };
+   150→    case "liquidity-provider": return { preferred: CONCENTRATION_LIMITS.preferredLiquidityProviderExposure, hard: CONCENTRATION_LIMITS.hardLiquidityProviderExposure };
+   151→    case "stablecoin-issuer": return { preferred: CONCENTRATION_LIMITS.preferredStablecoinIssuerExposure, hard: CONCENTRATION_LIMITS.hardStablecoinIssuerExposure };
+   152→    case "technology-provider": return { preferred: CONCENTRATION_LIMITS.preferredTechnologyProviderExposure, hard: CONCENTRATION_LIMITS.hardTechnologyProviderExposure };
+   153→    case "geopolitical-correlation": return { preferred: CONCENTRATION_LIMITS.preferredGeopoliticalCorrelationExposure, hard: CONCENTRATION_LIMITS.hardGeopoliticalCorrelationExposure };
+   154→    case "operational-correlation": return { preferred: CONCENTRATION_LIMITS.preferredOperationalCorrelationExposure, hard: CONCENTRATION_LIMITS.hardOperationalCorrelationExposure };
+   155→    case "bank-exposure": return { preferred: CONCENTRATION_LIMITS.preferredBankExposureDimension, hard: CONCENTRATION_LIMITS.hardBankExposureDimension };
+   156→  }
+   157→}
+   158→
+   159→// ----------------------------------------------------------------------------
+   160→// §20.2 — Exposure bucket + status classification
+   161→// ----------------------------------------------------------------------------
+   162→
+   163→export type ExposureStatus = "within" | "near-breach" | "breach" | "unknown";
+   164→
+   165→export interface ExposureBucketMetadata {
+   166→  parentGroup?: string;
+   167→  jurisdiction?: string;
+   168→  entityId?: string;
+   169→  note?: string;
+   170→}
+   171→
+   172→export interface ExposureBucket {
+   173→  dimension: ConcentrationDimension;
+   174→  value: string;          // the bucket identifier (e.g., bank ID, country code)
+   175→  exposureAmount: number; // USD notional
+   176→  exposurePct: number;    // fraction of totalExposure
+   177→  preferred: number;
+   178→  hard: number;
+   179→  status: ExposureStatus;
+   180→  metadata?: ExposureBucketMetadata;
+   181→}
+   182→
+   183→export function classifyStatus(exposurePct: number, preferred: number, hard: number): ExposureStatus {
+   184→  if (exposurePct > hard + 1e-9) return "breach";
+   185→  if (exposurePct > preferred + 1e-9) return "near-breach";
+   186→  return "within";
+   187→}
+   188→
+   189→// ----------------------------------------------------------------------------
+   190→// §20.8 — Input types (banks / assets / custodians / providers)
+   191→// ----------------------------------------------------------------------------
+   192→
+   193→export interface SystemicBankInput {
+   194→  bankId: string;
+   195→  bankName: string;
+   196→  bankingGroup: string;
+   197→  country: string;
+   198→  currency?: string;
+   199→  exposureAmount: number;
+   200→  growthDeltaPct: number;          // percentage points period-over-period
+   201→  individualLimitPct?: number;     // optional override; defaults to hard bank cap
+   202→  correspondent?: string;
+   203→  settlementRail?: string;
+   204→  liquidityProvider?: string;
+   205→  geopoliticalCorrelation?: "low" | "medium" | "high";
+   206→  operationalCorrelation?: "low" | "medium" | "high";
+   207→}
+   208→
+   209→export interface SystemicAssetInput {
+   210→  assetId: string;
+   211→  currency: string;
+   212→  exposureAmount: number;
+   213→  stablecoinIssuer?: string;
+   214→}
+   215→
+   216→export interface SystemicCustodianInput {
+   217→  custodianId: string;
+   218→  custodianName: string;
+   219→  parentGroup?: string;
+   220→  jurisdiction?: string;
+   221→  technologyProvider?: string;
+   222→  exposureAmount: number;
+   223→  growthDeltaPct?: number;
+   224→}
+   225→
+   226→export interface SystemicProviderInput {
+   227→  providerId: string;
+   228→  providerName: string;
+   229→  exposureAmount: number;
+   230→}
+   231→
+   232→export interface SystemicExposureInputs {
+   233→  banks: SystemicBankInput[];
+   234→  assets: SystemicAssetInput[];
+   235→  custodians: SystemicCustodianInput[];
+   236→  providers: SystemicProviderInput[];
+   237→}
+   238→
+   239→// ----------------------------------------------------------------------------
+   240→// §20.8 — Snapshot structure
+   241→// ----------------------------------------------------------------------------
+   242→
+   243→export interface SystemicExposureSnapshot {
+   244→  timestamp: string;
+   245→  dimensions: Record<ConcentrationDimension, ExposureBucket[]>;
+   246→  totalExposure: number;
+   247→  constraintsMet: boolean;
+   248→  violations: ExposureBucket[];
+   249→  nearBreaches: ExposureBucket[];
+   250→  concentrationScore: number; // 0–1 HHI-averaged
+   251→}
+   252→
+   253→// ----------------------------------------------------------------------------
+   254→// §20.2 — Aggregation helper (build buckets from items)
+   255→// ----------------------------------------------------------------------------
+   256→
+   257→interface AggItem {
+   258→  value: string;
+   259→  amount: number;
+   260→  metadata?: ExposureBucketMetadata;
+   261→}
+   262→
+   263→function aggregate(items: AggItem[]): Map<string, { amount: number; metadata?: ExposureBucketMetadata }> {
+   264→  const m = new Map<string, { amount: number; metadata?: ExposureBucketMetadata }>();
+   265→  for (const it of items) {
+   266→    const existing = m.get(it.value);
+   267→    if (existing) existing.amount += it.amount;
+   268→    else m.set(it.value, { amount: it.amount, metadata: it.metadata });
+   269→  }
+   270→  return m;
+   271→}
+   272→
+   273→function buildBuckets(
+   274→  dimension: ConcentrationDimension,
+   275→  items: AggItem[],
+   276→  totalExposure: number,
+   277→): ExposureBucket[] {
+   278→  const agg = aggregate(items);
+   279→  const { preferred, hard } = limitsForDimension(dimension);
+   280→  const buckets: ExposureBucket[] = [];
+   281→  for (const [value, { amount, metadata }] of agg.entries()) {
+   282→    const exposurePct = totalExposure > 0 ? amount / totalExposure : 0;
+   283→    buckets.push({
+   284→      dimension,
+   285→      value,
+   286→      exposureAmount: amount,
+   287→      exposurePct,
+   288→      preferred,
+   289→      hard,
+   290→      status: classifyStatus(exposurePct, preferred, hard),
+   291→      metadata,
+   292→    });
+   293→  }
+   294→  return buckets.sort((a, b) => b.exposurePct - a.exposurePct);
+   295→}
+   296→
+   297→// ----------------------------------------------------------------------------
+   298→// §20.6 — Systemic concentration score (HHI averaged across 13 dimensions)
+   299→// ----------------------------------------------------------------------------
+   300→
+   301→export function computeSystemicConcentrationScore(
+   302→  snapshot: Pick<SystemicExposureSnapshot, "dimensions">,
+   303→): number {
+   304→  let sum = 0;
+   305→  let dimCount = 0;
+   306→  for (const d of ALL_DIMENSIONS) {
+   307→    const buckets = snapshot.dimensions[d];
+   308→    if (!buckets || buckets.length === 0) continue;
+   309→    let hhi = 0;
+   310→    for (const b of buckets) hhi += b.exposurePct * b.exposurePct;
+   311→    sum += hhi;
+   312→    dimCount++;
+   313→  }
+   314→  return dimCount === 0 ? 0 : sum / dimCount;
+   315→}
+   316→
+   317→// ----------------------------------------------------------------------------
+   318→// §20.8 — evaluateSystemicExposure (the canonical entry point)
+   319→// ----------------------------------------------------------------------------
+   320→
+   321→export function evaluateSystemicExposure(
+   322→  inputs: SystemicExposureInputs,
+   323→): SystemicExposureSnapshot {
+   324→  const bankTotal = inputs.banks.reduce((s, b) => s + b.exposureAmount, 0);
+   325→  const assetTotal = inputs.assets.reduce((s, a) => s + a.exposureAmount, 0);
+   326→  const custodianTotal = inputs.custodians.reduce((s, c) => s + c.exposureAmount, 0);
+   327→  const providerTotal = inputs.providers.reduce((s, p) => s + p.exposureAmount, 0);
+   328→  const totalExposure = Math.max(bankTotal, assetTotal, custodianTotal, providerTotal, 1);
+   329→
+   330→  const dimensions = {} as Record<ConcentrationDimension, ExposureBucket[]>;
+   331→
+   332→  // Dim 1 — bank
+   333→  dimensions["bank"] = buildBuckets(
+   334→    "bank",
+   335→    inputs.banks.map((b) => ({
+   336→      value: b.bankId,
+   337→      amount: b.exposureAmount,
+   338→      metadata: { parentGroup: b.bankingGroup, jurisdiction: b.country, entityId: b.bankId, note: b.bankName },
+   339→    })),
+   340→    totalExposure,
+   341→  );
+   342→
+   343→  // Dim 2 — banking-group
+   344→  dimensions["banking-group"] = buildBuckets(
+   345→    "banking-group",
+   346→    inputs.banks.map((b) => ({
+   347→      value: b.bankingGroup,
+   348→      amount: b.exposureAmount,
+   349→      metadata: { parentGroup: b.bankingGroup },
+   350→    })),
+   351→    totalExposure,
+   352→  );
+   353→
+   354→  // Dim 3 — country
+   355→  dimensions["country"] = buildBuckets(
+   356→    "country",
+   357→    inputs.banks.map((b) => ({
+   358→      value: b.country,
+   359→      amount: b.exposureAmount,
+   360→      metadata: { jurisdiction: b.country },
+   361→    })),
+   362→    totalExposure,
+   363→  );
+   364→
+   365→  // Dim 4 — currency
+   366→  dimensions["currency"] = buildBuckets(
+   367→    "currency",
+   368→    inputs.assets.map((a) => ({ value: a.currency, amount: a.exposureAmount })),
+   369→    totalExposure,
+   370→  );
+   371→
+   372→  // Dim 5 — custodian
+   373→  dimensions["custodian"] = buildBuckets(
+   374→    "custodian",
+   375→    inputs.custodians.map((c) => ({
+   376→      value: c.custodianId,
+   377→      amount: c.exposureAmount,
+   378→      metadata: {
+   379→        parentGroup: c.parentGroup,
+   380→        jurisdiction: c.jurisdiction,
+   381→        entityId: c.custodianId,
+   382→        note: c.custodianName,
+   383→      },
+   384→    })),
+   385→    totalExposure,
+   386→  );
+   387→
+   388→  // Dim 6 — correspondent
+   389→  dimensions["correspondent"] = buildBuckets(
+   390→    "correspondent",
+   391→    inputs.banks
+   392→      .filter((b) => !!b.correspondent)
+   393→      .map((b) => ({
+   394→        value: b.correspondent!,
+   395→        amount: b.exposureAmount,
+   396→        metadata: { parentGroup: b.bankingGroup },
+   397→      })),
+   398→    totalExposure,
+   399→  );
+   400→
+   401→  // Dim 7 — settlement-rail
+   402→  dimensions["settlement-rail"] = buildBuckets(
+   403→    "settlement-rail",
+   404→    inputs.banks
+   405→      .filter((b) => !!b.settlementRail)
+   406→      .map((b) => ({ value: b.settlementRail!, amount: b.exposureAmount })),
+   407→    totalExposure,
+   408→  );
+   409→
+   410→  // Dim 8 — liquidity-provider
+   411→  dimensions["liquidity-provider"] = buildBuckets(
+   412→    "liquidity-provider",
+   413→    inputs.banks
+   414→      .filter((b) => !!b.liquidityProvider)
+   415→      .map((b) => ({ value: b.liquidityProvider!, amount: b.exposureAmount })),
+   416→    totalExposure,
+   417→  );
+   418→
+   419→  // Dim 9 — stablecoin-issuer
+   420→  dimensions["stablecoin-issuer"] = buildBuckets(
+   421→    "stablecoin-issuer",
+   422→    inputs.assets
+   423→      .filter((a) => !!a.stablecoinIssuer)
+   424→      .map((a) => ({ value: a.stablecoinIssuer!, amount: a.exposureAmount })),
+   425→    totalExposure,
+   426→  );
+   427→
+   428→  // Dim 10 — technology-provider
+   429→  dimensions["technology-provider"] = buildBuckets(
+   430→    "technology-provider",
+   431→    inputs.custodians
+   432→      .filter((c) => !!c.technologyProvider)
+   433→      .map((c) => ({
+   434→        value: c.technologyProvider!,
+   435→        amount: c.exposureAmount,
+   436→        metadata: { parentGroup: c.parentGroup, jurisdiction: c.jurisdiction },
+   437→      })),
+   438→    totalExposure,
+   439→  );
+   440→
+   441→  // Dim 11 — geopolitical-correlation
+   442→  dimensions["geopolitical-correlation"] = buildBuckets(
+   443→    "geopolitical-correlation",
+   444→    inputs.banks.map((b) => ({
+   445→      value: "geo-" + (b.geopoliticalCorrelation ?? "low"),
+   446→      amount: b.exposureAmount,
+   447→    })),
+   448→    totalExposure,
+   449→  );
+   450→
+   451→  // Dim 12 — operational-correlation
+   452→  dimensions["operational-correlation"] = buildBuckets(
+   453→    "operational-correlation",
+   454→    inputs.banks.map((b) => ({
+   455→      value: "op-" + (b.operationalCorrelation ?? "low"),
+   456→      amount: b.exposureAmount,
+   457→    })),
+   458→    totalExposure,
+   459→  );
+   460→
+   461→  // Dim 13 — bank-exposure (§76 — same data as dim 1, surfaced separately)
+   462→  dimensions["bank-exposure"] = buildBuckets(
+   463→    "bank-exposure",
+   464→    inputs.banks.map((b) => ({
+   465→      value: b.bankId,
+   466→      amount: b.exposureAmount,
+   467→      metadata: { note: "§76 bank-exposure dimension (preferred 10-15%, hard 20%)" },
+   468→    })),
+   469→    totalExposure,
+   470→  );
+   471→
+   472→  // Collect violations + near-breaches across all dimensions.
+   473→  const violations: ExposureBucket[] = [];
+   474→  const nearBreaches: ExposureBucket[] = [];
+   475→  for (const d of ALL_DIMENSIONS) {
+   476→    for (const b of dimensions[d]) {
+   477→      if (b.status === "breach") violations.push(b);
+   478→      else if (b.status === "near-breach") nearBreaches.push(b);
+   479→    }
+   480→  }
+   481→
+   482→  const snapshot: SystemicExposureSnapshot = {
+   483→    timestamp: new Date().toISOString(),
+   484→    dimensions,
+   485→    totalExposure,
+   486→    constraintsMet: violations.length === 0,
+   487→    violations,
+   488→    nearBreaches,
+   489→    concentrationScore: 0,
+   490→  };
+   491→  snapshot.concentrationScore = computeSystemicConcentrationScore(snapshot);
+   492→  return snapshot;
+   493→}
+   494→
+   495→// ----------------------------------------------------------------------------
+   496→// §20.4 — Bank-vs-system-wide assessment (Questions A & B)
+   497→// ----------------------------------------------------------------------------
+   498→
+   499→export interface BankVsSystemWideResult {
+   500→  bankId: string;
+   501→  bankName: string;
+   502→  individualLimitOk: boolean;
+   503→  individualExposurePct: number;
+   504→  individualLimit: number;
+   505→  systemWideConcentrationOk: boolean;
+   506→  growthCreatesExcessConcentration: boolean;
+   507→  projectedExposurePct: number;
+   508→  projectedSystemConcentrationScore: number;
+   509→  details: string;
+   510→  recommendation: string;
+   511→}
+   512→
+   513→export function assessBankVsSystemWide(
+   514→  bank: SystemicBankInput,
+   515→  snapshot: SystemicExposureSnapshot,
+   516→): BankVsSystemWideResult {
+   517→  const bankBucket =
+   518→    snapshot.dimensions["bank"].find((b) => b.value === bank.bankId) ??
+   519→    snapshot.dimensions["bank-exposure"].find((b) => b.value === bank.bankId);
+   520→  const individualExposurePct = bankBucket?.exposurePct ?? 0;
+   521→  const individualLimit = bank.individualLimitPct ?? CONCENTRATION_LIMITS.hardBankExposure;
+   522→  const preferredLimit = CONCENTRATION_LIMITS.preferredBankExposure;
+   523→  const individualLimitOk = individualExposurePct <= individualLimit + 1e-9;
+   524→
+   525→  const growthDeltaFraction = bank.growthDeltaPct / 100;
+   526→  const projectedExposurePct = individualExposurePct + growthDeltaFraction;
+   527→  const wouldBreachHard = projectedExposurePct > individualLimit + 1e-9;
+   528→  const wouldBreachPreferred = projectedExposurePct > preferredLimit + 1e-9;
+   529→  const violationsForBank = snapshot.violations.filter((v) => v.value === bank.bankId);
+   530→
+   531→  // Projected concentration score — recompute HHI with the bank's projected exposure.
+   532→  // (Approximation: scale the bank's current contribution up by (projected/current).)
+   533→  const currentScore = snapshot.concentrationScore;
+   534→  const projectedSystemConcentrationScore = individualExposurePct > 0
+   535→    ? Math.min(1, currentScore + (projectedExposurePct * projectedExposurePct - individualExposurePct * individualExposurePct))
+   536→    : currentScore;
+   537→
+   538→  const growthCreatesExcessConcentration =
+   539→    wouldBreachHard || wouldBreachPreferred || violationsForBank.length > 0;
+   540→
+   541→  let recommendation: string;
+   542→  if (!individualLimitOk) {
+   543→    recommendation = "REDUCE exposure to bank immediately — individual hard limit already breached.";
+   544→  } else if (wouldBreachHard) {
+   545→    recommendation = "HOLD growth — projected exposure would breach the system-wide hard cap.";
+   546→  } else if (wouldBreachPreferred) {
+   547→    recommendation = "MONITOR growth — projected exposure would exceed the preferred system-wide cap.";
+   548→  } else if (violationsForBank.length > 0) {
+   549→    recommendation = "REMEDIATE existing system-wide violations attributed to this bank / group before expanding exposure.";
+   550→  } else {
+   551→    recommendation = "Within limits; continue routine systemic monitoring.";
+   552→  }
+   553→
+   554→  return {
+   555→    bankId: bank.bankId,
+   556→    bankName: bank.bankName,
+   557→    individualLimitOk,
+   558→    individualExposurePct,
+   559→    individualLimit,
+   560→    systemWideConcentrationOk: !growthCreatesExcessConcentration,
+   561→    growthCreatesExcessConcentration,
+   562→    projectedExposurePct,
+   563→    projectedSystemConcentrationScore,
+   564→    details:
+   565→      `individual=${(individualExposurePct * 100).toFixed(2)}% (limit ${(individualLimit * 100).toFixed(0)}%); ` +
+   566→      `projected=${(projectedExposurePct * 100).toFixed(2)}%; ` +
+   567→      `systemViolations=${violationsForBank.length}; score=${currentScore.toFixed(3)} → ${projectedSystemConcentrationScore.toFixed(3)}.`,
+   568→    recommendation,
+   569→  };
+   570→}
+   571→
+   572→// ----------------------------------------------------------------------------
+   573→// §20.5 — Enhanced DMCE input bundle (reference, not recomputation)
+   574→// ----------------------------------------------------------------------------
+   575→
+   576→export interface EnhancedDMCEInput {
+   577→  bankId: string;
+   578→  bankName: string;
+   579→  bankExposurePct: number;
+   580→  bankGrowthDelta: number;
+   581→  bankHardLimit: number;
+   582→  bankPreferredLimit: number;
+   583→  systemConcentrationScore: number;
+   584→  systemWideViolations: number;
+   585→  systemWideNearBreaches: number;
+   586→  correlatedDimensions: Array<{
+   587→    dimension: ConcentrationDimension;
+   588→    entityId: string;
+   589→    exposurePct: number;
+   590→  }>;
+   591→  note: string;
+   592→}
+   593→
+   594→export function buildEnhancedDMCEInput(
+   595→  bank: SystemicBankInput,
+   596→  snapshot: SystemicExposureSnapshot,
+   597→): EnhancedDMCEInput {
+   598→  const bankBucket = snapshot.dimensions["bank"].find((b) => b.value === bank.bankId);
+   599→  const correlated: EnhancedDMCEInput["correlatedDimensions"] = [];
+   600→  for (const d of ALL_DIMENSIONS) {
+   601→    if (d === "bank" || d === "bank-exposure") continue;
+   602→    for (const b of snapshot.dimensions[d]) {
+   603→      if (
+   604→        b.metadata?.entityId === bank.bankId ||
+   605→        b.metadata?.parentGroup === bank.bankingGroup ||
+   606→        b.metadata?.jurisdiction === bank.country
+   607→      ) {
+   608→        correlated.push({ dimension: d, entityId: b.value, exposurePct: b.exposurePct });
+   609→      }
+   610→    }
+   611→  }
+   612→  return {
+   613→    bankId: bank.bankId,
+   614→    bankName: bank.bankName,
+   615→    bankExposurePct: bankBucket?.exposurePct ?? 0,
+   616→    bankGrowthDelta: bank.growthDeltaPct,
+   617→    bankHardLimit: bank.individualLimitPct ?? CONCENTRATION_LIMITS.hardBankExposure,
+   618→    bankPreferredLimit: CONCENTRATION_LIMITS.preferredBankExposure,
+   619→    systemConcentrationScore: snapshot.concentrationScore,
+   620→    systemWideViolations: snapshot.violations.length,
+   621→    systemWideNearBreaches: snapshot.nearBreaches.length,
+   622→    correlatedDimensions: correlated,
+   623→    note: "REFERENCE input for §3 DMCE — does NOT recompute DMCE itself (owned by mtq-final-reserve-spec.ts).",
+   624→  };
+   625→}
+   626→
+   627→// ----------------------------------------------------------------------------
+   628→// §20.9 — SIMULATED reference snapshot
+   629→// ----------------------------------------------------------------------------
+   630→
+   631→export function buildReferenceSystemicSnapshot(): SystemicExposureSnapshot {
+   632→  const banks: SystemicBankInput[] = [
+   633→    { bankId: "BANK-001", bankName: "Northern Anchor Bank", bankingGroup: "Mithqal-North-Africa-Group", country: "AE", currency: "USD", exposureAmount: 25_000_000, growthDeltaPct: 3.0, correspondent: "SWIFT-1", settlementRail: "CIPS", liquidityProvider: "LP-1", geopoliticalCorrelation: "medium", operationalCorrelation: "low" },
+   634→    { bankId: "BANK-002", bankName: "Sovereign Trust Bank", bankingGroup: "Sovereign-Asia-Group", country: "SA", currency: "SAR", exposureAmount: 18_000_000, growthDeltaPct: 6.0, correspondent: "SWIFT-2", settlementRail: "SARIE", liquidityProvider: "LP-2", geopoliticalCorrelation: "low", operationalCorrelation: "medium" },
+   635→    { bankId: "BANK-003", bankName: "Euro Reserve Custody", bankingGroup: "Euro-Reserve-Group", country: "CH", currency: "EUR", exposureAmount: 32_000_000, growthDeltaPct: 1.0, correspondent: "SWIFT-3", settlementRail: "TARGET2", liquidityProvider: "LP-3", geopoliticalCorrelation: "low", operationalCorrelation: "low" },
+   636→    { bankId: "BANK-004", bankName: "Pacific Bridge Bank", bankingGroup: "Pacific-Finance-Group", country: "SG", currency: "SGD", exposureAmount: 25_000_000, growthDeltaPct: 2.0, correspondent: "SWIFT-4", settlementRail: "MAS-FAST", liquidityProvider: "LP-1", geopoliticalCorrelation: "medium", operationalCorrelation: "medium" },
+   637→  ];
+   638→  const assets: SystemicAssetInput[] = [
+   639→    { assetId: "USD-CASH", currency: "USD", exposureAmount: 60_000_000 },
+   640→    { assetId: "EUR-CASH", currency: "EUR", exposureAmount: 32_000_000 },
+   641→    { assetId: "SAR-CASH", currency: "SAR", exposureAmount: 18_000_000 },
+   642→    { assetId: "SGD-CASH", currency: "SGD", exposureAmount: 25_000_000 },
+   643→    { assetId: "USDC-1", currency: "USD", exposureAmount: 5_000_000, stablecoinIssuer: "USDC-ISSUER" },
+   644→  ];
+   645→  const custodians: SystemicCustodianInput[] = [
+   646→    { custodianId: "CUST-A", custodianName: "Northern Custody Trust", parentGroup: "NC-Trust-Group", jurisdiction: "AE", technologyProvider: "TECH-1", exposureAmount: 48_000_000, growthDeltaPct: 2.0 },
+   647→    { custodianId: "CUST-B", custodianName: "Sovereign Custody Corp", parentGroup: "SC-Corp-Group", jurisdiction: "SA", technologyProvider: "TECH-2", exposureAmount: 35_000_000, growthDeltaPct: 4.0 },
+   648→    { custodianId: "CUST-C", custodianName: "Euro Vault AG", parentGroup: "EV-AG-Group", jurisdiction: "CH", technologyProvider: "TECH-1", exposureAmount: 32_000_000, growthDeltaPct: 1.0 },
+   649→  ];
+   650→  const providers: SystemicProviderInput[] = [
+   651→    { providerId: "TECH-1", providerName: "CustodyTech-A", exposureAmount: 80_000_000 },
+   652→    { providerId: "TECH-2", providerName: "CustodyTech-B", exposureAmount: 35_000_000 },
+   653→  ];
+   654→  return evaluateSystemicExposure({ banks, assets, custodians, providers });
+   655→}
+   656→
+   657→// ----------------------------------------------------------------------------
+   658→// §52 — Report generator
+   659→// ----------------------------------------------------------------------------
+   660→
+   661→export interface SystemicExposureReport {
+   662→  moduleId: typeof SYSTEMIC_EXPOSURE_MODULE_ID;
+   663→  section: typeof SYSTEMIC_EXPOSURE_SECTION;
+   664→  dimensions: ReadonlyArray<ConcentrationDimension>;
+   665→  concentrationLimits: typeof CONCENTRATION_LIMITS;
+   666→  honestState: SystemicExposureHonestState;
+   667→  referenceSnapshot: SystemicExposureSnapshot;
+   668→  bankAssessments: BankVsSystemWideResult[];
+   669→  finalStatus: string;
+   670→  finalStatusColor: "amber";
+   671→}
+   672→
+   673→export function generateSystemicExposureReport(): SystemicExposureReport {
+   674→  const snapshot = buildReferenceSystemicSnapshot();
+   675→  const bankInputs: SystemicBankInput[] = [
+   676→    { bankId: "BANK-001", bankName: "Northern Anchor Bank", bankingGroup: "Mithqal-North-Africa-Group", country: "AE", exposureAmount: 25_000_000, growthDeltaPct: 3.0 },
+   677→    { bankId: "BANK-002", bankName: "Sovereign Trust Bank", bankingGroup: "Sovereign-Asia-Group", country: "SA", exposureAmount: 18_000_000, growthDeltaPct: 6.0 },
+   678→    { bankId: "BANK-003", bankName: "Euro Reserve Custody", bankingGroup: "Euro-Reserve-Group", country: "CH", exposureAmount: 32_000_000, growthDeltaPct: 1.0 },
+   679→    { bankId: "BANK-004", bankName: "Pacific Bridge Bank", bankingGroup: "Pacific-Finance-Group", country: "SG", exposureAmount: 25_000_000, growthDeltaPct: 2.0 },
+   680→  ];
+   681→  return {
+   682→    moduleId: SYSTEMIC_EXPOSURE_MODULE_ID,
+   683→    section: SYSTEMIC_EXPOSURE_SECTION,
+   684→    dimensions: ALL_DIMENSIONS,
+   685→    concentrationLimits: CONCENTRATION_LIMITS,
+   686→    honestState: systemicExposureHonestState(),
+   687→    referenceSnapshot: snapshot,
+   688→    bankAssessments: bankInputs.map((b) => assessBankVsSystemWide(b, snapshot)),
+   689→    finalStatus:
+   690→      "APPROVED CANDIDATE FOR CONTROLLED TESTING — NOT PRODUCTION-AUTHORIZED " +
+   691→      "(systemicRiskMonitoringLive=false, systemicRiskProductionValidated=false)",
+   692→    finalStatusColor: "amber",
+   693→  };
+   694→}
+   695→
+   696→// ----------------------------------------------------------------------------
+   697→// §20.7 — Correlated exposure detection
+   698→// ----------------------------------------------------------------------------
+   699→
+   700→export interface CorrelatedExposurePair {
+   701→  dimensionA: ConcentrationDimension;
+   702→  dimensionB: ConcentrationDimension;
+   703→  bucketA: ExposureBucket;
+   704→  bucketB: ExposureBucket;
+   705→  combinedExposurePct: number;
+   706→  reason: string;
+   707→}
+   708→
+   709→export function correlatedExposure(
+   710→  dimensionA: ConcentrationDimension,
+   711→  dimensionB: ConcentrationDimension,
+   712→  snapshot: SystemicExposureSnapshot,
+   713→): CorrelatedExposurePair[] {
+   714→  const pairs: CorrelatedExposurePair[] = [];
+   715→  const bucketsA = snapshot.dimensions[dimensionA] ?? [];
+   716→  const bucketsB = snapshot.dimensions[dimensionB] ?? [];
+   717→  for (const a of bucketsA) {
+   718→    for (const b of bucketsB) {
+   719→      const sameEntity = a.metadata?.entityId && b.metadata?.entityId && a.metadata.entityId === b.metadata.entityId;
+   720→      const sameGroup = a.metadata?.parentGroup && b.metadata?.parentGroup && a.metadata.parentGroup === b.metadata.parentGroup;
+   721→      const sameJurisdiction = a.metadata?.jurisdiction && b.metadata?.jurisdiction && a.metadata.jurisdiction === b.metadata.jurisdiction;
+   722→      if (sameEntity || sameGroup || sameJurisdiction) {
+   723→        pairs.push({
+   724→          dimensionA,
+   725→          dimensionB,
+   726→          bucketA: a,
+   727→          bucketB: b,
+   728→          combinedExposurePct: a.exposurePct + b.exposurePct,
+   729→          reason: sameEntity ? "same entityId" : sameGroup ? "same parentGroup" : "same jurisdiction",
+   730→        });
+   731→      }
+   732→    }
+   733→  }
+   734→  return pairs.sort((x, y) => y.combinedExposurePct - x.combinedExposurePct);
+   735→}
+   736→

@@ -13,13 +13,14 @@
 // AI capability (e.g. AI_BRIEFING_ENABLED=false) without changing code — the
 // corresponding /api/ai/* route returns HTTP 503 with `{ model: "disabled" }`.
 
-export type AIProvider = "gemini" | "groq" | "huggingface" | "nvidia";
+export type AIProvider = "gemini" | "groq" | "huggingface" | "nvidia" | "openrouter";
 
 export interface AIKeys {
   gemini: string;
   groq: string;
   huggingface: string;
   nvidia: string;
+  openrouter: string;
 }
 
 // Read once at module load — keys do not change at runtime.
@@ -27,6 +28,7 @@ const GEMINI_KEY = process.env.GEMINI_API_KEY ?? "";
 const GROQ_KEY = process.env.GROQ_API_KEY ?? "";
 const HF_KEY = process.env.HUGGINGFACE_API_KEY ?? "";
 const NVIDIA_KEY = process.env.NVIDIA_API_KEY ?? "";
+const OPENROUTER_KEY = process.env.OPENROUTER_API_KEY ?? "";
 
 /**
  * Returns the three AI provider keys. Throws if called from a browser
@@ -37,7 +39,7 @@ export function getKeys(): AIKeys {
   if (typeof window !== "undefined") {
     throw new Error("AI keys must only be accessed server-side");
   }
-  return { gemini: GEMINI_KEY, groq: GROQ_KEY, huggingface: HF_KEY, nvidia: NVIDIA_KEY };
+  return { gemini: GEMINI_KEY, groq: GROQ_KEY, huggingface: HF_KEY, nvidia: NVIDIA_KEY, openrouter: OPENROUTER_KEY };
 }
 
 /** True if the given provider has a non-empty API key configured. */
