@@ -13,7 +13,7 @@ export function TestnetStatusBar({ snapshot }: { snapshot: MetricsSnapshot | nul
 
   return (
     <div className="sticky top-0 z-30 border-b border-white/[0.04] bg-[#06080F]/80 backdrop-blur-md">
-      <div className="mx-auto max-w-[1400px] px-4 sm:px-6 lg:px-8">
+      <div className="mx-auto max-w-[1400px] pl-14 pr-4 sm:pr-6 md:px-6 lg:px-8">
         <div className="flex items-center gap-4 py-1.5 text-[0.65rem] overflow-x-auto mtqs-no-scrollbar">
           {/* TESTNET badge */}
           <span className="font-semibold text-mtqs-gold uppercase tracking-wider whitespace-nowrap">MTQΣ TESTNET</span>

@@ -74,7 +74,7 @@ export function Header({
         aria-hidden="true"
       />
 
-      <div className="mx-auto flex max-w-[1400px] items-center justify-between gap-3 px-4 sm:px-6 lg:px-8 py-3">
+      <div className="mx-auto flex max-w-[1400px] items-center justify-between gap-3 pl-14 pr-4 sm:pr-6 md:px-6 lg:px-8 py-3">
         {/* Left — PAR1D emblem + wordmark + tagline */}
         <div className="flex items-center gap-3 min-w-0">
           <div

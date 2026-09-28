@@ -6306,3 +6306,144 @@ Stage Summary:
 - All 11 dashboard API routes return HTTP 200 (verified via curl localhost:3000/api/{implementation-status,honest-status,three-book,protected-backing,systemic-risk,legal-registry,licensing-matrix,contradiction-scan,bank-default,sync,ai/status}).
 - Home page / returns HTTP 200, 125KB HTML; dev server compiles InstitutionalDashboard.tsx cleanly (no compile errors in dev.log).
 >>>>>>> 49519be81dcb1a772bdf6681c46b62abf74313d1
+
+---
+Task ID: SIDEBAR-UI
+Agent: full-stack-developer
+Task: Sidebar layout architecture redesign
+
+Work Log:
+- Created src/components/mtq/Sidebar.tsx (388 lines) — new fixed-left
+  sidebar / mobile drawer navigation component. Strict SidebarProps
+  contract per spec (active, onChange, snapshot, error). Renders:
+    * PAR1D brand lockup (logo + MTQΣ gold-gradient wordmark + tagline +
+      Σ-v1.2 mono badge)
+    * Live status pill (status dot + STATUS_COLORS label + RR + NAV,
+      derived from snapshot; shows "FEED ERR" when error is truthy)
+    * 3 grouped nav sections — PROTOCOL (7: Overview, Reference Index,
+      Reserve Vault, Risk State, Rebalancing, Transparency, Governance),
+      OPERATIONS (5: Mint Simulator, Redeem Simulator, Simulation Lab,
+      Activity Explorer, Faucet), INSTITUTIONAL (9: Dashboard → investors,
+      Validation, Security, Contracts, Networks, Documentation, Developers,
+      Portfolio, Pitch Deck) — 21 items total, covering every non-legacy
+      SectionId so all sections remain accessible from the sidebar
+    * Active item: gold left border + gold gradient tint +
+      mtqs-sidebar-item-active class (with ::before gold bar)
+    * Hover: subtle gold glow + border + icon colorize
+    * Footer: Cmd+K hint button (synthesizes a Cmd+K KeyboardEvent on
+      window.dispatchEvent so the existing CommandLauncher picks it up)
+      + "Not Production-Authorized" honest-status badge (rose dashed)
+  Mobile drawer: internal drawerOpen state, opened via the floating
+  hamburger (mtqs-sidebar-hamburger, fixed top-left, md:hidden) or via
+  the window event "mtqs:open-sidebar" (external trigger). Closes on
+  Escape, scrim click, internal X button, or item pick. Body scroll is
+  locked while open. The hamburger auto-hides (opacity:0 +
+  pointer-events-none) when the drawer is open so it doesn't overlap
+  the drawer's brand lockup.
+
+- Modified src/app/page.tsx (302 lines) — completely restructured the
+  layout from a horizontal top-nav to a sidebar-based layout:
+    * Removed the old <Navigation /> horizontal bar (replaced by Sidebar)
+    * Removed the duplicate <TestnetStatusBar /> + duplicate
+      <CommandLauncher /> (kept a single instance of each)
+    * New structure: <Sidebar /> (fixed left) + a
+      <div className="mtqs-main-with-sidebar"> wrapper containing
+      <TestnetStatusBar /> + <Header /> + <LiveTicker /> + <main> +
+      <Footer />. The wrapper has margin-left:280px on desktop (via the
+      mtqs-main-with-sidebar class) and margin-left:0 on mobile.
+    * ALL existing section rendering logic preserved verbatim — every
+      section branch (overview / reference / reserve / risk / rebalancing
+      / transparency / governance / validation / developers / mint /
+      redeem / portfolio / activity / simulation / docs / security /
+      contracts / networks / faucet / investors / pitch / legacy
+      home-dashboard-trial-tests) is unchanged.
+    * Cinematic section transitions (motion.div + sectionVariants +
+      AnimatePresence mode="wait") preserved.
+    * Metrics polling (4s interval, fetchSnapshot useCallback) preserved.
+    * CinematicLoader + CommandLauncher + MobileBottomNav preserved.
+    * onNavigate callback pattern preserved (handleNavigate passes the
+      section id to both Sidebar.onChange and the section components'
+      onNavigate prop).
+
+- Modified src/app/globals.css (+330 lines, 1006 → 1336) — added the
+  sidebar-specific style system:
+    * .mtqs-sidebar — fixed 280px container, obsidian gradient +
+      backdrop-blur(28px), gold right-edge inner glow (::after
+      linear-gradient), border-right + box-shadow.
+    * .mtqs-sidebar-body — flex:1 + overflow-y:auto + custom 4px gold
+      scrollbar.
+    * .mtqs-sidebar-group — 0.6rem uppercase tracked gold text with a
+      6px gold dot bullet (::before).
+    * .mtqs-sidebar-item — relative flex button, 0.8rem, transparent
+      border, hover gold glow + icon colorize.
+    * .mtqs-sidebar-item-active — gold gradient tint + ::before 3px
+      gold left bar with gold glow + gold icon.
+    * .mtqs-sidebar-status-pill — mono tabular-nums pill with gold
+      border + obsidian gradient.
+    * .mtqs-sidebar-footer + .mtqs-sidebar-cmdk + .mtqs-sidebar-honest
+      — bottom Cmd+K hint button (with kbd ⌘K) + rose dashed
+      "Not Production-Authorized" badge.
+    * .mtqs-main-with-sidebar — margin-left:280px desktop / 0 mobile.
+    * .mtqs-sidebar-hamburger — fixed top-left mobile button (gold
+      glass). CRITICAL: the `display` property is intentionally NOT set
+      in the base rule (only inside the @media max-width:767px block)
+      so Tailwind's `md:hidden` utility can win on desktop — without
+      this, the source-order tiebreaker would let the custom class
+      override md:hidden and the hamburger would appear on desktop.
+    * .mtqs-sidebar-scrim — fixed inset:0 black/55 + blur(3px) overlay.
+    * @media (max-width:767px) — sidebar translateX(-100%) hidden,
+      .is-open translateX(0), main margin-left:0, hamburger display
+      enabled.
+    * @media (prefers-reduced-motion: reduce) — all sidebar transitions
+      disabled.
+
+- Modified src/components/mtq/TestnetStatusBar.tsx (1-line change) —
+  inner container padding changed from `px-4 sm:px-6 lg:px-8` to
+  `pl-14 pr-4 sm:pr-6 md:px-6 lg:px-8` so the "MTQΣ TESTNET" badge
+  shifts right on mobile to clear the floating hamburger button.
+
+- Modified src/components/mtq/Header.tsx (1-line change) — same
+  padding tweak (pl-14 pr-4 sm:pr-6 md:px-6 lg:px-8) so the PAR1D
+  logo + wordmark shift right on mobile to clear the hamburger.
+
+Stage Summary:
+- Sidebar: CREATED — src/components/mtq/Sidebar.tsx, 388 lines. Strict
+  SidebarProps (active, onChange, snapshot, error). 21 nav items across
+  3 groups (PROTOCOL 7 / OPERATIONS 5 / INSTITUTIONAL 9). PAR1D brand
+  lockup + live status pill + Cmd+K hint + honest-status badge. Mobile
+  drawer with floating hamburger, scrim, Escape-to-close, body-scroll
+  lock, and window-event "mtqs:open-sidebar" external trigger.
+- Page layout: REDESIGNED — src/app/page.tsx, 302 lines. Removed the
+  old <Navigation /> horizontal bar + duplicate TestnetStatusBar +
+  duplicate CommandLauncher. New structure: <Sidebar /> + a
+  <div className="mtqs-main-with-sidebar"> wrapper holding
+  TestnetStatusBar + Header + LiveTicker + main + Footer. All 25
+  section branches (21 unique + 4 legacy aliases) preserved verbatim.
+  Cinematic transitions, metrics polling, CinematicLoader,
+  CommandLauncher, MobileBottomNav, onNavigate pattern — all preserved.
+- CSS: NEW CLASSES — .mtqs-sidebar, .mtqs-sidebar-body, .mtqs-sidebar-
+  group, .mtqs-sidebar-item, .mtqs-sidebar-item-active, .mtqs-sidebar-
+  status-pill, .mtqs-sidebar-footer, .mtqs-sidebar-cmdk, .mtqs-sidebar-
+  honest, .mtqs-main-with-sidebar, .mtqs-sidebar-hamburger, .mtqs-
+  sidebar-scrim. Responsive @media (max-width:767px) block converts the
+  sidebar to a transform-based drawer and zeroes the main margin.
+  Reduced-motion safety block added. +330 lines total (1006 → 1336).
+- typecheck: PASS (0 new errors). The only 3 typecheck errors are
+  pre-existing (inngest / @neondatabase/serverless modules listed in
+  package.json but not installed in node_modules — verified by git
+  stash + typecheck on the unmodified tree). My new + modified files
+  (Sidebar.tsx, page.tsx, Header.tsx, TestnetStatusBar.tsx, globals.css)
+  introduce ZERO new type errors.
+- Live verification: `curl localhost:3000/` → HTTP 200, 129KB HTML.
+  All 20 structural checks pass (sidebar container, PAR1D logo, MTQΣ
+  wordmark, tagline, status pill, 3 group headers, 21 nav items,
+  active item = "Overview", ⌘K hint, Not Production-Authorized badge,
+  mobile hamburger, main-with-sidebar wrapper, TestnetStatusBar, Header
+  PAR1D, LiveTicker GFB, Footer, MobileBottomNav, CinematicLoader).
+  All 21 section labels render in the initial HTML. API routes
+  /api/metrics, /api/fx, /api/honest-status, /api/implementation-status,
+  /api/three-book all return HTTP 200. Dev server compiles cleanly
+  (✓ Compiled in 364ms after the changes; no compile errors in dev.log
+  related to Sidebar.tsx / page.tsx / globals.css — only the pre-existing
+  SQLite readonly-database prisma errors from audit-trail.ts which are
+  unrelated to this task).
