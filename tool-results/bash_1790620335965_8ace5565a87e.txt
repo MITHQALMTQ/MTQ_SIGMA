@@ -1,0 +1,200 @@
+# MTQΣ Pilot Command Center — Work Log
+
+Project: MTQΣ Pilot Command Center (full testnet pilot portal for users)
+Blueprint: MTQΣ_Blueprint.docx (Source of Truth v1.2 — Final Closed-Loop Monetary Architecture)
+Deployed contracts: Monad Testnet (10143), Arc Testnet (5042002), Solana devnet
+Status: CANDIDATE FOR PUBLIC TESTING — NOT PRODUCTION-AUTHORIZED
+
+---
+Task ID: 1
+Agent: Orchestrator (COO/CTO/CFO/PM)
+Task: Read blueprint, define architecture, seed worklog
+
+Work Log:
+- Extracted MTQΣ_Blueprint.docx via pandoc (3270 lines).
+- Analyzed all 16 sections: GFB Index, MTQ price, Reserve NAV/RR/LCR, Asset Registry, Adaptive Macro Engine, Rebalancing Engine, Dynamic Buffer, Oracle architecture, Execution/Slippage, Geopolitical Eject, Mint/Redeem, Genesis, Governance state machine, Honest Status.
+- Confirmed contracts already deployed by user on Monad Testnet (10143), Arc Testnet (5042002), and Solana devnet (mint GAGRdrY6...).
+- Decided deliverable: a Next.js "Pilot Command Center" — a single-route web app that:
+  * Implements the full blueprint math (GFB Index, MTQ price, NAV, RR, LCR, buffer states, rebalancing decision, geopolitical eject) as a TypeScript reference engine.
+  * Reads live FX rates (ECB/Frankfurter free API, no key) and computes the GFB Index on-chain-equivalent.
+  * Lets pilot users simulate Mint (deposit USDC → MTQ minted = X*(1-0.001)/P_MTQ) and Redeem (burn MTQ → basket breakdown + fee 0.15%).
+  * Visualizes reserve composition, buffer layers, adaptive macro engine (VIX/DXY z-scores), and the 5-state risk state machine.
+  * Shows the deployed contract registry for all 3 testnets with explorer links + copy buttons.
+  * Logs every pilot trial to SQLite (Prisma) for auditability.
+  * Streams live metric updates via a WebSocket mini-service (port 3003).
+- Set up todos (12 items).
+
+Stage Summary:
+- Architecture: Next.js 16 App Router, single `/` route, Tailwind/shadcn, Prisma/SQLite, WebSocket mini-service on 3003.
+- Honest constraints: We do NOT have on-chain ABIs for the deployed contracts and testnet RPC/explorer reliability is uncertain. Therefore the pilot is a faithful reference implementation of the blueprint math that ALSO surfaces the real deployed addresses for verification. This is the honest, robust approach — it does not pretend to call contracts we cannot reliably read.
+- Branding theme: deep monetary/financial dark theme with gold accents (matches gold-backed design), sticky footer, fully responsive.
+
+---
+Task ID: 3
+Agent: Orchestrator (CTO)
+Task: Decide live-data transport architecture under sandbox constraints
+
+Work Log:
+- Built WebSocket mini-service (mini-services/mtq-feed) on port 3003 (socket.io path "/").
+- Verified the service boots, computes GFB index (1.0544), and the engine.io handshake responds correctly.
+- Discovered: the sandbox reaps any process spawned inside a Bash tool call when that call completes. The mini-service stays alive only within a single long-lived call; it dies at call boundary (setsid/nohup/disown do not survive).
+- The Next.js dev server (port 3000) persists because it is the sandbox's primary managed process.
+
+Stage Summary:
+- DECISION (CTO): Pivot the live market engine to run IN-PROCESS inside the persistent Next.js server, using a global singleton (globalThis-guarded) + setInterval to advance the macro/rebalance/buffer state every 4s. The frontend polls /api/metrics every 4s for live updates.
+- The WebSocket mini-service files are retained as a documented artifact that works in a normal long-running environment, but the pilot app does NOT depend on them, so it is robust in this sandbox.
+- Honest trade-off: polling at 4s instead of push WS gives ~4s freshness (excellent for a pilot dashboard) and eliminates a class of reliability failures. This is the right call for pilot stability.
+- The full blueprint math engine (src/lib/mtq/engine.ts) is unchanged and remains the single source of truth; only the host process changed.
+
+---
+Task ID: 4
+Agent: Orchestrator
+Task: Complete foundation (engine, registry, prisma, API routes, images)
+
+Work Log:
+- Created src/lib/mtq/blueprint.ts (all immutable constants verbatim from blueprint §2-§15).
+- Created src/lib/mtq/engine.ts (reference monetary engine: GFB Index, MTQ price + safety band, NAV w/ haircuts + min-gold rule, RR, LCR, status machine, Adaptive Macro Engine z-scores + EMA, Dynamic Buffer BASE/STRESS/EMERGENCY + ramp + unified target gold weight, Rebalancing cost-benefit + direction lock + turnover cap, Geopolitical Eject ladder, Mint/Redeem priced against GFB). Reconciled §6 base 26.25% == §8 BASE total (tokenomics note documented in-file).
+- Created src/lib/mtq/contracts.ts (Monad 10143, Arc 5042002, Solana devnet — all deployed addresses verbatim).
+- Created src/lib/mtq/fx.ts (Frankfurter ECB + gold-api live, no-key, 60s cache, graceful fallback; VIX/DXY honestly simulated & labelled).
+- Created src/lib/mtq/pilot-state.ts (globalThis-guarded in-process singleton + 4s tick loop).
+- prisma/schema.prisma: PilotTrial + MetricSample; db:push succeeded.
+- API routes: /api/metrics, /api/fx, /api/simulate/mint, /api/simulate/redeem, /api/trials, /api/contracts.
+- Generated brand assets: /public/mtqs-hero.png (1344x768) and /public/mtqs-emblem.png (1024x1024) via z-ai image-gen.
+
+Stage Summary:
+- Backend foundation complete and self-contained. Frontend build is Task 8.
+- Key data shapes the frontend must consume (from src/lib/mtq/engine.ts MetricsSnapshot): gfbIndex, mtqPrice, priceInBand, reserve.{usdNet,eurNet,gbpNet,jpyNet,cnyNet,goldNet,fiatNet,nav,goldPrice}, liability, nav, reserveRatio, lcr, status, circulatingSupply, totalSupply, genesisReserve, bufferState, bufferGoldRatio, targetGoldWeight, observedGoldWeight, macro.{vix,dxy,zVix,zDxy,vixMean,vixSd,dxyMean,dxySd,rawTheta,rawTarget,smoothedTarget}, rebalance.{shouldRebalance,direction,observedGoldWeight,targetGoldWeight,deviation,tradeUsd,reason}, pegHealth, ejectStage, fx.{EUR_USD,GBP_USD,JPY_USD,CNY_USD,XAU_USD,VIX,DXY,source,degraded}.
+
+---
+Task ID: 8
+Agent: full-stack-developer
+Task: Build the MTQΣ Pilot Command Center frontend
+
+Work Log:
+- Read worklog (Tasks 1/3/4) and the canonical sources: engine.ts (MetricsSnapshot, MintResult, RedeemResult, RedeemBasket, RebalanceDecision, computeSnapshot), blueprint.ts (all constants + BASKET_TABLE / RISK_STATE_MACHINE / GOVERNANCE_HIERARCHY / HONEST_STATUS / REMOVED_CLAIMS / EJECT_STAGES), contracts.ts (ALL_CHAINS / DEPLOYER_WALLET / buildExplorerAddressUrl), prisma schema (PilotTrial), and all six API routes.
+- Mounted the Sonner Toaster in src/app/layout.tsx (alongside the existing radix Toaster), set `<html className="dark">` so shadcn tokens resolve to the dark palette, and updated metadata to MTQΣ branding with /mtqs-emblem.png favicon.
+- Added custom CSS to globals.css: `.mtqs-scroll` (gold-themed thin scrollbar), `.mtqs-gold-text` (gold gradient text clip), `.mtqs-glow` (subtle gold ring), `.mtqs-grid-bg` (faint amber grid backdrop).
+- Built a small presentational-component library under src/components/mtq/:
+  * format.ts — shared formatters (fmtUsd / fmtNum / fmtFixed / fmtPct / fmtRatio / rrColor / lcrColor / pegIsHealthy / statusColor / fmtTime / copyToClipboard / shortAddr).
+  * MetricCard.tsx — premium monetary metric card (MetricCard + PanelSection).
+  * HeroBand.tsx — hero image banner with overlay gradients, title, blueprint quote, and 3 quick stats (GFB Index / MTQ Price / Reserve Ratio with circuit-breaker state).
+  * ReserveDonut.tsx — recharts donut of net reserve value by asset (warm/neutral palette: lime/cyan/violet/rose/amber/gold — NO blue). Legend + tooltip + centered NAV readout.
+  * GoldWeightGauge.tsx — observed vs target gold weight bar (display window 18–34%, with 22/30 bound ticks, 26.25% base tick), buffer state + buffer gold ratio, tokenomics reconciliation note.
+  * MacroEngine.tsx — VIX/DXY tiles with centered z-score bars, raw θ / raw target / EMA-smoothed target, all §6 coefficients (α=0.15, β=0.10, θ_max=±3%, λ=0.20, bounds 22–30%), prominent SIMULATED PILOT MACRO SIGNALS disclaimer.
+  * RebalanceEngine.tsx — observed/target/deviation/tradeUsd tiles, direction indicator (Buy/Sell gold / No trade), reason, full §7 coefficients (λ1–λ4, slippage 1%, daily turnover 5% NAV, pool depth 10%, 24h direction lock).
+  * MintSimulator.tsx — USDC input, chain Select, optional wallet, "Mint MTQΣ" button; POST /api/simulate/mint; result panel with input/fee(0.10%)/net/price/MTQ minted/throttle/new circulating/new RR; sonner toast; spinner while pending.
+  * RedeemSimulator.tsx — MTQ input, chain Select, optional wallet, "Redeem MTQΣ" button; POST /api/simulate/redeem; result panel with input/price/gross/fee (status-scaled)/net/gold USD+PAXG/new circulating/new RR + full released-basket table; sonner toast.
+  * EjectMonitor.tsx — table of 5 currencies with pegHealth (color outside [0.98,1.02]), depegHours, ejectStage (Stage 0–4 colored badge) + the staged 10/25/50/100% ladder.
+  * ContractRegistry.tsx — Tabs for Monad/Arc/Solana, chain metadata (chainId, RPC, native currency, deployer, explorer link), contract table with copy-to-clipboard (navigator.clipboard + sonner feedback) + external explorer links via buildExplorerAddressUrl, Arc/Solana testnet notes, SPL mint badge.
+  * RiskStateMachine.tsx — full RISK_STATE_MACHINE table with the current status row highlighted (color + "Current" badge).
+  * GovernanceHierarchy.tsx — GOVERNANCE_HIERARCHY cards (scope / authority / timelock) with lucide icons.
+  * GfbBasket.tsx — BASKET_TABLE (currency/asset/quantity/weight) + base FX fixings + GFB_BASE_DENOMINATOR.
+  * TrialLog.tsx — PilotTrial type + scrollable (max-h-96, mtqs-scroll custom scrollbar) audit table (time/type/chain/input/output/GFB/price/NAV/RR/LCR/status/ok-reason), most-recent-first, empty-state, refresh button.
+  * HonestStatus.tsx — prominent "Candidate for public testing — NOT production-authorized" callout + HONEST_STATUS table + REMOVED_CLAIMS table (struck-through removed claims → emerald replaced statements).
+- Built src/app/page.tsx as a single 'use client' component orchestrating everything: a sticky header (emblem + MTQΣ wordmark + tagline + status pill with pulsing dot + Σ-v1.2 + Candidate-for-public-testing badge + feed source); the HeroBand; a LiveDashboard PanelSection with 9 metric cards (GFB Index / MTQ Price with circuit-breaker band / NAV / Reserve Ratio with TARGET-STRESS-HARD tier chips and ∞ handling / LCR with ∞ handling / Protocol Status with live policy row / Circulating / Total Supply / Genesis Reserve), an FX row (EUR/GBP/JPY/CNY/XAU live + VIX/DXY flagged as simulated pilot signals, source + degraded badge), and a HAIRCUTS legend; then Reserve Composition (donut + GoldWeightGauge), Adaptive Macro Engine, Rebalancing Engine, Mint+Redeem simulators (grid of two), Geopolitical Eject Monitor, Contract Registry, Risk State Machine, Governance Hierarchy, GFB Basket Reference, Pilot Trial Log, Honest Status Declaration; and a sticky `mt-auto` footer (branding + Σ-v1.2 + Sharia review line + pilot/testnet disclaimer + deployer wallet + 3 testnet explorer links).
+- State: `snapshot` (MetricsSnapshot | null), `trials` (PilotTrial[]), `chain` (default 'monad'), `wallet` (shared). Mount effect fetches /api/metrics then polls every 4000ms (setInterval, cleared on unmount) and fetches /api/trials (also after every mint/redeem via onAfterTrial callback). Skeleton shown while first fetch is in-flight. Errors surface as a small rose "feed error" pill in the header and an inline sonner toast on trial failures.
+- Styling: dark charcoal wrapper `bg-[#0b0f0e]`, card surfaces `bg-card/70` with `border-white/10`, gold/amber accents (text-amber-400, bg-amber-500/10, border-amber-500/30), emerald for healthy/positive (text-emerald-400), rose/red for warnings (text-rose-400). NO indigo or blue anywhere (recharts palette uses lime/cyan-400-teal-leaning/violet/rose/amber/gold). Mobile-first responsive grids (1 col → 2 → 3). tabular-nums + font-mono on all numbers. Subtle framer-motion fade/slide on HeroBand and each section (whileInView, once).
+- Ran `bun run lint` — clean (exit 0). Verified the dev server compiles the page (HTTP 200, no errors in dev.log). Verified /api/metrics returns live FX (Frankfurter ECB + gold-api, XAU ≈ $4444) and a computed snapshot; /api/trials returns `{trials:[]}` (fresh DB); /api/contracts returns all 3 chains.
+
+Stage Summary:
+- Files created (15): src/components/mtq/{format.ts, MetricCard.tsx, HeroBand.tsx, ReserveDonut.tsx, GoldWeightGauge.tsx, MacroEngine.tsx, RebalanceEngine.tsx, MintSimulator.tsx, RedeemSimulator.tsx, EjectMonitor.tsx, ContractRegistry.tsx, RiskStateMachine.tsx, GovernanceHierarchy.tsx, GfbBasket.tsx, TrialLog.tsx, HonestStatus.tsx} (16 if you count HonestStatus separately).
+- Files modified (3): src/app/page.tsx (replaced entirely), src/app/layout.tsx (added Sonner Toaster, dark mode, MTQΣ metadata + emblem favicon), src/app/globals.css (custom scrollbar + gold utilities).
+- What renders: a single-route dark, premium, fully responsive Pilot Command Center with a sticky header, hero band, live 9-card dashboard + FX row + haircut legend, reserve donut + gold weight gauge, adaptive macro engine, rebalancing engine, mint + redeem simulators with live result panels and sonner toasts, geopolitical eject monitor, contract registry (3 testnets, copy buttons, explorer links), risk state machine (current row highlighted), governance hierarchy, GFB basket reference, scrollable trial log with custom scrollbar, honest status declaration with removed-claims transparency, and a sticky `mt-auto` footer. Skeleton during first fetch. Polls every 4s.
+- Known issues / honest notes:
+  * The page is a client component, so SSR renders only the skeleton + footer (everything else requires /api/metrics which runs only on the client). This is intentional per the spec ("Show a tasteful skeleton while the first fetch is in-flight"). After hydration the full dashboard appears within ~1 round-trip.
+  * VIX & DXY are labelled as "simulated pilot signals" in three places (header FX row, MacroEngine, footer) — never misrepresented as live.
+  * Reserve Ratio / LCR show "∞ — fully reserved" when null or non-finite (no circulating supply yet) per the spec.
+  * Trial log will be empty on a fresh DB until a pilot user runs a Mint or Redeem simulation; the empty state is handled.
+  * Recharts is a client-only library — its components are only used inside 'use client' presentational components, so no SSR issues.
+
+---
+Task ID: 11
+Agent: Orchestrator
+Task: Self-verification with Agent Browser + final QA
+
+Work Log:
+- Opened http://localhost:3000/ in Agent Browser. Page title "MTQΣ — The Global Purchering Power Unit". No runtime errors, no console errors (only harmless React DevTools + HMR logs).
+- Verified all 16 sections render: header, hero, live dashboard, reserve composition donut + gold gauge, adaptive macro engine, rebalancing engine, mint & redeem simulators, geopolitical eject monitor, contract registry (Monad/Arc/Solana tabs), risk state machine, governance hierarchy, GFB basket reference, pilot trial log, honest status declaration, sticky footer.
+- Golden path 1 — Mint: clicked "Mint MTQΣ" with 1000 USDC. API returned mtqMinted=947.46 (=999/1.0544 ✓). Trial logged to SQLite. Circulating supply rose. Result rendered (value 947.4648 present in DOM).
+- Golden path 2 — Redeem: clicked "Redeem MTQΣ" with 100 MTQ. API returned netUsd=105.28 (=100×1.0544×0.9985 ✓). Basket table rendered. Trial logged.
+- Contract registry: verified MTQ Token on Monad = 0x9e6EdC15DAc420931508d8Ddf9BC817651A253aD (matches user deployment). Arc + Solana tabs present. Copy + explorer-link buttons present.
+- Trial log table populated (6 rows after multiple trials).
+- Sticky footer: footer has `mt-auto` class; root wrapper is flex-col. On long content the footer is pushed down naturally (pageH 7164+, footer at bottom). No floating gap.
+- Mobile responsiveness: viewport 390×844 — no horizontal overflow; footer at bottom (bottom 9595 = pageH 12134). Desktop 1440×900 renders cleanly.
+- Final lint: exit 0, zero errors/warnings. Dev log shows continuous /api/metrics 200 (4s polling) with no errors.
+
+Stage Summary:
+- The MTQΣ Pilot Command Center is live, interactive, and runnable. All core pilot flows (live monetary state, mint, redeem, contract registry, trial audit log) are browser-verified.
+- Honest status surfaced in the UI: "Candidate for public testing — NOT production-authorized", simulated VIX/DXY labelled, removed-claims table shown.
+
+---
+Task ID: A1
+Agent: Orchestrator (COO/CTO/CFO/PM + tokenomics)
+Task: Line-by-line audit of blueprint v1.2 vs current implementation; gap inventory
+
+Work Log:
+- Re-extracted MTQΣ_Blueprint.docx (identical v1.2, Σ-v1.2, date 2026-09-03, md5 c3a0de557801d0318abb2192803d1ec4).
+- Audited current src/lib/mtq/engine.ts + blueprint.ts against every section §1–§16.
+
+Gap inventory (line-by-line):
+1. §9 Oracle Architecture — MISSING. Blueprint requires 3 sources (Chainlink/Pyth/Chronicle), staleness 60s, confidence interval <1%, deviation <2.5% from median, median-of-3 (or average-of-2), PAUSE minting+rebalancing if <2 feeds valid. Current code uses Frankfurter directly with no consensus/validation layer.
+2. §5 Asset Admission Registry — PARTIAL. Blueprint requires: 8 eligibility criteria, 4 asset states (ACTIVE/WATCH/RESTRICTED/EJECTED), currency→asset mapping (USD→USDC, EUR→EURC, GBP/JPY/CNY→TBD), concentration limit 30% per issuer (warn at 25%), 48h timelock add. Current code has haircuts only.
+3. §11.3 Reintegration Score — MISSING. Blueprint: R_score = w1·TimeInBand(48h) + w2·LiquidityDepth + w3·OracleAgreement + w4·(1−Volatility), threshold >0.80, staged re-purchase 25%→50%→100%. Current code has eject ladder but no reintegration.
+4. §13.2 Treasury Sweep — MISSING. Blueprint: hot wallet surplus stablecoins >$10,000 → sweep to 4/7 Multi-Sig Cold Treasury. Current code: nothing.
+5. §8.5 First-Loss Waterfall — PARTIAL (logic exists, not surfaced). Blueprint: 5-layer waterfall Operational Surplus → Buffer Fiat → Buffer Gold → Core Fiat → Core Gold. Need to track + surface current layer + consumed amounts.
+6. §3.6 PriceUpdated events — MISSING. Blueprint: emit PriceUpdated when GFB changes >0.5%. Need event log.
+7. §12.2 vs §3.4.2 CONTRADICTION (honest find): §3.4.2 says RedeemValue = Y×P_MTQ (index-priced); §12.2 says Value = Y×NAV_t where NAV_t=V_net/S (book value per token). These conflict: at RR=110%, NAV/S = 1.10×P_MTQ, so §12.2 would pay redeemers 10% MORE than §3.4.2, draining the buffer surplus via arbitrage. As tokenomics expert: §3.4.2 is the arbitrage-safe, economically correct version; §12.2 is likely a documentation error. Honest decision: implement P_MTQ as primary, compute both, flag the contradiction in a dedicated "Honest Audit" UI section.
+8. §10.1 Quote-based execution — PARTIAL. Blueprint: fetch route quote from 1inch/Paraswap before swap; two-sided bounds. Current: slippage tolerance only. Will add a quote simulation.
+9. UI/UX: user requests "state of art unique UI architecture, one of a kind full structure" → full bespoke redesign required beyond generic shadcn cards.
+
+Stage Summary:
+- 9 gaps identified; 7 engine gaps + 1 honest contradiction + 1 UI/UX rebuild.
+- Decision (CTO): implement engine gaps myself (correctness-critical, exact math), then dispatch bespoke UI rebuild to frontend subagent.
+- Decision (COO): ship as one cohesive "Monetary Observatory" pilot — engine v2 then UI v2, verify end-to-end.
+
+---
+Task ID: A2-A8
+Agent: Orchestrator (CTO + tokenomics)
+Task: Implement all engine gaps (§9 oracle, §5 registry, §11.3 reintegration, §13.2 treasury, §8.5 waterfall, §3.6 price events, §12.2 audit) + integrate
+
+Work Log:
+- Created src/lib/mtq/oracle.ts: §9 multi-source consensus (Chainlink/Pyth/Chronicle), staleness 60s, confidence <1%, deviation <2.5% from median, median(3)/average(2)/paused(<2), spread bps. Honest: Pyth+Chronicle modeled as independent synthetic witnesses around the live reference (labelled in UI).
+- Created src/lib/mtq/registry.ts: §5 Asset Admission Registry — 8 eligibility criteria, 4 states (ACTIVE/WATCH/RESTRICTED/EJECTED), genesis mapping (USD→USDC, EUR→EURC, GBP/JPY/CNY→TBD, XAU→PAXG), concentration 30% limit / 25% warn, computeConcentration, eligibilityScore.
+- Added blueprint constants: §3.6 PRICE_EVENT_THRESHOLD 0.5%, §9 oracle thresholds, §11.3 REINTEGRATION_WEIGHTS (w1=0.35 TimeInBand, w2=0.25 Liquidity, w3=0.20 OracleAgreement, w4=0.20 1−Vol), threshold 0.80, repurchase 25→50→100%; §13.2 TREASURY_SWEEP_THRESHOLD $10k; §5 timelock 48h, concentration 30/25/35%.
+- Extended engine.ts ReserveState with: reintegration (per-currency), treasury (hot/cold/swept), waterfall (5 layers + consumed), priceEvents (last 20). initReserveState seeds them.
+- Added engine functions: updateReintegration (R_score formula, staged repurchase), maybeTreasurySweep (>$10k hot → cold, keep $5k float), applyLoss (5-layer first-loss waterfall), maybePriceEvent (>0.5% change log), simulateQuote (§10.1 route-quote with two-sided bounds, 1inch/Parasup).
+- HONEST FIND — §12.2 vs §3.4.2 contradiction: extended RedeemResult with auditNavPerToken, auditGrossUsdNav, auditDeltaUsd, auditNote. Verified: redeeming 1000 MTQ at RR=2355% gives §3.4.2=$1,054.55 (arbitrage-safe) vs §12.2=$24,841.93 (would drain genesis reserve). Primary settlement = §3.4.2; §12.2 shown for audit only.
+- Extended MetricsSnapshot with oracle, oraclePaused, registry, concentration, reintegration, treasury, waterfall, priceEvents. computeSnapshot accepts ctx {oracle, registry}.
+- Rewrote pilot-state.ts v2: builds OracleBoard + Registry, 4s tick advances oracle→macro→peg→reintegration→priceEvents→rebalance(buffered by oracle-pause guard)→buffer→treasury. STATE_SCHEMA_VERSION=2 so hot-reloaded singleton auto-rebuilds on shape change.
+- Added API routes /api/oracle, /api/registry.
+- HONEST FIND — concentration breach: genesis mapping (USD+EUR both Circle) = 54% of NAV → BREACHES §5.6 30% limit at genesis. This is a real blueprint inconsistency surfaced live in the pilot.
+
+Stage Summary:
+- All 9 blueprint gaps implemented and verified via /api/metrics, /api/oracle, /api/registry, /api/simulate/{mint,redeem}.
+- Engine is now the full closed-loop: §2 GFB, §3 price+events, §4 NAV/RR/LCR, §5 registry, §6 macro, §7 rebalance, §8 buffer+waterfall, §9 oracle, §10 quotes, §11 eject+reintegration, §12 mint/redeem+audit, §13 genesis+treasury sweep, §14 governance.
+- Lint clean. Ready for bespoke UI rebuild (Task A11).
+
+---
+Task ID: A11
+Agent: full-stack-developer
+Task: Bespoke "Monetary Observatory" UI rebuild (state of the art)
+
+Work Log:
+- Read the canonical sources: engine.ts (MetricsSnapshot, MintResult, RedeemResult with audit fields, RebalanceDecision, computeSnapshot), oracle.ts (OracleBoard, OracleConsensus, OracleFeed — 3 sources CHAINLINK/PYTH/CHRONICLE), registry.ts (AssetRecord, AssetState, ELIGIBILITY_CRITERIA, ConcentrationReport, genesisRegistry, computeConcentration, eligibilityScore), blueprint.ts (all §2–§15 constants: BASKET_TABLE, HAIRCUTS, RR_TARGET/STRESS/HARD, LCR_TARGET, RISK_STATE_MACHINE, GOVERNANCE_HIERARCHY, HONEST_STATUS, REMOVED_CLAIMS, EJECT_STAGES, BUFFER_*, REINTEGRATION_*, TREASURY_*, CONCENTRATION_*, ORACLE_*, ALPHA/BETA/THETA_MAX/SMOOTHING_LAMBDA, LAMBDA_1..4, SLIPPAGE_TOLERANCE, MAX_DAILY_TURNOVER, MAX_POOL_FRACTION, DIRECTION_LOCK_HOURS, PRICE_EVENT_THRESHOLD, AGGREGATOR_QUOTE_PROVIDERS, etc.), contracts.ts (ALL_CHAINS, DEPLOYER_WALLET, buildExplorerAddressUrl). Verified the API shapes by curl'ing /api/metrics, /api/oracle, /api/registry live.
+- Replaced layout.tsx favicon/metadata to v2 (mtqs-emblem-v2.png). Rewrote globals.css with the bespoke Monetary Observatory palette: dark obsidian canvas (#080a0c), warm white text (#f4f1ea), gold primary (#e8b964), emerald health (#3ddc97), rose danger (#ff5d73). Added custom CSS utilities: .mtqs-starfield (animated drifting dust), .mtqs-radial-glow (emerald/gold radial), .mtqs-grid-bg (faint gold grid), .mtqs-gold-text/.mtqs-emerald-text (gradient text), .mtqs-glow/.mtqs-glow-emerald/.mtqs-glow-rose (subtle ring + shadow), .mtqs-spin-slow/.mtqs-spin-slower (90s/180s rotations), .mtqs-flow-dash/.mtqs-flow-dash-slow (animated stroke dashoffset for SVG flow lines), .mtqs-tick-flash (number update flash), .mtqs-panel (bespoke layered obsidian card surface), .mtqs-eyebrow (tight tracked uppercase label), .mtqs-no-scrollbar, .mtqs-tnum, .mtqs-focus (gold focus ring).
+- Deleted the 6 obsolete v1 components (HeroBand, ReserveDonut, MetricCard, GovernanceHierarchy, EjectMonitor, GoldWeightGauge). Built a fresh bespoke component library under src/components/mtq/:
+  * primitives.tsx — Starfield, usePrevious, TickNumber, GlowDot, Eyebrow, SectionHeading, Panel (with emerald/rose variants), Reveal (framer-motion in-view fade/slide), Stat, MiniBar (with min/max), FadeSwap, Skeleton, Pill, SECTION_IDS.
+  * Header.tsx — sticky header with v2 emblem + MTQΣ gold-gradient wordmark + Monetary Observatory eyebrow + tagline; right: ORACLE 15/15 indicator (live green or PAUSED rose), status pill (NORMAL emerald / CAUTION amber / DEFENSIVE orange / EMERGENCY rose / RECOVERY amber) with pulsing GlowDot, Σ-v1.2 version pill + gold glow dot, "Candidate · NOT production-authorized" sub-label, feed error pill.
+  * Header (LiveTicker) — sticky ticker strip below header with 8 items: GFB Index, MTQ Price (with in-band/BREAKER indicator), NAV, RR (with color tone by tier), LCR, STATUS, BUFFER, ORACLE (5/5 or PAUSED). Scrolls horizontally on mobile, hidden scrollbar.
+  * ConstitutionalSeparation.tsx — THE signature hero visual. Bespoke SVG with 3 concentric rings (A GFB Index outer gold rotating, B MTQΣ Token middle emerald, C Reserve inner with tone-by-status), observatory tick ring (60 marks), center Σ sigil with gold glow, ring labels (A/B/C) with live values on each axis, RR readout at the bottom, "Active Ring" sidebar (desktop only). Slow rotation animation, pulse on active ring.
+  * LiveMonetaryState.tsx — bespoke metric tiles (not generic shadcn cards) with thin gold top stripe: GFB Index (4 decimals + normalised note + denominator formula), MTQ Reference Price ($X.XXXX + in-band pill + safety-band 0.50–2.00 progress bar), Reserve NAV (with fiat/gold/gold-price sub-rows), Reserve Ratio (with ∞-fully-reserved handling + TGT 110% / STR 105% / HRD 100% tier chips colored by tier), LCR (∞ handling + ≥100% emerald), Protocol Status (status badge + policy matrix minting/redemption/rebalancing/RR target from RISK_STATE_MACHINE), Supply (circulating + total + genesis reserve), Live FX & Macro row (EUR/GBP/JPY/CNY/XAU live + VIX/DXY labelled "simulated" with tooltip + source + degraded badge).
+  * ClosedLoopMap.tsx — bespoke SVG flow diagram: 5 nodes (G GFB Index, P MTQ Price, L Liability, V Reserve NAV, ↻ Mint/Redeem) with curved bezier edges; live values ride along each edge in bordered pills (P_MTQ = GFB_t, L = S·P_MTQ, RR = NAV/L, W_target, circuit-break, index ref). Animated flow dashes (mtqs-flow-dash fast / slow). The 2nd signature visual.
+  * OracleConsensus.tsx — per-pair (EUR/USD, GBP/USD, JPY/USD, CNY/USD, XAU/USD) row: 3 feed chips (CHAINLINK gold dot / PYTH emerald dot / CHRONICLE rose dot) with validity color, confidence interval %, age in s, discard reason tooltip; method pill (median/average/paused); final price (gold gradient); spread bps (amber). Validation rules legend (§9.2.1 staleness 60s, §9.2.3 confidence <1%, §9.2.4 deviation <2.5%, §9.3 quorum ≥2). PAUSED banner if any pair <2 valid feeds. Honest note about Pyth/Chronicle synthetic witnesses.
+  * AssetRegistry.tsx — 6 asset cards (USD/USDC, EUR/EURC, GBP/JPY/CNY TBD, XAU/PAXG) with state badge (ACTIVE emerald / WATCH amber / RESTRICTED orange / EJECTED rose), issuer, haircut, liquidity threshold, eligibility score (X/8), 8-criteria mini-grid (✓/✗), and full criteria list. Issuer concentration panel with per-issuer bars (CIRCLE BREACH highlighted in rose with mtqs-glow-rose, PAXOS ok emerald), 25% warn tick, 30% limit tick, 35% crisis override tick, share/limit/warn/crisis-override readout. PROMINENT honest-finding callout for the Circle ~56% breach at genesis. 48h timelock pill.
+  * ReserveVault.tsx — bespoke layered vault SVG: outer per-asset sector arcs (6 assets), middle gold-vs-fiat summary ring, inner core/buffer split (90% core / 10% buffer) with buffer's gold ratio (62.5%/85%/100%) shown by current buffer state, center NAV readout, buffer-state colored badge. Per-asset net-value bars (after haircut) in a side panel. Gold Weight gauge below: horizontal track 22–30% with observed marker (state-colored), target marker (gold), base line at 26.25%, formula `W_target = 0.20 + 0.10·B_gold(RR) + θ_smoothed` displayed.
+  * MacroEngine.tsx — VIX/DXY tiles with current value, μ (90d rolling), σ, z-score, centered z-score bar (negative emerald, positive rose, with -3σ/0/+3σ ticks). θ + smoothed target row: Raw θ (signed %), Raw Target W, EMA-smoothed Target (emerald). All §6 coefficients (α, β, θ_max, λ, bounds, VIX/DXY ranges). PROMINENT rose variant panel with SIMULATED PILOT MACRO SIGNALS disclaimer.
+  * RebalanceEngine.tsx — Decision panel: observed W, target W, deviation (signed, colored), trade USD, EXECUTING/no-trade pill, direction indicator (buy gold +1 emerald / sell gold −1 rose / hold 0 muted). §7.3 coefficients λ1=0.40, λ2=0.30, λ3=0.20, λ4=0.10 with objective formula. §7.4+§7.6 execution constraints (slippage 1%, max daily turnover 5% NAV, max pool fraction 10% 24h depth, direction lock 24h) + §10.1 quote-based execution concept (1inch / Paraswap, two-sided bounds at oracle ± τ).
+  * MintSimulator.tsx — USDC input (default 1000), chain Select, optional wallet, "Mint MTQΣ" gold-gradient button. POST /api/simulate/mint. Result panel: input, fee 0.10%, net, MTQ price, MTQ minted (highlighted gold gradient with TickNumber), throttle factor, new circulating supply, new RR. If oraclePaused → rose "Minting suspended — oracle consensus paused (§9.3)" banner. Sonner toast on success/failure/reject.
+  * RedeemSimulator.tsx — MTQ input (default 100), chain Select, optional wallet, "Redeem MTQΣ" gold-gradient button. POST /api/simulate/redeem. Result panel: input MTQ, MTQ price, gross USD (§3.4.2 emerald), fee (NORMAL/CAUTION 15bps / DEFENSIVE 50bps / EMERGENCY 200bps), net USD, gold portion (USD + PAXG units), new circulating/new RR, released basket table (currency/token/native/USD/weight). HONEST AUDIT sub-panel (rose): NAV per token (V_net/S), §12.2 gross (Y × NAV_per_token), Δ (§12.2 − §3.4.2), full auditNote in disclosure. Clear callout explaining the §12.2 vs §3.4.2 contradiction + arbitrage-safe §3.4.2 settlement. Sonner toast.
+  * DynamicBuffer.tsx — 3 state cards (BASE 62.5% gold / STRESS 85% / EMERGENCY 100%) with current state highlighted (emerald/amber/rose with glow), live buffer gold ratio bar, total target gold weight formula, ramp duration 24h. First-Loss Waterfall (§8.5): 5-step staircase (Operational Surplus → Buffer Fiat → Buffer Gold → Core Fiat → Core Gold) with current layer highlighted (L1-L5 marker, glow when active), consumed-per-layer readout, staircase indent visual.
+  * EjectReintegration.tsx — 5-currency table (USD/EUR/GBP/JPY/CNY) with peg health (color outside [0.98,1.02]), depeg hours, eject stage badge (stage 0 emerald → stage 4 rose with 10/25/50/100% ladder). Reintegration Score radial gauge per currency (mini SVG, 0→1, 0.80 threshold tick, color tone by score). 4 contributing factor mini-bars (Time-in-band 48h, Liquidity depth, Oracle agreement, 1−Volatility) with values. Repurchase stage (0/3) + repurchased % readout. §11.3 formula and weights (w1=0.35, w2=0.25, w3=0.20, w4=0.20) with the staged re-purchase explanation.

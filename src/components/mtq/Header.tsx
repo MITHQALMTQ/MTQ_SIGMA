@@ -1,8 +1,11 @@
-// MTQΣ — Sticky header + live ticker strip
-// Brand: the wordmark "MTQΣ" is rendered in Cormorant Garamond (font-display)
-// with the gold ingot logo-mark to its left, the emblem to the right of the
-// brand stack, and the tagline + status declaration below. The status pill
-// uses STATUS_COLORS (brand.ts) for status-dependent bg/border/label.
+// MTQΣ — Premium PAR1D Header (UI-REDESIGN)
+// Sticky glassmorphic header with the PAR1D emblem, gold-gradient wordmark,
+// tagline, and a color-coded live status pill. Below it sits the live ticker
+// strip (GFB / MTQ / NAV / RR / LCR / STATUS / BUFFER / ORACLE) — preserved
+// verbatim from the prior implementation so the data layer is untouched.
+//
+// Design language: deeper glass (backdrop-blur-xl), gold gradient bottom
+// border, status pill colored by STATUS_COLORS (brand.ts). No blue/indigo.
 
 "use client";
 
@@ -31,32 +34,60 @@ export function Header({
   oracleTotalCount = oracleTotalCount ?? 0;
   oracleAnyPaused = oracleAnyPaused ?? false;
   error = error ?? null;
+
   const status = snapshot?.status ?? "NORMAL";
   const sc = statusColor(status);
   const scBrand = STATUS_COLORS[status] ?? STATUS_COLORS.NORMAL;
+  const statusTone =
+    status === "NORMAL"
+      ? "emerald"
+      : status === "CAUTION" || status === "RECOVERY"
+      ? "amber"
+      : "rose";
+  const statusPillStyle: React.CSSProperties = {
+    color: scBrand.color,
+    borderColor: `${scBrand.color}55`,
+    background: `${scBrand.color}14`,
+  };
 
   return (
     <header
-      className="sticky top-0 z-50 border-b border-white/[0.06] bg-transparent/85 backdrop-blur-xl"
+      className="sticky top-0 z-50 border-b border-white/[0.06] backdrop-blur-xl bg-[#06080F]/70 saturate-150"
       role="banner"
     >
-      <div className="absolute inset-x-0 -bottom-px h-px bg-gradient-to-r from-transparent via-mtqs-gold/40 to-transparent" />
+      {/* Gold gradient bottom border */}
+      <div
+        className="absolute inset-x-0 -bottom-px h-px"
+        style={{
+          background:
+            "linear-gradient(90deg, transparent 0%, rgba(240,185,11,0.55) 20%, rgba(255,244,212,0.85) 50%, rgba(240,185,11,0.55) 80%, transparent 100%)",
+        }}
+        aria-hidden="true"
+      />
+      {/* Subtle inner glow line (1px gold halo above the border) */}
+      <div
+        className="absolute inset-x-0 top-full h-8 pointer-events-none"
+        style={{
+          background:
+            "linear-gradient(180deg, rgba(240,185,11,0.10), transparent)",
+        }}
+        aria-hidden="true"
+      />
+
       <div className="mx-auto flex max-w-[1400px] items-center justify-between gap-3 px-4 sm:px-6 lg:px-8 py-3">
-        {/* Left — logo-mark + wordmark + tagline */}
-        <div className="flex items-center gap-2.5 sm:gap-3 min-w-0">
-                    {/* Logo-mark — the official MTQΣ PAR1D emblem.
-                        Portrait hexagon (aspect ~0.67) on a black field.
-                        Container gets bg-black so the logo's own #0D0D0D
-                        backdrop blends seamlessly into the obsidian chrome.
-                        object-contain keeps the full emblem visible (no crop),
-                        with height-faithful sizing so the gold Σ reads. */}
+        {/* Left — PAR1D emblem + wordmark + tagline */}
+        <div className="flex items-center gap-3 min-w-0">
           <div
-            className="relative h-9 w-9 sm:h-11 sm:w-11 shrink-0 rounded-lg overflow-hidden mtqs-glow bg-black mtqs-logo-container"
+            className="relative h-10 w-10 sm:h-11 sm:w-11 shrink-0 rounded-lg overflow-hidden bg-black mtqs-logo-container"
+            style={{
+              boxShadow:
+                "0 0 0 1px rgba(240,185,11,0.30), 0 0 18px rgba(240,185,11,0.22)",
+            }}
             aria-label="MTQΣ logo mark"
           >
             <Image
               src={BRAND_ASSETS.logoCanonical}
-              alt="MTQΣ official logo"
+              alt="MTQΣ official logo — luxury hexagonal Σ emblem with gold on obsidian"
               fill
               sizes="44px"
               className="object-contain mtqs-logo-image"
@@ -64,25 +95,38 @@ export function Header({
               priority
             />
           </div>
-          {/* Version + honest badge */}
-          <div className="hidden sm:flex flex-col items-end gap-1">
-            <div className="flex items-center gap-2">
-              <Pill tone="gold" className="font-mono tabular-nums">Σ-v1.2</Pill>
-              <GlowDot color="gold" size="h-2 w-2" />
+          <div className="flex flex-col gap-0.5 min-w-0">
+            <div className="flex items-baseline gap-2">
+              <span
+                className="mtqs-display mtqs-gold-gradient-text text-xl sm:text-2xl font-semibold leading-none"
+                style={{ fontWeight: 600 }}
+              >
+                MTQΣ
+              </span>
+              <Pill tone="gold" className="font-mono tabular-nums hidden sm:inline-flex">
+                Σ-v1.2
+              </Pill>
             </div>
-            <span className="text-[0.6rem] text-white/55 tracking-wide">
-              {BRAND_VOICE.statusDeclaration}
+            <span className="text-[0.62rem] sm:text-[0.66rem] tracking-[0.18em] uppercase text-white/55 truncate">
+              {BRAND_VOICE.tagline}
             </span>
           </div>
 
-          {/* Error pill */}
           {error ? (
-            <Pill tone="rose" className="hidden lg:inline-flex">feed error</Pill>
+            <Pill tone="rose" className="hidden lg:inline-flex ml-2">feed error</Pill>
           ) : null}
         </div>
 
-        {/* Right — Network Selector (§40) */}
-        <div className="flex items-center gap-2 shrink-0">
+        {/* Right — live status pill + Network Selector */}
+        <div className="flex items-center gap-2 sm:gap-3 shrink-0">
+          <div
+            className="mtqs-status-pill hidden sm:inline-flex"
+            style={statusPillStyle}
+            aria-label={`Protocol status: ${scBrand.label}`}
+          >
+            <GlowDot color={statusTone === "emerald" ? "emerald" : statusTone === "amber" ? "amber" : "rose"} size="h-1.5 w-1.5" />
+            <span>{scBrand.label}</span>
+          </div>
           <NetworkSelector compact={false} />
         </div>
       </div>
@@ -110,7 +154,7 @@ export function LiveTicker({ snapshot }: { snapshot: MetricsSnapshot | null }) {
       >
         <div className="mx-auto max-w-[1400px] px-4 sm:px-6 lg:px-8 py-2 flex items-center gap-4 overflow-hidden">
           {[...Array(8)].map((_, i) => (
-            <div key={i} className="h-3 w-32 animate-pulse rounded bg-white/[0.03]/[0.04]" />
+            <div key={i} className="h-3 w-32 animate-pulse rounded bg-white/[0.04]" />
           ))}
         </div>
       </div>
@@ -156,11 +200,6 @@ export function LiveTicker({ snapshot }: { snapshot: MetricsSnapshot | null }) {
       aria-label="Live monetary ticker"
     >
       <div className="mx-auto max-w-[1400px] px-4 sm:px-6 lg:px-8">
-        {/* Responsive ticker: horizontal scroll on all sizes, tighter padding on mobile.
-            The 8 metrics stay on one line on desktop (≥1024px) and scroll horizontally
-            on mobile/tablet. Each item is shrink-0 so the row never wraps (which would
-            create uneven height). The mtqs-no-scrollbar class hides the scrollbar for
-            a clean look; users can still swipe-scroll on touch. */}
         <div className="flex items-stretch overflow-x-auto mtqs-no-scrollbar -mx-4 sm:mx-0 px-4 sm:px-0">
           {items.map((it, i) => (
             <motion.div

@@ -2,6 +2,26 @@
 @import "tw-animate-css";
 
 /* ============================================================
+   PAR1D — Luxury UI System v2 (UI-REDESIGN)
+   Smooth scroll + premium gold scrollbar + glassmorphism 2.0.
+   ============================================================ */
+html {
+  scroll-behavior: smooth;
+}
+
+/* Thin gold scrollbar (global) */
+::-webkit-scrollbar { width: 8px; height: 8px; }
+::-webkit-scrollbar-track { background: rgba(255, 255, 255, 0.02); }
+::-webkit-scrollbar-thumb {
+  background: linear-gradient(180deg, rgba(240, 185, 11, 0.35), rgba(240, 185, 11, 0.15));
+  border-radius: 999px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: linear-gradient(180deg, rgba(240, 185, 11, 0.55), rgba(240, 185, 11, 0.3));
+}
+* { scrollbar-width: thin; scrollbar-color: rgba(240, 185, 11, 0.35) transparent; }
+
+/* ============================================================
    MTQΣ — 2026 Futuristic UI System
    "Cinematic. Glassmorphic. Alive."
    
@@ -499,4 +519,488 @@ body {
   object-fit: contain;
   width: 100%;
   height: 100%;
+}
+
+/* ============================================================
+   PAR1D Luxury Brand Layer (UI-REDESIGN)
+   The following classes implement the "Breathtaking UI" upgrade
+   on top of the existing 2026 futuristic system. Brand tokens
+   (obsidian / gold / emerald / rose) are unchanged — only
+   presentation depth, motion and particle ambience are added.
+   ============================================================ */
+
+/* ---------- Glassmorphism 2.0 — deeper glass with gold inner glow ---------- */
+.mtqs-glass-premium {
+  position: relative;
+  background: linear-gradient(
+    135deg,
+    rgba(255, 255, 255, 0.05) 0%,
+    rgba(255, 255, 255, 0.02) 50%,
+    rgba(240, 185, 11, 0.03) 100%
+  );
+  backdrop-filter: blur(24px) saturate(160%);
+  -webkit-backdrop-filter: blur(24px) saturate(160%);
+  border: 1px solid rgba(240, 185, 11, 0.18);
+  border-radius: var(--radius-xl);
+  box-shadow:
+    0 1px 0 0 rgba(255, 255, 255, 0.08) inset,
+    0 0 0 1px rgba(240, 185, 11, 0.06),
+    0 0 32px rgba(240, 185, 11, 0.06),
+    0 16px 48px rgba(0, 0, 0, 0.45);
+  transition: all 0.3s var(--ease-cinematic);
+}
+
+.mtqs-glass-premium::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  padding: 1px;
+  background: linear-gradient(
+    135deg,
+    rgba(240, 185, 11, 0.5),
+    rgba(240, 185, 11, 0.0) 35%,
+    rgba(240, 185, 11, 0.0) 65%,
+    rgba(240, 185, 11, 0.35)
+  );
+  -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
+  -webkit-mask-composite: xor;
+  mask-composite: exclude;
+  pointer-events: none;
+  opacity: 0.7;
+  transition: opacity 0.3s var(--ease-cinematic);
+}
+
+.mtqs-glass-premium:hover::before { opacity: 1; }
+
+/* ---------- Animated gold gradient text (deeper, animated) ---------- */
+.mtqs-gold-gradient-text {
+  background: linear-gradient(135deg, #F0B90B 0%, #FFF4D4 35%, #FCD535 65%, #F0B90B 100%);
+  background-size: 220% 220%;
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+  color: transparent;
+  animation: mtqs-gold-sweep 6s ease-in-out infinite;
+  filter: drop-shadow(0 2px 18px rgba(240, 185, 11, 0.25));
+}
+
+@keyframes mtqs-gold-sweep {
+  0%, 100% { background-position: 0% 50%; }
+  50%      { background-position: 100% 50%; }
+}
+
+/* ---------- Card hover — lift + gold glow ---------- */
+.mtqs-card-hover {
+  transition: transform 0.3s var(--ease-cinematic),
+              box-shadow 0.3s var(--ease-cinematic),
+              border-color 0.3s var(--ease-cinematic);
+  will-change: transform;
+}
+.mtqs-card-hover:hover {
+  transform: translateY(-4px);
+  border-color: rgba(240, 185, 11, 0.35);
+  box-shadow:
+    0 1px 0 0 rgba(255, 255, 255, 0.08) inset,
+    0 0 0 1px rgba(240, 185, 11, 0.12),
+    0 0 40px rgba(240, 185, 11, 0.18),
+    0 24px 60px rgba(0, 0, 0, 0.5);
+}
+
+/* ---------- Animated rotating gradient border (premium cards) ---------- */
+.mtqs-border-aurora {
+  position: relative;
+  isolation: isolate;
+}
+.mtqs-border-aurora::after {
+  content: "";
+  position: absolute;
+  inset: -1px;
+  border-radius: inherit;
+  padding: 1px;
+  background: conic-gradient(
+    from 0deg,
+    rgba(240, 185, 11, 0.0),
+    rgba(240, 185, 11, 0.55),
+    rgba(255, 244, 212, 0.65),
+    rgba(240, 185, 11, 0.55),
+    rgba(240, 185, 11, 0.0)
+  );
+  -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
+  -webkit-mask-composite: xor;
+  mask-composite: exclude;
+  pointer-events: none;
+  animation: mtqs-rotate-aurora 8s linear infinite;
+  z-index: -1;
+  opacity: 0.6;
+}
+@keyframes mtqs-rotate-aurora {
+  to { transform: rotate(360deg); }
+}
+
+/* ---------- Floating gold-dust particle background (CSS-only) ---------- */
+.mtqs-particle-bg {
+  position: relative;
+  overflow: hidden;
+}
+.mtqs-particle-bg::before,
+.mtqs-particle-bg::after {
+  content: "";
+  position: absolute;
+  inset: -20%;
+  background-image:
+    radial-gradient(circle at 12% 18%, rgba(240, 185, 11, 0.6) 0.5px, transparent 1px),
+    radial-gradient(circle at 32% 62%, rgba(255, 244, 212, 0.5) 0.5px, transparent 1px),
+    radial-gradient(circle at 58% 28%, rgba(240, 185, 11, 0.5) 0.5px, transparent 1px),
+    radial-gradient(circle at 78% 72%, rgba(252, 213, 53, 0.45) 0.5px, transparent 1px),
+    radial-gradient(circle at 88% 12%, rgba(240, 185, 11, 0.4) 0.5px, transparent 1px),
+    radial-gradient(circle at 22% 82%, rgba(255, 244, 212, 0.4) 0.5px, transparent 1px),
+    radial-gradient(circle at 48% 48%, rgba(240, 185, 11, 0.4) 0.5px, transparent 1px),
+    radial-gradient(circle at 68% 38%, rgba(252, 213, 53, 0.4) 0.5px, transparent 1px);
+  background-size: 400px 400px;
+  pointer-events: none;
+  animation: mtqs-dust-drift 18s linear infinite;
+  opacity: 0.55;
+  filter: blur(0.4px);
+}
+.mtqs-particle-bg::after {
+  background-size: 320px 320px;
+  animation-duration: 26s;
+  animation-direction: reverse;
+  opacity: 0.35;
+}
+@keyframes mtqs-dust-drift {
+  0%   { transform: translate3d(0, 0, 0) rotate(0deg); }
+  50%  { transform: translate3d(-6%, -3%, 0) rotate(180deg); }
+  100% { transform: translate3d(0, 0, 0) rotate(360deg); }
+}
+
+/* ---------- Section fade-in on scroll ---------- */
+.mtqs-section-fade {
+  opacity: 0;
+  transform: translateY(24px) scale(0.985);
+  filter: blur(8px);
+  transition: opacity 0.7s var(--ease-cinematic),
+              transform 0.7s var(--ease-cinematic),
+              filter 0.7s var(--ease-cinematic);
+  will-change: opacity, transform, filter;
+}
+.mtqs-section-fade.is-visible {
+  opacity: 1;
+  transform: translateY(0) scale(1);
+  filter: blur(0);
+}
+
+/* ---------- Shimmer (loading skeleton sheen) ---------- */
+.mtqs-shimmer {
+  position: relative;
+  overflow: hidden;
+  background: rgba(255, 255, 255, 0.04);
+}
+.mtqs-shimmer::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    100deg,
+    transparent 20%,
+    rgba(240, 185, 11, 0.15) 45%,
+    rgba(255, 244, 212, 0.22) 50%,
+    rgba(240, 185, 11, 0.15) 55%,
+    transparent 80%
+  );
+  background-size: 200% 100%;
+  animation: mtqs-shimmer-sweep 1.6s ease-in-out infinite;
+}
+@keyframes mtqs-shimmer-sweep {
+  0%   { background-position: 200% 0; }
+  100% { background-position: -200% 0; }
+}
+
+/* ---------- Status badge variants (PAR1D — premium, deeper glass) ---------- */
+.mtqs-badge-gold {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  padding: 0.25rem 0.7rem;
+  border-radius: 999px;
+  font-size: 0.6875rem;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  background: linear-gradient(135deg, rgba(240, 185, 11, 0.18), rgba(240, 185, 11, 0.08));
+  color: #FCD535;
+  border: 1px solid rgba(240, 185, 11, 0.35);
+  box-shadow: 0 0 16px rgba(240, 185, 11, 0.18), 0 1px 0 rgba(255, 255, 255, 0.06) inset;
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+}
+.mtqs-badge-emerald {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  padding: 0.25rem 0.7rem;
+  border-radius: 999px;
+  font-size: 0.6875rem;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  background: linear-gradient(135deg, rgba(0, 214, 143, 0.18), rgba(0, 214, 143, 0.08));
+  color: #6FF0C0;
+  border: 1px solid rgba(0, 214, 143, 0.35);
+  box-shadow: 0 0 16px rgba(0, 214, 143, 0.18), 0 1px 0 rgba(255, 255, 255, 0.06) inset;
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+}
+.mtqs-badge-rose {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  padding: 0.25rem 0.7rem;
+  border-radius: 999px;
+  font-size: 0.6875rem;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  background: linear-gradient(135deg, rgba(255, 77, 109, 0.18), rgba(255, 77, 109, 0.08));
+  color: #FF8EA3;
+  border: 1px solid rgba(255, 77, 109, 0.35);
+  box-shadow: 0 0 16px rgba(255, 77, 109, 0.22), 0 1px 0 rgba(255, 255, 255, 0.06) inset;
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+}
+
+/* ---------- Stat card (icon + value + label + trend) ---------- */
+.mtqs-stat-card {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  padding: 1.1rem 1.2rem;
+  border-radius: var(--radius-lg);
+  background: linear-gradient(
+    135deg,
+    rgba(255, 255, 255, 0.045) 0%,
+    rgba(255, 255, 255, 0.015) 100%
+  );
+  backdrop-filter: blur(18px) saturate(150%);
+  -webkit-backdrop-filter: blur(18px) saturate(150%);
+  border: 1px solid rgba(240, 185, 11, 0.12);
+  box-shadow:
+    0 1px 0 0 rgba(255, 255, 255, 0.05) inset,
+    0 12px 36px rgba(0, 0, 0, 0.35);
+  transition: transform 0.3s var(--ease-cinematic),
+              box-shadow 0.3s var(--ease-cinematic),
+              border-color 0.3s var(--ease-cinematic);
+  overflow: hidden;
+}
+.mtqs-stat-card::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(circle at 100% 0%, rgba(240, 185, 11, 0.08), transparent 60%);
+  pointer-events: none;
+  opacity: 0.7;
+  transition: opacity 0.3s var(--ease-cinematic);
+}
+.mtqs-stat-card:hover {
+  transform: translateY(-2px);
+  border-color: rgba(240, 185, 11, 0.3);
+  box-shadow:
+    0 1px 0 0 rgba(255, 255, 255, 0.08) inset,
+    0 0 28px rgba(240, 185, 11, 0.12),
+    0 18px 48px rgba(0, 0, 0, 0.45);
+}
+.mtqs-stat-card:hover::before { opacity: 1; }
+
+/* ---------- PAR1D hero logo — pulsing gold halo ---------- */
+.mtqs-logo-par1d {
+  position: relative;
+  background: radial-gradient(circle at 50% 50%, #0D0D0D 0%, #050505 100%);
+  border-radius: 1.5rem;
+  overflow: hidden;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow:
+    0 0 0 1px rgba(240, 185, 11, 0.25),
+    0 0 60px rgba(240, 185, 11, 0.28),
+    0 0 120px rgba(240, 185, 11, 0.18),
+    0 32px 80px rgba(0, 0, 0, 0.65);
+  animation: mtqs-logo-pulse 4s ease-in-out infinite;
+}
+.mtqs-logo-par1d img {
+  object-fit: contain;
+  width: 100%;
+  height: 100%;
+}
+@keyframes mtqs-logo-pulse {
+  0%, 100% {
+    box-shadow:
+      0 0 0 1px rgba(240, 185, 11, 0.25),
+      0 0 60px rgba(240, 185, 11, 0.28),
+      0 0 120px rgba(240, 185, 11, 0.18),
+      0 32px 80px rgba(0, 0, 0, 0.65);
+  }
+  50% {
+    box-shadow:
+      0 0 0 1px rgba(240, 185, 11, 0.4),
+      0 0 80px rgba(240, 185, 11, 0.42),
+      0 0 160px rgba(240, 185, 11, 0.25),
+      0 32px 80px rgba(0, 0, 0, 0.65);
+  }
+}
+
+/* ---------- Premium gradient border button (CTA) ---------- */
+.mtqs-cta-gold {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  padding: 0.7rem 1.5rem;
+  border-radius: 0.75rem;
+  font-weight: 600;
+  font-size: 0.9rem;
+  color: #FFF4D4;
+  background: linear-gradient(135deg, rgba(240, 185, 11, 0.18), rgba(240, 185, 11, 0.04));
+  border: 1px solid rgba(240, 185, 11, 0.45);
+  box-shadow:
+    0 1px 0 0 rgba(255, 255, 255, 0.08) inset,
+    0 0 24px rgba(240, 185, 11, 0.18),
+    0 12px 32px rgba(0, 0, 0, 0.45);
+  transition: all 0.25s var(--ease-cinematic);
+  cursor: pointer;
+}
+.mtqs-cta-gold:hover {
+  color: #FFFFFF;
+  background: linear-gradient(135deg, rgba(240, 185, 11, 0.32), rgba(240, 185, 11, 0.12));
+  border-color: rgba(240, 185, 11, 0.7);
+  box-shadow:
+    0 1px 0 0 rgba(255, 255, 255, 0.12) inset,
+    0 0 32px rgba(240, 185, 11, 0.28),
+    0 16px 40px rgba(0, 0, 0, 0.5);
+  transform: translateY(-1px);
+}
+.mtqs-cta-outline {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  padding: 0.7rem 1.5rem;
+  border-radius: 0.75rem;
+  font-weight: 600;
+  font-size: 0.9rem;
+  color: rgba(255, 255, 255, 0.85);
+  background: rgba(255, 255, 255, 0.025);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  transition: all 0.25s var(--ease-cinematic);
+  cursor: pointer;
+}
+.mtqs-cta-outline:hover {
+  color: #FFFFFF;
+  border-color: rgba(240, 185, 11, 0.45);
+  background: rgba(240, 185, 11, 0.08);
+  transform: translateY(-1px);
+}
+
+/* ---------- PAR1D status pill (header right side) ---------- */
+.mtqs-status-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.45rem;
+  padding: 0.35rem 0.8rem;
+  border-radius: 999px;
+  font-size: 0.7rem;
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  border: 1px solid;
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  transition: all 0.3s var(--ease-cinematic);
+}
+
+/* ---------- Gold gradient divider line ---------- */
+.mtqs-divider-gold {
+  height: 1px;
+  background: linear-gradient(
+    90deg,
+    transparent 0%,
+    rgba(240, 185, 11, 0.35) 30%,
+    rgba(255, 244, 212, 0.5) 50%,
+    rgba(240, 185, 11, 0.35) 70%,
+    transparent 100%
+  );
+}
+
+/* ---------- Section divider with Σ symbol ---------- */
+.mtqs-section-divider {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  width: 100%;
+  margin: 1.5rem 0;
+}
+.mtqs-section-divider::before,
+.mtqs-section-divider::after {
+  content: "";
+  flex: 1;
+  height: 1px;
+  background: linear-gradient(
+    90deg,
+    transparent,
+    rgba(240, 185, 11, 0.45),
+    transparent
+  );
+}
+.mtqs-section-divider > span {
+  font-family: var(--font-display);
+  font-size: 1.1rem;
+  color: #F0B90B;
+  text-shadow: 0 0 12px rgba(240, 185, 11, 0.5);
+  letter-spacing: 0.1em;
+}
+
+/* ---------- PAR1D radial background — for hero section ---------- */
+.mtqs-hero-bg {
+  background:
+    radial-gradient(ellipse 60% 50% at 50% 30%, rgba(240, 185, 11, 0.12), transparent 60%),
+    radial-gradient(ellipse 80% 60% at 50% 100%, rgba(240, 185, 11, 0.06), transparent 70%),
+    linear-gradient(180deg, #06080F 0%, #06080F 100%);
+}
+
+/* ---------- Counter flash on update (used by AnimatedCounter) ---------- */
+@keyframes mtqs-count-up {
+  from { opacity: 0; transform: translateY(8px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+.mtqs-count-up { animation: mtqs-count-up 0.6s var(--ease-cinematic) both; }
+
+/* ---------- Reduced motion safety for the new layers ---------- */
+@media (prefers-reduced-motion: reduce) {
+  .mtqs-glass-premium,
+  .mtqs-card-hover,
+  .mtqs-stat-card,
+  .mtqs-cta-gold,
+  .mtqs-cta-outline,
+  .mtqs-status-pill {
+    transition: none !important;
+    animation: none !important;
+  }
+  .mtqs-gold-gradient-text,
+  .mtqs-border-aurora::after,
+  .mtqs-particle-bg::before,
+  .mtqs-particle-bg::after,
+  .mtqs-shimmer::after,
+  .mtqs-logo-par1d,
+  .mtqs-section-fade {
+    animation: none !important;
+  }
+  .mtqs-section-fade {
+    opacity: 1;
+    transform: none;
+    filter: none;
+  }
+  html { scroll-behavior: auto; }
 }

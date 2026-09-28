@@ -354,6 +354,249 @@ export function BrandPrinciples({ className = "" }: { className?: string }) {
   );
 }
 
+/* ============================================================
+   PAR1D Premium Primitives (UI-REDESIGN)
+   Luxury building blocks that compose on top of the new
+   `.mtqs-glass-premium` / `.mtqs-gold-gradient-text` / etc. tokens.
+   All components stay within the obsidian / gold / emerald / rose
+   palette and respect prefers-reduced-motion via globals.css.
+   ============================================================ */
+
+/* ---------- PremiumCard — glassmorphic card with gold gradient border, hover lift ---------- */
+export function PremiumCard({
+  children,
+  className = "",
+  as: As = "section",
+  aurora = false,
+  style,
+}: {
+  children: ReactNode;
+  className?: string;
+  as?: "section" | "article" | "div";
+  aurora?: boolean;
+  style?: CSSProperties;
+}) {
+  return (
+    <As
+      className={`mtqs-glass-premium mtqs-card-hover ${aurora ? "mtqs-border-aurora" : ""} ${className}`}
+      style={style}
+    >
+      {children}
+    </As>
+  );
+}
+
+/* ---------- GradientText — gold gradient text component ---------- */
+export function GradientText({
+  children,
+  className = "",
+  as: As = "span",
+}: {
+  children: ReactNode;
+  className?: string;
+  as?: "span" | "h1" | "h2" | "h3" | "p" | "div";
+}) {
+  return (
+    <As className={`mtqs-gold-gradient-text ${className}`}>
+      {children}
+    </As>
+  );
+}
+
+/* ---------- GlowBadge — badge with glow effect (gold/emerald/rose variants) ---------- */
+export function GlowBadge({
+  children,
+  variant = "gold",
+  className = "",
+}: {
+  children: ReactNode;
+  variant?: "gold" | "emerald" | "rose";
+  className?: string;
+}) {
+  const cls =
+    variant === "emerald"
+      ? "mtqs-badge-emerald"
+      : variant === "rose"
+      ? "mtqs-badge-rose"
+      : "mtqs-badge-gold";
+  return <span className={`${cls} ${className}`}>{children}</span>;
+}
+
+/* ---------- SectionDivider — decorative gold divider with Σ symbol ---------- */
+export function SectionDivider({
+  label = "Σ",
+  className = "",
+}: {
+  label?: string;
+  className?: string;
+}) {
+  return (
+    <div className={`mtqs-section-divider ${className}`} aria-hidden="true">
+      <span>{label}</span>
+    </div>
+  );
+}
+
+/* ---------- AnimatedCounter — counts up to a value with easing ---------- */
+export function AnimatedCounter({
+  value,
+  format = (n) => n.toLocaleString("en-US"),
+  duration = 0.8,
+  className = "",
+}: {
+  value: number | null | undefined;
+  format?: (n: number) => string;
+  duration?: number;
+  className?: string;
+}) {
+  const prev = usePrevious(value);
+  const [display, setDisplay] = useState<number>(value ?? 0);
+  const rafRef = useRef<number | null>(null);
+
+  useEffect(() => {
+    if (value == null || !Number.isFinite(value)) return;
+    const from = prev != null && Number.isFinite(prev) ? prev : value;
+    const to = value;
+    if (from === to) {
+      setDisplay(to);
+      return;
+    }
+    const start = performance.now();
+    const ms = Math.max(120, duration * 1000);
+    // easeOutCubic
+    const ease = (t: number) => 1 - Math.pow(1 - t, 3);
+    const tick = (now: number) => {
+      const t = Math.min(1, (now - start) / ms);
+      const v = from + (to - from) * ease(t);
+      setDisplay(v);
+      if (t < 1) {
+        rafRef.current = requestAnimationFrame(tick);
+      } else {
+        setDisplay(to);
+      }
+    };
+    rafRef.current = requestAnimationFrame(tick);
+    return () => {
+      if (rafRef.current != null) cancelAnimationFrame(rafRef.current);
+    };
+  }, [value, duration, prev]);
+
+  if (value == null || !Number.isFinite(value)) {
+    return <span className={`font-mono tabular-nums ${className}`}>—</span>;
+  }
+  return (
+    <span className={`font-mono tabular-nums mtqs-count-up ${className}`}>
+      {format(display)}
+    </span>
+  );
+}
+
+/* ---------- StatCard — large stat display with icon, value, label, trend arrow ---------- */
+export function StatCard({
+  icon: Icon,
+  label,
+  value,
+  trend,
+  trendDirection = "neutral",
+  tone = "gold",
+  className = "",
+}: {
+  icon?: React.ComponentType<{ className?: string }>;
+  label: ReactNode;
+  value: ReactNode;
+  trend?: ReactNode;
+  trendDirection?: "up" | "down" | "neutral";
+  tone?: "gold" | "emerald" | "rose" | "neutral";
+  className?: string;
+}) {
+  const toneText =
+    tone === "emerald"
+      ? "text-mtqs-emerald"
+      : tone === "rose"
+      ? "text-mtqs-rose"
+      : tone === "neutral"
+      ? "text-white"
+      : "text-mtqs-gold-light";
+  const trendColor =
+    trendDirection === "up"
+      ? "text-mtqs-emerald"
+      : trendDirection === "down"
+      ? "text-mtqs-rose"
+      : "text-white/55";
+  const trendArrow = trendDirection === "up" ? "▲" : trendDirection === "down" ? "▼" : "■";
+
+  return (
+    <div className={`mtqs-stat-card mtqs-card-hover ${className}`}>
+      <div className="flex items-start justify-between gap-3 relative z-10">
+        <span className="text-[0.6rem] uppercase tracking-[0.22em] text-white/55">
+          {label}
+        </span>
+        {Icon ? (
+          <span className="inline-flex items-center justify-center rounded-md border border-mtqs-gold/25 bg-mtqs-gold/8 p-1.5">
+            <Icon className="h-3.5 w-3.5 text-mtqs-gold-light" aria-hidden="true" />
+          </span>
+        ) : null}
+      </div>
+      <div className={`font-mono tabular-nums text-2xl sm:text-3xl font-semibold relative z-10 ${toneText}`}>
+        {value}
+      </div>
+      {trend ? (
+        <div className={`flex items-center gap-1 text-[0.7rem] relative z-10 ${trendColor}`}>
+          <span aria-hidden="true">{trendArrow}</span>
+          <span>{trend}</span>
+        </div>
+      ) : null}
+    </div>
+  );
+}
+
+/* ---------- CSSParticleField — CSS-only floating gold particles ---------- */
+/* Uses the .mtqs-particle-bg class (radial-gradient dust layers + drift animation).
+   Pure CSS — no JS particle generation, no hydration concerns, zero runtime cost.
+   Note: a separate <ParticleField /> component exists at
+   @/components/mtq/ParticleField (JS-generated divs). This one is the
+   CSS-only premium variant per the UI-REDESIGN spec. */
+export function CSSParticleField({
+  className = "",
+  children,
+}: {
+  className?: string;
+  children?: ReactNode;
+}) {
+  return (
+    <div className={`mtqs-particle-bg ${className}`} aria-hidden={children ? undefined : true}>
+      {children}
+    </div>
+  );
+}
+
+// Spec-compliant alias: `ParticleField` from primitives is the CSS-only variant.
+// (The JS-rendered ParticleField lives at @/components/mtq/ParticleField.)
+export const ParticleField = CSSParticleField;
+
+/* ---------- SectionFade — wrapper that fades its children in on scroll into view ---------- */
+export function SectionFade({
+  children,
+  className = "",
+  delay = 0,
+}: {
+  children: ReactNode;
+  className?: string;
+  delay?: number;
+}) {
+  const ref = useRef<HTMLDivElement>(null);
+  const inView = useInView(ref, { once: true, margin: "0px 0px -10% 0px" });
+  return (
+    <div
+      ref={ref}
+      className={`mtqs-section-fade ${inView ? "is-visible" : ""} ${className}`}
+      style={{ transitionDelay: `${delay}ms` }}
+    >
+      {children}
+    </div>
+  );
+}
+
 /* ---------- Section ID map (for nav anchors) ---------- */
 export const SECTION_IDS = [
   "hero",

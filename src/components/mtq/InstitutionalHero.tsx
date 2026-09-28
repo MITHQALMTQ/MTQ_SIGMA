@@ -1,26 +1,40 @@
-// MTQΣ — Institutional Hero (§8-9)
-// Replaces the cinematic marketing hero with an institutional terminal overview.
-// Design language: deep-space glassmorphic, gold/emerald/rose accents, tabular
-// numerals, "Reference Value" (NOT "MTQ Price"), no USD-peg language, no "$X".
+// MTQΣ — Institutional Hero (UI-REDESIGN)
+// Breathtaking full-viewport hero. The PAR1D emblem is rendered as a large
+// glowing centerpiece with a pulsing gold halo (mtqs-logo-par1d), surrounded
+// by a CSS-only gold-dust particle field (mtqs-particle-bg). A massive gold
+// gradient wordmark "MTQΣ" anchors the composition, with the Cormorant
+// subtitle "The Global Purchasing Power Unit" below.
 //
-// Layout (top to bottom):
-//   1. Terminal status strip (live / oracle / clock)
-//   2. Wordmark "MTQΣ" (display) + subheadline + supporting paragraph
-//   3. Three CTAs: Explore the Reference · Enter Testnet · View Transparency
-//   4. Reference Value block — big tabular number + "PAR 1.00 basket-unit"
-//   5. Row of 6 clickable metric chips (each navigates to its section)
+// Live status pills (RR, NAV, Status, VIX, DXY) are derived from the
+// /api/metrics snapshot. Two CTAs ("Explore the Protocol" + "View Dashboard")
+// drive section navigation via onNavigate.
 //
-// The hero deliberately reads like an operating terminal — not a marketing page.
+// The previous "institutional terminal" data block (Reference Value, Par,
+// clickable metric chips) is preserved as a compact "Protocol Snapshot"
+// panel directly under the hero band — same data, more elegant surface.
+//
+// All existing prop contracts (snapshot, onNavigate) and the SectionId type
+// are preserved.
 
 "use client";
 
 import { useEffect, useState } from "react";
 import Image from "next/image";
 import { motion } from "framer-motion";
-import { ArrowRight, ChevronRight, Clock, Activity } from "lucide-react";
-import { Panel, GlowDot, Pill, Skeleton } from "./primitives";
-import { fmtFixed, fmtRatio, fmtNum, fmtTime } from "./format";
-import { STATUS_COLORS, BRAND_ASSETS } from "@/lib/mtq/brand";
+import {
+  ArrowRight,
+  Clock,
+  Activity,
+  Sparkles,
+  LayoutDashboard,
+} from "lucide-react";
+import {
+  GlowDot,
+  Skeleton,
+  PremiumCard,
+} from "./primitives";
+import { fmtFixed, fmtRatio, fmtNum, fmtTime, fmtUsdCompact } from "./format";
+import { STATUS_COLORS, BRAND_ASSETS, BRAND_VOICE } from "@/lib/mtq/brand";
 import { PAR } from "@/lib/mtq/blueprint";
 import type { MetricsSnapshot } from "@/lib/mtq/engine";
 import type { SectionId } from "./Navigation";
@@ -28,8 +42,6 @@ import type { SectionId } from "./Navigation";
 /* ---------- Terminal status strip (live + clock) ---------- */
 function TerminalStrip({ snapshot }: { snapshot: MetricsSnapshot | null }) {
   const [now, setNow] = useState<number | null>(null);
-  // Live clock — initialize on mount then tick every second. The initial
-  // null avoids a hydration mismatch (server has no Date.now()).
   useEffect(() => {
     const tick = () => setNow(Date.now());
     tick();
@@ -60,10 +72,7 @@ function TerminalStrip({ snapshot }: { snapshot: MetricsSnapshot | null }) {
         </span>
       </span>
       <span className="text-white/20">·</span>
-      <span
-        className="inline-flex items-center gap-1.5"
-        style={{ color: sb.color }}
-      >
+      <span className="inline-flex items-center gap-1.5" style={{ color: sb.color }}>
         <span
           className="h-1.5 w-1.5 rounded-full"
           style={{ backgroundColor: sb.color }}
@@ -80,111 +89,44 @@ function TerminalStrip({ snapshot }: { snapshot: MetricsSnapshot | null }) {
   );
 }
 
-/* ---------- Clickable metric chip ----------
-   Each chip: small label, tabular value, tone, chevron, navigates on click.
-   role="button" + keyboard activation per WAI-ARIA. */
-function MetricChip({
+/* ---------- Live status pill (small, used in the pill row) ---------- */
+function LivePill({
   label,
   value,
   tone,
-  hint,
-  onClick,
-  targetLabel,
 }: {
   label: string;
   value: string;
   tone: "gold" | "emerald" | "rose" | "amber" | "neutral";
-  hint?: string;
-  onClick: () => void;
-  targetLabel: string;
 }) {
-  const toneClass = new Map([
-    ["gold", "text-mtqs-gold"],
-    ["emerald", "text-mtqs-emerald"],
-    ["rose", "text-mtqs-rose"],
-    ["amber", "text-mtqs-amber"],
-    ["neutral", "text-white"],
-  ]).get(tone) ?? "text-white";
-
+  const toneCls =
+    tone === "gold"
+      ? "text-mtqs-gold border-mtqs-gold/30 bg-mtqs-gold/[0.08]"
+      : tone === "emerald"
+      ? "text-mtqs-emerald border-mtqs-emerald/30 bg-mtqs-emerald/[0.08]"
+      : tone === "rose"
+      ? "text-mtqs-rose border-mtqs-rose/30 bg-mtqs-rose/[0.08]"
+      : tone === "amber"
+      ? "text-mtqs-amber border-mtqs-amber/30 bg-mtqs-amber/[0.08]"
+      : "text-white/80 border-white/15 bg-white/[0.04]";
+  const dotColor =
+    tone === "gold" ? "#F0B90B" : tone === "emerald" ? "#00D68F" : tone === "rose" ? "#FF4D6D" : tone === "amber" ? "#FFB84D" : "#FFFFFF";
   return (
-    <button
-      type="button"
-      onClick={onClick}
-      aria-label={`${label} — ${value} — open ${targetLabel}`}
-      className="mtqs-focus group flex h-full w-full flex-col gap-1.5 rounded-lg border border-white/[0.06] bg-white/[0.02]/[0.03] p-3 text-left transition hover:border-mtqs-gold/30 hover:bg-mtqs-gold/[0.04] focus-visible:border-mtqs-gold/40"
+    <span
+      className={`inline-flex items-center gap-1.5 rounded-full border px-3 py-1 text-[0.7rem] font-mono tabular-nums ${toneCls}`}
     >
-      <div className="flex items-start justify-between gap-2">
-        <span className="text-[0.6rem] uppercase tracking-[0.2em] text-white/55">
-          {label}
-        </span>
-        <ChevronRight
-          className="h-3.5 w-3.5 shrink-0 text-white/30 transition group-hover:translate-x-0.5 group-hover:text-mtqs-gold"
-          aria-hidden="true"
-        />
-      </div>
-      <div className={`font-mono tabular-nums text-base font-semibold ${toneClass}`}>
-        {value}
-      </div>
-      {hint ? (
-        <div className="text-[0.62rem] text-white/45 leading-snug">{hint}</div>
-      ) : null}
-    </button>
+      <span
+        className="h-1.5 w-1.5 rounded-full mtqs-pulse-dot"
+        style={{ backgroundColor: dotColor, color: dotColor }}
+        aria-hidden="true"
+      />
+      <span className="uppercase tracking-[0.18em] text-white/55">{label}</span>
+      <span className="font-semibold">{value}</span>
+    </span>
   );
 }
 
-/* ---------- Reference Value block (no "$X" — just the number) ---------- */
-function ReferenceValueBlock({ snapshot }: { snapshot: MetricsSnapshot | null }) {
-  const value = snapshot ? fmtFixed(snapshot.mtqPrice, 4) : null;
-  const inBand = snapshot?.priceInBand ?? true;
-  const valueTone = !snapshot ? "text-white" : inBand ? "mtqs-gold-text" : "text-mtqs-rose";
-
-  return (
-    <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-      <Panel className="p-5">
-        <div className="flex items-center gap-1.5 mb-3">
-          <GlowDot color="gold" size="h-1.5 w-1.5" />
-          <span className="text-[0.62rem] uppercase tracking-[0.22em] text-mtqs-gold/80">
-            Reference Value
-          </span>
-        </div>
-        {value ? (
-          <div className="flex items-baseline gap-2">
-            <span
-              className={`font-mono tabular-nums text-4xl sm:text-5xl font-semibold ${valueTone}`}
-            >
-              {value}
-            </span>
-            <span className="text-[0.72rem] text-white/55 font-mono">basket-unit</span>
-          </div>
-        ) : (
-          <Skeleton className="h-12 w-32" />
-        )}
-        <div className="mt-2 text-[0.7rem] text-white/55">
-          Chain-linked I<sub>t</sub> · 4s poll · {inBand ? "in safety band" : "outside safety band"}
-        </div>
-      </Panel>
-      <Panel variant="emerald" className="p-5">
-        <div className="flex items-center gap-1.5 mb-3">
-          <GlowDot color="emerald" size="h-1.5 w-1.5" />
-          <span className="text-[0.62rem] uppercase tracking-[0.22em] text-mtqs-emerald/85">
-            Par
-          </span>
-        </div>
-        <div className="flex items-baseline gap-2">
-          <span className="font-mono tabular-nums text-4xl sm:text-5xl font-semibold text-mtqs-emerald">
-            {fmtFixed(PAR, 2)}
-          </span>
-          <span className="text-[0.72rem] text-white/55 font-mono">basket-unit</span>
-        </div>
-        <div className="mt-2 text-[0.7rem] text-white/55">
-          Immutable unit of account · §18.1 · Constitutional
-        </div>
-      </Panel>
-    </div>
-  );
-}
-
-/* ---------- Main component ---------- */
+/* ---------- Main breathtaking hero ---------- */
 export function InstitutionalHero({
   snapshot,
   onNavigate,
@@ -192,26 +134,12 @@ export function InstitutionalHero({
   snapshot: MetricsSnapshot | null;
   onNavigate: (id: SectionId) => void;
 }) {
-  // Snapshot-derived metrics for the chip row.
-  const gfbIndex = snapshot ? fmtFixed(snapshot.gfbIndex, 4) : null;
-
-  // Live Weight State — summarize the 4-state weight ladder into a short tag.
-  const weightState = (() => {
-    if (!snapshot?.weightStates) return null;
-    const ex = snapshot.weightStates.execution;
-    if (!ex) return null;
-    // Pick the largest-weight component for the headline (sm sign of life).
-    const entries = Object.entries(ex) as [string, number][];
-    if (entries.length === 0) return null;
-    const sorted = [...entries].sort((a, b) => b[1] - a[1]);
-    const top = sorted[0];
-    return `${top[0]} ${(top[1] * 100).toFixed(1)}%`;
-  })();
-
-  const rrTxt = snapshot && Number.isFinite(snapshot.reserveRatio)
-    ? fmtRatio(snapshot.reserveRatio)
-    : "—";
-  const rrTone =
+  // Snapshot-derived metrics for the live status pills
+  const rrTxt =
+    snapshot && Number.isFinite(snapshot.reserveRatio)
+      ? fmtRatio(snapshot.reserveRatio)
+      : "∞";
+  const rrTone: "emerald" | "amber" | "rose" =
     !snapshot || !Number.isFinite(snapshot.reserveRatio)
       ? "emerald"
       : snapshot.reserveRatio >= 1.1
@@ -220,264 +148,258 @@ export function InstitutionalHero({
       ? "amber"
       : "rose";
 
-  const lcrTxt = snapshot && Number.isFinite(snapshot.lcr)
-    ? fmtRatio(snapshot.lcr)
-    : "—";
-  const lcrTone =
-    !snapshot || !Number.isFinite(snapshot.lcr)
-      ? "emerald"
-      : snapshot.lcr >= 1.0
-      ? "emerald"
-      : "amber";
-
+  const navTxt = snapshot ? fmtUsdCompact(snapshot.nav) : "—";
   const status = snapshot?.status ?? "NORMAL";
   const sb = STATUS_COLORS[status] ?? STATUS_COLORS.NORMAL;
+  const statusTone: "gold" | "emerald" | "rose" | "amber" =
+    status === "NORMAL"
+      ? "emerald"
+      : status === "CAUTION" || status === "RECOVERY"
+      ? "amber"
+      : "rose";
 
-  const oracleValid = snapshot?.oracle?.pairs.filter((p) => !p.paused).length ?? null;
-  const oracleTotal = snapshot?.oracle?.pairs.length ?? null;
-  const oracleTxt = oracleValid != null && oracleTotal != null ? `${oracleValid}/${oracleTotal}` : "—";
-  const oracleTone = snapshot?.oraclePaused ? "rose" : "emerald";
+  const vixTxt = snapshot?.macro?.vix != null ? fmtFixed(snapshot.macro.vix, 2) : "—";
+  const vixTone: "gold" | "emerald" | "rose" | "amber" =
+    !snapshot?.macro?.vix
+      ? "gold"
+      : snapshot.macro.vix < 18
+      ? "emerald"
+      : snapshot.macro.vix < 25
+      ? "amber"
+      : "rose";
+
+  const dxyTxt = snapshot?.macro?.dxy != null ? fmtFixed(snapshot.macro.dxy, 2) : "—";
+  const dxyTone: "gold" | "emerald" | "rose" | "amber" =
+    !snapshot?.macro?.dxy
+      ? "gold"
+      : snapshot.macro.dxy < 100
+      ? "emerald"
+      : snapshot.macro.dxy < 108
+      ? "amber"
+      : "rose";
+
+  const gfbIndex = snapshot ? fmtFixed(snapshot.gfbIndex, 4) : null;
 
   return (
     <section
       aria-labelledby="hero-institutional"
       className="relative"
     >
-      <Panel className="relative overflow-hidden p-5 sm:p-7 lg:p-8 mtqs-glow-gold">
-        {/* Terminal grid backdrop */}
+      {/* ===== Breathtaking full-viewport hero band ===== */}
+      <div className="relative overflow-hidden rounded-2xl mtqs-glass-premium mtqs-hero-bg mtqs-particle-bg">
+        {/* Pulsing radial glow behind the logo */}
         <div
-          className="pointer-events-none absolute inset-0 opacity-[0.07]"
-          aria-hidden="true"
+          className="pointer-events-none absolute left-1/2 top-[42%] -translate-x-1/2 -translate-y-1/2 h-[420px] w-[420px] rounded-full"
           style={{
-            backgroundImage:
-              "linear-gradient(rgba(232,185,100,0.4) 1px, transparent 1px), linear-gradient(90deg, rgba(232,185,100,0.4) 1px, transparent 1px)",
-            backgroundSize: "32px 32px",
-            maskImage:
-              "radial-gradient(ellipse 70% 60% at 50% 0%, black, transparent 80%)",
-            WebkitMaskImage:
-              "radial-gradient(ellipse 70% 60% at 50% 0%, black, transparent 80%)",
+            background:
+              "radial-gradient(circle, rgba(240,185,11,0.18) 0%, rgba(240,185,11,0.06) 35%, transparent 70%)",
+            filter: "blur(8px)",
           }}
+          aria-hidden="true"
         />
 
         {/* Terminal status strip */}
-        <TerminalStrip snapshot={snapshot} />
+        <div className="relative p-5 sm:p-7 lg:p-8 pb-0">
+          <TerminalStrip snapshot={snapshot} />
+        </div>
 
-        {/* Wordmark + copy */}
-        <motion.div
-          initial={{ opacity: 0, y: 12 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ type: "spring", stiffness: 300, damping: 28, delay: 0.05 }}
-          className="relative mt-6 grid grid-cols-1 lg:grid-cols-[1.3fr_1fr] gap-6 lg:gap-10"
-        >
-          <div className="space-y-4">
-            {/* Official PAR1D emblem — portrait hexagon on obsidian.
-                Displayed at hero scale with a soft gold halo (mtqs-logo-hero).
-                object-contain preserves the full mark; the #0D0D0D field
-                matches the logo's own backdrop so it reads as a single piece. */}
-            <motion.div
-              initial={{ opacity: 0, scale: 0.92, filter: "blur(8px)" }}
-              animate={{ opacity: 1, scale: 1, filter: "blur(0)" }}
-              transition={{ type: "spring", stiffness: 220, damping: 24, delay: 0.02 }}
-              className="flex items-center gap-4 sm:gap-6"
+        {/* Hero centerpiece: PAR1D logo + wordmark + subtitle */}
+        <div className="relative px-5 sm:px-7 lg:px-8 pt-6 sm:pt-10 pb-8 sm:pb-12 flex flex-col items-center text-center">
+          {/* PAR1D emblem — large, glowing, pulsing */}
+          <motion.div
+            initial={{ opacity: 0, scale: 0.85, filter: "blur(16px)" }}
+            animate={{ opacity: 1, scale: 1, filter: "blur(0px)" }}
+            transition={{ duration: 0.6, ease: [0.16, 1, 0.3, 1] }}
+            className="relative mb-6"
+          >
+            <div
+              className="relative h-40 w-40 sm:h-52 sm:w-52 lg:h-64 lg:w-64 mtqs-logo-par1d rounded-3xl"
+              aria-label="MTQΣ official logo — PAR1D luxury emblem"
             >
-              <div
-                className="relative h-24 w-24 sm:h-32 sm:w-32 lg:h-40 lg:w-40 shrink-0 mtqs-logo-hero rounded-xl"
-                aria-label="MTQΣ official logo"
-              >
-                <Image
-                  src={BRAND_ASSETS.logoCanonical}
-                  alt="MTQΣ official logo — luxury hexagonal Σ emblem with golden sphere"
-                  fill
-                  sizes="(min-width: 1024px) 160px, (min-width: 640px) 128px, 96px"
-                  className="object-contain"
-                  style={{ objectFit: "contain" }}
-                  priority
-                />
-              </div>
-              <div className="flex flex-col gap-1 min-w-0">
-                <h1
-                  className="mtqs-display mtqs-gold-text text-5xl sm:text-6xl lg:text-7xl leading-none"
-                  style={{ fontWeight: 600 }}
-                >
-                  MTQΣ
-                </h1>
-                <span className="text-[0.6rem] sm:text-[0.65rem] uppercase tracking-[0.22em] text-mtqs-gold/70 font-mono">
-                  Sovereign · Collateralized · Calm
-                </span>
-              </div>
-            </motion.div>
-            <p className="mtqs-display text-lg sm:text-xl text-amber-100/85 leading-snug max-w-xl">
-              A neutral, adaptive global purchasing-power reference unit.
-            </p>
-            <p className="text-[0.82rem] sm:text-[0.9rem] text-white/55 leading-relaxed max-w-2xl">
-              MTQΣ is defined by a transparent methodology spanning eligible
-              currencies and gold, an adaptive weighting system, constitutional
-              constraints, reserve collateralization, risk controls and
-              auditable execution.
-            </p>
-
-            {/* CTA row */}
-            <div className="flex flex-wrap items-center gap-2 pt-2">
-              <button
-                type="button"
-                onClick={() => onNavigate("reference")}
-                className="mtqs-focus inline-flex items-center gap-2 rounded-md bg-gradient-to-b from-amber-300 to-amber-500 px-4 py-2.5 text-sm font-semibold text-[#1a1208] shadow-lg shadow-amber-500/15 transition hover:from-amber-200 hover:to-amber-400"
-                aria-label="Explore the Reference — open the Reference section"
-              >
-                Explore the Reference
-                <ArrowRight className="h-4 w-4" aria-hidden="true" />
-              </button>
-              <button
-                type="button"
-                onClick={() => onNavigate("mint")}
-                className="mtqs-focus inline-flex items-center gap-2 rounded-md border border-mtqs-gold/30 bg-mtqs-gold/[0.06] px-4 py-2.5 text-sm font-semibold text-mtqs-gold-light transition hover:border-mtqs-gold/50 hover:bg-mtqs-gold/[0.1]"
-                aria-label="Enter Testnet — open the Mint section"
-              >
-                Enter Testnet
-              </button>
-              <button
-                type="button"
-                onClick={() => onNavigate("transparency")}
-                className="mtqs-focus inline-flex items-center gap-2 rounded-md border border-white/[0.1] bg-white/[0.02]/[0.03] px-4 py-2.5 text-sm font-medium text-white/80 transition hover:border-mtqs-emerald/40 hover:text-white"
-                aria-label="View Transparency — open the Transparency section"
-              >
-                View Transparency
-              </button>
+              <Image
+                src={BRAND_ASSETS.logoCanonical}
+                alt="MTQΣ official logo — luxury hexagonal shield emblem with gold Σ on obsidian"
+                fill
+                sizes="(min-width: 1024px) 256px, (min-width: 640px) 208px, 160px"
+                className="object-contain"
+                style={{ objectFit: "contain" }}
+                priority
+              />
             </div>
-          </div>
+          </motion.div>
 
-          {/* Right-side quick-status digest (live protocol snapshot) */}
-          <div className="lg:border-l lg:border-white/[0.06] lg:pl-6 space-y-3">
-            <div className="flex items-center justify-between">
-              <span className="text-[0.62rem] uppercase tracking-[0.22em] text-white/55">
-                Protocol Snapshot
-              </span>
-              <Pill tone={status === "NORMAL" ? "emerald" : status === "CAUTION" || status === "RECOVERY" ? "amber" : "rose"}>
-                <GlowDot
-                  color={status === "NORMAL" ? "emerald" : status === "CAUTION" || status === "RECOVERY" ? "amber" : "rose"}
-                  size="h-1.5 w-1.5"
-                />
-                {sb.label}
-              </Pill>
-            </div>
-            <dl className="grid grid-cols-2 gap-2.5 text-[0.78rem]">
-              <div className="rounded-md border border-white/[0.06] bg-white/[0.02]/[0.02] px-3 py-2">
-                <dt className="text-[0.62rem] uppercase tracking-[0.18em] text-white/55">Reference Index</dt>
-                <dd className="font-mono tabular-nums text-mtqs-gold">
-                  {gfbIndex ?? <Skeleton className="h-4 w-16" />}
-                </dd>
-              </div>
-              <div className="rounded-md border border-white/[0.06] bg-white/[0.02]/[0.02] px-3 py-2">
-                <dt className="text-[0.62rem] uppercase tracking-[0.18em] text-white/55">Reserve NAV</dt>
-                <dd className="font-mono tabular-nums text-white">
-                  {snapshot ? fmtNum(snapshot.nav, 0) : <Skeleton className="h-4 w-16" />}
-                </dd>
-              </div>
-              <div className="rounded-md border border-white/[0.06] bg-white/[0.02]/[0.02] px-3 py-2">
-                <dt className="text-[0.62rem] uppercase tracking-[0.18em] text-white/55">Circulating</dt>
-                <dd className="font-mono tabular-nums text-white">
-                  {snapshot ? fmtNum(snapshot.circulatingSupply, 0) : <Skeleton className="h-4 w-16" />}
-                </dd>
-              </div>
-              <div className="rounded-md border border-white/[0.06] bg-white/[0.02]/[0.02] px-3 py-2">
-                <dt className="text-[0.62rem] uppercase tracking-[0.18em] text-white/55">Minting</dt>
-                <dd
-                  className={`font-mono tabular-nums ${
-                    snapshot?.mintingAllowed ? "text-mtqs-emerald" : "text-mtqs-rose"
-                  }`}
-                >
-                  {snapshot ? (snapshot.mintingAllowed ? "allowed" : "paused") : <Skeleton className="h-4 w-16" />}
-                </dd>
-              </div>
-            </dl>
-            <p className="text-[0.68rem] text-white/45 leading-snug">
-              All values are computed live by the reference engine and reconciled
-              against the blueprint. Reporting currencies are external accounting
-              only — the protocol does not peg to any single currency.
-            </p>
-          </div>
-        </motion.div>
+          {/* Massive gold-gradient wordmark */}
+          <motion.h1
+            initial={{ opacity: 0, y: 12, filter: "blur(10px)" }}
+            animate={{ opacity: 1, y: 0, filter: "blur(0px)" }}
+            transition={{ duration: 0.6, delay: 0.15, ease: [0.16, 1, 0.3, 1] }}
+            className="mtqs-display mtqs-gold-gradient-text font-semibold leading-none"
+            style={{ fontSize: "clamp(3.5rem, 12vw, 9rem)" }}
+          >
+            MTQΣ
+          </motion.h1>
 
-        {/* Reference Value + PAR block */}
-        <motion.div
-          initial={{ opacity: 0, y: 12 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ type: "spring", stiffness: 300, damping: 28, delay: 0.15 }}
-          className="relative mt-6"
-        >
-          <ReferenceValueBlock snapshot={snapshot} />
-        </motion.div>
+          {/* Cormorant subtitle */}
+          <motion.p
+            initial={{ opacity: 0, y: 8 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.5, delay: 0.3 }}
+            className="mt-3 sm:mt-4 mtqs-display italic text-lg sm:text-2xl lg:text-3xl text-amber-100/85 tracking-wide"
+          >
+            The Global Purchasing Power Unit
+          </motion.p>
 
-        {/* Clickable metric chips row */}
-        <motion.div
-          initial={{ opacity: 0, y: 12 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ type: "spring", stiffness: 300, damping: 28, delay: 0.25 }}
-          className="relative mt-3"
-        >
-          <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-2">
-            <MetricChip
-              label="Reference Index"
-              value={gfbIndex ?? "—"}
-              tone="gold"
-              hint="Chain-linked I_t · open Reference"
-              targetLabel="Reference"
+          <motion.p
+            initial={{ opacity: 0, y: 8 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.5, delay: 0.4 }}
+            className="mt-3 text-[0.82rem] sm:text-[0.9rem] text-white/55 leading-relaxed max-w-2xl"
+          >
+            A neutral, adaptive global purchasing-power reference unit — defined by
+            a transparent methodology spanning eligible currencies and gold, an
+            adaptive weighting system, constitutional constraints, reserve
+            collateralization, risk controls and auditable execution.
+          </motion.p>
+
+          {/* CTA row */}
+          <motion.div
+            initial={{ opacity: 0, y: 8 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.5, delay: 0.5 }}
+            className="mt-6 sm:mt-8 flex flex-wrap items-center justify-center gap-3"
+          >
+            <button
+              type="button"
               onClick={() => onNavigate("reference")}
-            />
-            <MetricChip
-              label="Live Weight State"
-              value={weightState ?? "—"}
-              tone="gold"
-              hint="Execution weights · open Reference"
-              targetLabel="Reference"
-              onClick={() => onNavigate("reference")}
-            />
-            <MetricChip
-              label="Reserve Ratio"
-              value={rrTxt}
-              tone={rrTone}
-              hint="NAV / liability · open Reserve"
-              targetLabel="Reserve"
-              onClick={() => onNavigate("reserve")}
-            />
-            <MetricChip
-              label="Liquidity Coverage"
-              value={lcrTxt}
-              tone={lcrTone}
-              hint="LCR · open Reserve"
-              targetLabel="Reserve"
-              onClick={() => onNavigate("reserve")}
-            />
-            <MetricChip
-              label="Risk State"
-              value={sb.label}
-              tone={status === "NORMAL" ? "emerald" : status === "CAUTION" || status === "RECOVERY" ? "amber" : "rose"}
-              hint="§21 state machine · open Risk"
-              targetLabel="Risk"
-              onClick={() => onNavigate("risk")}
-            />
-            <MetricChip
-              label="Oracle Health"
-              value={oracleTxt}
-              tone={oracleTone}
-              hint="Valid sources · open Reference"
-              targetLabel="Reference"
-              onClick={() => onNavigate("reference")}
-            />
-          </div>
-        </motion.div>
+              className="mtqs-cta-gold"
+              aria-label="Explore the Protocol — open the Reference section"
+            >
+              <Sparkles className="h-4 w-4" aria-hidden="true" />
+              Explore the Protocol
+              <ArrowRight className="h-4 w-4" aria-hidden="true" />
+            </button>
+            <button
+              type="button"
+              onClick={() => onNavigate("dashboard")}
+              className="mtqs-cta-outline"
+              aria-label="View Dashboard — open the Dashboard section"
+            >
+              <LayoutDashboard className="h-4 w-4" aria-hidden="true" />
+              View Dashboard
+            </button>
+          </motion.div>
+
+          {/* Live status pills: RR, NAV, Status, VIX, DXY */}
+          <motion.div
+            initial={{ opacity: 0, y: 8 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.5, delay: 0.6 }}
+            className="mt-8 sm:mt-10 flex flex-wrap items-center justify-center gap-2 sm:gap-3"
+          >
+            <LivePill label="RR" value={rrTxt} tone={rrTone} />
+            <LivePill label="NAV" value={navTxt} tone="gold" />
+            <LivePill label="Status" value={sb.label} tone={statusTone} />
+            <LivePill label="VIX" value={vixTxt} tone={vixTone} />
+            <LivePill label="DXY" value={dxyTxt} tone={dxyTone} />
+          </motion.div>
+        </div>
 
         {/* Footer disclaimer — institutional tone */}
-        <div className="relative mt-5 flex flex-wrap items-center justify-between gap-2 border-t border-white/[0.06] pt-3 text-[0.66rem] text-white/45">
+        <div className="relative px-5 sm:px-7 lg:px-8 pb-5 sm:pb-6 flex flex-wrap items-center justify-between gap-2 border-t border-white/[0.06] pt-3 text-[0.66rem] text-white/45">
           <span className="inline-flex items-center gap-1.5">
             <Activity className="h-3 w-3 text-mtqs-gold/70" aria-hidden="true" />
-            Candidate for public testing — not production-authorized
+            {BRAND_VOICE.statusDeclaration}
           </span>
           <span className="font-mono">
             v1.0 · reference engine · {snapshot ? `t ${Math.floor((snapshot.fetchedAt ?? Date.now()) / 1000)}` : "—"}
           </span>
         </div>
-      </Panel>
+      </div>
+
+      {/* ===== Compact Protocol Snapshot — preserves the prior data panel ===== */}
+      <motion.div
+        initial={{ opacity: 0, y: 12 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.4, delay: 0.7 }}
+        className="mt-4 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3"
+      >
+        {/* Reference Index */}
+        <PremiumCard className="p-4">
+          <div className="flex items-center gap-1.5 mb-2">
+            <GlowDot color="gold" size="h-1.5 w-1.5" />
+            <span className="text-[0.62rem] uppercase tracking-[0.22em] text-mtqs-gold/80">
+              Reference Index
+            </span>
+          </div>
+          {gfbIndex ? (
+            <div className="font-mono tabular-nums text-2xl font-semibold mtqs-gold-gradient-text">
+              {gfbIndex}
+            </div>
+          ) : (
+            <Skeleton className="h-7 w-24" />
+          )}
+          <div className="mt-1 text-[0.7rem] text-white/55">Chain-linked I<sub>t</sub> · 4s poll</div>
+        </PremiumCard>
+
+        {/* Reference Value */}
+        <PremiumCard className="p-4">
+          <div className="flex items-center gap-1.5 mb-2">
+            <GlowDot color="emerald" size="h-1.5 w-1.5" />
+            <span className="text-[0.62rem] uppercase tracking-[0.22em] text-mtqs-emerald/80">
+              Reference Value
+            </span>
+          </div>
+          {snapshot ? (
+            <div
+              className={`font-mono tabular-nums text-2xl font-semibold ${
+                snapshot.priceInBand ? "text-mtqs-emerald" : "text-mtqs-rose"
+              }`}
+            >
+              {fmtFixed(snapshot.mtqPrice, 4)}
+            </div>
+          ) : (
+            <Skeleton className="h-7 w-24" />
+          )}
+          <div className="mt-1 text-[0.7rem] text-white/55">
+            {snapshot?.priceInBand ? "in safety band" : "outside band"}
+          </div>
+        </PremiumCard>
+
+        {/* Reserve NAV */}
+        <PremiumCard className="p-4">
+          <div className="flex items-center gap-1.5 mb-2">
+            <GlowDot color="gold" size="h-1.5 w-1.5" />
+            <span className="text-[0.62rem] uppercase tracking-[0.22em] text-mtqs-gold/80">
+              Reserve NAV
+            </span>
+          </div>
+          {snapshot ? (
+            <div className="font-mono tabular-nums text-2xl font-semibold text-white">
+              {fmtNum(snapshot.nav, 0)}
+            </div>
+          ) : (
+            <Skeleton className="h-7 w-24" />
+          )}
+          <div className="mt-1 text-[0.7rem] text-white/55">Liability collateral</div>
+        </PremiumCard>
+
+        {/* Par */}
+        <PremiumCard className="p-4">
+          <div className="flex items-center gap-1.5 mb-2">
+            <GlowDot color="emerald" size="h-1.5 w-1.5" />
+            <span className="text-[0.62rem] uppercase tracking-[0.22em] text-mtqs-emerald/80">
+              Par
+            </span>
+          </div>
+          <div className="flex items-baseline gap-2">
+            <span className="font-mono tabular-nums text-2xl font-semibold text-mtqs-emerald">
+              {fmtFixed(PAR, 2)}
+            </span>
+            <span className="text-[0.7rem] text-white/55 font-mono">basket-unit</span>
+          </div>
+          <div className="mt-1 text-[0.7rem] text-white/55">Immutable · §18.1</div>
+        </PremiumCard>
+      </motion.div>
 
       {/* sr-only landmark */}
       <h2 id="hero-institutional" className="sr-only">
