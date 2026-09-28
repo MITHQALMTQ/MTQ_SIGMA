@@ -27,6 +27,7 @@ import { InvestorSection } from "@/components/mtq/sections/InvestorSection";
 import { PitchSection } from "@/components/mtq/sections/PitchSection";
 import { SecuritySection } from "@/components/mtq/sections/SecuritySection";
 import { TestsSection } from "@/components/mtq/sections/TestsSection";
+import { InstitutionalDashboard } from "@/components/mtq/InstitutionalDashboard";
 import type { MetricsSnapshot } from "@/lib/mtq/engine";
 
 const POLL_MS = 4000;
@@ -222,7 +223,22 @@ export default function Page() {
 
               {/* ─── SECONDARY / RESTRICTED (accessible via "More" dropdown) ─── */}
               {section === "investors" && (
-                <InvestorSection onNavigate={handleNavigate} snapshot={snapshot} />
+                <div className="space-y-10">
+                  <section id="institutional-dashboard" aria-labelledby="institutional-dashboard-h" className="scroll-mt-32">
+                    <SectionHeading
+                      eyebrow="UPSCALE-1 · for banks + institutional users"
+                      title="Institutional Dashboard"
+                      right={
+                        <Pill tone="amber">
+                          <GlowDot color="amber" size="h-1.5 w-1.5" />
+                          10 blueprint modules · live API
+                        </Pill>
+                      }
+                    />
+                    <InstitutionalDashboard />
+                  </section>
+                  <InvestorSection onNavigate={handleNavigate} snapshot={snapshot} />
+                </div>
               )}
               {section === "pitch" && <PitchSection onNavigate={handleNavigate} />}
 
