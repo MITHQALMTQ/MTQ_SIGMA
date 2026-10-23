@@ -67,8 +67,14 @@ jobs:
           # Run the container with --fixed-input (frozen FX/macro snapshot).
           # The script prints a one-line JSON to stdout: {"hash": "...", ...}
           OUT1=$(docker run --rm \
-            -e COMPUTE_ENGINE_OUTPUT=/app/weight-vector.json \
-            -v "$PWD/output:/app" \
+            # 2026-10-24 fix: the old `-v "$PWD/output:/app"` mounted an EMPTY
+            # host dir OVER the app itself — shadowing src/, node_modules/ and
+            # the entrypoint ("Module not found src/lib/mtq/compute-engine.ts").
+            # Mount a SUBDIRECTORY instead, and run as the runner uid so the
+            # container can write into the runner-owned mount.
+            --user "$(id -u):$(id -g)" \
+            -e COMPUTE_ENGINE_OUTPUT=/app/output/weight-vector.json \
+            -v "$PWD/output:/app/output" \
             mtqs-compute:latest --fixed-input)
           echo "run1_output=$OUT1" >> "$GITHUB_ENV"
           HASH1=$(echo "$OUT1" | jq -r '.hash')
@@ -81,8 +87,9 @@ jobs:
         run: |
           mkdir -p output
           OUT2=$(docker run --rm \
-            -e COMPUTE_ENGINE_OUTPUT=/app/weight-vector.json \
-            -v "$PWD/output:/app" \
+            --user "$(id -u):$(id -g)" \
+            -e COMPUTE_ENGINE_OUTPUT=/app/output/weight-vector.json \
+            -v "$PWD/output:/app/output" \
             mtqs-compute:latest --fixed-input)
           HASH2=$(echo "$OUT2" | jq -r '.hash')
           echo "hash2=$HASH2" >> "$GITHUB_OUTPUT"
@@ -112,8 +119,9 @@ jobs:
           mkdir -p output
           cp weight-vector-run2.json output/weight-vector.json
           docker run --rm \
-            -e COMPUTE_ENGINE_OUTPUT=/app/weight-vector.json \
-            -v "$PWD/output:/app" \
+            --user "$(id -u):$(id -g)" \
+            -e COMPUTE_ENGINE_OUTPUT=/app/output/weight-vector.json \
+            -v "$PWD/output:/app/output" \
             mtqs-compute:latest --verify-only --fixed-input
 
       - name: Upload weight-vector artifacts
@@ -221,10 +229,11 @@ jobs:
           # automatically (with a stderr warning). The weight-vector.json is
           # still produced and uploaded.
           docker run --rm \
+            --user "$(id -u):$(id -g)" \
             -e TURSO_DATABASE_URL="$TURSO_DATABASE_URL" \
             -e TURSO_AUTH_TOKEN="$TURSO_AUTH_TOKEN" \
-            -e COMPUTE_ENGINE_OUTPUT=/app/weight-vector.json \
-            -v "$PWD/output:/app" \
+            -e COMPUTE_ENGINE_OUTPUT=/app/output/weight-vector.json \
+            -v "$PWD/output:/app/output" \
             mtqs-compute:latest | tee output/stdout.json
           echo "::notice::Production weight-vector.json emitted"
 
