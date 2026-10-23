@@ -33,16 +33,20 @@ remappings = [
     "forge-std/=lib/forge-std/src/"
 ]
 
-# SKIP (2026-10-24): MtqEcosystem.sol is the ONLY file importing
-# @openzeppelin — and OpenZeppelin is NOT vendored (the .gitignore keeps
-# lib/openzeppelin-contracts/ out; the foundry.toml.example header lists
-# `forge install OpenZeppelin/openzeppelin-contracts` as an owner-side
-# prerequisite). The documented test-suite scope (Deliverable J2) is the
-# 30-test MTQSigmaV2 suite — a single-file contract with OZ patterns
-# inlined — which does NOT need MtqEcosystem. Skipping it lets the suite
-# compile hermetically; to compile the ecosystem contract too, vendor OZ
-# (same pattern as the vendored forge-std) and remove this skip.
-skip = ["MtqEcosystem.sol"]
+# SKIP (2026-10-24):
+#  - MtqEcosystem.sol — the ONLY file importing @openzeppelin, which is NOT
+#    vendored (the .gitignore keeps lib/openzeppelin-contracts/ out; the
+#    foundry.toml.example header lists `forge install OpenZeppelin/...` as an
+#    owner-side prerequisite). Excluded so the suite compiles hermetically;
+#    to compile it, vendor OZ (same pattern as the vendored forge-std).
+#  - MTQSigmaV3.sol — a KNOWN non-deployable draft per audit C-044 (runtime
+#    40,500 B > 24,576 B EIP-170 limit), and its source has GENUINE compile
+#    errors (Error 7364 destructuring arity, 9574 bytes32→MintRequest struct
+#    conversion, 9582 missing member DailyRedeemCapReset — surfaced by the
+#    2026-10-24 CI runs e01ce89). Excluded from the build until the owner
+#    commissions the v3 contract remediation (R-06); the J2 suite scope is
+#    the 30-test MTQSigmaV2 suite, which is self-contained.
+skip = ["MtqEcosystem.sol", "MTQSigmaV3.sol"]
 
 # Test configuration: longer timeout for the S5 stochastic fuzz tests
 # (they run 100 trajectories × 30 ticks each per seed).
