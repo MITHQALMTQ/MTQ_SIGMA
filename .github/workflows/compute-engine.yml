@@ -66,12 +66,15 @@ jobs:
           mkdir -p output
           # Run the container with --fixed-input (frozen FX/macro snapshot).
           # The script prints a one-line JSON to stdout: {"hash": "...", ...}
+          #
+          # 2026-10-24 fix: the old `-v "$PWD/output:/app"` mounted an EMPTY
+          # host dir OVER the app itself — shadowing src/, node_modules/ and
+          # the entrypoint ("Module not found src/lib/mtq/compute-engine.ts").
+          # Mount a SUBDIRECTORY instead, and run as the runner uid so the
+          # container can write into the runner-owned mount. (Note: shell
+          # comments must stay OUTSIDE the $( ) substitution — a comment line
+          # inside it broke the backslash continuations at 48b2f3a.)
           OUT1=$(docker run --rm \
-            # 2026-10-24 fix: the old `-v "$PWD/output:/app"` mounted an EMPTY
-            # host dir OVER the app itself — shadowing src/, node_modules/ and
-            # the entrypoint ("Module not found src/lib/mtq/compute-engine.ts").
-            # Mount a SUBDIRECTORY instead, and run as the runner uid so the
-            # container can write into the runner-owned mount.
             --user "$(id -u):$(id -g)" \
             -e COMPUTE_ENGINE_OUTPUT=/app/output/weight-vector.json \
             -v "$PWD/output:/app/output" \

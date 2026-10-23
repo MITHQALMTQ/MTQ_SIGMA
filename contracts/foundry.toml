@@ -33,6 +33,17 @@ remappings = [
     "forge-std/=lib/forge-std/src/"
 ]
 
+# SKIP (2026-10-24): MtqEcosystem.sol is the ONLY file importing
+# @openzeppelin — and OpenZeppelin is NOT vendored (the .gitignore keeps
+# lib/openzeppelin-contracts/ out; the foundry.toml.example header lists
+# `forge install OpenZeppelin/openzeppelin-contracts` as an owner-side
+# prerequisite). The documented test-suite scope (Deliverable J2) is the
+# 30-test MTQSigmaV2 suite — a single-file contract with OZ patterns
+# inlined — which does NOT need MtqEcosystem. Skipping it lets the suite
+# compile hermetically; to compile the ecosystem contract too, vendor OZ
+# (same pattern as the vendored forge-std) and remove this skip.
+skip = ["MtqEcosystem.sol"]
+
 # Test configuration: longer timeout for the S5 stochastic fuzz tests
 # (they run 100 trajectories × 30 ticks each per seed).
 [profile.default.fuzz]
