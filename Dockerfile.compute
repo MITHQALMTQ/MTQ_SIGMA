@@ -70,7 +70,13 @@ COPY package.json bun.lock ./
 
 # Install only runtime dependencies (no devDependencies). --frozen-lockfile
 # ensures the installed tree matches bun.lock byte-for-byte.
-RUN bun install --frozen-lockfile --production
+#
+# --ignore-scripts (2026-10-24 fix): package.json's postinstall hook runs
+# `prisma generate`, which needs prisma/schema.prisma — NOT YET COPIED at this
+# layer (and not needed at all: the compute engine reads Turso directly via
+# @libsql/client, not Prisma — see the copy block below). Skipping lifecycle
+# scripts fixes the CI docker build failure "Could not find Prisma Schema".
+RUN bun install --frozen-lockfile --production --ignore-scripts
 
 # ─── Copy the application source ────────────────────────────────────────────
 # Only what the compute engine needs:

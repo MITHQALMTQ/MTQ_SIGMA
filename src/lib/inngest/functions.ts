@@ -50,8 +50,13 @@ export const tursoNeonSync = (inngest as any).createFunction(
       ]);
       return { dsvCount: dsv.length, rdCount: rd.length, osCount: os.length };
     });
-    logger.info(`Synced ${tursoData.dsvCount + tursoData.rdCount + tursoData.osCount} rows to Neon`);
-    return { synced: tursoData, timestamp: new Date().toISOString() };
+    logger.info(`turso-neon-sync: read ${tursoData.dsvCount + tursoData.rdCount + tursoData.osCount} latest rows from Turso (counts only)`);
+    // HONESTY NOTE (2026-10-24): this Inngest function is currently a READ-COUNT
+    // STUB — it does NOT write to Neon. The real full-table sync lives in
+    // scripts/full-neon-sync.ts (chunked read → TRUNCATE+INSERT). Wiring that
+    // logic into this step is pending (flagged in Task 16 + the 2026-10-24
+    // pre-push report). Until then the hourly cron reports counts, not syncs.
+    return { readCounts: tursoData, wroteToNeon: false, timestamp: new Date().toISOString() };
   },
 );
 

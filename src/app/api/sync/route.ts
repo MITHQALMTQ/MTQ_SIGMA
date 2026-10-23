@@ -1,11 +1,19 @@
 // GET /api/sync
 //
-// Returns the status of the Turso ↔ Neon hybrid sync.
+// Returns the STATUS of the Turso ↔ Neon hybrid sync architecture.
 // Also allows manual trigger of a sync event to Inngest.
+//
+// [2026-10-24 refactor, pre-push remediation] This route no longer imports or
+// queries Neon at all. Per the COO/PM brief (enforced by scripts/check-no-neon.ts
+// since Task 16-fix-A / audit 16e-004): "Vercel serverless routes must NEVER
+// query Neon directly." The actual Turso→Neon data movement is owned by the
+// Inngest functions (src/lib/inngest/functions.ts + scripts/full-neon-sync.ts),
+// so this route now reports CONFIGURATION status only — env presence, not
+// live queries. The UI (InstitutionalDashboard) consumes only the `configured`
+// flags, so the response contract it depends on is unchanged.
 
 import { NextResponse } from "next/server";
 import { rateLimit, getClientIP } from "@/lib/mtq/rate-limit";
-import { neonClient } from "@/lib/neon-client";
 import { inngest } from "@/lib/inngest/client";
 
 export const dynamic = "force-dynamic";
@@ -17,19 +25,19 @@ export async function GET(req: Request) {
     return NextResponse.json({ error: "Rate limit exceeded" }, { status: 429 });
   }
 
-  const neonConfigured = neonClient.isConfigured();
+  // Config-presence only — NO live Neon query from a serverless route
+  // (the Inngest sync functions own all Neon data movement; see header note).
+  const neonConfigured = !!process.env.NEON_DATABASE_URL;
   const tursoConfigured = !!process.env.TURSO_DATABASE_URL;
   const inngestConfigured = !!process.env.INNGEST_EVENT_KEY;
 
-  let neonStatus: any = { configured: neonConfigured };
-  if (neonConfigured) {
-    try {
-      const sizes = await neonClient.getTableSizes();
-      neonStatus.tables = sizes;
-    } catch (e: any) {
-      neonStatus.error = e.message?.slice(0, 100);
-    }
-  }
+  const neonStatus: {
+    configured: boolean;
+    queriedBy: string;
+  } = {
+    configured: neonConfigured,
+    queriedBy: "Inngest 'turso-neon-sync' function (hourly) — routes never query Neon directly",
+  };
 
   return NextResponse.json({
     source: "MTQΣ Hybrid Sync Status",

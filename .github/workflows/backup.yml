@@ -17,6 +17,13 @@
 #   - TURSO_DATABASE_URL — libsql://… URL (read-only DB is sufficient)
 #   - TURSO_AUTH_TOKEN   — auth token with read access
 # (GITHUB_TOKEN is auto-provided by GitHub Actions — no secret needed.)
+#
+# PROVISIONING STATE (2026-10-24): the TURSO_* secrets are NOT yet provisioned
+# on this repo, so every scheduled run currently fails FAIL-CLOSED-LOUD at the
+# script's credential gate. That is INTENTIONAL: a skipped backup must never
+# look green. To make this workflow green: create the two secrets above (use a
+# FRESH Turso token — the token shared in chat on 2026-10-24 was corrupted in
+# transit and is cryptographically unrepairable) and re-run this workflow.
 
 name: Turso Backup
 
@@ -59,7 +66,12 @@ jobs:
         run: bun run scripts/backup-turso.ts
 
       - name: Upload backup artifact (90-day retention)
-        if: always()
+        # 2026-10-24: was `if: always()` — that produced a SECOND misleading
+        # error ("No files were found") on top of the script's clear FATAL
+        # credential message whenever the backup failed. The upload now only
+        # runs when the backup actually produced a dump — one honest error,
+        # not two confusing ones.
+        if: success()
         uses: actions/upload-artifact@v4
         with:
           name: turso-backup-${{ github.run_id }}

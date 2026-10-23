@@ -79,8 +79,9 @@ weight-vector.json
 tool-results/
 # TASK 12 — fresh-keypair output of scripts/generate-new-evm-key.mjs
 .fresh-evm-keypair-DO-NOT-COMMIT.txt
-lib/forge-std/
-contracts/lib/forge-std/
+# forge-std IS committed (vendored 2026-10-24 so the Foundry CI workflow is
+# hermetic — see .github/workflows/forge-tests.yml; the old ignore lines caused
+# a dangling gitlink that broke actions/checkout)
 contracts/lib/openzeppelin-contracts/
 lib/openzeppelin-contracts/
 

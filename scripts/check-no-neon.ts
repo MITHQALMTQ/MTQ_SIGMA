@@ -81,13 +81,9 @@ function main() {
     console.error('  including INDIRECTLY via @/lib/neon-client (16e-004).')
     console.error('  Use Turso (via @libsql/client) for all DB access.')
     console.error('')
-    console.error('  EXPECTED FAILURE (Task 16-fix-A, audit 16e-004): this guard now')
-    console.error('  also detects indirect Neon usage. src/app/api/sync/route.ts still')
-    console.error('  imports @/lib/neon-client (queries Neon when NEON_DATABASE_URL is')
-    console.error('  set), so this check FAILS until the sync route is refactored to stop')
-    console.error('  querying Neon from a serverless route (refactor is owned outside')
-    console.error('  16-fix-A). The red CI is the HONEST detection of a real, known issue')
-    console.error('  — do not silence, allowlist, or weaken this guard in the meantime.')
+    console.error('  All Neon data movement belongs to the Inngest functions')
+    console.error('  (src/lib/inngest/), never to a serverless route. Fail loudly here')
+    console.error('  and refactor the offending route to config-presence only.')
     process.exit(1)
   }
 

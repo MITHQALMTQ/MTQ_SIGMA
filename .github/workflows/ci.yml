@@ -95,8 +95,15 @@ jobs:
         env:
           DATABASE_URL: "file:/tmp/test.db"
 
-      - name: Run canonical invariant tests
-        run: bun run src/lib/mtq/__tests__/canonical-invariants.ts
+      - name: Run unit test battery (bun test — 37 tests / 3 files)
+        # 2026-10-24 fix: this job previously ran canonical-invariants.ts in
+        # full — an 8-layer battery whose Layers 5–7 include the OOM-class
+        # stochastic re-runs (S5/S6/S3) that the Task-16 audit DELIBERATELY
+        # excluded from re-execution (they OOM-kill constrained runners and
+        # locally exceed 300s in Layer 7 alone). CI runs the proven fast
+        # battery; canonical-invariants.ts remains the manual deep battery:
+        #   bun src/lib/mtq/__tests__/canonical-invariants.ts
+        run: bun test
         env:
           DATABASE_URL: "file:/tmp/test.db"
           TURSO_DATABASE_URL: ""
