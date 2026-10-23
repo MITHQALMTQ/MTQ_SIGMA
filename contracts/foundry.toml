@@ -33,20 +33,29 @@ remappings = [
     "forge-std/=lib/forge-std/src/"
 ]
 
-# SKIP (2026-10-24):
-#  - MtqEcosystem.sol — the ONLY file importing @openzeppelin, which is NOT
-#    vendored (the .gitignore keeps lib/openzeppelin-contracts/ out; the
-#    foundry.toml.example header lists `forge install OpenZeppelin/...` as an
-#    owner-side prerequisite). Excluded so the suite compiles hermetically;
-#    to compile it, vendor OZ (same pattern as the vendored forge-std).
-#  - MTQSigmaV3.sol — a KNOWN non-deployable draft per audit C-044 (runtime
-#    40,500 B > 24,576 B EIP-170 limit), and its source has GENUINE compile
-#    errors (Error 7364 destructuring arity, 9574 bytes32→MintRequest struct
-#    conversion, 9582 missing member DailyRedeemCapReset — surfaced by the
-#    2026-10-24 CI runs e01ce89). Excluded from the build until the owner
-#    commissions the v3 contract remediation (R-06); the J2 suite scope is
-#    the 30-test MTQSigmaV2 suite, which is self-contained.
-skip = ["MtqEcosystem.sol", "MTQSigmaV3.sol"]
+# SKIP (2026-10-24) — the non-deployable v3 DRAFT cluster + the OZ-dependent
+# ecosystem contract are excluded so the Deliverable-J2 suite (the
+# self-contained MTQSigmaV2 30-test suite) compiles hermetically:
+#  - MTQSigmaV3.sol — known non-deployable draft per audit C-044 (runtime
+#    40,500 B > 24,576 B EIP-170 limit) with GENUINE source errors (Error
+#    7364 destructuring arity, 9574 bytes32→MintRequest conversion, 9582
+#    missing member DailyRedeemCapReset — CI runs e01ce89/32a7f39).
+#  - test/MTQSigmaV3.t.sol + adapters/{Chainlink,Chronicle,Pyth}Adapter.sol
+#    — import FROM MTQSigmaV3.sol (the adapters pull in IOracleAdapter from
+#    the draft), re-adding it to the build graph despite the skip above.
+#  - MtqEcosystem.sol — the only file importing @openzeppelin (not vendored;
+#    owner-side prerequisite per the foundry.toml.example header).
+# The whole v3-draft cluster returns to the build when the owner commissions
+# the v3 contract remediation (R-06) — remove these skips then. Contract
+# sources are deliberately NOT edited here.
+skip = [
+    "MtqEcosystem.sol",
+    "MTQSigmaV3.sol",
+    "test/MTQSigmaV3.t.sol",
+    "adapters/ChainlinkAdapter.sol",
+    "adapters/ChronicleAdapter.sol",
+    "adapters/PythAdapter.sol",
+]
 
 # Test configuration: longer timeout for the S5 stochastic fuzz tests
 # (they run 100 trajectories × 30 ticks each per seed).
