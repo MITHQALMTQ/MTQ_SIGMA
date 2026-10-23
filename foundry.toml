@@ -1,0 +1,48 @@
+# ============================================================================
+#  MTQΣ V3 — Foundry configuration (EXAMPLE)
+#  ----------------------------------------------------------------------------
+#  This is the canonical Foundry config for the MTQΣ V3 test suite. The
+#  protocol owner should copy this file to `foundry.toml` (overwriting any
+#  existing one) before running the suite:
+#
+#     cp contracts/foundry.toml.example contracts/foundry.toml
+#
+#  The 30-test suite lives in `contracts/MTQSigmaV2.t.sol` (Foundry-style,
+#  imports `forge-std/Test.sol` and `./MTQSigmaV2.sol`). The contract under
+#  test is `contracts/MTQSigmaV2.sol` (1389 lines, single-file, no external
+#  imports — AccessControl + Pausable + ReentrancyGuard inlined).
+#
+#  Prerequisites (the protocol owner MUST apply these to MTQSigmaV2.sol
+#  before the suite will compile AND pass — see MTQSigmaV2.t.sol file header):
+#
+#    P1. Add a constructor that takes the USDC address:
+#          constructor(address _usdc) {
+#              usdc = IERC20(_usdc);
+#              INDEX_BASE_DENOMINATOR = 1e18;     // P2
+#              _grantRole(DEFAULT_ADMIN_ROLE, msg.sender);
+#          }
+#    P2. Assign INDEX_BASE_DENOMINATOR = 1e18 in the constructor (currently
+#        declared `immutable` but never assigned — would divide by zero).
+# ============================================================================
+
+[profile.default]
+src = "contracts"
+out = "foundry-out"
+libs = ["lib"]
+solc = "0.8.20"
+optimizer = true
+optimizer_runs = 200
+via_ir = true
+
+remappings = [
+    "forge-std/=lib/forge-std/src/"
+]
+
+# Fuzz configuration: 256 runs per fuzz test by default (Foundry's default).
+# The S5/S6 stochastic tests use vm.assume(seed < 1000) so the effective
+# fuzz space is 1000 seeds × 30 ticks per seed. To exactly mirror the TS
+# reference suite (which runs 100 trajectories × 30 ticks per seed), bump
+# runs to 1024 via `--fuzz-runs 1024` on the CLI.
+[profile.default.fuzz]
+runs = 256
+max_test_rejects = 65536

@@ -1,0 +1,28 @@
+{
+  "choices": [
+    {
+      "finish_reason": "stop",
+      "index": 0,
+      "message": {
+        "content": "Here is the audit of the 'Authorization Audit' section:\n\n1.  **Recommendation Banner:** **PASS.** The \"NOT PRODUCTION-AUTHORIZED\" banner is highly prominent, utilizing a red font and a distinct border. It is definitely not green.\n2.  **Release-Gate Rows & Status Colors:** **PASS.** All 7 release-gate rows (01–07) are clearly visible. The status labels (PARTIAL, FAIL, NOT PERFORMED, NOT GRANTED, ABSENT, NOT AUTHORIZED) are all colored in shades of red or amber/pink, effectively distinguishing them from success states.\n3.  **Software vs. Release Status Statement:** **PASS.** There is an explicit informational banner at the top stating: \"Software status is reported separately from release status. No software test result may automatically advance a release gate.\"\n4.  **Visual/Layout Defects:** **PASS.** The layout is clean and professional. There is no overlapping text, no cut-off content, the tables are well-formed, and the contrast between the dark background and the light/red text is excellent for legibility.\n\n### Overall Verdict: **PASS**\nThe interface meets high professional presentation standards for a fintech terminal, with clear visual hierarchy, appropriate use of color for risk signaling, and a defect-free layout.",
+        "role": "assistant"
+      }
+    }
+  ],
+  "created": 1792621188,
+  "id": "20261022061944dd4760a8078e422d",
+  "model": "glm-5v-turbo",
+  "object": "chat.completion",
+  "request_id": "20261022061944dd4760a8078e422d",
+  "usage": {
+    "completion_tokens": 273,
+    "completion_tokens_details": {
+      "reasoning_tokens": 0
+    },
+    "prompt_tokens": 1823,
+    "prompt_tokens_details": {
+      "cached_tokens": 6
+    },
+    "total_tokens": 2096
+  }
+}

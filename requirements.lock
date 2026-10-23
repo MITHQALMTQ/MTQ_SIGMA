@@ -1,0 +1,29 @@
+# MTQΣ — Compute Engine Dependency Lock (TASK-5)
+#
+# In Python-based deterministic compute engines, `requirements.lock` is a
+# pinned list of every transitive dependency (e.g. `numpy==1.26.4`). The MTQΣ
+# compute engine is Node/Bun-based, so the equivalent lock file is:
+#
+#   bun.lock   (committed at the repo root)
+#
+# `bun.lock` is a fully-resolved, reproducible lockfile: it pins every
+# transitive dependency to an exact version + integrity hash. The Dockerfile
+# installs with:
+#
+#   bun install --frozen-lockfile --production
+#
+# `--frozen-lockfile` refuses to install if bun.lock is out of sync with
+# package.json — this is the dependency-tree determinism gate. `--production`
+# skips devDependencies so the image contains only runtime code.
+#
+# To regenerate bun.lock after a package.json change:
+#   bun install                    # updates bun.lock
+#   git add bun.lock package.json
+#   git commit -m "chore: update deps"
+#
+# To verify reproducibility locally:
+#   rm -rf node_modules
+#   bun install --frozen-lockfile --production
+#   diff -r node_modules <(rm -rf /tmp/nm2 && bun install --frozen-lockfile --production --cwd /tmp/nm2)
+#
+# ── This file is documentation only — no tooling reads it. ──

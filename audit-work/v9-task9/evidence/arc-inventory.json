@@ -1,0 +1,744 @@
+{
+  "probe": "MTQΣ Task 9 — Arc Testnet full authorization audit",
+  "mode": "VERIFICATION-ONLY (§1) — read-only eth_call/eth_getCode/eth_getStorageAt/eth_getLogs; no transactions",
+  "startedAt": "2026-10-21T21:38:19.833Z",
+  "chain": {
+    "id": "arc",
+    "name": "Arc Testnet",
+    "expectedChainId": 5042002,
+    "rpc": "https://rpc.testnet.arc.io",
+    "reportedChainId": 5042002,
+    "chainIdMatches": true
+  },
+  "latest": 68414779,
+  "archiveSupported": null,
+  "contracts": [
+    {
+      "name": "MTQ.sol",
+      "address": "0x237c3Aa2B79248f86f6523D3890095BCd1996601",
+      "explorer": "https://testnet.arcscan.app/address/0x237c3Aa2B79248f86f6523D3890095BCd1996601",
+      "deployed": true,
+      "codeSizeBytes": 3474,
+      "codeKeccak256": "0x0183b25ee34b9f8e7d18e976eadc6fb021652f9b52c5d6876a536aad92d12fcf",
+      "codeKeccak256NoMeta": "0xec18131f2ca009248d45574530763ff345195ad58a43a0d2681200b9ffb13c97",
+      "proxy": {
+        "eip1967_implementation": null,
+        "eip1967_admin": null,
+        "eip1967_beacon": null,
+        "slot0": "0x0000000000000000000000000000000000000000000000000000000000000000"
+      },
+      "deployBlock": {
+        "status": "UNVERIFIED",
+        "reason": "search aborted at block 34207390: EMPTY",
+        "detail": {
+          "block": 34207390,
+          "kind": "EMPTY",
+          "message": "",
+          "probes": 1
+        }
+      },
+      "roles": {
+        "DEFAULT_ADMIN_ROLE": {
+          "0x3C3932F865892EFabE45892f453f81B64f6c8d8c": "TRUE",
+          "0xE71869C662733642bfBb262B8c6bad8B0fBfA7D0": "FALSE",
+          "0xE35a91801bc541fb743BB9EaD26C1FbD81EaBd66": "FALSE",
+          "0x237c3Aa2B79248f86f6523D3890095BCd1996601": "FALSE",
+          "0x62f8E5243f32eE5C87a14A7896C61104aD9e7727": "FALSE",
+          "0x27a1a201D6DF8215d0b0da3Be6211bE24ef4c471": "FALSE",
+          "0x0dd8b4F8DA7fB6E3eE04ea9F24f853647F84c3aa": "FALSE",
+          "0xcAde4594177829597882555Ff57d0e34092daF8e": "FALSE",
+          "0xFd2B8d176bf059287638Db30D02C6651dA02861e": "FALSE",
+          "0xA3B89FfdE28577A7D30E2c22503dB33509044EF0": "FALSE"
+        },
+        "MINTER_ROLE": {
+          "0x3C3932F865892EFabE45892f453f81B64f6c8d8c": "TRUE",
+          "0xE71869C662733642bfBb262B8c6bad8B0fBfA7D0": "FALSE",
+          "0xE35a91801bc541fb743BB9EaD26C1FbD81EaBd66": "FALSE",
+          "0x237c3Aa2B79248f86f6523D3890095BCd1996601": "FALSE",
+          "0x62f8E5243f32eE5C87a14A7896C61104aD9e7727": "FALSE",
+          "0x27a1a201D6DF8215d0b0da3Be6211bE24ef4c471": "FALSE",
+          "0x0dd8b4F8DA7fB6E3eE04ea9F24f853647F84c3aa": "TRUE",
+          "0xcAde4594177829597882555Ff57d0e34092daF8e": "FALSE",
+          "0xFd2B8d176bf059287638Db30D02C6651dA02861e": "FALSE",
+          "0xA3B89FfdE28577A7D30E2c22503dB33509044EF0": "FALSE"
+        },
+        "PAUSER_ROLE": {
+          "0x3C3932F865892EFabE45892f453f81B64f6c8d8c": "TRUE",
+          "0xE71869C662733642bfBb262B8c6bad8B0fBfA7D0": "TRUE",
+          "0xE35a91801bc541fb743BB9EaD26C1FbD81EaBd66": "FALSE",
+          "0x237c3Aa2B79248f86f6523D3890095BCd1996601": "FALSE",
+          "0x62f8E5243f32eE5C87a14A7896C61104aD9e7727": "FALSE",
+          "0x27a1a201D6DF8215d0b0da3Be6211bE24ef4c471": "FALSE",
+          "0x0dd8b4F8DA7fB6E3eE04ea9F24f853647F84c3aa": "FALSE",
+          "0xcAde4594177829597882555Ff57d0e34092daF8e": "FALSE",
+          "0xFd2B8d176bf059287638Db30D02C6651dA02861e": "FALSE",
+          "0xA3B89FfdE28577A7D30E2c22503dB33509044EF0": "FALSE"
+        }
+      },
+      "roleAdmins": {
+        "DEFAULT_ADMIN_ROLE": "0x0000000000000000000000000000000000000000000000000000000000000000",
+        "MINTER_ROLE": "0x0000000000000000000000000000000000000000000000000000000000000000",
+        "PAUSER_ROLE": "0x0000000000000000000000000000000000000000000000000000000000000000"
+      },
+      "roleMemberCounts": {
+        "DEFAULT_ADMIN_ROLE": "EVM_REVERT: execution reverted",
+        "MINTER_ROLE": "EVM_REVERT: execution reverted",
+        "PAUSER_ROLE": "EVM_REVERT: execution reverted"
+      },
+      "ownerProbe": "EVM_REVERT: execution reverted",
+      "pausedProbe": "false"
+    },
+    {
+      "name": "Governance.sol",
+      "address": "0xE35a91801bc541fb743BB9EaD26C1FbD81EaBd66",
+      "explorer": "https://testnet.arcscan.app/address/0xE35a91801bc541fb743BB9EaD26C1FbD81EaBd66",
+      "deployed": true,
+      "codeSizeBytes": 13129,
+      "codeKeccak256": "0x214a785c40138641e42a955466a9c5ab977980a18dfb207215c8ed3c522c4b82",
+      "codeKeccak256NoMeta": "0xc2ae8b566dfc3f0fada66b5b7a0507044e89fc1676966d933c396aedbfda2e98",
+      "proxy": {
+        "eip1967_implementation": null,
+        "eip1967_admin": null,
+        "eip1967_beacon": null,
+        "slot0": "0x0000000000000000000000000000000000000000000000000000000000000000"
+      },
+      "deployBlock": {
+        "status": "UNVERIFIED",
+        "reason": "search aborted at block 34207390: EMPTY",
+        "detail": {
+          "block": 34207390,
+          "kind": "EMPTY",
+          "message": "",
+          "probes": 1
+        }
+      },
+      "roles": {
+        "DEFAULT_ADMIN_ROLE": {
+          "0x3C3932F865892EFabE45892f453f81B64f6c8d8c": "EVM_REVERT: execution reverted",
+          "0xE71869C662733642bfBb262B8c6bad8B0fBfA7D0": "EVM_REVERT: execution reverted",
+          "0xE35a91801bc541fb743BB9EaD26C1FbD81EaBd66": "EVM_REVERT: execution reverted",
+          "0x237c3Aa2B79248f86f6523D3890095BCd1996601": "EVM_REVERT: execution reverted",
+          "0x62f8E5243f32eE5C87a14A7896C61104aD9e7727": "EVM_REVERT: execution reverted",
+          "0x27a1a201D6DF8215d0b0da3Be6211bE24ef4c471": "EVM_REVERT: execution reverted",
+          "0x0dd8b4F8DA7fB6E3eE04ea9F24f853647F84c3aa": "EVM_REVERT: execution reverted",
+          "0xcAde4594177829597882555Ff57d0e34092daF8e": "EVM_REVERT: execution reverted",
+          "0xFd2B8d176bf059287638Db30D02C6651dA02861e": "EVM_REVERT: execution reverted",
+          "0xA3B89FfdE28577A7D30E2c22503dB33509044EF0": "EVM_REVERT: execution reverted"
+        },
+        "MINTER_ROLE": {
+          "0x3C3932F865892EFabE45892f453f81B64f6c8d8c": "EVM_REVERT: execution reverted",
+          "0xE71869C662733642bfBb262B8c6bad8B0fBfA7D0": "EVM_REVERT: execution reverted",
+          "0xE35a91801bc541fb743BB9EaD26C1FbD81EaBd66": "EVM_REVERT: execution reverted",
+          "0x237c3Aa2B79248f86f6523D3890095BCd1996601": "EVM_REVERT: execution reverted",
+          "0x62f8E5243f32eE5C87a14A7896C61104aD9e7727": "EVM_REVERT: execution reverted",
+          "0x27a1a201D6DF8215d0b0da3Be6211bE24ef4c471": "EVM_REVERT: execution reverted",
+          "0x0dd8b4F8DA7fB6E3eE04ea9F24f853647F84c3aa": "EVM_REVERT: execution reverted",
+          "0xcAde4594177829597882555Ff57d0e34092daF8e": "EVM_REVERT: execution reverted",
+          "0xFd2B8d176bf059287638Db30D02C6651dA02861e": "EVM_REVERT: execution reverted",
+          "0xA3B89FfdE28577A7D30E2c22503dB33509044EF0": "EVM_REVERT: execution reverted"
+        },
+        "PAUSER_ROLE": {
+          "0x3C3932F865892EFabE45892f453f81B64f6c8d8c": "EVM_REVERT: execution reverted",
+          "0xE71869C662733642bfBb262B8c6bad8B0fBfA7D0": "EVM_REVERT: execution reverted",
+          "0xE35a91801bc541fb743BB9EaD26C1FbD81EaBd66": "EVM_REVERT: execution reverted",
+          "0x237c3Aa2B79248f86f6523D3890095BCd1996601": "EVM_REVERT: execution reverted",
+          "0x62f8E5243f32eE5C87a14A7896C61104aD9e7727": "EVM_REVERT: execution reverted",
+          "0x27a1a201D6DF8215d0b0da3Be6211bE24ef4c471": "EVM_REVERT: execution reverted",
+          "0x0dd8b4F8DA7fB6E3eE04ea9F24f853647F84c3aa": "EVM_REVERT: execution reverted",
+          "0xcAde4594177829597882555Ff57d0e34092daF8e": "EVM_REVERT: execution reverted",
+          "0xFd2B8d176bf059287638Db30D02C6651dA02861e": "EVM_REVERT: execution reverted",
+          "0xA3B89FfdE28577A7D30E2c22503dB33509044EF0": "EVM_REVERT: execution reverted"
+        }
+      },
+      "roleAdmins": {
+        "DEFAULT_ADMIN_ROLE": "EVM_REVERT: execution reverted",
+        "MINTER_ROLE": "EVM_REVERT: execution reverted",
+        "PAUSER_ROLE": "EVM_REVERT: execution reverted"
+      },
+      "roleMemberCounts": {
+        "DEFAULT_ADMIN_ROLE": "EVM_REVERT: execution reverted",
+        "MINTER_ROLE": "EVM_REVERT: execution reverted",
+        "PAUSER_ROLE": "EVM_REVERT: execution reverted"
+      },
+      "ownerProbe": "EVM_REVERT: execution reverted",
+      "pausedProbe": "EVM_REVERT: execution reverted"
+    },
+    {
+      "name": "Safe.sol",
+      "address": "0xE71869C662733642bfBb262B8c6bad8B0fBfA7D0",
+      "explorer": "https://testnet.arcscan.app/address/0xE71869C662733642bfBb262B8c6bad8B0fBfA7D0",
+      "deployed": true,
+      "codeSizeBytes": 171,
+      "codeKeccak256": "0xd7d408ebcd99b2b70be43e20253d6d92a8ea8fab29bd3be7f55b10032331fb4c",
+      "codeKeccak256NoMeta": "0x9b0cc9b701f89a376e0af03a21f7c804d1374d31e8a7577db28f916ed18a4a94",
+      "proxy": {
+        "eip1967_implementation": null,
+        "eip1967_admin": null,
+        "eip1967_beacon": null,
+        "slot0": "0x00000000000000000000000029fcb43b46531bca003ddc8fcb67ffe91900c762",
+        "safeProxyMasterCopy": "0x29fcB43b46531BcA003ddC8FCB67FFE91900C762",
+        "slot0IsMasterCopy": false
+      },
+      "deployBlock": {
+        "status": "UNVERIFIED",
+        "reason": "search aborted at block 34207390: EMPTY",
+        "detail": {
+          "block": 34207390,
+          "kind": "EMPTY",
+          "message": "",
+          "probes": 1
+        }
+      },
+      "roles": {
+        "DEFAULT_ADMIN_ROLE": {
+          "0x3C3932F865892EFabE45892f453f81B64f6c8d8c": "EVM_REVERT: execution reverted",
+          "0xE71869C662733642bfBb262B8c6bad8B0fBfA7D0": "EVM_REVERT: execution reverted",
+          "0xE35a91801bc541fb743BB9EaD26C1FbD81EaBd66": "EVM_REVERT: execution reverted",
+          "0x237c3Aa2B79248f86f6523D3890095BCd1996601": "EVM_REVERT: execution reverted",
+          "0x62f8E5243f32eE5C87a14A7896C61104aD9e7727": "EVM_REVERT: execution reverted",
+          "0x27a1a201D6DF8215d0b0da3Be6211bE24ef4c471": "EVM_REVERT: execution reverted",
+          "0x0dd8b4F8DA7fB6E3eE04ea9F24f853647F84c3aa": "EVM_REVERT: execution reverted",
+          "0xcAde4594177829597882555Ff57d0e34092daF8e": "EVM_REVERT: execution reverted",
+          "0xFd2B8d176bf059287638Db30D02C6651dA02861e": "EVM_REVERT: execution reverted",
+          "0xA3B89FfdE28577A7D30E2c22503dB33509044EF0": "EVM_REVERT: execution reverted"
+        },
+        "MINTER_ROLE": {
+          "0x3C3932F865892EFabE45892f453f81B64f6c8d8c": "EVM_REVERT: execution reverted",
+          "0xE71869C662733642bfBb262B8c6bad8B0fBfA7D0": "EVM_REVERT: execution reverted",
+          "0xE35a91801bc541fb743BB9EaD26C1FbD81EaBd66": "EVM_REVERT: execution reverted",
+          "0x237c3Aa2B79248f86f6523D3890095BCd1996601": "EVM_REVERT: execution reverted",
+          "0x62f8E5243f32eE5C87a14A7896C61104aD9e7727": "EVM_REVERT: execution reverted",
+          "0x27a1a201D6DF8215d0b0da3Be6211bE24ef4c471": "EVM_REVERT: execution reverted",
+          "0x0dd8b4F8DA7fB6E3eE04ea9F24f853647F84c3aa": "EVM_REVERT: execution reverted",
+          "0xcAde4594177829597882555Ff57d0e34092daF8e": "EVM_REVERT: execution reverted",
+          "0xFd2B8d176bf059287638Db30D02C6651dA02861e": "EVM_REVERT: execution reverted",
+          "0xA3B89FfdE28577A7D30E2c22503dB33509044EF0": "EVM_REVERT: execution reverted"
+        },
+        "PAUSER_ROLE": {
+          "0x3C3932F865892EFabE45892f453f81B64f6c8d8c": "EVM_REVERT: execution reverted",
+          "0xE71869C662733642bfBb262B8c6bad8B0fBfA7D0": "EVM_REVERT: execution reverted",
+          "0xE35a91801bc541fb743BB9EaD26C1FbD81EaBd66": "EVM_REVERT: execution reverted",
+          "0x237c3Aa2B79248f86f6523D3890095BCd1996601": "EVM_REVERT: execution reverted",
+          "0x62f8E5243f32eE5C87a14A7896C61104aD9e7727": "EVM_REVERT: execution reverted",
+          "0x27a1a201D6DF8215d0b0da3Be6211bE24ef4c471": "EVM_REVERT: execution reverted",
+          "0x0dd8b4F8DA7fB6E3eE04ea9F24f853647F84c3aa": "EVM_REVERT: execution reverted",
+          "0xcAde4594177829597882555Ff57d0e34092daF8e": "EVM_REVERT: execution reverted",
+          "0xFd2B8d176bf059287638Db30D02C6651dA02861e": "EVM_REVERT: execution reverted",
+          "0xA3B89FfdE28577A7D30E2c22503dB33509044EF0": "EVM_REVERT: execution reverted"
+        }
+      },
+      "roleAdmins": {
+        "DEFAULT_ADMIN_ROLE": "EVM_REVERT: execution reverted",
+        "MINTER_ROLE": "EVM_REVERT: execution reverted",
+        "PAUSER_ROLE": "EVM_REVERT: execution reverted"
+      },
+      "roleMemberCounts": {
+        "DEFAULT_ADMIN_ROLE": "EVM_REVERT: execution reverted",
+        "MINTER_ROLE": "EVM_REVERT: execution reverted",
+        "PAUSER_ROLE": "EVM_REVERT: execution reverted"
+      },
+      "ownerProbe": "EVM_REVERT: execution reverted",
+      "pausedProbe": "EVM_REVERT: execution reverted"
+    },
+    {
+      "name": "Algorithm.sol",
+      "address": "0x62f8E5243f32eE5C87a14A7896C61104aD9e7727",
+      "explorer": "https://testnet.arcscan.app/address/0x62f8E5243f32eE5C87a14A7896C61104aD9e7727",
+      "deployed": true,
+      "codeSizeBytes": 1237,
+      "codeKeccak256": "0x0c0cd82de2dc452f3e66f87476d1093597776ad506287ae484ce14ef986a31a5",
+      "codeKeccak256NoMeta": "0x1df80a439c21f314bb76b158ae6024643e4e5df3bd65cb54d23ebc3410729180",
+      "proxy": {
+        "eip1967_implementation": null,
+        "eip1967_admin": null,
+        "eip1967_beacon": null,
+        "slot0": "0x0000000000000000000000000000000000000000000000000000000000000000"
+      },
+      "deployBlock": {
+        "status": "UNVERIFIED",
+        "reason": "search aborted at block 34207390: EMPTY",
+        "detail": {
+          "block": 34207390,
+          "kind": "EMPTY",
+          "message": "",
+          "probes": 1
+        }
+      },
+      "roles": {
+        "DEFAULT_ADMIN_ROLE": {
+          "0x3C3932F865892EFabE45892f453f81B64f6c8d8c": "TRUE",
+          "0xE71869C662733642bfBb262B8c6bad8B0fBfA7D0": "FALSE",
+          "0xE35a91801bc541fb743BB9EaD26C1FbD81EaBd66": "FALSE",
+          "0x237c3Aa2B79248f86f6523D3890095BCd1996601": "FALSE",
+          "0x62f8E5243f32eE5C87a14A7896C61104aD9e7727": "FALSE",
+          "0x27a1a201D6DF8215d0b0da3Be6211bE24ef4c471": "FALSE",
+          "0x0dd8b4F8DA7fB6E3eE04ea9F24f853647F84c3aa": "FALSE",
+          "0xcAde4594177829597882555Ff57d0e34092daF8e": "FALSE",
+          "0xFd2B8d176bf059287638Db30D02C6651dA02861e": "FALSE",
+          "0xA3B89FfdE28577A7D30E2c22503dB33509044EF0": "FALSE"
+        },
+        "MINTER_ROLE": {
+          "0x3C3932F865892EFabE45892f453f81B64f6c8d8c": "FALSE",
+          "0xE71869C662733642bfBb262B8c6bad8B0fBfA7D0": "FALSE",
+          "0xE35a91801bc541fb743BB9EaD26C1FbD81EaBd66": "FALSE",
+          "0x237c3Aa2B79248f86f6523D3890095BCd1996601": "FALSE",
+          "0x62f8E5243f32eE5C87a14A7896C61104aD9e7727": "FALSE",
+          "0x27a1a201D6DF8215d0b0da3Be6211bE24ef4c471": "FALSE",
+          "0x0dd8b4F8DA7fB6E3eE04ea9F24f853647F84c3aa": "FALSE",
+          "0xcAde4594177829597882555Ff57d0e34092daF8e": "FALSE",
+          "0xFd2B8d176bf059287638Db30D02C6651dA02861e": "FALSE",
+          "0xA3B89FfdE28577A7D30E2c22503dB33509044EF0": "FALSE"
+        },
+        "PAUSER_ROLE": {
+          "0x3C3932F865892EFabE45892f453f81B64f6c8d8c": "FALSE",
+          "0xE71869C662733642bfBb262B8c6bad8B0fBfA7D0": "FALSE",
+          "0xE35a91801bc541fb743BB9EaD26C1FbD81EaBd66": "FALSE",
+          "0x237c3Aa2B79248f86f6523D3890095BCd1996601": "FALSE",
+          "0x62f8E5243f32eE5C87a14A7896C61104aD9e7727": "FALSE",
+          "0x27a1a201D6DF8215d0b0da3Be6211bE24ef4c471": "FALSE",
+          "0x0dd8b4F8DA7fB6E3eE04ea9F24f853647F84c3aa": "FALSE",
+          "0xcAde4594177829597882555Ff57d0e34092daF8e": "FALSE",
+          "0xFd2B8d176bf059287638Db30D02C6651dA02861e": "FALSE",
+          "0xA3B89FfdE28577A7D30E2c22503dB33509044EF0": "FALSE"
+        }
+      },
+      "roleAdmins": {
+        "DEFAULT_ADMIN_ROLE": "0x0000000000000000000000000000000000000000000000000000000000000000",
+        "MINTER_ROLE": "0x0000000000000000000000000000000000000000000000000000000000000000",
+        "PAUSER_ROLE": "0x0000000000000000000000000000000000000000000000000000000000000000"
+      },
+      "roleMemberCounts": {
+        "DEFAULT_ADMIN_ROLE": "EVM_REVERT: execution reverted",
+        "MINTER_ROLE": "EVM_REVERT: execution reverted",
+        "PAUSER_ROLE": "EVM_REVERT: execution reverted"
+      },
+      "ownerProbe": "EVM_REVERT: execution reverted",
+      "pausedProbe": "EVM_REVERT: execution reverted"
+    },
+    {
+      "name": "Reserve.sol",
+      "address": "0x27a1a201D6DF8215d0b0da3Be6211bE24ef4c471",
+      "explorer": "https://testnet.arcscan.app/address/0x27a1a201D6DF8215d0b0da3Be6211bE24ef4c471",
+      "deployed": true,
+      "codeSizeBytes": 2897,
+      "codeKeccak256": "0x79e161397a85f090afa5a5d166e674561bfa7413f90138b9b43f85d1a72bd748",
+      "codeKeccak256NoMeta": "0xa94651e12e6ea61aae98051629641b865f5ef2d93750184fe56843a96b23ae6d",
+      "proxy": {
+        "eip1967_implementation": null,
+        "eip1967_admin": null,
+        "eip1967_beacon": null,
+        "slot0": "0x0000000000000000000000000000000000000000000000000000000000000000"
+      },
+      "deployBlock": {
+        "status": "UNVERIFIED",
+        "reason": "search aborted at block 34207390: EMPTY",
+        "detail": {
+          "block": 34207390,
+          "kind": "EMPTY",
+          "message": "",
+          "probes": 1
+        }
+      },
+      "roles": {
+        "DEFAULT_ADMIN_ROLE": {
+          "0x3C3932F865892EFabE45892f453f81B64f6c8d8c": "TRUE",
+          "0xE71869C662733642bfBb262B8c6bad8B0fBfA7D0": "FALSE",
+          "0xE35a91801bc541fb743BB9EaD26C1FbD81EaBd66": "FALSE",
+          "0x237c3Aa2B79248f86f6523D3890095BCd1996601": "FALSE",
+          "0x62f8E5243f32eE5C87a14A7896C61104aD9e7727": "FALSE",
+          "0x27a1a201D6DF8215d0b0da3Be6211bE24ef4c471": "FALSE",
+          "0x0dd8b4F8DA7fB6E3eE04ea9F24f853647F84c3aa": "FALSE",
+          "0xcAde4594177829597882555Ff57d0e34092daF8e": "FALSE",
+          "0xFd2B8d176bf059287638Db30D02C6651dA02861e": "FALSE",
+          "0xA3B89FfdE28577A7D30E2c22503dB33509044EF0": "FALSE"
+        },
+        "MINTER_ROLE": {
+          "0x3C3932F865892EFabE45892f453f81B64f6c8d8c": "FALSE",
+          "0xE71869C662733642bfBb262B8c6bad8B0fBfA7D0": "FALSE",
+          "0xE35a91801bc541fb743BB9EaD26C1FbD81EaBd66": "FALSE",
+          "0x237c3Aa2B79248f86f6523D3890095BCd1996601": "FALSE",
+          "0x62f8E5243f32eE5C87a14A7896C61104aD9e7727": "FALSE",
+          "0x27a1a201D6DF8215d0b0da3Be6211bE24ef4c471": "FALSE",
+          "0x0dd8b4F8DA7fB6E3eE04ea9F24f853647F84c3aa": "FALSE",
+          "0xcAde4594177829597882555Ff57d0e34092daF8e": "FALSE",
+          "0xFd2B8d176bf059287638Db30D02C6651dA02861e": "FALSE",
+          "0xA3B89FfdE28577A7D30E2c22503dB33509044EF0": "FALSE"
+        },
+        "PAUSER_ROLE": {
+          "0x3C3932F865892EFabE45892f453f81B64f6c8d8c": "FALSE",
+          "0xE71869C662733642bfBb262B8c6bad8B0fBfA7D0": "FALSE",
+          "0xE35a91801bc541fb743BB9EaD26C1FbD81EaBd66": "FALSE",
+          "0x237c3Aa2B79248f86f6523D3890095BCd1996601": "FALSE",
+          "0x62f8E5243f32eE5C87a14A7896C61104aD9e7727": "FALSE",
+          "0x27a1a201D6DF8215d0b0da3Be6211bE24ef4c471": "FALSE",
+          "0x0dd8b4F8DA7fB6E3eE04ea9F24f853647F84c3aa": "FALSE",
+          "0xcAde4594177829597882555Ff57d0e34092daF8e": "FALSE",
+          "0xFd2B8d176bf059287638Db30D02C6651dA02861e": "FALSE",
+          "0xA3B89FfdE28577A7D30E2c22503dB33509044EF0": "FALSE"
+        }
+      },
+      "roleAdmins": {
+        "DEFAULT_ADMIN_ROLE": "0x0000000000000000000000000000000000000000000000000000000000000000",
+        "MINTER_ROLE": "0x0000000000000000000000000000000000000000000000000000000000000000",
+        "PAUSER_ROLE": "0x0000000000000000000000000000000000000000000000000000000000000000"
+      },
+      "roleMemberCounts": {
+        "DEFAULT_ADMIN_ROLE": "EVM_REVERT: execution reverted",
+        "MINTER_ROLE": "EVM_REVERT: execution reverted",
+        "PAUSER_ROLE": "EVM_REVERT: execution reverted"
+      },
+      "ownerProbe": "EVM_REVERT: execution reverted",
+      "pausedProbe": "EVM_REVERT: execution reverted"
+    },
+    {
+      "name": "Mint.sol",
+      "address": "0x0dd8b4F8DA7fB6E3eE04ea9F24f853647F84c3aa",
+      "explorer": "https://testnet.arcscan.app/address/0x0dd8b4F8DA7fB6E3eE04ea9F24f853647F84c3aa",
+      "deployed": true,
+      "codeSizeBytes": 2847,
+      "codeKeccak256": "0xe6346a6fa05fcf6e04ab573626f21f7a825b375f10143532a1f9f11e20d1ced0",
+      "codeKeccak256NoMeta": "0x3c624fdda121b686240098a1930f2f947b44c677490ee6564cbb07ab74c20881",
+      "proxy": {
+        "eip1967_implementation": null,
+        "eip1967_admin": null,
+        "eip1967_beacon": null,
+        "slot0": "0x0000000000000000000000000000000000000000000000000000000000000000"
+      },
+      "deployBlock": {
+        "status": "UNVERIFIED",
+        "reason": "search aborted at block 34207390: EMPTY",
+        "detail": {
+          "block": 34207390,
+          "kind": "EMPTY",
+          "message": "",
+          "probes": 1
+        }
+      },
+      "roles": {
+        "DEFAULT_ADMIN_ROLE": {
+          "0x3C3932F865892EFabE45892f453f81B64f6c8d8c": "TRUE",
+          "0xE71869C662733642bfBb262B8c6bad8B0fBfA7D0": "FALSE",
+          "0xE35a91801bc541fb743BB9EaD26C1FbD81EaBd66": "FALSE",
+          "0x237c3Aa2B79248f86f6523D3890095BCd1996601": "FALSE",
+          "0x62f8E5243f32eE5C87a14A7896C61104aD9e7727": "FALSE",
+          "0x27a1a201D6DF8215d0b0da3Be6211bE24ef4c471": "FALSE",
+          "0x0dd8b4F8DA7fB6E3eE04ea9F24f853647F84c3aa": "FALSE",
+          "0xcAde4594177829597882555Ff57d0e34092daF8e": "FALSE",
+          "0xFd2B8d176bf059287638Db30D02C6651dA02861e": "FALSE",
+          "0xA3B89FfdE28577A7D30E2c22503dB33509044EF0": "FALSE"
+        },
+        "MINTER_ROLE": {
+          "0x3C3932F865892EFabE45892f453f81B64f6c8d8c": "TRUE",
+          "0xE71869C662733642bfBb262B8c6bad8B0fBfA7D0": "FALSE",
+          "0xE35a91801bc541fb743BB9EaD26C1FbD81EaBd66": "FALSE",
+          "0x237c3Aa2B79248f86f6523D3890095BCd1996601": "FALSE",
+          "0x62f8E5243f32eE5C87a14A7896C61104aD9e7727": "FALSE",
+          "0x27a1a201D6DF8215d0b0da3Be6211bE24ef4c471": "FALSE",
+          "0x0dd8b4F8DA7fB6E3eE04ea9F24f853647F84c3aa": "FALSE",
+          "0xcAde4594177829597882555Ff57d0e34092daF8e": "FALSE",
+          "0xFd2B8d176bf059287638Db30D02C6651dA02861e": "FALSE",
+          "0xA3B89FfdE28577A7D30E2c22503dB33509044EF0": "FALSE"
+        },
+        "PAUSER_ROLE": {
+          "0x3C3932F865892EFabE45892f453f81B64f6c8d8c": "FALSE",
+          "0xE71869C662733642bfBb262B8c6bad8B0fBfA7D0": "FALSE",
+          "0xE35a91801bc541fb743BB9EaD26C1FbD81EaBd66": "FALSE",
+          "0x237c3Aa2B79248f86f6523D3890095BCd1996601": "FALSE",
+          "0x62f8E5243f32eE5C87a14A7896C61104aD9e7727": "FALSE",
+          "0x27a1a201D6DF8215d0b0da3Be6211bE24ef4c471": "FALSE",
+          "0x0dd8b4F8DA7fB6E3eE04ea9F24f853647F84c3aa": "FALSE",
+          "0xcAde4594177829597882555Ff57d0e34092daF8e": "FALSE",
+          "0xFd2B8d176bf059287638Db30D02C6651dA02861e": "FALSE",
+          "0xA3B89FfdE28577A7D30E2c22503dB33509044EF0": "FALSE"
+        }
+      },
+      "roleAdmins": {
+        "DEFAULT_ADMIN_ROLE": "0x0000000000000000000000000000000000000000000000000000000000000000",
+        "MINTER_ROLE": "0x0000000000000000000000000000000000000000000000000000000000000000",
+        "PAUSER_ROLE": "0x0000000000000000000000000000000000000000000000000000000000000000"
+      },
+      "roleMemberCounts": {
+        "DEFAULT_ADMIN_ROLE": "EVM_REVERT: execution reverted",
+        "MINTER_ROLE": "EVM_REVERT: execution reverted",
+        "PAUSER_ROLE": "EVM_REVERT: execution reverted"
+      },
+      "ownerProbe": "EVM_REVERT: execution reverted",
+      "pausedProbe": "EVM_REVERT: execution reverted"
+    },
+    {
+      "name": "Redeem.sol",
+      "address": "0xcAde4594177829597882555Ff57d0e34092daF8e",
+      "explorer": "https://testnet.arcscan.app/address/0xcAde4594177829597882555Ff57d0e34092daF8e",
+      "deployed": true,
+      "codeSizeBytes": 3037,
+      "codeKeccak256": "0x410c8d3660a4a208f6a0d1ac996110b2051fb8e1f0902c6ba951cfc16809121c",
+      "codeKeccak256NoMeta": "0xf5bedb01e6bbc08e433e210acaf14d52e1ceb6a5965607c83abe640c673f2295",
+      "proxy": {
+        "eip1967_implementation": null,
+        "eip1967_admin": null,
+        "eip1967_beacon": null,
+        "slot0": "0x0000000000000000000000000000000000000000000000000000000000000000"
+      },
+      "deployBlock": {
+        "status": "UNVERIFIED",
+        "reason": "search aborted at block 34207390: EMPTY",
+        "detail": {
+          "block": 34207390,
+          "kind": "EMPTY",
+          "message": "",
+          "probes": 1
+        }
+      },
+      "roles": {
+        "DEFAULT_ADMIN_ROLE": {
+          "0x3C3932F865892EFabE45892f453f81B64f6c8d8c": "TRUE",
+          "0xE71869C662733642bfBb262B8c6bad8B0fBfA7D0": "FALSE",
+          "0xE35a91801bc541fb743BB9EaD26C1FbD81EaBd66": "FALSE",
+          "0x237c3Aa2B79248f86f6523D3890095BCd1996601": "FALSE",
+          "0x62f8E5243f32eE5C87a14A7896C61104aD9e7727": "FALSE",
+          "0x27a1a201D6DF8215d0b0da3Be6211bE24ef4c471": "FALSE",
+          "0x0dd8b4F8DA7fB6E3eE04ea9F24f853647F84c3aa": "FALSE",
+          "0xcAde4594177829597882555Ff57d0e34092daF8e": "FALSE",
+          "0xFd2B8d176bf059287638Db30D02C6651dA02861e": "FALSE",
+          "0xA3B89FfdE28577A7D30E2c22503dB33509044EF0": "FALSE"
+        },
+        "MINTER_ROLE": {
+          "0x3C3932F865892EFabE45892f453f81B64f6c8d8c": "FALSE",
+          "0xE71869C662733642bfBb262B8c6bad8B0fBfA7D0": "FALSE",
+          "0xE35a91801bc541fb743BB9EaD26C1FbD81EaBd66": "FALSE",
+          "0x237c3Aa2B79248f86f6523D3890095BCd1996601": "FALSE",
+          "0x62f8E5243f32eE5C87a14A7896C61104aD9e7727": "FALSE",
+          "0x27a1a201D6DF8215d0b0da3Be6211bE24ef4c471": "FALSE",
+          "0x0dd8b4F8DA7fB6E3eE04ea9F24f853647F84c3aa": "FALSE",
+          "0xcAde4594177829597882555Ff57d0e34092daF8e": "FALSE",
+          "0xFd2B8d176bf059287638Db30D02C6651dA02861e": "FALSE",
+          "0xA3B89FfdE28577A7D30E2c22503dB33509044EF0": "FALSE"
+        },
+        "PAUSER_ROLE": {
+          "0x3C3932F865892EFabE45892f453f81B64f6c8d8c": "FALSE",
+          "0xE71869C662733642bfBb262B8c6bad8B0fBfA7D0": "FALSE",
+          "0xE35a91801bc541fb743BB9EaD26C1FbD81EaBd66": "FALSE",
+          "0x237c3Aa2B79248f86f6523D3890095BCd1996601": "FALSE",
+          "0x62f8E5243f32eE5C87a14A7896C61104aD9e7727": "FALSE",
+          "0x27a1a201D6DF8215d0b0da3Be6211bE24ef4c471": "FALSE",
+          "0x0dd8b4F8DA7fB6E3eE04ea9F24f853647F84c3aa": "FALSE",
+          "0xcAde4594177829597882555Ff57d0e34092daF8e": "FALSE",
+          "0xFd2B8d176bf059287638Db30D02C6651dA02861e": "FALSE",
+          "0xA3B89FfdE28577A7D30E2c22503dB33509044EF0": "FALSE"
+        }
+      },
+      "roleAdmins": {
+        "DEFAULT_ADMIN_ROLE": "0x0000000000000000000000000000000000000000000000000000000000000000",
+        "MINTER_ROLE": "0x0000000000000000000000000000000000000000000000000000000000000000",
+        "PAUSER_ROLE": "0x0000000000000000000000000000000000000000000000000000000000000000"
+      },
+      "roleMemberCounts": {
+        "DEFAULT_ADMIN_ROLE": "EVM_REVERT: execution reverted",
+        "MINTER_ROLE": "EVM_REVERT: execution reverted",
+        "PAUSER_ROLE": "EVM_REVERT: execution reverted"
+      },
+      "ownerProbe": "EVM_REVERT: execution reverted",
+      "pausedProbe": "EVM_REVERT: execution reverted"
+    },
+    {
+      "name": "Oracle.sol",
+      "address": "0xFd2B8d176bf059287638Db30D02C6651dA02861e",
+      "explorer": "https://testnet.arcscan.app/address/0xFd2B8d176bf059287638Db30D02C6651dA02861e",
+      "deployed": true,
+      "codeSizeBytes": 2601,
+      "codeKeccak256": "0x0c14190ddcce23aadc615b9c0750981ccb0f9a2e593b0de5616832d825f2deb6",
+      "codeKeccak256NoMeta": "0x4e602a5f87f32416965f0b774d0f021f659a532f9a2898614c2f3f4e0177b990",
+      "proxy": {
+        "eip1967_implementation": null,
+        "eip1967_admin": null,
+        "eip1967_beacon": null,
+        "slot0": "0x0000000000000000000000000000000000000000000000000000000000000000"
+      },
+      "deployBlock": {
+        "status": "UNVERIFIED",
+        "reason": "search aborted at block 34207390: EMPTY",
+        "detail": {
+          "block": 34207390,
+          "kind": "EMPTY",
+          "message": "",
+          "probes": 1
+        }
+      },
+      "roles": {
+        "DEFAULT_ADMIN_ROLE": {
+          "0x3C3932F865892EFabE45892f453f81B64f6c8d8c": "TRUE",
+          "0xE71869C662733642bfBb262B8c6bad8B0fBfA7D0": "FALSE",
+          "0xE35a91801bc541fb743BB9EaD26C1FbD81EaBd66": "FALSE",
+          "0x237c3Aa2B79248f86f6523D3890095BCd1996601": "FALSE",
+          "0x62f8E5243f32eE5C87a14A7896C61104aD9e7727": "FALSE",
+          "0x27a1a201D6DF8215d0b0da3Be6211bE24ef4c471": "FALSE",
+          "0x0dd8b4F8DA7fB6E3eE04ea9F24f853647F84c3aa": "FALSE",
+          "0xcAde4594177829597882555Ff57d0e34092daF8e": "FALSE",
+          "0xFd2B8d176bf059287638Db30D02C6651dA02861e": "FALSE",
+          "0xA3B89FfdE28577A7D30E2c22503dB33509044EF0": "FALSE"
+        },
+        "MINTER_ROLE": {
+          "0x3C3932F865892EFabE45892f453f81B64f6c8d8c": "FALSE",
+          "0xE71869C662733642bfBb262B8c6bad8B0fBfA7D0": "FALSE",
+          "0xE35a91801bc541fb743BB9EaD26C1FbD81EaBd66": "FALSE",
+          "0x237c3Aa2B79248f86f6523D3890095BCd1996601": "FALSE",
+          "0x62f8E5243f32eE5C87a14A7896C61104aD9e7727": "FALSE",
+          "0x27a1a201D6DF8215d0b0da3Be6211bE24ef4c471": "FALSE",
+          "0x0dd8b4F8DA7fB6E3eE04ea9F24f853647F84c3aa": "FALSE",
+          "0xcAde4594177829597882555Ff57d0e34092daF8e": "FALSE",
+          "0xFd2B8d176bf059287638Db30D02C6651dA02861e": "FALSE",
+          "0xA3B89FfdE28577A7D30E2c22503dB33509044EF0": "FALSE"
+        },
+        "PAUSER_ROLE": {
+          "0x3C3932F865892EFabE45892f453f81B64f6c8d8c": "FALSE",
+          "0xE71869C662733642bfBb262B8c6bad8B0fBfA7D0": "FALSE",
+          "0xE35a91801bc541fb743BB9EaD26C1FbD81EaBd66": "FALSE",
+          "0x237c3Aa2B79248f86f6523D3890095BCd1996601": "FALSE",
+          "0x62f8E5243f32eE5C87a14A7896C61104aD9e7727": "FALSE",
+          "0x27a1a201D6DF8215d0b0da3Be6211bE24ef4c471": "FALSE",
+          "0x0dd8b4F8DA7fB6E3eE04ea9F24f853647F84c3aa": "FALSE",
+          "0xcAde4594177829597882555Ff57d0e34092daF8e": "FALSE",
+          "0xFd2B8d176bf059287638Db30D02C6651dA02861e": "FALSE",
+          "0xA3B89FfdE28577A7D30E2c22503dB33509044EF0": "FALSE"
+        }
+      },
+      "roleAdmins": {
+        "DEFAULT_ADMIN_ROLE": "0x0000000000000000000000000000000000000000000000000000000000000000",
+        "MINTER_ROLE": "0x0000000000000000000000000000000000000000000000000000000000000000",
+        "PAUSER_ROLE": "0x0000000000000000000000000000000000000000000000000000000000000000"
+      },
+      "roleMemberCounts": {
+        "DEFAULT_ADMIN_ROLE": "EVM_REVERT: execution reverted",
+        "MINTER_ROLE": "EVM_REVERT: execution reverted",
+        "PAUSER_ROLE": "EVM_REVERT: execution reverted"
+      },
+      "ownerProbe": "EVM_REVERT: execution reverted",
+      "pausedProbe": "EVM_REVERT: execution reverted"
+    },
+    {
+      "name": "Takaful.sol",
+      "address": "0xA3B89FfdE28577A7D30E2c22503dB33509044EF0",
+      "explorer": "https://testnet.arcscan.app/address/0xA3B89FfdE28577A7D30E2c22503dB33509044EF0",
+      "deployed": true,
+      "codeSizeBytes": 3033,
+      "codeKeccak256": "0xde0ba8daa2ef32ea7adc6bf2656f23ef63cd7fd8cfb97d8bb3ee4571949811a7",
+      "codeKeccak256NoMeta": "0xf31f88c513c64e7900fa4b0de0f178eeb40061ba703506bcc432c41e0a77f937",
+      "proxy": {
+        "eip1967_implementation": null,
+        "eip1967_admin": null,
+        "eip1967_beacon": null,
+        "slot0": "0x0000000000000000000000000000000000000000000000000000000000000000"
+      },
+      "deployBlock": {
+        "status": "UNVERIFIED",
+        "reason": "search aborted at block 34207390: EMPTY",
+        "detail": {
+          "block": 34207390,
+          "kind": "EMPTY",
+          "message": "",
+          "probes": 1
+        }
+      },
+      "roles": {
+        "DEFAULT_ADMIN_ROLE": {
+          "0x3C3932F865892EFabE45892f453f81B64f6c8d8c": "TRUE",
+          "0xE71869C662733642bfBb262B8c6bad8B0fBfA7D0": "FALSE",
+          "0xE35a91801bc541fb743BB9EaD26C1FbD81EaBd66": "FALSE",
+          "0x237c3Aa2B79248f86f6523D3890095BCd1996601": "FALSE",
+          "0x62f8E5243f32eE5C87a14A7896C61104aD9e7727": "FALSE",
+          "0x27a1a201D6DF8215d0b0da3Be6211bE24ef4c471": "FALSE",
+          "0x0dd8b4F8DA7fB6E3eE04ea9F24f853647F84c3aa": "FALSE",
+          "0xcAde4594177829597882555Ff57d0e34092daF8e": "FALSE",
+          "0xFd2B8d176bf059287638Db30D02C6651dA02861e": "FALSE",
+          "0xA3B89FfdE28577A7D30E2c22503dB33509044EF0": "FALSE"
+        },
+        "MINTER_ROLE": {
+          "0x3C3932F865892EFabE45892f453f81B64f6c8d8c": "FALSE",
+          "0xE71869C662733642bfBb262B8c6bad8B0fBfA7D0": "FALSE",
+          "0xE35a91801bc541fb743BB9EaD26C1FbD81EaBd66": "FALSE",
+          "0x237c3Aa2B79248f86f6523D3890095BCd1996601": "FALSE",
+          "0x62f8E5243f32eE5C87a14A7896C61104aD9e7727": "FALSE",
+          "0x27a1a201D6DF8215d0b0da3Be6211bE24ef4c471": "FALSE",
+          "0x0dd8b4F8DA7fB6E3eE04ea9F24f853647F84c3aa": "FALSE",
+          "0xcAde4594177829597882555Ff57d0e34092daF8e": "FALSE",
+          "0xFd2B8d176bf059287638Db30D02C6651dA02861e": "FALSE",
+          "0xA3B89FfdE28577A7D30E2c22503dB33509044EF0": "FALSE"
+        },
+        "PAUSER_ROLE": {
+          "0x3C3932F865892EFabE45892f453f81B64f6c8d8c": "FALSE",
+          "0xE71869C662733642bfBb262B8c6bad8B0fBfA7D0": "FALSE",
+          "0xE35a91801bc541fb743BB9EaD26C1FbD81EaBd66": "FALSE",
+          "0x237c3Aa2B79248f86f6523D3890095BCd1996601": "FALSE",
+          "0x62f8E5243f32eE5C87a14A7896C61104aD9e7727": "FALSE",
+          "0x27a1a201D6DF8215d0b0da3Be6211bE24ef4c471": "FALSE",
+          "0x0dd8b4F8DA7fB6E3eE04ea9F24f853647F84c3aa": "FALSE",
+          "0xcAde4594177829597882555Ff57d0e34092daF8e": "FALSE",
+          "0xFd2B8d176bf059287638Db30D02C6651dA02861e": "FALSE",
+          "0xA3B89FfdE28577A7D30E2c22503dB33509044EF0": "FALSE"
+        }
+      },
+      "roleAdmins": {
+        "DEFAULT_ADMIN_ROLE": "0x0000000000000000000000000000000000000000000000000000000000000000",
+        "MINTER_ROLE": "0x0000000000000000000000000000000000000000000000000000000000000000",
+        "PAUSER_ROLE": "0x0000000000000000000000000000000000000000000000000000000000000000"
+      },
+      "roleMemberCounts": {
+        "DEFAULT_ADMIN_ROLE": "EVM_REVERT: execution reverted",
+        "MINTER_ROLE": "EVM_REVERT: execution reverted",
+        "PAUSER_ROLE": "EVM_REVERT: execution reverted"
+      },
+      "ownerProbe": "EVM_REVERT: execution reverted",
+      "pausedProbe": "EVM_REVERT: execution reverted"
+    }
+  ],
+  "token": {
+    "address": "0x237c3Aa2B79248f86f6523D3890095BCd1996601",
+    "name": "MITHQAL",
+    "symbol": "MTQ",
+    "decimals": "18",
+    "totalSupply": "1000000000000000000000",
+    "balances": {
+      "0x3C3932F865892EFabE45892f453f81B64f6c8d8c": "998999999999999999997",
+      "0x237c3Aa2B79248f86f6523D3890095BCd1996601": "0",
+      "0xE35a91801bc541fb743BB9EaD26C1FbD81EaBd66": "0",
+      "0xE71869C662733642bfBb262B8c6bad8B0fBfA7D0": "0",
+      "0x62f8E5243f32eE5C87a14A7896C61104aD9e7727": "0",
+      "0x27a1a201D6DF8215d0b0da3Be6211bE24ef4c471": "0",
+      "0x0dd8b4F8DA7fB6E3eE04ea9F24f853647F84c3aa": "0",
+      "0xcAde4594177829597882555Ff57d0e34092daF8e": "0",
+      "0xFd2B8d176bf059287638Db30D02C6651dA02861e": "0",
+      "0xA3B89FfdE28577A7D30E2c22503dB33509044EF0": "0"
+    },
+    "nativeBalancesWei": {
+      "0x3C3932F865892EFabE45892f453f81B64f6c8d8c": "19026597151851474173",
+      "0x237c3Aa2B79248f86f6523D3890095BCd1996601": "RPC_ERROR",
+      "0xE35a91801bc541fb743BB9EaD26C1FbD81EaBd66": "RPC_ERROR",
+      "0xE71869C662733642bfBb262B8c6bad8B0fBfA7D0": "RPC_ERROR",
+      "0x62f8E5243f32eE5C87a14A7896C61104aD9e7727": "RPC_ERROR",
+      "0x27a1a201D6DF8215d0b0da3Be6211bE24ef4c471": "0",
+      "0x0dd8b4F8DA7fB6E3eE04ea9F24f853647F84c3aa": "0",
+      "0xcAde4594177829597882555Ff57d0e34092daF8e": "0",
+      "0xFd2B8d176bf059287638Db30D02C6651dA02861e": "0",
+      "0xA3B89FfdE28577A7D30E2c22503dB33509044EF0": "0"
+    }
+  },
+  "safe": {
+    "address": "0xE71869C662733642bfBb262B8c6bad8B0fBfA7D0",
+    "getThreshold": 1,
+    "nonce": 0,
+    "owners": [
+      "0x3C3932F865892EFabE45892f453f81B64f6c8d8c"
+    ],
+    "version": "1.4.1",
+    "modules": "EVM_REVERT: execution reverted: GS105",
+    "guardSlot": "address(0) — NO GUARD",
+    "getGuard": "EVM_REVERT: execution reverted",
+    "guard": "EVM_REVERT: execution reverted"
+  },
+  "transfers": {
+    "status": "SKIPPED",
+    "reason": "deploy block unavailable"
+  },
+  "revertRecheck": [],
+  "finishedAt": "2026-10-21T21:39:01.597Z"
+}

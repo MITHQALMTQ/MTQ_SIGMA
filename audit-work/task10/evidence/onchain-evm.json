@@ -1,0 +1,3832 @@
+{
+  "monad": {
+    "chain": "monad",
+    "startedAt": "2026-10-22T06:07:04.011Z",
+    "chainId": "0x279f",
+    "assertChainId": true,
+    "block": 73167496,
+    "blockTs": "2026-10-22T06:07:03.000Z",
+    "contracts": {
+      "MTQ": {
+        "addr": "0x9e6EdC15DAc420931508d8Ddf9BC817651A253aD",
+        "codeSize": 6681,
+        "runtimeKeccak": "0x9057c3e61d81f7d3e261f71b4cb5710a2d5043666766894772459dd643d55bbb",
+        "selectors": [
+          "0x5c975abb",
+          "0xa217fddf",
+          "0xa9059cbb",
+          "0xd5391393",
+          "0xd547741f",
+          "0xdd62ed3e",
+          "0xe63ab1e9",
+          "0x70a08231",
+          "0x79cc6790",
+          "0x8456cb59",
+          "0x91d14854",
+          "0x95d89b41",
+          "0x2f2ff15d",
+          "0x313ce567",
+          "0x36568abe",
+          "0x3f4ba83a",
+          "0x40c10f19",
+          "0x42966c68",
+          "0x01ffc9a7",
+          "0x06fdde03",
+          "0x095ea7b3",
+          "0x18160ddd",
+          "0x23b872dd",
+          "0x248a9ca3",
+          "0x9a6060cd"
+        ],
+        "resolvedSelectors": {
+          "0x5c975abb": [
+            "paused()",
+            "paused()",
+            "paused()",
+            "paused()",
+            "paused()"
+          ],
+          "0xa217fddf": [
+            "DEFAULT_ADMIN_ROLE()",
+            "DEFAULT_ADMIN_ROLE()",
+            "DEFAULT_ADMIN_ROLE()",
+            "DEFAULT_ADMIN_ROLE()",
+            "DEFAULT_ADMIN_ROLE()",
+            "DEFAULT_ADMIN_ROLE()",
+            "DEFAULT_ADMIN_ROLE()",
+            "DEFAULT_ADMIN_ROLE()",
+            "DEFAULT_ADMIN_ROLE()",
+            "DEFAULT_ADMIN_ROLE()",
+            "DEFAULT_ADMIN_ROLE()",
+            "DEFAULT_ADMIN_ROLE()",
+            "DEFAULT_ADMIN_ROLE()"
+          ],
+          "0xa9059cbb": [
+            "transfer(address,uint256)",
+            "transfer(address,uint256)",
+            "transfer(address,uint256)",
+            "transfer(address,uint256)",
+            "transfer(address,uint256)",
+            "transfer(address,uint256)",
+            "transfer(address,uint256)"
+          ],
+          "0xd5391393": [
+            "MINTER_ROLE()",
+            "MINTER_ROLE()",
+            "MINTER_ROLE()",
+            "MINTER_ROLE()",
+            "MINTER_ROLE()",
+            "MINTER_ROLE()"
+          ],
+          "0xd547741f": [
+            "revokeRole(bytes32,address)",
+            "revokeRole(bytes32,address)",
+            "revokeRole(bytes32,address)",
+            "revokeRole(bytes32,address)",
+            "revokeRole(bytes32,address)",
+            "revokeRole(bytes32,address)",
+            "revokeRole(bytes32,address)",
+            "revokeRole(bytes32,address)",
+            "revokeRole(bytes32,address)",
+            "revokeRole(bytes32,address)",
+            "revokeRole(bytes32,address)",
+            "revokeRole(bytes32,address)",
+            "revokeRole(bytes32,address)"
+          ],
+          "0xdd62ed3e": [
+            "allowance(address,address)",
+            "allowance(address,address)",
+            "allowance(address,address)",
+            "allowance(address,address)",
+            "allowance(address,address)",
+            "allowance(address,address)",
+            "allowance(address,address)"
+          ],
+          "0xe63ab1e9": [
+            "PAUSER_ROLE()",
+            "PAUSER_ROLE()",
+            "PAUSER_ROLE()",
+            "PAUSER_ROLE()",
+            "PAUSER_ROLE()"
+          ],
+          "0x70a08231": [
+            "balanceOf(address)",
+            "balanceOf(address)",
+            "balanceOf(address)",
+            "balanceOf(address)",
+            "balanceOf(address)",
+            "balanceOf(address)",
+            "balanceOf(address)"
+          ],
+          "0x79cc6790": [
+            "burnFrom(address,uint256)"
+          ],
+          "0x8456cb59": [
+            "pause()",
+            "pause()",
+            "pause()",
+            "pause()",
+            "pause()"
+          ],
+          "0x91d14854": [
+            "hasRole(bytes32,address)",
+            "hasRole(bytes32,address)",
+            "hasRole(bytes32,address)",
+            "hasRole(bytes32,address)",
+            "hasRole(bytes32,address)",
+            "hasRole(bytes32,address)",
+            "hasRole(bytes32,address)",
+            "hasRole(bytes32,address)",
+            "hasRole(bytes32,address)",
+            "hasRole(bytes32,address)",
+            "hasRole(bytes32,address)",
+            "hasRole(bytes32,address)",
+            "hasRole(bytes32,address)"
+          ],
+          "0x95d89b41": [
+            "symbol()",
+            "symbol()",
+            "symbol()",
+            "symbol()",
+            "symbol()",
+            "symbol()",
+            "symbol()"
+          ],
+          "0x2f2ff15d": [
+            "grantRole(bytes32,address)",
+            "grantRole(bytes32,address)",
+            "grantRole(bytes32,address)",
+            "grantRole(bytes32,address)",
+            "grantRole(bytes32,address)",
+            "grantRole(bytes32,address)",
+            "grantRole(bytes32,address)",
+            "grantRole(bytes32,address)",
+            "grantRole(bytes32,address)",
+            "grantRole(bytes32,address)",
+            "grantRole(bytes32,address)",
+            "grantRole(bytes32,address)",
+            "grantRole(bytes32,address)"
+          ],
+          "0x313ce567": [
+            "decimals()",
+            "decimals()",
+            "decimals()",
+            "decimals()",
+            "decimals()",
+            "decimals()",
+            "decimals()"
+          ],
+          "0x36568abe": [
+            "renounceRole(bytes32,address)",
+            "renounceRole(bytes32,address)",
+            "renounceRole(bytes32,address)",
+            "renounceRole(bytes32,address)",
+            "renounceRole(bytes32,address)",
+            "renounceRole(bytes32,address)",
+            "renounceRole(bytes32,address)",
+            "renounceRole(bytes32,address)",
+            "renounceRole(bytes32,address)",
+            "renounceRole(bytes32,address)",
+            "renounceRole(bytes32,address)",
+            "renounceRole(bytes32,address)"
+          ],
+          "0x3f4ba83a": [
+            "unpause()",
+            "unpause()",
+            "unpause()",
+            "unpause()",
+            "unpause()"
+          ],
+          "0x40c10f19": [
+            "mint(address,uint256)",
+            "mint(address,uint256)",
+            "mint(address,uint256)"
+          ],
+          "0x42966c68": [
+            "burn(uint256)",
+            "burn(uint256)"
+          ],
+          "0x01ffc9a7": [
+            "supportsInterface(bytes4)",
+            "supportsInterface(bytes4)",
+            "supportsInterface(bytes4)",
+            "supportsInterface(bytes4)",
+            "supportsInterface(bytes4)",
+            "supportsInterface(bytes4)",
+            "supportsInterface(bytes4)",
+            "supportsInterface(bytes4)",
+            "supportsInterface(bytes4)"
+          ],
+          "0x06fdde03": [
+            "name()",
+            "name()",
+            "name()",
+            "name()",
+            "name()",
+            "name()",
+            "name()"
+          ],
+          "0x095ea7b3": [
+            "approve(address,uint256)",
+            "approve(address,uint256)",
+            "approve(address,uint256)",
+            "approve(address,uint256)",
+            "approve(address,uint256)",
+            "approve(address,uint256)",
+            "approve(address,uint256)"
+          ],
+          "0x18160ddd": [
+            "totalSupply()",
+            "totalSupply()",
+            "totalSupply()",
+            "totalSupply()",
+            "totalSupply()",
+            "totalSupply()",
+            "totalSupply()"
+          ],
+          "0x23b872dd": [
+            "transferFrom(address,address,uint256)",
+            "transferFrom(address,address,uint256)",
+            "transferFrom(address,address,uint256)",
+            "transferFrom(address,address,uint256)",
+            "transferFrom(address,address,uint256)",
+            "transferFrom(address,address,uint256)",
+            "transferFrom(address,address,uint256)"
+          ],
+          "0x248a9ca3": [
+            "getRoleAdmin(bytes32)",
+            "getRoleAdmin(bytes32)",
+            "getRoleAdmin(bytes32)",
+            "getRoleAdmin(bytes32)",
+            "getRoleAdmin(bytes32)",
+            "getRoleAdmin(bytes32)",
+            "getRoleAdmin(bytes32)",
+            "getRoleAdmin(bytes32)",
+            "getRoleAdmin(bytes32)",
+            "getRoleAdmin(bytes32)"
+          ]
+        },
+        "eip1967": {
+          "impl": "0x0000000000000000000000000000000000000000000000000000000000000000",
+          "admin": "0x0000000000000000000000000000000000000000000000000000000000000000",
+          "beacon": "0x0000000000000000000000000000000000000000000000000000000000000000"
+        },
+        "slot0": "0x0000000000000000000000000000000000000000000000000000000000000000",
+        "deployed": true
+      },
+      "Governance": {
+        "addr": "0xE35a91801bc541fb743BB9EaD26C1FbD81EaBd66",
+        "codeSize": 25819,
+        "runtimeKeccak": "0xb0624cbd4b9f219e36d4204ce180f17b2cd8f3692f097c35ff13d1011676057a",
+        "selectors": [
+          "0x7d5e81e2",
+          "0xbc197c81",
+          "0xe540d01d",
+          "0xeb9019d4",
+          "0xece40cc1",
+          "0xf23a6e61",
+          "0xf8ce560a",
+          "0xfc0c546a",
+          "0xc01f9e37",
+          "0xc28bc2fa",
+          "0xc59057e4",
+          "0xdd4e2ba5",
+          "0xdeaaa7cc",
+          "0x97c3d334",
+          "0x9a802a6d",
+          "0xa7713a70",
+          "0xa9a95294",
+          "0xab58fb8e",
+          "0xb58131b0",
+          "0x7ecebe00",
+          "0x84b0196e",
+          "0x8ff262e3",
+          "0x91ddadf4",
+          "0x3e4f49e6",
+          "0x56781388",
+          "0x5b8d0e0d",
+          "0x5f398a14",
+          "0x60c4247f",
+          "0x79051887",
+          "0x7b3c71d3",
+          "0x43859632",
+          "0x452115d6",
+          "0x4bf5d7e9",
+          "0x544ffc9c",
+          "0x54fd4d50",
+          "0x150b7a02",
+          "0x160cbed7",
+          "0x2656227d",
+          "0x2d63f693",
+          "0x2fe3e261",
+          "0x3932abb1",
+          "0x01ffc9a7",
+          "0x02a251a3",
+          "0x06f3f9e6",
+          "0x06fdde03",
+          "0x143489d0",
+          "0xffffffff",
+          "0x8e539e8c",
+          "0x3a46b1a8",
+          "0x1626ba7e"
+        ],
+        "resolvedSelectors": {
+          "0x43859632": [
+            "hasVoted(uint256,address)"
+          ],
+          "0x01ffc9a7": [
+            "supportsInterface(bytes4)",
+            "supportsInterface(bytes4)",
+            "supportsInterface(bytes4)",
+            "supportsInterface(bytes4)",
+            "supportsInterface(bytes4)",
+            "supportsInterface(bytes4)",
+            "supportsInterface(bytes4)",
+            "supportsInterface(bytes4)",
+            "supportsInterface(bytes4)"
+          ],
+          "0x06fdde03": [
+            "name()",
+            "name()",
+            "name()",
+            "name()",
+            "name()",
+            "name()",
+            "name()"
+          ]
+        },
+        "eip1967": {
+          "impl": "0x0000000000000000000000000000000000000000000000000000000000000000",
+          "admin": "0x0000000000000000000000000000000000000000000000000000000000000000",
+          "beacon": "0x0000000000000000000000000000000000000000000000000000000000000000"
+        },
+        "slot0": "0x0000000000000000000000000000000000000000000000000000000000000000",
+        "deployed": true
+      },
+      "Safe": {
+        "addr": "0xE71869C662733642bfBb262B8c6bad8B0fBfA7D0",
+        "codeSize": 171,
+        "runtimeKeccak": "0xd7d408ebcd99b2b70be43e20253d6d92a8ea8fab29bd3be7f55b10032331fb4c",
+        "selectors": [],
+        "resolvedSelectors": {},
+        "eip1967": {
+          "impl": "0x0000000000000000000000000000000000000000000000000000000000000000",
+          "admin": "0x0000000000000000000000000000000000000000000000000000000000000000",
+          "beacon": "0x0000000000000000000000000000000000000000000000000000000000000000"
+        },
+        "slot0": "0x00000000000000000000000029fcb43b46531bca003ddc8fcb67ffe91900c762",
+        "deployed": true
+      },
+      "Algorithm": {
+        "addr": "0x8839ce50e8D414005518769999c0A5b961D00CB2",
+        "codeSize": 2546,
+        "runtimeKeccak": "0x20c147d708f712282e6823e27f5bd2785dc2ebe2387a76125cea7a1e38fd200a",
+        "selectors": [
+          "0x390b46fe",
+          "0x52fd856b",
+          "0x75b238fc",
+          "0x91d14854",
+          "0xa217fddf",
+          "0xd547741f",
+          "0x0126c606",
+          "0x01ffc9a7",
+          "0x248a9ca3",
+          "0x2f2ff15d",
+          "0x36568abe",
+          "0x43000814"
+        ],
+        "resolvedSelectors": {
+          "0x75b238fc": [
+            "ADMIN_ROLE()",
+            "ADMIN_ROLE()",
+            "ADMIN_ROLE()"
+          ],
+          "0x91d14854": [
+            "hasRole(bytes32,address)",
+            "hasRole(bytes32,address)",
+            "hasRole(bytes32,address)",
+            "hasRole(bytes32,address)",
+            "hasRole(bytes32,address)",
+            "hasRole(bytes32,address)",
+            "hasRole(bytes32,address)",
+            "hasRole(bytes32,address)",
+            "hasRole(bytes32,address)",
+            "hasRole(bytes32,address)",
+            "hasRole(bytes32,address)",
+            "hasRole(bytes32,address)",
+            "hasRole(bytes32,address)"
+          ],
+          "0xa217fddf": [
+            "DEFAULT_ADMIN_ROLE()",
+            "DEFAULT_ADMIN_ROLE()",
+            "DEFAULT_ADMIN_ROLE()",
+            "DEFAULT_ADMIN_ROLE()",
+            "DEFAULT_ADMIN_ROLE()",
+            "DEFAULT_ADMIN_ROLE()",
+            "DEFAULT_ADMIN_ROLE()",
+            "DEFAULT_ADMIN_ROLE()",
+            "DEFAULT_ADMIN_ROLE()",
+            "DEFAULT_ADMIN_ROLE()",
+            "DEFAULT_ADMIN_ROLE()",
+            "DEFAULT_ADMIN_ROLE()",
+            "DEFAULT_ADMIN_ROLE()"
+          ],
+          "0xd547741f": [
+            "revokeRole(bytes32,address)",
+            "revokeRole(bytes32,address)",
+            "revokeRole(bytes32,address)",
+            "revokeRole(bytes32,address)",
+            "revokeRole(bytes32,address)",
+            "revokeRole(bytes32,address)",
+            "revokeRole(bytes32,address)",
+            "revokeRole(bytes32,address)",
+            "revokeRole(bytes32,address)",
+            "revokeRole(bytes32,address)",
+            "revokeRole(bytes32,address)",
+            "revokeRole(bytes32,address)",
+            "revokeRole(bytes32,address)"
+          ],
+          "0x0126c606": [
+            "getNAV()",
+            "getNAV()",
+            "getNAV()"
+          ],
+          "0x01ffc9a7": [
+            "supportsInterface(bytes4)",
+            "supportsInterface(bytes4)",
+            "supportsInterface(bytes4)",
+            "supportsInterface(bytes4)",
+            "supportsInterface(bytes4)",
+            "supportsInterface(bytes4)",
+            "supportsInterface(bytes4)",
+            "supportsInterface(bytes4)",
+            "supportsInterface(bytes4)"
+          ],
+          "0x248a9ca3": [
+            "getRoleAdmin(bytes32)",
+            "getRoleAdmin(bytes32)",
+            "getRoleAdmin(bytes32)",
+            "getRoleAdmin(bytes32)",
+            "getRoleAdmin(bytes32)",
+            "getRoleAdmin(bytes32)",
+            "getRoleAdmin(bytes32)",
+            "getRoleAdmin(bytes32)",
+            "getRoleAdmin(bytes32)",
+            "getRoleAdmin(bytes32)"
+          ],
+          "0x2f2ff15d": [
+            "grantRole(bytes32,address)",
+            "grantRole(bytes32,address)",
+            "grantRole(bytes32,address)",
+            "grantRole(bytes32,address)",
+            "grantRole(bytes32,address)",
+            "grantRole(bytes32,address)",
+            "grantRole(bytes32,address)",
+            "grantRole(bytes32,address)",
+            "grantRole(bytes32,address)",
+            "grantRole(bytes32,address)",
+            "grantRole(bytes32,address)",
+            "grantRole(bytes32,address)",
+            "grantRole(bytes32,address)"
+          ],
+          "0x36568abe": [
+            "renounceRole(bytes32,address)",
+            "renounceRole(bytes32,address)",
+            "renounceRole(bytes32,address)",
+            "renounceRole(bytes32,address)",
+            "renounceRole(bytes32,address)",
+            "renounceRole(bytes32,address)",
+            "renounceRole(bytes32,address)",
+            "renounceRole(bytes32,address)",
+            "renounceRole(bytes32,address)",
+            "renounceRole(bytes32,address)",
+            "renounceRole(bytes32,address)",
+            "renounceRole(bytes32,address)"
+          ]
+        },
+        "eip1967": {
+          "impl": "0x0000000000000000000000000000000000000000000000000000000000000000",
+          "admin": "0x0000000000000000000000000000000000000000000000000000000000000000",
+          "beacon": "0x0000000000000000000000000000000000000000000000000000000000000000"
+        },
+        "slot0": "0x0000000000000000000000000000000000000000000000000000000000000000",
+        "deployed": true
+      },
+      "Reserve": {
+        "addr": "0x1bbCd78E4DEF79b7a3B77242770cbAefAC816177",
+        "codeSize": 5703,
+        "runtimeKeccak": "0x04a7116dd28265573d7f8ec5c984fa25453ec59567b241c8cc03d16651af4290",
+        "selectors": [
+          "0x41bf3f26",
+          "0xd13d1fc4",
+          "0xd3b8c2a2",
+          "0xd5391393",
+          "0xd547741f",
+          "0xf5eac0d7",
+          "0x75b238fc",
+          "0x91d14854",
+          "0x9635e9d1",
+          "0xa217fddf",
+          "0x2185340b",
+          "0x248a9ca3",
+          "0x2e58ca46",
+          "0x2f2ff15d",
+          "0x36568abe",
+          "0x01ffc9a7",
+          "0x0c7d5cd8",
+          "0x0f16f9cb",
+          "0x1afb1354",
+          "0x18160ddd",
+          "0xffffffff",
+          "0x0126c606"
+        ],
+        "resolvedSelectors": {
+          "0xd13d1fc4": [
+            "mtq()",
+            "mtq()"
+          ],
+          "0xd5391393": [
+            "MINTER_ROLE()",
+            "MINTER_ROLE()",
+            "MINTER_ROLE()",
+            "MINTER_ROLE()",
+            "MINTER_ROLE()",
+            "MINTER_ROLE()"
+          ],
+          "0xd547741f": [
+            "revokeRole(bytes32,address)",
+            "revokeRole(bytes32,address)",
+            "revokeRole(bytes32,address)",
+            "revokeRole(bytes32,address)",
+            "revokeRole(bytes32,address)",
+            "revokeRole(bytes32,address)",
+            "revokeRole(bytes32,address)",
+            "revokeRole(bytes32,address)",
+            "revokeRole(bytes32,address)",
+            "revokeRole(bytes32,address)",
+            "revokeRole(bytes32,address)",
+            "revokeRole(bytes32,address)",
+            "revokeRole(bytes32,address)"
+          ],
+          "0x75b238fc": [
+            "ADMIN_ROLE()",
+            "ADMIN_ROLE()",
+            "ADMIN_ROLE()"
+          ],
+          "0x91d14854": [
+            "hasRole(bytes32,address)",
+            "hasRole(bytes32,address)",
+            "hasRole(bytes32,address)",
+            "hasRole(bytes32,address)",
+            "hasRole(bytes32,address)",
+            "hasRole(bytes32,address)",
+            "hasRole(bytes32,address)",
+            "hasRole(bytes32,address)",
+            "hasRole(bytes32,address)",
+            "hasRole(bytes32,address)",
+            "hasRole(bytes32,address)",
+            "hasRole(bytes32,address)",
+            "hasRole(bytes32,address)"
+          ],
+          "0xa217fddf": [
+            "DEFAULT_ADMIN_ROLE()",
+            "DEFAULT_ADMIN_ROLE()",
+            "DEFAULT_ADMIN_ROLE()",
+            "DEFAULT_ADMIN_ROLE()",
+            "DEFAULT_ADMIN_ROLE()",
+            "DEFAULT_ADMIN_ROLE()",
+            "DEFAULT_ADMIN_ROLE()",
+            "DEFAULT_ADMIN_ROLE()",
+            "DEFAULT_ADMIN_ROLE()",
+            "DEFAULT_ADMIN_ROLE()",
+            "DEFAULT_ADMIN_ROLE()",
+            "DEFAULT_ADMIN_ROLE()",
+            "DEFAULT_ADMIN_ROLE()"
+          ],
+          "0x248a9ca3": [
+            "getRoleAdmin(bytes32)",
+            "getRoleAdmin(bytes32)",
+            "getRoleAdmin(bytes32)",
+            "getRoleAdmin(bytes32)",
+            "getRoleAdmin(bytes32)",
+            "getRoleAdmin(bytes32)",
+            "getRoleAdmin(bytes32)",
+            "getRoleAdmin(bytes32)",
+            "getRoleAdmin(bytes32)",
+            "getRoleAdmin(bytes32)"
+          ],
+          "0x2f2ff15d": [
+            "grantRole(bytes32,address)",
+            "grantRole(bytes32,address)",
+            "grantRole(bytes32,address)",
+            "grantRole(bytes32,address)",
+            "grantRole(bytes32,address)",
+            "grantRole(bytes32,address)",
+            "grantRole(bytes32,address)",
+            "grantRole(bytes32,address)",
+            "grantRole(bytes32,address)",
+            "grantRole(bytes32,address)",
+            "grantRole(bytes32,address)",
+            "grantRole(bytes32,address)",
+            "grantRole(bytes32,address)"
+          ],
+          "0x36568abe": [
+            "renounceRole(bytes32,address)",
+            "renounceRole(bytes32,address)",
+            "renounceRole(bytes32,address)",
+            "renounceRole(bytes32,address)",
+            "renounceRole(bytes32,address)",
+            "renounceRole(bytes32,address)",
+            "renounceRole(bytes32,address)",
+            "renounceRole(bytes32,address)",
+            "renounceRole(bytes32,address)",
+            "renounceRole(bytes32,address)",
+            "renounceRole(bytes32,address)",
+            "renounceRole(bytes32,address)"
+          ],
+          "0x01ffc9a7": [
+            "supportsInterface(bytes4)",
+            "supportsInterface(bytes4)",
+            "supportsInterface(bytes4)",
+            "supportsInterface(bytes4)",
+            "supportsInterface(bytes4)",
+            "supportsInterface(bytes4)",
+            "supportsInterface(bytes4)",
+            "supportsInterface(bytes4)",
+            "supportsInterface(bytes4)"
+          ],
+          "0x18160ddd": [
+            "totalSupply()",
+            "totalSupply()",
+            "totalSupply()",
+            "totalSupply()",
+            "totalSupply()",
+            "totalSupply()",
+            "totalSupply()"
+          ],
+          "0x0126c606": [
+            "getNAV()",
+            "getNAV()",
+            "getNAV()"
+          ]
+        },
+        "eip1967": {
+          "impl": "0x0000000000000000000000000000000000000000000000000000000000000000",
+          "admin": "0x0000000000000000000000000000000000000000000000000000000000000000",
+          "beacon": "0x0000000000000000000000000000000000000000000000000000000000000000"
+        },
+        "slot0": "0x0000000000000000000000000000000000000000000000000000000000000000",
+        "deployed": true
+      },
+      "Mint": {
+        "addr": "0x197e9CB28216dfe18a199b4c2930F74C2F460809",
+        "codeSize": 5644,
+        "runtimeKeccak": "0x2373495eed7956512bc7cd6960d83fc19405c30332d8a251e2a5b6b57a87a9fb",
+        "selectors": [
+          "0x91d14854",
+          "0xd13d1fc4",
+          "0xd5391393",
+          "0xd547741f",
+          "0xd73792a9",
+          "0x9cecc80a",
+          "0xa217fddf",
+          "0xcd3293de",
+          "0x2d11c58a",
+          "0x2f2ff15d",
+          "0x36568abe",
+          "0x75b238fc",
+          "0x01ffc9a7",
+          "0x14e048ba",
+          "0x248a9ca3",
+          "0xf5eac0d7",
+          "0xffffffff",
+          "0x0f16f9cb",
+          "0x0c7d5cd8",
+          "0x40c10f19"
+        ],
+        "resolvedSelectors": {
+          "0x91d14854": [
+            "hasRole(bytes32,address)",
+            "hasRole(bytes32,address)",
+            "hasRole(bytes32,address)",
+            "hasRole(bytes32,address)",
+            "hasRole(bytes32,address)",
+            "hasRole(bytes32,address)",
+            "hasRole(bytes32,address)",
+            "hasRole(bytes32,address)",
+            "hasRole(bytes32,address)",
+            "hasRole(bytes32,address)",
+            "hasRole(bytes32,address)",
+            "hasRole(bytes32,address)",
+            "hasRole(bytes32,address)"
+          ],
+          "0xd13d1fc4": [
+            "mtq()",
+            "mtq()"
+          ],
+          "0xd5391393": [
+            "MINTER_ROLE()",
+            "MINTER_ROLE()",
+            "MINTER_ROLE()",
+            "MINTER_ROLE()",
+            "MINTER_ROLE()",
+            "MINTER_ROLE()"
+          ],
+          "0xd547741f": [
+            "revokeRole(bytes32,address)",
+            "revokeRole(bytes32,address)",
+            "revokeRole(bytes32,address)",
+            "revokeRole(bytes32,address)",
+            "revokeRole(bytes32,address)",
+            "revokeRole(bytes32,address)",
+            "revokeRole(bytes32,address)",
+            "revokeRole(bytes32,address)",
+            "revokeRole(bytes32,address)",
+            "revokeRole(bytes32,address)",
+            "revokeRole(bytes32,address)",
+            "revokeRole(bytes32,address)",
+            "revokeRole(bytes32,address)"
+          ],
+          "0xa217fddf": [
+            "DEFAULT_ADMIN_ROLE()",
+            "DEFAULT_ADMIN_ROLE()",
+            "DEFAULT_ADMIN_ROLE()",
+            "DEFAULT_ADMIN_ROLE()",
+            "DEFAULT_ADMIN_ROLE()",
+            "DEFAULT_ADMIN_ROLE()",
+            "DEFAULT_ADMIN_ROLE()",
+            "DEFAULT_ADMIN_ROLE()",
+            "DEFAULT_ADMIN_ROLE()",
+            "DEFAULT_ADMIN_ROLE()",
+            "DEFAULT_ADMIN_ROLE()",
+            "DEFAULT_ADMIN_ROLE()",
+            "DEFAULT_ADMIN_ROLE()"
+          ],
+          "0x2f2ff15d": [
+            "grantRole(bytes32,address)",
+            "grantRole(bytes32,address)",
+            "grantRole(bytes32,address)",
+            "grantRole(bytes32,address)",
+            "grantRole(bytes32,address)",
+            "grantRole(bytes32,address)",
+            "grantRole(bytes32,address)",
+            "grantRole(bytes32,address)",
+            "grantRole(bytes32,address)",
+            "grantRole(bytes32,address)",
+            "grantRole(bytes32,address)",
+            "grantRole(bytes32,address)",
+            "grantRole(bytes32,address)"
+          ],
+          "0x36568abe": [
+            "renounceRole(bytes32,address)",
+            "renounceRole(bytes32,address)",
+            "renounceRole(bytes32,address)",
+            "renounceRole(bytes32,address)",
+            "renounceRole(bytes32,address)",
+            "renounceRole(bytes32,address)",
+            "renounceRole(bytes32,address)",
+            "renounceRole(bytes32,address)",
+            "renounceRole(bytes32,address)",
+            "renounceRole(bytes32,address)",
+            "renounceRole(bytes32,address)",
+            "renounceRole(bytes32,address)"
+          ],
+          "0x75b238fc": [
+            "ADMIN_ROLE()",
+            "ADMIN_ROLE()",
+            "ADMIN_ROLE()"
+          ],
+          "0x01ffc9a7": [
+            "supportsInterface(bytes4)",
+            "supportsInterface(bytes4)",
+            "supportsInterface(bytes4)",
+            "supportsInterface(bytes4)",
+            "supportsInterface(bytes4)",
+            "supportsInterface(bytes4)",
+            "supportsInterface(bytes4)",
+            "supportsInterface(bytes4)",
+            "supportsInterface(bytes4)"
+          ],
+          "0x248a9ca3": [
+            "getRoleAdmin(bytes32)",
+            "getRoleAdmin(bytes32)",
+            "getRoleAdmin(bytes32)",
+            "getRoleAdmin(bytes32)",
+            "getRoleAdmin(bytes32)",
+            "getRoleAdmin(bytes32)",
+            "getRoleAdmin(bytes32)",
+            "getRoleAdmin(bytes32)",
+            "getRoleAdmin(bytes32)",
+            "getRoleAdmin(bytes32)"
+          ],
+          "0x40c10f19": [
+            "mint(address,uint256)",
+            "mint(address,uint256)",
+            "mint(address,uint256)"
+          ]
+        },
+        "eip1967": {
+          "impl": "0x0000000000000000000000000000000000000000000000000000000000000000",
+          "admin": "0x0000000000000000000000000000000000000000000000000000000000000000",
+          "beacon": "0x0000000000000000000000000000000000000000000000000000000000000000"
+        },
+        "slot0": "0x0000000000000000000000000000000000000000000000000000000000000000",
+        "deployed": true
+      },
+      "Redeem": {
+        "addr": "0x963201C0Fa258033CCDdFcDceb8B5E3bc2b435a4",
+        "codeSize": 6170,
+        "runtimeKeccak": "0x8e8538e58ee3708ddd8f3d7fa836a39397e7cb6d049ec8a1b9467524df97017c",
+        "selectors": [
+          "0x75b238fc",
+          "0xcd3293de",
+          "0xd13d1fc4",
+          "0xd547741f",
+          "0xd73792a9",
+          "0xdb006a75",
+          "0x91d14854",
+          "0x9cecc80a",
+          "0xa217fddf",
+          "0x2d11c58a",
+          "0x2e58ca46",
+          "0x2f2ff15d",
+          "0x36568abe",
+          "0x01ffc9a7",
+          "0x14e048ba",
+          "0x1afb1354",
+          "0x248a9ca3",
+          "0x70a08231",
+          "0xffffffff",
+          "0x0126c606",
+          "0x23b872dd",
+          "0x42966c68",
+          "0x41bf3f26",
+          "0x0c7d5cd8"
+        ],
+        "resolvedSelectors": {
+          "0x75b238fc": [
+            "ADMIN_ROLE()",
+            "ADMIN_ROLE()",
+            "ADMIN_ROLE()"
+          ],
+          "0xd13d1fc4": [
+            "mtq()",
+            "mtq()"
+          ],
+          "0xd547741f": [
+            "revokeRole(bytes32,address)",
+            "revokeRole(bytes32,address)",
+            "revokeRole(bytes32,address)",
+            "revokeRole(bytes32,address)",
+            "revokeRole(bytes32,address)",
+            "revokeRole(bytes32,address)",
+            "revokeRole(bytes32,address)",
+            "revokeRole(bytes32,address)",
+            "revokeRole(bytes32,address)",
+            "revokeRole(bytes32,address)",
+            "revokeRole(bytes32,address)",
+            "revokeRole(bytes32,address)",
+            "revokeRole(bytes32,address)"
+          ],
+          "0xdb006a75": [
+            "redeem(uint256)",
+            "redeem(uint256)",
+            "redeem(uint256)",
+            "redeem(uint256)"
+          ],
+          "0x91d14854": [
+            "hasRole(bytes32,address)",
+            "hasRole(bytes32,address)",
+            "hasRole(bytes32,address)",
+            "hasRole(bytes32,address)",
+            "hasRole(bytes32,address)",
+            "hasRole(bytes32,address)",
+            "hasRole(bytes32,address)",
+            "hasRole(bytes32,address)",
+            "hasRole(bytes32,address)",
+            "hasRole(bytes32,address)",
+            "hasRole(bytes32,address)",
+            "hasRole(bytes32,address)",
+            "hasRole(bytes32,address)"
+          ],
+          "0xa217fddf": [
+            "DEFAULT_ADMIN_ROLE()",
+            "DEFAULT_ADMIN_ROLE()",
+            "DEFAULT_ADMIN_ROLE()",
+            "DEFAULT_ADMIN_ROLE()",
+            "DEFAULT_ADMIN_ROLE()",
+            "DEFAULT_ADMIN_ROLE()",
+            "DEFAULT_ADMIN_ROLE()",
+            "DEFAULT_ADMIN_ROLE()",
+            "DEFAULT_ADMIN_ROLE()",
+            "DEFAULT_ADMIN_ROLE()",
+            "DEFAULT_ADMIN_ROLE()",
+            "DEFAULT_ADMIN_ROLE()",
+            "DEFAULT_ADMIN_ROLE()"
+          ],
+          "0x2f2ff15d": [
+            "grantRole(bytes32,address)",
+            "grantRole(bytes32,address)",
+            "grantRole(bytes32,address)",
+            "grantRole(bytes32,address)",
+            "grantRole(bytes32,address)",
+            "grantRole(bytes32,address)",
+            "grantRole(bytes32,address)",
+            "grantRole(bytes32,address)",
+            "grantRole(bytes32,address)",
+            "grantRole(bytes32,address)",
+            "grantRole(bytes32,address)",
+            "grantRole(bytes32,address)",
+            "grantRole(bytes32,address)"
+          ],
+          "0x36568abe": [
+            "renounceRole(bytes32,address)",
+            "renounceRole(bytes32,address)",
+            "renounceRole(bytes32,address)",
+            "renounceRole(bytes32,address)",
+            "renounceRole(bytes32,address)",
+            "renounceRole(bytes32,address)",
+            "renounceRole(bytes32,address)",
+            "renounceRole(bytes32,address)",
+            "renounceRole(bytes32,address)",
+            "renounceRole(bytes32,address)",
+            "renounceRole(bytes32,address)",
+            "renounceRole(bytes32,address)"
+          ],
+          "0x01ffc9a7": [
+            "supportsInterface(bytes4)",
+            "supportsInterface(bytes4)",
+            "supportsInterface(bytes4)",
+            "supportsInterface(bytes4)",
+            "supportsInterface(bytes4)",
+            "supportsInterface(bytes4)",
+            "supportsInterface(bytes4)",
+            "supportsInterface(bytes4)",
+            "supportsInterface(bytes4)"
+          ],
+          "0x248a9ca3": [
+            "getRoleAdmin(bytes32)",
+            "getRoleAdmin(bytes32)",
+            "getRoleAdmin(bytes32)",
+            "getRoleAdmin(bytes32)",
+            "getRoleAdmin(bytes32)",
+            "getRoleAdmin(bytes32)",
+            "getRoleAdmin(bytes32)",
+            "getRoleAdmin(bytes32)",
+            "getRoleAdmin(bytes32)",
+            "getRoleAdmin(bytes32)"
+          ],
+          "0x70a08231": [
+            "balanceOf(address)",
+            "balanceOf(address)",
+            "balanceOf(address)",
+            "balanceOf(address)",
+            "balanceOf(address)",
+            "balanceOf(address)",
+            "balanceOf(address)"
+          ],
+          "0x0126c606": [
+            "getNAV()",
+            "getNAV()",
+            "getNAV()"
+          ],
+          "0x23b872dd": [
+            "transferFrom(address,address,uint256)",
+            "transferFrom(address,address,uint256)",
+            "transferFrom(address,address,uint256)",
+            "transferFrom(address,address,uint256)",
+            "transferFrom(address,address,uint256)",
+            "transferFrom(address,address,uint256)",
+            "transferFrom(address,address,uint256)"
+          ],
+          "0x42966c68": [
+            "burn(uint256)",
+            "burn(uint256)"
+          ]
+        },
+        "eip1967": {
+          "impl": "0x0000000000000000000000000000000000000000000000000000000000000000",
+          "admin": "0x0000000000000000000000000000000000000000000000000000000000000000",
+          "beacon": "0x0000000000000000000000000000000000000000000000000000000000000000"
+        },
+        "slot0": "0x0000000000000000000000000000000000000000000000000000000000000000",
+        "deployed": true
+      },
+      "Oracle": {
+        "addr": "0xDfcA66ac0450C9AB86307af1942E157C5A4DB713",
+        "codeSize": 5273,
+        "runtimeKeccak": "0xf057e6e5a983c585a46c558402738f2ba72bf5f5e8acd8a2a6e9eaa857ded2e7",
+        "selectors": [
+          "0x54627af0",
+          "0xa217fddf",
+          "0xb04aba31",
+          "0xb8491164",
+          "0xd547741f",
+          "0xdb7c1ad1",
+          "0x5f704f3e",
+          "0x75b238fc",
+          "0x91d14854",
+          "0x2f2ff15d",
+          "0x31d98b3f",
+          "0x36568abe",
+          "0x4a81a9f1",
+          "0x01ffc9a7",
+          "0x0acefb7b",
+          "0x10c7f0b9",
+          "0x248a9ca3"
+        ],
+        "resolvedSelectors": {
+          "0xa217fddf": [
+            "DEFAULT_ADMIN_ROLE()",
+            "DEFAULT_ADMIN_ROLE()",
+            "DEFAULT_ADMIN_ROLE()",
+            "DEFAULT_ADMIN_ROLE()",
+            "DEFAULT_ADMIN_ROLE()",
+            "DEFAULT_ADMIN_ROLE()",
+            "DEFAULT_ADMIN_ROLE()",
+            "DEFAULT_ADMIN_ROLE()",
+            "DEFAULT_ADMIN_ROLE()",
+            "DEFAULT_ADMIN_ROLE()",
+            "DEFAULT_ADMIN_ROLE()",
+            "DEFAULT_ADMIN_ROLE()",
+            "DEFAULT_ADMIN_ROLE()"
+          ],
+          "0xd547741f": [
+            "revokeRole(bytes32,address)",
+            "revokeRole(bytes32,address)",
+            "revokeRole(bytes32,address)",
+            "revokeRole(bytes32,address)",
+            "revokeRole(bytes32,address)",
+            "revokeRole(bytes32,address)",
+            "revokeRole(bytes32,address)",
+            "revokeRole(bytes32,address)",
+            "revokeRole(bytes32,address)",
+            "revokeRole(bytes32,address)",
+            "revokeRole(bytes32,address)",
+            "revokeRole(bytes32,address)",
+            "revokeRole(bytes32,address)"
+          ],
+          "0x75b238fc": [
+            "ADMIN_ROLE()",
+            "ADMIN_ROLE()",
+            "ADMIN_ROLE()"
+          ],
+          "0x91d14854": [
+            "hasRole(bytes32,address)",
+            "hasRole(bytes32,address)",
+            "hasRole(bytes32,address)",
+            "hasRole(bytes32,address)",
+            "hasRole(bytes32,address)",
+            "hasRole(bytes32,address)",
+            "hasRole(bytes32,address)",
+            "hasRole(bytes32,address)",
+            "hasRole(bytes32,address)",
+            "hasRole(bytes32,address)",
+            "hasRole(bytes32,address)",
+            "hasRole(bytes32,address)",
+            "hasRole(bytes32,address)"
+          ],
+          "0x2f2ff15d": [
+            "grantRole(bytes32,address)",
+            "grantRole(bytes32,address)",
+            "grantRole(bytes32,address)",
+            "grantRole(bytes32,address)",
+            "grantRole(bytes32,address)",
+            "grantRole(bytes32,address)",
+            "grantRole(bytes32,address)",
+            "grantRole(bytes32,address)",
+            "grantRole(bytes32,address)",
+            "grantRole(bytes32,address)",
+            "grantRole(bytes32,address)",
+            "grantRole(bytes32,address)",
+            "grantRole(bytes32,address)"
+          ],
+          "0x31d98b3f": [
+            "getPrice(bytes32)"
+          ],
+          "0x36568abe": [
+            "renounceRole(bytes32,address)",
+            "renounceRole(bytes32,address)",
+            "renounceRole(bytes32,address)",
+            "renounceRole(bytes32,address)",
+            "renounceRole(bytes32,address)",
+            "renounceRole(bytes32,address)",
+            "renounceRole(bytes32,address)",
+            "renounceRole(bytes32,address)",
+            "renounceRole(bytes32,address)",
+            "renounceRole(bytes32,address)",
+            "renounceRole(bytes32,address)",
+            "renounceRole(bytes32,address)"
+          ],
+          "0x01ffc9a7": [
+            "supportsInterface(bytes4)",
+            "supportsInterface(bytes4)",
+            "supportsInterface(bytes4)",
+            "supportsInterface(bytes4)",
+            "supportsInterface(bytes4)",
+            "supportsInterface(bytes4)",
+            "supportsInterface(bytes4)",
+            "supportsInterface(bytes4)",
+            "supportsInterface(bytes4)"
+          ],
+          "0x248a9ca3": [
+            "getRoleAdmin(bytes32)",
+            "getRoleAdmin(bytes32)",
+            "getRoleAdmin(bytes32)",
+            "getRoleAdmin(bytes32)",
+            "getRoleAdmin(bytes32)",
+            "getRoleAdmin(bytes32)",
+            "getRoleAdmin(bytes32)",
+            "getRoleAdmin(bytes32)",
+            "getRoleAdmin(bytes32)",
+            "getRoleAdmin(bytes32)"
+          ]
+        },
+        "eip1967": {
+          "impl": "0x0000000000000000000000000000000000000000000000000000000000000000",
+          "admin": "0x0000000000000000000000000000000000000000000000000000000000000000",
+          "beacon": "0x0000000000000000000000000000000000000000000000000000000000000000"
+        },
+        "slot0": "0x0000000000000000000000000000000000000000000000000000000000000000",
+        "deployed": true
+      },
+      "Takaful": {
+        "addr": "0x3eC27BB283644eF0A98B9961E9FBED0583a02f19",
+        "codeSize": 6043,
+        "runtimeKeccak": "0xb28868f69b3086ab9552cb0f5378c70913eabd733367fc7998d255be0a26c8e0",
+        "selectors": [
+          "0x94d95f8f",
+          "0xca55753a",
+          "0xd13d1fc4",
+          "0xd547741f",
+          "0xd66d9e19",
+          "0xeafb79e2",
+          "0xa217fddf",
+          "0xa230c524",
+          "0xb688a363",
+          "0xc1cbbca7",
+          "0x40650c91",
+          "0x42e94c90",
+          "0x75b238fc",
+          "0x8f97e3a0",
+          "0x91d14854",
+          "0x01ffc9a7",
+          "0x100aca47",
+          "0x248a9ca3",
+          "0x2f2ff15d",
+          "0x36568abe",
+          "0xa9059cbb",
+          "0xffffffff",
+          "0x23b872dd"
+        ],
+        "resolvedSelectors": {
+          "0xd13d1fc4": [
+            "mtq()",
+            "mtq()"
+          ],
+          "0xd547741f": [
+            "revokeRole(bytes32,address)",
+            "revokeRole(bytes32,address)",
+            "revokeRole(bytes32,address)",
+            "revokeRole(bytes32,address)",
+            "revokeRole(bytes32,address)",
+            "revokeRole(bytes32,address)",
+            "revokeRole(bytes32,address)",
+            "revokeRole(bytes32,address)",
+            "revokeRole(bytes32,address)",
+            "revokeRole(bytes32,address)",
+            "revokeRole(bytes32,address)",
+            "revokeRole(bytes32,address)",
+            "revokeRole(bytes32,address)"
+          ],
+          "0xa217fddf": [
+            "DEFAULT_ADMIN_ROLE()",
+            "DEFAULT_ADMIN_ROLE()",
+            "DEFAULT_ADMIN_ROLE()",
+            "DEFAULT_ADMIN_ROLE()",
+            "DEFAULT_ADMIN_ROLE()",
+            "DEFAULT_ADMIN_ROLE()",
+            "DEFAULT_ADMIN_ROLE()",
+            "DEFAULT_ADMIN_ROLE()",
+            "DEFAULT_ADMIN_ROLE()",
+            "DEFAULT_ADMIN_ROLE()",
+            "DEFAULT_ADMIN_ROLE()",
+            "DEFAULT_ADMIN_ROLE()",
+            "DEFAULT_ADMIN_ROLE()"
+          ],
+          "0xc1cbbca7": [
+            "contribute(uint256)"
+          ],
+          "0x42e94c90": [
+            "contributions(address)"
+          ],
+          "0x75b238fc": [
+            "ADMIN_ROLE()",
+            "ADMIN_ROLE()",
+            "ADMIN_ROLE()"
+          ],
+          "0x91d14854": [
+            "hasRole(bytes32,address)",
+            "hasRole(bytes32,address)",
+            "hasRole(bytes32,address)",
+            "hasRole(bytes32,address)",
+            "hasRole(bytes32,address)",
+            "hasRole(bytes32,address)",
+            "hasRole(bytes32,address)",
+            "hasRole(bytes32,address)",
+            "hasRole(bytes32,address)",
+            "hasRole(bytes32,address)",
+            "hasRole(bytes32,address)",
+            "hasRole(bytes32,address)",
+            "hasRole(bytes32,address)"
+          ],
+          "0x01ffc9a7": [
+            "supportsInterface(bytes4)",
+            "supportsInterface(bytes4)",
+            "supportsInterface(bytes4)",
+            "supportsInterface(bytes4)",
+            "supportsInterface(bytes4)",
+            "supportsInterface(bytes4)",
+            "supportsInterface(bytes4)",
+            "supportsInterface(bytes4)",
+            "supportsInterface(bytes4)"
+          ],
+          "0x248a9ca3": [
+            "getRoleAdmin(bytes32)",
+            "getRoleAdmin(bytes32)",
+            "getRoleAdmin(bytes32)",
+            "getRoleAdmin(bytes32)",
+            "getRoleAdmin(bytes32)",
+            "getRoleAdmin(bytes32)",
+            "getRoleAdmin(bytes32)",
+            "getRoleAdmin(bytes32)",
+            "getRoleAdmin(bytes32)",
+            "getRoleAdmin(bytes32)"
+          ],
+          "0x2f2ff15d": [
+            "grantRole(bytes32,address)",
+            "grantRole(bytes32,address)",
+            "grantRole(bytes32,address)",
+            "grantRole(bytes32,address)",
+            "grantRole(bytes32,address)",
+            "grantRole(bytes32,address)",
+            "grantRole(bytes32,address)",
+            "grantRole(bytes32,address)",
+            "grantRole(bytes32,address)",
+            "grantRole(bytes32,address)",
+            "grantRole(bytes32,address)",
+            "grantRole(bytes32,address)",
+            "grantRole(bytes32,address)"
+          ],
+          "0x36568abe": [
+            "renounceRole(bytes32,address)",
+            "renounceRole(bytes32,address)",
+            "renounceRole(bytes32,address)",
+            "renounceRole(bytes32,address)",
+            "renounceRole(bytes32,address)",
+            "renounceRole(bytes32,address)",
+            "renounceRole(bytes32,address)",
+            "renounceRole(bytes32,address)",
+            "renounceRole(bytes32,address)",
+            "renounceRole(bytes32,address)",
+            "renounceRole(bytes32,address)",
+            "renounceRole(bytes32,address)"
+          ],
+          "0xa9059cbb": [
+            "transfer(address,uint256)",
+            "transfer(address,uint256)",
+            "transfer(address,uint256)",
+            "transfer(address,uint256)",
+            "transfer(address,uint256)",
+            "transfer(address,uint256)",
+            "transfer(address,uint256)"
+          ],
+          "0x23b872dd": [
+            "transferFrom(address,address,uint256)",
+            "transferFrom(address,address,uint256)",
+            "transferFrom(address,address,uint256)",
+            "transferFrom(address,address,uint256)",
+            "transferFrom(address,address,uint256)",
+            "transferFrom(address,address,uint256)",
+            "transferFrom(address,address,uint256)"
+          ]
+        },
+        "eip1967": {
+          "impl": "0x0000000000000000000000000000000000000000000000000000000000000000",
+          "admin": "0x0000000000000000000000000000000000000000000000000000000000000000",
+          "beacon": "0x0000000000000000000000000000000000000000000000000000000000000000"
+        },
+        "slot0": "0x0000000000000000000000000000000000000000000000000000000000000000",
+        "deployed": true
+      }
+    },
+    "generations": {
+      "genA": {
+        "addr": "0x5D9564C27111EA65Da3228a79833F0FF129bfd4a",
+        "codeSize": 11666,
+        "runtimeKeccak": "0xa73310510ce003d5c7ba9b6a8eacd150488d11997d643f369e16d77df900e92e",
+        "deployed": true,
+        "name": {
+          "ok": true,
+          "value": "MTQΣ"
+        },
+        "symbol": {
+          "ok": true,
+          "value": "MTQ"
+        },
+        "decimals": {
+          "ok": true,
+          "value": "18"
+        },
+        "totalSupply": {
+          "ok": true,
+          "value": "1012987000000000000000000"
+        },
+        "cap": {
+          "ok": false,
+          "err": "execution reverted (no data present; likely require(false) occurred (action=\"call\", data=\"0x\", reason=\"require(false)\", transaction={ \"data\": \"0x355274ea\", \"to\"",
+          "cls": "EVM-REVERT"
+        },
+        "balanceOfDeployer": {
+          "ok": true,
+          "value": "12986999999999999999997"
+        },
+        "balanceOfDead": {
+          "ok": true,
+          "value": "3"
+        }
+      },
+      "genB": {
+        "addr": "0x0Ac20360234b4C988a19586CBe55733e18A5982f",
+        "codeSize": 3413,
+        "runtimeKeccak": "0x31496b929dbea855c0a5fd0736f42afd0b6490840b71708023c8212d168c0180",
+        "deployed": true,
+        "name": {
+          "ok": true,
+          "value": "MTQΣ"
+        },
+        "symbol": {
+          "ok": true,
+          "value": "MTQ"
+        },
+        "decimals": {
+          "ok": true,
+          "value": "18"
+        },
+        "totalSupply": {
+          "ok": true,
+          "value": "1000000000000019980000000"
+        },
+        "cap": {
+          "ok": false,
+          "err": "execution reverted (no data present; likely require(false) occurred (action=\"call\", data=\"0x\", reason=\"require(false)\", transaction={ \"data\": \"0x355274ea\", \"to\"",
+          "cls": "EVM-REVERT"
+        },
+        "balanceOfDeployer": {
+          "ok": true,
+          "value": "1000000000000019979999997"
+        },
+        "balanceOfDead": {
+          "ok": true,
+          "value": "3"
+        }
+      }
+    },
+    "mtq": {
+      "name": {
+        "ok": true,
+        "value": "MITHQAL"
+      },
+      "symbol": {
+        "ok": true,
+        "value": "MTQ"
+      },
+      "decimals": {
+        "ok": true,
+        "value": "18"
+      },
+      "totalSupply": {
+        "ok": true,
+        "value": "310949000000000000000"
+      },
+      "cap": {
+        "ok": false,
+        "err": "execution reverted (no data present; likely require(false) occurred (action=\"call\", data=\"0x\", reason=\"require(false)\", transaction={ \"data\": \"0x355274ea\", \"to\"",
+        "cls": "EVM-REVERT"
+      },
+      "paused": {
+        "ok": true,
+        "value": false
+      },
+      "balanceOf_deployer": {
+        "ok": true,
+        "value": "309948999999999999997"
+      },
+      "balanceOf_dead": {
+        "ok": true,
+        "value": "1000000000000000003"
+      },
+      "balanceOf_safe": {
+        "ok": true,
+        "value": "0"
+      },
+      "balanceOf_governance": {
+        "ok": true,
+        "value": "0"
+      },
+      "balanceOf_mintModule": {
+        "ok": true,
+        "value": "0"
+      },
+      "balanceOf_reserveModule": {
+        "ok": true,
+        "value": "0"
+      },
+      "balanceOf_redeemModule": {
+        "ok": true,
+        "value": "0"
+      },
+      "balanceOf_algorithm": {
+        "ok": true,
+        "value": "0"
+      },
+      "balanceOf_oracle": {
+        "ok": true,
+        "value": "0"
+      },
+      "balanceOf_takaful": {
+        "ok": true,
+        "value": "0"
+      },
+      "balanceOf_zero": {
+        "ok": true,
+        "value": "0"
+      }
+    },
+    "roles": {
+      "admin": {
+        "deployer": {
+          "ok": true,
+          "value": true
+        },
+        "safe": {
+          "ok": true,
+          "value": true
+        },
+        "governance": {
+          "ok": true,
+          "value": false
+        },
+        "mintModule": {
+          "ok": true,
+          "value": false
+        },
+        "reserveModule": {
+          "ok": true,
+          "value": false
+        },
+        "redeemModule": {
+          "ok": true,
+          "value": false
+        }
+      },
+      "admin_admin": {
+        "ok": true,
+        "value": "0x0000000000000000000000000000000000000000000000000000000000000000"
+      },
+      "admin_memberCount": {
+        "ok": false,
+        "err": "execution reverted (no data present; likely require(false) occurred (action=\"call\", data=\"0x\", reason=\"require(false)\", transaction={ \"data\": \"0xca15c8730000000",
+        "cls": "EVM-REVERT"
+      },
+      "minter": {
+        "deployer": {
+          "ok": true,
+          "value": true
+        },
+        "safe": {
+          "ok": true,
+          "value": true
+        },
+        "governance": {
+          "ok": true,
+          "value": false
+        },
+        "mintModule": {
+          "ok": true,
+          "value": true
+        },
+        "reserveModule": {
+          "ok": true,
+          "value": false
+        },
+        "redeemModule": {
+          "ok": true,
+          "value": true
+        }
+      },
+      "minter_admin": {
+        "ok": true,
+        "value": "0x0000000000000000000000000000000000000000000000000000000000000000"
+      },
+      "minter_memberCount": {
+        "ok": false,
+        "err": "execution reverted (no data present; likely require(false) occurred (action=\"call\", data=\"0x\", reason=\"require(false)\", transaction={ \"data\": \"0xca15c8739f2df0f",
+        "cls": "EVM-REVERT"
+      },
+      "pauser": {
+        "deployer": {
+          "ok": true,
+          "value": true
+        },
+        "safe": {
+          "ok": true,
+          "value": true
+        },
+        "governance": {
+          "ok": true,
+          "value": false
+        },
+        "mintModule": {
+          "ok": true,
+          "value": false
+        },
+        "reserveModule": {
+          "ok": true,
+          "value": false
+        },
+        "redeemModule": {
+          "ok": true,
+          "value": false
+        }
+      },
+      "pauser_admin": {
+        "ok": true,
+        "value": "0x0000000000000000000000000000000000000000000000000000000000000000"
+      },
+      "pauser_memberCount": {
+        "ok": false,
+        "err": "execution reverted (no data present; likely require(false) occurred (action=\"call\", data=\"0x\", reason=\"require(false)\", transaction={ \"data\": \"0xca15c87365d7a28",
+        "cls": "EVM-REVERT"
+      }
+    },
+    "moduleAdmin": {
+      "Algorithm": {
+        "admin_deployer": {
+          "ok": true,
+          "value": true
+        },
+        "minter_deployer": {
+          "ok": true,
+          "value": false
+        },
+        "pauser_deployer": {
+          "ok": true,
+          "value": false
+        },
+        "paused": {
+          "ok": false,
+          "err": "execution reverted (no data present; likely require(false) occurred (action=\"call\", data=\"0x\", reason=\"require(false)\", transaction={ \"data\": \"0x5c975abb\", \"to\"",
+          "cls": "EVM-REVERT"
+        },
+        "owner": {
+          "ok": false,
+          "err": "execution reverted (no data present; likely require(false) occurred (action=\"call\", data=\"0x\", reason=\"require(false)\", transaction={ \"data\": \"0x8da5cb5b\", \"to\"",
+          "cls": "EVM-REVERT"
+        }
+      },
+      "Reserve": {
+        "admin_deployer": {
+          "ok": true,
+          "value": true
+        },
+        "minter_deployer": {
+          "ok": true,
+          "value": true
+        },
+        "pauser_deployer": {
+          "ok": true,
+          "value": false
+        },
+        "paused": {
+          "ok": false,
+          "err": "execution reverted (no data present; likely require(false) occurred (action=\"call\", data=\"0x\", reason=\"require(false)\", transaction={ \"data\": \"0x5c975abb\", \"to\"",
+          "cls": "EVM-REVERT"
+        },
+        "owner": {
+          "ok": false,
+          "err": "execution reverted (no data present; likely require(false) occurred (action=\"call\", data=\"0x\", reason=\"require(false)\", transaction={ \"data\": \"0x8da5cb5b\", \"to\"",
+          "cls": "EVM-REVERT"
+        }
+      },
+      "Mint": {
+        "admin_deployer": {
+          "ok": true,
+          "value": true
+        },
+        "minter_deployer": {
+          "ok": true,
+          "value": true
+        },
+        "pauser_deployer": {
+          "ok": true,
+          "value": false
+        },
+        "paused": {
+          "ok": false,
+          "err": "execution reverted (no data present; likely require(false) occurred (action=\"call\", data=\"0x\", reason=\"require(false)\", transaction={ \"data\": \"0x5c975abb\", \"to\"",
+          "cls": "EVM-REVERT"
+        },
+        "owner": {
+          "ok": false,
+          "err": "execution reverted (no data present; likely require(false) occurred (action=\"call\", data=\"0x\", reason=\"require(false)\", transaction={ \"data\": \"0x8da5cb5b\", \"to\"",
+          "cls": "EVM-REVERT"
+        }
+      },
+      "Redeem": {
+        "admin_deployer": {
+          "ok": true,
+          "value": true
+        },
+        "minter_deployer": {
+          "ok": true,
+          "value": false
+        },
+        "pauser_deployer": {
+          "ok": true,
+          "value": false
+        },
+        "paused": {
+          "ok": false,
+          "err": "execution reverted (no data present; likely require(false) occurred (action=\"call\", data=\"0x\", reason=\"require(false)\", transaction={ \"data\": \"0x5c975abb\", \"to\"",
+          "cls": "EVM-REVERT"
+        },
+        "owner": {
+          "ok": false,
+          "err": "execution reverted (no data present; likely require(false) occurred (action=\"call\", data=\"0x\", reason=\"require(false)\", transaction={ \"data\": \"0x8da5cb5b\", \"to\"",
+          "cls": "EVM-REVERT"
+        }
+      },
+      "Oracle": {
+        "admin_deployer": {
+          "ok": true,
+          "value": true
+        },
+        "minter_deployer": {
+          "ok": true,
+          "value": false
+        },
+        "pauser_deployer": {
+          "ok": true,
+          "value": false
+        },
+        "paused": {
+          "ok": false,
+          "err": "execution reverted (no data present; likely require(false) occurred (action=\"call\", data=\"0x\", reason=\"require(false)\", transaction={ \"data\": \"0x5c975abb\", \"to\"",
+          "cls": "EVM-REVERT"
+        },
+        "owner": {
+          "ok": false,
+          "err": "execution reverted (no data present; likely require(false) occurred (action=\"call\", data=\"0x\", reason=\"require(false)\", transaction={ \"data\": \"0x8da5cb5b\", \"to\"",
+          "cls": "EVM-REVERT"
+        }
+      },
+      "Takaful": {
+        "admin_deployer": {
+          "ok": true,
+          "value": true
+        },
+        "minter_deployer": {
+          "ok": true,
+          "value": false
+        },
+        "pauser_deployer": {
+          "ok": true,
+          "value": false
+        },
+        "paused": {
+          "ok": false,
+          "err": "execution reverted (no data present; likely require(false) occurred (action=\"call\", data=\"0x\", reason=\"require(false)\", transaction={ \"data\": \"0x5c975abb\", \"to\"",
+          "cls": "EVM-REVERT"
+        },
+        "owner": {
+          "ok": false,
+          "err": "execution reverted (no data present; likely require(false) occurred (action=\"call\", data=\"0x\", reason=\"require(false)\", transaction={ \"data\": \"0x8da5cb5b\", \"to\"",
+          "cls": "EVM-REVERT"
+        }
+      }
+    },
+    "safe": {
+      "getThreshold": {
+        "ok": true,
+        "value": "1"
+      },
+      "getOwners": {
+        "ok": true,
+        "value": [
+          "0x3C3932F865892EFabE45892f453f81B64f6c8d8c"
+        ]
+      },
+      "nonce": {
+        "ok": true,
+        "value": "0"
+      },
+      "VERSION": {
+        "ok": true,
+        "value": "1.4.1"
+      },
+      "getGuard": {
+        "ok": false,
+        "err": "execution reverted (no data present; likely require(false) occurred (action=\"call\", data=\"0x\", reason=\"require(false)\", transaction={ \"data\": \"0xc9106389\", \"to\"",
+        "cls": "EVM-REVERT"
+      },
+      "modules": {
+        "ok": false,
+        "err": "execution reverted (no data present; likely require(false) occurred (action=\"call\", data=\"0x\", reason=\"require(false)\", transaction={ \"data\": \"0xcc2f84520000000",
+        "cls": "EVM-REVERT"
+      }
+    },
+    "governance": {
+      "proposalCount": {
+        "ok": false,
+        "err": "execution reverted (no data present; likely require(false) occurred (action=\"call\", data=\"0x\", reason=\"require(false)\", transaction={ \"data\": \"0xda35c664\", \"to\"",
+        "cls": "EVM-REVERT"
+      },
+      "votingDelay": {
+        "ok": true,
+        "value": "1"
+      },
+      "quorumNumerator": {
+        "ok": true,
+        "value": "1"
+      }
+    },
+    "deployer": {
+      "txCount": "0x67",
+      "balance": "0x31d06f9459b443a"
+    },
+    "safeNativeBal": "0x0",
+    "finishedAt": "2026-10-22T06:08:50.959Z",
+    "_unknownSelectors": [
+      "0x9a6060cd",
+      "0x7d5e81e2",
+      "0xbc197c81",
+      "0xe540d01d",
+      "0xeb9019d4",
+      "0xece40cc1",
+      "0xf23a6e61",
+      "0xf8ce560a",
+      "0xfc0c546a",
+      "0xc01f9e37",
+      "0xc28bc2fa",
+      "0xc59057e4",
+      "0xdd4e2ba5",
+      "0xdeaaa7cc",
+      "0x97c3d334",
+      "0x9a802a6d",
+      "0xa7713a70",
+      "0xa9a95294",
+      "0xab58fb8e",
+      "0xb58131b0",
+      "0x7ecebe00",
+      "0x84b0196e",
+      "0x8ff262e3",
+      "0x91ddadf4",
+      "0x3e4f49e6",
+      "0x56781388",
+      "0x5b8d0e0d",
+      "0x5f398a14",
+      "0x60c4247f",
+      "0x79051887",
+      "0x7b3c71d3",
+      "0x452115d6",
+      "0x4bf5d7e9",
+      "0x544ffc9c",
+      "0x54fd4d50",
+      "0x150b7a02",
+      "0x160cbed7",
+      "0x2656227d",
+      "0x2d63f693",
+      "0x2fe3e261",
+      "0x3932abb1",
+      "0x02a251a3",
+      "0x06f3f9e6",
+      "0x143489d0",
+      "0xffffffff",
+      "0x8e539e8c",
+      "0x3a46b1a8",
+      "0x1626ba7e",
+      "0x390b46fe",
+      "0x52fd856b",
+      "0x43000814",
+      "0x41bf3f26",
+      "0xd3b8c2a2",
+      "0xf5eac0d7",
+      "0x9635e9d1",
+      "0x2185340b",
+      "0x2e58ca46",
+      "0x0c7d5cd8",
+      "0x0f16f9cb",
+      "0x1afb1354",
+      "0xd73792a9",
+      "0x9cecc80a",
+      "0xcd3293de",
+      "0x2d11c58a",
+      "0x14e048ba",
+      "0x54627af0",
+      "0xb04aba31",
+      "0xb8491164",
+      "0xdb7c1ad1",
+      "0x5f704f3e",
+      "0x4a81a9f1",
+      "0x0acefb7b",
+      "0x10c7f0b9",
+      "0x94d95f8f",
+      "0xca55753a",
+      "0xd66d9e19",
+      "0xeafb79e2",
+      "0xa230c524",
+      "0xb688a363",
+      "0x40650c91",
+      "0x8f97e3a0",
+      "0x100aca47"
+    ]
+  },
+  "arc": {
+    "chain": "arc",
+    "startedAt": "2026-10-22T06:08:50.962Z",
+    "chainId": "0x4cef52",
+    "assertChainId": true,
+    "block": 68475006,
+    "blockTs": "2026-10-22T06:08:50.000Z",
+    "contracts": {
+      "MTQ": {
+        "addr": "0x237c3Aa2B79248f86f6523D3890095BCd1996601",
+        "codeSize": 3474,
+        "runtimeKeccak": "0x0183b25ee34b9f8e7d18e976eadc6fb021652f9b52c5d6876a536aad92d12fcf",
+        "selectors": [
+          "0x01ffc9a7",
+          "0x06fdde03",
+          "0x095ea7b3",
+          "0x18160ddd",
+          "0x23b872dd",
+          "0x248a9ca3",
+          "0x2f2ff15d",
+          "0x313ce567",
+          "0x36568abe",
+          "0x3f4ba83a",
+          "0x40c10f19",
+          "0x42966c68",
+          "0x5c975abb",
+          "0x70a08231",
+          "0x79cc6790",
+          "0x8456cb59",
+          "0x91d14854",
+          "0x95d89b41",
+          "0xa217fddf",
+          "0xa9059cbb",
+          "0xd5391393",
+          "0xd547741f",
+          "0xdd62ed3e",
+          "0xe63ab1e9",
+          "0x4e487b71",
+          "0xec442f05",
+          "0xe2517d3f",
+          "0x8dfc202b",
+          "0x334bd919",
+          "0x4a1406b1",
+          "0xe602df05",
+          "0xffffffff",
+          "0x7965db0b",
+          "0x7dc7a0d9",
+          "0x391434e3",
+          "0x4b637e8f",
+          "0xd93c0665"
+        ],
+        "resolvedSelectors": {
+          "0x01ffc9a7": [
+            "supportsInterface(bytes4)",
+            "supportsInterface(bytes4)",
+            "supportsInterface(bytes4)",
+            "supportsInterface(bytes4)",
+            "supportsInterface(bytes4)",
+            "supportsInterface(bytes4)",
+            "supportsInterface(bytes4)",
+            "supportsInterface(bytes4)",
+            "supportsInterface(bytes4)"
+          ],
+          "0x06fdde03": [
+            "name()",
+            "name()",
+            "name()",
+            "name()",
+            "name()",
+            "name()",
+            "name()"
+          ],
+          "0x095ea7b3": [
+            "approve(address,uint256)",
+            "approve(address,uint256)",
+            "approve(address,uint256)",
+            "approve(address,uint256)",
+            "approve(address,uint256)",
+            "approve(address,uint256)",
+            "approve(address,uint256)"
+          ],
+          "0x18160ddd": [
+            "totalSupply()",
+            "totalSupply()",
+            "totalSupply()",
+            "totalSupply()",
+            "totalSupply()",
+            "totalSupply()",
+            "totalSupply()"
+          ],
+          "0x23b872dd": [
+            "transferFrom(address,address,uint256)",
+            "transferFrom(address,address,uint256)",
+            "transferFrom(address,address,uint256)",
+            "transferFrom(address,address,uint256)",
+            "transferFrom(address,address,uint256)",
+            "transferFrom(address,address,uint256)",
+            "transferFrom(address,address,uint256)"
+          ],
+          "0x248a9ca3": [
+            "getRoleAdmin(bytes32)",
+            "getRoleAdmin(bytes32)",
+            "getRoleAdmin(bytes32)",
+            "getRoleAdmin(bytes32)",
+            "getRoleAdmin(bytes32)",
+            "getRoleAdmin(bytes32)",
+            "getRoleAdmin(bytes32)",
+            "getRoleAdmin(bytes32)",
+            "getRoleAdmin(bytes32)",
+            "getRoleAdmin(bytes32)"
+          ],
+          "0x2f2ff15d": [
+            "grantRole(bytes32,address)",
+            "grantRole(bytes32,address)",
+            "grantRole(bytes32,address)",
+            "grantRole(bytes32,address)",
+            "grantRole(bytes32,address)",
+            "grantRole(bytes32,address)",
+            "grantRole(bytes32,address)",
+            "grantRole(bytes32,address)",
+            "grantRole(bytes32,address)",
+            "grantRole(bytes32,address)",
+            "grantRole(bytes32,address)",
+            "grantRole(bytes32,address)",
+            "grantRole(bytes32,address)"
+          ],
+          "0x313ce567": [
+            "decimals()",
+            "decimals()",
+            "decimals()",
+            "decimals()",
+            "decimals()",
+            "decimals()",
+            "decimals()"
+          ],
+          "0x36568abe": [
+            "renounceRole(bytes32,address)",
+            "renounceRole(bytes32,address)",
+            "renounceRole(bytes32,address)",
+            "renounceRole(bytes32,address)",
+            "renounceRole(bytes32,address)",
+            "renounceRole(bytes32,address)",
+            "renounceRole(bytes32,address)",
+            "renounceRole(bytes32,address)",
+            "renounceRole(bytes32,address)",
+            "renounceRole(bytes32,address)",
+            "renounceRole(bytes32,address)",
+            "renounceRole(bytes32,address)"
+          ],
+          "0x3f4ba83a": [
+            "unpause()",
+            "unpause()",
+            "unpause()",
+            "unpause()",
+            "unpause()"
+          ],
+          "0x40c10f19": [
+            "mint(address,uint256)",
+            "mint(address,uint256)",
+            "mint(address,uint256)"
+          ],
+          "0x42966c68": [
+            "burn(uint256)",
+            "burn(uint256)"
+          ],
+          "0x5c975abb": [
+            "paused()",
+            "paused()",
+            "paused()",
+            "paused()",
+            "paused()"
+          ],
+          "0x70a08231": [
+            "balanceOf(address)",
+            "balanceOf(address)",
+            "balanceOf(address)",
+            "balanceOf(address)",
+            "balanceOf(address)",
+            "balanceOf(address)",
+            "balanceOf(address)"
+          ],
+          "0x79cc6790": [
+            "burnFrom(address,uint256)"
+          ],
+          "0x8456cb59": [
+            "pause()",
+            "pause()",
+            "pause()",
+            "pause()",
+            "pause()"
+          ],
+          "0x91d14854": [
+            "hasRole(bytes32,address)",
+            "hasRole(bytes32,address)",
+            "hasRole(bytes32,address)",
+            "hasRole(bytes32,address)",
+            "hasRole(bytes32,address)",
+            "hasRole(bytes32,address)",
+            "hasRole(bytes32,address)",
+            "hasRole(bytes32,address)",
+            "hasRole(bytes32,address)",
+            "hasRole(bytes32,address)",
+            "hasRole(bytes32,address)",
+            "hasRole(bytes32,address)",
+            "hasRole(bytes32,address)"
+          ],
+          "0x95d89b41": [
+            "symbol()",
+            "symbol()",
+            "symbol()",
+            "symbol()",
+            "symbol()",
+            "symbol()",
+            "symbol()"
+          ],
+          "0xa217fddf": [
+            "DEFAULT_ADMIN_ROLE()",
+            "DEFAULT_ADMIN_ROLE()",
+            "DEFAULT_ADMIN_ROLE()",
+            "DEFAULT_ADMIN_ROLE()",
+            "DEFAULT_ADMIN_ROLE()",
+            "DEFAULT_ADMIN_ROLE()",
+            "DEFAULT_ADMIN_ROLE()",
+            "DEFAULT_ADMIN_ROLE()",
+            "DEFAULT_ADMIN_ROLE()",
+            "DEFAULT_ADMIN_ROLE()",
+            "DEFAULT_ADMIN_ROLE()",
+            "DEFAULT_ADMIN_ROLE()",
+            "DEFAULT_ADMIN_ROLE()"
+          ],
+          "0xa9059cbb": [
+            "transfer(address,uint256)",
+            "transfer(address,uint256)",
+            "transfer(address,uint256)",
+            "transfer(address,uint256)",
+            "transfer(address,uint256)",
+            "transfer(address,uint256)",
+            "transfer(address,uint256)"
+          ],
+          "0xd5391393": [
+            "MINTER_ROLE()",
+            "MINTER_ROLE()",
+            "MINTER_ROLE()",
+            "MINTER_ROLE()",
+            "MINTER_ROLE()",
+            "MINTER_ROLE()"
+          ],
+          "0xd547741f": [
+            "revokeRole(bytes32,address)",
+            "revokeRole(bytes32,address)",
+            "revokeRole(bytes32,address)",
+            "revokeRole(bytes32,address)",
+            "revokeRole(bytes32,address)",
+            "revokeRole(bytes32,address)",
+            "revokeRole(bytes32,address)",
+            "revokeRole(bytes32,address)",
+            "revokeRole(bytes32,address)",
+            "revokeRole(bytes32,address)",
+            "revokeRole(bytes32,address)",
+            "revokeRole(bytes32,address)",
+            "revokeRole(bytes32,address)"
+          ],
+          "0xdd62ed3e": [
+            "allowance(address,address)",
+            "allowance(address,address)",
+            "allowance(address,address)",
+            "allowance(address,address)",
+            "allowance(address,address)",
+            "allowance(address,address)",
+            "allowance(address,address)"
+          ],
+          "0xe63ab1e9": [
+            "PAUSER_ROLE()",
+            "PAUSER_ROLE()",
+            "PAUSER_ROLE()",
+            "PAUSER_ROLE()",
+            "PAUSER_ROLE()"
+          ]
+        },
+        "eip1967": {
+          "impl": "0x0000000000000000000000000000000000000000000000000000000000000000",
+          "admin": "0x0000000000000000000000000000000000000000000000000000000000000000",
+          "beacon": "0x0000000000000000000000000000000000000000000000000000000000000000"
+        },
+        "slot0": "0x0000000000000000000000000000000000000000000000000000000000000000",
+        "deployed": true
+      },
+      "Governance": {
+        "addr": "0xE35a91801bc541fb743BB9EaD26C1FbD81EaBd66",
+        "codeSize": 13129,
+        "runtimeKeccak": "0x214a785c40138641e42a955466a9c5ab977980a18dfb207215c8ed3c522c4b82",
+        "selectors": [
+          "0x01ffc9a7",
+          "0x02a251a3",
+          "0x06f3f9e6",
+          "0x06fdde03",
+          "0x143489d0",
+          "0x150b7a02",
+          "0x160cbed7",
+          "0x2656227d",
+          "0x2d63f693",
+          "0x2fe3e261",
+          "0x3932abb1",
+          "0x3e4f49e6",
+          "0x43859632",
+          "0x452115d6",
+          "0x4bf5d7e9",
+          "0x544ffc9c",
+          "0x54fd4d50",
+          "0x56781388",
+          "0x5b8d0e0d",
+          "0x5f398a14",
+          "0x60c4247f",
+          "0x79051887",
+          "0x7b3c71d3",
+          "0x7d5e81e2",
+          "0x7ecebe00",
+          "0x84b0196e",
+          "0x8ff262e3",
+          "0x91ddadf4",
+          "0x97c3d334",
+          "0x9a802a6d",
+          "0xa7713a70",
+          "0xa8f8a668",
+          "0xa9a95294",
+          "0xab58fb8e",
+          "0xb58131b0",
+          "0xbc197c81",
+          "0xc01f9e37",
+          "0xc28bc2fa",
+          "0xc59057e4",
+          "0xdd4e2ba5",
+          "0xdeaaa7cc",
+          "0xe540d01d",
+          "0xeb9019d4",
+          "0xece40cc1",
+          "0xf23a6e61",
+          "0xf8ce560a",
+          "0xfc0c546a",
+          "0xffffffff",
+          "0x66defe77",
+          "0x02711897",
+          "0x32a2ad43",
+          "0x06dfcc65",
+          "0x243e5445",
+          "0x4e487b71",
+          "0x0a85bd01",
+          "0x48442523",
+          "0x8fe5d8a9",
+          "0x94ab6c07",
+          "0x0748d635",
+          "0xf1cfbf05",
+          "0x6ad06075",
+          "0x6121770b",
+          "0xd9b39557",
+          "0x24776b7d",
+          "0x2394e7a3",
+          "0x47096e47",
+          "0x31b75e4d",
+          "0x0447b05d",
+          "0xd6bda275",
+          "0x0b135d3f",
+          "0x03599be1",
+          "0x71c6af49",
+          "0x2cd44ac3",
+          "0x2520601d"
+        ],
+        "resolvedSelectors": {
+          "0x01ffc9a7": [
+            "supportsInterface(bytes4)",
+            "supportsInterface(bytes4)",
+            "supportsInterface(bytes4)",
+            "supportsInterface(bytes4)",
+            "supportsInterface(bytes4)",
+            "supportsInterface(bytes4)",
+            "supportsInterface(bytes4)",
+            "supportsInterface(bytes4)",
+            "supportsInterface(bytes4)"
+          ],
+          "0x06fdde03": [
+            "name()",
+            "name()",
+            "name()",
+            "name()",
+            "name()",
+            "name()",
+            "name()"
+          ],
+          "0x43859632": [
+            "hasVoted(uint256,address)"
+          ]
+        },
+        "eip1967": {
+          "impl": "0x0000000000000000000000000000000000000000000000000000000000000000",
+          "admin": "0x0000000000000000000000000000000000000000000000000000000000000000",
+          "beacon": "0x0000000000000000000000000000000000000000000000000000000000000000"
+        },
+        "slot0": "0x0000000000000000000000000000000000000000000000000000000000000000",
+        "deployed": true
+      },
+      "Safe": {
+        "addr": "0xE71869C662733642bfBb262B8c6bad8B0fBfA7D0",
+        "codeSize": 171,
+        "runtimeKeccak": "0xd7d408ebcd99b2b70be43e20253d6d92a8ea8fab29bd3be7f55b10032331fb4c",
+        "selectors": [],
+        "resolvedSelectors": {},
+        "eip1967": {
+          "impl": "0x0000000000000000000000000000000000000000000000000000000000000000",
+          "admin": "0x0000000000000000000000000000000000000000000000000000000000000000",
+          "beacon": "0x0000000000000000000000000000000000000000000000000000000000000000"
+        },
+        "slot0": "0x00000000000000000000000029fcb43b46531bca003ddc8fcb67ffe91900c762",
+        "deployed": true
+      },
+      "Algorithm": {
+        "addr": "0x62f8E5243f32eE5C87a14A7896C61104aD9e7727",
+        "codeSize": 1237,
+        "runtimeKeccak": "0x0c0cd82de2dc452f3e66f87476d1093597776ad506287ae484ce14ef986a31a5",
+        "selectors": [
+          "0x0126c606",
+          "0x01ffc9a7",
+          "0x248a9ca3",
+          "0x2f2ff15d",
+          "0x36568abe",
+          "0x390b46fe",
+          "0x52fd856b",
+          "0x75b238fc",
+          "0x91d14854",
+          "0xa217fddf",
+          "0xd547741f",
+          "0xe2517d3f",
+          "0x334bd919",
+          "0xffffffff",
+          "0x7965db0b"
+        ],
+        "resolvedSelectors": {
+          "0x0126c606": [
+            "getNAV()",
+            "getNAV()",
+            "getNAV()"
+          ],
+          "0x01ffc9a7": [
+            "supportsInterface(bytes4)",
+            "supportsInterface(bytes4)",
+            "supportsInterface(bytes4)",
+            "supportsInterface(bytes4)",
+            "supportsInterface(bytes4)",
+            "supportsInterface(bytes4)",
+            "supportsInterface(bytes4)",
+            "supportsInterface(bytes4)",
+            "supportsInterface(bytes4)"
+          ],
+          "0x248a9ca3": [
+            "getRoleAdmin(bytes32)",
+            "getRoleAdmin(bytes32)",
+            "getRoleAdmin(bytes32)",
+            "getRoleAdmin(bytes32)",
+            "getRoleAdmin(bytes32)",
+            "getRoleAdmin(bytes32)",
+            "getRoleAdmin(bytes32)",
+            "getRoleAdmin(bytes32)",
+            "getRoleAdmin(bytes32)",
+            "getRoleAdmin(bytes32)"
+          ],
+          "0x2f2ff15d": [
+            "grantRole(bytes32,address)",
+            "grantRole(bytes32,address)",
+            "grantRole(bytes32,address)",
+            "grantRole(bytes32,address)",
+            "grantRole(bytes32,address)",
+            "grantRole(bytes32,address)",
+            "grantRole(bytes32,address)",
+            "grantRole(bytes32,address)",
+            "grantRole(bytes32,address)",
+            "grantRole(bytes32,address)",
+            "grantRole(bytes32,address)",
+            "grantRole(bytes32,address)",
+            "grantRole(bytes32,address)"
+          ],
+          "0x36568abe": [
+            "renounceRole(bytes32,address)",
+            "renounceRole(bytes32,address)",
+            "renounceRole(bytes32,address)",
+            "renounceRole(bytes32,address)",
+            "renounceRole(bytes32,address)",
+            "renounceRole(bytes32,address)",
+            "renounceRole(bytes32,address)",
+            "renounceRole(bytes32,address)",
+            "renounceRole(bytes32,address)",
+            "renounceRole(bytes32,address)",
+            "renounceRole(bytes32,address)",
+            "renounceRole(bytes32,address)"
+          ],
+          "0x75b238fc": [
+            "ADMIN_ROLE()",
+            "ADMIN_ROLE()",
+            "ADMIN_ROLE()"
+          ],
+          "0x91d14854": [
+            "hasRole(bytes32,address)",
+            "hasRole(bytes32,address)",
+            "hasRole(bytes32,address)",
+            "hasRole(bytes32,address)",
+            "hasRole(bytes32,address)",
+            "hasRole(bytes32,address)",
+            "hasRole(bytes32,address)",
+            "hasRole(bytes32,address)",
+            "hasRole(bytes32,address)",
+            "hasRole(bytes32,address)",
+            "hasRole(bytes32,address)",
+            "hasRole(bytes32,address)",
+            "hasRole(bytes32,address)"
+          ],
+          "0xa217fddf": [
+            "DEFAULT_ADMIN_ROLE()",
+            "DEFAULT_ADMIN_ROLE()",
+            "DEFAULT_ADMIN_ROLE()",
+            "DEFAULT_ADMIN_ROLE()",
+            "DEFAULT_ADMIN_ROLE()",
+            "DEFAULT_ADMIN_ROLE()",
+            "DEFAULT_ADMIN_ROLE()",
+            "DEFAULT_ADMIN_ROLE()",
+            "DEFAULT_ADMIN_ROLE()",
+            "DEFAULT_ADMIN_ROLE()",
+            "DEFAULT_ADMIN_ROLE()",
+            "DEFAULT_ADMIN_ROLE()",
+            "DEFAULT_ADMIN_ROLE()"
+          ],
+          "0xd547741f": [
+            "revokeRole(bytes32,address)",
+            "revokeRole(bytes32,address)",
+            "revokeRole(bytes32,address)",
+            "revokeRole(bytes32,address)",
+            "revokeRole(bytes32,address)",
+            "revokeRole(bytes32,address)",
+            "revokeRole(bytes32,address)",
+            "revokeRole(bytes32,address)",
+            "revokeRole(bytes32,address)",
+            "revokeRole(bytes32,address)",
+            "revokeRole(bytes32,address)",
+            "revokeRole(bytes32,address)",
+            "revokeRole(bytes32,address)"
+          ]
+        },
+        "eip1967": {
+          "impl": "0x0000000000000000000000000000000000000000000000000000000000000000",
+          "admin": "0x0000000000000000000000000000000000000000000000000000000000000000",
+          "beacon": "0x0000000000000000000000000000000000000000000000000000000000000000"
+        },
+        "slot0": "0x0000000000000000000000000000000000000000000000000000000000000000",
+        "deployed": true
+      },
+      "Reserve": {
+        "addr": "0x27a1a201D6DF8215d0b0da3Be6211bE24ef4c471",
+        "codeSize": 2897,
+        "runtimeKeccak": "0x79e161397a85f090afa5a5d166e674561bfa7413f90138b9b43f85d1a72bd748",
+        "selectors": [
+          "0x01ffc9a7",
+          "0x0c7d5cd8",
+          "0x0f16f9cb",
+          "0x1afb1354",
+          "0x2185340b",
+          "0x248a9ca3",
+          "0x2e58ca46",
+          "0x2f2ff15d",
+          "0x36568abe",
+          "0x41bf3f26",
+          "0x75b238fc",
+          "0x91d14854",
+          "0x9635e9d1",
+          "0xa217fddf",
+          "0xd13d1fc4",
+          "0xd3b8c2a2",
+          "0xd5391393",
+          "0xd547741f",
+          "0xf5eac0d7",
+          "0x334bd919",
+          "0xe2517d3f",
+          "0xffffffff",
+          "0x7965db0b",
+          "0x4e487b71",
+          "0x18160ddd"
+        ],
+        "resolvedSelectors": {
+          "0x01ffc9a7": [
+            "supportsInterface(bytes4)",
+            "supportsInterface(bytes4)",
+            "supportsInterface(bytes4)",
+            "supportsInterface(bytes4)",
+            "supportsInterface(bytes4)",
+            "supportsInterface(bytes4)",
+            "supportsInterface(bytes4)",
+            "supportsInterface(bytes4)",
+            "supportsInterface(bytes4)"
+          ],
+          "0x248a9ca3": [
+            "getRoleAdmin(bytes32)",
+            "getRoleAdmin(bytes32)",
+            "getRoleAdmin(bytes32)",
+            "getRoleAdmin(bytes32)",
+            "getRoleAdmin(bytes32)",
+            "getRoleAdmin(bytes32)",
+            "getRoleAdmin(bytes32)",
+            "getRoleAdmin(bytes32)",
+            "getRoleAdmin(bytes32)",
+            "getRoleAdmin(bytes32)"
+          ],
+          "0x2f2ff15d": [
+            "grantRole(bytes32,address)",
+            "grantRole(bytes32,address)",
+            "grantRole(bytes32,address)",
+            "grantRole(bytes32,address)",
+            "grantRole(bytes32,address)",
+            "grantRole(bytes32,address)",
+            "grantRole(bytes32,address)",
+            "grantRole(bytes32,address)",
+            "grantRole(bytes32,address)",
+            "grantRole(bytes32,address)",
+            "grantRole(bytes32,address)",
+            "grantRole(bytes32,address)",
+            "grantRole(bytes32,address)"
+          ],
+          "0x36568abe": [
+            "renounceRole(bytes32,address)",
+            "renounceRole(bytes32,address)",
+            "renounceRole(bytes32,address)",
+            "renounceRole(bytes32,address)",
+            "renounceRole(bytes32,address)",
+            "renounceRole(bytes32,address)",
+            "renounceRole(bytes32,address)",
+            "renounceRole(bytes32,address)",
+            "renounceRole(bytes32,address)",
+            "renounceRole(bytes32,address)",
+            "renounceRole(bytes32,address)",
+            "renounceRole(bytes32,address)"
+          ],
+          "0x75b238fc": [
+            "ADMIN_ROLE()",
+            "ADMIN_ROLE()",
+            "ADMIN_ROLE()"
+          ],
+          "0x91d14854": [
+            "hasRole(bytes32,address)",
+            "hasRole(bytes32,address)",
+            "hasRole(bytes32,address)",
+            "hasRole(bytes32,address)",
+            "hasRole(bytes32,address)",
+            "hasRole(bytes32,address)",
+            "hasRole(bytes32,address)",
+            "hasRole(bytes32,address)",
+            "hasRole(bytes32,address)",
+            "hasRole(bytes32,address)",
+            "hasRole(bytes32,address)",
+            "hasRole(bytes32,address)",
+            "hasRole(bytes32,address)"
+          ],
+          "0xa217fddf": [
+            "DEFAULT_ADMIN_ROLE()",
+            "DEFAULT_ADMIN_ROLE()",
+            "DEFAULT_ADMIN_ROLE()",
+            "DEFAULT_ADMIN_ROLE()",
+            "DEFAULT_ADMIN_ROLE()",
+            "DEFAULT_ADMIN_ROLE()",
+            "DEFAULT_ADMIN_ROLE()",
+            "DEFAULT_ADMIN_ROLE()",
+            "DEFAULT_ADMIN_ROLE()",
+            "DEFAULT_ADMIN_ROLE()",
+            "DEFAULT_ADMIN_ROLE()",
+            "DEFAULT_ADMIN_ROLE()",
+            "DEFAULT_ADMIN_ROLE()"
+          ],
+          "0xd13d1fc4": [
+            "mtq()",
+            "mtq()"
+          ],
+          "0xd5391393": [
+            "MINTER_ROLE()",
+            "MINTER_ROLE()",
+            "MINTER_ROLE()",
+            "MINTER_ROLE()",
+            "MINTER_ROLE()",
+            "MINTER_ROLE()"
+          ],
+          "0xd547741f": [
+            "revokeRole(bytes32,address)",
+            "revokeRole(bytes32,address)",
+            "revokeRole(bytes32,address)",
+            "revokeRole(bytes32,address)",
+            "revokeRole(bytes32,address)",
+            "revokeRole(bytes32,address)",
+            "revokeRole(bytes32,address)",
+            "revokeRole(bytes32,address)",
+            "revokeRole(bytes32,address)",
+            "revokeRole(bytes32,address)",
+            "revokeRole(bytes32,address)",
+            "revokeRole(bytes32,address)",
+            "revokeRole(bytes32,address)"
+          ],
+          "0x18160ddd": [
+            "totalSupply()",
+            "totalSupply()",
+            "totalSupply()",
+            "totalSupply()",
+            "totalSupply()",
+            "totalSupply()",
+            "totalSupply()"
+          ]
+        },
+        "eip1967": {
+          "impl": "0x0000000000000000000000000000000000000000000000000000000000000000",
+          "admin": "0x0000000000000000000000000000000000000000000000000000000000000000",
+          "beacon": "0x0000000000000000000000000000000000000000000000000000000000000000"
+        },
+        "slot0": "0x0000000000000000000000000000000000000000000000000000000000000000",
+        "deployed": true
+      },
+      "Mint": {
+        "addr": "0x0dd8b4F8DA7fB6E3eE04ea9F24f853647F84c3aa",
+        "codeSize": 2847,
+        "runtimeKeccak": "0xe6346a6fa05fcf6e04ab573626f21f7a825b375f10143532a1f9f11e20d1ced0",
+        "selectors": [
+          "0x01ffc9a7",
+          "0x14e048ba",
+          "0x248a9ca3",
+          "0x2d11c58a",
+          "0x2f2ff15d",
+          "0x36568abe",
+          "0x75b238fc",
+          "0x91d14854",
+          "0x9cecc80a",
+          "0xa217fddf",
+          "0xcd3293de",
+          "0xd13d1fc4",
+          "0xd5391393",
+          "0xd547741f",
+          "0xd73792a9",
+          "0xe2517d3f",
+          "0x334bd919",
+          "0xffffffff",
+          "0x7965db0b",
+          "0xf5eac0d7",
+          "0x0f16f9cb",
+          "0x018fab9b",
+          "0x40c10f19",
+          "0x4e487b71",
+          "0x3ee5aeb5"
+        ],
+        "resolvedSelectors": {
+          "0x01ffc9a7": [
+            "supportsInterface(bytes4)",
+            "supportsInterface(bytes4)",
+            "supportsInterface(bytes4)",
+            "supportsInterface(bytes4)",
+            "supportsInterface(bytes4)",
+            "supportsInterface(bytes4)",
+            "supportsInterface(bytes4)",
+            "supportsInterface(bytes4)",
+            "supportsInterface(bytes4)"
+          ],
+          "0x248a9ca3": [
+            "getRoleAdmin(bytes32)",
+            "getRoleAdmin(bytes32)",
+            "getRoleAdmin(bytes32)",
+            "getRoleAdmin(bytes32)",
+            "getRoleAdmin(bytes32)",
+            "getRoleAdmin(bytes32)",
+            "getRoleAdmin(bytes32)",
+            "getRoleAdmin(bytes32)",
+            "getRoleAdmin(bytes32)",
+            "getRoleAdmin(bytes32)"
+          ],
+          "0x2f2ff15d": [
+            "grantRole(bytes32,address)",
+            "grantRole(bytes32,address)",
+            "grantRole(bytes32,address)",
+            "grantRole(bytes32,address)",
+            "grantRole(bytes32,address)",
+            "grantRole(bytes32,address)",
+            "grantRole(bytes32,address)",
+            "grantRole(bytes32,address)",
+            "grantRole(bytes32,address)",
+            "grantRole(bytes32,address)",
+            "grantRole(bytes32,address)",
+            "grantRole(bytes32,address)",
+            "grantRole(bytes32,address)"
+          ],
+          "0x36568abe": [
+            "renounceRole(bytes32,address)",
+            "renounceRole(bytes32,address)",
+            "renounceRole(bytes32,address)",
+            "renounceRole(bytes32,address)",
+            "renounceRole(bytes32,address)",
+            "renounceRole(bytes32,address)",
+            "renounceRole(bytes32,address)",
+            "renounceRole(bytes32,address)",
+            "renounceRole(bytes32,address)",
+            "renounceRole(bytes32,address)",
+            "renounceRole(bytes32,address)",
+            "renounceRole(bytes32,address)"
+          ],
+          "0x75b238fc": [
+            "ADMIN_ROLE()",
+            "ADMIN_ROLE()",
+            "ADMIN_ROLE()"
+          ],
+          "0x91d14854": [
+            "hasRole(bytes32,address)",
+            "hasRole(bytes32,address)",
+            "hasRole(bytes32,address)",
+            "hasRole(bytes32,address)",
+            "hasRole(bytes32,address)",
+            "hasRole(bytes32,address)",
+            "hasRole(bytes32,address)",
+            "hasRole(bytes32,address)",
+            "hasRole(bytes32,address)",
+            "hasRole(bytes32,address)",
+            "hasRole(bytes32,address)",
+            "hasRole(bytes32,address)",
+            "hasRole(bytes32,address)"
+          ],
+          "0xa217fddf": [
+            "DEFAULT_ADMIN_ROLE()",
+            "DEFAULT_ADMIN_ROLE()",
+            "DEFAULT_ADMIN_ROLE()",
+            "DEFAULT_ADMIN_ROLE()",
+            "DEFAULT_ADMIN_ROLE()",
+            "DEFAULT_ADMIN_ROLE()",
+            "DEFAULT_ADMIN_ROLE()",
+            "DEFAULT_ADMIN_ROLE()",
+            "DEFAULT_ADMIN_ROLE()",
+            "DEFAULT_ADMIN_ROLE()",
+            "DEFAULT_ADMIN_ROLE()",
+            "DEFAULT_ADMIN_ROLE()",
+            "DEFAULT_ADMIN_ROLE()"
+          ],
+          "0xd13d1fc4": [
+            "mtq()",
+            "mtq()"
+          ],
+          "0xd5391393": [
+            "MINTER_ROLE()",
+            "MINTER_ROLE()",
+            "MINTER_ROLE()",
+            "MINTER_ROLE()",
+            "MINTER_ROLE()",
+            "MINTER_ROLE()"
+          ],
+          "0xd547741f": [
+            "revokeRole(bytes32,address)",
+            "revokeRole(bytes32,address)",
+            "revokeRole(bytes32,address)",
+            "revokeRole(bytes32,address)",
+            "revokeRole(bytes32,address)",
+            "revokeRole(bytes32,address)",
+            "revokeRole(bytes32,address)",
+            "revokeRole(bytes32,address)",
+            "revokeRole(bytes32,address)",
+            "revokeRole(bytes32,address)",
+            "revokeRole(bytes32,address)",
+            "revokeRole(bytes32,address)",
+            "revokeRole(bytes32,address)"
+          ],
+          "0x40c10f19": [
+            "mint(address,uint256)",
+            "mint(address,uint256)",
+            "mint(address,uint256)"
+          ]
+        },
+        "eip1967": {
+          "impl": "0x0000000000000000000000000000000000000000000000000000000000000000",
+          "admin": "0x0000000000000000000000000000000000000000000000000000000000000000",
+          "beacon": "0x0000000000000000000000000000000000000000000000000000000000000000"
+        },
+        "slot0": "0x0000000000000000000000000000000000000000000000000000000000000000",
+        "deployed": true
+      },
+      "Redeem": {
+        "addr": "0xcAde4594177829597882555Ff57d0e34092daF8e",
+        "codeSize": 3037,
+        "runtimeKeccak": "0x410c8d3660a4a208f6a0d1ac996110b2051fb8e1f0902c6ba951cfc16809121c",
+        "selectors": [
+          "0x01ffc9a7",
+          "0x14e048ba",
+          "0x1afb1354",
+          "0x248a9ca3",
+          "0x2d11c58a",
+          "0x2e58ca46",
+          "0x2f2ff15d",
+          "0x36568abe",
+          "0x75b238fc",
+          "0x91d14854",
+          "0x9cecc80a",
+          "0xa217fddf",
+          "0xcd3293de",
+          "0xd13d1fc4",
+          "0xd547741f",
+          "0xd73792a9",
+          "0xdb006a75",
+          "0x70a08231",
+          "0x23b872dd",
+          "0x0852cd8d",
+          "0x20df9f93",
+          "0x018fab9b",
+          "0x4e487b71",
+          "0x3ee5aeb5",
+          "0x334bd919",
+          "0xffffffff",
+          "0x7965db0b",
+          "0xe2517d3f"
+        ],
+        "resolvedSelectors": {
+          "0x01ffc9a7": [
+            "supportsInterface(bytes4)",
+            "supportsInterface(bytes4)",
+            "supportsInterface(bytes4)",
+            "supportsInterface(bytes4)",
+            "supportsInterface(bytes4)",
+            "supportsInterface(bytes4)",
+            "supportsInterface(bytes4)",
+            "supportsInterface(bytes4)",
+            "supportsInterface(bytes4)"
+          ],
+          "0x248a9ca3": [
+            "getRoleAdmin(bytes32)",
+            "getRoleAdmin(bytes32)",
+            "getRoleAdmin(bytes32)",
+            "getRoleAdmin(bytes32)",
+            "getRoleAdmin(bytes32)",
+            "getRoleAdmin(bytes32)",
+            "getRoleAdmin(bytes32)",
+            "getRoleAdmin(bytes32)",
+            "getRoleAdmin(bytes32)",
+            "getRoleAdmin(bytes32)"
+          ],
+          "0x2f2ff15d": [
+            "grantRole(bytes32,address)",
+            "grantRole(bytes32,address)",
+            "grantRole(bytes32,address)",
+            "grantRole(bytes32,address)",
+            "grantRole(bytes32,address)",
+            "grantRole(bytes32,address)",
+            "grantRole(bytes32,address)",
+            "grantRole(bytes32,address)",
+            "grantRole(bytes32,address)",
+            "grantRole(bytes32,address)",
+            "grantRole(bytes32,address)",
+            "grantRole(bytes32,address)",
+            "grantRole(bytes32,address)"
+          ],
+          "0x36568abe": [
+            "renounceRole(bytes32,address)",
+            "renounceRole(bytes32,address)",
+            "renounceRole(bytes32,address)",
+            "renounceRole(bytes32,address)",
+            "renounceRole(bytes32,address)",
+            "renounceRole(bytes32,address)",
+            "renounceRole(bytes32,address)",
+            "renounceRole(bytes32,address)",
+            "renounceRole(bytes32,address)",
+            "renounceRole(bytes32,address)",
+            "renounceRole(bytes32,address)",
+            "renounceRole(bytes32,address)"
+          ],
+          "0x75b238fc": [
+            "ADMIN_ROLE()",
+            "ADMIN_ROLE()",
+            "ADMIN_ROLE()"
+          ],
+          "0x91d14854": [
+            "hasRole(bytes32,address)",
+            "hasRole(bytes32,address)",
+            "hasRole(bytes32,address)",
+            "hasRole(bytes32,address)",
+            "hasRole(bytes32,address)",
+            "hasRole(bytes32,address)",
+            "hasRole(bytes32,address)",
+            "hasRole(bytes32,address)",
+            "hasRole(bytes32,address)",
+            "hasRole(bytes32,address)",
+            "hasRole(bytes32,address)",
+            "hasRole(bytes32,address)",
+            "hasRole(bytes32,address)"
+          ],
+          "0xa217fddf": [
+            "DEFAULT_ADMIN_ROLE()",
+            "DEFAULT_ADMIN_ROLE()",
+            "DEFAULT_ADMIN_ROLE()",
+            "DEFAULT_ADMIN_ROLE()",
+            "DEFAULT_ADMIN_ROLE()",
+            "DEFAULT_ADMIN_ROLE()",
+            "DEFAULT_ADMIN_ROLE()",
+            "DEFAULT_ADMIN_ROLE()",
+            "DEFAULT_ADMIN_ROLE()",
+            "DEFAULT_ADMIN_ROLE()",
+            "DEFAULT_ADMIN_ROLE()",
+            "DEFAULT_ADMIN_ROLE()",
+            "DEFAULT_ADMIN_ROLE()"
+          ],
+          "0xd13d1fc4": [
+            "mtq()",
+            "mtq()"
+          ],
+          "0xd547741f": [
+            "revokeRole(bytes32,address)",
+            "revokeRole(bytes32,address)",
+            "revokeRole(bytes32,address)",
+            "revokeRole(bytes32,address)",
+            "revokeRole(bytes32,address)",
+            "revokeRole(bytes32,address)",
+            "revokeRole(bytes32,address)",
+            "revokeRole(bytes32,address)",
+            "revokeRole(bytes32,address)",
+            "revokeRole(bytes32,address)",
+            "revokeRole(bytes32,address)",
+            "revokeRole(bytes32,address)",
+            "revokeRole(bytes32,address)"
+          ],
+          "0xdb006a75": [
+            "redeem(uint256)",
+            "redeem(uint256)",
+            "redeem(uint256)",
+            "redeem(uint256)"
+          ],
+          "0x70a08231": [
+            "balanceOf(address)",
+            "balanceOf(address)",
+            "balanceOf(address)",
+            "balanceOf(address)",
+            "balanceOf(address)",
+            "balanceOf(address)",
+            "balanceOf(address)"
+          ],
+          "0x23b872dd": [
+            "transferFrom(address,address,uint256)",
+            "transferFrom(address,address,uint256)",
+            "transferFrom(address,address,uint256)",
+            "transferFrom(address,address,uint256)",
+            "transferFrom(address,address,uint256)",
+            "transferFrom(address,address,uint256)",
+            "transferFrom(address,address,uint256)"
+          ]
+        },
+        "eip1967": {
+          "impl": "0x0000000000000000000000000000000000000000000000000000000000000000",
+          "admin": "0x0000000000000000000000000000000000000000000000000000000000000000",
+          "beacon": "0x0000000000000000000000000000000000000000000000000000000000000000"
+        },
+        "slot0": "0x0000000000000000000000000000000000000000000000000000000000000000",
+        "deployed": true
+      },
+      "Oracle": {
+        "addr": "0xFd2B8d176bf059287638Db30D02C6651dA02861e",
+        "codeSize": 2601,
+        "runtimeKeccak": "0x0c14190ddcce23aadc615b9c0750981ccb0f9a2e593b0de5616832d825f2deb6",
+        "selectors": [
+          "0x01ffc9a7",
+          "0x0acefb7b",
+          "0x10c7f0b9",
+          "0x248a9ca3",
+          "0x2f2ff15d",
+          "0x31d98b3f",
+          "0x36568abe",
+          "0x4a81a9f1",
+          "0x54627af0",
+          "0x5f704f3e",
+          "0x75b238fc",
+          "0x91d14854",
+          "0xa217fddf",
+          "0xb04aba31",
+          "0xb8491164",
+          "0xd547741f",
+          "0xdb7c1ad1",
+          "0x4e487b71",
+          "0x334bd919",
+          "0xffffffff",
+          "0x7965db0b",
+          "0xe2517d3f"
+        ],
+        "resolvedSelectors": {
+          "0x01ffc9a7": [
+            "supportsInterface(bytes4)",
+            "supportsInterface(bytes4)",
+            "supportsInterface(bytes4)",
+            "supportsInterface(bytes4)",
+            "supportsInterface(bytes4)",
+            "supportsInterface(bytes4)",
+            "supportsInterface(bytes4)",
+            "supportsInterface(bytes4)",
+            "supportsInterface(bytes4)"
+          ],
+          "0x248a9ca3": [
+            "getRoleAdmin(bytes32)",
+            "getRoleAdmin(bytes32)",
+            "getRoleAdmin(bytes32)",
+            "getRoleAdmin(bytes32)",
+            "getRoleAdmin(bytes32)",
+            "getRoleAdmin(bytes32)",
+            "getRoleAdmin(bytes32)",
+            "getRoleAdmin(bytes32)",
+            "getRoleAdmin(bytes32)",
+            "getRoleAdmin(bytes32)"
+          ],
+          "0x2f2ff15d": [
+            "grantRole(bytes32,address)",
+            "grantRole(bytes32,address)",
+            "grantRole(bytes32,address)",
+            "grantRole(bytes32,address)",
+            "grantRole(bytes32,address)",
+            "grantRole(bytes32,address)",
+            "grantRole(bytes32,address)",
+            "grantRole(bytes32,address)",
+            "grantRole(bytes32,address)",
+            "grantRole(bytes32,address)",
+            "grantRole(bytes32,address)",
+            "grantRole(bytes32,address)",
+            "grantRole(bytes32,address)"
+          ],
+          "0x31d98b3f": [
+            "getPrice(bytes32)"
+          ],
+          "0x36568abe": [
+            "renounceRole(bytes32,address)",
+            "renounceRole(bytes32,address)",
+            "renounceRole(bytes32,address)",
+            "renounceRole(bytes32,address)",
+            "renounceRole(bytes32,address)",
+            "renounceRole(bytes32,address)",
+            "renounceRole(bytes32,address)",
+            "renounceRole(bytes32,address)",
+            "renounceRole(bytes32,address)",
+            "renounceRole(bytes32,address)",
+            "renounceRole(bytes32,address)",
+            "renounceRole(bytes32,address)"
+          ],
+          "0x75b238fc": [
+            "ADMIN_ROLE()",
+            "ADMIN_ROLE()",
+            "ADMIN_ROLE()"
+          ],
+          "0x91d14854": [
+            "hasRole(bytes32,address)",
+            "hasRole(bytes32,address)",
+            "hasRole(bytes32,address)",
+            "hasRole(bytes32,address)",
+            "hasRole(bytes32,address)",
+            "hasRole(bytes32,address)",
+            "hasRole(bytes32,address)",
+            "hasRole(bytes32,address)",
+            "hasRole(bytes32,address)",
+            "hasRole(bytes32,address)",
+            "hasRole(bytes32,address)",
+            "hasRole(bytes32,address)",
+            "hasRole(bytes32,address)"
+          ],
+          "0xa217fddf": [
+            "DEFAULT_ADMIN_ROLE()",
+            "DEFAULT_ADMIN_ROLE()",
+            "DEFAULT_ADMIN_ROLE()",
+            "DEFAULT_ADMIN_ROLE()",
+            "DEFAULT_ADMIN_ROLE()",
+            "DEFAULT_ADMIN_ROLE()",
+            "DEFAULT_ADMIN_ROLE()",
+            "DEFAULT_ADMIN_ROLE()",
+            "DEFAULT_ADMIN_ROLE()",
+            "DEFAULT_ADMIN_ROLE()",
+            "DEFAULT_ADMIN_ROLE()",
+            "DEFAULT_ADMIN_ROLE()",
+            "DEFAULT_ADMIN_ROLE()"
+          ],
+          "0xd547741f": [
+            "revokeRole(bytes32,address)",
+            "revokeRole(bytes32,address)",
+            "revokeRole(bytes32,address)",
+            "revokeRole(bytes32,address)",
+            "revokeRole(bytes32,address)",
+            "revokeRole(bytes32,address)",
+            "revokeRole(bytes32,address)",
+            "revokeRole(bytes32,address)",
+            "revokeRole(bytes32,address)",
+            "revokeRole(bytes32,address)",
+            "revokeRole(bytes32,address)",
+            "revokeRole(bytes32,address)",
+            "revokeRole(bytes32,address)"
+          ]
+        },
+        "eip1967": {
+          "impl": "0x0000000000000000000000000000000000000000000000000000000000000000",
+          "admin": "0x0000000000000000000000000000000000000000000000000000000000000000",
+          "beacon": "0x0000000000000000000000000000000000000000000000000000000000000000"
+        },
+        "slot0": "0x0000000000000000000000000000000000000000000000000000000000000000",
+        "deployed": true
+      },
+      "Takaful": {
+        "addr": "0xA3B89FfdE28577A7D30E2c22503dB33509044EF0",
+        "codeSize": 3033,
+        "runtimeKeccak": "0xde0ba8daa2ef32ea7adc6bf2656f23ef63cd7fd8cfb97d8bb3ee4571949811a7",
+        "selectors": [
+          "0x01ffc9a7",
+          "0x100aca47",
+          "0x248a9ca3",
+          "0x2f2ff15d",
+          "0x36568abe",
+          "0x40650c91",
+          "0x42e94c90",
+          "0x75b238fc",
+          "0x8f97e3a0",
+          "0x91d14854",
+          "0x94d95f8f",
+          "0xa217fddf",
+          "0xa230c524",
+          "0xb688a363",
+          "0xc1cbbca7",
+          "0xca55753a",
+          "0xd13d1fc4",
+          "0xd547741f",
+          "0xd66d9e19",
+          "0xeafb79e2",
+          "0xa9059cbb",
+          "0x23b872dd",
+          "0x3ee5aeb5",
+          "0xe2517d3f",
+          "0x334bd919",
+          "0xffffffff",
+          "0x7965db0b",
+          "0x4e487b71"
+        ],
+        "resolvedSelectors": {
+          "0x01ffc9a7": [
+            "supportsInterface(bytes4)",
+            "supportsInterface(bytes4)",
+            "supportsInterface(bytes4)",
+            "supportsInterface(bytes4)",
+            "supportsInterface(bytes4)",
+            "supportsInterface(bytes4)",
+            "supportsInterface(bytes4)",
+            "supportsInterface(bytes4)",
+            "supportsInterface(bytes4)"
+          ],
+          "0x248a9ca3": [
+            "getRoleAdmin(bytes32)",
+            "getRoleAdmin(bytes32)",
+            "getRoleAdmin(bytes32)",
+            "getRoleAdmin(bytes32)",
+            "getRoleAdmin(bytes32)",
+            "getRoleAdmin(bytes32)",
+            "getRoleAdmin(bytes32)",
+            "getRoleAdmin(bytes32)",
+            "getRoleAdmin(bytes32)",
+            "getRoleAdmin(bytes32)"
+          ],
+          "0x2f2ff15d": [
+            "grantRole(bytes32,address)",
+            "grantRole(bytes32,address)",
+            "grantRole(bytes32,address)",
+            "grantRole(bytes32,address)",
+            "grantRole(bytes32,address)",
+            "grantRole(bytes32,address)",
+            "grantRole(bytes32,address)",
+            "grantRole(bytes32,address)",
+            "grantRole(bytes32,address)",
+            "grantRole(bytes32,address)",
+            "grantRole(bytes32,address)",
+            "grantRole(bytes32,address)",
+            "grantRole(bytes32,address)"
+          ],
+          "0x36568abe": [
+            "renounceRole(bytes32,address)",
+            "renounceRole(bytes32,address)",
+            "renounceRole(bytes32,address)",
+            "renounceRole(bytes32,address)",
+            "renounceRole(bytes32,address)",
+            "renounceRole(bytes32,address)",
+            "renounceRole(bytes32,address)",
+            "renounceRole(bytes32,address)",
+            "renounceRole(bytes32,address)",
+            "renounceRole(bytes32,address)",
+            "renounceRole(bytes32,address)",
+            "renounceRole(bytes32,address)"
+          ],
+          "0x42e94c90": [
+            "contributions(address)"
+          ],
+          "0x75b238fc": [
+            "ADMIN_ROLE()",
+            "ADMIN_ROLE()",
+            "ADMIN_ROLE()"
+          ],
+          "0x91d14854": [
+            "hasRole(bytes32,address)",
+            "hasRole(bytes32,address)",
+            "hasRole(bytes32,address)",
+            "hasRole(bytes32,address)",
+            "hasRole(bytes32,address)",
+            "hasRole(bytes32,address)",
+            "hasRole(bytes32,address)",
+            "hasRole(bytes32,address)",
+            "hasRole(bytes32,address)",
+            "hasRole(bytes32,address)",
+            "hasRole(bytes32,address)",
+            "hasRole(bytes32,address)",
+            "hasRole(bytes32,address)"
+          ],
+          "0xa217fddf": [
+            "DEFAULT_ADMIN_ROLE()",
+            "DEFAULT_ADMIN_ROLE()",
+            "DEFAULT_ADMIN_ROLE()",
+            "DEFAULT_ADMIN_ROLE()",
+            "DEFAULT_ADMIN_ROLE()",
+            "DEFAULT_ADMIN_ROLE()",
+            "DEFAULT_ADMIN_ROLE()",
+            "DEFAULT_ADMIN_ROLE()",
+            "DEFAULT_ADMIN_ROLE()",
+            "DEFAULT_ADMIN_ROLE()",
+            "DEFAULT_ADMIN_ROLE()",
+            "DEFAULT_ADMIN_ROLE()",
+            "DEFAULT_ADMIN_ROLE()"
+          ],
+          "0xc1cbbca7": [
+            "contribute(uint256)"
+          ],
+          "0xd13d1fc4": [
+            "mtq()",
+            "mtq()"
+          ],
+          "0xd547741f": [
+            "revokeRole(bytes32,address)",
+            "revokeRole(bytes32,address)",
+            "revokeRole(bytes32,address)",
+            "revokeRole(bytes32,address)",
+            "revokeRole(bytes32,address)",
+            "revokeRole(bytes32,address)",
+            "revokeRole(bytes32,address)",
+            "revokeRole(bytes32,address)",
+            "revokeRole(bytes32,address)",
+            "revokeRole(bytes32,address)",
+            "revokeRole(bytes32,address)",
+            "revokeRole(bytes32,address)",
+            "revokeRole(bytes32,address)"
+          ],
+          "0xa9059cbb": [
+            "transfer(address,uint256)",
+            "transfer(address,uint256)",
+            "transfer(address,uint256)",
+            "transfer(address,uint256)",
+            "transfer(address,uint256)",
+            "transfer(address,uint256)",
+            "transfer(address,uint256)"
+          ],
+          "0x23b872dd": [
+            "transferFrom(address,address,uint256)",
+            "transferFrom(address,address,uint256)",
+            "transferFrom(address,address,uint256)",
+            "transferFrom(address,address,uint256)",
+            "transferFrom(address,address,uint256)",
+            "transferFrom(address,address,uint256)",
+            "transferFrom(address,address,uint256)"
+          ]
+        },
+        "eip1967": {
+          "impl": "0x0000000000000000000000000000000000000000000000000000000000000000",
+          "admin": "0x0000000000000000000000000000000000000000000000000000000000000000",
+          "beacon": "0x0000000000000000000000000000000000000000000000000000000000000000"
+        },
+        "slot0": "0x0000000000000000000000000000000000000000000000000000000000000000",
+        "deployed": true
+      }
+    },
+    "generations": {
+      "genA": {
+        "addr": "0x826b82F79FD6c5347cDC568B1d0A7918128B63c1",
+        "codeSize": 11551,
+        "runtimeKeccak": "0x0e6a6e1ad373c8e7c005c51266fb9d5bb27c7e37a294741e4f86d34ac6709a0d",
+        "deployed": true,
+        "name": {
+          "ok": true,
+          "value": "MTQ Sigma"
+        },
+        "symbol": {
+          "ok": true,
+          "value": "MTQ"
+        },
+        "decimals": {
+          "ok": true,
+          "value": "18"
+        },
+        "totalSupply": {
+          "ok": true,
+          "value": "1005889000000000000000000"
+        },
+        "cap": {
+          "ok": false,
+          "err": "missing revert data (action=\"call\", data=null, reason=null, transaction={ \"data\": \"0x355274ea\", \"to\": \"0x826b82F79FD6c5347cDC568B1d0A7918128B63c1\" }, invocation",
+          "cls": "EVM-REVERT"
+        },
+        "balanceOfDeployer": {
+          "ok": true,
+          "value": "5887999999999999999997"
+        },
+        "balanceOfDead": {
+          "ok": true,
+          "value": "1000000000000000003"
+        }
+      },
+      "genB": {
+        "addr": "0x24203404B9b971C907e8Ced96106Fa74380d9897",
+        "codeSize": 3413,
+        "runtimeKeccak": "0x31496b929dbea855c0a5fd0736f42afd0b6490840b71708023c8212d168c0180",
+        "deployed": true,
+        "name": {
+          "ok": true,
+          "value": "MTQΣ"
+        },
+        "symbol": {
+          "ok": true,
+          "value": "MTQ"
+        },
+        "decimals": {
+          "ok": true,
+          "value": "18"
+        },
+        "totalSupply": {
+          "ok": true,
+          "value": "1000000000000019980000000"
+        },
+        "cap": {
+          "ok": false,
+          "err": "missing revert data (action=\"call\", data=null, reason=null, transaction={ \"data\": \"0x355274ea\", \"to\": \"0x24203404B9b971C907e8Ced96106Fa74380d9897\" }, invocation",
+          "cls": "EVM-REVERT"
+        },
+        "balanceOfDeployer": {
+          "ok": true,
+          "value": "1000000000000019979999997"
+        },
+        "balanceOfDead": {
+          "ok": true,
+          "value": "3"
+        }
+      },
+      "genC": {
+        "addr": "0x5C728F729110013A1fa59fFc85938bbD973A2563",
+        "codeSize": 11666,
+        "runtimeKeccak": "0xa73310510ce003d5c7ba9b6a8eacd150488d11997d643f369e16d77df900e92e",
+        "deployed": true,
+        "name": {
+          "ok": true,
+          "value": "MTQΣ"
+        },
+        "symbol": {
+          "ok": true,
+          "value": "MTQ"
+        },
+        "decimals": {
+          "ok": true,
+          "value": "18"
+        },
+        "totalSupply": {
+          "ok": true,
+          "value": "1002997000000000000000000"
+        },
+        "cap": {
+          "ok": false,
+          "err": "missing revert data (action=\"call\", data=null, reason=null, transaction={ \"data\": \"0x355274ea\", \"to\": \"0x5C728F729110013A1fa59fFc85938bbD973A2563\" }, invocation",
+          "cls": "EVM-REVERT"
+        },
+        "balanceOfDeployer": {
+          "ok": true,
+          "value": "2996999999999999999998"
+        },
+        "balanceOfDead": {
+          "ok": true,
+          "value": "2"
+        }
+      }
+    },
+    "mtq": {
+      "name": {
+        "ok": true,
+        "value": "MITHQAL"
+      },
+      "symbol": {
+        "ok": true,
+        "value": "MTQ"
+      },
+      "decimals": {
+        "ok": true,
+        "value": "18"
+      },
+      "totalSupply": {
+        "ok": true,
+        "value": "1000000000000000000000"
+      },
+      "cap": {
+        "ok": false,
+        "err": "missing revert data (action=\"call\", data=null, reason=null, transaction={ \"data\": \"0x355274ea\", \"to\": \"0x237c3Aa2B79248f86f6523D3890095BCd1996601\" }, invocation",
+        "cls": "EVM-REVERT"
+      },
+      "paused": {
+        "ok": true,
+        "value": false
+      },
+      "balanceOf_deployer": {
+        "ok": true,
+        "value": "998999999999999999997"
+      },
+      "balanceOf_dead": {
+        "ok": true,
+        "value": "1000000000000000003"
+      },
+      "balanceOf_safe": {
+        "ok": true,
+        "value": "0"
+      },
+      "balanceOf_governance": {
+        "ok": true,
+        "value": "0"
+      },
+      "balanceOf_mintModule": {
+        "ok": true,
+        "value": "0"
+      },
+      "balanceOf_reserveModule": {
+        "ok": true,
+        "value": "0"
+      },
+      "balanceOf_redeemModule": {
+        "ok": true,
+        "value": "0"
+      },
+      "balanceOf_algorithm": {
+        "ok": true,
+        "value": "0"
+      },
+      "balanceOf_oracle": {
+        "ok": true,
+        "value": "0"
+      },
+      "balanceOf_takaful": {
+        "ok": true,
+        "value": "0"
+      },
+      "balanceOf_zero": {
+        "ok": true,
+        "value": "0"
+      }
+    },
+    "roles": {
+      "admin": {
+        "deployer": {
+          "ok": true,
+          "value": true
+        },
+        "safe": {
+          "ok": true,
+          "value": false
+        },
+        "governance": {
+          "ok": true,
+          "value": false
+        },
+        "mintModule": {
+          "ok": true,
+          "value": false
+        },
+        "reserveModule": {
+          "ok": true,
+          "value": false
+        },
+        "redeemModule": {
+          "ok": true,
+          "value": false
+        }
+      },
+      "admin_admin": {
+        "ok": true,
+        "value": "0x0000000000000000000000000000000000000000000000000000000000000000"
+      },
+      "admin_memberCount": {
+        "ok": false,
+        "err": "missing revert data (action=\"call\", data=null, reason=null, transaction={ \"data\": \"0xca15c8730000000000000000000000000000000000000000000000000000000000000000\", ",
+        "cls": "EVM-REVERT"
+      },
+      "minter": {
+        "deployer": {
+          "ok": true,
+          "value": true
+        },
+        "safe": {
+          "ok": true,
+          "value": false
+        },
+        "governance": {
+          "ok": true,
+          "value": false
+        },
+        "mintModule": {
+          "ok": true,
+          "value": true
+        },
+        "reserveModule": {
+          "ok": true,
+          "value": false
+        },
+        "redeemModule": {
+          "ok": true,
+          "value": false
+        }
+      },
+      "minter_admin": {
+        "ok": true,
+        "value": "0x0000000000000000000000000000000000000000000000000000000000000000"
+      },
+      "minter_memberCount": {
+        "ok": false,
+        "err": "missing revert data (action=\"call\", data=null, reason=null, transaction={ \"data\": \"0xca15c8739f2df0fed2c77648de5860a4cc508cd0818c85b8b8a1ab4ceeef8d981c8956a6\", ",
+        "cls": "EVM-REVERT"
+      },
+      "pauser": {
+        "deployer": {
+          "ok": true,
+          "value": true
+        },
+        "safe": {
+          "ok": true,
+          "value": true
+        },
+        "governance": {
+          "ok": true,
+          "value": false
+        },
+        "mintModule": {
+          "ok": true,
+          "value": false
+        },
+        "reserveModule": {
+          "ok": true,
+          "value": false
+        },
+        "redeemModule": {
+          "ok": true,
+          "value": false
+        }
+      },
+      "pauser_admin": {
+        "ok": true,
+        "value": "0x0000000000000000000000000000000000000000000000000000000000000000"
+      },
+      "pauser_memberCount": {
+        "ok": false,
+        "err": "missing revert data (action=\"call\", data=null, reason=null, transaction={ \"data\": \"0xca15c87365d7a28e3265b37a6474929f336521b332c1681b933f6cb9f3376673440d862a\", ",
+        "cls": "EVM-REVERT"
+      }
+    },
+    "moduleAdmin": {
+      "Algorithm": {
+        "admin_deployer": {
+          "ok": true,
+          "value": true
+        },
+        "minter_deployer": {
+          "ok": true,
+          "value": false
+        },
+        "pauser_deployer": {
+          "ok": true,
+          "value": false
+        },
+        "paused": {
+          "ok": false,
+          "err": "missing revert data (action=\"call\", data=null, reason=null, transaction={ \"data\": \"0x5c975abb\", \"to\": \"0x62f8E5243f32eE5C87a14A7896C61104aD9e7727\" }, invocation",
+          "cls": "EVM-REVERT"
+        },
+        "owner": {
+          "ok": false,
+          "err": "missing revert data (action=\"call\", data=null, reason=null, transaction={ \"data\": \"0x8da5cb5b\", \"to\": \"0x62f8E5243f32eE5C87a14A7896C61104aD9e7727\" }, invocation",
+          "cls": "EVM-REVERT"
+        }
+      },
+      "Reserve": {
+        "admin_deployer": {
+          "ok": true,
+          "value": true
+        },
+        "minter_deployer": {
+          "ok": true,
+          "value": false
+        },
+        "pauser_deployer": {
+          "ok": true,
+          "value": false
+        },
+        "paused": {
+          "ok": false,
+          "err": "missing revert data (action=\"call\", data=null, reason=null, transaction={ \"data\": \"0x5c975abb\", \"to\": \"0x27a1a201D6DF8215d0b0da3Be6211bE24ef4c471\" }, invocation",
+          "cls": "EVM-REVERT"
+        },
+        "owner": {
+          "ok": false,
+          "err": "missing revert data (action=\"call\", data=null, reason=null, transaction={ \"data\": \"0x8da5cb5b\", \"to\": \"0x27a1a201D6DF8215d0b0da3Be6211bE24ef4c471\" }, invocation",
+          "cls": "EVM-REVERT"
+        }
+      },
+      "Mint": {
+        "admin_deployer": {
+          "ok": true,
+          "value": true
+        },
+        "minter_deployer": {
+          "ok": true,
+          "value": true
+        },
+        "pauser_deployer": {
+          "ok": true,
+          "value": false
+        },
+        "paused": {
+          "ok": false,
+          "err": "missing revert data (action=\"call\", data=null, reason=null, transaction={ \"data\": \"0x5c975abb\", \"to\": \"0x0dd8b4F8DA7fB6E3eE04ea9F24f853647F84c3aa\" }, invocation",
+          "cls": "EVM-REVERT"
+        },
+        "owner": {
+          "ok": false,
+          "err": "missing revert data (action=\"call\", data=null, reason=null, transaction={ \"data\": \"0x8da5cb5b\", \"to\": \"0x0dd8b4F8DA7fB6E3eE04ea9F24f853647F84c3aa\" }, invocation",
+          "cls": "EVM-REVERT"
+        }
+      },
+      "Redeem": {
+        "admin_deployer": {
+          "ok": true,
+          "value": true
+        },
+        "minter_deployer": {
+          "ok": true,
+          "value": false
+        },
+        "pauser_deployer": {
+          "ok": true,
+          "value": false
+        },
+        "paused": {
+          "ok": false,
+          "err": "missing revert data (action=\"call\", data=null, reason=null, transaction={ \"data\": \"0x5c975abb\", \"to\": \"0xcAde4594177829597882555Ff57d0e34092daF8e\" }, invocation",
+          "cls": "EVM-REVERT"
+        },
+        "owner": {
+          "ok": false,
+          "err": "missing revert data (action=\"call\", data=null, reason=null, transaction={ \"data\": \"0x8da5cb5b\", \"to\": \"0xcAde4594177829597882555Ff57d0e34092daF8e\" }, invocation",
+          "cls": "EVM-REVERT"
+        }
+      },
+      "Oracle": {
+        "admin_deployer": {
+          "ok": true,
+          "value": true
+        },
+        "minter_deployer": {
+          "ok": true,
+          "value": false
+        },
+        "pauser_deployer": {
+          "ok": true,
+          "value": false
+        },
+        "paused": {
+          "ok": false,
+          "err": "missing revert data (action=\"call\", data=null, reason=null, transaction={ \"data\": \"0x5c975abb\", \"to\": \"0xFd2B8d176bf059287638Db30D02C6651dA02861e\" }, invocation",
+          "cls": "EVM-REVERT"
+        },
+        "owner": {
+          "ok": false,
+          "err": "missing revert data (action=\"call\", data=null, reason=null, transaction={ \"data\": \"0x8da5cb5b\", \"to\": \"0xFd2B8d176bf059287638Db30D02C6651dA02861e\" }, invocation",
+          "cls": "EVM-REVERT"
+        }
+      },
+      "Takaful": {
+        "admin_deployer": {
+          "ok": true,
+          "value": true
+        },
+        "minter_deployer": {
+          "ok": true,
+          "value": false
+        },
+        "pauser_deployer": {
+          "ok": true,
+          "value": false
+        },
+        "paused": {
+          "ok": false,
+          "err": "missing revert data (action=\"call\", data=null, reason=null, transaction={ \"data\": \"0x5c975abb\", \"to\": \"0xA3B89FfdE28577A7D30E2c22503dB33509044EF0\" }, invocation",
+          "cls": "EVM-REVERT"
+        },
+        "owner": {
+          "ok": false,
+          "err": "missing revert data (action=\"call\", data=null, reason=null, transaction={ \"data\": \"0x8da5cb5b\", \"to\": \"0xA3B89FfdE28577A7D30E2c22503dB33509044EF0\" }, invocation",
+          "cls": "EVM-REVERT"
+        }
+      }
+    },
+    "safe": {
+      "getThreshold": {
+        "ok": true,
+        "value": "1"
+      },
+      "getOwners": {
+        "ok": true,
+        "value": [
+          "0x3C3932F865892EFabE45892f453f81B64f6c8d8c"
+        ]
+      },
+      "nonce": {
+        "ok": true,
+        "value": "0"
+      },
+      "VERSION": {
+        "ok": true,
+        "value": "1.4.1"
+      },
+      "getGuard": {
+        "ok": false,
+        "err": "missing revert data (action=\"call\", data=null, reason=null, transaction={ \"data\": \"0xc9106389\", \"to\": \"0xE71869C662733642bfBb262B8c6bad8B0fBfA7D0\" }, invocation",
+        "cls": "EVM-REVERT"
+      },
+      "modules": {
+        "ok": false,
+        "err": "missing revert data (action=\"call\", data=null, reason=null, transaction={ \"data\": \"0xcc2f84520000000000000000000000000000000000000000000000000000000000000001000",
+        "cls": "EVM-REVERT"
+      }
+    },
+    "governance": {
+      "proposalCount": {
+        "ok": false,
+        "err": "missing revert data (action=\"call\", data=null, reason=null, transaction={ \"data\": \"0xda35c664\", \"to\": \"0xE35a91801bc541fb743BB9EaD26C1FbD81EaBd66\" }, invocation",
+        "cls": "EVM-REVERT"
+      },
+      "votingDelay": {
+        "ok": true,
+        "value": "1"
+      },
+      "quorumNumerator": {
+        "ok": true,
+        "value": "1"
+      }
+    },
+    "deployer": {
+      "txCount": "0x5c",
+      "balance": "0x1080c0d4d6890ecfd"
+    },
+    "safeNativeBal": "0x0",
+    "finishedAt": "2026-10-22T06:10:51.430Z",
+    "_unknownSelectors": [
+      "0x4e487b71",
+      "0xec442f05",
+      "0xe2517d3f",
+      "0x8dfc202b",
+      "0x334bd919",
+      "0x4a1406b1",
+      "0xe602df05",
+      "0xffffffff",
+      "0x7965db0b",
+      "0x7dc7a0d9",
+      "0x391434e3",
+      "0x4b637e8f",
+      "0xd93c0665",
+      "0x02a251a3",
+      "0x06f3f9e6",
+      "0x143489d0",
+      "0x150b7a02",
+      "0x160cbed7",
+      "0x2656227d",
+      "0x2d63f693",
+      "0x2fe3e261",
+      "0x3932abb1",
+      "0x3e4f49e6",
+      "0x452115d6",
+      "0x4bf5d7e9",
+      "0x544ffc9c",
+      "0x54fd4d50",
+      "0x56781388",
+      "0x5b8d0e0d",
+      "0x5f398a14",
+      "0x60c4247f",
+      "0x79051887",
+      "0x7b3c71d3",
+      "0x7d5e81e2",
+      "0x7ecebe00",
+      "0x84b0196e",
+      "0x8ff262e3",
+      "0x91ddadf4",
+      "0x97c3d334",
+      "0x9a802a6d",
+      "0xa7713a70",
+      "0xa8f8a668",
+      "0xa9a95294",
+      "0xab58fb8e",
+      "0xb58131b0",
+      "0xbc197c81",
+      "0xc01f9e37",
+      "0xc28bc2fa",
+      "0xc59057e4",
+      "0xdd4e2ba5",
+      "0xdeaaa7cc",
+      "0xe540d01d",
+      "0xeb9019d4",
+      "0xece40cc1",
+      "0xf23a6e61",
+      "0xf8ce560a",
+      "0xfc0c546a",
+      "0x66defe77",
+      "0x02711897",
+      "0x32a2ad43",
+      "0x06dfcc65",
+      "0x243e5445",
+      "0x0a85bd01",
+      "0x48442523",
+      "0x8fe5d8a9",
+      "0x94ab6c07",
+      "0x0748d635",
+      "0xf1cfbf05",
+      "0x6ad06075",
+      "0x6121770b",
+      "0xd9b39557",
+      "0x24776b7d",
+      "0x2394e7a3",
+      "0x47096e47",
+      "0x31b75e4d",
+      "0x0447b05d",
+      "0xd6bda275",
+      "0x0b135d3f",
+      "0x03599be1",
+      "0x71c6af49",
+      "0x2cd44ac3",
+      "0x2520601d",
+      "0x390b46fe",
+      "0x52fd856b",
+      "0x0c7d5cd8",
+      "0x0f16f9cb",
+      "0x1afb1354",
+      "0x2185340b",
+      "0x2e58ca46",
+      "0x41bf3f26",
+      "0x9635e9d1",
+      "0xd3b8c2a2",
+      "0xf5eac0d7",
+      "0x14e048ba",
+      "0x2d11c58a",
+      "0x9cecc80a",
+      "0xcd3293de",
+      "0xd73792a9",
+      "0x018fab9b",
+      "0x3ee5aeb5",
+      "0x0852cd8d",
+      "0x20df9f93",
+      "0x0acefb7b",
+      "0x10c7f0b9",
+      "0x4a81a9f1",
+      "0x54627af0",
+      "0x5f704f3e",
+      "0xb04aba31",
+      "0xb8491164",
+      "0xdb7c1ad1",
+      "0x100aca47",
+      "0x40650c91",
+      "0x8f97e3a0",
+      "0x94d95f8f",
+      "0xa230c524",
+      "0xb688a363",
+      "0xca55753a",
+      "0xd66d9e19",
+      "0xeafb79e2"
+    ]
+  },
+  "selectorResolution": {
+    "unknownCount": 124,
+    "resolvedByOpenchain": {},
+    "note": "openchain resolves public registries; unresolved selectors remain UNVERIFIED (could be custom functions)"
+  }
+}

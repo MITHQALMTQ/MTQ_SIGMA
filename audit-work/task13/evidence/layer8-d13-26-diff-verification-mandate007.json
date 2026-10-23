@@ -1,0 +1,79 @@
+{
+  "generated": "2026-10-23 08:26:04 UTC",
+  "purpose": "MANDATE-007 §5 — exact proposed diffs for the six Layer-8 canonical failures, presented for D-13.26 owner/validator review",
+  "applied": false,
+  "pack": "audit-work/task13/d13.26-layer8-evidence-pack.md",
+  "canonicalFile": "src/lib/mtq/__tests__/canonical-invariants.ts",
+  "freshRunsThisCycle": {
+    "focusedLayer8": {
+      "pass": 85,
+      "fail": 6,
+      "exit": 1,
+      "log": "audit-work/task13/evidence/l8-focused-mandate007-2026-10-22.txt"
+    },
+    "fullSuiteLayers_1_6_8": {
+      "pass": 237,
+      "fail": 6,
+      "exit": 1,
+      "log": "audit-work/task13/evidence/l-deterministic-mandate007-2026-10-22.txt"
+    }
+  },
+  "blocks": [
+    {
+      "id": "F1",
+      "label": "Finding 1 — C.1 · §10.4 no-trade-band boundary (inclusive ≤)",
+      "anchor": "canonical-invariants.ts:1870-1872 (verified fresh this cycle)",
+      "removedChecked": 3,
+      "removedVerified": 3,
+      "contextChecked": 3,
+      "contextVerified": 3,
+      "addedLines": 17,
+      "missing": []
+    },
+    {
+      "id": "F2",
+      "label": "Finding 2 — C.3 · §10.6 state-dependent trade sizing (β-form)",
+      "anchor": "canonical-invariants.ts:1929-1932 (verified fresh this cycle)",
+      "removedChecked": 4,
+      "removedVerified": 4,
+      "contextChecked": 0,
+      "contextVerified": 0,
+      "addedLines": 17,
+      "missing": []
+    },
+    {
+      "id": "F3",
+      "label": "Finding 3 — RG-10 · ε-boundary fixture (legacy worked-example vector)",
+      "anchor": "canonical-invariants.ts:1957-1964 (verified fresh this cycle)",
+      "removedChecked": 8,
+      "removedVerified": 8,
+      "contextChecked": 0,
+      "contextVerified": 0,
+      "addedLines": 17,
+      "missing": []
+    },
+    {
+      "id": "F4+5",
+      "label": "Findings 4 & 5 — RG-10 · active-path rejection (reject branch + reason contract)",
+      "anchor": "canonical-invariants.ts:2110-2127 (verified fresh this cycle)",
+      "removedChecked": 12,
+      "removedVerified": 12,
+      "contextChecked": 13,
+      "contextVerified": 13,
+      "addedLines": 21,
+      "missing": []
+    },
+    {
+      "id": "F6",
+      "label": "Finding 6 — §21.5.3 · in-band timer (§21.5.2 reset-to-zero vs 2× decay)",
+      "anchor": "canonical-invariants.ts:2338-2351 (verified fresh this cycle)",
+      "removedChecked": 3,
+      "removedVerified": 3,
+      "contextChecked": 7,
+      "contextVerified": 7,
+      "addedLines": 36,
+      "missing": []
+    }
+  ],
+  "allExactForCurrentTree": true
+}

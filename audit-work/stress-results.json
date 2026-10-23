@@ -1,0 +1,247 @@
+{
+  "results": [
+    {
+      "scenario": "S1 · §23.5 Historical Block Bootstrap",
+      "description": "2000 runs × 90 ticks; 5-day block bootstrap from 252-day history",
+      "runs": 2000,
+      "survivalRate": 0.8905,
+      "meanMinRR": 1.0614102427114076,
+      "worstMinRR": 0.8605642350630506,
+      "meanTimeToRecover": 19.505722460658085,
+      "pegStabilityPct": 1,
+      "finalStatus": "NORMAL",
+      "worstStatus": "EMERGENCY",
+      "breachCount": 219,
+      "notes": [
+        "Synthetic 252-day history seeded at 4242; block size = 5 days.",
+        "Resampled returns preserve short-term autocorrelation across 90 ticks.",
+        "Target: survival ≥ 95%, mean min RR ≥ 1.10."
+      ]
+    },
+    {
+      "scenario": "S2 · §23.5 Parametric Gaussian",
+      "description": "2000 runs × 90 ticks; MVN returns with blueprint vols",
+      "runs": 2000,
+      "survivalRate": 0.844,
+      "meanMinRR": 1.0536352819501056,
+      "worstMinRR": 0.8565647382967588,
+      "meanTimeToRecover": 19.77370242214533,
+      "pegStabilityPct": 1,
+      "finalStatus": "NORMAL",
+      "worstStatus": "EMERGENCY",
+      "breachCount": 312,
+      "notes": [
+        "Multivariate normal returns with blueprint volatility scales (FX 0.4-0.6%, Gold 1.2%).",
+        "Thin-tailed distribution; should always survive.",
+        "Target: survival ≥ 99%, mean min RR ≥ 1.20."
+      ]
+    },
+    {
+      "scenario": "S3 · §23.5 Fat-tailed (Cauchy)",
+      "description": "2000 runs × 90 ticks; Cauchy returns (tail-heavy)",
+      "runs": 2000,
+      "survivalRate": 0.351,
+      "meanMinRR": 0.8462030165018973,
+      "worstMinRR": 0.14567668489541194,
+      "meanTimeToRecover": 18.891346779440468,
+      "pegStabilityPct": 0.6097499999999995,
+      "finalStatus": "NORMAL",
+      "worstStatus": "EMERGENCY",
+      "breachCount": 1298,
+      "notes": [
+        "Cauchy distribution (heavy tails, infinite variance).",
+        "Survival expected to be lower than Gaussian due to tail events.",
+        "Target: survival ≥ 85% (fat tails should cause some breaches)."
+      ]
+    },
+    {
+      "scenario": "S4 · §23.5 Regime-switching",
+      "description": "2000 runs × 90 ticks; 4-regime Markov switching",
+      "runs": 2000,
+      "survivalRate": 0.573,
+      "meanMinRR": 0.9957021627204827,
+      "worstMinRR": 0.453892059809061,
+      "meanTimeToRecover": 21.270596115204288,
+      "pegStabilityPct": 0.9925722222222222,
+      "finalStatus": "NORMAL",
+      "worstStatus": "EMERGENCY",
+      "breachCount": 854,
+      "notes": [
+        "4 regimes: calm (vol 0.2%), normal (0.5%), stress (1.2%), crisis (2.5%).",
+        "Switch every 20-40 ticks.",
+        "Avg status transitions per run: 9.3.",
+        "Target: survival ≥ 90%, status transitions observed."
+      ]
+    },
+    {
+      "scenario": "S5 · §23.8.1 Gold +50% Shock",
+      "description": "100 runs × 30 ticks; single-tick gold +50%, then observe",
+      "runs": 100,
+      "survivalRate": 0,
+      "meanMinRR": 0.8383233160715607,
+      "worstMinRR": 0.8292140857088826,
+      "meanTimeToRecover": -1,
+      "pegStabilityPct": 1,
+      "finalStatus": "EMERGENCY",
+      "worstStatus": "EMERGENCY",
+      "breachCount": 100,
+      "notes": [
+        "Single-tick gold +50% shock at tick 1; observed for 30 ticks.",
+        "Gold trims (sells into strength): yes — engine reduces overweight.",
+        "Post-shock gold-weight trace: 35.5% → 32.0% → 30.0% → 30.0% → 30.0%...",
+        "Target: RR stays above 1.05 (gold appreciation helps the reserve); MASE trims gold to envelope upper 32%."
+      ]
+    },
+    {
+      "scenario": "S6 · §23.8.1 Gold -30% Shock",
+      "description": "100 runs × 30 ticks; single-tick gold -30%, then observe",
+      "runs": 100,
+      "survivalRate": 1,
+      "meanMinRR": 1.1148475051323146,
+      "worstMinRR": 1.1124908176031878,
+      "meanTimeToRecover": -1,
+      "pegStabilityPct": 1,
+      "finalStatus": "NORMAL",
+      "worstStatus": "NORMAL",
+      "breachCount": 0,
+      "notes": [
+        "Single-tick gold -30% shock at tick 1; observed for 30 ticks.",
+        "Emergency rebalance triggered: no.",
+        "Post-shock rebalance direction: buy (engine buys gold back to restore target weight after price drop).",
+        "Recovery to RR_TARGET at tick: 3.",
+        "Min RR observed (detailed trace): 1.115.",
+        "Target: RR must NOT breach 1.00; emergency rebalance triggered; recovery begins within 10 ticks."
+      ]
+    },
+    {
+      "scenario": "S7 · §23.8.5 Oracle Disagreement",
+      "description": "1 oracle feed dead (stale), 2 feeds disagree >5%; verify mint+rebalance pause cleanly; no stale price used; resume post-recovery",
+      "runs": 1,
+      "survivalRate": 1,
+      "meanMinRR": 1.1,
+      "worstMinRR": 1.1,
+      "meanTimeToRecover": 0,
+      "pegStabilityPct": 1,
+      "finalStatus": "NORMAL",
+      "worstStatus": "NORMAL",
+      "breachCount": 0,
+      "notes": [
+        "Oracle failure mode simulated: 1 feed dead (stale >60s), 2 feeds disagree > 5% from median.",
+        "Engine reports anyPaused = true (from computeSnapshot with simulated paused board).",
+        "Runner discipline: mint skipped during pause, rebalance skipped.",
+        "Stale price used: no (engine state frozen during pause).",
+        "Post-recovery mint succeeds: yes.",
+        "Real board (no failure injected): paused pairs = 0, anyPaused = false.",
+        "Target: mint and rebalance pause cleanly; no stale price used."
+      ]
+    },
+    {
+      "scenario": "S8 · §23.9 Currency Depeg (EUR -10%, Staged Eject)",
+      "description": "EUR depegged 10%; held 144h; verify staged eject ladder S1→S4",
+      "runs": 1,
+      "survivalRate": 1,
+      "meanMinRR": 1.0924324530042127,
+      "worstMinRR": 1.0924324530042127,
+      "meanTimeToRecover": -1,
+      "pegStabilityPct": 1,
+      "finalStatus": "CAUTION",
+      "worstStatus": "CAUTION",
+      "breachCount": 0,
+      "notes": [
+        "EUR peg forced to 0.90 (-10%); dt=12h per tick × 12 ticks = 144h total.",
+        "Eject ladder progression observed: Stage 1=true, Stage 2=true, Stage 3=true, Stage 4=true.",
+        "Max stage reached: 4.",
+        "Stage log (tick | hours | stage | sellPct): [0|12h|S0|0%] [1|24h|S1|10%] [2|36h|S2|25%] [3|48h|S2|25%] [4|60h|S3|50%] [5|72h|S3|50%] [6|84h|S3|50%] [7|96h|S3|50%] [8|108h|S4|100%] [9|120h|S4|100%] [10|132h|S4|100%] [11|144h|S4|100%]",
+        "Blueprint §21.5 ladder (per EJECT_STAGES): S1 at >12h (10%), S2 at >24h (25%), S3 at >48h (50%), S4 at >96h (100%).",
+        "Note: task spec listed S1@24h / S2@48h / S3@72h / S4@96h; engine follows the blueprint (12/24/48/96).",
+        "Min RR observed: 1.092 (EUR is 20% of NAV; -10% EUR → NAV ≈ -2% → RR slightly down).",
+        "Worst status: CAUTION.",
+        "MTQ price stability (band [0.50, 2.00]): 100.0% — EUR depeg barely moves GFB (gold dominates by notional).",
+        "Target: Stage 1 (10%) at 24h, Stage 2 (25%) at 48h, Stage 3 (50%) at 72h, Stage 4 (100%) at 96h. Verify the eject ladder kicks in correctly."
+      ]
+    },
+    {
+      "scenario": "S9 · §23.10 Redemption Run",
+      "description": "1000 sequential redemptions × 0.5% circulating supply, over 100 ticks",
+      "runs": 1,
+      "survivalRate": 1,
+      "meanMinRR": 1.1211210090195634,
+      "worstMinRR": 1.1211210090195634,
+      "meanTimeToRecover": -1,
+      "pegStabilityPct": 1,
+      "finalStatus": "NORMAL",
+      "worstStatus": "NORMAL",
+      "breachCount": 0,
+      "notes": [
+        "1000 sequential redemptions of 0.5% of CURRENT circulating supply, over 100 ticks (10 per tick).",
+        "Circulating supply: 8991000 → 59826 (decays asymptotically).",
+        "Circulating supply exhausted: false.",
+        "Failed redemptions: 0.",
+        "Fee escalations observed: 0 (NORMAL 0.15% → CAUTION 0.15% → DEFENSIVE 0.5% → EMERGENCY 2%).",
+        "Status transitions: 0.",
+        "Min RR observed: 1.121 (each redemption accretes ~10 bps + fee to RR when RR ≥ 1.10).",
+        "Target: protocol survives 1000 redemptions without insolvency (RR ≥ 1.00); fee escalation observed; status transitions observed."
+      ]
+    },
+    {
+      "scenario": "S10 · §23.11 Reserve Stress Equation",
+      "description": "50 runs × 60 ticks; combined shock Gold-20%/EUR-5%/VIX=40/DXY=110",
+      "runs": 50,
+      "survivalRate": 1,
+      "meanMinRR": 1.2543090015207534,
+      "worstMinRR": 1.1425650152257787,
+      "meanTimeToRecover": -1,
+      "pegStabilityPct": 1,
+      "finalStatus": "NORMAL",
+      "worstStatus": "NORMAL",
+      "breachCount": 0,
+      "notes": [
+        "Combined shock at tick 0: Gold -20%, EUR -5%, VIX → 40, DXY → 110.",
+        "Post-shock: VIX/DXY mean-revert; small Gaussian noise on FX/Gold.",
+        "50 trajectories × 60 ticks.",
+        "Worst min RR across all runs: 1.143.",
+        "Worst status entered: NORMAL.",
+        "Target: protocol survives (RR ≥ 1.00); worst status ≤ EMERGENCY (not total collapse)."
+      ]
+    },
+    {
+      "scenario": "S11 · §23.6 Parameter Perturbation",
+      "description": "16 perturbations × 200 runs × 90 ticks; ±50% on α/β/θ_max/λ/λ1..λ4",
+      "runs": 3200,
+      "survivalRate": 0.515,
+      "meanMinRR": 0.9915198432724285,
+      "worstMinRR": 0.7529510559056047,
+      "meanTimeToRecover": -1,
+      "pegStabilityPct": 1,
+      "finalStatus": "NORMAL",
+      "worstStatus": "EMERGENCY",
+      "breachCount": 1552,
+      "notes": [
+        "Perturbation grid: 16 perturbations × 200 runs × 90 ticks = 3200 total trajectories.",
+        "Self-contained engine sim (mirrors engine.ts formulas; perturbed α/β/θ_max/λ/λ1..λ4).",
+        "Overall survival across grid: 51.5%.",
+        "Per-perturbation survival:",
+        "  - ALPHA +50%: 51.5% (worst RR 0.753, 97 breaches)",
+        "  - ALPHA -50%: 51.5% (worst RR 0.753, 97 breaches)",
+        "  - BETA +50%: 51.5% (worst RR 0.753, 97 breaches)",
+        "  - BETA -50%: 51.5% (worst RR 0.753, 97 breaches)",
+        "  - THETA_MAX +50%: 51.5% (worst RR 0.753, 97 breaches)",
+        "  - THETA_MAX -50%: 51.5% (worst RR 0.753, 97 breaches)",
+        "  - SMOOTHING_LAMBDA +50%: 51.5% (worst RR 0.753, 97 breaches)",
+        "  - SMOOTHING_LAMBDA -50%: 51.5% (worst RR 0.753, 97 breaches)",
+        "  - LAMBDA_1 +50%: 51.5% (worst RR 0.753, 97 breaches)",
+        "  - LAMBDA_1 -50%: 51.5% (worst RR 0.753, 97 breaches)",
+        "  - LAMBDA_2 +50%: 51.5% (worst RR 0.753, 97 breaches)",
+        "  - LAMBDA_2 -50%: 51.5% (worst RR 0.753, 97 breaches)",
+        "  - LAMBDA_3 +50%: 51.5% (worst RR 0.753, 97 breaches)",
+        "  - LAMBDA_3 -50%: 51.5% (worst RR 0.753, 97 breaches)",
+        "  - LAMBDA_4 +50%: 51.5% (worst RR 0.753, 97 breaches)",
+        "  - LAMBDA_4 -50%: 51.5% (worst RR 0.753, 97 breaches)",
+        "Failing perturbations (survival < 90%): ALPHA +50%, ALPHA -50%, BETA +50%, BETA -50%, THETA_MAX +50%, THETA_MAX -50%, SMOOTHING_LAMBDA +50%, SMOOTHING_LAMBDA -50%, LAMBDA_1 +50%, LAMBDA_1 -50%, LAMBDA_2 +50%, LAMBDA_2 -50%, LAMBDA_3 +50%, LAMBDA_3 -50%, LAMBDA_4 +50%, LAMBDA_4 -50%.",
+        "Target: survival ≥ 90% across the perturbation grid (robustness)."
+      ]
+    }
+  ],
+  "generatedAt": 1788888923220,
+  "totalRuntimeMs": 3695
+}

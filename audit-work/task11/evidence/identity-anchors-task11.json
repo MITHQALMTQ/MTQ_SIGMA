@@ -1,0 +1,210 @@
+{
+ "task": "task11-identity-anchors-rehash",
+ "startedAt": "2026-10-22T08:27:19.544Z",
+ "convention": "keccak256(bytecode bytes) — identical to Tasks 9/10",
+ "networks": {
+  "monad": {
+   "rpcEndpoint": "https://testnet-rpc.monad.xyz",
+   "chainId": "0x279f",
+   "block": 73195321,
+   "anchors": {
+    "MTQ": {
+     "addr": "0x9e6EdC15DAc420931508d8Ddf9BC817651A253aD",
+     "codeSize": 6681,
+     "runtimeKeccak": "0x9057c3e61d81f7d3e261f71b4cb5710a2d5043666766894772459dd643d55bbb"
+    },
+    "Governance": {
+     "addr": "0xE35a91801bc541fb743BB9EaD26C1FbD81EaBd66",
+     "codeSize": 25819,
+     "runtimeKeccak": "0xb0624cbd4b9f219e36d4204ce180f17b2cd8f3692f097c35ff13d1011676057a"
+    },
+    "Safe": {
+     "addr": "0xE71869C662733642bfBb262B8c6bad8B0fBfA7D0",
+     "codeSize": 171,
+     "runtimeKeccak": "0xd7d408ebcd99b2b70be43e20253d6d92a8ea8fab29bd3be7f55b10032331fb4c"
+    },
+    "Algorithm": {
+     "addr": "0x8839ce50e8D414005518769999c0A5b961D00CB2",
+     "codeSize": 2546,
+     "runtimeKeccak": "0x20c147d708f712282e6823e27f5bd2785dc2ebe2387a76125cea7a1e38fd200a"
+    },
+    "Reserve": {
+     "addr": "0x1bbCd78E4DEF79b7a3B77242770cbAefAC816177",
+     "codeSize": 5703,
+     "runtimeKeccak": "0x04a7116dd28265573d7f8ec5c984fa25453ec59567b241c8cc03d16651af4290"
+    },
+    "Mint": {
+     "addr": "0x197e9CB28216dfe18a199b4c2930F74C2F460809",
+     "codeSize": 5644,
+     "runtimeKeccak": "0x2373495eed7956512bc7cd6960d83fc19405c30332d8a251e2a5b6b57a87a9fb"
+    },
+    "Redeem": {
+     "addr": "0x963201C0Fa258033CCDdFcDceb8B5E3bc2b435a4",
+     "codeSize": 6170,
+     "runtimeKeccak": "0x8e8538e58ee3708ddd8f3d7fa836a39397e7cb6d049ec8a1b9467524df97017c"
+    },
+    "Oracle": {
+     "addr": "0xDfcA66ac0450C9AB86307af1942E157C5A4DB713",
+     "codeSize": 5273,
+     "runtimeKeccak": "0xf057e6e5a983c585a46c558402738f2ba72bf5f5e8acd8a2a6e9eaa857ded2e7"
+    },
+    "Takaful": {
+     "addr": "0x3eC27BB283644eF0A98B9961E9FBED0583a02f19",
+     "codeSize": 6043,
+     "runtimeKeccak": "0xb28868f69b3086ab9552cb0f5378c70913eabd733367fc7998d255be0a26c8e0"
+    },
+    "genA": {
+     "addr": "0x5D9564C27111EA65Da3228a79833F0FF129bfd4a",
+     "codeSize": 11666,
+     "runtimeKeccak": "0xa73310510ce003d5c7ba9b6a8eacd150488d11997d643f369e16d77df900e92e"
+    },
+    "genB": {
+     "addr": "0x0Ac20360234b4C988a19586CBe55733e18A5982f",
+     "codeSize": 3413,
+     "runtimeKeccak": "0x31496b929dbea855c0a5fd0736f42afd0b6490840b71708023c8212d168c0180"
+    },
+    "SafeSingleton": {
+     "addr": "0x29fcB43b46531bCa003DdC8fCb67FFE91900C762",
+     "codeSize": 24421,
+     "runtimeKeccak": "0xb1f926978a0f44a2c0ec8fe822418ae969bd8c3f18d61e5103100339894f81ff"
+    }
+   }
+  },
+  "arc": {
+   "rpcEndpoint": "https://rpc.testnet.arc.io",
+   "chainId": "0x4cef52",
+   "block": 68491345,
+   "anchors": {
+    "MTQ": {
+     "addr": "0x237c3Aa2B79248f86f6523D3890095BCd1996601",
+     "codeSize": 3474,
+     "runtimeKeccak": "0x0183b25ee34b9f8e7d18e976eadc6fb021652f9b52c5d6876a536aad92d12fcf"
+    },
+    "Governance": {
+     "addr": "0xE35a91801bc541fb743BB9EaD26C1FbD81EaBd66",
+     "codeSize": 13129,
+     "runtimeKeccak": "0x214a785c40138641e42a955466a9c5ab977980a18dfb207215c8ed3c522c4b82"
+    },
+    "Safe": {
+     "addr": "0xE71869C662733642bfBb262B8c6bad8B0fBfA7D0",
+     "codeSize": 171,
+     "runtimeKeccak": "0xd7d408ebcd99b2b70be43e20253d6d92a8ea8fab29bd3be7f55b10032331fb4c"
+    },
+    "Algorithm": {
+     "addr": "0x62f8E5243f32eE5C87a14A7896C61104aD9e7727",
+     "codeSize": 1237,
+     "runtimeKeccak": "0x0c0cd82de2dc452f3e66f87476d1093597776ad506287ae484ce14ef986a31a5"
+    },
+    "Reserve": {
+     "addr": "0x27a1a201D6DF8215d0b0da3Be6211bE24ef4c471",
+     "codeSize": 2897,
+     "runtimeKeccak": "0x79e161397a85f090afa5a5d166e674561bfa7413f90138b9b43f85d1a72bd748"
+    },
+    "Mint": {
+     "addr": "0x0dd8b4F8DA7fB6E3eE04ea9F24f853647F84c3aa",
+     "codeSize": 2847,
+     "runtimeKeccak": "0xe6346a6fa05fcf6e04ab573626f21f7a825b375f10143532a1f9f11e20d1ced0"
+    },
+    "Redeem": {
+     "addr": "0xcAde4594177829597882555Ff57d0e34092daF8e",
+     "codeSize": 3037,
+     "runtimeKeccak": "0x410c8d3660a4a208f6a0d1ac996110b2051fb8e1f0902c6ba951cfc16809121c"
+    },
+    "Oracle": {
+     "addr": "0xFd2B8d176bf059287638Db30D02C6651dA02861e",
+     "codeSize": 2601,
+     "runtimeKeccak": "0x0c14190ddcce23aadc615b9c0750981ccb0f9a2e593b0de5616832d825f2deb6"
+    },
+    "Takaful": {
+     "addr": "0xA3B89FfdE28577A7D30E2c22503dB33509044EF0",
+     "codeSize": 3033,
+     "runtimeKeccak": "0xde0ba8daa2ef32ea7adc6bf2656f23ef63cd7fd8cfb97d8bb3ee4571949811a7"
+    },
+    "genA": {
+     "addr": "0x826b82F79FD6c5347cDC568B1d0A7918128B63c1",
+     "codeSize": 11551,
+     "runtimeKeccak": "0x0e6a6e1ad373c8e7c005c51266fb9d5bb27c7e37a294741e4f86d34ac6709a0d"
+    },
+    "genB": {
+     "addr": "0x24203404B9b971C907e8Ced96106Fa74380d9897",
+     "codeSize": 3413,
+     "runtimeKeccak": "0x31496b929dbea855c0a5fd0736f42afd0b6490840b71708023c8212d168c0180"
+    },
+    "genC": {
+     "addr": "0x5C728F729110013A1fa59fFc85938bbD973A2563",
+     "codeSize": 11666,
+     "runtimeKeccak": "0xa73310510ce003d5c7ba9b6a8eacd150488d11997d643f369e16d77df900e92e"
+    },
+    "SafeSingleton": {
+     "addr": "0x29fcB43b46531bCa003DdC8fCb67FFE91900C762",
+     "codeSize": 24421,
+     "runtimeKeccak": "0xb1f926978a0f44a2c0ec8fe822418ae969bd8c3f18d61e5103100339894f81ff"
+    }
+   }
+  },
+  "robinhood": {
+   "rpcEndpoint": "https://rpc.testnet.chain.robinhood.com/rpc",
+   "chainId": "0xb626",
+   "block": 140639682,
+   "anchors": {
+    "MTQToken": {
+     "addr": "0xAF5B85658d074e071BbF392395a2ddA9B644C5A5",
+     "codeSize": 3413,
+     "runtimeKeccak": "0x31496b929dbea855c0a5fd0736f42afd0b6490840b71708023c8212d168c0180"
+    },
+    "MTQSigma": {
+     "addr": "0xA3B89FfdE28577A7D30E2c22503dB33509044EF0",
+     "codeSize": 11666,
+     "runtimeKeccak": "0xa73310510ce003d5c7ba9b6a8eacd150488d11997d643f369e16d77df900e92e"
+    },
+    "Safe": {
+     "addr": "0xa3CE28A10854B375272D528EeC4295D6bcd75691",
+     "codeSize": 3321,
+     "runtimeKeccak": "0x3c6c7d2580a18c85428d7ad9da6d9daa114867c95a358ead58ab9ba47be6c04e"
+    },
+    "Governance": {
+     "addr": "0x80FF03DAD374E1f2f5C110F355B7a448Aa732B56",
+     "codeSize": 3487,
+     "runtimeKeccak": "0xcf0c00d3734fd1b6434561871ca1e49329e1ecd1bd2606d93e637acf57cf0ac3"
+    }
+   }
+  },
+  "ethereum": {
+   "rpcEndpoint": "https://ethereum-rpc.publicnode.com",
+   "chainId": "0x1",
+   "block": 26246954,
+   "anchors": {
+    "SafeSingletonCanonical": {
+     "addr": "0x29fcB43b46531bCa003DdC8fCb67FFE91900C762",
+     "codeSize": 24421,
+     "runtimeKeccak": "0xb1f926978a0f44a2c0ec8fe822418ae969bd8c3f18d61e5103100339894f81ff"
+    }
+   }
+  }
+ },
+ "families": {
+  "safeSingleton": {
+   "monadVsArc": true,
+   "arcVsEthereumCanonical": true,
+   "keccak": "0xb1f926978a0f44a2c0ec8fe822418ae969bd8c3f18d61e5103100339894f81ff"
+  },
+  "safeProxy": {
+   "monadVsArc": true,
+   "keccak": "0xd7d408ebcd99b2b70be43e20253d6d92a8ea8fab29bd3be7f55b10032331fb4c"
+  },
+  "genA_family": {
+   "monadGenA": "0xa73310510ce003d5c7ba9b6a8eacd150488d11997d643f369e16d77df900e92e",
+   "arcGenC": "0xa73310510ce003d5c7ba9b6a8eacd150488d11997d643f369e16d77df900e92e",
+   "rhMTQSigma": "0xa73310510ce003d5c7ba9b6a8eacd150488d11997d643f369e16d77df900e92e",
+   "allIdentical": true
+  },
+  "genB_family": {
+   "monadGenB": "0x31496b929dbea855c0a5fd0736f42afd0b6490840b71708023c8212d168c0180",
+   "arcGenB": "0x31496b929dbea855c0a5fd0736f42afd0b6490840b71708023c8212d168c0180",
+   "rhMTQToken": "0x31496b929dbea855c0a5fd0736f42afd0b6490840b71708023c8212d168c0180",
+   "allIdentical": true
+  },
+  "governanceSameHexDifferentCode": true
+ },
+ "finishedAt": "2026-10-22T08:27:23.497Z"
+}

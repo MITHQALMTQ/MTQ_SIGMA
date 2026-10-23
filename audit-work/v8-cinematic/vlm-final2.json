@@ -1,0 +1,28 @@
+{
+  "choices": [
+    {
+      "finish_reason": "stop",
+      "index": 0,
+      "message": {
+        "content": "**Crop 1:** NOT-M. The letter has only one top peak and lacks the characteristic dark valley between two peaks and the negative space between middle legs of an 'M'.\n\n**Crop 2:** It is a flat empty gradient. The space to the left of the globe shows a smooth, dark blue-to-black gradient with small star-like dots, but there are no faint dark distant mountain ridge silhouettes visible in the middle or lower part against the sky.",
+        "role": "assistant"
+      }
+    }
+  ],
+  "created": 1792535114,
+  "id": "202610210625110441e0597bd74b2e",
+  "model": "glm-5v-turbo",
+  "object": "chat.completion",
+  "request_id": "202610210625110441e0597bd74b2e",
+  "usage": {
+    "completion_tokens": 95,
+    "completion_tokens_details": {
+      "reasoning_tokens": 0
+    },
+    "prompt_tokens": 817,
+    "prompt_tokens_details": {
+      "cached_tokens": 0
+    },
+    "total_tokens": 912
+  }
+}

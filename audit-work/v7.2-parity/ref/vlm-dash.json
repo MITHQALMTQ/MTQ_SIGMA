@@ -1,0 +1,28 @@
+{
+  "choices": [
+    {
+      "finish_reason": "stop",
+      "index": 0,
+      "message": {
+        "content": "Based on the image provided, here is the exact layout description of the dashboard UI:\n\n### (1) Top Bar\n*   **Left:** Empty space (Logo/Name likely cropped out of this view).\n*   **Center:** A pill-shaped container displaying the wallet address `0x3F4...9e28` with a dropdown chevron.\n*   **Right:** A circular icon button containing a pink/purple user profile silhouette.\n\n### (2) Main Content\nThe main area is split into two primary columns.\n\n**Left Column: Portfolio Overview**\n*   **Welcome Card (Top Left):**\n    *   **Text:** \"Welcome back, Alex\" (Large white text).\n    *   **Subtext:** \"Your portfolio is growing\" (Smaller grey text).\n    *   **Action Buttons (Top Right of this panel):** Three pill-shaped buttons:\n        1.  **Deposit:** Active state. Purple background with white text and a coin icon.\n        2.  **Swap:** Inactive state. Dark translucent background with white text and swap icon.\n        3.  **Send:** Inactive state. Dark translucent background with white text and paper plane icon.\n*   **Big Value & Chart:**\n    *   **Value:** `$48,732.21` (Very large, bold white font).\n    *   **Change Indicator:** `+12.5% (24h)` in bright green text with a small green upward arrow.\n    *   **Chart:** A large area chart below the value. It features a smooth, glowing gradient fill (purple to cyan/blue) showing an upward trend. The X-axis shows time labels (00:00, 04:00, etc.).\n\n**Right Column: Assets**\n*   **Panel Title:** \"Your Assets\" (White text).\n*   **Asset Rows (Listed vertically):** Each row contains a colored circular icon, the token name/ticker, and right-aligned values.\n    1.  **MTQ:** Blue \"M\" icon. Name: \"MTQ\", Tag: \"Ethereum\". Value: `12,450.32` (White), Sub-value: `$14,563.21` (Grey).\n    2.  **USDC:** Blue \"U\" icon. Name: \"USDC\", Tag: \"Ethereum\". Value: `8,732.10` (White), Sub-value: `$8,732.10` (Grey).\n    3.  **ETH:** Purple diamond icon. Name: \"ETH\", Tag: \"Ethereum\". Value: `1.2384` (White), Sub-value: `$3,411.76` (Grey).\n    4.  **SOL:** Black/Grey horizontal lines icon. Name: \"SOL\", Tag: \"Solana\". Value: `25.67` (White), Sub-value: `$4,125.45` (Grey).\n\n### (3) Bottom Panels\nLocated beneath the Portfolio and Assets panels.\n\n**Bottom Left: Recent Activity**\n*   **Panel Title:** \"Recent Activity\".\n*   **Rows:**\n    1.  **Icon:** Grey circle. **Text:** \"Staked MTQ\". **Value:** `+250.00 MTQ` (Green). **Time:** \"2 hours ago\" (Grey).\n    2.  **Icon:** Grey circle. **Text:** \"Swapped USDC -> MTQ\". **Value:** `+1250.00 MTQ` (Green). **Time:** \"4 hours ago\" (Grey).\n    3.  **Icon:** Grey circle. **Text:** \"Governance Vote\" / \"Voted Proposal #12\" (Green subtext). **Value:** (Empty). **Time:** \"6 hours ago\" (Grey).\n\n**Bottom Right: Network Status**\n*   **Panel Title:** \"Network Status\".\n*   **Rows:**\n    1.  **Icon:** Purple circle. **Name:** \"Monad\". **Status:** Green dot + \"Healthy\" (Green text).\n    2.  **Icon:** Blue circle. **Name:** \"Arbitrum\". **Status:** Green dot + \"Healthy\" (Green text).\n    3.  **Icon:** Purple circle. **Name:** \"Ethereum\". **Status:** Green dot + \"Healthy\" (Green text).\n    4.  **Icon:** Gradient/Purple circle. **Name:** \"Solana\". **Status:** Green dot + \"Healthy\" (Green text).\n\n### (4) Visual Styling & Layout Specs\n*   **Background:** Deep dark blue/black (`#050b14` approx) for the page; slightly lighter dark blue/grey (`#0f172a` approx) for the panel backgrounds.\n*   **Borders:** The entire dashboard is enclosed in a thin, glowing border (purple/blue hue). Internal panels have very subtle or no visible borders, defined mainly by background contrast.\n*   **Corner Radius:** Large border radius (approx 16px-24px) on the main container and all internal panels/buttons (pill shapes).\n*   **Gaps:** Consistent spacing (approx 16px-24px) between all panels and elements.\n*   **Footer Text (Partial):** Visible at the very bottom left: \"...sive financial future.\"",
+        "role": "assistant"
+      }
+    }
+  ],
+  "created": 1792493263,
+  "id": "20261020184727b5493a2951da4083",
+  "model": "glm-5v-turbo",
+  "object": "chat.completion",
+  "request_id": "20261020184727b5493a2951da4083",
+  "usage": {
+    "completion_tokens": 1114,
+    "completion_tokens_details": {
+      "reasoning_tokens": 0
+    },
+    "prompt_tokens": 1446,
+    "prompt_tokens_details": {
+      "cached_tokens": 0
+    },
+    "total_tokens": 2560
+  }
+}

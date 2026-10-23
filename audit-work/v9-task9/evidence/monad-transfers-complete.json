@@ -1,0 +1,15 @@
+{
+  "probe": "MTQΣ Task 9 — monad complete Transfer scan (from deploy block)",
+  "finishedAt": "2026-10-21T21:50:26.200Z",
+  "span": 100,
+  "calls": 11,
+  "failures": [],
+  "logCount": 0,
+  "logs": [],
+  "mints": [],
+  "burns": [],
+  "holderCandidates": [],
+  "holderBalances": {},
+  "sumOfNonzeroHolderBalances": "0",
+  "genesisReceipts": []
+}

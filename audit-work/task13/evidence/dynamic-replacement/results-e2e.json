@@ -1,0 +1,108 @@
+{
+  "runClass": "NON-PRODUCTION prototype acceptance run — MANDATE-007 §3 (dynamic currency replacement). SIMULATED data only. NOT ACCEPTED.",
+  "datasetHash": "BLL1gp66AnSkMSuN3THyp6uLLtSlnqFaC_JXcdiiCko",
+  "datasetHashVerified": true,
+  "methodologyVersion": "CCY-LIFECYCLE-PROTOTYPE-v0.1",
+  "engineModule": "constituency-lifecycle.ts",
+  "decisionRecordDigest": "BaxUZYRLzGPS08RQIB1VYucNbHKBrG-IzaJXIkUKG-8",
+  "decisionRecordChars": 48929,
+  "assertions": [
+    {
+      "id": "DR-01",
+      "name": "incumbent CCY-GBP deteriorates below the exit threshold for the full persistence window → RETIRING (T5)",
+      "pass": true,
+      "observed": "T4→WATCH at P3, T5→RETIRING at P7; exit window [P4..P7] scores 0.64111, 0.63222, 0.62333, 0.61444 all < θ_out 0.65 (4/4 consecutive periods required); window-end composite 0.61444 < 0.65"
+    },
+    {
+      "id": "DR-02",
+      "name": "previously EXCLUDED candidate CCY-CHF passes composite ≥ θ_in, ALL hard gates, and the full entry persistence window (T9 → T2)",
+      "pass": true,
+      "observed": "initial status EXCLUDED (prior synthetic exclusion), T9 re-nomination at P0; entry window [P1..P6] composites 0.75778, 0.77556, 0.76667, 0.78444, 0.77556, 0.79333 all ≥ θ_in 0.75 (6/6 periods); all 5 hard gates (L/QD/CV/JR/BA) pass in every window period; hysteresis θ_in−θ_out = 0.10 = H 0.1; T2 at P6 with composite 0.79333"
+    },
+    {
+      "id": "DR-03",
+      "name": "candidate enters through the approved transition logic: T2→T3 with a derived deterministic linear ramp (spec §5.5)",
+      "pass": true,
+      "observed": "T3 confirmed at P7 (pre-announcement T_ann=1 period), ramp effective P8; joint-glide N=3 (N = ceil(max per-component move 2437 bp (component CCY-GBP) / Δ 1000 bp) = 3; clamped to bound [1, 10]); CCY-CHF committed ramp [0bp → 760bp → 1520bp → 2280bp] — linear steps 760bp, 760bp, 760bp ≤ Δ 1000bp; endpoint 2280.5378854980277bp reached at completion P10; N∈[1,10] honored; each committed step within 1 bp of the exact linear glide point"
+    },
+    {
+      "id": "DR-04",
+      "name": "every retiring component reaches EXACTLY zero weight when excluded (spec §5.4 exclusion-zero)",
+      "pass": true,
+      "observed": "CCY-GBP: committed weight at exclusion commit P10 = 0 bp — float 0.00 (exactly 0, no 1e-18-style epsilon); stays 0 in all 9 later commits; T6 record observed=0 comparator==0 | CCY-JPY: committed weight at exclusion commit P19 = 0 bp — float 0.00 (exactly 0, no 1e-18-style epsilon); stays 0 in all 0 later commits; T6 record observed=0 comparator==0"
+    },
+    {
+      "id": "DR-05",
+      "name": "every intermediate weight vector sums to exactly 100% within the 1e-9 tolerance; bounds/caps/velocity/turnover hold at every commit",
+      "pass": true,
+      "observed": "20 commits (incl. every glide intermediate on glide periods 8,9,10,17,18,19): all sumBp === 10000 exactly (integer bp), max |Σw−1| = 2.220e-16 ≤ 1e-9; envelope/cap/HHI violations: 0/0/0; max per-component move 813 bp ≤ Δ 1000+1; max HHI 0.335791 ≤ 0.4; max share 35.65% ≤ 40%; max non-glide turnover 200 bp ≤ T_cap 200+8 (scheduled glides are T_cap-exempt per the documented PROTOTYPE-CHOICE); documented exemptions: retiring components carry no floor (§5.4 precedence), entry-ramp intermediates below the floor until completion (labeled PROTOTYPE-CHOICE)"
+    },
+    {
+      "id": "DR-06",
+      "name": "index continuous across the membership transition: with unchanged prices the composition-only index change ≤ 1e-9 (chain-link adjustment factor applied)",
+      "pass": true,
+      "observed": "P8 (membership-transition boundary commit, glide period 1) has all price relatives = 1.000000 by construction; observed |I_P8/I_P7 − 1| = 0.000e+0 ≤ 1e-9; second exit-glide boundary P17 composition-only |ΔI| (flat-price probe) = 0.000e+0; §2.2 zero-artificial-return identity max |D_t·B^+ − B^−| = 0.000e+0 over 20 divisor records; applied-adjustment level vs §9.2 recursion max |Δ| = 0.000e+0; flat-price probe (all relatives 1.0, all 20 periods): max |ΔI| = 2.220e-16, |I_final − 1| = 2.220e-16 — the entire membership history (entry + two exclusions + suspension) produced zero composition-only index movement; exactly one divisor record per boundary label T3:CCY-CHF, T5:CCY-GBP, T6:CCY-GBP, T7:CCY-EUR, T8:CCY-EUR, T5:CCY-JPY, T6:CCY-JPY: counts 1,1,1,1,1,1,1"
+    },
+    {
+      "id": "DR-07",
+      "name": "the full decision is reproducible from versioned input data + methodology (byte-identical double run; input change → different record; count-agnostic registry)",
+      "pass": true,
+      "observed": "two in-process runs from two independent parses: decision records byte-identical (48929 chars, digest BaxUZYRLzGPS08RQIB1VYucNbHKBrG-IzaJXIkUKG-8); perturbed input (CCY-GBP P4 liquidity +0.01): datasetHash differs and decision digest differs (narrative robust: GBP still retires); 6-member-universe probe (CCY-XXX/CCY-SGD removed): runs clean, shared-component transition sequences identical, shared-component weight paths byte-identical across all 20 commits — no fixed array size, no slot position, no '!== 7'-style count assumption"
+    },
+    {
+      "id": "DR-08",
+      "name": "insufficiently qualified candidates are not admitted — rejections recorded with reasons; unsupported governance directives rejected",
+      "pass": true,
+      "observed": "CCY-XXX: CANDIDATE and 0 bp in all 20 commits; rejection reasons at the P7/P16 universe evaluations: \"hard gates failed: QD=0.40 (needs >= 0.5); JR=0.00 (needs == 1); BA=0.40 (needs >= 0.6) + composite 0.3556 < θ_in 0.75\"; CCY-AUD: never ELIGIBLE/ACTIVE, 0 bp always; rejections at P7/P16: composite 0.71333 < θ_in 0.75; directive negative controls: premature T3 for AUD at P7 REJECTED (\"T3 requires ELIGIBLE (a completed T2 record), found CANDIDATE (spec §3 T3 evidence row); no T2 record — admission blocked (spec §4.2: a composite cannot rescue an unevaluated candidate)\"), unsupported T5 for USD at P10 REJECTED (\"no completed exit-window docket: exit-breach streak 0/4 < required 4 (spec §3 T5 evidence row)\") — admission/retirement cannot be forced without the rule records"
+    },
+    {
+      "id": "DR-09",
+      "name": "temporary deterioration triggers WATCH but NOT retirement (hysteresis: warning band ≠ exit window)",
+      "pass": true,
+      "observed": "CCY-JPY dip P5-P6 composites 0.68889, 0.68889 < warning 0.7 but ≥ θ_out 0.65 — T4→WATCH at P5, T4R recovery → ACTIVE at P7; no T5 docket/confirmation for JPY before P13 (first JPY T5 is at 16); JPY held weight throughout the WATCH episode (P5=1626 bp, P7=1766 bp)"
+    },
+    {
+      "id": "DR-10",
+      "name": "no substitution when no excluded candidate satisfies the entry conditions — retirement shrinks the basket, §5.4 pro-rata redistribution",
+      "pass": true,
+      "observed": "at the CCY-JPY T5 boundary (P16) the whole candidate universe was evaluated: CCY-AUD 0.7311 NOT-ADMITTED; CCY-GBP 0.5344 NOT-ADMITTED; CCY-SGD 0.6256 NOT-ADMITTED; CCY-XXX 0.3556 NOT-ADMITTED → \"NO SUBSTITUTION: no excluded candidate satisfies all entry conditions\"; AUD reason: composite 0.73111 < θ_in 0.75 (streak 0/6); no T3 transition at/after P16; exit glide has entrantIds=[] and redistributionRule \"pure exit glide: freed weight redistributed pro-rata to surviving ACTIVE components' pre-exit weights (§5.4 renormalizeExcluding convention); no qualified candidate — no substitution\"; basket 4 → 3 members (final {CCY-CHF, CCY-EUR, CCY-USD})"
+    },
+    {
+      "id": "DR-11",
+      "name": "all incumbents whose scores qualify remain in the basket at every membership decision",
+      "pass": true,
+      "observed": "at the GBP retirement decision (P7): USD 0.8778 and EUR 0.8689 both ≥ θ_in 0.75 → both retained (ACTIVE with weight through P10); at the JPY retirement decision (P16): USD 0.8778, EUR 0.8689, CHF 0.7933 all ≥ θ_in → all retained through P19 (the final commit); retired set = {CCY-GBP,CCY-JPY} — exactly the two components that completed exit windows, no healthy incumbent removed"
+    },
+    {
+      "id": "DR-12",
+      "name": "entrant falls below eligibility during the transition — transition handled explicitly (completion with post-completion WATCH), NOT silent, NOT aborted",
+      "pass": true,
+      "observed": "CCY-CHF mid-ramp composites P8-P10 0.68667, 0.69556, 0.69556 < warning 0.7 (and < θ_in 0.75) → T4→WATCH at P8 with the recorded rule \"ENTRY-RAMP-IMMUTABILITY\" (spec §5.6 in-flight immutability; §12 draft: WATCH is informational); ramp COMPLETED on schedule (N=3, endpoint 2280.5378854980277 bp reached at P10); post-completion state WATCH at P10 (explicit, not silent); T4R recovery → ACTIVE at P11 after the score returned above the warning threshold"
+    },
+    {
+      "id": "DR-13",
+      "name": "emergency suspension on data-integrity risk: immediate, NOT score-driven, weight frozen at the pre-trigger value, price leg pinned fail-closed, boundary recorded",
+      "pass": true,
+      "observed": "T7 at P12: ACTIVE → EMERGENCY-SUSPENDED with cause \"cause: DATA-INTEGRITY-RISK: SIMULATED oracle feed integrity failure on the EUR leg (deliverable-10 emergency class; deterministic fixture)\"; zero threshold comparisons evaluated (bypasses ordinary hysteresis by construction) and the component's composite at suspension was 0.86889 ≥ θ_in 0.75 — healthy — proving the trigger is data-integrity-driven, not score-driven; weight FROZEN at the pre-trigger committed value and held EXACTLY through the suspension (P11 2734 bp === P12 2734 bp === P13 2734 bp); EUR price leg pinned to rel = 1.0 at BOTH suspension commits P12 and P13 (fail-closed non-VALID leg, deliverable-5 §8); summary suspension record frozenWeightBp 2734 bp matches; exactly one T7-labeled divisor record at P12 (kind \"T7:CCY-EUR\")"
+    },
+    {
+      "id": "DR-14",
+      "name": "controlled reinstatement after the required observation window: T8(a) fast-track within T_rein, frozen weight carried through, governed (velocity-capped) resumption",
+      "pass": true,
+      "observed": "T8(a) at P13: EMERGENCY-SUSPENDED → ACTIVE; suspension duration 1 period(s) ≤ T_rein 1 (PROTOTYPE-CHOICE: ≤ on a monthly grid; spec draft is strict < on days); cause-resolved evidence recorded (\"cause-resolution evidence: feed integrity restored; SIMULATED evidence ref INTEG-EUR-13\"); state ACTIVE from P14 with the frozen value carried through the suspension (P13 2734 bp → P14 2772 bp — a governed move of 38 bp within the velocity cap Δ 1000 bp, i.e. ordinary rebalancing resumes without any jump or glide); exactly one T8-labeled divisor record at P13"
+    },
+    {
+      "id": "DR-15",
+      "name": "id mapping: validation-doc §7 'Zero-weight enforcement for an excluded component' == DR-04 and 'Exact weight-sum preservation throughout the entire transition' == DR-05 — both re-verified",
+      "pass": true,
+      "observed": "mapping is explicit: DR-04 covers the exclusion-zero row, DR-05 covers the sum-preservation row; joint re-check at every exclusion boundary: CCY-GBP: weight at exclusion commit = 0 bp (exactly 0), vector sum at that commit = 10000 bp (exactly 100%) | CCY-JPY: weight at exclusion commit = 0 bp (exactly 0), vector sum at that commit = 10000 bp (exactly 100%); all 20 commits sum-exact, max deviation 2.220e-16"
+    }
+  ],
+  "counts": {
+    "total": 15,
+    "passed": 15,
+    "failed": 0
+  },
+  "allPassed": true,
+  "exitCode": 0
+}

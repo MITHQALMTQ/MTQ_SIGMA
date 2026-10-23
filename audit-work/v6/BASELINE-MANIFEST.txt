@@ -1,0 +1,33 @@
+### MTQΣ EVIDENCE BASELINE MANIFEST (machine-generated 2026-10-19T20:45:46Z) ###
+HEAD=b68ccb8ebe9a95e24e5c44c4a98c06aae44d26aa
+BRANCH=main
+--- git status --porcelain (pre-evidence-commit) ---
+ M audit-work/v5-ext3-t85-matrix.png
+ M audit-work/v5-ext3-verifyindexbase-panel.png
+ M audit-work/v5-verify-c043-conflicts.png
+ M audit-work/v5/CUSTODY-BALANCE-REVERIFICATION.md
+ M audit-work/v5/safe-balance-probe.json
+ M contracts/out-v3/v3-verifyindexbase-result.json
+ M scripts/verify-safe-balances.ts
+ M worklog.md
+?? audit-work/v6/
+--- git remote -v ---
+(empty = no remote)
+--- sha256 of key sources ---
+ac9638200369d066d12e4e2d2b06e1cbeb3e1a0c5e88e3ad5c7cb287defb3a75  audit-work/MTQ_SIGMA-unrtf.txt
+37260565f86f5c7246060d16855707c9d883c801ee84b276925b1fa6e74d9aa3  contracts/MTQSigmaV3.sol
+8efb0be0b3e84aa65c03ac05da7e31af16e178c3c6b26fcc1326642bb3db72e3  contracts/MTQSigmaV2.sol
+1a3f2332fa6ba4f82828d169e24bf61f9beba5185e8a08b210093fe79403b599  contracts/MTQSigma.sol
+0e74d84b3666355318e2c23918f328a4459d0a45bc40b3cd10cacecfcbf87e1c  contracts/MtqEcosystem.sol
+b55729abb10034a4a617c44c341f2c65055e47d5fb70b2e7b33397b1b5e61115  bun.lock
+6bd53e15165c7ea05676674f1e1fa5207184c9b2a4331946576b16b38037059f  package.json
+b2d0d9a758fbb0ac08d38f758a2c199258a5b505971bc319f30e296ebf4058a9  src/lib/mtq/mandate-register.ts
+73c139d939f5d6d6db36dc54357cbe8e243074e34600b37f10bedcfea1e2b6eb  src/lib/mtq/contracts.ts
+286679af782b004c1d680d1a39d2392d53e2fdcd2bb52513091007958bfe4119  src/lib/mtq/oracle-feeds.ts
+6de31dc5222422760b8de40a7480461e77af9238ae762f1fbd4bc649f2ff9022  src/lib/mtq/mandate.ts
+8654661f015d6a0415cecdb24eea097033e7c4bee8fb1321f45021deed2bd25a  src/lib/mtq/mase.ts
+406d03b1b6f94db7f4557d4cd4a918cbe8c8427a36e4760ef82898ef39ee1dff  src/lib/mtq/genesis.ts
+cfea69322e346cfdca870d64c832f76c1b0eceb1be0d59dd30b869e6210dfb34  scripts/verify-safe.ts
+2ebf8e99ff3c88f7ef79534385ce6e0b6aea188abe3a461077475f09a7eae110  scripts/verify-safe-balances.ts
+--- ignore-status of build dirs ---
+(end)

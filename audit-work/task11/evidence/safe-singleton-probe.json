@@ -1,0 +1,109 @@
+{
+ "task": "task11-safe-singleton-probe",
+ "startedAt": "2026-10-22T08:20:50.896Z",
+ "selectors": {
+  "getGuard": "0xc9106389",
+  "getFallbackHandler": "0x856dfd99",
+  "setGuard": "0xe19a9dd9",
+  "setFallbackHandler": "0xf08a0323",
+  "getThreshold": "0xe75235b8",
+  "getOwners": "0xa0e67e2b",
+  "VERSION": "0xffa1ad74"
+ },
+ "slots": {
+  "guard": "0x88b1eaae67da413fb059b6bf78349f685f214c97a2ca585dbee9d457cb71f255",
+  "fallbackHandler": "0x6cbb99b30435c2f8bbc5d25b3680dc17c5b33197fcca235b8a62c37c248ec773"
+ },
+ "chains": {
+  "monad": {
+   "chainId": "0x279f",
+   "singleton": {
+    "addr": "0x29fcB43b46531bCa003DdC8fCb67FFE91900C762",
+    "codeSize": 24421,
+    "runtimeKeccak": "0xfaed55dc459e8e846afb9b6f36014406131f753bca2e5a9daaa0594e26aadddb",
+    "has": {
+     "getGuard": false,
+     "setGuard": true,
+     "getFallbackHandler": false,
+     "setFallbackHandler": true,
+     "getThreshold": true,
+     "VERSION": true
+    }
+   },
+   "getGuard_onSingleton": "0x",
+   "getFallbackHandler_onSingleton": "0x",
+   "setGuard_onSingleton": {
+    "revert": true,
+    "err": "execution reverted"
+   },
+   "setFallbackHandler_onSingleton": {
+    "revert": true,
+    "err": "execution reverted"
+   },
+   "getThreshold_onSingleton": "0x0000000000000000000000000000000000000000000000000000000000000001",
+   "getOwners_onSingleton": {
+    "revert": true,
+    "err": "execution reverted"
+   },
+   "VERSION_onSingleton": "0x00000000000000000000000000000000000000000000000000000000000000200000000000000000000000000000000000000000000000000000000000000005312e342e31000000000000000000000000000000000000000000000000000000",
+   "getGuard_onProxy": {
+    "revert": true,
+    "err": "execution reverted"
+   },
+   "getFallbackHandler_onProxy": {
+    "revert": true,
+    "err": "execution reverted"
+   },
+   "proxySlots": {
+    "guard": "0x0000000000000000000000000000000000000000000000000000000000000000",
+    "fallbackHandler": "0x0000000000000000000000000000000000000000000000000000000000000000"
+   }
+  },
+  "arc": {
+   "chainId": "0x4cef52",
+   "singleton": {
+    "addr": "0x29fcB43b46531bCa003DdC8fCb67FFE91900C762",
+    "codeSize": 24421,
+    "runtimeKeccak": "0xfaed55dc459e8e846afb9b6f36014406131f753bca2e5a9daaa0594e26aadddb",
+    "has": {
+     "getGuard": false,
+     "setGuard": true,
+     "getFallbackHandler": false,
+     "setFallbackHandler": true,
+     "getThreshold": true,
+     "VERSION": true
+    }
+   },
+   "getGuard_onSingleton": "0x",
+   "getFallbackHandler_onSingleton": "0x",
+   "setGuard_onSingleton": {
+    "revert": true,
+    "err": "execution reverted"
+   },
+   "setFallbackHandler_onSingleton": {
+    "revert": true,
+    "err": "execution reverted"
+   },
+   "getThreshold_onSingleton": "0x0000000000000000000000000000000000000000000000000000000000000001",
+   "getOwners_onSingleton": {
+    "revert": true,
+    "err": "revert: InvalidFEOpcode"
+   },
+   "VERSION_onSingleton": "0x00000000000000000000000000000000000000000000000000000000000000200000000000000000000000000000000000000000000000000000000000000005312e342e31000000000000000000000000000000000000000000000000000000",
+   "getGuard_onProxy": {
+    "revert": true,
+    "err": "execution reverted"
+   },
+   "getFallbackHandler_onProxy": {
+    "revert": true,
+    "err": "execution reverted"
+   },
+   "proxySlots": {
+    "guard": "0x0000000000000000000000000000000000000000000000000000000000000000",
+    "fallbackHandler": "0x0000000000000000000000000000000000000000000000000000000000000000"
+   }
+  }
+ },
+ "singletonByteIdenticalCrossChain": true,
+ "finishedAt": "2026-10-22T08:21:24.166Z"
+}

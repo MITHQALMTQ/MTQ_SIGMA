@@ -1,0 +1,141 @@
+{
+  "generatedAt": "2026-10-22T18:21:02.682Z",
+  "note": "ANALYSIS ONLY — no assertions, no engine/harness changes; trajectory bodies verbatim from canonical-invariants.ts (S3)",
+  "faithfulness": {
+    "comparableToRecordedPartial": false,
+    "survivorsMatch": null,
+    "worstMatch": null,
+    "recordedSurvivors": 19,
+    "recordedWorstMinRr": 0.07585525867923032,
+    "measuredSurvivors": 2,
+    "measuredWorstMinRr": 0.9379708425530818
+  },
+  "summary": {
+    "ranRange": [
+      120,
+      123
+    ],
+    "ticks": 90,
+    "seedBase": 3000,
+    "wallClockSeconds": 48.342,
+    "survivors": 2,
+    "failures": 2,
+    "worstMinRr": 0.9379708425530818,
+    "breachTick": {
+      "min": 74,
+      "median": 81.5,
+      "max": 89
+    },
+    "xauRelAtBreach": {
+      "min": 0.3557208980018372,
+      "median": 0.691192197663449,
+      "max": 1.0266634973250608
+    },
+    "xauTroughRel": {
+      "min": 0.2,
+      "median": 0.5990706297226781
+    },
+    "worstStatusCounts": {
+      "EMERGENCY": 2
+    },
+    "survivorMarginAboveFloor": {
+      "min": 0.020582169663509342,
+      "median": 0.021042566117105643,
+      "max": 0.021502962570701945
+    },
+    "deepestFailures": [
+      {
+        "index": 122,
+        "seed": 3122,
+        "survived": false,
+        "minRr": 0.9379708425530818,
+        "minTick": 89,
+        "xauRelAtMin": 0.3557208980018372,
+        "navAtMin": 11539014.654648561,
+        "liabAtMin": 12302103.78740589,
+        "worstStatus": "EMERGENCY",
+        "finalStatus": "EMERGENCY",
+        "xauTroughRel": 0.2,
+        "maxAdverseXauTick": -0.8249570010708843,
+        "ticksBelowFloor": 10
+      },
+      {
+        "index": 123,
+        "seed": 3123,
+        "survived": false,
+        "minRr": 0.9666538618271768,
+        "minTick": 74,
+        "xauRelAtMin": 1.0266634973250608,
+        "navAtMin": 8220814.047200948,
+        "liabAtMin": 8504403.046258874,
+        "worstStatus": "EMERGENCY",
+        "finalStatus": "EMERGENCY",
+        "xauTroughRel": 0.9981412594453563,
+        "maxAdverseXauTick": -0.1266929461415186,
+        "ticksBelowFloor": 8
+      }
+    ]
+  },
+  "trajectories": [
+    {
+      "index": 120,
+      "seed": 3120,
+      "survived": true,
+      "minRr": 1.021502962570702,
+      "minTick": 88,
+      "xauRelAtMin": 0.6378088815308093,
+      "navAtMin": 9201337.430433061,
+      "liabAtMin": 9007646.348158488,
+      "worstStatus": "STRESS",
+      "finalStatus": "STRESS",
+      "xauTroughRel": 0.3757816885503047,
+      "maxAdverseXauTick": -0.5568773772685829,
+      "ticksBelowFloor": 0
+    },
+    {
+      "index": 121,
+      "seed": 3121,
+      "survived": true,
+      "minRr": 1.0205821696635093,
+      "minTick": 45,
+      "xauRelAtMin": 0.6392953320882598,
+      "navAtMin": 9306527.074607927,
+      "liabAtMin": 9118841.531080572,
+      "worstStatus": "STRESS",
+      "finalStatus": "STRESS",
+      "xauTroughRel": 0.4783741965583815,
+      "maxAdverseXauTick": -0.2972620994205104,
+      "ticksBelowFloor": 0
+    },
+    {
+      "index": 122,
+      "seed": 3122,
+      "survived": false,
+      "minRr": 0.9379708425530818,
+      "minTick": 89,
+      "xauRelAtMin": 0.3557208980018372,
+      "navAtMin": 11539014.654648561,
+      "liabAtMin": 12302103.78740589,
+      "worstStatus": "EMERGENCY",
+      "finalStatus": "EMERGENCY",
+      "xauTroughRel": 0.2,
+      "maxAdverseXauTick": -0.8249570010708843,
+      "ticksBelowFloor": 10
+    },
+    {
+      "index": 123,
+      "seed": 3123,
+      "survived": false,
+      "minRr": 0.9666538618271768,
+      "minTick": 74,
+      "xauRelAtMin": 1.0266634973250608,
+      "navAtMin": 8220814.047200948,
+      "liabAtMin": 8504403.046258874,
+      "worstStatus": "EMERGENCY",
+      "finalStatus": "EMERGENCY",
+      "xauTroughRel": 0.9981412594453563,
+      "maxAdverseXauTick": -0.1266929461415186,
+      "ticksBelowFloor": 8
+    }
+  ]
+}

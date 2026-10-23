@@ -1,0 +1,1368 @@
+@import "tailwindcss";
+@import "tw-animate-css";
+
+/* ============================================================
+   PAR1D — Luxury UI System v2 (UI-REDESIGN)
+   Smooth scroll + premium gold scrollbar + glassmorphism 2.0.
+   ============================================================ */
+html {
+  scroll-behavior: smooth;
+}
+
+/* Thin gold scrollbar (global) */
+::-webkit-scrollbar { width: 8px; height: 8px; }
+::-webkit-scrollbar-track { background: rgba(255, 255, 255, 0.02); }
+::-webkit-scrollbar-thumb {
+  background: linear-gradient(180deg, rgba(43, 171, 251, 0.35), rgba(43, 171, 251, 0.15));
+  border-radius: 999px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: linear-gradient(180deg, rgba(43, 171, 251, 0.55), rgba(43, 171, 251, 0.3));
+}
+* { scrollbar-width: thin; scrollbar-color: rgba(43, 171, 251, 0.35) transparent; }
+
+/* ============================================================
+   MTQΣ — 2026 Futuristic UI System
+   "Cinematic. Glassmorphic. Alive."
+   
+   Design Language:
+   - Deep space gradient backgrounds (not flat dark)
+   - Glassmorphic panels with backdrop-blur + subtle borders
+   - Aurora gradient accents (gold→emerald→violet)
+   - Cinematic entry animations (scale+blur+fade)
+   - Dynamic 3D depth with layered shadows
+   - Scroll-driven animations (CSS scroll-timeline)
+   - Container queries for responsive components
+   - View Transitions API for section switches
+   - Holographic data displays (glow + shimmer)
+   ============================================================ */
+
+@custom-variant dark (&:is(.dark *));
+
+/* ============================================================
+   Self-hosted font stacks (Fontsource via layout.tsx imports).
+   These replace the CSS variables that next/font/google used to
+   inject (its build-time Google Fonts fetch is unavailable here).
+   Same variable names → every var(--font-*) reference and every
+   @theme token below keeps working unchanged.
+   ============================================================ */
+:root {
+  --font-geist-sans: "Geist Sans", -apple-system, BlinkMacSystemFont, "SF Pro Display", system-ui, sans-serif;
+  --font-geist-mono: "Geist Mono", "SF Mono", "Cascadia Mono", Menlo, Consolas, monospace;
+  --font-inter: "Inter", -apple-system, BlinkMacSystemFont, "SF Pro Text", system-ui, sans-serif;
+  --font-mtqs-display: "Montserrat", "Inter", system-ui, sans-serif;
+}
+
+@theme {
+  /* === Fonts (brand board: Montserrat display + Inter body) === */
+  --font-sans: var(--font-inter), system-ui, sans-serif;
+  --font-mono: var(--font-geist-mono), "SF Mono", monospace;
+  --font-display: var(--font-mtqs-display), "Montserrat", "Inter", system-ui, sans-serif;
+
+  /* === Cyber-Luxe Palette (brand board: Midnight / Champagne / Cyan / Sapphire / Violet) === */
+  --color-background: #020D1F;
+  --color-foreground: #E8ECF4;
+  --color-card: rgba(255, 255, 255, 0.03);
+  --color-card-foreground: #E8ECF4;
+  --color-popover: rgba(10, 12, 24, 0.95);
+  --color-popover-foreground: #E8ECF4;
+  --color-primary: #2BABFB;
+  --color-primary-foreground: #020D1F;
+  --color-secondary: rgba(255, 255, 255, 0.05);
+  --color-secondary-foreground: #E8ECF4;
+  --color-muted: rgba(255, 255, 255, 0.04);
+  --color-muted-foreground: #7B8299;
+  --color-accent: rgba(43, 171, 251, 0.08);
+  --color-accent-foreground: #2BABFB;
+  --color-destructive: #FF4D6D;
+  --color-destructive-foreground: #FFFFFF;
+  --color-border: rgba(255, 255, 255, 0.06);
+  --color-input: rgba(255, 255, 255, 0.08);
+  --color-ring: #2BABFB;
+
+  /* === Brand Tokens ===
+     PLATFORM THEME UNIFICATION (owner directive, this session): the terminal's
+     accent family was unified with the approved landing reference design
+     ("Futuristic MTQΣ Financial Ecosystem Dashboard" — midnight-blue base,
+     cyan → blue → violet aurora accents). The legacy champagne-gold values
+     (#F6D58D / #FAEEDA) were retinted to the platform cyan family
+     (#2BABFB / #8DD3FF); the obsidian base was aligned to the landing's
+     midnight (#020D1F). Class names (text-mtqs-gold, …) are kept for
+     compatibility — they now resolve to the platform cyan accent.
+     Semantic status colors (amber warnings, rose errors, emerald-cyan OK,
+     violet secondary) are UNCHANGED so every honest-status banner keeps its
+     meaning. */
+  --color-mtqs-gold: #2BABFB;
+  --color-mtqs-gold-light: #8DD3FF;
+  --color-mtqs-emerald: #00E5FF;
+  --color-mtqs-rose: #FF4D6D;
+  --color-mtqs-amber: #FFB84D;
+  --color-mtqs-violet: #8B5CF6;
+  --color-mtqs-cyan: #3882F6;
+  --color-mtqs-obsidian: #020D1F;
+
+  /* === Radii === */
+  --radius-sm: 8px;
+  --radius-md: 12px;
+  --radius-lg: 16px;
+  --radius-xl: 24px;
+
+  /* === Charts === */
+  --color-chart-1: #2BABFB;
+  --color-chart-2: #00E5FF;
+  --color-chart-3: #FF4D6D;
+  --color-chart-4: #8B5CF6;
+  --color-chart-5: #3882F6;
+  --color-chart-6: #8DD3FF;
+
+  /* === Animations === */
+  --ease-cinematic: cubic-bezier(0.16, 1, 0.3, 1);
+  --ease-spring: cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+/* ============================================================
+   Base
+   ============================================================ */
+* {
+  border-color: var(--color-border);
+}
+
+body {
+  background: var(--color-background);
+  color: var(--color-foreground);
+  font-feature-settings: "rlig" 1, "calt" 1;
+  -webkit-font-smoothing: antialiased;
+  overflow-x: hidden;
+}
+
+/* Deep space gradient background — the canvas */
+.mtqs-space-bg {
+  background:
+    radial-gradient(ellipse 80% 60% at 50% -10%, rgba(43, 171, 251, 0.06), transparent 50%),
+    radial-gradient(ellipse 60% 40% at 80% 20%, rgba(139, 92, 246, 0.05), transparent 50%),
+    radial-gradient(ellipse 50% 30% at 20% 60%, rgba(0, 229, 255, 0.04), transparent 50%),
+    #020D1F;
+  background-attachment: fixed;
+}
+
+/* ============================================================
+   Glassmorphic Panel System
+   ============================================================ */
+.mtqs-glass {
+  background: rgba(255, 255, 255, 0.025);
+  backdrop-filter: blur(20px) saturate(150%);
+  -webkit-backdrop-filter: blur(20px) saturate(150%);
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  border-radius: var(--radius-lg);
+  box-shadow:
+    0 1px 0 0 rgba(255, 255, 255, 0.04) inset,
+    0 0 0 1px rgba(255, 255, 255, 0.01),
+    0 8px 32px rgba(0, 0, 0, 0.3);
+  transition: all 0.3s var(--ease-cinematic);
+}
+
+.mtqs-glass:hover {
+  background: rgba(255, 255, 255, 0.04);
+  border-color: rgba(255, 255, 255, 0.1);
+  box-shadow:
+    0 1px 0 0 rgba(255, 255, 255, 0.06) inset,
+    0 0 0 1px rgba(43, 171, 251, 0.08),
+    0 12px 40px rgba(0, 0, 0, 0.4);
+}
+
+.mtqs-glass-gold {
+  background: rgba(43, 171, 251, 0.03);
+  backdrop-filter: blur(20px) saturate(150%);
+  -webkit-backdrop-filter: blur(20px) saturate(150%);
+  border: 1px solid rgba(43, 171, 251, 0.12);
+  border-radius: var(--radius-lg);
+  box-shadow: 0 0 24px rgba(43, 171, 251, 0.06), 0 8px 32px rgba(0, 0, 0, 0.3);
+}
+
+.mtqs-glass-emerald {
+  background: rgba(0, 229, 255, 0.03);
+  backdrop-filter: blur(20px) saturate(150%);
+  -webkit-backdrop-filter: blur(20px) saturate(150%);
+  border: 1px solid rgba(0, 229, 255, 0.12);
+  border-radius: var(--radius-lg);
+  box-shadow: 0 0 24px rgba(0, 229, 255, 0.06), 0 8px 32px rgba(0, 0, 0, 0.3);
+}
+
+.mtqs-glass-rose {
+  background: rgba(255, 77, 109, 0.03);
+  backdrop-filter: blur(20px) saturate(150%);
+  -webkit-backdrop-filter: blur(20px) saturate(150%);
+  border: 1px solid rgba(255, 77, 109, 0.12);
+  border-radius: var(--radius-lg);
+  box-shadow: 0 0 24px rgba(255, 77, 109, 0.06), 0 8px 32px rgba(0, 0, 0, 0.3);
+}
+
+/* ============================================================
+   Aurora Gradient Text
+   ============================================================ */
+.mtqs-aurora-text {
+  background: linear-gradient(135deg, #2BABFB 0%, #8DD3FF 25%, #00E5FF 50%, #3882F6 75%, #8B5CF6 100%);
+  background-size: 200% 200%;
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+  animation: mtqs-aurora-shift 8s ease infinite;
+}
+
+@keyframes mtqs-aurora-shift {
+  0%, 100% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+}
+
+.mtqs-gold-text {
+  background: linear-gradient(135deg, #2BABFB, #8DD3FF, #2BABFB);
+  background-size: 200% 200%;
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+  animation: mtqs-aurora-shift 6s ease infinite;
+}
+
+/* ============================================================
+   Cinematic Entry Animations
+   ============================================================ */
+@keyframes mtqs-enter-cinematic {
+  0% { opacity: 0; transform: scale(0.95) translateY(20px); filter: blur(10px); }
+  100% { opacity: 1; transform: scale(1) translateY(0); filter: blur(0); }
+}
+
+.mtqs-enter {
+  animation: mtqs-enter-cinematic 0.8s var(--ease-cinematic) both;
+}
+
+@keyframes mtqs-enter-up {
+  0% { opacity: 0; transform: translateY(40px); filter: blur(8px); }
+  100% { opacity: 1; transform: translateY(0); filter: blur(0); }
+}
+
+.mtqs-enter-up {
+  animation: mtqs-enter-up 0.6s var(--ease-cinematic) both;
+}
+
+@keyframes mtqs-enter-scale {
+  0% { opacity: 0; transform: scale(0.8); filter: blur(12px); }
+  100% { opacity: 1; transform: scale(1); filter: blur(0); }
+}
+
+.mtqs-enter-scale {
+  animation: mtqs-enter-scale 0.7s var(--ease-cinematic) both;
+}
+
+/* Staggered children */
+.mtqs-stagger > *:nth-child(1) { animation-delay: 0ms; }
+.mtqs-stagger > *:nth-child(2) { animation-delay: 80ms; }
+.mtqs-stagger > *:nth-child(3) { animation-delay: 160ms; }
+.mtqs-stagger > *:nth-child(4) { animation-delay: 240ms; }
+.mtqs-stagger > *:nth-child(5) { animation-delay: 320ms; }
+.mtqs-stagger > *:nth-child(6) { animation-delay: 400ms; }
+.mtqs-stagger > *:nth-child(7) { animation-delay: 480ms; }
+.mtqs-stagger > *:nth-child(8) { animation-delay: 560ms; }
+
+/* ============================================================
+   Holographic Data Display
+   ============================================================ */
+.mtqs-holographic {
+  position: relative;
+  overflow: hidden;
+}
+
+.mtqs-holographic::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(110deg, transparent 30%, rgba(43, 171, 251, 0.04) 50%, transparent 70%);
+  background-size: 200% 100%;
+  animation: mtqs-shimmer 4s ease-in-out infinite;
+  pointer-events: none;
+}
+
+@keyframes mtqs-shimmer {
+  0% { background-position: -100% 0; }
+  100% { background-position: 200% 0; }
+}
+
+/* ============================================================
+   Typography
+   ============================================================ */
+.mtqs-eyebrow {
+  font-size: 0.6875rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.16em;
+  color: var(--color-muted-foreground);
+}
+
+.mtqs-section-title {
+  font-size: 1.5rem;
+  font-weight: 600;
+  color: var(--color-foreground);
+  letter-spacing: -0.02em;
+  line-height: 1.25;
+}
+
+.mtqs-display {
+  font-family: var(--font-mtqs-display), "Montserrat", "Inter", system-ui, sans-serif;
+  font-weight: 600;
+  letter-spacing: -0.01em;
+}
+
+.mtqs-tnum {
+  font-variant-numeric: tabular-nums;
+  font-feature-settings: "tnum";
+}
+
+/* ============================================================
+   Status Badges (Glassmorphic)
+   ============================================================ */
+.mtqs-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.25rem;
+  padding: 0.2rem 0.6rem;
+  border-radius: 999px;
+  font-size: 0.6875rem;
+  font-weight: 600;
+  white-space: nowrap;
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+}
+
+.mtqs-badge-emerald {
+  background: rgba(0, 229, 255, 0.08);
+  color: #00E5FF;
+  border: 1px solid rgba(0, 229, 255, 0.2);
+}
+
+.mtqs-badge-rose {
+  background: rgba(255, 77, 109, 0.08);
+  color: #FF4D6D;
+  border: 1px solid rgba(255, 77, 109, 0.2);
+}
+
+.mtqs-badge-amber {
+  background: rgba(43, 171, 251, 0.08);
+  color: #8DD3FF;
+  border: 1px solid rgba(43, 171, 251, 0.2);
+}
+
+.mtqs-badge-gold {
+  background: rgba(43, 171, 251, 0.1);
+  color: #2BABFB;
+  border: 1px solid rgba(43, 171, 251, 0.25);
+}
+
+.mtqs-badge-muted {
+  background: rgba(255, 255, 255, 0.04);
+  color: var(--color-muted-foreground);
+  border: 1px solid rgba(255, 255, 255, 0.06);
+}
+
+/* ============================================================
+   Scrollbar (2026 — thin + glassmorphic)
+   ============================================================ */
+.mtqs-scroll {
+  scrollbar-width: thin;
+  scrollbar-color: rgba(43, 171, 251, 0.2) transparent;
+}
+.mtqs-scroll::-webkit-scrollbar { width: 4px; height: 4px; }
+.mtqs-scroll::-webkit-scrollbar-thumb { background: rgba(43, 171, 251, 0.2); border-radius: 4px; }
+.mtqs-scroll::-webkit-scrollbar-thumb:hover { background: rgba(43, 171, 251, 0.4); }
+
+.mtqs-no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+.mtqs-no-scrollbar::-webkit-scrollbar { display: none; }
+
+/* ============================================================
+   Focus + Accessibility
+   ============================================================ */
+*:focus-visible {
+  outline: 2px solid rgba(43, 171, 251, 0.5);
+  outline-offset: 3px;
+  border-radius: 8px;
+}
+*:focus { outline: none; }
+
+.mtqs-focus:focus-visible {
+  outline: 2px solid rgba(43, 171, 251, 0.6);
+  outline-offset: 3px;
+  border-radius: 8px;
+}
+
+/* ============================================================
+   Glows
+   ============================================================ */
+.mtqs-glow-gold { box-shadow: 0 0 32px rgba(43, 171, 251, 0.15); }
+.mtqs-glow-emerald { box-shadow: 0 0 32px rgba(0, 229, 255, 0.15); }
+.mtqs-glow-rose { box-shadow: 0 0 32px rgba(255, 77, 109, 0.15); }
+.mtqs-glow-violet { box-shadow: 0 0 32px rgba(139, 92, 246, 0.15); }
+
+/* ============================================================
+   Glow Dot (live indicator)
+   ============================================================ */
+@keyframes mtqs-pulse-dot {
+  0%, 100% { opacity: 1; box-shadow: 0 0 8px currentColor; }
+  50% { opacity: 0.4; box-shadow: 0 0 4px currentColor; }
+}
+.mtqs-pulse-dot { animation: mtqs-pulse-dot 2s ease-in-out infinite; }
+
+/* ============================================================
+   Tick Flash (number update)
+   ============================================================ */
+@keyframes mtqs-tick-flash {
+  0% { text-shadow: 0 0 12px rgba(43, 171, 251, 0.6); }
+  100% { text-shadow: none; }
+}
+.mtqs-tick-flash { animation: mtqs-tick-flash 0.6s ease-out; }
+
+/* ============================================================
+   Grid Background (futuristic)
+   ============================================================ */
+.mtqs-grid-bg {
+  background-image:
+    linear-gradient(rgba(43, 171, 251, 0.02) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(43, 171, 251, 0.02) 1px, transparent 1px);
+  background-size: 48px 48px;
+  mask-image: radial-gradient(ellipse 80% 50% at 50% 30%, black, transparent);
+  -webkit-mask-image: radial-gradient(ellipse 80% 50% at 50% 30%, black, transparent);
+}
+
+/* ============================================================
+   View Transitions (2026 — smooth section switches)
+   ============================================================ */
+::view-transition-old(root) { animation: mtqs-exit 0.3s var(--ease-cinematic) both; }
+::view-transition-new(root) { animation: mtqs-enter-cinematic 0.5s var(--ease-cinematic) both; }
+
+@keyframes mtqs-exit {
+  0% { opacity: 1; transform: scale(1); }
+  100% { opacity: 0; transform: scale(0.96); filter: blur(8px); }
+}
+
+/* ============================================================
+   Reduced Motion
+   ============================================================ */
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    transition-duration: 0.01ms !important;
+  }
+  .mtqs-aurora-text, .mtqs-gold-text, .mtqs-holographic::before,
+  .mtqs-pulse-dot, .mtqs-tick-flash { animation: none !important; }
+}
+
+/* ============================================================
+   Particle Field (gold dust in deep space)
+   ============================================================ */
+@keyframes mtqs-particle-rise {
+  0% { transform: translateY(0) translateX(0); opacity: 0; }
+  10% { opacity: 0.3; }
+  90% { opacity: 0.3; }
+  100% { transform: translateY(-100vh) translateX(20px); opacity: 0; }
+}
+
+/* ============================================================
+   Cinematic Page Entry (dramatic, visible)
+   ============================================================ */
+@keyframes mtqs-cinematic-page {
+  0% { opacity: 0; transform: scale(0.92); filter: blur(20px) brightness(0.3); }
+  30% { opacity: 0.3; filter: blur(12px) brightness(0.5); }
+  60% { opacity: 0.7; filter: blur(4px) brightness(0.8); }
+  100% { opacity: 1; transform: scale(1); filter: blur(0) brightness(1); }
+}
+
+.mtqs-cinematic-page {
+  animation: mtqs-cinematic-page 1.2s cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+
+/* ============================================================
+   Animated Number Ticker (gold flash on update)
+   ============================================================ */
+@keyframes mtqs-number-flash {
+  0% { color: #2BABFB; text-shadow: 0 0 12px rgba(43, 171, 251, 0.8); transform: scale(1.05); }
+  100% { color: inherit; text-shadow: none; transform: scale(1); }
+}
+
+.mtqs-number-flash {
+  animation: mtqs-number-flash 0.6s ease-out;
+}
+
+/* ============================================================
+   Aurora Glow Border (for hero cards)
+   ============================================================ */
+@keyframes mtqs-aurora-border {
+  0%, 100% { border-color: rgba(43, 171, 251, 0.2); box-shadow: 0 0 20px rgba(43, 171, 251, 0.1); }
+  33% { border-color: rgba(0, 229, 255, 0.2); box-shadow: 0 0 20px rgba(0, 229, 255, 0.1); }
+  66% { border-color: rgba(139, 92, 246, 0.2); box-shadow: 0 0 20px rgba(139, 92, 246, 0.1); }
+}
+
+.mtqs-aurora-border {
+  animation: mtqs-aurora-border 6s ease-in-out infinite;
+}
+
+/* ============================================================
+   Official Logo (PAR1D.jpg) Display
+   The luxury emblem is a portrait hexagon on a #020D1F field.
+   Containers must paint their own black so the logo's backdrop
+   blends seamlessly into the obsidian chrome. object-contain
+   preserves the full mark (never crops the Σ / sphere / frame).
+   ============================================================ */
+.mtqs-logo-container {
+  background: #020D1F;
+  border-radius: 0.5rem;
+  overflow: hidden;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.mtqs-logo-image {
+  object-fit: contain;
+  width: 100%;
+  height: 100%;
+}
+
+/* Larger hero / cinematic presentation of the emblem.
+   A subtle gold halo lifts the mark off the obsidian field
+   without recoloring or overlaying the source artwork. */
+.mtqs-logo-hero {
+  background: #020D1F;
+  border-radius: 1rem;
+  overflow: hidden;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow:
+    0 0 0 1px rgba(43, 171, 251, 0.18),
+    0 0 48px rgba(43, 171, 251, 0.18),
+    0 24px 80px rgba(0, 0, 0, 0.55);
+}
+
+.mtqs-logo-hero img {
+  object-fit: contain;
+  width: 100%;
+  height: 100%;
+}
+
+/* ============================================================
+   PAR1D Luxury Brand Layer (UI-REDESIGN)
+   The following classes implement the "Breathtaking UI" upgrade
+   on top of the existing 2026 futuristic system. Brand tokens
+   (obsidian / gold / emerald / rose) are unchanged — only
+   presentation depth, motion and particle ambience are added.
+   ============================================================ */
+
+/* ---------- Glassmorphism 2.0 — deeper glass with gold inner glow ---------- */
+.mtqs-glass-premium {
+  position: relative;
+  background: linear-gradient(
+    135deg,
+    rgba(255, 255, 255, 0.05) 0%,
+    rgba(255, 255, 255, 0.02) 50%,
+    rgba(43, 171, 251, 0.03) 100%
+  );
+  backdrop-filter: blur(24px) saturate(160%);
+  -webkit-backdrop-filter: blur(24px) saturate(160%);
+  border: 1px solid rgba(43, 171, 251, 0.18);
+  border-radius: var(--radius-xl);
+  box-shadow:
+    0 1px 0 0 rgba(255, 255, 255, 0.08) inset,
+    0 0 0 1px rgba(43, 171, 251, 0.06),
+    0 0 32px rgba(43, 171, 251, 0.06),
+    0 16px 48px rgba(0, 0, 0, 0.45);
+  transition: all 0.3s var(--ease-cinematic);
+}
+
+.mtqs-glass-premium::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  padding: 1px;
+  background: linear-gradient(
+    135deg,
+    rgba(43, 171, 251, 0.5),
+    rgba(43, 171, 251, 0.0) 35%,
+    rgba(43, 171, 251, 0.0) 65%,
+    rgba(43, 171, 251, 0.35)
+  );
+  -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
+  -webkit-mask-composite: xor;
+  mask-composite: exclude;
+  pointer-events: none;
+  opacity: 0.7;
+  transition: opacity 0.3s var(--ease-cinematic);
+}
+
+.mtqs-glass-premium:hover::before { opacity: 1; }
+
+/* ---------- Animated gold gradient text (deeper, animated) ---------- */
+.mtqs-gold-gradient-text {
+  background: linear-gradient(135deg, #2BABFB 0%, #EAF7FF 35%, #8DD3FF 65%, #2BABFB 100%);
+  background-size: 220% 220%;
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+  color: transparent;
+  animation: mtqs-gold-sweep 6s ease-in-out infinite;
+  filter: drop-shadow(0 2px 18px rgba(43, 171, 251, 0.25));
+}
+
+@keyframes mtqs-gold-sweep {
+  0%, 100% { background-position: 0% 50%; }
+  50%      { background-position: 100% 50%; }
+}
+
+/* ---------- Card hover — lift + gold glow ---------- */
+.mtqs-card-hover {
+  transition: transform 0.3s var(--ease-cinematic),
+              box-shadow 0.3s var(--ease-cinematic),
+              border-color 0.3s var(--ease-cinematic);
+  will-change: transform;
+}
+.mtqs-card-hover:hover {
+  transform: translateY(-4px);
+  border-color: rgba(43, 171, 251, 0.35);
+  box-shadow:
+    0 1px 0 0 rgba(255, 255, 255, 0.08) inset,
+    0 0 0 1px rgba(43, 171, 251, 0.12),
+    0 0 40px rgba(43, 171, 251, 0.18),
+    0 24px 60px rgba(0, 0, 0, 0.5);
+}
+
+/* ---------- Animated rotating gradient border (premium cards) ---------- */
+.mtqs-border-aurora {
+  position: relative;
+  isolation: isolate;
+}
+.mtqs-border-aurora::after {
+  content: "";
+  position: absolute;
+  inset: -1px;
+  border-radius: inherit;
+  padding: 1px;
+  background: conic-gradient(
+    from 0deg,
+    rgba(43, 171, 251, 0.0),
+    rgba(43, 171, 251, 0.55),
+    rgba(141, 211, 255, 0.65),
+    rgba(43, 171, 251, 0.55),
+    rgba(43, 171, 251, 0.0)
+  );
+  -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
+  -webkit-mask-composite: xor;
+  mask-composite: exclude;
+  pointer-events: none;
+  animation: mtqs-rotate-aurora 8s linear infinite;
+  z-index: -1;
+  opacity: 0.6;
+}
+@keyframes mtqs-rotate-aurora {
+  to { transform: rotate(360deg); }
+}
+
+/* ---------- Floating gold-dust particle background (CSS-only) ---------- */
+.mtqs-particle-bg {
+  position: relative;
+  overflow: hidden;
+}
+.mtqs-particle-bg::before,
+.mtqs-particle-bg::after {
+  content: "";
+  position: absolute;
+  inset: -20%;
+  background-image:
+    radial-gradient(circle at 12% 18%, rgba(43, 171, 251, 0.6) 0.5px, transparent 1px),
+    radial-gradient(circle at 32% 62%, rgba(141, 211, 255, 0.5) 0.5px, transparent 1px),
+    radial-gradient(circle at 58% 28%, rgba(43, 171, 251, 0.5) 0.5px, transparent 1px),
+    radial-gradient(circle at 78% 72%, rgba(34, 211, 238, 0.45) 0.5px, transparent 1px),
+    radial-gradient(circle at 88% 12%, rgba(43, 171, 251, 0.4) 0.5px, transparent 1px),
+    radial-gradient(circle at 22% 82%, rgba(141, 211, 255, 0.4) 0.5px, transparent 1px),
+    radial-gradient(circle at 48% 48%, rgba(43, 171, 251, 0.4) 0.5px, transparent 1px),
+    radial-gradient(circle at 68% 38%, rgba(34, 211, 238, 0.4) 0.5px, transparent 1px);
+  background-size: 400px 400px;
+  pointer-events: none;
+  animation: mtqs-dust-drift 18s linear infinite;
+  opacity: 0.55;
+  filter: blur(0.4px);
+}
+.mtqs-particle-bg::after {
+  background-size: 320px 320px;
+  animation-duration: 26s;
+  animation-direction: reverse;
+  opacity: 0.35;
+}
+@keyframes mtqs-dust-drift {
+  0%   { transform: translate3d(0, 0, 0) rotate(0deg); }
+  50%  { transform: translate3d(-6%, -3%, 0) rotate(180deg); }
+  100% { transform: translate3d(0, 0, 0) rotate(360deg); }
+}
+
+/* ---------- Section fade-in on scroll ---------- */
+.mtqs-section-fade {
+  opacity: 0;
+  transform: translateY(24px) scale(0.985);
+  filter: blur(8px);
+  transition: opacity 0.7s var(--ease-cinematic),
+              transform 0.7s var(--ease-cinematic),
+              filter 0.7s var(--ease-cinematic);
+  will-change: opacity, transform, filter;
+}
+.mtqs-section-fade.is-visible {
+  opacity: 1;
+  transform: translateY(0) scale(1);
+  filter: blur(0);
+}
+
+/* ---------- Shimmer (loading skeleton sheen) ---------- */
+.mtqs-shimmer {
+  position: relative;
+  overflow: hidden;
+  background: rgba(255, 255, 255, 0.04);
+}
+.mtqs-shimmer::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    100deg,
+    transparent 20%,
+    rgba(43, 171, 251, 0.15) 45%,
+    rgba(141, 211, 255, 0.22) 50%,
+    rgba(43, 171, 251, 0.15) 55%,
+    transparent 80%
+  );
+  background-size: 200% 100%;
+  animation: mtqs-shimmer-sweep 1.6s ease-in-out infinite;
+}
+@keyframes mtqs-shimmer-sweep {
+  0%   { background-position: 200% 0; }
+  100% { background-position: -200% 0; }
+}
+
+/* ---------- Status badge variants (PAR1D — premium, deeper glass) ---------- */
+.mtqs-badge-gold {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  padding: 0.25rem 0.7rem;
+  border-radius: 999px;
+  font-size: 0.6875rem;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  background: linear-gradient(135deg, rgba(43, 171, 251, 0.18), rgba(43, 171, 251, 0.08));
+  color: #8DD3FF;
+  border: 1px solid rgba(43, 171, 251, 0.35);
+  box-shadow: 0 0 16px rgba(43, 171, 251, 0.18), 0 1px 0 rgba(255, 255, 255, 0.06) inset;
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+}
+.mtqs-badge-emerald {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  padding: 0.25rem 0.7rem;
+  border-radius: 999px;
+  font-size: 0.6875rem;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  background: linear-gradient(135deg, rgba(0, 229, 255, 0.18), rgba(0, 229, 255, 0.08));
+  color: #6FF0C0;
+  border: 1px solid rgba(0, 229, 255, 0.35);
+  box-shadow: 0 0 16px rgba(0, 229, 255, 0.18), 0 1px 0 rgba(255, 255, 255, 0.06) inset;
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+}
+.mtqs-badge-rose {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  padding: 0.25rem 0.7rem;
+  border-radius: 999px;
+  font-size: 0.6875rem;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  background: linear-gradient(135deg, rgba(255, 77, 109, 0.18), rgba(255, 77, 109, 0.08));
+  color: #FF8EA3;
+  border: 1px solid rgba(255, 77, 109, 0.35);
+  box-shadow: 0 0 16px rgba(255, 77, 109, 0.22), 0 1px 0 rgba(255, 255, 255, 0.06) inset;
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+}
+
+/* ---------- Stat card (icon + value + label + trend) ---------- */
+.mtqs-stat-card {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  padding: 1.1rem 1.2rem;
+  border-radius: var(--radius-lg);
+  background: linear-gradient(
+    135deg,
+    rgba(255, 255, 255, 0.045) 0%,
+    rgba(255, 255, 255, 0.015) 100%
+  );
+  backdrop-filter: blur(18px) saturate(150%);
+  -webkit-backdrop-filter: blur(18px) saturate(150%);
+  border: 1px solid rgba(43, 171, 251, 0.12);
+  box-shadow:
+    0 1px 0 0 rgba(255, 255, 255, 0.05) inset,
+    0 12px 36px rgba(0, 0, 0, 0.35);
+  transition: transform 0.3s var(--ease-cinematic),
+              box-shadow 0.3s var(--ease-cinematic),
+              border-color 0.3s var(--ease-cinematic);
+  overflow: hidden;
+}
+.mtqs-stat-card::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(circle at 100% 0%, rgba(43, 171, 251, 0.08), transparent 60%);
+  pointer-events: none;
+  opacity: 0.7;
+  transition: opacity 0.3s var(--ease-cinematic);
+}
+.mtqs-stat-card:hover {
+  transform: translateY(-2px);
+  border-color: rgba(43, 171, 251, 0.3);
+  box-shadow:
+    0 1px 0 0 rgba(255, 255, 255, 0.08) inset,
+    0 0 28px rgba(43, 171, 251, 0.12),
+    0 18px 48px rgba(0, 0, 0, 0.45);
+}
+.mtqs-stat-card:hover::before { opacity: 1; }
+
+/* ---------- PAR1D hero logo — pulsing gold halo ---------- */
+.mtqs-logo-par1d {
+  position: relative;
+  background: radial-gradient(circle at 50% 50%, #020D1F 0%, #050505 100%);
+  border-radius: 1.5rem;
+  overflow: hidden;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow:
+    0 0 0 1px rgba(43, 171, 251, 0.25),
+    0 0 60px rgba(43, 171, 251, 0.28),
+    0 0 120px rgba(43, 171, 251, 0.18),
+    0 32px 80px rgba(0, 0, 0, 0.65);
+  animation: mtqs-logo-pulse 4s ease-in-out infinite;
+}
+.mtqs-logo-par1d img {
+  object-fit: contain;
+  width: 100%;
+  height: 100%;
+}
+@keyframes mtqs-logo-pulse {
+  0%, 100% {
+    box-shadow:
+      0 0 0 1px rgba(43, 171, 251, 0.25),
+      0 0 60px rgba(43, 171, 251, 0.28),
+      0 0 120px rgba(43, 171, 251, 0.18),
+      0 32px 80px rgba(0, 0, 0, 0.65);
+  }
+  50% {
+    box-shadow:
+      0 0 0 1px rgba(43, 171, 251, 0.4),
+      0 0 80px rgba(43, 171, 251, 0.42),
+      0 0 160px rgba(43, 171, 251, 0.25),
+      0 32px 80px rgba(0, 0, 0, 0.65);
+  }
+}
+
+/* ---------- Premium gradient border button (CTA) ---------- */
+.mtqs-cta-gold {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  padding: 0.7rem 1.5rem;
+  border-radius: 0.75rem;
+  font-weight: 600;
+  font-size: 0.9rem;
+  color: #EAF7FF;
+  background: linear-gradient(135deg, rgba(43, 171, 251, 0.18), rgba(43, 171, 251, 0.04));
+  border: 1px solid rgba(43, 171, 251, 0.45);
+  box-shadow:
+    0 1px 0 0 rgba(255, 255, 255, 0.08) inset,
+    0 0 24px rgba(43, 171, 251, 0.18),
+    0 12px 32px rgba(0, 0, 0, 0.45);
+  transition: all 0.25s var(--ease-cinematic);
+  cursor: pointer;
+}
+.mtqs-cta-gold:hover {
+  color: #FFFFFF;
+  background: linear-gradient(135deg, rgba(43, 171, 251, 0.32), rgba(43, 171, 251, 0.12));
+  border-color: rgba(43, 171, 251, 0.7);
+  box-shadow:
+    0 1px 0 0 rgba(255, 255, 255, 0.12) inset,
+    0 0 32px rgba(43, 171, 251, 0.28),
+    0 16px 40px rgba(0, 0, 0, 0.5);
+  transform: translateY(-1px);
+}
+.mtqs-cta-outline {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  padding: 0.7rem 1.5rem;
+  border-radius: 0.75rem;
+  font-weight: 600;
+  font-size: 0.9rem;
+  color: rgba(255, 255, 255, 0.85);
+  background: rgba(255, 255, 255, 0.025);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  transition: all 0.25s var(--ease-cinematic);
+  cursor: pointer;
+}
+.mtqs-cta-outline:hover {
+  color: #FFFFFF;
+  border-color: rgba(43, 171, 251, 0.45);
+  background: rgba(43, 171, 251, 0.08);
+  transform: translateY(-1px);
+}
+
+/* ---------- PAR1D status pill (header right side) ---------- */
+.mtqs-status-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.45rem;
+  padding: 0.35rem 0.8rem;
+  border-radius: 999px;
+  font-size: 0.7rem;
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  border: 1px solid;
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  transition: all 0.3s var(--ease-cinematic);
+}
+
+/* ---------- Gold gradient divider line ---------- */
+.mtqs-divider-gold {
+  height: 1px;
+  background: linear-gradient(
+    90deg,
+    transparent 0%,
+    rgba(43, 171, 251, 0.35) 30%,
+    rgba(141, 211, 255, 0.5) 50%,
+    rgba(43, 171, 251, 0.35) 70%,
+    transparent 100%
+  );
+}
+
+/* ---------- Section divider with Σ symbol ---------- */
+.mtqs-section-divider {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  width: 100%;
+  margin: 1.5rem 0;
+}
+.mtqs-section-divider::before,
+.mtqs-section-divider::after {
+  content: "";
+  flex: 1;
+  height: 1px;
+  background: linear-gradient(
+    90deg,
+    transparent,
+    rgba(43, 171, 251, 0.45),
+    transparent
+  );
+}
+.mtqs-section-divider > span {
+  font-family: var(--font-mtqs-display), "Montserrat", "Inter", system-ui, sans-serif;
+  font-size: 1.1rem;
+  color: #2BABFB;
+  text-shadow: 0 0 12px rgba(43, 171, 251, 0.5);
+  letter-spacing: 0.1em;
+}
+
+/* ---------- PAR1D radial background — for hero section ---------- */
+.mtqs-hero-bg {
+  background:
+    radial-gradient(ellipse 60% 50% at 50% 30%, rgba(43, 171, 251, 0.12), transparent 60%),
+    radial-gradient(ellipse 80% 60% at 50% 100%, rgba(43, 171, 251, 0.06), transparent 70%),
+    linear-gradient(180deg, #020D1F 0%, #020D1F 100%);
+}
+
+/* ---------- Counter flash on update (used by AnimatedCounter) ---------- */
+@keyframes mtqs-count-up {
+  from { opacity: 0; transform: translateY(8px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+.mtqs-count-up { animation: mtqs-count-up 0.6s var(--ease-cinematic) both; }
+
+/* ---------- Reduced motion safety for the new layers ---------- */
+@media (prefers-reduced-motion: reduce) {
+  .mtqs-glass-premium,
+  .mtqs-card-hover,
+  .mtqs-stat-card,
+  .mtqs-cta-gold,
+  .mtqs-cta-outline,
+  .mtqs-status-pill {
+    transition: none !important;
+    animation: none !important;
+  }
+  .mtqs-gold-gradient-text,
+  .mtqs-border-aurora::after,
+  .mtqs-particle-bg::before,
+  .mtqs-particle-bg::after,
+  .mtqs-shimmer::after,
+  .mtqs-logo-par1d,
+  .mtqs-section-fade {
+    animation: none !important;
+  }
+  .mtqs-section-fade {
+    opacity: 1;
+    transform: none;
+    filter: none;
+  }
+  html { scroll-behavior: auto; }
+}
+
+/* ============================================================
+   SIDEBAR LAYOUT (SIDEBAR-UI)
+   Fixed left sidebar (desktop) / drawer (mobile).
+   Obsidian → platform midnight + cyan + glassmorphism — same MTQΣ design
+   system, unified with the landing reference this session.
+   ============================================================ */
+
+/* ---------- Sidebar container (desktop) ---------- */
+.mtqs-sidebar {
+  position: fixed;
+  left: 0;
+  top: 0;
+  height: 100vh;
+  width: 280px;
+  z-index: 50;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  /* platform midnight — same family as the landing root (#020d1f → #010919) */
+  background: linear-gradient(
+    180deg,
+    rgba(2, 13, 31, 0.98) 0%,
+    rgba(1, 9, 25, 0.96) 100%
+  );
+  backdrop-filter: blur(28px) saturate(160%);
+  -webkit-backdrop-filter: blur(28px) saturate(160%);
+  border-right: 1px solid rgba(43, 171, 251, 0.14);
+  box-shadow:
+    1px 0 0 0 rgba(43, 171, 251, 0.04),
+    12px 0 40px -8px rgba(0, 0, 0, 0.55);
+  transition: transform 0.4s var(--ease-cinematic);
+}
+
+/* Platform cyan inner glow on the right edge */
+.mtqs-sidebar::after {
+  content: "";
+  position: absolute;
+  top: 0;
+  right: -1px;
+  bottom: 0;
+  width: 1px;
+  background: linear-gradient(
+    180deg,
+    transparent 0%,
+    rgba(43, 171, 251, 0.45) 18%,
+    rgba(141, 211, 255, 0.7) 50%,
+    rgba(43, 171, 251, 0.45) 82%,
+    transparent 100%
+  );
+  pointer-events: none;
+}
+
+/* ---------- Sidebar nav body (compacted: 24 entries fit a standard
+   viewport without internal scrolling, so the wheel never gets trapped;
+   overflow-y remains as a graceful fallback on short viewports) ---------- */
+.mtqs-sidebar-body {
+  flex: 1;
+  overflow-y: auto;
+  overflow-x: hidden;
+  padding: 0.35rem 0.6rem 0.75rem;
+  scrollbar-width: thin;
+  scrollbar-color: rgba(43, 171, 251, 0.22) transparent;
+  overscroll-behavior: auto; /* wheel chains to the page once the list ends */
+}
+.mtqs-sidebar-body::-webkit-scrollbar { width: 4px; }
+.mtqs-sidebar-body::-webkit-scrollbar-track { background: transparent; }
+.mtqs-sidebar-body::-webkit-scrollbar-thumb {
+  background: rgba(43, 171, 251, 0.22);
+  border-radius: 4px;
+}
+.mtqs-sidebar-body::-webkit-scrollbar-thumb:hover {
+  background: rgba(43, 171, 251, 0.4);
+}
+
+/* ---------- Sidebar group header (small uppercase cyan, compacted) ---------- */
+.mtqs-sidebar-group {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.42rem 0.5rem 0.16rem;
+  font-size: 0.56rem;
+  font-weight: 600;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  color: rgba(43, 171, 251, 0.7);
+  user-select: none;
+}
+.mtqs-sidebar-group::before {
+  content: "";
+  width: 6px;
+  height: 6px;
+  border-radius: 999px;
+  background: rgba(43, 171, 251, 0.55);
+  box-shadow: 0 0 8px rgba(43, 171, 251, 0.55);
+  flex-shrink: 0;
+}
+
+/* ---------- Sidebar nav item (compacted — 24 entries fit) ---------- */
+.mtqs-sidebar-item {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: 0.55rem;
+  width: 100%;
+  padding: 0.14rem 0.55rem 0.14rem 0.7rem;
+  border-radius: 0.5rem;
+  font-size: 0.74rem;
+  line-height: 1.15;
+  font-weight: 500;
+  letter-spacing: -0.005em;
+  color: rgba(255, 255, 255, 0.6);
+  background: transparent;
+  border: 1px solid transparent;
+  transition: all 0.18s var(--ease-cinematic);
+  cursor: pointer;
+  text-align: left;
+}
+.mtqs-sidebar-item:hover {
+  color: rgba(141, 211, 255, 0.95);
+  background: rgba(43, 171, 251, 0.05);
+  border-color: rgba(43, 171, 251, 0.18);
+  box-shadow: 0 0 18px rgba(43, 171, 251, 0.08);
+}
+.mtqs-sidebar-item:focus-visible {
+  outline: none;
+  border-color: rgba(43, 171, 251, 0.55);
+  box-shadow: 0 0 0 2px rgba(43, 171, 251, 0.18);
+}
+.mtqs-sidebar-item .mtqs-sidebar-item-icon {
+  flex-shrink: 0;
+  width: 0.875rem;
+  height: 0.875rem;
+  color: rgba(43, 171, 251, 0.6);
+  transition: color 0.18s var(--ease-cinematic);
+}
+.mtqs-sidebar-item:hover .mtqs-sidebar-item-icon {
+  color: rgba(141, 211, 255, 0.95);
+}
+
+/* ---------- Active sidebar nav item (gold left border + tint) ---------- */
+.mtqs-sidebar-item-active {
+  color: #EAF7FF;
+  background: linear-gradient(
+    90deg,
+    rgba(43, 171, 251, 0.16) 0%,
+    rgba(43, 171, 251, 0.06) 60%,
+    transparent 100%
+  );
+  border-color: rgba(43, 171, 251, 0.3);
+  box-shadow:
+    0 0 24px rgba(43, 171, 251, 0.14),
+    inset 0 1px 0 rgba(255, 255, 255, 0.04);
+}
+.mtqs-sidebar-item-active::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  top: 0.25rem;
+  bottom: 0.25rem;
+  width: 3px;
+  border-radius: 0 2px 2px 0;
+  background: linear-gradient(180deg, #EAF7FF 0%, #2BABFB 50%, #1E7FC4 100%);
+  box-shadow: 0 0 12px rgba(43, 171, 251, 0.6);
+}
+.mtqs-sidebar-item-active .mtqs-sidebar-item-icon {
+  color: #2BABFB;
+}
+
+/* ---------- Sidebar live status pill ---------- */
+.mtqs-sidebar-status-pill {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.45rem 0.65rem;
+  border-radius: 0.5rem;
+  border: 1px solid rgba(43, 171, 251, 0.18);
+  background: linear-gradient(
+    135deg,
+    rgba(43, 171, 251, 0.05) 0%,
+    rgba(0, 0, 0, 0.2) 100%
+  );
+  font-size: 0.65rem;
+  letter-spacing: 0.06em;
+  font-weight: 600;
+  font-family: var(--font-mono, "JetBrains Mono", monospace);
+  font-variant-numeric: tabular-nums;
+  color: rgba(255, 255, 255, 0.75);
+  white-space: nowrap;
+  overflow: hidden;
+}
+
+/* ---------- Sidebar bottom hint (Cmd+K + status) ---------- */
+.mtqs-sidebar-footer {
+  border-top: 1px solid rgba(255, 255, 255, 0.06);
+  padding: 0.75rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  background: rgba(0, 0, 0, 0.25);
+}
+.mtqs-sidebar-cmdk {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0.4rem 0.6rem;
+  border-radius: 0.45rem;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  background: rgba(255, 255, 255, 0.025);
+  font-size: 0.7rem;
+  color: rgba(255, 255, 255, 0.55);
+  cursor: pointer;
+  transition: all 0.18s var(--ease-cinematic);
+}
+.mtqs-sidebar-cmdk:hover {
+  border-color: rgba(43, 171, 251, 0.3);
+  color: #EAF7FF;
+  background: rgba(43, 171, 251, 0.06);
+}
+.mtqs-sidebar-cmdk kbd {
+  font-family: var(--font-mono, "JetBrains Mono", monospace);
+  font-size: 0.6rem;
+  padding: 0.1rem 0.35rem;
+  border-radius: 0.25rem;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  background: rgba(0, 0, 0, 0.4);
+  color: rgba(43, 171, 251, 0.85);
+}
+.mtqs-sidebar-honest {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  font-size: 0.6rem;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: rgba(255, 77, 109, 0.85);
+  padding: 0.3rem 0.6rem;
+  border-radius: 0.4rem;
+  border: 1px dashed rgba(255, 77, 109, 0.3);
+  background: rgba(255, 77, 109, 0.05);
+  font-weight: 600;
+}
+
+/* ---------- Main content with sidebar margin (desktop) ---------- */
+.mtqs-main-with-sidebar {
+  margin-left: 280px;
+  transition: margin-left 0.4s var(--ease-cinematic);
+  min-width: 0;
+}
+
+/* ---------- Mobile hamburger button (floating, fixed) ----------
+   NOTE: the `display` property is intentionally NOT set here. The button
+   uses Tailwind's `md:hidden` utility to hide on desktop. If we set
+   `display: inline-flex` in this base rule, it would override `md:hidden`
+   (because globals.css is emitted AFTER Tailwind utilities in the compiled
+   CSS, so the source-order tiebreaker favors this class). Instead, we only
+   apply `display: inline-flex` inside the mobile media query below, so
+   `md:hidden` can win on desktop. */
+.mtqs-sidebar-hamburger {
+  position: fixed;
+  top: 0.4rem;
+  left: 0.4rem;
+  z-index: 60;
+  width: 2.25rem;
+  height: 2.25rem;
+  border-radius: 0.55rem;
+  background: linear-gradient(
+    135deg,
+    rgba(43, 171, 251, 0.16) 0%,
+    rgba(8, 10, 18, 0.7) 100%
+  );
+  border: 1px solid rgba(43, 171, 251, 0.35);
+  color: #2BABFB;
+  backdrop-filter: blur(14px) saturate(160%);
+  -webkit-backdrop-filter: blur(14px) saturate(160%);
+  box-shadow:
+    0 0 18px rgba(43, 171, 251, 0.18),
+    0 4px 12px rgba(0, 0, 0, 0.4);
+  cursor: pointer;
+  transition: all 0.18s var(--ease-cinematic);
+}
+.mtqs-sidebar-hamburger:hover {
+  border-color: rgba(43, 171, 251, 0.6);
+  color: #EAF7FF;
+  box-shadow:
+    0 0 28px rgba(43, 171, 251, 0.32),
+    0 6px 16px rgba(0, 0, 0, 0.5);
+}
+.mtqs-sidebar-hamburger:focus-visible {
+  outline: none;
+  box-shadow:
+    0 0 0 2px rgba(43, 171, 251, 0.25),
+    0 0 18px rgba(43, 171, 251, 0.18);
+}
+
+/* ---------- Mobile drawer overlay (scrim) ---------- */
+.mtqs-sidebar-scrim {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.55);
+  backdrop-filter: blur(3px);
+  -webkit-backdrop-filter: blur(3px);
+  z-index: 49;
+}
+
+/* ---------- Responsive: sidebar becomes drawer below md ---------- */
+@media (max-width: 767px) {
+  .mtqs-sidebar {
+    transform: translateX(-100%);
+    box-shadow:
+      0 0 0 1px rgba(43, 171, 251, 0.18),
+      0 0 60px rgba(0, 0, 0, 0.6);
+  }
+  .mtqs-sidebar.is-open {
+    transform: translateX(0);
+  }
+  .mtqs-main-with-sidebar {
+    margin-left: 0;
+  }
+  /* Only show the hamburger on mobile — see the note on the base rule. */
+  .mtqs-sidebar-hamburger {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+  }
+}
+
+/* ---------- Reduced motion safety for the sidebar layer ---------- */
+@media (prefers-reduced-motion: reduce) {
+  .mtqs-sidebar,
+  .mtqs-sidebar-item,
+  .mtqs-sidebar-cmdk,
+  .mtqs-sidebar-hamburger,
+  .mtqs-main-with-sidebar {
+    transition: none !important;
+  }
+}

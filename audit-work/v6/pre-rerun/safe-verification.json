@@ -1,0 +1,1083 @@
+{
+  "generatedAt": "2026-10-19T18:24:40.038Z",
+  "task": "OD-35 / T-87 — Genesis Reserve Safe on-chain verification (Ext-3)",
+  "script": "scripts/verify-safe.ts",
+  "method": "read-only eth_chainId / eth_blockNumber / eth_getCode / eth_call via ethers v6 JsonRpcProvider; NO transactions, NO private keys, NO signing, NO state changes; each read retried up to 3 attempts with linear backoff; failures recorded verbatim as evidence",
+  "safeAddress": "0xE71869C662733642bfBb262B8c6bad8B0fBfA7D0",
+  "expectedConfiguration": {
+    "threshold": "4",
+    "ownersCount": 7,
+    "source": "mandate-register.ts OD-35 (status VERIFICATION-PENDING: reported 4/7, reads not previously performed — reported ≠ verified)"
+  },
+  "selectors": {
+    "getThreshold": "0xe75235b8",
+    "getOwners": "0xa0e67e2b",
+    "VERSION": "0xffa1ad74",
+    "nonce": "0xaffed0e0",
+    "getModulesPaginated": "0xcc2f8452",
+    "getGuard": "0xc9106389",
+    "guard": "0x7ceab3b1",
+    "totalSupply": "0x18160ddd",
+    "symbol": "0x95d89b41",
+    "name": "0x06fdde03",
+    "decimals": "0x313ce567"
+  },
+  "chains": {
+    "monad": {
+      "key": "monad",
+      "name": "Monad Testnet",
+      "rpc": "https://testnet-rpc.monad.xyz",
+      "expectedChainId": 10143,
+      "expectedChainIdHex": "0x279f",
+      "actualChainIdHex": "0x279f",
+      "actualChainId": 10143,
+      "chainIdMatch": true,
+      "blockNumberHex": "0x4519c65",
+      "blockNumber": 72457317,
+      "rpcUnreachable": false,
+      "rpcError": null,
+      "safeAddress": "0xE71869C662733642bfBb262B8c6bad8B0fBfA7D0",
+      "safeReads": {
+        "eth_getCode": {
+          "label": "eth_getCode(GenesisReserveSafe)",
+          "method": "eth_getCode",
+          "ok": true,
+          "raw": "0x608060405273ffffffffffffffffffffffffffffffffffffffff600054167fa619486e000000000000000000000000000000000000000000000000000000006000351415",
+          "decoded": {
+            "exists": true,
+            "byteLength": 171
+          },
+          "error": null,
+          "attempts": 1
+        },
+        "getThreshold": {
+          "label": "getThreshold()",
+          "fn": "getThreshold",
+          "selector": "0xe75235b8",
+          "calldata": "0xe75235b8",
+          "ok": true,
+          "raw": "0x0000000000000000000000000000000000000000000000000000000000000001",
+          "decoded": "1",
+          "error": null,
+          "attempts": 1
+        },
+        "getOwners": {
+          "label": "getOwners()",
+          "fn": "getOwners",
+          "selector": "0xa0e67e2b",
+          "calldata": "0xa0e67e2b",
+          "ok": true,
+          "raw": "0x000000000000000000000000000000000000000000000000000000000000002000000000000000000000000000000000000000000000000000000000000000010000000000000000000000003c3932f865892efabe45892f453f81b64f6c8d8c",
+          "decoded": [
+            "0x3C3932F865892EFabE45892f453f81B64f6c8d8c"
+          ],
+          "error": null,
+          "attempts": 1
+        },
+        "VERSION": {
+          "label": "VERSION()",
+          "fn": "VERSION",
+          "selector": "0xffa1ad74",
+          "calldata": "0xffa1ad74",
+          "ok": true,
+          "raw": "0x00000000000000000000000000000000000000000000000000000000000000200000000000000000000000000000000000000000000000000000000000000005312e342e31000000000000000000000000000000000000000000000000000000",
+          "decoded": "1.4.1",
+          "error": null,
+          "attempts": 1
+        },
+        "nonce": {
+          "label": "nonce()",
+          "fn": "nonce",
+          "selector": "0xaffed0e0",
+          "calldata": "0xaffed0e0",
+          "ok": true,
+          "raw": "0x0000000000000000000000000000000000000000000000000000000000000000",
+          "decoded": "0",
+          "error": null,
+          "attempts": 1
+        },
+        "getModulesPaginated": {
+          "label": "getModulesPaginated(start=SENTINEL 0x0000000000000000000000000000000000000001, pageSize=10)",
+          "fn": "getModulesPaginated",
+          "selector": "0xcc2f8452",
+          "calldata": "0xcc2f84520000000000000000000000000000000000000000000000000000000000000001000000000000000000000000000000000000000000000000000000000000000a",
+          "ok": true,
+          "raw": "0x000000000000000000000000000000000000000000000000000000000000004000000000000000000000000000000000000000000000000000000000000000010000000000000000000000000000000000000000000000000000000000000000",
+          "decoded": {
+            "array": [],
+            "next": "0x0000000000000000000000000000000000000001"
+          },
+          "error": null,
+          "attempts": 1
+        },
+        "getGuard": {
+          "label": "getGuard()",
+          "fn": "getGuard",
+          "selector": "0xc9106389",
+          "calldata": "0xc9106389",
+          "ok": false,
+          "raw": null,
+          "decoded": null,
+          "error": "execution reverted (no data present; likely require(false) occurred (action=\"call\", data=\"0x\", reason=\"require(false)\", transaction={ \"data\": \"0xc9106389\", \"to\": \"0xE71869C662733642bfBb262B8c6bad8B0fBfA7D0\" }, invocation=null, revert=null, code=CALL_EXCEPTION, version=6.17.0) | short: execution reverted (no data present; likely require(false) occurred | rpc: execution reverted",
+          "attempts": 3
+        },
+        "guard": {
+          "label": "guard() [Safe v1.3 storage-variable getter]",
+          "fn": "guard",
+          "selector": "0x7ceab3b1",
+          "calldata": "0x7ceab3b1",
+          "ok": false,
+          "raw": null,
+          "decoded": null,
+          "error": "execution reverted (no data present; likely require(false) occurred (action=\"call\", data=\"0x\", reason=\"require(false)\", transaction={ \"data\": \"0x7ceab3b1\", \"to\": \"0xE71869C662733642bfBb262B8c6bad8B0fBfA7D0\" }, invocation=null, revert=null, code=CALL_EXCEPTION, version=6.17.0) | short: execution reverted (no data present; likely require(false) occurred | rpc: execution reverted",
+          "attempts": 3
+        },
+        "eth_getStorageAt_singleton": {
+          "label": "eth_getStorageAt(safe, slot 0 = singleton)",
+          "method": "eth_getStorageAt",
+          "ok": true,
+          "raw": "0x00000000000000000000000029fcb43b46531bca003ddc8fcb67ffe91900c762",
+          "decoded": null,
+          "error": null,
+          "attempts": 1
+        },
+        "eth_getStorageAt_guardSlot": {
+          "label": "eth_getStorageAt(safe, GUARD_STORAGE_SLOT=0x4a204f620c8c5ccdca3fd54d003badd85ba500436a431f0cbda4f558c93c34c8)",
+          "method": "eth_getStorageAt",
+          "ok": true,
+          "raw": "0x0000000000000000000000000000000000000000000000000000000000000000",
+          "decoded": null,
+          "error": null,
+          "attempts": 1
+        },
+        "eth_getCode_singleton": {
+          "label": "eth_getCode(singleton 0x29fcB43b46531BcA003ddC8FCB67FFE91900C762)",
+          "method": "eth_getCode",
+          "ok": true,
+          "raw": "0x6080604052600436106101d15760003560e01c8063affed0e0116100f7578063e19a9dd911610095578063f08a032311610064578063f08a03231461156b578063f698da",
+          "decoded": {
+            "exists": true,
+            "byteLength": 24421
+          },
+          "error": null,
+          "attempts": 1
+        }
+      },
+      "safeFindings": {
+        "codeBytes": 171,
+        "threshold": "1",
+        "ownersCount": 1,
+        "owners": [
+          "0x3C3932F865892EFabE45892f453f81B64f6c8d8c"
+        ],
+        "version": "1.4.1",
+        "nonce": "0",
+        "modulesCount": 0,
+        "modules": [],
+        "modulesNext": "0x0000000000000000000000000000000000000001",
+        "guardMethod": "eth_getStorageAt at GUARD_STORAGE_SLOT 0x4a204f620c8c5ccdca3fd54d003badd85ba500436a431f0cbda4f558c93c34c8 (both public getters revert on v1.4.1 — no public getter exists)",
+        "guardAddress": "0x0000000000000000000000000000000000000000",
+        "guardIsZero": true,
+        "singleton": "0x29fcB43b46531BcA003ddC8FCB67FFE91900C762",
+        "singletonCodeBytes": 24421
+      },
+      "codeProbes": [
+        {
+          "address": "0x9e6EdC15DAc420931508d8Ddf9BC817651A253aD",
+          "label": "MTQ candidate A",
+          "recordedIn": "contracts.ts MONAD_TESTNET 'MTQ Token' (user-recorded deployment; also scripts/monad-read.ts)",
+          "kind": "token-candidate",
+          "code": {
+            "ok": true,
+            "exists": true,
+            "byteLength": 6681,
+            "codePrefix": "0x608060405234801561000f575f80fd5b5060043610610156575f3560e01c80635c975abb116100c1578063a217fddf1161007a578063a217fddf146103b0578063a9059c",
+            "error": null,
+            "attempts": 1
+          },
+          "erc20": {
+            "totalSupply": {
+              "label": "MTQ candidate A totalSupply()",
+              "fn": "totalSupply",
+              "selector": "0x18160ddd",
+              "calldata": "0x18160ddd",
+              "ok": true,
+              "raw": "0x000000000000000000000000000000000000000000000010db48c40586f08000",
+              "decoded": "310949000000000000000",
+              "error": null,
+              "attempts": 1
+            },
+            "symbol": {
+              "label": "MTQ candidate A symbol()",
+              "fn": "symbol",
+              "selector": "0x95d89b41",
+              "calldata": "0x95d89b41",
+              "ok": true,
+              "raw": "0x000000000000000000000000000000000000000000000000000000000000002000000000000000000000000000000000000000000000000000000000000000034d54510000000000000000000000000000000000000000000000000000000000",
+              "decoded": "MTQ",
+              "error": null,
+              "attempts": 1
+            },
+            "name": {
+              "label": "MTQ candidate A name()",
+              "fn": "name",
+              "selector": "0x06fdde03",
+              "calldata": "0x06fdde03",
+              "ok": true,
+              "raw": "0x000000000000000000000000000000000000000000000000000000000000002000000000000000000000000000000000000000000000000000000000000000074d49544851414c00000000000000000000000000000000000000000000000000",
+              "decoded": "MITHQAL",
+              "error": null,
+              "attempts": 1
+            },
+            "decimals": {
+              "label": "MTQ candidate A decimals()",
+              "fn": "decimals",
+              "selector": "0x313ce567",
+              "calldata": "0x313ce567",
+              "ok": true,
+              "raw": "0x0000000000000000000000000000000000000000000000000000000000000012",
+              "decoded": 18,
+              "error": null,
+              "attempts": 1
+            },
+            "totalSupplyFormatted": "310.949 (raw 310949000000000000000, 18 decimals)"
+          }
+        },
+        {
+          "address": "0x0Ac20360234b4C988a19586CBe55733e18A5982f",
+          "label": "MTQ candidate B",
+          "recordedIn": "contracts.ts CANONICAL_MTQ_ADDRESSES.monad + Monad-Testnet-Ecosystem.json 'MTQToken'",
+          "kind": "token-candidate",
+          "code": {
+            "ok": true,
+            "exists": true,
+            "byteLength": 3413,
+            "codePrefix": "0x608060405234801561000f575f5ffd5b5060043610610148575f3560e01c806342966c68116100bf578063a217fddf11610079578063a217fddf1461029e578063a9059c",
+            "error": null,
+            "attempts": 1
+          },
+          "erc20": {
+            "totalSupply": {
+              "label": "MTQ candidate B totalSupply()",
+              "fn": "totalSupply",
+              "selector": "0x18160ddd",
+              "calldata": "0x18160ddd",
+              "ok": true,
+              "raw": "0x00000000000000000000000000000000000000000000d3c21bceccf247e69b00",
+              "decoded": "1000000000000019980000000",
+              "error": null,
+              "attempts": 1
+            },
+            "symbol": {
+              "label": "MTQ candidate B symbol()",
+              "fn": "symbol",
+              "selector": "0x95d89b41",
+              "calldata": "0x95d89b41",
+              "ok": true,
+              "raw": "0x000000000000000000000000000000000000000000000000000000000000002000000000000000000000000000000000000000000000000000000000000000034d54510000000000000000000000000000000000000000000000000000000000",
+              "decoded": "MTQ",
+              "error": null,
+              "attempts": 1
+            },
+            "name": {
+              "label": "MTQ candidate B name()",
+              "fn": "name",
+              "selector": "0x06fdde03",
+              "calldata": "0x06fdde03",
+              "ok": true,
+              "raw": "0x000000000000000000000000000000000000000000000000000000000000002000000000000000000000000000000000000000000000000000000000000000054d5451cea3000000000000000000000000000000000000000000000000000000",
+              "decoded": "MTQΣ",
+              "error": null,
+              "attempts": 1
+            },
+            "decimals": {
+              "label": "MTQ candidate B decimals()",
+              "fn": "decimals",
+              "selector": "0x313ce567",
+              "calldata": "0x313ce567",
+              "ok": true,
+              "raw": "0x0000000000000000000000000000000000000000000000000000000000000012",
+              "decoded": 18,
+              "error": null,
+              "attempts": 1
+            },
+            "totalSupplyFormatted": "1000000.00000001998 (raw 1000000000000019980000000, 18 decimals)"
+          }
+        },
+        {
+          "address": "0x5D9564C27111EA65Da3228a79833F0FF129bfd4a",
+          "label": "MTQSigma (deployment JSON)",
+          "recordedIn": "contracts/deployments/Monad-Testnet.json 'MTQSigma'",
+          "kind": "token-candidate",
+          "code": {
+            "ok": true,
+            "exists": true,
+            "byteLength": 11666,
+            "codePrefix": "0x608060405234801561000f575f5ffd5b506004361061029e575f3560e01c80637e4831d311610165578063bf198352116100cc578063e502448411610085578063e50244",
+            "error": null,
+            "attempts": 1
+          },
+          "erc20": {
+            "totalSupply": {
+              "label": "MTQSigma (deployment JSON) totalSupply()",
+              "fn": "totalSupply",
+              "selector": "0x18160ddd",
+              "calldata": "0x18160ddd",
+              "ok": true,
+              "raw": "0x00000000000000000000000000000000000000000000d68222a358da6f0c0000",
+              "decoded": "1012987000000000000000000",
+              "error": null,
+              "attempts": 1
+            },
+            "symbol": {
+              "label": "MTQSigma (deployment JSON) symbol()",
+              "fn": "symbol",
+              "selector": "0x95d89b41",
+              "calldata": "0x95d89b41",
+              "ok": true,
+              "raw": "0x000000000000000000000000000000000000000000000000000000000000002000000000000000000000000000000000000000000000000000000000000000034d54510000000000000000000000000000000000000000000000000000000000",
+              "decoded": "MTQ",
+              "error": null,
+              "attempts": 1
+            },
+            "name": {
+              "label": "MTQSigma (deployment JSON) name()",
+              "fn": "name",
+              "selector": "0x06fdde03",
+              "calldata": "0x06fdde03",
+              "ok": true,
+              "raw": "0x000000000000000000000000000000000000000000000000000000000000002000000000000000000000000000000000000000000000000000000000000000054d5451cea3000000000000000000000000000000000000000000000000000000",
+              "decoded": "MTQΣ",
+              "error": null,
+              "attempts": 1
+            },
+            "decimals": {
+              "label": "MTQSigma (deployment JSON) decimals()",
+              "fn": "decimals",
+              "selector": "0x313ce567",
+              "calldata": "0x313ce567",
+              "ok": true,
+              "raw": "0x0000000000000000000000000000000000000000000000000000000000000012",
+              "decoded": 18,
+              "error": null,
+              "attempts": 1
+            },
+            "totalSupplyFormatted": "1012987 (raw 1012987000000000000000000, 18 decimals)"
+          }
+        },
+        {
+          "address": "0xDfcA66ac0450C9AB86307af1942E157C5A4DB713",
+          "label": "Oracle (contracts.ts)",
+          "recordedIn": "contracts.ts MONAD_TESTNET 'Oracle'; NOTE: same address recorded as 'Safe' in Arc-Testnet-Ecosystem.json",
+          "kind": "recorded-contract",
+          "code": {
+            "ok": true,
+            "exists": true,
+            "byteLength": 5273,
+            "codePrefix": "0x608060405234801561000f575f80fd5b5060043610610109575f3560e01c806354627af0116100a0578063a217fddf1161006f578063a217fddf146102da578063b04aba",
+            "error": null,
+            "attempts": 1
+          }
+        },
+        {
+          "address": "0xE35a91801bc541fb743BB9EaD26C1FbD81EaBd66",
+          "label": "Governance (contracts.ts)",
+          "recordedIn": "contracts.ts MONAD_TESTNET 'Governance'; NOTE: identical address also recorded for Arc 'Governance'",
+          "kind": "recorded-contract",
+          "code": {
+            "ok": true,
+            "exists": true,
+            "byteLength": 25819,
+            "codePrefix": "0x608060405260043610610280575f3560e01c80637d5e81e21161014e578063bc197c81116100c0578063e540d01d11610079578063e540d01d14610b21578063eb9019d4",
+            "error": null,
+            "attempts": 1
+          }
+        },
+        {
+          "address": "0x1bbCd78E4DEF79b7a3B77242770cbAefAC816177",
+          "label": "Reserve (contracts.ts)",
+          "recordedIn": "contracts.ts MONAD_TESTNET 'Reserve Vault'; NOTE: same address also recorded as Robinhood 'Takaful' in contracts.ts",
+          "kind": "recorded-contract",
+          "code": {
+            "ok": true,
+            "exists": true,
+            "byteLength": 5703,
+            "codePrefix": "0x608060405234801561000f575f80fd5b506004361061011f575f3560e01c806341bf3f26116100ab578063d13d1fc41161006f578063d13d1fc414610303578063d3b8c2",
+            "error": null,
+            "attempts": 1
+          }
+        },
+        {
+          "address": "0x197e9CB28216dfe18a199b4c2930F74C2F460809",
+          "label": "Mint (contracts.ts)",
+          "recordedIn": "contracts.ts MONAD_TESTNET 'Mint'",
+          "kind": "recorded-contract",
+          "code": {
+            "ok": true,
+            "exists": true,
+            "byteLength": 5644,
+            "codePrefix": "0x608060405234801561000f575f80fd5b50600436106100fd575f3560e01c806391d1485411610095578063d13d1fc411610064578063d13d1fc414610297578063d53913",
+            "error": null,
+            "attempts": 1
+          }
+        },
+        {
+          "address": "0x963201C0Fa258033CCDdFcDceb8B5E3bc2b435a4",
+          "label": "Redeem (contracts.ts)",
+          "recordedIn": "contracts.ts MONAD_TESTNET 'Redeem'",
+          "kind": "recorded-contract",
+          "code": {
+            "ok": true,
+            "exists": true,
+            "byteLength": 6170,
+            "codePrefix": "0x608060405234801561000f575f80fd5b5060043610610109575f3560e01c806375b238fc116100a0578063cd3293de1161006f578063cd3293de146102a3578063d13d1f",
+            "error": null,
+            "attempts": 1
+          }
+        },
+        {
+          "address": "0x8839ce50e8D414005518769999c0A5b961D00CB2",
+          "label": "Algorithm (contracts.ts)",
+          "recordedIn": "contracts.ts MONAD_TESTNET 'Algorithm Engine'",
+          "kind": "recorded-contract",
+          "code": {
+            "ok": true,
+            "exists": true,
+            "byteLength": 2546,
+            "codePrefix": "0x608060405234801561000f575f80fd5b50600436106100a7575f3560e01c8063390b46fe1161006f578063390b46fe1461016157806352fd856b1461017d57806375b238",
+            "error": null,
+            "attempts": 1
+          }
+        },
+        {
+          "address": "0x74353601354c0b71df5B16Fe1B28c7F0831dd316",
+          "label": "Safe claim (Ecosystem JSON) [EXTRA]",
+          "recordedIn": "Monad-Testnet-Ecosystem.json 'Safe' — conflicts with genesis.ts Safe 0xE718…A7D0",
+          "kind": "recorded-safe-claim",
+          "code": {
+            "ok": true,
+            "exists": true,
+            "byteLength": 3321,
+            "codePrefix": "0x608060405234801561000f575f5ffd5b50600436106100f0575f3560e01c80638790c1de11610093578063a1ebf35d11610063578063a1ebf35d14610204578063a217fd",
+            "error": null,
+            "attempts": 1
+          },
+          "safeReads": {
+            "getThreshold": {
+              "label": "Safe claim (Ecosystem JSON) [EXTRA] getThreshold()",
+              "fn": "getThreshold",
+              "selector": "0xe75235b8",
+              "calldata": "0xe75235b8",
+              "ok": false,
+              "raw": null,
+              "decoded": null,
+              "error": "execution reverted (no data present; likely require(false) occurred (action=\"call\", data=\"0x\", reason=\"require(false)\", transaction={ \"data\": \"0xe75235b8\", \"to\": \"0x74353601354c0b71df5B16Fe1B28c7F0831dd316\" }, invocation=null, revert=null, code=CALL_EXCEPTION, version=6.17.0) | short: execution reverted (no data present; likely require(false) occurred | rpc: execution reverted",
+              "attempts": 3
+            },
+            "getOwners": {
+              "label": "Safe claim (Ecosystem JSON) [EXTRA] getOwners()",
+              "fn": "getOwners",
+              "selector": "0xa0e67e2b",
+              "calldata": "0xa0e67e2b",
+              "ok": false,
+              "raw": null,
+              "decoded": null,
+              "error": "execution reverted (no data present; likely require(false) occurred (action=\"call\", data=\"0x\", reason=\"require(false)\", transaction={ \"data\": \"0xa0e67e2b\", \"to\": \"0x74353601354c0b71df5B16Fe1B28c7F0831dd316\" }, invocation=null, revert=null, code=CALL_EXCEPTION, version=6.17.0) | short: execution reverted (no data present; likely require(false) occurred | rpc: execution reverted",
+              "attempts": 3
+            },
+            "VERSION": {
+              "label": "Safe claim (Ecosystem JSON) [EXTRA] VERSION()",
+              "fn": "VERSION",
+              "selector": "0xffa1ad74",
+              "calldata": "0xffa1ad74",
+              "ok": false,
+              "raw": null,
+              "decoded": null,
+              "error": "execution reverted (no data present; likely require(false) occurred (action=\"call\", data=\"0x\", reason=\"require(false)\", transaction={ \"data\": \"0xffa1ad74\", \"to\": \"0x74353601354c0b71df5B16Fe1B28c7F0831dd316\" }, invocation=null, revert=null, code=CALL_EXCEPTION, version=6.17.0) | short: execution reverted (no data present; likely require(false) occurred | rpc: execution reverted",
+              "attempts": 3
+            },
+            "nonce": {
+              "label": "Safe claim (Ecosystem JSON) [EXTRA] nonce()",
+              "fn": "nonce",
+              "selector": "0xaffed0e0",
+              "calldata": "0xaffed0e0",
+              "ok": false,
+              "raw": null,
+              "decoded": null,
+              "error": "execution reverted (no data present; likely require(false) occurred (action=\"call\", data=\"0x\", reason=\"require(false)\", transaction={ \"data\": \"0xaffed0e0\", \"to\": \"0x74353601354c0b71df5B16Fe1B28c7F0831dd316\" }, invocation=null, revert=null, code=CALL_EXCEPTION, version=6.17.0) | short: execution reverted (no data present; likely require(false) occurred | rpc: execution reverted",
+              "attempts": 3
+            },
+            "getModulesPaginated": {
+              "label": "Safe claim (Ecosystem JSON) [EXTRA] getModulesPaginated(start=SENTINEL 0x0000000000000000000000000000000000000001, pageSize=10)",
+              "fn": "getModulesPaginated",
+              "selector": "0xcc2f8452",
+              "calldata": "0xcc2f84520000000000000000000000000000000000000000000000000000000000000001000000000000000000000000000000000000000000000000000000000000000a",
+              "ok": false,
+              "raw": null,
+              "decoded": null,
+              "error": "execution reverted (no data present; likely require(false) occurred (action=\"call\", data=\"0x\", reason=\"require(false)\", transaction={ \"data\": \"0xcc2f84520000000000000000000000000000000000000000000000000000000000000001000000000000000000000000000000000000000000000000000000000000000a\", \"to\": \"0x74353601354c0b71df5B16Fe1B28c7F0831dd316\" }, invocation=null, revert=null, code=CALL_EXCEPTION, version=6.17.0) | short: execution reverted (no data present; likely require(false) occurred | rpc: execution reverted",
+              "attempts": 3
+            },
+            "getGuard": {
+              "label": "Safe claim (Ecosystem JSON) [EXTRA] getGuard()",
+              "fn": "getGuard",
+              "selector": "0xc9106389",
+              "calldata": "0xc9106389",
+              "ok": false,
+              "raw": null,
+              "decoded": null,
+              "error": "execution reverted (no data present; likely require(false) occurred (action=\"call\", data=\"0x\", reason=\"require(false)\", transaction={ \"data\": \"0xc9106389\", \"to\": \"0x74353601354c0b71df5B16Fe1B28c7F0831dd316\" }, invocation=null, revert=null, code=CALL_EXCEPTION, version=6.17.0) | short: execution reverted (no data present; likely require(false) occurred | rpc: execution reverted",
+              "attempts": 3
+            },
+            "guard": {
+              "label": "Safe claim (Ecosystem JSON) [EXTRA] guard() [Safe v1.3 storage-variable getter]",
+              "fn": "guard",
+              "selector": "0x7ceab3b1",
+              "calldata": "0x7ceab3b1",
+              "ok": false,
+              "raw": null,
+              "decoded": null,
+              "error": "execution reverted (no data present; likely require(false) occurred (action=\"call\", data=\"0x\", reason=\"require(false)\", transaction={ \"data\": \"0x7ceab3b1\", \"to\": \"0x74353601354c0b71df5B16Fe1B28c7F0831dd316\" }, invocation=null, revert=null, code=CALL_EXCEPTION, version=6.17.0) | short: execution reverted (no data present; likely require(false) occurred | rpc: execution reverted",
+              "attempts": 3
+            }
+          }
+        }
+      ],
+      "liveTokenCandidates": [
+        "0x9e6EdC15DAc420931508d8Ddf9BC817651A253aD (MITHQAL / MTQ, supply 310.949 (raw 310949000000000000000, 18 decimals))",
+        "0x0Ac20360234b4C988a19586CBe55733e18A5982f (MTQΣ / MTQ, supply 1000000.00000001998 (raw 1000000000000019980000000, 18 decimals))",
+        "0x5D9564C27111EA65Da3228a79833F0FF129bfd4a (MTQΣ / MTQ, supply 1012987 (raw 1012987000000000000000000, 18 decimals))"
+      ],
+      "verdict": "CRITICAL FINDING",
+      "verdictDetail": "On-chain threshold=1 (expected 4), on-chain owner count=1 (expected 7), VERSION=1.4.1, owners=[\"0x3C3932F865892EFabE45892f453f81B64f6c8d8c\"] — the reported 4/7 configuration is NOT what the chain says."
+    },
+    "arc": {
+      "key": "arc",
+      "name": "Arc Testnet",
+      "rpc": "https://rpc.testnet.arc.io",
+      "expectedChainId": 5042002,
+      "expectedChainIdHex": "0x4cef52",
+      "actualChainIdHex": "0x4cef52",
+      "actualChainId": 5042002,
+      "chainIdMatch": true,
+      "blockNumberHex": "0x40e654b",
+      "blockNumber": 68052299,
+      "rpcUnreachable": false,
+      "rpcError": null,
+      "safeAddress": "0xE71869C662733642bfBb262B8c6bad8B0fBfA7D0",
+      "safeReads": {
+        "eth_getCode": {
+          "label": "eth_getCode(GenesisReserveSafe)",
+          "method": "eth_getCode",
+          "ok": true,
+          "raw": "0x608060405273ffffffffffffffffffffffffffffffffffffffff600054167fa619486e000000000000000000000000000000000000000000000000000000006000351415",
+          "decoded": {
+            "exists": true,
+            "byteLength": 171
+          },
+          "error": null,
+          "attempts": 1
+        },
+        "getThreshold": {
+          "label": "getThreshold()",
+          "fn": "getThreshold",
+          "selector": "0xe75235b8",
+          "calldata": "0xe75235b8",
+          "ok": true,
+          "raw": "0x0000000000000000000000000000000000000000000000000000000000000001",
+          "decoded": "1",
+          "error": null,
+          "attempts": 1
+        },
+        "getOwners": {
+          "label": "getOwners()",
+          "fn": "getOwners",
+          "selector": "0xa0e67e2b",
+          "calldata": "0xa0e67e2b",
+          "ok": true,
+          "raw": "0x000000000000000000000000000000000000000000000000000000000000002000000000000000000000000000000000000000000000000000000000000000010000000000000000000000003c3932f865892efabe45892f453f81b64f6c8d8c",
+          "decoded": [
+            "0x3C3932F865892EFabE45892f453f81B64f6c8d8c"
+          ],
+          "error": null,
+          "attempts": 1
+        },
+        "VERSION": {
+          "label": "VERSION()",
+          "fn": "VERSION",
+          "selector": "0xffa1ad74",
+          "calldata": "0xffa1ad74",
+          "ok": true,
+          "raw": "0x00000000000000000000000000000000000000000000000000000000000000200000000000000000000000000000000000000000000000000000000000000005312e342e31000000000000000000000000000000000000000000000000000000",
+          "decoded": "1.4.1",
+          "error": null,
+          "attempts": 1
+        },
+        "nonce": {
+          "label": "nonce()",
+          "fn": "nonce",
+          "selector": "0xaffed0e0",
+          "calldata": "0xaffed0e0",
+          "ok": true,
+          "raw": "0x0000000000000000000000000000000000000000000000000000000000000000",
+          "decoded": "0",
+          "error": null,
+          "attempts": 1
+        },
+        "getModulesPaginated": {
+          "label": "getModulesPaginated(start=SENTINEL 0x0000000000000000000000000000000000000001, pageSize=10)",
+          "fn": "getModulesPaginated",
+          "selector": "0xcc2f8452",
+          "calldata": "0xcc2f84520000000000000000000000000000000000000000000000000000000000000001000000000000000000000000000000000000000000000000000000000000000a",
+          "ok": true,
+          "raw": "0x000000000000000000000000000000000000000000000000000000000000004000000000000000000000000000000000000000000000000000000000000000010000000000000000000000000000000000000000000000000000000000000000",
+          "decoded": {
+            "array": [],
+            "next": "0x0000000000000000000000000000000000000001"
+          },
+          "error": null,
+          "attempts": 1
+        },
+        "getGuard": {
+          "label": "getGuard()",
+          "fn": "getGuard",
+          "selector": "0xc9106389",
+          "calldata": "0xc9106389",
+          "ok": false,
+          "raw": null,
+          "decoded": null,
+          "error": "missing revert data (action=\"call\", data=null, reason=null, transaction={ \"data\": \"0xc9106389\", \"to\": \"0xE71869C662733642bfBb262B8c6bad8B0fBfA7D0\" }, invocation=null, revert=null, code=CALL_EXCEPTION, version=6.17.0) | short: missing revert data | rpc: execution reverted",
+          "attempts": 3
+        },
+        "guard": {
+          "label": "guard() [Safe v1.3 storage-variable getter]",
+          "fn": "guard",
+          "selector": "0x7ceab3b1",
+          "calldata": "0x7ceab3b1",
+          "ok": false,
+          "raw": null,
+          "decoded": null,
+          "error": "missing revert data (action=\"call\", data=null, reason=null, transaction={ \"data\": \"0x7ceab3b1\", \"to\": \"0xE71869C662733642bfBb262B8c6bad8B0fBfA7D0\" }, invocation=null, revert=null, code=CALL_EXCEPTION, version=6.17.0) | short: missing revert data | rpc: execution reverted",
+          "attempts": 3
+        },
+        "eth_getStorageAt_singleton": {
+          "label": "eth_getStorageAt(safe, slot 0 = singleton)",
+          "method": "eth_getStorageAt",
+          "ok": true,
+          "raw": "0x00000000000000000000000029fcb43b46531bca003ddc8fcb67ffe91900c762",
+          "decoded": null,
+          "error": null,
+          "attempts": 1
+        },
+        "eth_getStorageAt_guardSlot": {
+          "label": "eth_getStorageAt(safe, GUARD_STORAGE_SLOT=0x4a204f620c8c5ccdca3fd54d003badd85ba500436a431f0cbda4f558c93c34c8)",
+          "method": "eth_getStorageAt",
+          "ok": true,
+          "raw": "0x0000000000000000000000000000000000000000000000000000000000000000",
+          "decoded": null,
+          "error": null,
+          "attempts": 1
+        },
+        "eth_getCode_singleton": {
+          "label": "eth_getCode(singleton 0x29fcB43b46531BcA003ddC8FCB67FFE91900C762)",
+          "method": "eth_getCode",
+          "ok": true,
+          "raw": "0x6080604052600436106101d15760003560e01c8063affed0e0116100f7578063e19a9dd911610095578063f08a032311610064578063f08a03231461156b578063f698da",
+          "decoded": {
+            "exists": true,
+            "byteLength": 24421
+          },
+          "error": null,
+          "attempts": 1
+        }
+      },
+      "safeFindings": {
+        "codeBytes": 171,
+        "threshold": "1",
+        "ownersCount": 1,
+        "owners": [
+          "0x3C3932F865892EFabE45892f453f81B64f6c8d8c"
+        ],
+        "version": "1.4.1",
+        "nonce": "0",
+        "modulesCount": 0,
+        "modules": [],
+        "modulesNext": "0x0000000000000000000000000000000000000001",
+        "guardMethod": "eth_getStorageAt at GUARD_STORAGE_SLOT 0x4a204f620c8c5ccdca3fd54d003badd85ba500436a431f0cbda4f558c93c34c8 (both public getters revert on v1.4.1 — no public getter exists)",
+        "guardAddress": "0x0000000000000000000000000000000000000000",
+        "guardIsZero": true,
+        "singleton": "0x29fcB43b46531BcA003ddC8FCB67FFE91900C762",
+        "singletonCodeBytes": 24421
+      },
+      "codeProbes": [
+        {
+          "address": "0x237c3Aa2B79248f86f6523D3890095BCd1996601",
+          "label": "MTQ candidate A",
+          "recordedIn": "contracts.ts ARC_TESTNET 'MTQ Token' (user-recorded deployment)",
+          "kind": "token-candidate",
+          "code": {
+            "ok": true,
+            "exists": true,
+            "byteLength": 3474,
+            "codePrefix": "0x6080806040526004361015610012575f80fd5b5f3560e01c90816301ffc9a7146108fe5750806306fdde031461082c578063095ea7b31461078457806318160ddd146107",
+            "error": null,
+            "attempts": 1
+          },
+          "erc20": {
+            "totalSupply": {
+              "label": "MTQ candidate A totalSupply()",
+              "fn": "totalSupply",
+              "selector": "0x18160ddd",
+              "calldata": "0x18160ddd",
+              "ok": true,
+              "raw": "0x00000000000000000000000000000000000000000000003635c9adc5dea00000",
+              "decoded": "1000000000000000000000",
+              "error": null,
+              "attempts": 1
+            },
+            "symbol": {
+              "label": "MTQ candidate A symbol()",
+              "fn": "symbol",
+              "selector": "0x95d89b41",
+              "calldata": "0x95d89b41",
+              "ok": true,
+              "raw": "0x000000000000000000000000000000000000000000000000000000000000002000000000000000000000000000000000000000000000000000000000000000034d54510000000000000000000000000000000000000000000000000000000000",
+              "decoded": "MTQ",
+              "error": null,
+              "attempts": 1
+            },
+            "name": {
+              "label": "MTQ candidate A name()",
+              "fn": "name",
+              "selector": "0x06fdde03",
+              "calldata": "0x06fdde03",
+              "ok": true,
+              "raw": "0x000000000000000000000000000000000000000000000000000000000000002000000000000000000000000000000000000000000000000000000000000000074d49544851414c00000000000000000000000000000000000000000000000000",
+              "decoded": "MITHQAL",
+              "error": null,
+              "attempts": 1
+            },
+            "decimals": {
+              "label": "MTQ candidate A decimals()",
+              "fn": "decimals",
+              "selector": "0x313ce567",
+              "calldata": "0x313ce567",
+              "ok": true,
+              "raw": "0x0000000000000000000000000000000000000000000000000000000000000012",
+              "decoded": 18,
+              "error": null,
+              "attempts": 1
+            },
+            "totalSupplyFormatted": "1000 (raw 1000000000000000000000, 18 decimals)"
+          }
+        },
+        {
+          "address": "0x24203404B9b971C907e8Ced96106Fa74380d9897",
+          "label": "MTQ candidate B",
+          "recordedIn": "contracts.ts CANONICAL_MTQ_ADDRESSES.arc + Arc-Testnet-Ecosystem.json 'MTQToken'",
+          "kind": "token-candidate",
+          "code": {
+            "ok": true,
+            "exists": true,
+            "byteLength": 3413,
+            "codePrefix": "0x608060405234801561000f575f5ffd5b5060043610610148575f3560e01c806342966c68116100bf578063a217fddf11610079578063a217fddf1461029e578063a9059c",
+            "error": null,
+            "attempts": 1
+          },
+          "erc20": {
+            "totalSupply": {
+              "label": "MTQ candidate B totalSupply()",
+              "fn": "totalSupply",
+              "selector": "0x18160ddd",
+              "calldata": "0x18160ddd",
+              "ok": true,
+              "raw": "0x00000000000000000000000000000000000000000000d3c21bceccf247e69b00",
+              "decoded": "1000000000000019980000000",
+              "error": null,
+              "attempts": 1
+            },
+            "symbol": {
+              "label": "MTQ candidate B symbol()",
+              "fn": "symbol",
+              "selector": "0x95d89b41",
+              "calldata": "0x95d89b41",
+              "ok": true,
+              "raw": "0x000000000000000000000000000000000000000000000000000000000000002000000000000000000000000000000000000000000000000000000000000000034d54510000000000000000000000000000000000000000000000000000000000",
+              "decoded": "MTQ",
+              "error": null,
+              "attempts": 1
+            },
+            "name": {
+              "label": "MTQ candidate B name()",
+              "fn": "name",
+              "selector": "0x06fdde03",
+              "calldata": "0x06fdde03",
+              "ok": true,
+              "raw": "0x000000000000000000000000000000000000000000000000000000000000002000000000000000000000000000000000000000000000000000000000000000054d5451cea3000000000000000000000000000000000000000000000000000000",
+              "decoded": "MTQΣ",
+              "error": null,
+              "attempts": 1
+            },
+            "decimals": {
+              "label": "MTQ candidate B decimals()",
+              "fn": "decimals",
+              "selector": "0x313ce567",
+              "calldata": "0x313ce567",
+              "ok": true,
+              "raw": "0x0000000000000000000000000000000000000000000000000000000000000012",
+              "decoded": 18,
+              "error": null,
+              "attempts": 1
+            },
+            "totalSupplyFormatted": "1000000.00000001998 (raw 1000000000000019980000000, 18 decimals)"
+          }
+        },
+        {
+          "address": "0x826b82F79FD6c5347cDC568B1d0A7918128B63c1",
+          "label": "MTQSigma (deployment JSON)",
+          "recordedIn": "contracts/deployments/Arc-Testnet.json 'MTQSigma'",
+          "kind": "token-candidate",
+          "code": {
+            "ok": true,
+            "exists": true,
+            "byteLength": 11551,
+            "codePrefix": "0x608060405234801561000f575f5ffd5b5060043610610293575f3560e01c80637999fea011610165578063bf198352116100cc578063e502448411610085578063e50244",
+            "error": null,
+            "attempts": 1
+          },
+          "erc20": {
+            "totalSupply": {
+              "label": "MTQSigma (deployment JSON) totalSupply()",
+              "fn": "totalSupply",
+              "selector": "0x18160ddd",
+              "calldata": "0x18160ddd",
+              "ok": true,
+              "raw": "0x00000000000000000000000000000000000000000000d5015a19a7ab44640000",
+              "decoded": "1005889000000000000000000",
+              "error": null,
+              "attempts": 1
+            },
+            "symbol": {
+              "label": "MTQSigma (deployment JSON) symbol()",
+              "fn": "symbol",
+              "selector": "0x95d89b41",
+              "calldata": "0x95d89b41",
+              "ok": true,
+              "raw": "0x000000000000000000000000000000000000000000000000000000000000002000000000000000000000000000000000000000000000000000000000000000034d54510000000000000000000000000000000000000000000000000000000000",
+              "decoded": "MTQ",
+              "error": null,
+              "attempts": 1
+            },
+            "name": {
+              "label": "MTQSigma (deployment JSON) name()",
+              "fn": "name",
+              "selector": "0x06fdde03",
+              "calldata": "0x06fdde03",
+              "ok": true,
+              "raw": "0x000000000000000000000000000000000000000000000000000000000000002000000000000000000000000000000000000000000000000000000000000000094d5451205369676d610000000000000000000000000000000000000000000000",
+              "decoded": "MTQ Sigma",
+              "error": null,
+              "attempts": 1
+            },
+            "decimals": {
+              "label": "MTQSigma (deployment JSON) decimals()",
+              "fn": "decimals",
+              "selector": "0x313ce567",
+              "calldata": "0x313ce567",
+              "ok": true,
+              "raw": "0x0000000000000000000000000000000000000000000000000000000000000012",
+              "decoded": 18,
+              "error": null,
+              "attempts": 1
+            },
+            "totalSupplyFormatted": "1005889 (raw 1005889000000000000000000, 18 decimals)"
+          }
+        },
+        {
+          "address": "0xFd2B8d176bf059287638Db30D02C6651dA02861e",
+          "label": "Oracle (contracts.ts)",
+          "recordedIn": "contracts.ts ARC_TESTNET 'Oracle'; NOTE: same address also recorded as Robinhood 'MockUSDC' in contracts.ts",
+          "kind": "recorded-contract",
+          "code": {
+            "ok": true,
+            "exists": true,
+            "byteLength": 2601,
+            "codePrefix": "0x6080806040526004361015610012575f80fd5b5f3560e01c90816301ffc9a714610783575080630acefb7b1461075957806310c7f0b91461070e578063248a9ca3146106",
+            "error": null,
+            "attempts": 1
+          }
+        },
+        {
+          "address": "0xE35a91801bc541fb743BB9EaD26C1FbD81EaBd66",
+          "label": "Governance (contracts.ts)",
+          "recordedIn": "contracts.ts ARC_TESTNET 'Governance'; NOTE: identical to the Monad 'Governance' address (suspected copy/paste)",
+          "kind": "recorded-contract",
+          "code": {
+            "ok": true,
+            "exists": true,
+            "byteLength": 13129,
+            "codePrefix": "0x6080604052600436101561001a575b3615610018575f80fd5b005b5f3560e01c806301ffc9a71461030457806302a251a3146102ff57806306f3f9e6146102fa57806306",
+            "error": null,
+            "attempts": 1
+          }
+        },
+        {
+          "address": "0x27a1a201D6DF8215d0b0da3Be6211bE24ef4c471",
+          "label": "Reserve (contracts.ts)",
+          "recordedIn": "contracts.ts ARC_TESTNET 'Reserve Vault'",
+          "kind": "recorded-contract",
+          "code": {
+            "ok": true,
+            "exists": true,
+            "byteLength": 2897,
+            "codePrefix": "0x6080806040526004361015610012575f80fd5b5f3560e01c90816301ffc9a7146106f0575080630c7d5cd8146106d65780630f16f9cb146105b55780631afb1354146105",
+            "error": null,
+            "attempts": 1
+          }
+        },
+        {
+          "address": "0x0dd8b4F8DA7fB6E3eE04ea9F24f853647F84c3aa",
+          "label": "Mint (contracts.ts)",
+          "recordedIn": "contracts.ts ARC_TESTNET 'Mint'",
+          "kind": "recorded-contract",
+          "code": {
+            "ok": true,
+            "exists": true,
+            "byteLength": 2847,
+            "codePrefix": "0x60806040526004361015610011575f80fd5b5f5f3560e01c8062257612146104a457806301ffc9a71461044d57806314e048ba14610428578063248a9ca3146103f55780",
+            "error": null,
+            "attempts": 1
+          }
+        },
+        {
+          "address": "0xcAde4594177829597882555Ff57d0e34092daF8e",
+          "label": "Redeem (contracts.ts)",
+          "recordedIn": "contracts.ts ARC_TESTNET 'Redeem'",
+          "kind": "recorded-contract",
+          "code": {
+            "ok": true,
+            "exists": true,
+            "byteLength": 3037,
+            "codePrefix": "0x6080806040526004361015610012575f80fd5b5f905f3560e01c90816301ffc9a7146108f75750806314e048ba146108d35780631afb135414610866578063248a9ca314",
+            "error": null,
+            "attempts": 1
+          }
+        },
+        {
+          "address": "0x62f8E5243f32eE5C87a14A7896C61104aD9e7727",
+          "label": "Algorithm (contracts.ts)",
+          "recordedIn": "contracts.ts ARC_TESTNET 'Algorithm Engine'",
+          "kind": "recorded-contract",
+          "code": {
+            "ok": true,
+            "exists": true,
+            "byteLength": 1237,
+            "codePrefix": "0x6080806040526004361015610012575f80fd5b5f3560e01c9081630126c606146103195750806301ffc9a7146102c3578063248a9ca3146102915780632f2ff15d146102",
+            "error": null,
+            "attempts": 1
+          }
+        },
+        {
+          "address": "0xDfcA66ac0450C9AB86307af1942E157C5A4DB713",
+          "label": "Safe claim (Ecosystem JSON) [EXTRA]",
+          "recordedIn": "Arc-Testnet-Ecosystem.json 'Safe' — NOTE: same address recorded as Monad 'Oracle' in contracts.ts",
+          "kind": "recorded-safe-claim",
+          "code": {
+            "ok": true,
+            "exists": true,
+            "byteLength": 3321,
+            "codePrefix": "0x608060405234801561000f575f5ffd5b50600436106100f0575f3560e01c80638790c1de11610093578063a1ebf35d11610063578063a1ebf35d14610204578063a217fd",
+            "error": null,
+            "attempts": 1
+          },
+          "safeReads": {
+            "getThreshold": {
+              "label": "Safe claim (Ecosystem JSON) [EXTRA] getThreshold()",
+              "fn": "getThreshold",
+              "selector": "0xe75235b8",
+              "calldata": "0xe75235b8",
+              "ok": false,
+              "raw": null,
+              "decoded": null,
+              "error": "missing revert data (action=\"call\", data=null, reason=null, transaction={ \"data\": \"0xe75235b8\", \"to\": \"0xDfcA66ac0450C9AB86307af1942E157C5A4DB713\" }, invocation=null, revert=null, code=CALL_EXCEPTION, version=6.17.0) | short: missing revert data | rpc: execution reverted",
+              "attempts": 3
+            },
+            "getOwners": {
+              "label": "Safe claim (Ecosystem JSON) [EXTRA] getOwners()",
+              "fn": "getOwners",
+              "selector": "0xa0e67e2b",
+              "calldata": "0xa0e67e2b",
+              "ok": false,
+              "raw": null,
+              "decoded": null,
+              "error": "missing revert data (action=\"call\", data=null, reason=null, transaction={ \"data\": \"0xa0e67e2b\", \"to\": \"0xDfcA66ac0450C9AB86307af1942E157C5A4DB713\" }, invocation=null, revert=null, code=CALL_EXCEPTION, version=6.17.0) | short: missing revert data | rpc: execution reverted",
+              "attempts": 3
+            },
+            "VERSION": {
+              "label": "Safe claim (Ecosystem JSON) [EXTRA] VERSION()",
+              "fn": "VERSION",
+              "selector": "0xffa1ad74",
+              "calldata": "0xffa1ad74",
+              "ok": false,
+              "raw": null,
+              "decoded": null,
+              "error": "missing revert data (action=\"call\", data=null, reason=null, transaction={ \"data\": \"0xffa1ad74\", \"to\": \"0xDfcA66ac0450C9AB86307af1942E157C5A4DB713\" }, invocation=null, revert=null, code=CALL_EXCEPTION, version=6.17.0) | short: missing revert data | rpc: execution reverted",
+              "attempts": 3
+            },
+            "nonce": {
+              "label": "Safe claim (Ecosystem JSON) [EXTRA] nonce()",
+              "fn": "nonce",
+              "selector": "0xaffed0e0",
+              "calldata": "0xaffed0e0",
+              "ok": false,
+              "raw": null,
+              "decoded": null,
+              "error": "missing revert data (action=\"call\", data=null, reason=null, transaction={ \"data\": \"0xaffed0e0\", \"to\": \"0xDfcA66ac0450C9AB86307af1942E157C5A4DB713\" }, invocation=null, revert=null, code=CALL_EXCEPTION, version=6.17.0) | short: missing revert data | rpc: execution reverted",
+              "attempts": 3
+            },
+            "getModulesPaginated": {
+              "label": "Safe claim (Ecosystem JSON) [EXTRA] getModulesPaginated(start=SENTINEL 0x0000000000000000000000000000000000000001, pageSize=10)",
+              "fn": "getModulesPaginated",
+              "selector": "0xcc2f8452",
+              "calldata": "0xcc2f84520000000000000000000000000000000000000000000000000000000000000001000000000000000000000000000000000000000000000000000000000000000a",
+              "ok": false,
+              "raw": null,
+              "decoded": null,
+              "error": "missing revert data (action=\"call\", data=null, reason=null, transaction={ \"data\": \"0xcc2f84520000000000000000000000000000000000000000000000000000000000000001000000000000000000000000000000000000000000000000000000000000000a\", \"to\": \"0xDfcA66ac0450C9AB86307af1942E157C5A4DB713\" }, invocation=null, revert=null, code=CALL_EXCEPTION, version=6.17.0) | short: missing revert data | rpc: execution reverted",
+              "attempts": 3
+            },
+            "getGuard": {
+              "label": "Safe claim (Ecosystem JSON) [EXTRA] getGuard()",
+              "fn": "getGuard",
+              "selector": "0xc9106389",
+              "calldata": "0xc9106389",
+              "ok": false,
+              "raw": null,
+              "decoded": null,
+              "error": "missing revert data (action=\"call\", data=null, reason=null, transaction={ \"data\": \"0xc9106389\", \"to\": \"0xDfcA66ac0450C9AB86307af1942E157C5A4DB713\" }, invocation=null, revert=null, code=CALL_EXCEPTION, version=6.17.0) | short: missing revert data | rpc: execution reverted",
+              "attempts": 3
+            },
+            "guard": {
+              "label": "Safe claim (Ecosystem JSON) [EXTRA] guard() [Safe v1.3 storage-variable getter]",
+              "fn": "guard",
+              "selector": "0x7ceab3b1",
+              "calldata": "0x7ceab3b1",
+              "ok": false,
+              "raw": null,
+              "decoded": null,
+              "error": "missing revert data (action=\"call\", data=null, reason=null, transaction={ \"data\": \"0x7ceab3b1\", \"to\": \"0xDfcA66ac0450C9AB86307af1942E157C5A4DB713\" }, invocation=null, revert=null, code=CALL_EXCEPTION, version=6.17.0) | short: missing revert data | rpc: execution reverted",
+              "attempts": 3
+            }
+          }
+        }
+      ],
+      "liveTokenCandidates": [
+        "0x237c3Aa2B79248f86f6523D3890095BCd1996601 (MITHQAL / MTQ, supply 1000 (raw 1000000000000000000000, 18 decimals))",
+        "0x24203404B9b971C907e8Ced96106Fa74380d9897 (MTQΣ / MTQ, supply 1000000.00000001998 (raw 1000000000000019980000000, 18 decimals))",
+        "0x826b82F79FD6c5347cDC568B1d0A7918128B63c1 (MTQ Sigma / MTQ, supply 1005889 (raw 1005889000000000000000000, 18 decimals))"
+      ],
+      "verdict": "CRITICAL FINDING",
+      "verdictDetail": "On-chain threshold=1 (expected 4), on-chain owner count=1 (expected 7), VERSION=1.4.1, owners=[\"0x3C3932F865892EFabE45892f453f81B64f6c8d8c\"] — the reported 4/7 configuration is NOT what the chain says."
+    }
+  }
+}

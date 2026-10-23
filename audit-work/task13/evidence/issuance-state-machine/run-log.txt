@@ -1,0 +1,24 @@
+=== RUN 1 · started 2026-10-22T22:17:54.860Z · ended 2026-10-22T22:17:54.890Z ===
+command: bun run audit-work/task13/evidence/issuance-state-machine/run-issuance-e2e.ts
+assertions: 123 PASS / 0 FAIL (total 123)
+failedIds: none
+exitCode(intended): 0
+adapterStatus: SIMULATED / NOT CONNECTED
+=== RUN 2 · started 2026-10-22T22:17:58.273Z · ended 2026-10-22T22:17:58.299Z ===
+command: bun run audit-work/task13/evidence/issuance-state-machine/run-issuance-e2e.ts
+assertions: 123 PASS / 0 FAIL (total 123)
+failedIds: none
+exitCode(intended): 0
+adapterStatus: SIMULATED / NOT CONNECTED
+=== RUN 3 · started 2026-10-22T22:23:22.186Z · ended 2026-10-22T22:23:22.212Z ===
+command: bun run audit-work/task13/evidence/issuance-state-machine/run-issuance-e2e.ts
+assertions: 123 PASS / 0 FAIL (total 123)
+failedIds: none
+exitCode(intended): 0
+adapterStatus: SIMULATED / NOT CONNECTED
+=== RUN 4 · started 2026-10-22T22:23:28.363Z · ended 2026-10-22T22:23:28.399Z ===
+command: bun run audit-work/task13/evidence/issuance-state-machine/run-issuance-e2e.ts
+assertions: 123 PASS / 0 FAIL (total 123)
+failedIds: none
+exitCode(intended): 0
+adapterStatus: SIMULATED / NOT CONNECTED

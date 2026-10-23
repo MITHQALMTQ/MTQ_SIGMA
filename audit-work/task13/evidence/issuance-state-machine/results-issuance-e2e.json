@@ -1,0 +1,948 @@
+{
+  "script": "run-issuance-e2e.ts",
+  "task": "MANDATE-007 §4 · Task 2-b — issuance state machine prototype end-to-end run",
+  "posture": "TESTNET ONLY · SHADOW MODE ENFORCED · NOT ACCEPTED — NON-PRODUCTION PROTOTYPE",
+  "machineLabel": "NON-PRODUCTION PROTOTYPE of spec §14.4 (12-step minting workflow) + spec §6 settlement requirements. Issuance is a LEDGER RECORD ONLY — NO ON-CHAIN ACTION, NO NETWORK CALL, NO REAL TOKEN.",
+  "d1327": "OPEN — NO ALTERNATIVE IS SELECTED. ALT-1 (authorized-issuance window) · ALT-2 (approval-per-issuance) · ALT-3 (rule-bound programmatic issuance — requires an explicit D-13.6 exception clause) · ALT-4 (hybrid + periodic attestation) all remain OPEN under decision D-13.27. This prototype implements the COMMON INVARIANTS under every alternative and defaults to ALT-2 FOR TESTING ONLY — NOT a selection.",
+  "startedAtUTC": "2026-10-22T22:23:28.363Z",
+  "ranAtEndUTC": "2026-10-22T22:23:28.399Z",
+  "deterministic": true,
+  "totals": {
+    "pass": 123,
+    "fail": 0,
+    "total": 123
+  },
+  "failedAssertionIds": [],
+  "keyObservedNumbers": {
+    "happyPath": {
+      "grossInstrument": "10000.000000",
+      "conversion": "1.000000 TU per TEST-USDC-X (SYNTHETIC-ORACLE-BOARD)",
+      "feeBps": "10 (0.10% flat — ILLUSTRATIVE, D-13.8 OPEN)",
+      "feeTU": "10.000000",
+      "netTU": "9990.000000",
+      "quote": "2.000000 TU per token (ILLUSTRATIVE — spec §14.5)",
+      "issued": "4995.000000",
+      "supplyBefore": "0.000000",
+      "supplyAfter": "4995.000000",
+      "tranche": "4995.000000 consumed of 1000000.000000 (ILLUSTRATIVE)"
+    },
+    "replayOutcome": "replay detected; original result returned; NO second execution; supply unchanged",
+    "cbdcSimulatedIssued": "2497.500000 (SIMULATION-MODE demo only — registry row remained NOT_CONNECTED)",
+    "sep01Supply": "16733.250000 across three issuances; basket snapshot byte-identical before/after"
+  },
+  "openImplementationDecisions": [
+    {
+      "decisionId": "DEC-SETTLEMENT-TIMING",
+      "open": true,
+      "summary": "When must settlement finality arrive relative to quote expiry, and how are late-but-settled payments handled (held vs refunded)? Quote expiry is hard-enforced before settlement confirmation in this prototype; delayed settlement lands in EXPIRED_QUOTE with the payment queued for refund (spec §6.3 same-key auto-refund) — the held-vs-refunded choice itself is OPEN.",
+      "specRefs": [
+        "D-13.27",
+        "spec §6.1 (quote expiry — hard-rejected after expiry)",
+        "spec §6.6 CONFIRMATION_TIMEOUT",
+        "spec §6.3"
+      ],
+      "prototypeChoiceLabeled": "PROTOTYPE CHOICE (LABELED, NOT APPROVED): expiry checked at settlement confirmation; delayed payment → HELD_IN_REFUND_QUEUE (refund state machine per spec §6.3)"
+    },
+    {
+      "decisionId": "DEC-REVERSAL-SEMANTICS",
+      "open": true,
+      "summary": "What are the semantics of a payment reversal that arrives after issuance (re-mint? claw-back? burn? operator adjudication?) — none are defined; the prototype fail-closes: RECONCILIATION exception + pipeline SUSPENDED, mint record preserved, NO silent re-mint, NO silent write-off.",
+      "specRefs": [
+        "D-13.27",
+        "spec §6.3",
+        "spec §6.5",
+        "spec §6.6 RECONCILE_MISMATCH",
+        "spec §14.4 step 12"
+      ],
+      "prototypeChoiceLabeled": "PROTOTYPE CHOICE (LABELED, NOT APPROVED): fail-closed suspension + exception queue; adjudication left OPEN"
+    },
+    {
+      "decisionId": "DEC-FAILURE-RECOVERY",
+      "open": true,
+      "summary": "How are failed/expired/unauthorized payments recovered (auto-refund timing, retry policy, compensation authority)? The prototype queues refunds deterministically and forbids retry on the same idempotency key; the real recovery process is OPEN.",
+      "specRefs": [
+        "D-13.27",
+        "spec §6.3",
+        "spec §6.6",
+        "issuance-burn-and-market-mechanism-spec.md §2.8"
+      ],
+      "prototypeChoiceLabeled": "PROTOTYPE CHOICE (LABELED, NOT APPROVED): PENDING_REFUND → REFUNDED same-key refund queue; retry on same key forbidden"
+    },
+    {
+      "decisionId": "DEC-ISSUANCE-TRANSACTION-BOUNDARIES",
+      "open": true,
+      "summary": "Where are the atomic transaction boundaries when payment settlement and token issuance live in different systems (spec §14.4 hard rules: safe state machine + idempotency + exception handling + compensating process are mandatory)? The prototype performs each step as a single in-memory commit (L6 analog); real cross-system boundaries are OPEN.",
+      "specRefs": [
+        "D-13.27",
+        "spec §14.4 hard rules",
+        "spec §6.6",
+        "finality-before-mint.ts L6 (vocabulary reference)"
+      ],
+      "prototypeChoiceLabeled": "PROTOTYPE CHOICE (LABELED, NOT APPROVED): per-step single-commit records; no cross-system atomicity is claimed"
+    }
+  ],
+  "adapterStatus": "SIMULATED / NOT CONNECTED",
+  "assertions": [
+    {
+      "id": "REG-01",
+      "name": "CBDC row admission BLOCKED while NOT CONNECTED (spec §5.3/§4: verified interface + end-to-end test required — neither exists)",
+      "pass": true,
+      "expected": "true",
+      "observed": "reasonCode=ADMISSION_BLOCKED_NOT_CONNECTED — spec §5.3/§4: a NOT_CONNECTED row may become APPROVED only via a verified authorized interface AND a recorded end-to-end test. NEITHER EXISTS."
+    },
+    {
+      "id": "REG-02",
+      "name": "same code on another network (TEST-STBL-002) is NOT auto-approved by TEST-STBL-001 (per-instance identity, spec §14.2 rule (a))",
+      "pass": true,
+      "expected": "true",
+      "observed": "state=PROPOSED, version=1"
+    },
+    {
+      "id": "REG-03",
+      "name": "reinstatement BLOCKED without the 48h observation period (spec §5 analog; PROPOSED 48h mirrors V3 RECOVERY_CONFIRMATION_PERIOD, UNDEPLOYED)",
+      "pass": true,
+      "expected": "true",
+      "observed": "reasonCode=REINSTATEMENT_BLOCKED_OBSERVATION_PERIOD — 24h < PROPOSED 48h (spec §5; V3 RECOVERY_CONFIRMATION_PERIOD analog, UNDEPLOYED)"
+    },
+    {
+      "id": "REG-04",
+      "name": "registry row schema carries NO weighting/eligibility/basket telemetry fields (spec §2 structural separation)",
+      "pass": true,
+      "expected": "true",
+      "observed": "offendingKeys=[]"
+    },
+    {
+      "id": "ISS-01-01",
+      "name": "supply before issuance",
+      "pass": true,
+      "expected": "0.000000",
+      "observed": "0.000000"
+    },
+    {
+      "id": "ISS-01-02",
+      "name": "quote record carries quote id, price basis, expiry, quote-unit conversion, spread disclosure, fee line item (spec §6.1)",
+      "pass": true,
+      "expected": "true",
+      "observed": "quote QUOTE-ISS-01-R1: gross 10000.000000 TEST-USDC-X → 10000.000000 TU @ conversion 1.000000; issuance quote 2.000000 TU/token; fee class TEST-FLAT-10BPS @ 10bps (ILLUSTRATIVE — D-13.8 OPEN); spread 0bps disclosed; expires at 900000ms (TTL 900000ms); quote policy ILLUSTRATIVE (spec §14.5)"
+    },
+    {
+      "id": "ISS-01-03",
+      "name": "final state RECONCILED (steps 1..11 complete)",
+      "pass": true,
+      "expected": "RECONCILED",
+      "observed": "RECONCILED"
+    },
+    {
+      "id": "ISS-01-04",
+      "name": "fee = 0.10% of gross 10000.000000 TU (EXACT integer math; ILLUSTRATIVE — D-13.8 OPEN)",
+      "pass": true,
+      "expected": "10.000000",
+      "observed": "10.000000"
+    },
+    {
+      "id": "ISS-01-05",
+      "name": "net = gross − fee (step 8)",
+      "pass": true,
+      "expected": "9990.000000",
+      "observed": "9990.000000"
+    },
+    {
+      "id": "ISS-01-06",
+      "name": "issued = net ÷ quote = 9990.000000 / 2.000000 (spec §14.5 general form; quote policy ILLUSTRATIVE)",
+      "pass": true,
+      "expected": "4995.000000",
+      "observed": "4995.000000"
+    },
+    {
+      "id": "ISS-01-07",
+      "name": "idempotent mint record created (nonce, idempotency key, LEDGER-RECORD-ONLY label)",
+      "pass": true,
+      "expected": "true",
+      "observed": "mintId=MINT-ISS-01-R1, nonce=1, idemKey=IDK-ISS-01-R1, label=LEDGER RECORD ONLY — NO ON-CHAIN ACTION (non-production prototype; no token contract is involved)"
+    },
+    {
+      "id": "ISS-01-08",
+      "name": "supply after issuance (before → after: 0.000000 → 4995.000000)",
+      "pass": true,
+      "expected": "4995.000000",
+      "observed": "4995.000000"
+    },
+    {
+      "id": "ISS-01-09",
+      "name": "tranche consumption after issuance",
+      "pass": true,
+      "expected": "4995.000000",
+      "observed": "4995.000000"
+    },
+    {
+      "id": "ISS-01-10",
+      "name": "fee ledger total (fees booked, not retained on failures)",
+      "pass": true,
+      "expected": "10.000000",
+      "observed": "10.000000"
+    },
+    {
+      "id": "ISS-01-11",
+      "name": "audit log records the §14.4 step sequence in order (steps 1+3, 2, 4, 4a, 4b, 5, 7, 6+8, 9, 9b, 10, 11; step 12 = this publication)",
+      "pass": true,
+      "expected": "REQUEST_CREATED,QUOTED,PAYMENT_OBSERVED,PAYMENT_AUTHENTIC,SETTLEMENT_FINAL,INSTRUMENT_CHECKED,FEES_CALCULATED,NET_ACCEPTED,AUTHORIZED,SUPPLY_CHECKED,ISSUED,RECONCILED",
+      "observed": "REQUEST_CREATED,QUOTED,PAYMENT_OBSERVED,PAYMENT_AUTHENTIC,SETTLEMENT_FINAL,INSTRUMENT_CHECKED,FEES_CALCULATED,NET_ACCEPTED,AUTHORIZED,SUPPLY_CHECKED,ISSUED,RECONCILED"
+    },
+    {
+      "id": "ISS-01-12",
+      "name": "audit publication carries a synthetic publication tag (TEST-TAG-<16 hex>, never a 64-char literal) + every entry has a reason code",
+      "pass": true,
+      "expected": "true",
+      "observed": "publicationTag=TEST-TAG-149fe74e4adabc10, entries=13"
+    },
+    {
+      "id": "ISS-01-13",
+      "name": "three-book equality holds after the happy path (C1–C4 all PASS)",
+      "pass": true,
+      "expected": "true",
+      "observed": "[\"C1_TOKEN_BOOK_EQUALS_TOTAL_SUPPLY=PASS\",\"C2_ISSUANCE_BOOK_LINKS_TOKEN_BOOK_1TO1=PASS\",\"C3_VALUE_CONSERVATION_AND_1TO1_PAYMENT_LINKAGE=PASS\",\"C4_FEE_LEDGER_EQUALS_SUM_OF_LINE_ITEMS=PASS\"]"
+    },
+    {
+      "id": "ISS-01-14",
+      "name": "machine-level invariants hold after the happy path",
+      "pass": true,
+      "expected": "true",
+      "observed": "assertInvariants() passed"
+    },
+    {
+      "id": "ISS-02-01",
+      "name": "first issuance completes (RECONCILED) and mints 4995.000000",
+      "pass": true,
+      "expected": "4995.000000",
+      "observed": "4995.000000"
+    },
+    {
+      "id": "ISS-02-02",
+      "name": "second submission under the SAME idempotency key → DUPLICATE terminal; original result returned, never a second execution (spec §6.4)",
+      "pass": true,
+      "expected": "true",
+      "observed": "state=DUPLICATE, duplicateOf=ISS-02-R1, reason=DUPLICATE_KEY_COLLISION — same idempotency key with a DIFFERENT payload: second submission rejected + alert raised, never executed twice (spec §6.6)"
+    },
+    {
+      "id": "ISS-02-03",
+      "name": "same payment txId under a new key → DUPLICATE terminal (DUPLICATE_PAYMENT_TX); never a second execution",
+      "pass": true,
+      "expected": "true",
+      "observed": "submission=REQUEST_CREATED; observe=DUPLICATE (DUPLICATE_PAYMENT_TX)"
+    },
+    {
+      "id": "ISS-02-04",
+      "name": "supply UNCHANGED after duplicate attempts (no double mint)",
+      "pass": true,
+      "expected": "4995.000000",
+      "observed": "4995.000000"
+    },
+    {
+      "id": "ISS-02-05",
+      "name": "exactly ONE mint record exists",
+      "pass": true,
+      "expected": "1",
+      "observed": "1"
+    },
+    {
+      "id": "ISS-02-06",
+      "name": "machine-level invariants hold (INV-C: replays never double-mint)",
+      "pass": true,
+      "expected": "true",
+      "observed": "assertInvariants() passed"
+    },
+    {
+      "id": "ISS-03-01",
+      "name": "late settlement → EXPIRED_QUOTE terminal; NO issuance at a stale quote (spec §6.1 hard-reject; §6.6 CONFIRMATION_TIMEOUT analog)",
+      "pass": true,
+      "expected": "true",
+      "observed": "state=EXPIRED_QUOTE, reason=QUOTE_EXPIRED_BEFORE_FINALITY"
+    },
+    {
+      "id": "ISS-03-02",
+      "name": "payment HELD_IN_REFUND_QUEUE (held-or-refunded choice LABELED; DEC-SETTLEMENT-TIMING OPEN per D-13.27/spec §6.3) with the SAME idempotency key",
+      "pass": true,
+      "expected": "true",
+      "observed": "refunds=[\"RFND-ISS-03-R1:PENDING_REFUND:key=IDK-ISS-03-R1\"]"
+    },
+    {
+      "id": "ISS-03-03",
+      "name": "refund state machine completes PENDING_REFUND → REFUNDED (spec §6.3)",
+      "pass": true,
+      "expected": "true",
+      "observed": "processed=1"
+    },
+    {
+      "id": "ISS-03-04",
+      "name": "retry FORBIDDEN on the same idempotency key (spec §6.6 CONFIRMATION_TIMEOUT) → DUPLICATE",
+      "pass": true,
+      "expected": "true",
+      "observed": "state=DUPLICATE, reason=DUPLICATE_KEY_COLLISION — same idempotency key with a DIFFERENT payload: second submission rejected + alert raised, never executed twice (spec §6.6)"
+    },
+    {
+      "id": "ISS-03-05",
+      "name": "supply UNCHANGED (no mint on a stale quote)",
+      "pass": true,
+      "expected": "0.000000",
+      "observed": "0.000000"
+    },
+    {
+      "id": "ISS-03-06",
+      "name": "settlement-timing is encoded as an OPEN decision (DEC-SETTLEMENT-TIMING references D-13.27 + spec §6.1/§6.3/§6.6)",
+      "pass": true,
+      "expected": "D-13.27|spec §6.1 (quote expiry — hard-rejected after expiry)|spec §6.6 CONFIRMATION_TIMEOUT|spec §6.3",
+      "observed": "D-13.27|spec §6.1 (quote expiry — hard-rejected after expiry)|spec §6.6 CONFIRMATION_TIMEOUT|spec §6.3"
+    },
+    {
+      "id": "ISS-04-01",
+      "name": "FAILED settlement → PAYMENT_FAILED terminal; a failed payment NEVER mints (spec §14.4 hard rules)",
+      "pass": true,
+      "expected": "true",
+      "observed": "state=PAYMENT_FAILED, reason=SETTLEMENT_STATUS_FAILED"
+    },
+    {
+      "id": "ISS-04-02",
+      "name": "issuance attempt on a failed payment → transition REJECTED by the state machine (cannot skip to ISSUED)",
+      "pass": true,
+      "expected": "true",
+      "observed": "reason=TRANSITION_REJECTED_PAYMENT_FAILED_TO_ISSUED"
+    },
+    {
+      "id": "ISS-04-03",
+      "name": "supply UNCHANGED",
+      "pass": true,
+      "expected": "0.000000",
+      "observed": "0.000000"
+    },
+    {
+      "id": "ISS-04-04",
+      "name": "NO fee retained on a failed transaction (fee ledger 0.000000; spec §6.3 PROPOSED D-13.8)",
+      "pass": true,
+      "expected": "0.000000",
+      "observed": "0.000000"
+    },
+    {
+      "id": "ISS-04-05",
+      "name": "auto-refund queued with the same idempotency key (spec §6.3)",
+      "pass": true,
+      "expected": "true",
+      "observed": "refunds=1, reason=PAYMENT_FAILED"
+    },
+    {
+      "id": "ISS-05-01",
+      "name": "(a) reversal BEFORE issuance → PAYMENT_REVERSED terminal; NO mint; refund queued",
+      "pass": true,
+      "expected": "true",
+      "observed": "state=PAYMENT_REVERSED, refunds=1"
+    },
+    {
+      "id": "ISS-05-02",
+      "name": "(a) supply UNCHANGED",
+      "pass": true,
+      "expected": "0.000000",
+      "observed": "0.000000"
+    },
+    {
+      "id": "ISS-05-03",
+      "name": "(b) second issuance completes first (RECONCILED; 4995.000000 minted)",
+      "pass": true,
+      "expected": "4995.000000",
+      "observed": "4995.000000"
+    },
+    {
+      "id": "ISS-05-04",
+      "name": "(b) reversal AFTER issuance → RECONCILIATION_BREAK (spec §6.5/§6.6) — pipeline SUSPENDED, NO silent re-mint, NO silent write-off",
+      "pass": true,
+      "expected": "true",
+      "observed": "state=RECONCILIATION_BREAK, pipelineSuspended=true, reasons=[\"REVERSAL_AFTER_ISSUANCE:ISS-05-R2\"]"
+    },
+    {
+      "id": "ISS-05-05",
+      "name": "(b) mint record PRESERVED after the reversal (no silent write-off)",
+      "pass": true,
+      "expected": "true",
+      "observed": "mintId=MINT-ISS-05-R2, amount=4995.000000 (still on the token book)"
+    },
+    {
+      "id": "ISS-05-06",
+      "name": "(b) supply unchanged by the reversal event (no re-mint)",
+      "pass": true,
+      "expected": "4995.000000",
+      "observed": "4995.000000"
+    },
+    {
+      "id": "ISS-05-07",
+      "name": "(b) OPEN exception queued with taxonomy REVERSAL_AFTER_ISSUANCE",
+      "pass": true,
+      "expected": "true",
+      "observed": "exceptions=[\"EXC-ISS-05-R2-REVPOST:REVERSAL_AFTER_ISSUANCE:OPEN\"]"
+    },
+    {
+      "id": "ISS-05-08",
+      "name": "(b) pipeline SUSPENDED blocks NEW requests fail-closed while the exception is OPEN",
+      "pass": true,
+      "expected": "true",
+      "observed": "reason=PIPELINE_SUSPENDED_FAIL_CLOSED"
+    },
+    {
+      "id": "ISS-05-09",
+      "name": "(b) reversal semantics encoded as an OPEN decision (DEC-REVERSAL-SEMANTICS references D-13.27 + spec §6.3/§6.5/§6.6)",
+      "pass": true,
+      "expected": "true",
+      "observed": "true"
+    },
+    {
+      "id": "ISS-06-01",
+      "name": "payment fully settled + net accepted, but NO authorization record exists after payment processing (a payment event alone can NEVER create one)",
+      "pass": true,
+      "expected": "true",
+      "observed": "state=NET_ACCEPTED, settlementFinal=true, hasAuthorization=false"
+    },
+    {
+      "id": "ISS-06-03",
+      "name": "direct issue() attempt from NET_ACCEPTED → transition REJECTED (explicit table; no skipping authorization)",
+      "pass": true,
+      "expected": "true",
+      "observed": "reason=TRANSITION_REJECTED_NET_ACCEPTED_TO_ISSUED"
+    },
+    {
+      "id": "ISS-06-02",
+      "name": "authorize() without an approval record → UNAUTHORIZED terminal (NO_AUTHORIZATION_RECORD; ALT-2 default FOR TESTING ONLY)",
+      "pass": true,
+      "expected": "true",
+      "observed": "state=UNAUTHORIZED, reason=NO_AUTHORIZATION_RECORD — a payment event alone can NEVER create one (ALT-2, D-13.27)"
+    },
+    {
+      "id": "ISS-06-04",
+      "name": "bypass-attempt harness (table skipped) → machine INVARIANT THROWS: no ISSUED without settlement finality + authorization record (INV-A hard guard)",
+      "pass": true,
+      "expected": "true",
+      "observed": "threw=true, message=INV-A: bypass attempt blocked — no settlement finality + explicit authorization record pai…"
+    },
+    {
+      "id": "ISS-06-05",
+      "name": "supply UNCHANGED",
+      "pass": true,
+      "expected": "0.000000",
+      "observed": "0.000000"
+    },
+    {
+      "id": "ISS-06-06",
+      "name": "no ISSUED transition exists anywhere in the audit log for this request",
+      "pass": true,
+      "expected": "true",
+      "observed": "ISSUED-transitions for ISS-06-R1: 0"
+    },
+    {
+      "id": "ISS-06-07",
+      "name": "a second bypass probe (unknown request) is trivially blocked (harness is fail-safe)",
+      "pass": true,
+      "expected": "true",
+      "observed": "threw=true"
+    },
+    {
+      "id": "ISS-07-01",
+      "name": "(a) instrument NOT in registry → INVALID_INSTRUMENT at quote (per-instance lookup, never a ticker alone)",
+      "pass": true,
+      "expected": "true",
+      "observed": "state=INVALID_INSTRUMENT, reason=INSTRUMENT_NOT_IN_REGISTRY"
+    },
+    {
+      "id": "ISS-07-02",
+      "name": "(a) supply UNCHANGED",
+      "pass": true,
+      "expected": "0.000000",
+      "observed": "0.000000"
+    },
+    {
+      "id": "ISS-07-03",
+      "name": "(b) REVOKED instrument (TEST-USDC-Y) → INVALID_INSTRUMENT; quoting refused",
+      "pass": true,
+      "expected": "true",
+      "observed": "state=INVALID_INSTRUMENT, reason=INSTRUMENT_REVOKED"
+    },
+    {
+      "id": "ISS-07-04",
+      "name": "(c) same code on TEST-CHAIN-2 (PROPOSED instance) → INVALID_INSTRUMENT (per-instance identity, spec §14.2 rule (a))",
+      "pass": true,
+      "expected": "true",
+      "observed": "state=INVALID_INSTRUMENT, reason=INSTRUMENT_NOT_APPROVED_PER_INSTANCE_IDENTITY"
+    },
+    {
+      "id": "ISS-07-05",
+      "name": "(d) failed authenticity tag → INVALID_PAYMENT (AUTH_TAG_MISMATCH); synthetic scheme documented: production requires real per-rail signature verification",
+      "pass": true,
+      "expected": "true",
+      "observed": "state=INVALID_PAYMENT, reason=AUTH_TAG_MISMATCH"
+    },
+    {
+      "id": "ISS-07-06",
+      "name": "(e) settled amount ≠ quoted amount → INVALID_PAYMENT (SETTLED_AMOUNT_QUOTE_MISMATCH; spec §6.6 PARTIAL_SETTLEMENT analog)",
+      "pass": true,
+      "expected": "true",
+      "observed": "state=INVALID_PAYMENT, reason=SETTLED_AMOUNT_QUOTE_MISMATCH"
+    },
+    {
+      "id": "ISS-07-07",
+      "name": "(e) difference HELD in the exception queue and DISCLOSED — no silent write-off",
+      "pass": true,
+      "expected": "true",
+      "observed": "exceptions=[\"EXC-ISS-07e-R1-PARTIAL:PARTIAL_SETTLEMENT\"]"
+    },
+    {
+      "id": "ISS-07-08",
+      "name": "(e) supply UNCHANGED",
+      "pass": true,
+      "expected": "0.000000",
+      "observed": "0.000000"
+    },
+    {
+      "id": "ISS-07-09",
+      "name": "(f1) depeg SUSPEND band at settlement time moves the registry row to SUSPENDED (spec §4/§5) AND the in-flight settlement COMPLETES under its existing quote (spec §4 in-flight rule)",
+      "pass": true,
+      "expected": "true",
+      "observed": "settlement=SETTLEMENT_FINAL, check=INSTRUMENT_CHECKED, rowState=SUSPENDED, instance=RECONCILED, disclosure=IN_FLIGHT_COMPLETION (spec §4: instrument moved to SUSPENDED"
+    },
+    {
+      "id": "ISS-07-10",
+      "name": "(f1) NEW quotes are REFUSED while the instrument is SUSPENDED (spec §4)",
+      "pass": true,
+      "expected": "true",
+      "observed": "quote attempt: INVALID_INSTRUMENT (INSTRUMENT_SUSPENDED_NO_QUOTES)"
+    },
+    {
+      "id": "ISS-07-11",
+      "name": "(f2) depeg EMERGENCY band at settlement time → INVALID_INSTRUMENT (DEPEG_EMERGENCY_FAIL_CLOSED — PROPOSED interpretation, decision OPEN)",
+      "pass": true,
+      "expected": "true",
+      "observed": "settlement=SETTLEMENT_FINAL, checkState=INVALID_INSTRUMENT, reason=DEPEG_EMERGENCY_FAIL_CLOSED"
+    },
+    {
+      "id": "ISS-07-12",
+      "name": "(f2) supply UNCHANGED (fail-closed)",
+      "pass": true,
+      "expected": "0.000000",
+      "observed": "0.000000"
+    },
+    {
+      "id": "ISS-08-01",
+      "name": "(a) tranche cap exceeded → SUPPLY_CAP_EXCEEDED (TRANCHE_CAP_EXCEEDED); prospective 499500.499500 > tranche 400000.000000",
+      "pass": true,
+      "expected": "true",
+      "observed": "state=SUPPLY_CAP_EXCEEDED, reason=TRANCHE_CAP_EXCEEDED"
+    },
+    {
+      "id": "ISS-08-02",
+      "name": "(a) supply UNCHANGED (no issuance past a cap)",
+      "pass": true,
+      "expected": "0.000000",
+      "observed": "0.000000"
+    },
+    {
+      "id": "ISS-08-03",
+      "name": "(b) per-transaction cap exceeded → SUPPLY_CAP_EXCEEDED (PER_TX_CAP_EXCEEDED); prospective 500499.999000 > per-tx 500000.000000",
+      "pass": true,
+      "expected": "true",
+      "observed": "state=SUPPLY_CAP_EXCEEDED, reason=PER_TX_CAP_EXCEEDED"
+    },
+    {
+      "id": "ISS-08-04",
+      "name": "(c) first issuance OK under a 5,000.000000-token global max",
+      "pass": true,
+      "expected": "4995.000000",
+      "observed": "4995.000000"
+    },
+    {
+      "id": "ISS-08-05",
+      "name": "(c) global max supply respected → SUPPLY_CAP_EXCEEDED (GLOBAL_MAX_SUPPLY_EXCEEDED)",
+      "pass": true,
+      "expected": "true",
+      "observed": "state=SUPPLY_CAP_EXCEEDED, reason=GLOBAL_MAX_SUPPLY_EXCEEDED"
+    },
+    {
+      "id": "ISS-08-06",
+      "name": "(c) supply unchanged by the capped attempt (still 4995.000000 ≤ 5000.000000)",
+      "pass": true,
+      "expected": "4995.000000",
+      "observed": "4995.000000"
+    },
+    {
+      "id": "ISS-08-07",
+      "name": "(c) authorization PRECEDED the supply check (§14.4 step 9 before 9b): the failed instance passed through AUTHORIZED",
+      "pass": true,
+      "expected": "true",
+      "observed": "AUTHORIZED transition logged before SUPPLY_CAP_EXCEEDED for ISS-08c-R2"
+    },
+    {
+      "id": "ISS-09-01",
+      "name": "replay of a completed request id DETECTED → original result returned, NO second execution (spec §6.4)",
+      "pass": true,
+      "expected": "true",
+      "observed": "replayDetected=true, created=false, originalOutcomeRef=ISS-09-R1"
+    },
+    {
+      "id": "ISS-09-02",
+      "name": "replayed request cannot continue: quote and new-payment observation both REJECTED on the completed instance",
+      "pass": true,
+      "expected": "true",
+      "observed": "generateQuote=STEP_REJECTED_STATE_RECONCILED; observePayment=STEP_REJECTED_STATE_RECONCILED"
+    },
+    {
+      "id": "ISS-09-03",
+      "name": "instance count UNCHANGED (replay created no new pipeline instance)",
+      "pass": true,
+      "expected": "1",
+      "observed": "1"
+    },
+    {
+      "id": "ISS-09-04",
+      "name": "supply UNCHANGED after the replay attempt",
+      "pass": true,
+      "expected": "4995.000000",
+      "observed": "4995.000000"
+    },
+    {
+      "id": "ISS-09-05",
+      "name": "exactly ONE mint record",
+      "pass": true,
+      "expected": "1",
+      "observed": "1"
+    },
+    {
+      "id": "ISS-10-01",
+      "name": "(a) three-book equality after the happy path (payment book = issuance book = token book + fee ledger)",
+      "pass": true,
+      "expected": "true",
+      "observed": "[\"C1_TOKEN_BOOK_EQUALS_TOTAL_SUPPLY=PASS\",\"C2_ISSUANCE_BOOK_LINKS_TOKEN_BOOK_1TO1=PASS\",\"C3_VALUE_CONSERVATION_AND_1TO1_PAYMENT_LINKAGE=PASS\",\"C4_FEE_LEDGER_EQUALS_SUM_OF_LINE_ITEMS=PASS\"]"
+    },
+    {
+      "id": "ISS-10-02",
+      "name": "(a) book totals agree (token Σ = total supply = issued; fee ledger = fee line item)",
+      "pass": true,
+      "expected": "{\"paymentBookSettledCount\":\"1\",\"issuanceRecordCount\":\"1\",\"tokenBookSum\":\"4995.000000\",\"totalSupply\":\"4995.000000\",\"feeLedgerTotal\":\"10.000000\"}",
+      "observed": "{\"paymentBookSettledCount\":\"1\",\"issuanceRecordCount\":\"1\",\"tokenBookSum\":\"4995.000000\",\"totalSupply\":\"4995.000000\",\"feeLedgerTotal\":\"10.000000\"}"
+    },
+    {
+      "id": "ISS-10-03",
+      "name": "(b) forced ledger break (payment book net altered by 0.000001) is DETECTED — C3 value-conservation check FAILS",
+      "pass": true,
+      "expected": "true",
+      "observed": "[\"C1_TOKEN_BOOK_EQUALS_TOTAL_SUPPLY=PASS\",\"C2_ISSUANCE_BOOK_LINKS_TOKEN_BOOK_1TO1=PASS\",\"C3_VALUE_CONSERVATION_AND_1TO1_PAYMENT_LINKAGE=FAIL\",\"C4_FEE_LEDGER_EQUALS_SUM_OF_LINE_ITEMS=PASS\"]"
+    },
+    {
+      "id": "ISS-10-04",
+      "name": "(b) machine reconcile() routes the break to RECONCILIATION_BREAK + pipeline SUSPENDED + exception queued (fail-closed)",
+      "pass": true,
+      "expected": "true",
+      "observed": "state=RECONCILIATION_BREAK, suspended=true, exceptions=1"
+    },
+    {
+      "id": "ISS-10-05",
+      "name": "(b) mint record PRESERVED (no silent write-off)",
+      "pass": true,
+      "expected": "4995.000000",
+      "observed": "4995.000000"
+    },
+    {
+      "id": "AUTH-01-01",
+      "name": "ALT-1: payment settled OUTSIDE any authorized window → UNAUTHORIZED (NO_ACTIVE_ISSUANCE_WINDOW); payments outside a window NEVER mint",
+      "pass": true,
+      "expected": "true",
+      "observed": "state=UNAUTHORIZED, reason=NO_ACTIVE_ISSUANCE_WINDOW — payments outside any authorized window NEVER mint (ALT-1)"
+    },
+    {
+      "id": "AUTH-01-02",
+      "name": "ALT-1: payment settled INSIDE an authorized window → AUTHORIZED with window scope evidence; issuance completes to RECONCILED",
+      "pass": true,
+      "expected": "true",
+      "observed": "final=RECONCILED, scope=explicit authorization record AUTH-AUTH-01-R2 created under model ALT-1 (scope: window W-TEST-001 (tranche cap"
+    },
+    {
+      "id": "AUTH-01-03",
+      "name": "ALT-1: window tranche consumed by the in-window issuance (governed act recorded, NOT a payment event)",
+      "pass": true,
+      "expected": "consumed recorded",
+      "observed": "consumed recorded"
+    },
+    {
+      "id": "AUTH-02-01",
+      "name": "ALT-3: NO bound rule exists → UNAUTHORIZED (NO_BOUND_RULE)",
+      "pass": true,
+      "expected": "true",
+      "observed": "state=UNAUTHORIZED, reason=NO_BOUND_RULE — no pre-authorized program exists ⇒ no authorization (ALT-3)"
+    },
+    {
+      "id": "AUTH-02-02",
+      "name": "ALT-3: issuance EXCEEDING the bound rule's per-transaction cap → UNAUTHORIZED (PER_TX_RULE_CAP_EXCEEDED — fail-closed rule caps precede issuance)",
+      "pass": true,
+      "expected": "true",
+      "observed": "state=UNAUTHORIZED, reason=PER_TX_RULE_CAP_EXCEEDED (ALT-3, fail-closed)"
+    },
+    {
+      "id": "AUTH-02-03",
+      "name": "ALT-3: a small issuance within the rule caps → AUTHORIZED (fail-closed caps respected)",
+      "pass": true,
+      "expected": "true",
+      "observed": "state=AUTHORIZED, reason=ISSUANCE_AUTHORIZED"
+    },
+    {
+      "id": "AUTH-02-04",
+      "name": "ALT-3: rule-bound issuance reaches RECONCILED (4.999500 tokens)",
+      "pass": true,
+      "expected": "true",
+      "observed": "state=RECONCILED"
+    },
+    {
+      "id": "AUTH-02-05",
+      "name": "ALT-3: circuit breaker ARMED → UNAUTHORIZED (fail-closed)",
+      "pass": true,
+      "expected": "true",
+      "observed": "state=UNAUTHORIZED, reason=CIRCUIT_BREAKER_ARMED — fail-closed (ALT-3)"
+    },
+    {
+      "id": "AUTH-03-01",
+      "name": "ALT-4: NO attestation → UNAUTHORIZED (NO_ATTESTATION)",
+      "pass": true,
+      "expected": "true",
+      "observed": "state=UNAUTHORIZED, reason=NO_ATTESTATION — hybrid program requires a fresh attestation (ALT-4)"
+    },
+    {
+      "id": "AUTH-03-02",
+      "name": "ALT-4: FRESH matching attestation → AUTHORIZED; issuance completes",
+      "pass": true,
+      "expected": "true",
+      "observed": "state=AUTHORIZED, reason=ISSUANCE_AUTHORIZED"
+    },
+    {
+      "id": "AUTH-03-03",
+      "name": "ALT-4: hybrid issuance reaches RECONCILED",
+      "pass": true,
+      "expected": "true",
+      "observed": "state=RECONCILED"
+    },
+    {
+      "id": "AUTH-03-04",
+      "name": "ALT-4: STALE attestation → UNAUTHORIZED (STALE_ATTESTATION) — issuance suspension pending fresh attestation",
+      "pass": true,
+      "expected": "true",
+      "observed": "state=UNAUTHORIZED, reason=STALE_ATTESTATION — issuance suspended pending fresh governance attestation (ALT-4)"
+    },
+    {
+      "id": "AUTH-00",
+      "name": "D-13.27 framing: NO alternative is selected; status string is explicit; all four stubs exist",
+      "pass": true,
+      "expected": "true",
+      "observed": "OPEN — NO ALTERNATIVE IS SELECTED. ALT-1 (authorized-issuance window) · ALT-2 (a"
+    },
+    {
+      "id": "CBDC-01-01",
+      "name": "(a) normal path: CBDC quotes REFUSED while NOT CONNECTED (spec §6.2 absent interface ⇒ no quotes; spec §4 admission requires a verified authorized interface + end-to-end test — NEITHER EXISTS)",
+      "pass": true,
+      "expected": "true",
+      "observed": "state=INVALID_INSTRUMENT, reason=CBDC_NOT_CONNECTED_NO_QUOTES"
+    },
+    {
+      "id": "CBDC-01-02",
+      "name": "(b) adapter status asserted",
+      "pass": true,
+      "expected": "SIMULATED / NOT CONNECTED",
+      "observed": "SIMULATED / NOT CONNECTED"
+    },
+    {
+      "id": "CBDC-01-03",
+      "name": "(b) adapter status is the literal SIMULATED / NOT CONNECTED",
+      "pass": true,
+      "expected": "SIMULATED / NOT CONNECTED",
+      "observed": "SIMULATED / NOT CONNECTED"
+    },
+    {
+      "id": "CBDC-01-04",
+      "name": "(b) every simulated message carries simulation:true + the SIMULATED — NOT CONNECTED marker",
+      "pass": true,
+      "expected": "true",
+      "observed": "simulation=true, marker=SIMULATED — NOT CONNECTED, status=INITIATED"
+    },
+    {
+      "id": "CBDC-01-05",
+      "name": "(b) SIMULATION-MODE quote generated for the simulated CBDC descriptor (labeled)",
+      "pass": true,
+      "expected": "true",
+      "observed": "state=QUOTED"
+    },
+    {
+      "id": "CBDC-01-06",
+      "name": "(b) VERIFIED message labeled",
+      "pass": true,
+      "expected": "true",
+      "observed": "status=VERIFIED, simulation=true"
+    },
+    {
+      "id": "CBDC-01-07",
+      "name": "(b) SETTLED message carries txId + status + finality-at timestamp (§7.4 concern 7 simulated finality signal)",
+      "pass": true,
+      "expected": "true",
+      "observed": "txId=CBDC-SIM-TX-001, status=SETTLED, finalityAtMs=0"
+    },
+    {
+      "id": "CBDC-01-08",
+      "name": "(b) machine accepts the simulated interface's finality signal IN SIMULATION MODE ONLY",
+      "pass": true,
+      "expected": "true",
+      "observed": "state=SETTLEMENT_FINAL, reason=SETTLEMENT_FINALITY_CONFIRMED"
+    },
+    {
+      "id": "CBDC-01-09",
+      "name": "(b) simulated messages drive the SAME machine end-to-end to RECONCILED (gross 5000.000000 → fee 5.000000 → net 4995.000000 → issued 2497.500000)",
+      "pass": true,
+      "expected": "true",
+      "observed": "issued=2497.500000, state=RECONCILED"
+    },
+    {
+      "id": "CBDC-01-10",
+      "name": "(b) registry UNCHANGED by the simulation run: the CBDC row is still PROPOSED / NOT_CONNECTED (the demo is NOT an integration and admits nothing)",
+      "pass": true,
+      "expected": "true",
+      "observed": "registry snapshot byte-identical: true"
+    },
+    {
+      "id": "CBDC-01-11",
+      "name": "(b) real-adapter gate (spec §14.3) UNMET: no authorized interface verified, no end-to-end integration test, no admission-dossier annex",
+      "pass": true,
+      "expected": "true",
+      "observed": "{\"authorizedInterfaceVerified\":false,\"endToEndIntegrationTested\":false,\"admissionDossierAnnexExists\":false,\"status\":\"SIMULATED / NOT CONNECTED\"}"
+    },
+    {
+      "id": "CBDC-02-01",
+      "name": "duplicate txId initiation PREVENTED at the adapter (§7.4 concern 6: duplicatePrevented flag + FAILED status)",
+      "pass": true,
+      "expected": "true",
+      "observed": "duplicatePrevented=true, status=FAILED, reason=DUPLICATE_TX_ID_PREVENTED (§7.4 concern 6)"
+    },
+    {
+      "id": "CBDC-02-02",
+      "name": "duplicate txId PREVENTED at the machine: second request observing the same txId → DUPLICATE terminal; no double mint",
+      "pass": true,
+      "expected": "true",
+      "observed": "state=DUPLICATE, reason=DUPLICATE_PAYMENT_TX"
+    },
+    {
+      "id": "CBDC-02-03",
+      "name": "supply UNCHANGED by the duplicate (exactly one 2497.500000 mint)",
+      "pass": true,
+      "expected": "2497.500000",
+      "observed": "2497.500000"
+    },
+    {
+      "id": "CBDC-03-01",
+      "name": "REVERSED simulated message handled to the correct terminal state: PAYMENT_REVERSED (pre-issuance); no mint",
+      "pass": true,
+      "expected": "true",
+      "observed": "state=PAYMENT_REVERSED, reason=REVERSAL_BEFORE_ISSUANCE"
+    },
+    {
+      "id": "CBDC-03-02",
+      "name": "supply UNCHANGED after the reversal",
+      "pass": true,
+      "expected": "0.000000",
+      "observed": "0.000000"
+    },
+    {
+      "id": "CBDC-04-01",
+      "name": "TIMEOUT simulated message handled to the correct terminal state: PAYMENT_FAILED with CONFIRMATION_TIMEOUT taxonomy; refund queued",
+      "pass": true,
+      "expected": "true",
+      "observed": "state=PAYMENT_FAILED, taxonomy=CONFIRMATION_TIMEOUT"
+    },
+    {
+      "id": "CBDC-04-02",
+      "name": "retry on the same idempotency key after TIMEOUT → DUPLICATE (retry forbidden, spec §6.6 CONFIRMATION_TIMEOUT)",
+      "pass": true,
+      "expected": "true",
+      "observed": "state=DUPLICATE, reason=DUPLICATE_KEY_COLLISION — same idempotency key with a DIFFERENT payload: second submission rejected + alert raised, never executed twice (spec §6.6)"
+    },
+    {
+      "id": "CBDC-04-03",
+      "name": "supply UNCHANGED after the timeout",
+      "pass": true,
+      "expected": "0.000000",
+      "observed": "0.000000"
+    },
+    {
+      "id": "CBDC-04-04",
+      "name": "adapter honesty record documents all nine §7.4 concerns + six honest limitations",
+      "pass": true,
+      "expected": "9 concerns / 6 limitations",
+      "observed": "9 concerns / 6 limitations"
+    },
+    {
+      "id": "SEP-01-01",
+      "name": "basket/constituency state object byte-identical before vs after several issuances (payment volume never enters weights/eligibility)",
+      "pass": true,
+      "expected": "{\"methodologyVersion\":\"TEST-SNAPSHOT-V1\",\"constituency\":[\"USD\",\"EUR\",\"JPY\",\"GOLD\"],\"weightsPct\":{\"USD\":40,\"EUR\":30,\"JPY\":20,\"GOLD\":10},\"eligibility\":{\"USD\":true,\"EUR\":true,\"JPY\":true,\"GOLD\":true}}",
+      "observed": "{\"methodologyVersion\":\"TEST-SNAPSHOT-V1\",\"constituency\":[\"USD\",\"EUR\",\"JPY\",\"GOLD\"],\"weightsPct\":{\"USD\":40,\"EUR\":30,\"JPY\":20,\"GOLD\":10},\"eligibility\":{\"USD\":true,\"EUR\":true,\"JPY\":true,\"GOLD\":true}}"
+    },
+    {
+      "id": "SEP-01-02",
+      "name": "all three issuances reached RECONCILED (the basket stayed untouched while issuance volume varied 25×)",
+      "pass": true,
+      "expected": "RECONCILED,RECONCILED,RECONCILED",
+      "observed": "RECONCILED,RECONCILED,RECONCILED"
+    },
+    {
+      "id": "SEP-01-03",
+      "name": "registry honesty snapshot unchanged by payment volume (no auto-disable, no auto-approve, no weight telemetry)",
+      "pass": true,
+      "expected": "{\"label\":\"NON-PRODUCTION PROTOTYPE of payment-instrument-registry-and-settlement-spec.md §3–§5 (spec STATUS: PROPOSED — NOT APPROVED, NOT IMPLEMENTED)\",\"rows\":[{\"instrumentId\":\"TEST-STBL-001\",\"code\":\"TEST-USDC-X\",\"network\":\"TEST-CHAIN-1 (SYNTHETIC)\",\"state\":\"APPROVED\",\"honestyState\":\"SIMULATED\",\"statusLabel\":\"APPROVED TEST INSTRUMENT (SYNTHETIC) — the ONE approved test instrument for the stablecoin-pathway prototype demonstration. NOT a real stablecoin; the issuer, network, and contract identity are synthetic fixtures.\",\"version\":1},{\"instrumentId\":\"TEST-STBL-002\",\"code\":\"TEST-USDC-X\",\"network\":\"TEST-CHAIN-2 (SYNTHETIC)\",\"state\":\"PROPOSED\",\"honestyState\":\"SIMULATED\",\"statusLabel\":\"PROPOSED — same instrument code on a different network instance. NOT auto-approved (per-instance identity rule, spec §14.2 rule (a)); requires its own admission dossier. Quoting is refused in the prototype.\",\"version\":1},{\"instrumentId\":\"TEST-STBL-003\",\"code\":\"TEST-USDC-Y\",\"network\":\"TEST-CHAIN-1 (SYNTHETIC)\",\"state\":\"REVOKED\",\"honestyState\":\"SIMULATED\",\"statusLabel\":\"REVOKED (analog of spec §5 RETIRED) — removed from quoting; records preserved append-only. Used to demonstrate revocation is enforced at instrument-check time.\",\"version\":2},{\"instrumentId\":\"TEST-CBDC-001\",\"code\":\"TEST-CBDC-1\",\"network\":\"SIMULATED-CBDC-RAIL-1 (SYNTHETIC)\",\"state\":\"PROPOSED\",\"honestyState\":\"NOT_CONNECTED\",\"statusLabel\":\"SIMULATED / NOT CONNECTED\",\"version\":1},{\"instrumentId\":\"TEST-CBDC-002\",\"code\":\"TEST-CBDC-2\",\"network\":\"SIMULATED-CBDC-RAIL-2 (SYNTHETIC)\",\"state\":\"PROPOSED\",\"honestyState\":\"NOT_CONNECTED\",\"statusLabel\":\"SIMULATED / NOT CONNECTED\",\"version\":1}],\"notices\":[]}",
+      "observed": "{\"label\":\"NON-PRODUCTION PROTOTYPE of payment-instrument-registry-and-settlement-spec.md §3–§5 (spec STATUS: PROPOSED — NOT APPROVED, NOT IMPLEMENTED)\",\"rows\":[{\"instrumentId\":\"TEST-STBL-001\",\"code\":\"TEST-USDC-X\",\"network\":\"TEST-CHAIN-1 (SYNTHETIC)\",\"state\":\"APPROVED\",\"honestyState\":\"SIMULATED\",\"statusLabel\":\"APPROVED TEST INSTRUMENT (SYNTHETIC) — the ONE approved test instrument for the stablecoin-pathway prototype demonstration. NOT a real stablecoin; the issuer, network, and contract identity are synthetic fixtures.\",\"version\":1},{\"instrumentId\":\"TEST-STBL-002\",\"code\":\"TEST-USDC-X\",\"network\":\"TEST-CHAIN-2 (SYNTHETIC)\",\"state\":\"PROPOSED\",\"honestyState\":\"SIMULATED\",\"statusLabel\":\"PROPOSED — same instrument code on a different network instance. NOT auto-approved (per-instance identity rule, spec §14.2 rule (a)); requires its own admission dossier. Quoting is refused in the prototype.\",\"version\":1},{\"instrumentId\":\"TEST-STBL-003\",\"code\":\"TEST-USDC-Y\",\"network\":\"TEST-CHAIN-1 (SYNTHETIC)\",\"state\":\"REVOKED\",\"honestyState\":\"SIMULATED\",\"statusLabel\":\"REVOKED (analog of spec §5 RETIRED) — removed from quoting; records preserved append-only. Used to demonstrate revocation is enforced at instrument-check time.\",\"version\":2},{\"instrumentId\":\"TEST-CBDC-001\",\"code\":\"TEST-CBDC-1\",\"network\":\"SIMULATED-CBDC-RAIL-1 (SYNTHETIC)\",\"state\":\"PROPOSED\",\"honestyState\":\"NOT_CONNECTED\",\"statusLabel\":\"SIMULATED / NOT CONNECTED\",\"version\":1},{\"instrumentId\":\"TEST-CBDC-002\",\"code\":\"TEST-CBDC-2\",\"network\":\"SIMULATED-CBDC-RAIL-2 (SYNTHETIC)\",\"state\":\"PROPOSED\",\"honestyState\":\"NOT_CONNECTED\",\"statusLabel\":\"SIMULATED / NOT CONNECTED\",\"version\":1}],\"notices\":[]}"
+    },
+    {
+      "id": "SEP-01-04",
+      "name": "issuance event log contains NO basket/weight/eligibility fields (structural test-of-absence at the data level)",
+      "pass": true,
+      "expected": "true",
+      "observed": "suspicious tokens present: false"
+    },
+    {
+      "id": "SEP-01-05",
+      "name": "three issuances completed; supply = 499.500000 + 12487.500000 + 3746.250000",
+      "pass": true,
+      "expected": "16733.250000",
+      "observed": "16733.250000"
+    },
+    {
+      "id": "INV-01",
+      "name": "INV-A: no ISSUED/RECONCILED/RECONCILIATION_BREAK instance exists without settlement finality + an explicit authorization record (payment alone NEVER mints)",
+      "pass": true,
+      "expected": "true",
+      "observed": "assertInvariants() passed on all 29 machines"
+    },
+    {
+      "id": "INV-02",
+      "name": "INV-B: failed/unverified payments never mint; every minted issuance carries a real authorization record at the book level",
+      "pass": true,
+      "expected": "true",
+      "observed": "failure-terminal transitions observed: 28; total mint records: 16; book-level authorization sweep passed"
+    },
+    {
+      "id": "INV-03",
+      "name": "INV-C: replays never double-mint — supply equals Σ mint records on every un-suspended machine (suspended machines carry OPEN exceptions instead)",
+      "pass": true,
+      "expected": "true",
+      "observed": "all 29 machines swept"
+    },
+    {
+      "id": "INV-04",
+      "name": "INV-D: reversal-after-issuance / forced-break machines are SUSPENDED with reasons + OPEN exceptions; mint records preserved (no silent re-mint, no silent write-off)",
+      "pass": true,
+      "expected": "true",
+      "observed": "suspended machines: [\"M-ISS-05:REVERSAL_AFTER_ISSUANCE:ISS-05-R2\",\"M-ISS-10b:RECONCILIATION_BREAK:ISS-10b-R1\"]"
+    },
+    {
+      "id": "INV-05",
+      "name": "INV-E: all four OPEN implementation decisions encoded (settlement timing, reversal semantics, failure recovery, issuance transaction boundaries)",
+      "pass": true,
+      "expected": "DEC-SETTLEMENT-TIMING:open=true, DEC-REVERSAL-SEMANTICS:open=true, DEC-FAILURE-RECOVERY:open=true, DEC-ISSUANCE-TRANSACTION-BOUNDARIES:open=true",
+      "observed": "DEC-SETTLEMENT-TIMING:open=true, DEC-REVERSAL-SEMANTICS:open=true, DEC-FAILURE-RECOVERY:open=true, DEC-ISSUANCE-TRANSACTION-BOUNDARIES:open=true"
+    }
+  ]
+}

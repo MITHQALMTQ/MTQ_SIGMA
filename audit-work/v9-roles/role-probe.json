@@ -1,0 +1,580 @@
+{
+  "probe": "MTQΣ Task 8-e — AccessControl role verification (READ-ONLY eth_call)",
+  "mode": "VERIFICATION-ONLY · §1 · no transactions, no state changes",
+  "roleHashes": {
+    "DEFAULT_ADMIN_ROLE": "0x0000000000000000000000000000000000000000000000000000000000000000",
+    "MINTER_ROLE": "0x9f2df0fed2c77648de5860a4cc508cd0818c85b8b8a1ab4ceeef8d981c8956a6",
+    "PAUSER_ROLE": "0x65d7a28e3265b37a6474929f336521b332c1681b933f6cb9f3376673440d862a"
+  },
+  "accounts": {
+    "deployer": "0x3C3932F865892EFabE45892f453f81B64f6c8d8c",
+    "safe": "0xE71869C662733642bfBb262B8c6bad8B0fBfA7D0",
+    "governance": "0xE35a91801bc541fb743BB9EaD26C1FbD81EaBd66"
+  },
+  "chains": [
+    {
+      "id": "monad",
+      "name": "Monad Testnet",
+      "chainId": 10143,
+      "rpc": "https://testnet-rpc.monad.xyz",
+      "blockNumber": 73036929,
+      "probedAt": "2026-10-21T19:09:42.864Z",
+      "results": [
+        {
+          "contract": "MTQ.sol",
+          "address": "0x9e6EdC15DAc420931508d8Ddf9BC817651A253aD",
+          "role": "DEFAULT_ADMIN_ROLE",
+          "account": "0x3C3932F865892EFabE45892f453f81B64f6c8d8c",
+          "label": "deployer",
+          "hasRole": true
+        },
+        {
+          "contract": "MTQ.sol",
+          "address": "0x9e6EdC15DAc420931508d8Ddf9BC817651A253aD",
+          "role": "DEFAULT_ADMIN_ROLE",
+          "account": "0xE71869C662733642bfBb262B8c6bad8B0fBfA7D0",
+          "label": "safe",
+          "hasRole": true
+        },
+        {
+          "contract": "MTQ.sol",
+          "address": "0x9e6EdC15DAc420931508d8Ddf9BC817651A253aD",
+          "role": "DEFAULT_ADMIN_ROLE",
+          "account": "0xE35a91801bc541fb743BB9EaD26C1FbD81EaBd66",
+          "label": "governance",
+          "hasRole": false
+        },
+        {
+          "contract": "MTQ.sol",
+          "address": "0x9e6EdC15DAc420931508d8Ddf9BC817651A253aD",
+          "role": "MINTER_ROLE",
+          "account": "0x3C3932F865892EFabE45892f453f81B64f6c8d8c",
+          "label": "deployer",
+          "hasRole": true
+        },
+        {
+          "contract": "MTQ.sol",
+          "address": "0x9e6EdC15DAc420931508d8Ddf9BC817651A253aD",
+          "role": "MINTER_ROLE",
+          "account": "0xE71869C662733642bfBb262B8c6bad8B0fBfA7D0",
+          "label": "safe",
+          "hasRole": true
+        },
+        {
+          "contract": "MTQ.sol",
+          "address": "0x9e6EdC15DAc420931508d8Ddf9BC817651A253aD",
+          "role": "MINTER_ROLE",
+          "account": "0xE35a91801bc541fb743BB9EaD26C1FbD81EaBd66",
+          "label": "governance",
+          "hasRole": false
+        },
+        {
+          "contract": "MTQ.sol",
+          "address": "0x9e6EdC15DAc420931508d8Ddf9BC817651A253aD",
+          "role": "PAUSER_ROLE",
+          "account": "0x3C3932F865892EFabE45892f453f81B64f6c8d8c",
+          "label": "deployer",
+          "hasRole": true
+        },
+        {
+          "contract": "MTQ.sol",
+          "address": "0x9e6EdC15DAc420931508d8Ddf9BC817651A253aD",
+          "role": "PAUSER_ROLE",
+          "account": "0xE71869C662733642bfBb262B8c6bad8B0fBfA7D0",
+          "label": "safe",
+          "hasRole": true
+        },
+        {
+          "contract": "MTQ.sol",
+          "address": "0x9e6EdC15DAc420931508d8Ddf9BC817651A253aD",
+          "role": "PAUSER_ROLE",
+          "account": "0xE35a91801bc541fb743BB9EaD26C1FbD81EaBd66",
+          "label": "governance",
+          "hasRole": false
+        },
+        {
+          "contract": "Governance.sol",
+          "address": "0xE35a91801bc541fb743BB9EaD26C1FbD81EaBd66",
+          "role": "DEFAULT_ADMIN_ROLE",
+          "account": "0x3C3932F865892EFabE45892f453f81B64f6c8d8c",
+          "label": "deployer",
+          "hasRole": "REVERT/UNSUPPORTED"
+        },
+        {
+          "contract": "Governance.sol",
+          "address": "0xE35a91801bc541fb743BB9EaD26C1FbD81EaBd66",
+          "role": "MINTER_ROLE",
+          "account": "0x3C3932F865892EFabE45892f453f81B64f6c8d8c",
+          "label": "deployer",
+          "hasRole": "REVERT/UNSUPPORTED"
+        },
+        {
+          "contract": "Governance.sol",
+          "address": "0xE35a91801bc541fb743BB9EaD26C1FbD81EaBd66",
+          "role": "PAUSER_ROLE",
+          "account": "0x3C3932F865892EFabE45892f453f81B64f6c8d8c",
+          "label": "deployer",
+          "hasRole": "REVERT/UNSUPPORTED"
+        },
+        {
+          "contract": "Safe (Multi-Sig)",
+          "address": "0xE71869C662733642bfBb262B8c6bad8B0fBfA7D0",
+          "role": "DEFAULT_ADMIN_ROLE",
+          "account": "0x3C3932F865892EFabE45892f453f81B64f6c8d8c",
+          "label": "deployer",
+          "hasRole": "REVERT/UNSUPPORTED"
+        },
+        {
+          "contract": "Safe (Multi-Sig)",
+          "address": "0xE71869C662733642bfBb262B8c6bad8B0fBfA7D0",
+          "role": "MINTER_ROLE",
+          "account": "0x3C3932F865892EFabE45892f453f81B64f6c8d8c",
+          "label": "deployer",
+          "hasRole": "REVERT/UNSUPPORTED"
+        },
+        {
+          "contract": "Safe (Multi-Sig)",
+          "address": "0xE71869C662733642bfBb262B8c6bad8B0fBfA7D0",
+          "role": "PAUSER_ROLE",
+          "account": "0x3C3932F865892EFabE45892f453f81B64f6c8d8c",
+          "label": "deployer",
+          "hasRole": "REVERT/UNSUPPORTED"
+        },
+        {
+          "contract": "Algorithm.sol",
+          "address": "0x8839ce50e8D414005518769999c0A5b961D00CB2",
+          "role": "DEFAULT_ADMIN_ROLE",
+          "account": "0x3C3932F865892EFabE45892f453f81B64f6c8d8c",
+          "label": "deployer",
+          "hasRole": "REVERT/UNSUPPORTED"
+        },
+        {
+          "contract": "Algorithm.sol",
+          "address": "0x8839ce50e8D414005518769999c0A5b961D00CB2",
+          "role": "MINTER_ROLE",
+          "account": "0x3C3932F865892EFabE45892f453f81B64f6c8d8c",
+          "label": "deployer",
+          "hasRole": "REVERT/UNSUPPORTED"
+        },
+        {
+          "contract": "Algorithm.sol",
+          "address": "0x8839ce50e8D414005518769999c0A5b961D00CB2",
+          "role": "PAUSER_ROLE",
+          "account": "0x3C3932F865892EFabE45892f453f81B64f6c8d8c",
+          "label": "deployer",
+          "hasRole": "REVERT/UNSUPPORTED"
+        },
+        {
+          "contract": "Reserve.sol",
+          "address": "0x1bbCd78E4DEF79b7a3B77242770cbAefAC816177",
+          "role": "DEFAULT_ADMIN_ROLE",
+          "account": "0x3C3932F865892EFabE45892f453f81B64f6c8d8c",
+          "label": "deployer",
+          "hasRole": true
+        },
+        {
+          "contract": "Reserve.sol",
+          "address": "0x1bbCd78E4DEF79b7a3B77242770cbAefAC816177",
+          "role": "MINTER_ROLE",
+          "account": "0x3C3932F865892EFabE45892f453f81B64f6c8d8c",
+          "label": "deployer",
+          "hasRole": "REVERT/UNSUPPORTED"
+        },
+        {
+          "contract": "Reserve.sol",
+          "address": "0x1bbCd78E4DEF79b7a3B77242770cbAefAC816177",
+          "role": "PAUSER_ROLE",
+          "account": "0x3C3932F865892EFabE45892f453f81B64f6c8d8c",
+          "label": "deployer",
+          "hasRole": false
+        },
+        {
+          "contract": "Mint.sol",
+          "address": "0x197e9CB28216dfe18a199b4c2930F74C2F460809",
+          "role": "DEFAULT_ADMIN_ROLE",
+          "account": "0x3C3932F865892EFabE45892f453f81B64f6c8d8c",
+          "label": "deployer",
+          "hasRole": "REVERT/UNSUPPORTED"
+        },
+        {
+          "contract": "Mint.sol",
+          "address": "0x197e9CB28216dfe18a199b4c2930F74C2F460809",
+          "role": "MINTER_ROLE",
+          "account": "0x3C3932F865892EFabE45892f453f81B64f6c8d8c",
+          "label": "deployer",
+          "hasRole": "REVERT/UNSUPPORTED"
+        },
+        {
+          "contract": "Mint.sol",
+          "address": "0x197e9CB28216dfe18a199b4c2930F74C2F460809",
+          "role": "PAUSER_ROLE",
+          "account": "0x3C3932F865892EFabE45892f453f81B64f6c8d8c",
+          "label": "deployer",
+          "hasRole": "REVERT/UNSUPPORTED"
+        },
+        {
+          "contract": "Redeem.sol",
+          "address": "0x963201C0Fa258033CCDdFcDceb8B5E3bc2b435a4",
+          "role": "DEFAULT_ADMIN_ROLE",
+          "account": "0x3C3932F865892EFabE45892f453f81B64f6c8d8c",
+          "label": "deployer",
+          "hasRole": "REVERT/UNSUPPORTED"
+        },
+        {
+          "contract": "Redeem.sol",
+          "address": "0x963201C0Fa258033CCDdFcDceb8B5E3bc2b435a4",
+          "role": "MINTER_ROLE",
+          "account": "0x3C3932F865892EFabE45892f453f81B64f6c8d8c",
+          "label": "deployer",
+          "hasRole": "REVERT/UNSUPPORTED"
+        },
+        {
+          "contract": "Redeem.sol",
+          "address": "0x963201C0Fa258033CCDdFcDceb8B5E3bc2b435a4",
+          "role": "PAUSER_ROLE",
+          "account": "0x3C3932F865892EFabE45892f453f81B64f6c8d8c",
+          "label": "deployer",
+          "hasRole": "REVERT/UNSUPPORTED"
+        },
+        {
+          "contract": "Oracle.sol",
+          "address": "0xDfcA66ac0450C9AB86307af1942E157C5A4DB713",
+          "role": "DEFAULT_ADMIN_ROLE",
+          "account": "0x3C3932F865892EFabE45892f453f81B64f6c8d8c",
+          "label": "deployer",
+          "hasRole": "REVERT/UNSUPPORTED"
+        },
+        {
+          "contract": "Oracle.sol",
+          "address": "0xDfcA66ac0450C9AB86307af1942E157C5A4DB713",
+          "role": "MINTER_ROLE",
+          "account": "0x3C3932F865892EFabE45892f453f81B64f6c8d8c",
+          "label": "deployer",
+          "hasRole": "REVERT/UNSUPPORTED"
+        },
+        {
+          "contract": "Oracle.sol",
+          "address": "0xDfcA66ac0450C9AB86307af1942E157C5A4DB713",
+          "role": "PAUSER_ROLE",
+          "account": "0x3C3932F865892EFabE45892f453f81B64f6c8d8c",
+          "label": "deployer",
+          "hasRole": "REVERT/UNSUPPORTED"
+        },
+        {
+          "contract": "Takaful.sol",
+          "address": "0x3eC27BB283644eF0A98B9961E9FBED0583a02f19",
+          "role": "DEFAULT_ADMIN_ROLE",
+          "account": "0x3C3932F865892EFabE45892f453f81B64f6c8d8c",
+          "label": "deployer",
+          "hasRole": "REVERT/UNSUPPORTED"
+        },
+        {
+          "contract": "Takaful.sol",
+          "address": "0x3eC27BB283644eF0A98B9961E9FBED0583a02f19",
+          "role": "MINTER_ROLE",
+          "account": "0x3C3932F865892EFabE45892f453f81B64f6c8d8c",
+          "label": "deployer",
+          "hasRole": false
+        },
+        {
+          "contract": "Takaful.sol",
+          "address": "0x3eC27BB283644eF0A98B9961E9FBED0583a02f19",
+          "role": "PAUSER_ROLE",
+          "account": "0x3C3932F865892EFabE45892f453f81B64f6c8d8c",
+          "label": "deployer",
+          "hasRole": "REVERT/UNSUPPORTED"
+        },
+        {
+          "contract": "MTQ.sol",
+          "address": "0x9e6EdC15DAc420931508d8Ddf9BC817651A253aD",
+          "role": "paused()",
+          "account": "-",
+          "label": "-",
+          "hasRole": "REVERT/UNSUPPORTED"
+        }
+      ]
+    },
+    {
+      "id": "arc",
+      "name": "Arc Testnet",
+      "chainId": 5042002,
+      "rpc": "https://rpc.testnet.arc.io",
+      "blockNumber": 68397244,
+      "probedAt": "2026-10-21T19:09:43.031Z",
+      "results": [
+        {
+          "contract": "MTQ.sol",
+          "address": "0x237c3Aa2B79248f86f6523D3890095BCd1996601",
+          "role": "DEFAULT_ADMIN_ROLE",
+          "account": "0x3C3932F865892EFabE45892f453f81B64f6c8d8c",
+          "label": "deployer",
+          "hasRole": true
+        },
+        {
+          "contract": "MTQ.sol",
+          "address": "0x237c3Aa2B79248f86f6523D3890095BCd1996601",
+          "role": "DEFAULT_ADMIN_ROLE",
+          "account": "0xE71869C662733642bfBb262B8c6bad8B0fBfA7D0",
+          "label": "safe",
+          "hasRole": false
+        },
+        {
+          "contract": "MTQ.sol",
+          "address": "0x237c3Aa2B79248f86f6523D3890095BCd1996601",
+          "role": "DEFAULT_ADMIN_ROLE",
+          "account": "0xE35a91801bc541fb743BB9EaD26C1FbD81EaBd66",
+          "label": "governance",
+          "hasRole": false
+        },
+        {
+          "contract": "MTQ.sol",
+          "address": "0x237c3Aa2B79248f86f6523D3890095BCd1996601",
+          "role": "MINTER_ROLE",
+          "account": "0x3C3932F865892EFabE45892f453f81B64f6c8d8c",
+          "label": "deployer",
+          "hasRole": true
+        },
+        {
+          "contract": "MTQ.sol",
+          "address": "0x237c3Aa2B79248f86f6523D3890095BCd1996601",
+          "role": "MINTER_ROLE",
+          "account": "0xE71869C662733642bfBb262B8c6bad8B0fBfA7D0",
+          "label": "safe",
+          "hasRole": false
+        },
+        {
+          "contract": "MTQ.sol",
+          "address": "0x237c3Aa2B79248f86f6523D3890095BCd1996601",
+          "role": "MINTER_ROLE",
+          "account": "0xE35a91801bc541fb743BB9EaD26C1FbD81EaBd66",
+          "label": "governance",
+          "hasRole": false
+        },
+        {
+          "contract": "MTQ.sol",
+          "address": "0x237c3Aa2B79248f86f6523D3890095BCd1996601",
+          "role": "PAUSER_ROLE",
+          "account": "0x3C3932F865892EFabE45892f453f81B64f6c8d8c",
+          "label": "deployer",
+          "hasRole": true
+        },
+        {
+          "contract": "MTQ.sol",
+          "address": "0x237c3Aa2B79248f86f6523D3890095BCd1996601",
+          "role": "PAUSER_ROLE",
+          "account": "0xE71869C662733642bfBb262B8c6bad8B0fBfA7D0",
+          "label": "safe",
+          "hasRole": "REVERT/UNSUPPORTED"
+        },
+        {
+          "contract": "MTQ.sol",
+          "address": "0x237c3Aa2B79248f86f6523D3890095BCd1996601",
+          "role": "PAUSER_ROLE",
+          "account": "0xE35a91801bc541fb743BB9EaD26C1FbD81EaBd66",
+          "label": "governance",
+          "hasRole": "REVERT/UNSUPPORTED"
+        },
+        {
+          "contract": "Governance.sol",
+          "address": "0xE35a91801bc541fb743BB9EaD26C1FbD81EaBd66",
+          "role": "DEFAULT_ADMIN_ROLE",
+          "account": "0x3C3932F865892EFabE45892f453f81B64f6c8d8c",
+          "label": "deployer",
+          "hasRole": "REVERT/UNSUPPORTED"
+        },
+        {
+          "contract": "Governance.sol",
+          "address": "0xE35a91801bc541fb743BB9EaD26C1FbD81EaBd66",
+          "role": "MINTER_ROLE",
+          "account": "0x3C3932F865892EFabE45892f453f81B64f6c8d8c",
+          "label": "deployer",
+          "hasRole": "REVERT/UNSUPPORTED"
+        },
+        {
+          "contract": "Governance.sol",
+          "address": "0xE35a91801bc541fb743BB9EaD26C1FbD81EaBd66",
+          "role": "PAUSER_ROLE",
+          "account": "0x3C3932F865892EFabE45892f453f81B64f6c8d8c",
+          "label": "deployer",
+          "hasRole": "REVERT/UNSUPPORTED"
+        },
+        {
+          "contract": "Safe (Multi-Sig)",
+          "address": "0xE71869C662733642bfBb262B8c6bad8B0fBfA7D0",
+          "role": "DEFAULT_ADMIN_ROLE",
+          "account": "0x3C3932F865892EFabE45892f453f81B64f6c8d8c",
+          "label": "deployer",
+          "hasRole": "REVERT/UNSUPPORTED"
+        },
+        {
+          "contract": "Safe (Multi-Sig)",
+          "address": "0xE71869C662733642bfBb262B8c6bad8B0fBfA7D0",
+          "role": "MINTER_ROLE",
+          "account": "0x3C3932F865892EFabE45892f453f81B64f6c8d8c",
+          "label": "deployer",
+          "hasRole": "REVERT/UNSUPPORTED"
+        },
+        {
+          "contract": "Safe (Multi-Sig)",
+          "address": "0xE71869C662733642bfBb262B8c6bad8B0fBfA7D0",
+          "role": "PAUSER_ROLE",
+          "account": "0x3C3932F865892EFabE45892f453f81B64f6c8d8c",
+          "label": "deployer",
+          "hasRole": "REVERT/UNSUPPORTED"
+        },
+        {
+          "contract": "Algorithm.sol",
+          "address": "0x62f8E5243f32eE5C87a14A7896C61104aD9e7727",
+          "role": "DEFAULT_ADMIN_ROLE",
+          "account": "0x3C3932F865892EFabE45892f453f81B64f6c8d8c",
+          "label": "deployer",
+          "hasRole": true
+        },
+        {
+          "contract": "Algorithm.sol",
+          "address": "0x62f8E5243f32eE5C87a14A7896C61104aD9e7727",
+          "role": "MINTER_ROLE",
+          "account": "0x3C3932F865892EFabE45892f453f81B64f6c8d8c",
+          "label": "deployer",
+          "hasRole": false
+        },
+        {
+          "contract": "Algorithm.sol",
+          "address": "0x62f8E5243f32eE5C87a14A7896C61104aD9e7727",
+          "role": "PAUSER_ROLE",
+          "account": "0x3C3932F865892EFabE45892f453f81B64f6c8d8c",
+          "label": "deployer",
+          "hasRole": false
+        },
+        {
+          "contract": "Reserve.sol",
+          "address": "0x27a1a201D6DF8215d0b0da3Be6211bE24ef4c471",
+          "role": "DEFAULT_ADMIN_ROLE",
+          "account": "0x3C3932F865892EFabE45892f453f81B64f6c8d8c",
+          "label": "deployer",
+          "hasRole": true
+        },
+        {
+          "contract": "Reserve.sol",
+          "address": "0x27a1a201D6DF8215d0b0da3Be6211bE24ef4c471",
+          "role": "MINTER_ROLE",
+          "account": "0x3C3932F865892EFabE45892f453f81B64f6c8d8c",
+          "label": "deployer",
+          "hasRole": false
+        },
+        {
+          "contract": "Reserve.sol",
+          "address": "0x27a1a201D6DF8215d0b0da3Be6211bE24ef4c471",
+          "role": "PAUSER_ROLE",
+          "account": "0x3C3932F865892EFabE45892f453f81B64f6c8d8c",
+          "label": "deployer",
+          "hasRole": false
+        },
+        {
+          "contract": "Mint.sol",
+          "address": "0x0dd8b4F8DA7fB6E3eE04ea9F24f853647F84c3aa",
+          "role": "DEFAULT_ADMIN_ROLE",
+          "account": "0x3C3932F865892EFabE45892f453f81B64f6c8d8c",
+          "label": "deployer",
+          "hasRole": true
+        },
+        {
+          "contract": "Mint.sol",
+          "address": "0x0dd8b4F8DA7fB6E3eE04ea9F24f853647F84c3aa",
+          "role": "MINTER_ROLE",
+          "account": "0x3C3932F865892EFabE45892f453f81B64f6c8d8c",
+          "label": "deployer",
+          "hasRole": true
+        },
+        {
+          "contract": "Mint.sol",
+          "address": "0x0dd8b4F8DA7fB6E3eE04ea9F24f853647F84c3aa",
+          "role": "PAUSER_ROLE",
+          "account": "0x3C3932F865892EFabE45892f453f81B64f6c8d8c",
+          "label": "deployer",
+          "hasRole": false
+        },
+        {
+          "contract": "Redeem.sol",
+          "address": "0xcAde4594177829597882555Ff57d0e34092daF8e",
+          "role": "DEFAULT_ADMIN_ROLE",
+          "account": "0x3C3932F865892EFabE45892f453f81B64f6c8d8c",
+          "label": "deployer",
+          "hasRole": true
+        },
+        {
+          "contract": "Redeem.sol",
+          "address": "0xcAde4594177829597882555Ff57d0e34092daF8e",
+          "role": "MINTER_ROLE",
+          "account": "0x3C3932F865892EFabE45892f453f81B64f6c8d8c",
+          "label": "deployer",
+          "hasRole": false
+        },
+        {
+          "contract": "Redeem.sol",
+          "address": "0xcAde4594177829597882555Ff57d0e34092daF8e",
+          "role": "PAUSER_ROLE",
+          "account": "0x3C3932F865892EFabE45892f453f81B64f6c8d8c",
+          "label": "deployer",
+          "hasRole": "REVERT/UNSUPPORTED"
+        },
+        {
+          "contract": "Oracle.sol",
+          "address": "0xFd2B8d176bf059287638Db30D02C6651dA02861e",
+          "role": "DEFAULT_ADMIN_ROLE",
+          "account": "0x3C3932F865892EFabE45892f453f81B64f6c8d8c",
+          "label": "deployer",
+          "hasRole": true
+        },
+        {
+          "contract": "Oracle.sol",
+          "address": "0xFd2B8d176bf059287638Db30D02C6651dA02861e",
+          "role": "MINTER_ROLE",
+          "account": "0x3C3932F865892EFabE45892f453f81B64f6c8d8c",
+          "label": "deployer",
+          "hasRole": "REVERT/UNSUPPORTED"
+        },
+        {
+          "contract": "Oracle.sol",
+          "address": "0xFd2B8d176bf059287638Db30D02C6651dA02861e",
+          "role": "PAUSER_ROLE",
+          "account": "0x3C3932F865892EFabE45892f453f81B64f6c8d8c",
+          "label": "deployer",
+          "hasRole": "REVERT/UNSUPPORTED"
+        },
+        {
+          "contract": "Takaful.sol",
+          "address": "0xA3B89FfdE28577A7D30E2c22503dB33509044EF0",
+          "role": "DEFAULT_ADMIN_ROLE",
+          "account": "0x3C3932F865892EFabE45892f453f81B64f6c8d8c",
+          "label": "deployer",
+          "hasRole": "REVERT/UNSUPPORTED"
+        },
+        {
+          "contract": "Takaful.sol",
+          "address": "0xA3B89FfdE28577A7D30E2c22503dB33509044EF0",
+          "role": "MINTER_ROLE",
+          "account": "0x3C3932F865892EFabE45892f453f81B64f6c8d8c",
+          "label": "deployer",
+          "hasRole": "REVERT/UNSUPPORTED"
+        },
+        {
+          "contract": "Takaful.sol",
+          "address": "0xA3B89FfdE28577A7D30E2c22503dB33509044EF0",
+          "role": "PAUSER_ROLE",
+          "account": "0x3C3932F865892EFabE45892f453f81B64f6c8d8c",
+          "label": "deployer",
+          "hasRole": "REVERT/UNSUPPORTED"
+        },
+        {
+          "contract": "MTQ.sol",
+          "address": "0x237c3Aa2B79248f86f6523D3890095BCd1996601",
+          "role": "paused()",
+          "account": "-",
+          "label": "-",
+          "hasRole": false
+        }
+      ]
+    }
+  ]
+}

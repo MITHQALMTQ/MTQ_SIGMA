@@ -1,0 +1,35 @@
+# Gateway config — hardened 2026-10-23 (Task 16 / finding 16e-002).
+#
+# The previous wildcard rule (`query XTransformPort=*` → reverse_proxy
+# localhost:{query.XTransformPort}) was a live OPEN PROXY to every localhost
+# service (audit-proven: keeper :3040 and mtq-feed :3003 were reachable
+# through :81). Both mini-services are now RETIRED locally (see
+# mini-services/RETIREMENT-NOTE.md), so no transform port is needed at all.
+#
+# If a future mini-service legitimately needs gateway exposure, re-add the
+# rule with the port PINNED — never a wildcard:
+#
+#   @transform_port_query {
+#           query XTransformPort=3003
+#   }
+#   handle @transform_port_query {
+#           reverse_proxy localhost:3003 { ... }
+#   }
+#
+# NOTE: the RUNNING sandbox caddy uses /app/Caddyfile (root-owned, not
+# editable from this session). This file is the repository template — apply
+# the same change to /app/Caddyfile + `caddy reload` when platform access
+# is available. Residual risk until then: the wildcard remains live in the
+# running gateway but now proxies to dead ports (connection refused) for
+# everything except :3000, which is the app itself.
+
+:81 {
+        handle {
+                reverse_proxy localhost:3000 {
+                        header_up Host {host}
+                        header_up X-Forwarded-For {remote_host}
+                        header_up X-Forwarded-Proto {scheme}
+                        header_up X-Real-IP {remote_host}
+                }
+        }
+}

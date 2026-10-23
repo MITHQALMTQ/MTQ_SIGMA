@@ -1,0 +1,28 @@
+{
+  "choices": [
+    {
+      "finish_reason": "stop",
+      "index": 0,
+      "message": {
+        "content": "(1) **Yes.** The drawer displays the following three status statements under \"OPERATIONAL STATUS\":\n*   **TESTNET ONLY**\n*   **SHADOW MODE ENFORCED**\n*   **RESERVE TRADING NOT AUTHORIZED**\n\n(2) **Yes**, the layout is clean and well-organized, featuring a clear header with a logo and close button, a structured list of navigation links (including nested sub-links), distinct status indicators, and a prominent call-to-action button at the bottom.",
+        "role": "assistant"
+      }
+    }
+  ],
+  "created": 1792534949,
+  "id": "20261021062226eba33a4c516b4ab2",
+  "model": "glm-5v-turbo",
+  "object": "chat.completion",
+  "request_id": "20261021062226eba33a4c516b4ab2",
+  "usage": {
+    "completion_tokens": 103,
+    "completion_tokens_details": {
+      "reasoning_tokens": 0
+    },
+    "prompt_tokens": 418,
+    "prompt_tokens_details": {
+      "cached_tokens": 5
+    },
+    "total_tokens": 521
+  }
+}

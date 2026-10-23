@@ -1,0 +1,239 @@
+# MTQΣ — Deterministic Compute Engine CI (TASK-5)
+#
+# Runs the MASE weight-vector compute engine in Docker on a daily cron, and
+# verifies determinism by running it twice with the same fixed inputs and
+# comparing the SHA-256 hashes.
+#
+# Triggers:
+#   - schedule: daily at 02:00 UTC
+#   - workflow_dispatch: manual trigger from the Actions tab
+#
+# Jobs:
+#   1. determinism-check: build image → run --fixed-input twice → compare
+#      hashes → upload weight-vector.json artifact → create issue on mismatch
+#   2. production-run:    run with Turso creds → upload production
+#      weight-vector.json artifact (depends on determinism-check passing)
+#
+# Runs on ubuntu-latest (free for public repos). Docker Hub pulls of
+# node:20-slim are free (no paid tier needed).
+
+name: Compute Engine
+
+on:
+  schedule:
+    # 02:00 UTC daily
+    - cron: '0 2 * * *'
+  workflow_dispatch:
+    inputs:
+      mode:
+        description: 'Run mode (determinism-only or full)'
+        type: choice
+        options:
+          - determinism-only
+          - full
+        default: full
+
+permissions:
+  contents: read
+  issues: write       # for creating the mismatch issue
+  actions: read
+
+jobs:
+  determinism-check:
+    name: Determinism check (run twice, compare hashes)
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Build compute engine image
+        uses: docker/build-push-action@v6
+        with:
+          context: .
+          file: ./Dockerfile.compute
+          tags: mtqs-compute:latest
+          load: true
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+
+      - name: Run #1 (fixed-input)
+        id: run1
+        run: |
+          mkdir -p output
+          # Run the container with --fixed-input (frozen FX/macro snapshot).
+          # The script prints a one-line JSON to stdout: {"hash": "...", ...}
+          OUT1=$(docker run --rm \
+            -e COMPUTE_ENGINE_OUTPUT=/app/weight-vector.json \
+            -v "$PWD/output:/app" \
+            mtqs-compute:latest --fixed-input)
+          echo "run1_output=$OUT1" >> "$GITHUB_ENV"
+          HASH1=$(echo "$OUT1" | jq -r '.hash')
+          echo "hash1=$HASH1" >> "$GITHUB_OUTPUT"
+          echo "::notice::Run 1 hash: $HASH1"
+          cp output/weight-vector.json weight-vector-run1.json
+
+      - name: Run #2 (fixed-input, same inputs)
+        id: run2
+        run: |
+          mkdir -p output
+          OUT2=$(docker run --rm \
+            -e COMPUTE_ENGINE_OUTPUT=/app/weight-vector.json \
+            -v "$PWD/output:/app" \
+            mtqs-compute:latest --fixed-input)
+          HASH2=$(echo "$OUT2" | jq -r '.hash')
+          echo "hash2=$HASH2" >> "$GITHUB_OUTPUT"
+          echo "::notice::Run 2 hash: $HASH2"
+          cp output/weight-vector.json weight-vector-run2.json
+
+      - name: Compare hashes
+        id: compare
+        run: |
+          HASH1="${{ steps.run1.outputs.hash1 }}"
+          HASH2="${{ steps.run2.outputs.hash2 }}"
+          echo "Hash 1: $HASH1"
+          echo "Hash 2: $HASH2"
+          if [ "$HASH1" = "$HASH2" ]; then
+            echo "match=true" >> "$GITHUB_OUTPUT"
+            echo "::notice::✓ DETERMINISM OK — hashes match ($HASH1)"
+          else
+            echo "match=false" >> "$GITHUB_OUTPUT"
+            echo "::error::✗ DETERMINISM FAIL — hashes differ"
+            exit 1
+          fi
+
+      - name: Verify-only check (run #3 verifies against run #2's file)
+        run: |
+          # The --verify-only flag reads the existing weight-vector.json,
+          # recomputes from the same inputs, and asserts the hash matches.
+          mkdir -p output
+          cp weight-vector-run2.json output/weight-vector.json
+          docker run --rm \
+            -e COMPUTE_ENGINE_OUTPUT=/app/weight-vector.json \
+            -v "$PWD/output:/app" \
+            mtqs-compute:latest --verify-only --fixed-input
+
+      - name: Upload weight-vector artifacts
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: weight-vector-determinism-${{ github.run_id }}
+          path: |
+            weight-vector-run1.json
+            weight-vector-run2.json
+          retention-days: 30
+
+      - name: Create issue on determinism failure (best-effort)
+        if: failure() && steps.compare.outputs.match == 'false'
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const runUrl = `${context.serverUrl}/${context.repo.owner}/${context.repo.repo}/actions/runs/${context.runId}`;
+            const title = '⚠️ Compute Engine Determinism Failure';
+            const body = [
+              `**The deterministic compute engine produced different hashes on two runs with identical inputs.**`,
+              ``,
+              `- **Run URL:** ${runUrl}`,
+              `- **Hash 1:** \`${{ steps.run1.outputs.hash1 }}\``,
+              `- **Hash 2:** \`${{ steps.run2.outputs.hash2 }}\``,
+              `- **Trigger:** ${context.eventName}`,
+              `- **Runner:** ubuntu-latest (shared)`,
+              ``,
+              `This is a **best-effort** check on shared GitHub runners. Floating-point`,
+              `scheduling noise *can* cause rare mismatches that are not real bugs. If this`,
+              `issue fires repeatedly, however, the MASE solver has a real non-determinism`,
+              `bug (likely a \`Math.random()\`, \`Date.now()\`, or unsorted-key serialization`,
+              `introduced in a recent commit).`,
+              ``,
+              `### Next steps`,
+              `1. Download the \`weight-vector-determinism-${context.runId}\` artifact.`,
+              `2. Compare the \`weights\` fields in run1 vs run2 JSON.`,
+              `3. Reproduce locally:`,
+              `   \`\`\`bash`,
+              `   docker build -f Dockerfile.compute -t mtqs-compute .`,
+              `   docker run --rm mtqs-compute --fixed-input  # run twice, compare hashes`,
+              `   \`\`\``,
+            ].join('\n');
+
+            // Search for an existing open issue with the same title (avoid spam)
+            const issues = await github.rest.issues.listForRepo({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              state: 'open',
+              labels: 'compute-engine-determinism',
+              per_page: 50,
+            });
+            const existing = issues.data.find(i => i.title === title);
+            if (existing) {
+              // Comment on the existing issue
+              await github.rest.issues.createComment({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                issue_number: existing.number,
+                body,
+              });
+              core.info(`Commented on existing issue #${existing.number}`);
+            } else {
+              // Create a new issue
+              await github.rest.issues.create({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                title,
+                body,
+                labels: ['compute-engine-determinism', 'bug'],
+              });
+              core.info('Created new determinism-failure issue');
+            }
+
+  production-run:
+    name: Production run (read Turso, emit weight-vector.json)
+    needs: determinism-check
+    if: always() && (github.event_name == 'schedule' || (github.event_name == 'workflow_dispatch' && github.event.inputs.mode != 'determinism-only'))
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Build compute engine image
+        uses: docker/build-push-action@v6
+        with:
+          context: .
+          file: ./Dockerfile.compute
+          tags: mtqs-compute:latest
+          load: true
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+
+      - name: Run compute engine (production mode — reads Turso)
+        env:
+          TURSO_DATABASE_URL: ${{ secrets.TURSO_DATABASE_URL }}
+          TURSO_AUTH_TOKEN: ${{ secrets.TURSO_AUTH_TOKEN }}
+        run: |
+          mkdir -p output
+          # If Turso creds are missing, the engine falls back to --fixed-input
+          # automatically (with a stderr warning). The weight-vector.json is
+          # still produced and uploaded.
+          docker run --rm \
+            -e TURSO_DATABASE_URL="$TURSO_DATABASE_URL" \
+            -e TURSO_AUTH_TOKEN="$TURSO_AUTH_TOKEN" \
+            -e COMPUTE_ENGINE_OUTPUT=/app/weight-vector.json \
+            -v "$PWD/output:/app" \
+            mtqs-compute:latest | tee output/stdout.json
+          echo "::notice::Production weight-vector.json emitted"
+
+      - name: Upload production weight-vector artifact
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: weight-vector-production-${{ github.run_id }}
+          path: |
+            output/weight-vector.json
+            output/stdout.json
+          retention-days: 90

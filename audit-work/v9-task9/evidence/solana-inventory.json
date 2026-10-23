@@ -1,0 +1,68 @@
+{
+  "probe": "MTQΣ Task 9 — Solana devnet read-only audit",
+  "startedAt": "2026-10-21T21:37:15.419Z",
+  "rpc": "https://api.devnet.solana.com",
+  "mintAccount": {
+    "kind": "OK",
+    "ownerProgram": "TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA",
+    "lamports": 1461600,
+    "parsed": {
+      "mintAuthorityOption": "SET",
+      "mintAuthority": "DbFjzWcD6kNmewadiG7ThjD7L4o3w3UhFhG31fPQhXb3",
+      "supplyRaw": "18446744073709551615",
+      "decimals": 18,
+      "isInitialized": true,
+      "freezeAuthorityOption": "NONE",
+      "freezeAuthority": null,
+      "dataLen": 82
+    },
+    "raw": [
+      "AQAAALsSqJlq2bEx6G/YirK2hA6dYoWe+Qtet+2kOazZwpXe//////////8SAQAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==",
+      "base64"
+    ]
+  },
+  "tokenSupply": {
+    "amount": "18446744073709551615",
+    "decimals": 18,
+    "uiAmount": 18.446744073709553,
+    "uiAmountString": "18.446744073709551615"
+  },
+  "walletAccount": {
+    "owner": "11111111111111111111111111111111",
+    "lamports": 9995007520,
+    "dataLen": 0
+  },
+  "walletTokenAccounts": {
+    "count": 1,
+    "accounts": [
+      {
+        "mint": "GAGRdrY6jcRTmD7A9KzvXA5sGMpNAkkRXwDoXBrEjxS4",
+        "owner": "DbFjzWcD6kNmewadiG7ThjD7L4o3w3UhFhG31fPQhXb3",
+        "amount": "18.446744073709551615",
+        "program": "TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA"
+      }
+    ]
+  },
+  "mintSignatures": {
+    "count": 3,
+    "latest": [
+      {
+        "signature": "DFzTcb2qWmy2mYbK…",
+        "slot": 482635377,
+        "err": null
+      },
+      {
+        "signature": "3zy2DMNGZrLQehBm…",
+        "slot": 482635372,
+        "err": null
+      },
+      {
+        "signature": "5zWHvCnfY5CLMMvT…",
+        "slot": 482635368,
+        "err": null
+      }
+    ]
+  },
+  "supersededMintPresence": "ACCOUNT EXISTS",
+  "finishedAt": "2026-10-21T21:37:16.336Z"
+}

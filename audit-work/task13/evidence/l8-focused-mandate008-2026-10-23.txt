@@ -1,0 +1,35 @@
+============================================================
+MTQΣ — Canonical Invariants Test Suite (Deliverable G)
+============================================================
+Deliverable:      G — Reproducible Stress-Test Package + Layer 1-7 Test Suite
+Task ID:          TESTS+DASHBOARD
+Blueprint:        MTQΣ Master v1.0
+Parameter ver:    blueprint.ts @ P0-FIX-1..4 applied
+Data ver:         BASE_FIXINGS (CHF_USD=1.13, XAU_USD=2500) — synthetic
+Methodology ver:  Listing 3 chain-linked + Listing 13 6-state + §22.3 4-layer
+Seeds:            {"S5_goldUp50":5000,"S6_goldDown30":6000,"S3_cauchyFatTail":3000,"S5_runs":100,"S6_runs":100,"S3_runs":200}
+Selection:        layers 8 (isolation mode — identical assertions)
+
+=== AUDIT-FIX SUITE (equation-by-equation audit F-8 + §7.2/§7.8) ===
+=== Layer 8 — Audit-Fix Suite (equation-by-equation audit F-8 + §7.2/§7.8) ===
+[mtq-engine] SlippageWarning: redemption net 110.99 USD < declared minOut 1110.99 USD (§19.4.2) — reverting
+[mtq-engine] FeeAccrued: rebalancing fee 0.40 USD (0.20% §20.4) → Operational Wallet
+[mtq-engine] §11.7 event: GoldSold (§11.7/§12.9 — legacy §7 gold sell fill (shadow record), shadow) {"amount":0.08000000000000011,"output":199.60000000000028,"execPrice":2500}
+[mtq-engine] §11.7 event: RebalanceExecuted (§11.7 — legacy §7 path (shadow record), shadow) {"component":"Gold","deviation":0.011111111111111127,"amount":200,"estimatedCost":19.42,"path":"legacy-§7"}
+
+============================================================
+SUMMARY
+============================================================
+  Layer 8 — Audit-Fix Suite (equation-by-equation audit F-8 + §7.2/§7.8): 94/94 pass, 0 fail
+
+  TOTAL: 94/94 pass, 0 fail
+
+  VERDICT: ✓ ALL EXECUTED TESTS PASSED (selection mode)
+
+============================================================
+NOTE: selection mode — the banner below reflects only the executed selection.
+✓ Chain-linked index eliminates the structural short-gold bug (P0-1 fixed).
+✓ NAV-based redemption matches Master §19.3.2 / Invariant I6 (P0-2 fixed).
+✓ 6-state risk machine adds S3 STRESS with correct policy (P0-3 fixed).
+✓ 4 governance layers + parameter registry wired (P0-4 fixed).
+============================================================

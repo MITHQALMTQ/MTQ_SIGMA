@@ -1,0 +1,112 @@
+{
+ "probedAt": "2026-10-21",
+ "method": "read-only RPC (eth_getCode / eth_call / getAccountInfo) \u2014 no transactions, no state changes",
+ "result": {
+  "monad": {
+   "MTQ.sol": {
+    "addr": "0x9e6EdC15DAc420931508d8Ddf9BC817651A253aD",
+    "bytes": 6681,
+    "present": true
+   },
+   "Governance.sol": {
+    "addr": "0xE35a91801bc541fb743BB9EaD26C1FbD81EaBd66",
+    "bytes": 25819,
+    "present": true
+   },
+   "Safe.sol": {
+    "addr": "0xE71869C662733642bfBb262B8c6bad8B0fBfA7D0",
+    "bytes": 171,
+    "present": true
+   },
+   "Algorithm.sol": {
+    "addr": "0x8839ce50e8D414005518769999c0A5b961D00CB2",
+    "bytes": 2546,
+    "present": true
+   },
+   "Reserve.sol": {
+    "addr": "0x1bbCd78E4DEF79b7a3B77242770cbAefAC816177",
+    "bytes": 5703,
+    "present": true
+   },
+   "Mint.sol": {
+    "addr": "0x197e9CB28216dfe18a199b4c2930F74C2F460809",
+    "bytes": 5644,
+    "present": true
+   },
+   "Redeem.sol": {
+    "addr": "0x963201C0Fa258033CCDdFcDceb8B5E3bc2b435a4",
+    "bytes": 6170,
+    "present": true
+   },
+   "Oracle.sol": {
+    "addr": "0xDfcA66ac0450C9AB86307af1942E157C5A4DB713",
+    "bytes": 5273,
+    "present": true
+   },
+   "Takaful.sol": {
+    "addr": "0x3eC27BB283644eF0A98B9961E9FBED0583a02f19",
+    "bytes": 6043,
+    "present": true
+   },
+   "token": {
+    "name": "MITHQAL",
+    "symbol": "MTQ",
+    "totalSupply_raw": "310949000000000000000",
+    "totalSupply_e18": 310.94899999999996
+   }
+  },
+  "arc": {
+   "MTQ.sol": {
+    "addr": "0x237c3Aa2B79248f86f6523D3890095BCd1996601",
+    "bytes": 3474,
+    "present": true
+   },
+   "Governance.sol": {
+    "addr": "0xE35a91801bc541fb743BB9EaD26C1FbD81EaBd66",
+    "bytes": 13129,
+    "present": true
+   },
+   "Safe.sol": {
+    "addr": "0xE71869C662733642bfBb262B8c6bad8B0fBfA7D0",
+    "bytes": 171,
+    "present": true
+   },
+   "Algorithm.sol": {
+    "addr": "0x62f8E5243f32eE5C87a14A7896C61104aD9e7727",
+    "bytes": 1237,
+    "present": true
+   },
+   "Reserve.sol": {
+    "addr": "0x27a1a201D6DF8215d0b0da3Be6211bE24ef4c471",
+    "bytes": 2897,
+    "present": true
+   },
+   "Mint.sol": {
+    "addr": "0x0dd8b4F8DA7fB6E3eE04ea9F24f853647F84c3aa",
+    "bytes": 2847,
+    "present": true
+   },
+   "Redeem.sol": {
+    "addr": "0xcAde4594177829597882555Ff57d0e34092daF8e",
+    "bytes": 3037,
+    "present": true
+   },
+   "Oracle.sol": {
+    "addr": "0xFd2B8d176bf059287638Db30D02C6651dA02861e",
+    "bytes": 2601,
+    "present": true
+   },
+   "Takaful.sol": {
+    "addr": "0xA3B89FfdE28577A7D30E2c22503dB33509044EF0",
+    "bytes": 3033,
+    "present": true
+   },
+   "token": {
+    "name": "MITHQAL",
+    "symbol": "MTQ",
+    "totalSupply_raw": "1000000000000000000000",
+    "totalSupply_e18": 1000.0
+   }
+  }
+ }
+}

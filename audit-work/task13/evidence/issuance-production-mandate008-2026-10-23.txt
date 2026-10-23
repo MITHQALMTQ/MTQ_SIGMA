@@ -1,0 +1,1514 @@
+MTQΣ — MANDATE-008 · Task M8-3c-a · ISSUANCE PRODUCTION DETERMINISTIC E2E RUNNER — EVIDENCE TRANSCRIPT
+date: 2026-10-23
+command: bun src/lib/mtq/__tests__/issuance-production-e2e.ts (run from the repository root)
+runs: 2 (Run 1 + Run 2), each 225/225 PASS, exit 0
+stdout is byte-identical across the two runs modulo the "ranAt(UTC)" run-banner line (verified: md5 e6c2edf672a2806a4c17f1bb792e55a3 on the banner-stripped outputs)
+posture: TESTNET ONLY · SHADOW MODE ENFORCED · UNAUTHORIZED RESERVE TRANSACTIONS FORBIDDEN · NOT ACCEPTED
+
+===== Run 1 · 2026-10-23 =====
+MTQΣ — MANDATE-008 · M8-3c-a · ISSUANCE PRODUCTION DETERMINISTIC E2E RUNNER
+ranAt(UTC): 2026-10-23T12:26:27.278Z   <-- run banner (the ONLY wall-clock surface; all logic uses the fixed machine clock)
+machine label: PAYMENT-FUNDED PRIMARY ISSUANCE STATE MACHINE (pilot implementation of spec §14.4 12-step workflow / §14.6 8-stage controlled process) — TEST LEDGER ONLY · NEVER ON-CHAIN · ISSUED = LEDGER RECORD ONLY.
+D-13.27: ADOPTED (DELEGATED) 2026-10-23 — PENDING OWNER RATIFICATION: ALT-4 (hybrid + periodic attestation), finality-before-issuance, pre-issuance reversal → CANCELLED / post-issuance → RECONCILIATION_BREAK + SUSPENDED + fail-closed authorized remediation, fail-closed failure recovery, 1:1:1:1 atomic idempotent transaction boundaries, fee/quote FORM adopted with VALUES UNAPPROVED (D-13.8 value + §14.5 derivation policy publication remain OPEN). Spec §14.6 REVISION 2.
+auth scheme: SYNTHETIC IN-PROCESS AUTHENTICITY SCHEME — an HMAC-STYLE tag computed in-process with a TEST-ONLY literal key. NOT cryptographic. Tags are deliberately truncated to 16 hex characters so that no 64-char hex literal is ever produced anywhere. PRODUCTION REQUIRES REAL PER-RAIL SIGNATURE VERIFICATION (spec §6.2) — no real rail or signature verification exists in this pilot.
+separation invariant: Payment volume or acceptance must NEVER automatically determine currency eligibility or basket weights. Accepting a USD-linked stablecoin does not itself justify increasing the USD weight. Accepting a euro-linked instrument does not itself justify increasing the EUR weight. (spec §2, verbatim obligation of MANDATE-004 §7; test analog: separation-check.ts + the production runner's SEP assertions / T-PAY-01 family)
+registry label: PAYMENT-INSTRUMENT REGISTRY (pilot implementation of payment-instrument-registry-and-settlement-spec.md §3–§5) — BORN EMPTY · FAIL-CLOSED ADMISSION · NO REAL INSTRUMENT IS REGISTERED
+adapter status: SIMULATED / NOT CONNECTED
+posture: TESTNET ONLY · SHADOW MODE ENFORCED · UNAUTHORIZED RESERVE TRANSACTIONS FORBIDDEN · NOT ACCEPTED
+honest scope: PRODUCTION TS REFERENCE ENGINE evidence only — synthetic TEST-ONLY instruments, LEDGER RECORDS ONLY, never on-chain.
+
+
+=== S0 — Labels & registry honesty (born empty · fail-closed admission · TEST fixtures · per-instance identity · CBDC NOT_CONNECTED · no telemetry) ===
+  ✓ [S0-01] production registry is BORN EMPTY (rowCount 0)
+      expected: 0
+      observed: 0
+  ✓ [S0-02] born-empty registry exposes zero rows
+      expected: 0
+      observed: 0
+  ✓ [S0-03] registry label declares BORN EMPTY + FAIL-CLOSED admission
+      expected: declared
+      observed: declared
+  ✓ [S0-04] admission of a real-looking row into the BORN-EMPTY registry REFUSED (no CANDIDATE row exists; fail-closed)
+      expected: true
+      observed: reasonCode=ADMISSION_BLOCKED_INSTRUMENT_NOT_FOUND — a CANDIDATE row must exist before admission; the production registry is BORN EMPTY and no instrument is registered
+  ✓ [S0-05] verifyRealRailEvidence NEVER verifies in this pilot — null evidence AND a real-looking evidence object BOTH refused (no real rail / no signature verification / no authorized interface exists)
+      expected: true
+      observed: null→NO REAL-RAIL EVIDENCE EXISTS — this pilot has no real paymen…; object→REAL-RAIL EVIDENCE CANNOT BE VERIFIED IN THIS PILOT — no ver…
+  ✓ [S0-06] TEST fixture provider installs exactly the 5 synthetic rows
+      expected: 5
+      observed: 5
+  ✓ [S0-07] fixture provider label declares TEST-ONLY + NO REAL INSTRUMENT
+      expected: declared
+      observed: declared
+  ✓ [S0-08] TEST-USDC-X @ TEST-CHAIN-1 installed ACTIVE and stamped TEST-ONLY (synthetic identity, non-hex address)
+      expected: true
+      observed: state=ACTIVE, testOnly=true, address=0xTESTUSDCX0000NOTAREALCONTRACT
+  ✓ [S0-09] the ACTIVE test row carries a NON-EMPTY evidence list (spec §3: an ACTIVE row with empty evidence is invalid by construction)
+      expected: true
+      observed: evidence entries=1
+  ✓ [S0-10] admission with a real-looking evidence dossier REFUSED fail-closed even against an existing row (verifyRealRailEvidence can never succeed in this pilot)
+      expected: true
+      observed: reasonCode=ADMISSION_BLOCKED_FAIL_CLOSED — REAL-RAIL EVIDENCE CANNOT BE VERIFIED IN THIS PI…
+  ✓ [S0-11] per-instance identity rule: the SAME code on TEST-CHAIN-2 is a SEPARATE row that is CANDIDATE (never auto-approved by the TEST-CHAIN-1 row; spec §14.2 rule (a))
+      expected: true
+      observed: instrumentId=TEST-STBL-002 (vs TEST-STBL-001), state=CANDIDATE
+  ✓ [S0-12] per-instance lookup by code+network never resolves a ticker alone (TEST-CHAIN-1 lookup → TEST-STBL-001 only)
+      expected: true
+      observed: resolved=TEST-STBL-001
+  ✓ [S0-13] CBDC rows are born CANDIDATE + honestyState NOT_CONNECTED with the SIMULATED / NOT CONNECTED label
+      expected: true
+      observed: cbdc1=CANDIDATE/NOT_CONNECTED, cbdc2=CANDIDATE/NOT_CONNECTED
+  ✓ [S0-14] CBDC admission is STRUCTURALLY INADMISSIBLE (verified authorized interface + recorded end-to-end test — NEITHER EXISTS; spec §5.3/§4)
+      expected: true
+      observed: reasonCode=ADMISSION_BLOCKED_NOT_CONNECTED — spec §5.3/§4: a NOT_CONNECTED row may become A…
+  ✓ [S0-15] NO weighting/eligibility/basket/constituency telemetry fields exist on ANY registry row (installed rows AND frozen fixture definitions)
+      expected: true
+      observed: installedRowsClean=true, fixtureDefsClean=true
+  ✓ [S0-16] D-13.27 status label: ALT-4 ADOPTED (DELEGATED) 2026-10-23 — PENDING OWNER RATIFICATION, with the adopted decision-3 naming (pre-issuance CANCELLED / post-issuance RECONCILIATION_BREAK)
+      expected: true
+      observed: ADOPTED (DELEGATED) 2026-10-23 — PENDING OWNER RATIFICATION: ALT-4 (hybrid + periodic attestation), finality-before-issu…
+  ✓ [S0-17] the 21-state model uses the ADOPTED decision-3 naming: CANCELLED exists, the prototype's PAYMENT_REVERSED terminal does NOT
+      expected: true
+      observed: states=21, CANCELLED=true, PAYMENT_REVERSED=false
+  ✓ [S0-18] 21 states in the model (12 flow + 9 terminal failure); every state carries a §14.4 step reference
+      expected: 21/9/21
+      observed: 21/9/21
+  ✓ [S0-19] honesty labels exposed: fee schedule UNAPPROVED (D-13.8), quote policy ILLUSTRATIVE (§14.5), supply policy ILLUSTRATIVE (D-13.6)
+      expected: true
+      observed: fee=ILLUSTRATIVE — D-13.8 OPEN: 0.10% flat n…; quote=ILLUSTRATIVE QUOTE POLICY (spec §14.5) —…; supply=ILLUSTRATIVE SUPPLY POLICY — D-13.6 supp…
+  ✓ [S0-20] ALT-4 authorization labels exposed (module + adoption + synthetic-signature disclosure; TEST-ONLY auth key literal is published, not secret)
+      expected: true
+      observed: module+adoption+signature labels present; keyLiteral=TEST-ONLY-NOT-A-SECRET
+  ✓ [S0-21] ILLUSTRATIVE named defaults verified: fee 0.10% (10bps) · quote 2.000000 TU/token · validity 15 min (900,000ms) · caps 500,000 / 1,000,000 / 10,000,000 tokens
+      expected: true
+      observed: fee=10bps, quote=2.000000, ttl=900000ms, perTx=500000.000000, tranche=1000000.000000, global=10000000.000000
+  ✓ [S0-22] separation-check label declares the READ-ONLY display/test-side role (the checker lives OUTSIDE the issuance data path)
+      expected: true
+      observed: SEPARATION INVARIANT CHECK (spec §2 / MANDATE-004 §7) — canonical basket/constituency snapshot captu…
+
+=== S1 — Happy path — spec §14.4 12 steps under ALT-4: gross 10000.000000 TEST-USDC-X → fee 10.000000 → net 9990.000000 → issued 4995.000000 @ quote 2.000000 ===
+  ✓ [S1-01] supply before any issuance
+      expected: 0.000000
+      observed: 0.000000
+  ✓ [S1-02] ALT-4 governed act: issuance program defined (synthetic TEST-TAG signature, never a payment event) with the adoption label
+      expected: true
+      observed: programId=PROG-E2E-001, signatureTag=TEST-TAG-1edd209753a5e018
+  ✓ [S1-03] duplicate programId REFUSED (programs are explicit records, not idempotent overwrites)
+      expected: true
+      observed: reasonCode=PROGRAM_ID_ALREADY_EXISTS
+  ✓ [S1-04] ALT-4 governed act: fresh matching periodic attestation recorded (STUB attester, clearly labeled)
+      expected: true
+      observed: attestationStatus=OK
+  ✓ [S1-05] step 1/12 → REQUEST_CREATED and machine.assertInvariants() PASSES after the phase (INV-A..E)
+      expected: true
+      observed: state=REQUEST_CREATED, stepOk=true, invariants=PASS
+  ✓ [S1-06] step 2/12 → QUOTED and machine.assertInvariants() PASSES after the phase (INV-A..E)
+      expected: true
+      observed: state=QUOTED, stepOk=true, invariants=PASS
+  ✓ [S1-07] step 3/12 → PAYMENT_OBSERVED and machine.assertInvariants() PASSES after the phase (INV-A..E)
+      expected: true
+      observed: state=PAYMENT_OBSERVED, stepOk=true, invariants=PASS
+  ✓ [S1-08] step 4/12 → PAYMENT_AUTHENTIC and machine.assertInvariants() PASSES after the phase (INV-A..E)
+      expected: true
+      observed: state=PAYMENT_AUTHENTIC, stepOk=true, invariants=PASS
+  ✓ [S1-09] step 5/12 → SETTLEMENT_FINAL and machine.assertInvariants() PASSES after the phase (INV-A..E)
+      expected: true
+      observed: state=SETTLEMENT_FINAL, stepOk=true, invariants=PASS
+  ✓ [S1-10] step 6/12 → INSTRUMENT_CHECKED and machine.assertInvariants() PASSES after the phase (INV-A..E)
+      expected: true
+      observed: state=INSTRUMENT_CHECKED, stepOk=true, invariants=PASS
+  ✓ [S1-11] step 7/12 → FEES_CALCULATED and machine.assertInvariants() PASSES after the phase (INV-A..E)
+      expected: true
+      observed: state=FEES_CALCULATED, stepOk=true, invariants=PASS
+  ✓ [S1-12] step 8/12 → NET_ACCEPTED and machine.assertInvariants() PASSES after the phase (INV-A..E)
+      expected: true
+      observed: state=NET_ACCEPTED, stepOk=true, invariants=PASS
+  ✓ [S1-13] step 9/12 → AUTHORIZED and machine.assertInvariants() PASSES after the phase (INV-A..E)
+      expected: true
+      observed: state=AUTHORIZED, stepOk=true, invariants=PASS
+  ✓ [S1-14] step 10/12 → SUPPLY_CHECKED and machine.assertInvariants() PASSES after the phase (INV-A..E)
+      expected: true
+      observed: state=SUPPLY_CHECKED, stepOk=true, invariants=PASS
+  ✓ [S1-15] step 11/12 → ISSUED and machine.assertInvariants() PASSES after the phase (INV-A..E)
+      expected: true
+      observed: state=ISSUED, stepOk=true, invariants=PASS
+  ✓ [S1-16] step 12/12 → RECONCILED and machine.assertInvariants() PASSES after the phase (INV-A..E)
+      expected: true
+      observed: state=RECONCILED, stepOk=true, invariants=PASS
+  ✓ [S1-17] quote record carries id, price basis, quote-unit conversion, fee line item, spread disclosure and the 15-min validity window (spec §6.1)
+      expected: true
+      observed: quote QUOTE-S1-R1: gross 10000.000000 TEST-USDC-X → 10000.000000 TU @ conversion 1.000000; issuance quote 2.000000 TU/token (§14.5 FORM — IL…
+  ✓ [S1-18] fee = 0.10% of gross (EXACT integer math; ILLUSTRATIVE — D-13.8 OPEN)
+      expected: 10.000000
+      observed: 10.000000
+  ✓ [S1-19] net = gross − fee (step 8)
+      expected: 9990.000000
+      observed: 9990.000000
+  ✓ [S1-20] issued = net ÷ quote = 9990.000000 ÷ 2.000000 (§14.5 general form)
+      expected: 4995.000000
+      observed: 4995.000000
+  ✓ [S1-21] gross TU recorded on the instance
+      expected: 10000.000000
+      observed: 10000.000000
+  ✓ [S1-22] idempotent mint record carries the LEDGER-RECORD-ONLY label (nonce 1, idempotency key, NO on-chain action)
+      expected: true
+      observed: mintId=MINT-S1-R1, nonce=1, label=LEDGER RECORD ONLY — NEVER ON-CHAIN (TEST LEDGER; no token c…
+  ✓ [S1-23] supply 0.000000 → 4995.000000 (LEDGER-ONLY counter)
+      expected: 4995.000000
+      observed: 4995.000000
+  ✓ [S1-24] tranche consumption after the issuance
+      expected: 4995.000000
+      observed: 4995.000000
+  ✓ [S1-25] fee ledger total (booked, ILLUSTRATIVE)
+      expected: 10.000000
+      observed: 10.000000
+  ✓ [S1-26] exactly ONE mint record
+      expected: 1
+      observed: 1
+  ✓ [S1-27] authorization record is ALT-4 under the defined program (INV-A precondition, explicit governed act — never a payment event)
+      expected: true
+      observed: hasAuth=true, program=PROG-E2E-001, settlementFinal=true
+  ✓ [S1-28] audit log records the §14.4 step sequence in order (steps 1+3, 2, 4, 4a, 4b, 5, 7, 6+8, 9, 9b, 10, 11)
+      expected: REQUEST_CREATED,QUOTED,PAYMENT_OBSERVED,PAYMENT_AUTHENTIC,SETTLEMENT_FINAL,INSTRUMENT_CHECKED,FEES_CALCULATED,NET_ACCEPTED,AUTHORIZED,SUPPLY_CHECKED,ISSUED,RECONCILED
+      observed: REQUEST_CREATED,QUOTED,PAYMENT_OBSERVED,PAYMENT_AUTHENTIC,SETTLEMENT_FINAL,INSTRUMENT_CHECKED,FEES_CALCULATED,NET_ACCEPTED,AUTHORIZED,SUPPLY_CHECKED,ISSUED,RECONCILED
+  ✓ [S1-29] audit publication carries a synthetic publication tag (TEST-TAG-<16 hex>, never a 64-char literal) + every entry has a reason code
+      expected: true
+      observed: publicationTag=TEST-TAG-d23b836cbea72870, entries=14
+  ✓ [S1-30] three-book equality after the happy path (C1–C4 all PASS, spec §6.5)
+      expected: true
+      observed: ["C1=PASS","C2=PASS","C3=PASS","C4=PASS"]
+  ✓ [S1-31] book totals agree (payment ledger = issuance ledger = token book + fee ledger)
+      expected: {"paymentLedgerSettledCount":"1","issuanceRecordCount":"1","tokenBookSum":"4995.000000","totalSupply":"4995.000000","feeLedgerTotal":"10.000000"}
+      observed: {"paymentLedgerSettledCount":"1","issuanceRecordCount":"1","tokenBookSum":"4995.000000","totalSupply":"4995.000000","feeLedgerTotal":"10.000000"}
+
+=== S2 — Duplicates & replays — request-id replay · same idempotency key · duplicate payment txId (never a second execution) ===
+  ✓ [S2-01] first issuance completed (RECONCILED, 4995.000000 minted)
+      expected: 4995.000000
+      observed: 4995.000000
+  ✓ [S2-02] same requestId resubmitted → REPLAY DETECTED: the ORIGINAL outcome is returned, created=false, NO second execution (spec §6.4)
+      expected: true
+      observed: replayDetected=true, created=false, originalOutcomeRef=S1-R1, state=RECONCILED
+  ✓ [S2-03] the completed instance cannot continue: quote and new-payment observation both REJECTED (terminal state is immutable)
+      expected: true
+      observed: generateQuote=STEP_REJECTED_STATE_RECONCILED…; observePayment=STEP_REJECTED_STATE_RECONCILED…
+  ✓ [S2-04] instance count UNCHANGED by the replay (no new pipeline instance)
+      expected: 1
+      observed: 1
+  ✓ [S2-05] same idempotency key + new request/payment after completion → DUPLICATE terminal; original result referenced; still 1 mint (INV-C)
+      expected: true
+      observed: state=DUPLICATE, duplicateOf=S1-R1, instanceStored=false
+  ✓ [S2-06] duplicate payment txId REJECTED → DUPLICATE terminal (DUPLICATE_PAYMENT_TX; never a second execution)
+      expected: true
+      observed: submission=REQUEST_CREATED; observe=DUPLICATE (DUPLICATE_PAYMENT_TX…)
+  ✓ [S2-07] supply UNCHANGED after all duplicate/replay attempts (no double mint)
+      expected: 4995.000000
+      observed: 4995.000000
+  ✓ [S2-08] still exactly ONE mint record
+      expected: 1
+      observed: 1
+  ✓ [S2-09] no ISSUED transition exists for any duplicate request (S2-R2, S2-R3)
+      expected: true
+      observed: ISSUED transitions for duplicates: 0
+  ✓ [S2-10] machine-level invariants hold after the duplicate/replay battery (INV-C: idempotency keys map 1:1 to mint records)
+      expected: true
+      observed: assertInvariants() passed
+
+=== S3 — Delayed finality — settlement finality arrives after the 15-min quote expiry → EXPIRED_QUOTE, NO mint, held-or-refunded (spec §6.3) ===
+  ✓ [S3-01] late settlement finality → EXPIRED_QUOTE terminal; NO issuance at a stale quote (finality-before-issuance, adopted decision 2; spec §6.1 hard-reject)
+      expected: true
+      observed: state=EXPIRED_QUOTE, reason=QUOTE_EXPIRED_BEFORE_FINALITY
+  ✓ [S3-02] taxonomy CONFIRMATION_TIMEOUT recorded on the terminal instance
+      expected: CONFIRMATION_TIMEOUT
+      observed: CONFIRMATION_TIMEOUT
+  ✓ [S3-03] payment HELD_IN_REFUND_QUEUE (PENDING_REFUND) with the SAME idempotency key (spec §6.3 held-or-refunded)
+      expected: true
+      observed: refunds=["RFND-S3-R1:PENDING_REFUND:key=IDK-S3-R1:reason=EXPIRED_QUOTE"]
+  ✓ [S3-04] refund state machine completes PENDING_REFUND → REFUNDED (spec §6.3)
+      expected: true
+      observed: processed=1, state=REFUNDED
+  ✓ [S3-05] retry on the SAME idempotency key after expiry → DUPLICATE (retry forbidden, spec §6.6)
+      expected: true
+      observed: state=DUPLICATE, reason=DUPLICATE_KEY_COLLISION — same idempotency key with a DIFFER…
+  ✓ [S3-06] supply UNCHANGED (no mint on a stale quote)
+      expected: 0.000000
+      observed: 0.000000
+  ✓ [S3-07] NO mint record exists for the expired request
+      expected: absent
+      observed: absent
+  ✓ [S3-08] machine-level invariants hold after the delayed-finality scenario
+      expected: true
+      observed: assertInvariants() passed
+
+=== S4 — Failed payment — settlement status FAILED: never mints, taxonomy recorded, refund queued ===
+  ✓ [S4-01] FAILED settlement → PAYMENT_FAILED terminal; a failed payment NEVER mints (spec §14.4 hard rules)
+      expected: true
+      observed: state=PAYMENT_FAILED, reason=SETTLEMENT_STATUS_FAILED
+  ✓ [S4-02] direct issuance attempt on the failed payment → transition REJECTED by the explicit state machine (cannot skip to ISSUED)
+      expected: true
+      observed: reason=TRANSITION_REJECTED_PAYMENT_FAILED_TO_ISSUED
+  ✓ [S4-03] supply UNCHANGED
+      expected: 0.000000
+      observed: 0.000000
+  ✓ [S4-04] NO fee retained on the failed transaction (fee ledger 0.000000; spec §6.3)
+      expected: 0.000000
+      observed: 0.000000
+  ✓ [S4-05] failure recorded with the §6.6 taxonomy (CONFIRMATION_TIMEOUT on the terminal instance AND the event log carries the taxonomy class)
+      expected: true
+      observed: instanceTaxonomy=CONFIRMATION_TIMEOUT
+  ✓ [S4-06] auto-refund queued with the same idempotency key (reason PAYMENT_FAILED, spec §6.3)
+      expected: true
+      observed: refunds=1, reason=PAYMENT_FAILED
+  ✓ [S4-07] no ISSUED transition exists anywhere in the log
+      expected: true
+      observed: ISSUED transitions: 0
+  ✓ [S4-08] machine-level invariants hold (INV-B: failed/unverified payments never mint)
+      expected: true
+      observed: assertInvariants() passed
+
+=== S5 — Reversals — pre-issuance → CANCELLED (no mint); post-issuance → RECONCILIATION_BREAK + SUSPENDED; recovery ONLY via the explicit authorized remediation path (INV-D) ===
+  ✓ [S5-01] reversal BEFORE issuance → CANCELLED terminal (ADOPTED decision 3 naming; the prototype's PAYMENT_REVERSED name is retired); NO mint
+      expected: true
+      observed: state=CANCELLED, reason=REVERSAL_BEFORE_ISSUANCE
+  ✓ [S5-02] pre-issuance reversal taxonomy REVERSAL_BEFORE_ISSUANCE recorded
+      expected: REVERSAL_BEFORE_ISSUANCE
+      observed: REVERSAL_BEFORE_ISSUANCE
+  ✓ [S5-03] auto-refund queued with the same idempotency key for the cancelled request (spec §6.3)
+      expected: true
+      observed: refunds=1, reason=REVERSAL_BEFORE_ISSUANCE
+  ✓ [S5-04] supply UNCHANGED by the pre-issuance reversal
+      expected: 0.000000
+      observed: 0.000000
+  ✓ [S5-05] second issuance completes first (RECONCILED, 4995.000000)
+      expected: 4995.000000
+      observed: 4995.000000
+  ✓ [S5-06] reversal AFTER issuance → RECONCILIATION_BREAK + pipeline SUSPENDED (books disagree; spec §6.5/§6.6; adopted decision 3)
+      expected: true
+      observed: state=RECONCILIATION_BREAK, suspended=true, reasons=["REVERSAL_AFTER_ISSUANCE:S5-R2"]
+  ✓ [S5-07] OPEN exception queued with taxonomy REVERSAL_AFTER_ISSUANCE (no silent write-off)
+      expected: true
+      observed: exceptions=["EXC-S5-R2-REVPOST:REVERSAL_AFTER_ISSUANCE:OPEN"]
+  ✓ [S5-08] payment book entry flagged REVERSED_POST_ISSUANCE (the divergence is visible on the books)
+      expected: REVERSED_POST_ISSUANCE
+      observed: REVERSED_POST_ISSUANCE
+  ✓ [S5-09] mint record PRESERVED after the reversal (no silent write-off, no re-mint)
+      expected: true
+      observed: mintId=MINT-S5-R2, amount=4995.000000 (still on the token book)
+  ✓ [S5-10] supply unchanged by the reversal event (no re-mint)
+      expected: 4995.000000
+      observed: 4995.000000
+  ✓ [S5-11] pipeline SUSPENDED blocks NEW requests fail-closed while the exception is OPEN (no silent healing)
+      expected: true
+      observed: reason=PIPELINE_SUSPENDED_FAIL_CLOSED
+  ✓ [S5-12] authorized remediation REFUSED while the three books still diverge (C1–C4 re-verified at resolution time; the reversal divergence is REAL — no automatic book adjustment exists or is permitted)
+      expected: true
+      observed: reasonCode=REMEDIATION_BLOCKED_BOOKS_STILL_DIVERGED
+  ✓ [S5-13] the machine REMAINS SUSPENDED with the OPEN exception after the refused remediation (fail-closed; no silent healing)
+      expected: true
+      observed: suspended=true
+  ✓ [S5-14] machine-level invariants hold on the reversal machine (INV-D: suspension carries reasons + an OPEN exception)
+      expected: true
+      observed: assertInvariants() passed
+  ✓ [S5-15] forced 1-micro ledger break → reconcile() routes to RECONCILIATION_BREAK + pipeline SUSPENDED + exception queued (fail-closed)
+      expected: true
+      observed: state=RECONCILIATION_BREAK, suspended=true
+  ✓ [S5-16] remediation REFUSED before the books are corrected (C1–C4 must pass at resolution time)
+      expected: true
+      observed: reasonCode=REMEDIATION_BLOCKED_BOOKS_STILL_DIVERGED
+  ✓ [S5-17] after the explicit authorized correction, resolveReconciliationBreak SUCCEEDS: exceptions RESOLVED, pipeline RESUMED, mint record PRESERVED (no re-mint, no re-burn, no adjustment)
+      expected: true
+      observed: ok=true, reason=REMEDIATED, suspended=false, openExceptions=0, supply=4995.000000
+  ✓ [S5-18] after the authorized remediation the pipeline OPERATES again: a new request completes to RECONCILED (recovery was an explicit act, not silent healing)
+      expected: true
+      observed: state=RECONCILED, reason=THREE_BOOK_RECONCILED
+  ✓ [S5-19] machine-level invariants hold after the full remediation loop (INV-D: resolved exceptions carry the resolver)
+      expected: true
+      observed: assertInvariants() passed
+
+=== S6 — Authorization (INV-A / ALT-4) — no program ⇒ refusal · revoked mid-flight · attestation MISSING/STALE/MISMATCH ⇒ suspended · authorized resumption ===
+  ✓ [S6-01] payment fully settled + net accepted, but NO authorization program exists and NO authorization record was created (a payment event alone can NEVER create one)
+      expected: true
+      observed: state=NET_ACCEPTED, settlementFinal=true, hasAuthorization=false
+  ✓ [S6-02] authorize() with NO program → UNAUTHORIZED terminal (NO_AUTHORIZATION_PROGRAM — payments alone NEVER mint; INV-A unconditional)
+      expected: true
+      observed: state=UNAUTHORIZED, reason=NO_AUTHORIZATION_PROGRAM — no issuance program exists; payments alone NEVER mint (ALT-4, INV-A)
+  ✓ [S6-03] taxonomy AUTHORIZATION_MISSING recorded on the unauthorized terminal
+      expected: AUTHORIZATION_MISSING
+      observed: AUTHORIZATION_MISSING
+  ✓ [S6-04] bypass-attempt harness (table skipped) → machine INVARIANT THROWS: ISSUED unreachable without a program record (INV-A hard guard)
+      expected: true
+      observed: threw=true, message=INV-A: bypass attempt blocked — no settlement finality + unrevoked ALT-4 authori…
+  ✓ [S6-05] supply UNCHANGED (never reached ISSUED)
+      expected: 0.000000
+      observed: 0.000000
+  ✓ [S6-06] no ISSUED transition exists anywhere in this machine's log
+      expected: true
+      observed: ISSUED transitions: 0
+  ✓ [S6-07] machine-level invariants hold (INV-A: no ISSUED without settlement finality + authorization record)
+      expected: true
+      observed: assertInvariants() passed
+  ✓ [S6-08] NO periodic attestation → UNAUTHORIZED (NO_ATTESTATION) AND the pipeline SUSPENDS fail-closed with an OPEN ATTESTATION_FAILURE exception (ALT-4)
+      expected: true
+      observed: state=UNAUTHORIZED, reason=NO_ATTESTATION — hybrid program requires…, suspended=true
+  ✓ [S6-09] first issuance completes under the program before revocation (4995.000000)
+      expected: 4995.000000
+      observed: 4995.000000
+  ✓ [S6-10] program REVOKED mid-flight → authorize() REFUSES (ALL_PROGRAMS_REVOKED — a revoked program authorizes nothing)
+      expected: true
+      observed: state=UNAUTHORIZED, reason=ALL_PROGRAMS_REVOKED — no unrevoked authorization …
+  ✓ [S6-11] supply still 4995.000000 after the revoked-program attempt (no second mint)
+      expected: 4995.000000
+      observed: 4995.000000
+  ✓ [S6-12] attestation MISMATCH → UNAUTHORIZED (ATTESTATION_MISMATCH) AND the pipeline SUSPENDS fail-closed (adopted decision 1)
+      expected: true
+      observed: state=UNAUTHORIZED, reason=ATTESTATION_MISMATCH — automatic issuanc…, suspended=true
+  ✓ [S6-13] new requests REJECTED while suspended for attestation failure (fail-closed)
+      expected: true
+      observed: reason=PIPELINE_SUSPENDED_FAIL_CLOSED
+  ✓ [S6-14] resumption BLOCKED with a non-matching attestation (no silent healing; fail-closed recovery)
+      expected: true
+      observed: reason=RESUMPTION_BLOCKED_MISMATCH
+  ✓ [S6-15] resumeAfterAttestationSuspension with a FRESH matching attestation + explicit operator act → pipeline RESUMED, attestation exception RESOLVED
+      expected: true
+      observed: ok=true, reason=RESUMED, suspended=false
+  ✓ [S6-16] after the authorized resumption the pipeline operates again: a new issuance completes to RECONCILED
+      expected: true
+      observed: state=RECONCILED, reason=THREE_BOOK_RECONCILED
+  ✓ [S6-17] attestation status transitions to STALE after the period elapses (machine.attestationStatus())
+      expected: STALE
+      observed: STALE
+  ✓ [S6-18] STALE attestation → UNAUTHORIZED (STALE_ATTESTATION) AND the pipeline SUSPENDS fail-closed pending a fresh attestation
+      expected: true
+      observed: state=UNAUTHORIZED, reason=STALE_ATTESTATION — issuance suspension …, suspended=true
+  ✓ [S6-19] machine-level invariants hold across ALL authorization machines (incl. the suspended ones — INV-D reasons + OPEN exceptions)
+      expected: true
+      observed: assertInvariants() passed on all 5 authorization machines
+
+=== S7 — Invalid instrument/payment — unregistered · wrong network · RETIRED · SUSPENDED · bad auth tag · amount mismatch · jurisdiction · depeg · finality-evidence gap ===
+  ✓ [S7-01] unregistered instrument → INVALID_INSTRUMENT at quote (per-instance lookup, never a ticker alone)
+      expected: true
+      observed: state=INVALID_INSTRUMENT, reason=INSTRUMENT_NOT_IN_REGISTRY
+  ✓ [S7-02] taxonomy INSTRUMENT_INVALID on the unregistered-instrument terminal
+      expected: INSTRUMENT_INVALID
+      observed: INSTRUMENT_INVALID
+  ✓ [S7-03] same code on TEST-CHAIN-2 (CANDIDATE instance) → INVALID_INSTRUMENT (per-instance identity, spec §14.2 rule (a))
+      expected: true
+      observed: state=INVALID_INSTRUMENT, reason=INSTRUMENT_NOT_ADMITTED_PER_INSTANCE_IDENTITY
+  ✓ [S7-04] RETIRED instrument (TEST-USDC-Y) → INVALID_INSTRUMENT (INSTRUMENT_RETIRED; quoting refused, records preserved append-only)
+      expected: true
+      observed: state=INVALID_INSTRUMENT, reason=INSTRUMENT_RETIRED
+  ✓ [S7-05] SUSPENDED instrument → INVALID_INSTRUMENT (INSTRUMENT_SUSPENDED_NO_QUOTES; new quotes blocked while in-flight settlements complete under existing quotes, spec §4)
+      expected: true
+      observed: rowState=SUSPENDED, quote=INVALID_INSTRUMENT (INSTRUMENT_SUSPENDED_NO_QUOTES)
+  ✓ [S7-06] the suspension published a notice record (windows PROPOSED D-13.19; SYNTHETIC)
+      expected: true
+      observed: notices=1
+  ✓ [S7-07] failed authenticity tag → INVALID_PAYMENT (AUTH_TAG_MISMATCH; production requires real per-rail signature verification — none exists)
+      expected: true
+      observed: state=INVALID_PAYMENT, reason=AUTH_TAG_MISMATCH
+  ✓ [S7-08] taxonomy FINALITY_EVIDENCE_GAP on the auth-tag failure
+      expected: FINALITY_EVIDENCE_GAP
+      observed: FINALITY_EVIDENCE_GAP
+  ✓ [S7-09] payment amount ≠ quoted amount → INVALID_PAYMENT (PAYMENT_QUOTE_MISMATCH)
+      expected: true
+      observed: state=INVALID_PAYMENT, reason=PAYMENT_QUOTE_MISMATCH
+  ✓ [S7-10] taxonomy PARTIAL_SETTLEMENT on the payment/quote mismatch
+      expected: PARTIAL_SETTLEMENT
+      observed: PARTIAL_SETTLEMENT
+  ✓ [S7-11] settled amount ≠ quoted amount → INVALID_PAYMENT (SETTLED_AMOUNT_QUOTE_MISMATCH; §6.6 PARTIAL_SETTLEMENT analog)
+      expected: true
+      observed: state=INVALID_PAYMENT, reason=SETTLED_AMOUNT_QUOTE_MISMATCH
+  ✓ [S7-12] the difference is HELD in the exception queue and DISCLOSED (no silent write-off)
+      expected: true
+      observed: exceptions=["EXC-S7-G1-PARTIAL:PARTIAL_SETTLEMENT"]
+  ✓ [S7-13] jurisdiction outside the instrument allowlist → INVALID_INSTRUMENT at settlement time (JURISDICTION_NOT_ALLOWED; compositional restriction, spec §3)
+      expected: true
+      observed: state=INVALID_INSTRUMENT, reason=JURISDICTION_NOT_ALLOWED
+  ✓ [S7-14] depeg EMERGENCY band at settlement time → INVALID_INSTRUMENT (DEPEG_EMERGENCY_FAIL_CLOSED; spec §4 suspension + escalation, adopted decision 4)
+      expected: true
+      observed: state=INVALID_INSTRUMENT, reason=DEPEG_EMERGENCY_FAIL_CLOSED
+  ✓ [S7-15] taxonomy ISSUER_EVENT on the depeg-emergency rejection
+      expected: ISSUER_EVENT
+      observed: ISSUER_EVENT
+  ✓ [S7-16] insufficient confirmations (2 < N=3) → INVALID_PAYMENT (FINALITY_EVIDENCE_GAP; balance receipt alone is NEVER finality, spec §6.2)
+      expected: true
+      observed: state=INVALID_PAYMENT, reason=FINALITY_EVIDENCE_GAP
+  ✓ [S7-17] the finality gap is held as an OPEN exception (new obligations for this instrument blocked, spec §6.6)
+      expected: true
+      observed: exceptions=["EXC-S7-J1-GAP:FINALITY_EVIDENCE_GAP"]
+  ✓ [S7-18] supply UNCHANGED across ALL invalid-instrument/payment machines (nothing minted)
+      expected: 0.000000 on all 10 machines
+      observed: 0.000000 on all 10 machines
+  ✓ [S7-19] machine-level invariants hold across ALL invalid-instrument/payment machines
+      expected: true
+      observed: assertInvariants() passed on all 10 machines
+
+=== S8 — Supply controls — per-transaction cap · tranche cap · global max supply: each fail-closed (SUPPLY_CAP_EXCEEDED), no partial mint ===
+  ✓ [S8-01] per-transaction cap exceeded → SUPPLY_CAP_EXCEEDED (PER_TX_CAP_EXCEEDED); prospective 500499.999000 > per-tx 500000.000000
+      expected: true
+      observed: state=SUPPLY_CAP_EXCEEDED, reason=PER_TX_CAP_EXCEEDED
+  ✓ [S8-02] no partial mint on the per-tx cap failure (supply 0.000000, 0 mint records)
+      expected: 0.000000/0
+      observed: 0.000000/0
+  ✓ [S8-03] authorization PRECEDED the supply check (§14.4 step 9 before 9b): the capped instance passed through AUTHORIZED before SUPPLY_CAP_EXCEEDED
+      expected: true
+      observed: AUTHORIZED transition logged before SUPPLY_CAP_EXCEEDED for S8-A1
+  ✓ [S8-04] tranche cap exceeded → SUPPLY_CAP_EXCEEDED (TRANCHE_CAP_EXCEEDED); prospective 499950.000000 > tranche remaining 400000.000000
+      expected: true
+      observed: state=SUPPLY_CAP_EXCEEDED, reason=TRANCHE_CAP_EXCEEDED
+  ✓ [S8-05] no partial mint on the tranche cap failure
+      expected: 0.000000/0
+      observed: 0.000000/0
+  ✓ [S8-06] first issuance OK under the 5,000.000000-token global max (4995.000000 minted)
+      expected: 4995.000000
+      observed: 4995.000000
+  ✓ [S8-07] global max supply exceeded → SUPPLY_CAP_EXCEEDED (GLOBAL_MAX_SUPPLY_EXCEEDED)
+      expected: true
+      observed: state=SUPPLY_CAP_EXCEEDED, reason=GLOBAL_MAX_SUPPLY_EXCEEDED
+  ✓ [S8-08] supply unchanged by the capped attempt (still 4995.000000 ≤ 5000.000000)
+      expected: 4995.000000
+      observed: 4995.000000
+  ✓ [S8-09] taxonomy SUPPLY_CAP on the capped terminals
+      expected: SUPPLY_CAP/SUPPLY_CAP
+      observed: SUPPLY_CAP/SUPPLY_CAP
+  ✓ [S8-10] machine-level invariants hold across the supply-control machines (INV-B: a SUPPLY_CAP_EXCEEDED terminal never carries a mint record)
+      expected: true
+      observed: assertInvariants() passed on all 3 cap machines
+
+=== S9 — Three-book reconciliation — C1–C4 clean after the run; a forced 1-micro ledger break is DETECTED (reconciliation is a REAL check) ===
+  ✓ [S9-01] three-book C1–C4 equality holds on EVERY un-suspended machine after the full run so far (suspended machines carry OPEN exceptions instead)
+      expected: true
+      observed: swept 20 un-suspended machines; unbalanced: none
+  ✓ [S9-02] main-run book totals exact (payment ledger 1 SETTLED · 1 issuance record · token Σ = supply = 4995.000000 · fee ledger 10.000000)
+      expected: {"paymentLedgerSettledCount":"1","issuanceRecordCount":"1","tokenBookSum":"4995.000000","totalSupply":"4995.000000","feeLedgerTotal":"10.000000"}
+      observed: {"paymentLedgerSettledCount":"1","issuanceRecordCount":"1","tokenBookSum":"4995.000000","totalSupply":"4995.000000","feeLedgerTotal":"10.000000"}
+  ✓ [S9-03] forced 1-micro PAYMENT-BOOK break DETECTED: C3 value-conservation FAILS while C1/C2/C4 still pass (the failure is localized to the corrupted book)
+      expected: true
+      observed: ["C1=PASS","C2=PASS","C3=FAIL","C4=PASS"]
+  ✓ [S9-04] machine reconcile() routes the detected break to RECONCILIATION_BREAK + pipeline SUSPENDED + OPEN exception (fail-closed, spec §6.6 RECONCILE_MISMATCH)
+      expected: true
+      observed: state=RECONCILIATION_BREAK, suspended=true
+  ✓ [S9-05] mint record PRESERVED on the broken machine (no silent write-off)
+      expected: 4995.000000
+      observed: 4995.000000
+  ✓ [S9-06] forced 1-micro TOKEN-BOOK break DETECTED: C1 (supply counter vs token book) AND C2 (issuance↔token 1:1 linkage) FAIL
+      expected: true
+      observed: ["C1=FAIL","C2=FAIL","C3=PASS","C4=PASS"]
+  ✓ [S9-07] the C1 detail discloses the exact 1-micro divergence (token Σ 4995.000001 vs supply 4995.000000)
+      expected: true
+      observed: token book Σ 4995.000001 vs total supply 4995.000000
+  ✓ [S9-08] the token-book break also routes to RECONCILIATION_BREAK + SUSPENDED (fail-closed on every divergence)
+      expected: true
+      observed: state=RECONCILIATION_BREAK, suspended=true
+  ✓ [S9-09] machine-level invariants hold on the broken machines (INV-D: suspensions carry reasons + OPEN exceptions)
+      expected: true
+      observed: assertInvariants() passed on both break machines
+
+=== S10 — SEP-01 separation invariant — basket snapshot BYTE-IDENTICAL before/after issuance volume + SOURCE-SCAN test-of-absence ===
+  ✓ [S10-01] separation snapshot prior weights are the STRATEGIC_PRIOR fractions (27/20/9/8/5/5/26%)
+      expected: {"USD":0.27,"EUR":0.2,"JPY":0.09,"GBP":0.08,"CNY":0.05,"CHF":0.05,"Gold":0.26}
+      observed: {"USD":0.27,"EUR":0.2,"JPY":0.09,"GBP":0.08,"CNY":0.05,"CHF":0.05,"Gold":0.26}
+  ✓ [S10-02] separation snapshot constituency is the canonical genesis ASSET-registry token list (9 rows incl. governance-pending TBD placeholders; the snapshot WEIGHTS remain the 7-component STRATEGIC_PRIOR)
+      expected: ["USDC","USDP","USDT","EURC","TBD","TBD","TBD","PAXG","XAUT"]
+      observed: ["USDC","USDP","USDT","EURC","TBD","TBD","TBD","PAXG","XAUT"]
+  ✓ [S10-03] issuance 1: gross 1000.000000 → fee 1.000000 → net 999.000000 → issued 499.500000 (RECONCILED)
+      expected: RECONCILED/499.500000
+      observed: RECONCILED/499.500000
+  ✓ [S10-04] issuance 2: gross 25000.000000 → fee 25.000000 → net 24975.000000 → issued 12487.500000 (RECONCILED)
+      expected: RECONCILED/12487.500000
+      observed: RECONCILED/12487.500000
+  ✓ [S10-05] issuance 3: gross 7500.000000 → fee 7.500000 → net 7492.500000 → issued 3746.250000 (RECONCILED)
+      expected: RECONCILED/3746.250000
+      observed: RECONCILED/3746.250000
+  ✓ [S10-06] supply reaches exactly 16733.250000 across the three issuances (499.500000 + 12487.500000 + 3746.250000)
+      expected: 16733.250000
+      observed: 16733.250000
+  ✓ [S10-07] basket/constituency snapshot BYTE-IDENTICAL before vs after the issuance volume (payment volume NEVER changes basket eligibility or weights — spec §2, MANDATE-004 §7)
+      expected: true
+      observed: byte-identical=true (snapshot length 1029 bytes)
+  ✓ [S10-08] payment-instrument registry honesty snapshot UNCHANGED by issuance volume (no auto-admit, no auto-suspend, no telemetry)
+      expected: {"label":"PAYMENT-INSTRUMENT REGISTRY (pilot implementation of payment-instrument-registry-and-settlement-spec.md §3–§5) — BORN EMPTY · FAIL-CLOSED ADMISSION · NO REAL INSTRUMENT IS REGISTERED","rows":[{"instrumentId":"TEST-STBL-001","code":"TEST-USDC-X","network":"TEST-CHAIN-1 (SYNTHETIC)","state":"ACTIVE","honestyState":"SIMULATED","statusLabel":"TEST-ONLY · APPROVED TEST INSTRUMENT (SYNTHETIC) — the ONE active test instrument for the stablecoin-pathway demonstration. NOT a real stablecoin; the issuer, network, and contract identity are synthetic fixtures; no real rail or signature verification exists in this pilot.","version":1},{"instrumentId":"TEST-STBL-002","code":"TEST-USDC-X","network":"TEST-CHAIN-2 (SYNTHETIC)","state":"CANDIDATE","honestyState":"SIMULATED","statusLabel":"TEST-ONLY · CANDIDATE — same instrument code on a different network instance. NOT auto-approved (per-instance identity rule, spec §14.2 rule (a)); requires its own verified admission dossier. Quoting is refused.","version":1},{"instrumentId":"TEST-STBL-003","code":"TEST-USDC-Y","network":"TEST-CHAIN-1 (SYNTHETIC)","state":"RETIRED","honestyState":"SIMULATED","statusLabel":"TEST-ONLY · RETIRED — removed from quoting; records preserved append-only. Used to demonstrate retirement is enforced at instrument-check time.","version":2},{"instrumentId":"TEST-CBDC-001","code":"TEST-CBDC-1","network":"SIMULATED-CBDC-RAIL-1 (SYNTHETIC)","state":"CANDIDATE","honestyState":"NOT_CONNECTED","statusLabel":"TEST-ONLY · SIMULATED / NOT CONNECTED","version":1},{"instrumentId":"TEST-CBDC-002","code":"TEST-CBDC-2","network":"SIMULATED-CBDC-RAIL-2 (SYNTHETIC)","state":"CANDIDATE","honestyState":"NOT_CONNECTED","statusLabel":"TEST-ONLY · SIMULATED / NOT CONNECTED","version":1}],"notices":[]}
+      observed: {"label":"PAYMENT-INSTRUMENT REGISTRY (pilot implementation of payment-instrument-registry-and-settlement-spec.md §3–§5) — BORN EMPTY · FAIL-CLOSED ADMISSION · NO REAL INSTRUMENT IS REGISTERED","rows":[{"instrumentId":"TEST-STBL-001","code":"TEST-USDC-X","network":"TEST-CHAIN-1 (SYNTHETIC)","state":"ACTIVE","honestyState":"SIMULATED","statusLabel":"TEST-ONLY · APPROVED TEST INSTRUMENT (SYNTHETIC) — the ONE active test instrument for the stablecoin-pathway demonstration. NOT a real stablecoin; the issuer, network, and contract identity are synthetic fixtures; no real rail or signature verification exists in this pilot.","version":1},{"instrumentId":"TEST-STBL-002","code":"TEST-USDC-X","network":"TEST-CHAIN-2 (SYNTHETIC)","state":"CANDIDATE","honestyState":"SIMULATED","statusLabel":"TEST-ONLY · CANDIDATE — same instrument code on a different network instance. NOT auto-approved (per-instance identity rule, spec §14.2 rule (a)); requires its own verified admission dossier. Quoting is refused.","version":1},{"instrumentId":"TEST-STBL-003","code":"TEST-USDC-Y","network":"TEST-CHAIN-1 (SYNTHETIC)","state":"RETIRED","honestyState":"SIMULATED","statusLabel":"TEST-ONLY · RETIRED — removed from quoting; records preserved append-only. Used to demonstrate retirement is enforced at instrument-check time.","version":2},{"instrumentId":"TEST-CBDC-001","code":"TEST-CBDC-1","network":"SIMULATED-CBDC-RAIL-1 (SYNTHETIC)","state":"CANDIDATE","honestyState":"NOT_CONNECTED","statusLabel":"TEST-ONLY · SIMULATED / NOT CONNECTED","version":1},{"instrumentId":"TEST-CBDC-002","code":"TEST-CBDC-2","network":"SIMULATED-CBDC-RAIL-2 (SYNTHETIC)","state":"CANDIDATE","honestyState":"NOT_CONNECTED","statusLabel":"TEST-ONLY · SIMULATED / NOT CONNECTED","version":1}],"notices":[]}
+  ✓ [S10-09] issuance event log contains NO basket/weight/eligibility/constituency fields (structural test-of-absence at the data level)
+      expected: true
+      observed: suspicious tokens present: false
+  ✓ [S10-10] three-book C1–C4 equality holds after the three SEP issuances (payment ledger 3 · issuance 3 · token Σ = supply 16733.250000 · fee ledger 33.500000)
+      expected: true
+      observed: {"paymentLedgerSettledCount":"3","issuanceRecordCount":"3","tokenBookSum":"16733.250000","totalSupply":"16733.250000","feeLedgerTotal":"33.500000"}
+  ✓ [S10-11] SOURCE-SCAN: NO issuance data-path module imports ../blueprint, ../chain-index, ../registry, ../mase or ../constituency (spec §2 structural layer; the machine/registry/authorization/ledger/adapter/parameters/fixtures files are clean)
+      expected: true
+      observed: scanned 7 files (authorization.ts, cbdc-adapter.ts, instrument-registry.ts, issuance-machine.ts, ledger.ts, parameters.ts, test-fixtures.ts); offenders: none
+  ✓ [S10-12] the separation CHECKER (separation-check.ts — display/test side) imports ONLY the known read-only allowlist from the methodology modules (genesisRegistry · eligibilityScore · AssetRecord · strategicPriorToWeights · STRATEGIC_PRIOR)
+      expected: true
+      observed: imports=[{"names":["genesisRegistry","eligibilityScore","AssetRecord"],"module":"../registry"},{"names":["strategicPriorToWeights"],"module":"../chain-index"},{"names":["STRATEGIC_PRIOR"],"module":"../blueprint"}]
+
+=== S11 — Ledger & persistence — exact flat Prisma IssuanceEvent field set · in-memory sink collects ALL events · failing sink DISCLOSED, cursor not advanced, retry byte-stable ===
+  ✓ [S11-01] mapEventToDoc produces the EXACT flat IssuanceEventDoc field set for EVERY event kind emitted in the run (11 primitive-string fields, no more, no less)
+      expected: true
+      observed: events=323, fieldSetOk=true
+  ✓ [S11-02] every doc value is a PRIMITIVE STRING (flat Prisma shape — no nested objects, no BigInts)
+      expected: true
+      observed: primitiveStrings=true
+  ✓ [S11-03] every money field is an EXACT 6-decimal fixed-point string (or "" when not applicable) — no floating-point noise
+      expected: true
+      observed: moneyFormat=true
+  ✓ [S11-04] every payload is JSON with the exact flattened detail keys (seq, atMs, from, to, stepRef, reasonCode, detail, taxonomyClass)
+      expected: true
+      observed: payloadShape=true
+  ✓ [S11-05] every doc state is a valid IssuanceState (or "" for machine-level lifecycle events)
+      expected: true
+      observed: statesValid=true
+  ✓ [S11-06] kinds coverage: every emitted kind is in the documented enum AND all 17 core kinds are exercised by the run (REQUEST·QUOTE·PAYMENT·SETTLEMENT·INSTRUMENT·FEES·NET·AUTHORIZATION·SUPPLY·ISSUED·RECONCILIATION·REVERSAL·REFUND·ATTESTATION·PROGRAM·PIPELINE·TRANSITION_REJECT)
+      expected: true
+      observed: emitted=ATTESTATION·AUTHORIZATION·FEES·INSTRUMENT·ISSUED·NET·OTHER·PAYMENT·PIPELINE·PROGRAM·QUOTE·RECONCILIATION·REFUND·REQUEST·REVERSAL·SETTLEMENT·SUPPLY·TRANSITION_REJECT (missing: none)
+  ✓ [S11-07] the doc field set + Prisma-generated (id, createdAt) equals the prisma/schema.prisma IssuanceEvent model field set EXACTLY
+      expected: ["createdAt","feeAmount","grossAmount","id","instrument","issuedAmount","kind","netAmount","payload","quote","requestId","state","supplyAfter"]
+      observed: ["createdAt","feeAmount","grossAmount","id","instrument","issuedAmount","kind","netAmount","payload","quote","requestId","state","supplyAfter"]
+  ✓ [S11-08] in-memory sink: pending docs count == machine event-log count and the flush writes them ALL (nothing skipped, nothing doubled)
+      expected: true
+      observed: pending=21, eventLog=21, sinkDocs=21, written=21
+  ✓ [S11-09] flush with a DELIBERATELY FAILING sink returns written=0 and a NON-NULL error (the failure is DISCLOSED to the caller — never swallowed)
+      expected: true
+      observed: written=0, error=DELIBERATE TEST SINK FAILURE — persistence failure must be disclosed, never silently swallowed
+  ✓ [S11-10] cursor NOT advanced after the failed flush (every event is still pending)
+      expected: 21
+      observed: 21
+  ✓ [S11-11] retry flush succeeds and writes EVERY event (events were NOT lost by the earlier failure)
+      expected: true
+      observed: written=21, docs=21
+  ✓ [S11-12] a further flush with nothing pending writes 0 (no double-write; cursor advanced exactly once)
+      expected: true
+      observed: written=0, error=null
+  ✓ [S11-13] retry docs are BYTE-STABLE: the retried docs serialize identically to (a) the direct mapEventToDoc of the machine log and (b) the doc the failing sink was asked to write
+      expected: true
+      observed: byteStable=true, firstDocIdentical=true
+  ✓ [S11-14] IssuanceLedger.view() reflects the run (requests · payments · mints with the LEDGER-RECORD-ONLY label · reconciliation balanced · supply snapshot)
+      expected: true
+      observed: mints=1, supply=4995.000000, balanced=true
+  ✓ [S11-15] createPrismaIssuanceEventSink EXISTS as the server-side sink factory (type-checked by reference only — this deterministic runner never invokes it and never touches the Prisma DB)
+      expected: true
+      observed: typeof=function (NOT invoked)
+
+=== S12 — CBDC adapter honesty — SIMULATED / NOT CONNECTED · every simulated message labeled · ONE clearly-labeled SIMULATION-MODE demo issuance ===
+  ✓ [S12-01] adapter status is the literal SIMULATED / NOT CONNECTED
+      expected: SIMULATED / NOT CONNECTED
+      observed: SIMULATED / NOT CONNECTED
+  ✓ [S12-02] adapter marker is the literal SIMULATED — NOT CONNECTED
+      expected: SIMULATED — NOT CONNECTED
+      observed: SIMULATED — NOT CONNECTED
+  ✓ [S12-03] adapter honesty record documents all NINE §7.4 concerns + the honest limitations, and the real-adapter gate axes are ALL false
+      expected: true
+      observed: concerns=9, limitations=6, gate={"authorizedInterfaceVerified":false,"endToEndIntegrationTested":false,"admissionDossierAnnexExists":false,"status":"SIMULATED / NOT CONNECTED"}
+  ✓ [S12-04] normal mode (no SIMULATION MODE): CBDC quotes REFUSED while NOT CONNECTED (INVALID_INSTRUMENT / CBDC_NOT_CONNECTED_NO_QUOTES; spec §4 admission requires a verified authorized interface + recorded end-to-end test — NEITHER EXISTS)
+      expected: true
+      observed: state=INVALID_INSTRUMENT, reason=CBDC_NOT_CONNECTED_NO_QUOTES
+  ✓ [S12-05] every simulated message carries simulation:true + the SIMULATED — NOT CONNECTED marker (initiation)
+      expected: true
+      observed: simulation=true, marker=SIMULATED — NOT CONNECTED, status=INITIATED
+  ✓ [S12-06] verification and settlement-status messages carry the same labels; the SETTLED message carries the interface's own finality signal (finality-at timestamp, §7.4 concern 7)
+      expected: true
+      observed: verified=VERIFIED, settled=SETTLED, finalityAtMs=0
+  ✓ [S12-07] SIMULATION-MODE quote generated for the simulated CBDC descriptor (labeled — NOT an integration)
+      expected: true
+      observed: state=QUOTED, reason=QUOTE_GENERATED
+  ✓ [S12-08] the machine accepts the simulated interface's finality signal IN SIMULATION MODE ONLY (labeled source required)
+      expected: true
+      observed: state=SETTLEMENT_FINAL, reason=SETTLEMENT_FINALITY_CONFIRMED
+  ✓ [S12-09] the settlement record discloses the SIMULATED — NOT CONNECTED finality basis
+      expected: true
+      observed: rail-specific finality confirmed per CBDC simulated-interface finality signal (SIMULATED — NOT CONNECTED; no authorized …
+  ✓ [S12-10] SIMULATION-MODE demo issuance completes end-to-end to RECONCILED (gross 5000.000000 → fee 5.000000 → net 4995.000000 → issued 2497.500000)
+      expected: true
+      observed: issued=2497.500000, state=RECONCILED
+  ✓ [S12-11] the SIMULATION-MODE instance carries the full label set (SIMULATION-MODE QUOTE · SIMULATED — NOT CONNECTED · NOT-an-integration disclosure)
+      expected: true
+      observed: labels=["TEST LEDGER ONLY","LEDGER RECORDS ONLY — NEVER ON-CHAIN","SIMULATION-MODE QUOTE (SIMULATED — NOT CONNECTED)","SIMULATED — NOT CONNECTED","SIMULATION-MODE DEMO — NOT an integration; registry row unchanged"]
+  ✓ [S12-12] the registry is UNCHANGED by the simulation run: the CBDC row is still CANDIDATE / NOT_CONNECTED (the demo is NOT an integration and admits nothing) and the honesty snapshot is byte-identical
+      expected: true
+      observed: row=CANDIDATE/NOT_CONNECTED, snapshotIdentical=true
+  ✓ [S12-13] duplicate txId initiation PREVENTED at the adapter (duplicatePrevented flag + FAILED status; the original message is returned — never a second execution)
+      expected: true
+      observed: duplicatePrevented=true, status=FAILED, reason=DUPLICATE_TX_ID_PREVENTED (§7.4 concern 6)
+  ✓ [S12-14] unknown txId → FAILED (TX_NOT_FOUND) with the marker (no verification is possible for an unknown transaction)
+      expected: true
+      observed: status=FAILED, reason=TX_NOT_FOUND
+  ✓ [S12-15] first CBDC-sim issuance mints 2497.500000
+      expected: 2497.500000
+      observed: 2497.500000
+  ✓ [S12-16] a second request observing the SAME CBDC txId → DUPLICATE terminal (no double mint)
+      expected: true
+      observed: state=DUPLICATE, reason=DUPLICATE_PAYMENT_TX…
+  ✓ [S12-17] supply UNCHANGED by the duplicate (still exactly one 2497.500000 mint)
+      expected: 2497.500000
+      observed: 2497.500000
+  ✓ [S12-18] the provider-side reconciliation statement carries simulation:true + the marker + the correlation entries (a REAL reconciliation interface does not exist — spec §14.3 concern 9)
+      expected: true
+      observed: simulation=true, marker=SIMULATED — NOT CONNECTED, entries=1
+  ✓ [S12-19] machine-level invariants hold on the CBDC simulation machines (INV-E labels intact on the simulated mint)
+      expected: true
+      observed: assertInvariants() passed on both simulation machines
+
+=== S13 — Constituency quiescence — genesis 7 at STRATEGIC_PRIOR bp · zero transitions ever · empty-directive lifecycle run · weights match the separation snapshot ===
+  ✓ [S13-01] DEFAULT_REGISTRY contains exactly the 7 genesis components
+      expected: 7
+      observed: 7
+  ✓ [S13-02] genesis stable IDs (ascending)
+      expected: ["CCY-CHF","CCY-CNY","CCY-EUR","CCY-GBP","CCY-JPY","CCY-USD","CCY-XAU"]
+      observed: ["CCY-CHF","CCY-CNY","CCY-EUR","CCY-GBP","CCY-JPY","CCY-USD","CCY-XAU"]
+  ✓ [S13-03] genesis display codes (USD/EUR/JPY/GBP/CNY/CHF/Gold-XAU)
+      expected: ["CHF","CNY","EUR","GBP","JPY","USD","XAU"]
+      observed: ["CHF","CNY","EUR","GBP","JPY","USD","XAU"]
+  ✓ [S13-04] every genesis member is at its genesis lifecycle state ACTIVE (the quiescent state; no transition has ever run)
+      expected: true
+      observed: active=7/7
+  ✓ [S13-05] genesis weights sum to EXACTLY 10000 bp
+      expected: 10000
+      observed: 10000
+  ✓ [S13-06] genesis weights in bp are the STRATEGIC_PRIOR shares (CHF 500 · CNY 500 · EUR 2000 · GBP 800 · JPY 900 · USD 2700 · XAU/Gold 2600)
+      expected: {"CCY-CHF":500,"CCY-CNY":500,"CCY-EUR":2000,"CCY-GBP":800,"CCY-JPY":900,"CCY-USD":2700,"CCY-XAU":2600}
+      observed: {"CCY-CHF":500,"CCY-CNY":500,"CCY-EUR":2000,"CCY-GBP":800,"CCY-JPY":900,"CCY-USD":2700,"CCY-XAU":2600}
+  ✓ [S13-07] registry genesis weights equal the blueprint STRATEGIC_PRIOR × 10000 (byte-identical defaults — the registry-era replacement of the fixed arrays)
+      expected: true
+      observed: registry={CCY-CHF:500,CCY-CNY:500,CCY-EUR:2000,CCY-GBP:800,CCY-JPY:900,CCY-USD:2700,CCY-XAU:2600}
+  ✓ [S13-08] registry envelopes equal the blueprint ADMISSIBILITY_ENVELOPES (constitutional defaults carried as genesis data)
+      expected: true
+      observed: envelopesMatch=true
+  ✓ [S13-09] registry velocity classes equal the blueprint MAX_VELOCITY values
+      expected: true
+      observed: velocityMatch=true
+  ✓ [S13-10] registry base fixings equal the blueprint BASE_FIXINGS (incl. CHF 1.13 and XAU 2500 — Master Blueprint v1.0)
+      expected: true
+      observed: fixingsMatch=true
+  ✓ [S13-11] every genesis record cites the genesis dossier ref and carries the fixed 7-label MASE bridge (no post-genesis registration exists)
+      expected: true
+      observed: dossier+MASE labels intact on all 7 records
+  ✓ [S13-12] the QUIESCENT registry weights match the separation-check snapshot's weights (the snapshot IS the genesis basket; payment volume never touched it)
+      expected: true
+      observed: snapshotWeights={USD:0.27,EUR:0.2,JPY:0.09,GBP:0.08,CNY:0.05,CHF:0.05,Gold:0.26}
+  ✓ [S13-13] runLifecycleSimulation on an EMPTY-directives dataset (hash-verified) produces ZERO transition-ledger entries — no directive ⇒ no transition ever fires (quiescent by default)
+      expected: true
+      observed: transitions=0, directives=0, glides=0, universeEvals=0
+  ✓ [S13-14] the quiescent run commits ZERO periods and records ZERO divisor events (no weight-vector change, no chain-link adjustment)
+      expected: 0/0
+      observed: 0/0
+  ✓ [S13-15] final states after the quiescent run: all 7 members ACTIVE at their genesis bp (the machinery exists but never fires without evidence-checked directives)
+      expected: true
+      observed: finalBasketIds=7, periodsRun=0
+  ✓ [S13-16] the decision record carries the verified dataset hash (the quiescence probe is reproducible from versioned inputs)
+      expected: FK4NCVNUjICFBUfCJ2PHKlRPrkbh32YZPWpfLSzezAk
+      observed: FK4NCVNUjICFBUfCJ2PHKlRPrkbh32YZPWpfLSzezAk
+  ✓ [S13-17] constituency parameters remain UNAPPROVED DRAFT (spec §13 label) and the lifecycle parameter class is disclosed
+      expected: true
+      observed: ALL PARAMETERS UNAPPROVED DRAFT — spec §13 (currency-constituency-and-weight-tra…
+  ✓ [S13-18] a FRESH genesis registry equals the DEFAULT_REGISTRY (module-level state was never mutated by this run — the default is pure data)
+      expected: true
+      observed: createGenesisConstituencyRegistry() entries byte-identical to DEFAULT_REGISTRY entries
+
+=== INV — Final machine-level invariant sweep — INV-A..INV-E across ALL scenario machines + full-run doc-format re-check ===
+  ✓ [INV-01] INV-A/INV-B/INV-C/INV-E structural sweep: machine.assertInvariants() passes on EVERY scenario machine (no ISSUED without finality+program; no mint on failure terminals; 1:1:1:1 idempotency; labels intact)
+      expected: true
+      observed: assertInvariants() passed on all 29 machines
+  ✓ [INV-02] total mint records across the entire run (happy path 1 + reversal 1 + remediation 2 + revoked-machine 1 + resumption 1 + global-cap 1 + break-detection 2 + SEP 3 + CBDC sim 2 = 14; every other machine 0)
+      expected: 14
+      observed: 14
+  ✓ [INV-03] INV-C sweep: on EVERY machine the token book Σ equals the supply counter (supply = Σ mint records; replays never double-mint)
+      expected: true
+      observed: tokenBook=supply on all 29 machines
+  ✓ [INV-04] INV-D sweep: EVERY suspended machine carries recorded suspension reasons + an OPEN exception (fail-closed; no silent healing anywhere in the run)
+      expected: true
+      observed: suspended machines: ["M-REV:1 reasons","M-AUTH-MISS:1 reasons","M-AUTH-STALE:1 reasons","M-RECON-B1:1 reasons","M-RECON-B2:1 reasons"]
+  ✓ [INV-05] INV-E sweep: EVERY issuance-book record carries a real ALT-4 authorization reference (authorizationId AUTH-… under a defined program)
+      expected: true
+      observed: authorization references intact across 14 issuance records
+  ✓ [INV-06] full-run persistence re-check: mapEventToDoc field set + primitive strings + 6-decimal money format hold over the COMPLETE event union (every machine, every kind)
+      expected: true
+      observed: events=356 across 29 machines
+
+============================================================
+ASSERTION TABLE
+============================================================
+  S0  Labels & registry honesty (born empty · fail-closed admission · TEST fixtures · per-instance identity · CBDC NOT_CONNECTED · no telemetry) .. 22/22
+  S1  Happy path — spec §14.4 12 steps under ALT-4: gross 10000.000000 TEST-USDC-X → fee 10.000000 → net 9990.000000 → issued 4995.000000 @ quote 2.000000 .. 31/31
+  S2  Duplicates & replays — request-id replay · same idempotency key · duplicate payment txId (never a second execution) .. 10/10
+  S3  Delayed finality — settlement finality arrives after the 15-min quote expiry → EXPIRED_QUOTE, NO mint, held-or-refunded (spec §6.3) .. 8/8
+  S4  Failed payment — settlement status FAILED: never mints, taxonomy recorded, refund queued .. 8/8
+  S5  Reversals — pre-issuance → CANCELLED (no mint); post-issuance → RECONCILIATION_BREAK + SUSPENDED; recovery ONLY via the explicit authorized remediation path (INV-D) .. 19/19
+  S6  Authorization (INV-A / ALT-4) — no program ⇒ refusal · revoked mid-flight · attestation MISSING/STALE/MISMATCH ⇒ suspended · authorized resumption .. 19/19
+  S7  Invalid instrument/payment — unregistered · wrong network · RETIRED · SUSPENDED · bad auth tag · amount mismatch · jurisdiction · depeg · finality-evidence gap .. 19/19
+  S8  Supply controls — per-transaction cap · tranche cap · global max supply: each fail-closed (SUPPLY_CAP_EXCEEDED), no partial mint .. 10/10
+  S9  Three-book reconciliation — C1–C4 clean after the run; a forced 1-micro ledger break is DETECTED (reconciliation is a REAL check) .. 9/9
+  S10  SEP-01 separation invariant — basket snapshot BYTE-IDENTICAL before/after issuance volume + SOURCE-SCAN test-of-absence .. 12/12
+  S11  Ledger & persistence — exact flat Prisma IssuanceEvent field set · in-memory sink collects ALL events · failing sink DISCLOSED, cursor not advanced, retry byte-stable .. 15/15
+  S12  CBDC adapter honesty — SIMULATED / NOT CONNECTED · every simulated message labeled · ONE clearly-labeled SIMULATION-MODE demo issuance .. 19/19
+  S13  Constituency quiescence — genesis 7 at STRATEGIC_PRIOR bp · zero transitions ever · empty-directive lifecycle run · weights match the separation snapshot .. 18/18
+  INV  Final machine-level invariant sweep — INV-A..INV-E across ALL scenario machines + full-run doc-format re-check .. 6/6
+------------------------------------------------------------
+  TOTAL: 225/225 PASS, 0 FAIL
+
+  RESULT: 225/225 PASS
+  exitCode: 0
+
+Honest status: PRODUCTION TS REFERENCE ENGINE evidence only (promoted MANDATE-007 prototypes, commit 0e8a19d).
+  Stablecoin pathway: evidenced ONLY against the synthetic TEST-ONLY fixture TEST-USDC-X (registry otherwise BORN EMPTY; admission fail-closed).
+  CBDC pathway: SIMULATED / NOT CONNECTED — labeled simulated messages only; no authorized interface exists (real-adapter gate axes all false).
+  Authorization: ALT-4 ADOPTED (DELEGATED) 2026-10-23 — PENDING OWNER RATIFICATION; programs/attestations are TEST-ONLY synthetic records.
+  Fee/quote/supply-cap VALUES are ILLUSTRATIVE/UNAPPROVED (D-13.8 / §14.5 publication / D-13.19 / D-13.6 OPEN); FORM adopted under delegation.
+  Constituency: QUIESCENT genesis 7 — no transition has ever run; payment volume never changes weights or eligibility (SEP-01).
+  ISSUED = LEDGER RECORD ONLY — zero on-chain actions, zero network calls, zero key handling in this run.
+Posture: TESTNET ONLY · SHADOW MODE ENFORCED · UNAUTHORIZED RESERVE TRANSACTIONS FORBIDDEN · NOT ACCEPTED
+
+JSON record written (append-per-run evidence ledger): audit-work/task13/evidence/issuance-production-results-mandate008.json
+exit code: 0
+
+===== Run 2 · 2026-10-23 =====
+MTQΣ — MANDATE-008 · M8-3c-a · ISSUANCE PRODUCTION DETERMINISTIC E2E RUNNER
+ranAt(UTC): 2026-10-23T12:26:32.261Z   <-- run banner (the ONLY wall-clock surface; all logic uses the fixed machine clock)
+machine label: PAYMENT-FUNDED PRIMARY ISSUANCE STATE MACHINE (pilot implementation of spec §14.4 12-step workflow / §14.6 8-stage controlled process) — TEST LEDGER ONLY · NEVER ON-CHAIN · ISSUED = LEDGER RECORD ONLY.
+D-13.27: ADOPTED (DELEGATED) 2026-10-23 — PENDING OWNER RATIFICATION: ALT-4 (hybrid + periodic attestation), finality-before-issuance, pre-issuance reversal → CANCELLED / post-issuance → RECONCILIATION_BREAK + SUSPENDED + fail-closed authorized remediation, fail-closed failure recovery, 1:1:1:1 atomic idempotent transaction boundaries, fee/quote FORM adopted with VALUES UNAPPROVED (D-13.8 value + §14.5 derivation policy publication remain OPEN). Spec §14.6 REVISION 2.
+auth scheme: SYNTHETIC IN-PROCESS AUTHENTICITY SCHEME — an HMAC-STYLE tag computed in-process with a TEST-ONLY literal key. NOT cryptographic. Tags are deliberately truncated to 16 hex characters so that no 64-char hex literal is ever produced anywhere. PRODUCTION REQUIRES REAL PER-RAIL SIGNATURE VERIFICATION (spec §6.2) — no real rail or signature verification exists in this pilot.
+separation invariant: Payment volume or acceptance must NEVER automatically determine currency eligibility or basket weights. Accepting a USD-linked stablecoin does not itself justify increasing the USD weight. Accepting a euro-linked instrument does not itself justify increasing the EUR weight. (spec §2, verbatim obligation of MANDATE-004 §7; test analog: separation-check.ts + the production runner's SEP assertions / T-PAY-01 family)
+registry label: PAYMENT-INSTRUMENT REGISTRY (pilot implementation of payment-instrument-registry-and-settlement-spec.md §3–§5) — BORN EMPTY · FAIL-CLOSED ADMISSION · NO REAL INSTRUMENT IS REGISTERED
+adapter status: SIMULATED / NOT CONNECTED
+posture: TESTNET ONLY · SHADOW MODE ENFORCED · UNAUTHORIZED RESERVE TRANSACTIONS FORBIDDEN · NOT ACCEPTED
+honest scope: PRODUCTION TS REFERENCE ENGINE evidence only — synthetic TEST-ONLY instruments, LEDGER RECORDS ONLY, never on-chain.
+
+
+=== S0 — Labels & registry honesty (born empty · fail-closed admission · TEST fixtures · per-instance identity · CBDC NOT_CONNECTED · no telemetry) ===
+  ✓ [S0-01] production registry is BORN EMPTY (rowCount 0)
+      expected: 0
+      observed: 0
+  ✓ [S0-02] born-empty registry exposes zero rows
+      expected: 0
+      observed: 0
+  ✓ [S0-03] registry label declares BORN EMPTY + FAIL-CLOSED admission
+      expected: declared
+      observed: declared
+  ✓ [S0-04] admission of a real-looking row into the BORN-EMPTY registry REFUSED (no CANDIDATE row exists; fail-closed)
+      expected: true
+      observed: reasonCode=ADMISSION_BLOCKED_INSTRUMENT_NOT_FOUND — a CANDIDATE row must exist before admission; the production registry is BORN EMPTY and no instrument is registered
+  ✓ [S0-05] verifyRealRailEvidence NEVER verifies in this pilot — null evidence AND a real-looking evidence object BOTH refused (no real rail / no signature verification / no authorized interface exists)
+      expected: true
+      observed: null→NO REAL-RAIL EVIDENCE EXISTS — this pilot has no real paymen…; object→REAL-RAIL EVIDENCE CANNOT BE VERIFIED IN THIS PILOT — no ver…
+  ✓ [S0-06] TEST fixture provider installs exactly the 5 synthetic rows
+      expected: 5
+      observed: 5
+  ✓ [S0-07] fixture provider label declares TEST-ONLY + NO REAL INSTRUMENT
+      expected: declared
+      observed: declared
+  ✓ [S0-08] TEST-USDC-X @ TEST-CHAIN-1 installed ACTIVE and stamped TEST-ONLY (synthetic identity, non-hex address)
+      expected: true
+      observed: state=ACTIVE, testOnly=true, address=0xTESTUSDCX0000NOTAREALCONTRACT
+  ✓ [S0-09] the ACTIVE test row carries a NON-EMPTY evidence list (spec §3: an ACTIVE row with empty evidence is invalid by construction)
+      expected: true
+      observed: evidence entries=1
+  ✓ [S0-10] admission with a real-looking evidence dossier REFUSED fail-closed even against an existing row (verifyRealRailEvidence can never succeed in this pilot)
+      expected: true
+      observed: reasonCode=ADMISSION_BLOCKED_FAIL_CLOSED — REAL-RAIL EVIDENCE CANNOT BE VERIFIED IN THIS PI…
+  ✓ [S0-11] per-instance identity rule: the SAME code on TEST-CHAIN-2 is a SEPARATE row that is CANDIDATE (never auto-approved by the TEST-CHAIN-1 row; spec §14.2 rule (a))
+      expected: true
+      observed: instrumentId=TEST-STBL-002 (vs TEST-STBL-001), state=CANDIDATE
+  ✓ [S0-12] per-instance lookup by code+network never resolves a ticker alone (TEST-CHAIN-1 lookup → TEST-STBL-001 only)
+      expected: true
+      observed: resolved=TEST-STBL-001
+  ✓ [S0-13] CBDC rows are born CANDIDATE + honestyState NOT_CONNECTED with the SIMULATED / NOT CONNECTED label
+      expected: true
+      observed: cbdc1=CANDIDATE/NOT_CONNECTED, cbdc2=CANDIDATE/NOT_CONNECTED
+  ✓ [S0-14] CBDC admission is STRUCTURALLY INADMISSIBLE (verified authorized interface + recorded end-to-end test — NEITHER EXISTS; spec §5.3/§4)
+      expected: true
+      observed: reasonCode=ADMISSION_BLOCKED_NOT_CONNECTED — spec §5.3/§4: a NOT_CONNECTED row may become A…
+  ✓ [S0-15] NO weighting/eligibility/basket/constituency telemetry fields exist on ANY registry row (installed rows AND frozen fixture definitions)
+      expected: true
+      observed: installedRowsClean=true, fixtureDefsClean=true
+  ✓ [S0-16] D-13.27 status label: ALT-4 ADOPTED (DELEGATED) 2026-10-23 — PENDING OWNER RATIFICATION, with the adopted decision-3 naming (pre-issuance CANCELLED / post-issuance RECONCILIATION_BREAK)
+      expected: true
+      observed: ADOPTED (DELEGATED) 2026-10-23 — PENDING OWNER RATIFICATION: ALT-4 (hybrid + periodic attestation), finality-before-issu…
+  ✓ [S0-17] the 21-state model uses the ADOPTED decision-3 naming: CANCELLED exists, the prototype's PAYMENT_REVERSED terminal does NOT
+      expected: true
+      observed: states=21, CANCELLED=true, PAYMENT_REVERSED=false
+  ✓ [S0-18] 21 states in the model (12 flow + 9 terminal failure); every state carries a §14.4 step reference
+      expected: 21/9/21
+      observed: 21/9/21
+  ✓ [S0-19] honesty labels exposed: fee schedule UNAPPROVED (D-13.8), quote policy ILLUSTRATIVE (§14.5), supply policy ILLUSTRATIVE (D-13.6)
+      expected: true
+      observed: fee=ILLUSTRATIVE — D-13.8 OPEN: 0.10% flat n…; quote=ILLUSTRATIVE QUOTE POLICY (spec §14.5) —…; supply=ILLUSTRATIVE SUPPLY POLICY — D-13.6 supp…
+  ✓ [S0-20] ALT-4 authorization labels exposed (module + adoption + synthetic-signature disclosure; TEST-ONLY auth key literal is published, not secret)
+      expected: true
+      observed: module+adoption+signature labels present; keyLiteral=TEST-ONLY-NOT-A-SECRET
+  ✓ [S0-21] ILLUSTRATIVE named defaults verified: fee 0.10% (10bps) · quote 2.000000 TU/token · validity 15 min (900,000ms) · caps 500,000 / 1,000,000 / 10,000,000 tokens
+      expected: true
+      observed: fee=10bps, quote=2.000000, ttl=900000ms, perTx=500000.000000, tranche=1000000.000000, global=10000000.000000
+  ✓ [S0-22] separation-check label declares the READ-ONLY display/test-side role (the checker lives OUTSIDE the issuance data path)
+      expected: true
+      observed: SEPARATION INVARIANT CHECK (spec §2 / MANDATE-004 §7) — canonical basket/constituency snapshot captu…
+
+=== S1 — Happy path — spec §14.4 12 steps under ALT-4: gross 10000.000000 TEST-USDC-X → fee 10.000000 → net 9990.000000 → issued 4995.000000 @ quote 2.000000 ===
+  ✓ [S1-01] supply before any issuance
+      expected: 0.000000
+      observed: 0.000000
+  ✓ [S1-02] ALT-4 governed act: issuance program defined (synthetic TEST-TAG signature, never a payment event) with the adoption label
+      expected: true
+      observed: programId=PROG-E2E-001, signatureTag=TEST-TAG-1edd209753a5e018
+  ✓ [S1-03] duplicate programId REFUSED (programs are explicit records, not idempotent overwrites)
+      expected: true
+      observed: reasonCode=PROGRAM_ID_ALREADY_EXISTS
+  ✓ [S1-04] ALT-4 governed act: fresh matching periodic attestation recorded (STUB attester, clearly labeled)
+      expected: true
+      observed: attestationStatus=OK
+  ✓ [S1-05] step 1/12 → REQUEST_CREATED and machine.assertInvariants() PASSES after the phase (INV-A..E)
+      expected: true
+      observed: state=REQUEST_CREATED, stepOk=true, invariants=PASS
+  ✓ [S1-06] step 2/12 → QUOTED and machine.assertInvariants() PASSES after the phase (INV-A..E)
+      expected: true
+      observed: state=QUOTED, stepOk=true, invariants=PASS
+  ✓ [S1-07] step 3/12 → PAYMENT_OBSERVED and machine.assertInvariants() PASSES after the phase (INV-A..E)
+      expected: true
+      observed: state=PAYMENT_OBSERVED, stepOk=true, invariants=PASS
+  ✓ [S1-08] step 4/12 → PAYMENT_AUTHENTIC and machine.assertInvariants() PASSES after the phase (INV-A..E)
+      expected: true
+      observed: state=PAYMENT_AUTHENTIC, stepOk=true, invariants=PASS
+  ✓ [S1-09] step 5/12 → SETTLEMENT_FINAL and machine.assertInvariants() PASSES after the phase (INV-A..E)
+      expected: true
+      observed: state=SETTLEMENT_FINAL, stepOk=true, invariants=PASS
+  ✓ [S1-10] step 6/12 → INSTRUMENT_CHECKED and machine.assertInvariants() PASSES after the phase (INV-A..E)
+      expected: true
+      observed: state=INSTRUMENT_CHECKED, stepOk=true, invariants=PASS
+  ✓ [S1-11] step 7/12 → FEES_CALCULATED and machine.assertInvariants() PASSES after the phase (INV-A..E)
+      expected: true
+      observed: state=FEES_CALCULATED, stepOk=true, invariants=PASS
+  ✓ [S1-12] step 8/12 → NET_ACCEPTED and machine.assertInvariants() PASSES after the phase (INV-A..E)
+      expected: true
+      observed: state=NET_ACCEPTED, stepOk=true, invariants=PASS
+  ✓ [S1-13] step 9/12 → AUTHORIZED and machine.assertInvariants() PASSES after the phase (INV-A..E)
+      expected: true
+      observed: state=AUTHORIZED, stepOk=true, invariants=PASS
+  ✓ [S1-14] step 10/12 → SUPPLY_CHECKED and machine.assertInvariants() PASSES after the phase (INV-A..E)
+      expected: true
+      observed: state=SUPPLY_CHECKED, stepOk=true, invariants=PASS
+  ✓ [S1-15] step 11/12 → ISSUED and machine.assertInvariants() PASSES after the phase (INV-A..E)
+      expected: true
+      observed: state=ISSUED, stepOk=true, invariants=PASS
+  ✓ [S1-16] step 12/12 → RECONCILED and machine.assertInvariants() PASSES after the phase (INV-A..E)
+      expected: true
+      observed: state=RECONCILED, stepOk=true, invariants=PASS
+  ✓ [S1-17] quote record carries id, price basis, quote-unit conversion, fee line item, spread disclosure and the 15-min validity window (spec §6.1)
+      expected: true
+      observed: quote QUOTE-S1-R1: gross 10000.000000 TEST-USDC-X → 10000.000000 TU @ conversion 1.000000; issuance quote 2.000000 TU/token (§14.5 FORM — IL…
+  ✓ [S1-18] fee = 0.10% of gross (EXACT integer math; ILLUSTRATIVE — D-13.8 OPEN)
+      expected: 10.000000
+      observed: 10.000000
+  ✓ [S1-19] net = gross − fee (step 8)
+      expected: 9990.000000
+      observed: 9990.000000
+  ✓ [S1-20] issued = net ÷ quote = 9990.000000 ÷ 2.000000 (§14.5 general form)
+      expected: 4995.000000
+      observed: 4995.000000
+  ✓ [S1-21] gross TU recorded on the instance
+      expected: 10000.000000
+      observed: 10000.000000
+  ✓ [S1-22] idempotent mint record carries the LEDGER-RECORD-ONLY label (nonce 1, idempotency key, NO on-chain action)
+      expected: true
+      observed: mintId=MINT-S1-R1, nonce=1, label=LEDGER RECORD ONLY — NEVER ON-CHAIN (TEST LEDGER; no token c…
+  ✓ [S1-23] supply 0.000000 → 4995.000000 (LEDGER-ONLY counter)
+      expected: 4995.000000
+      observed: 4995.000000
+  ✓ [S1-24] tranche consumption after the issuance
+      expected: 4995.000000
+      observed: 4995.000000
+  ✓ [S1-25] fee ledger total (booked, ILLUSTRATIVE)
+      expected: 10.000000
+      observed: 10.000000
+  ✓ [S1-26] exactly ONE mint record
+      expected: 1
+      observed: 1
+  ✓ [S1-27] authorization record is ALT-4 under the defined program (INV-A precondition, explicit governed act — never a payment event)
+      expected: true
+      observed: hasAuth=true, program=PROG-E2E-001, settlementFinal=true
+  ✓ [S1-28] audit log records the §14.4 step sequence in order (steps 1+3, 2, 4, 4a, 4b, 5, 7, 6+8, 9, 9b, 10, 11)
+      expected: REQUEST_CREATED,QUOTED,PAYMENT_OBSERVED,PAYMENT_AUTHENTIC,SETTLEMENT_FINAL,INSTRUMENT_CHECKED,FEES_CALCULATED,NET_ACCEPTED,AUTHORIZED,SUPPLY_CHECKED,ISSUED,RECONCILED
+      observed: REQUEST_CREATED,QUOTED,PAYMENT_OBSERVED,PAYMENT_AUTHENTIC,SETTLEMENT_FINAL,INSTRUMENT_CHECKED,FEES_CALCULATED,NET_ACCEPTED,AUTHORIZED,SUPPLY_CHECKED,ISSUED,RECONCILED
+  ✓ [S1-29] audit publication carries a synthetic publication tag (TEST-TAG-<16 hex>, never a 64-char literal) + every entry has a reason code
+      expected: true
+      observed: publicationTag=TEST-TAG-d23b836cbea72870, entries=14
+  ✓ [S1-30] three-book equality after the happy path (C1–C4 all PASS, spec §6.5)
+      expected: true
+      observed: ["C1=PASS","C2=PASS","C3=PASS","C4=PASS"]
+  ✓ [S1-31] book totals agree (payment ledger = issuance ledger = token book + fee ledger)
+      expected: {"paymentLedgerSettledCount":"1","issuanceRecordCount":"1","tokenBookSum":"4995.000000","totalSupply":"4995.000000","feeLedgerTotal":"10.000000"}
+      observed: {"paymentLedgerSettledCount":"1","issuanceRecordCount":"1","tokenBookSum":"4995.000000","totalSupply":"4995.000000","feeLedgerTotal":"10.000000"}
+
+=== S2 — Duplicates & replays — request-id replay · same idempotency key · duplicate payment txId (never a second execution) ===
+  ✓ [S2-01] first issuance completed (RECONCILED, 4995.000000 minted)
+      expected: 4995.000000
+      observed: 4995.000000
+  ✓ [S2-02] same requestId resubmitted → REPLAY DETECTED: the ORIGINAL outcome is returned, created=false, NO second execution (spec §6.4)
+      expected: true
+      observed: replayDetected=true, created=false, originalOutcomeRef=S1-R1, state=RECONCILED
+  ✓ [S2-03] the completed instance cannot continue: quote and new-payment observation both REJECTED (terminal state is immutable)
+      expected: true
+      observed: generateQuote=STEP_REJECTED_STATE_RECONCILED…; observePayment=STEP_REJECTED_STATE_RECONCILED…
+  ✓ [S2-04] instance count UNCHANGED by the replay (no new pipeline instance)
+      expected: 1
+      observed: 1
+  ✓ [S2-05] same idempotency key + new request/payment after completion → DUPLICATE terminal; original result referenced; still 1 mint (INV-C)
+      expected: true
+      observed: state=DUPLICATE, duplicateOf=S1-R1, instanceStored=false
+  ✓ [S2-06] duplicate payment txId REJECTED → DUPLICATE terminal (DUPLICATE_PAYMENT_TX; never a second execution)
+      expected: true
+      observed: submission=REQUEST_CREATED; observe=DUPLICATE (DUPLICATE_PAYMENT_TX…)
+  ✓ [S2-07] supply UNCHANGED after all duplicate/replay attempts (no double mint)
+      expected: 4995.000000
+      observed: 4995.000000
+  ✓ [S2-08] still exactly ONE mint record
+      expected: 1
+      observed: 1
+  ✓ [S2-09] no ISSUED transition exists for any duplicate request (S2-R2, S2-R3)
+      expected: true
+      observed: ISSUED transitions for duplicates: 0
+  ✓ [S2-10] machine-level invariants hold after the duplicate/replay battery (INV-C: idempotency keys map 1:1 to mint records)
+      expected: true
+      observed: assertInvariants() passed
+
+=== S3 — Delayed finality — settlement finality arrives after the 15-min quote expiry → EXPIRED_QUOTE, NO mint, held-or-refunded (spec §6.3) ===
+  ✓ [S3-01] late settlement finality → EXPIRED_QUOTE terminal; NO issuance at a stale quote (finality-before-issuance, adopted decision 2; spec §6.1 hard-reject)
+      expected: true
+      observed: state=EXPIRED_QUOTE, reason=QUOTE_EXPIRED_BEFORE_FINALITY
+  ✓ [S3-02] taxonomy CONFIRMATION_TIMEOUT recorded on the terminal instance
+      expected: CONFIRMATION_TIMEOUT
+      observed: CONFIRMATION_TIMEOUT
+  ✓ [S3-03] payment HELD_IN_REFUND_QUEUE (PENDING_REFUND) with the SAME idempotency key (spec §6.3 held-or-refunded)
+      expected: true
+      observed: refunds=["RFND-S3-R1:PENDING_REFUND:key=IDK-S3-R1:reason=EXPIRED_QUOTE"]
+  ✓ [S3-04] refund state machine completes PENDING_REFUND → REFUNDED (spec §6.3)
+      expected: true
+      observed: processed=1, state=REFUNDED
+  ✓ [S3-05] retry on the SAME idempotency key after expiry → DUPLICATE (retry forbidden, spec §6.6)
+      expected: true
+      observed: state=DUPLICATE, reason=DUPLICATE_KEY_COLLISION — same idempotency key with a DIFFER…
+  ✓ [S3-06] supply UNCHANGED (no mint on a stale quote)
+      expected: 0.000000
+      observed: 0.000000
+  ✓ [S3-07] NO mint record exists for the expired request
+      expected: absent
+      observed: absent
+  ✓ [S3-08] machine-level invariants hold after the delayed-finality scenario
+      expected: true
+      observed: assertInvariants() passed
+
+=== S4 — Failed payment — settlement status FAILED: never mints, taxonomy recorded, refund queued ===
+  ✓ [S4-01] FAILED settlement → PAYMENT_FAILED terminal; a failed payment NEVER mints (spec §14.4 hard rules)
+      expected: true
+      observed: state=PAYMENT_FAILED, reason=SETTLEMENT_STATUS_FAILED
+  ✓ [S4-02] direct issuance attempt on the failed payment → transition REJECTED by the explicit state machine (cannot skip to ISSUED)
+      expected: true
+      observed: reason=TRANSITION_REJECTED_PAYMENT_FAILED_TO_ISSUED
+  ✓ [S4-03] supply UNCHANGED
+      expected: 0.000000
+      observed: 0.000000
+  ✓ [S4-04] NO fee retained on the failed transaction (fee ledger 0.000000; spec §6.3)
+      expected: 0.000000
+      observed: 0.000000
+  ✓ [S4-05] failure recorded with the §6.6 taxonomy (CONFIRMATION_TIMEOUT on the terminal instance AND the event log carries the taxonomy class)
+      expected: true
+      observed: instanceTaxonomy=CONFIRMATION_TIMEOUT
+  ✓ [S4-06] auto-refund queued with the same idempotency key (reason PAYMENT_FAILED, spec §6.3)
+      expected: true
+      observed: refunds=1, reason=PAYMENT_FAILED
+  ✓ [S4-07] no ISSUED transition exists anywhere in the log
+      expected: true
+      observed: ISSUED transitions: 0
+  ✓ [S4-08] machine-level invariants hold (INV-B: failed/unverified payments never mint)
+      expected: true
+      observed: assertInvariants() passed
+
+=== S5 — Reversals — pre-issuance → CANCELLED (no mint); post-issuance → RECONCILIATION_BREAK + SUSPENDED; recovery ONLY via the explicit authorized remediation path (INV-D) ===
+  ✓ [S5-01] reversal BEFORE issuance → CANCELLED terminal (ADOPTED decision 3 naming; the prototype's PAYMENT_REVERSED name is retired); NO mint
+      expected: true
+      observed: state=CANCELLED, reason=REVERSAL_BEFORE_ISSUANCE
+  ✓ [S5-02] pre-issuance reversal taxonomy REVERSAL_BEFORE_ISSUANCE recorded
+      expected: REVERSAL_BEFORE_ISSUANCE
+      observed: REVERSAL_BEFORE_ISSUANCE
+  ✓ [S5-03] auto-refund queued with the same idempotency key for the cancelled request (spec §6.3)
+      expected: true
+      observed: refunds=1, reason=REVERSAL_BEFORE_ISSUANCE
+  ✓ [S5-04] supply UNCHANGED by the pre-issuance reversal
+      expected: 0.000000
+      observed: 0.000000
+  ✓ [S5-05] second issuance completes first (RECONCILED, 4995.000000)
+      expected: 4995.000000
+      observed: 4995.000000
+  ✓ [S5-06] reversal AFTER issuance → RECONCILIATION_BREAK + pipeline SUSPENDED (books disagree; spec §6.5/§6.6; adopted decision 3)
+      expected: true
+      observed: state=RECONCILIATION_BREAK, suspended=true, reasons=["REVERSAL_AFTER_ISSUANCE:S5-R2"]
+  ✓ [S5-07] OPEN exception queued with taxonomy REVERSAL_AFTER_ISSUANCE (no silent write-off)
+      expected: true
+      observed: exceptions=["EXC-S5-R2-REVPOST:REVERSAL_AFTER_ISSUANCE:OPEN"]
+  ✓ [S5-08] payment book entry flagged REVERSED_POST_ISSUANCE (the divergence is visible on the books)
+      expected: REVERSED_POST_ISSUANCE
+      observed: REVERSED_POST_ISSUANCE
+  ✓ [S5-09] mint record PRESERVED after the reversal (no silent write-off, no re-mint)
+      expected: true
+      observed: mintId=MINT-S5-R2, amount=4995.000000 (still on the token book)
+  ✓ [S5-10] supply unchanged by the reversal event (no re-mint)
+      expected: 4995.000000
+      observed: 4995.000000
+  ✓ [S5-11] pipeline SUSPENDED blocks NEW requests fail-closed while the exception is OPEN (no silent healing)
+      expected: true
+      observed: reason=PIPELINE_SUSPENDED_FAIL_CLOSED
+  ✓ [S5-12] authorized remediation REFUSED while the three books still diverge (C1–C4 re-verified at resolution time; the reversal divergence is REAL — no automatic book adjustment exists or is permitted)
+      expected: true
+      observed: reasonCode=REMEDIATION_BLOCKED_BOOKS_STILL_DIVERGED
+  ✓ [S5-13] the machine REMAINS SUSPENDED with the OPEN exception after the refused remediation (fail-closed; no silent healing)
+      expected: true
+      observed: suspended=true
+  ✓ [S5-14] machine-level invariants hold on the reversal machine (INV-D: suspension carries reasons + an OPEN exception)
+      expected: true
+      observed: assertInvariants() passed
+  ✓ [S5-15] forced 1-micro ledger break → reconcile() routes to RECONCILIATION_BREAK + pipeline SUSPENDED + exception queued (fail-closed)
+      expected: true
+      observed: state=RECONCILIATION_BREAK, suspended=true
+  ✓ [S5-16] remediation REFUSED before the books are corrected (C1–C4 must pass at resolution time)
+      expected: true
+      observed: reasonCode=REMEDIATION_BLOCKED_BOOKS_STILL_DIVERGED
+  ✓ [S5-17] after the explicit authorized correction, resolveReconciliationBreak SUCCEEDS: exceptions RESOLVED, pipeline RESUMED, mint record PRESERVED (no re-mint, no re-burn, no adjustment)
+      expected: true
+      observed: ok=true, reason=REMEDIATED, suspended=false, openExceptions=0, supply=4995.000000
+  ✓ [S5-18] after the authorized remediation the pipeline OPERATES again: a new request completes to RECONCILED (recovery was an explicit act, not silent healing)
+      expected: true
+      observed: state=RECONCILED, reason=THREE_BOOK_RECONCILED
+  ✓ [S5-19] machine-level invariants hold after the full remediation loop (INV-D: resolved exceptions carry the resolver)
+      expected: true
+      observed: assertInvariants() passed
+
+=== S6 — Authorization (INV-A / ALT-4) — no program ⇒ refusal · revoked mid-flight · attestation MISSING/STALE/MISMATCH ⇒ suspended · authorized resumption ===
+  ✓ [S6-01] payment fully settled + net accepted, but NO authorization program exists and NO authorization record was created (a payment event alone can NEVER create one)
+      expected: true
+      observed: state=NET_ACCEPTED, settlementFinal=true, hasAuthorization=false
+  ✓ [S6-02] authorize() with NO program → UNAUTHORIZED terminal (NO_AUTHORIZATION_PROGRAM — payments alone NEVER mint; INV-A unconditional)
+      expected: true
+      observed: state=UNAUTHORIZED, reason=NO_AUTHORIZATION_PROGRAM — no issuance program exists; payments alone NEVER mint (ALT-4, INV-A)
+  ✓ [S6-03] taxonomy AUTHORIZATION_MISSING recorded on the unauthorized terminal
+      expected: AUTHORIZATION_MISSING
+      observed: AUTHORIZATION_MISSING
+  ✓ [S6-04] bypass-attempt harness (table skipped) → machine INVARIANT THROWS: ISSUED unreachable without a program record (INV-A hard guard)
+      expected: true
+      observed: threw=true, message=INV-A: bypass attempt blocked — no settlement finality + unrevoked ALT-4 authori…
+  ✓ [S6-05] supply UNCHANGED (never reached ISSUED)
+      expected: 0.000000
+      observed: 0.000000
+  ✓ [S6-06] no ISSUED transition exists anywhere in this machine's log
+      expected: true
+      observed: ISSUED transitions: 0
+  ✓ [S6-07] machine-level invariants hold (INV-A: no ISSUED without settlement finality + authorization record)
+      expected: true
+      observed: assertInvariants() passed
+  ✓ [S6-08] NO periodic attestation → UNAUTHORIZED (NO_ATTESTATION) AND the pipeline SUSPENDS fail-closed with an OPEN ATTESTATION_FAILURE exception (ALT-4)
+      expected: true
+      observed: state=UNAUTHORIZED, reason=NO_ATTESTATION — hybrid program requires…, suspended=true
+  ✓ [S6-09] first issuance completes under the program before revocation (4995.000000)
+      expected: 4995.000000
+      observed: 4995.000000
+  ✓ [S6-10] program REVOKED mid-flight → authorize() REFUSES (ALL_PROGRAMS_REVOKED — a revoked program authorizes nothing)
+      expected: true
+      observed: state=UNAUTHORIZED, reason=ALL_PROGRAMS_REVOKED — no unrevoked authorization …
+  ✓ [S6-11] supply still 4995.000000 after the revoked-program attempt (no second mint)
+      expected: 4995.000000
+      observed: 4995.000000
+  ✓ [S6-12] attestation MISMATCH → UNAUTHORIZED (ATTESTATION_MISMATCH) AND the pipeline SUSPENDS fail-closed (adopted decision 1)
+      expected: true
+      observed: state=UNAUTHORIZED, reason=ATTESTATION_MISMATCH — automatic issuanc…, suspended=true
+  ✓ [S6-13] new requests REJECTED while suspended for attestation failure (fail-closed)
+      expected: true
+      observed: reason=PIPELINE_SUSPENDED_FAIL_CLOSED
+  ✓ [S6-14] resumption BLOCKED with a non-matching attestation (no silent healing; fail-closed recovery)
+      expected: true
+      observed: reason=RESUMPTION_BLOCKED_MISMATCH
+  ✓ [S6-15] resumeAfterAttestationSuspension with a FRESH matching attestation + explicit operator act → pipeline RESUMED, attestation exception RESOLVED
+      expected: true
+      observed: ok=true, reason=RESUMED, suspended=false
+  ✓ [S6-16] after the authorized resumption the pipeline operates again: a new issuance completes to RECONCILED
+      expected: true
+      observed: state=RECONCILED, reason=THREE_BOOK_RECONCILED
+  ✓ [S6-17] attestation status transitions to STALE after the period elapses (machine.attestationStatus())
+      expected: STALE
+      observed: STALE
+  ✓ [S6-18] STALE attestation → UNAUTHORIZED (STALE_ATTESTATION) AND the pipeline SUSPENDS fail-closed pending a fresh attestation
+      expected: true
+      observed: state=UNAUTHORIZED, reason=STALE_ATTESTATION — issuance suspension …, suspended=true
+  ✓ [S6-19] machine-level invariants hold across ALL authorization machines (incl. the suspended ones — INV-D reasons + OPEN exceptions)
+      expected: true
+      observed: assertInvariants() passed on all 5 authorization machines
+
+=== S7 — Invalid instrument/payment — unregistered · wrong network · RETIRED · SUSPENDED · bad auth tag · amount mismatch · jurisdiction · depeg · finality-evidence gap ===
+  ✓ [S7-01] unregistered instrument → INVALID_INSTRUMENT at quote (per-instance lookup, never a ticker alone)
+      expected: true
+      observed: state=INVALID_INSTRUMENT, reason=INSTRUMENT_NOT_IN_REGISTRY
+  ✓ [S7-02] taxonomy INSTRUMENT_INVALID on the unregistered-instrument terminal
+      expected: INSTRUMENT_INVALID
+      observed: INSTRUMENT_INVALID
+  ✓ [S7-03] same code on TEST-CHAIN-2 (CANDIDATE instance) → INVALID_INSTRUMENT (per-instance identity, spec §14.2 rule (a))
+      expected: true
+      observed: state=INVALID_INSTRUMENT, reason=INSTRUMENT_NOT_ADMITTED_PER_INSTANCE_IDENTITY
+  ✓ [S7-04] RETIRED instrument (TEST-USDC-Y) → INVALID_INSTRUMENT (INSTRUMENT_RETIRED; quoting refused, records preserved append-only)
+      expected: true
+      observed: state=INVALID_INSTRUMENT, reason=INSTRUMENT_RETIRED
+  ✓ [S7-05] SUSPENDED instrument → INVALID_INSTRUMENT (INSTRUMENT_SUSPENDED_NO_QUOTES; new quotes blocked while in-flight settlements complete under existing quotes, spec §4)
+      expected: true
+      observed: rowState=SUSPENDED, quote=INVALID_INSTRUMENT (INSTRUMENT_SUSPENDED_NO_QUOTES)
+  ✓ [S7-06] the suspension published a notice record (windows PROPOSED D-13.19; SYNTHETIC)
+      expected: true
+      observed: notices=1
+  ✓ [S7-07] failed authenticity tag → INVALID_PAYMENT (AUTH_TAG_MISMATCH; production requires real per-rail signature verification — none exists)
+      expected: true
+      observed: state=INVALID_PAYMENT, reason=AUTH_TAG_MISMATCH
+  ✓ [S7-08] taxonomy FINALITY_EVIDENCE_GAP on the auth-tag failure
+      expected: FINALITY_EVIDENCE_GAP
+      observed: FINALITY_EVIDENCE_GAP
+  ✓ [S7-09] payment amount ≠ quoted amount → INVALID_PAYMENT (PAYMENT_QUOTE_MISMATCH)
+      expected: true
+      observed: state=INVALID_PAYMENT, reason=PAYMENT_QUOTE_MISMATCH
+  ✓ [S7-10] taxonomy PARTIAL_SETTLEMENT on the payment/quote mismatch
+      expected: PARTIAL_SETTLEMENT
+      observed: PARTIAL_SETTLEMENT
+  ✓ [S7-11] settled amount ≠ quoted amount → INVALID_PAYMENT (SETTLED_AMOUNT_QUOTE_MISMATCH; §6.6 PARTIAL_SETTLEMENT analog)
+      expected: true
+      observed: state=INVALID_PAYMENT, reason=SETTLED_AMOUNT_QUOTE_MISMATCH
+  ✓ [S7-12] the difference is HELD in the exception queue and DISCLOSED (no silent write-off)
+      expected: true
+      observed: exceptions=["EXC-S7-G1-PARTIAL:PARTIAL_SETTLEMENT"]
+  ✓ [S7-13] jurisdiction outside the instrument allowlist → INVALID_INSTRUMENT at settlement time (JURISDICTION_NOT_ALLOWED; compositional restriction, spec §3)
+      expected: true
+      observed: state=INVALID_INSTRUMENT, reason=JURISDICTION_NOT_ALLOWED
+  ✓ [S7-14] depeg EMERGENCY band at settlement time → INVALID_INSTRUMENT (DEPEG_EMERGENCY_FAIL_CLOSED; spec §4 suspension + escalation, adopted decision 4)
+      expected: true
+      observed: state=INVALID_INSTRUMENT, reason=DEPEG_EMERGENCY_FAIL_CLOSED
+  ✓ [S7-15] taxonomy ISSUER_EVENT on the depeg-emergency rejection
+      expected: ISSUER_EVENT
+      observed: ISSUER_EVENT
+  ✓ [S7-16] insufficient confirmations (2 < N=3) → INVALID_PAYMENT (FINALITY_EVIDENCE_GAP; balance receipt alone is NEVER finality, spec §6.2)
+      expected: true
+      observed: state=INVALID_PAYMENT, reason=FINALITY_EVIDENCE_GAP
+  ✓ [S7-17] the finality gap is held as an OPEN exception (new obligations for this instrument blocked, spec §6.6)
+      expected: true
+      observed: exceptions=["EXC-S7-J1-GAP:FINALITY_EVIDENCE_GAP"]
+  ✓ [S7-18] supply UNCHANGED across ALL invalid-instrument/payment machines (nothing minted)
+      expected: 0.000000 on all 10 machines
+      observed: 0.000000 on all 10 machines
+  ✓ [S7-19] machine-level invariants hold across ALL invalid-instrument/payment machines
+      expected: true
+      observed: assertInvariants() passed on all 10 machines
+
+=== S8 — Supply controls — per-transaction cap · tranche cap · global max supply: each fail-closed (SUPPLY_CAP_EXCEEDED), no partial mint ===
+  ✓ [S8-01] per-transaction cap exceeded → SUPPLY_CAP_EXCEEDED (PER_TX_CAP_EXCEEDED); prospective 500499.999000 > per-tx 500000.000000
+      expected: true
+      observed: state=SUPPLY_CAP_EXCEEDED, reason=PER_TX_CAP_EXCEEDED
+  ✓ [S8-02] no partial mint on the per-tx cap failure (supply 0.000000, 0 mint records)
+      expected: 0.000000/0
+      observed: 0.000000/0
+  ✓ [S8-03] authorization PRECEDED the supply check (§14.4 step 9 before 9b): the capped instance passed through AUTHORIZED before SUPPLY_CAP_EXCEEDED
+      expected: true
+      observed: AUTHORIZED transition logged before SUPPLY_CAP_EXCEEDED for S8-A1
+  ✓ [S8-04] tranche cap exceeded → SUPPLY_CAP_EXCEEDED (TRANCHE_CAP_EXCEEDED); prospective 499950.000000 > tranche remaining 400000.000000
+      expected: true
+      observed: state=SUPPLY_CAP_EXCEEDED, reason=TRANCHE_CAP_EXCEEDED
+  ✓ [S8-05] no partial mint on the tranche cap failure
+      expected: 0.000000/0
+      observed: 0.000000/0
+  ✓ [S8-06] first issuance OK under the 5,000.000000-token global max (4995.000000 minted)
+      expected: 4995.000000
+      observed: 4995.000000
+  ✓ [S8-07] global max supply exceeded → SUPPLY_CAP_EXCEEDED (GLOBAL_MAX_SUPPLY_EXCEEDED)
+      expected: true
+      observed: state=SUPPLY_CAP_EXCEEDED, reason=GLOBAL_MAX_SUPPLY_EXCEEDED
+  ✓ [S8-08] supply unchanged by the capped attempt (still 4995.000000 ≤ 5000.000000)
+      expected: 4995.000000
+      observed: 4995.000000
+  ✓ [S8-09] taxonomy SUPPLY_CAP on the capped terminals
+      expected: SUPPLY_CAP/SUPPLY_CAP
+      observed: SUPPLY_CAP/SUPPLY_CAP
+  ✓ [S8-10] machine-level invariants hold across the supply-control machines (INV-B: a SUPPLY_CAP_EXCEEDED terminal never carries a mint record)
+      expected: true
+      observed: assertInvariants() passed on all 3 cap machines
+
+=== S9 — Three-book reconciliation — C1–C4 clean after the run; a forced 1-micro ledger break is DETECTED (reconciliation is a REAL check) ===
+  ✓ [S9-01] three-book C1–C4 equality holds on EVERY un-suspended machine after the full run so far (suspended machines carry OPEN exceptions instead)
+      expected: true
+      observed: swept 20 un-suspended machines; unbalanced: none
+  ✓ [S9-02] main-run book totals exact (payment ledger 1 SETTLED · 1 issuance record · token Σ = supply = 4995.000000 · fee ledger 10.000000)
+      expected: {"paymentLedgerSettledCount":"1","issuanceRecordCount":"1","tokenBookSum":"4995.000000","totalSupply":"4995.000000","feeLedgerTotal":"10.000000"}
+      observed: {"paymentLedgerSettledCount":"1","issuanceRecordCount":"1","tokenBookSum":"4995.000000","totalSupply":"4995.000000","feeLedgerTotal":"10.000000"}
+  ✓ [S9-03] forced 1-micro PAYMENT-BOOK break DETECTED: C3 value-conservation FAILS while C1/C2/C4 still pass (the failure is localized to the corrupted book)
+      expected: true
+      observed: ["C1=PASS","C2=PASS","C3=FAIL","C4=PASS"]
+  ✓ [S9-04] machine reconcile() routes the detected break to RECONCILIATION_BREAK + pipeline SUSPENDED + OPEN exception (fail-closed, spec §6.6 RECONCILE_MISMATCH)
+      expected: true
+      observed: state=RECONCILIATION_BREAK, suspended=true
+  ✓ [S9-05] mint record PRESERVED on the broken machine (no silent write-off)
+      expected: 4995.000000
+      observed: 4995.000000
+  ✓ [S9-06] forced 1-micro TOKEN-BOOK break DETECTED: C1 (supply counter vs token book) AND C2 (issuance↔token 1:1 linkage) FAIL
+      expected: true
+      observed: ["C1=FAIL","C2=FAIL","C3=PASS","C4=PASS"]
+  ✓ [S9-07] the C1 detail discloses the exact 1-micro divergence (token Σ 4995.000001 vs supply 4995.000000)
+      expected: true
+      observed: token book Σ 4995.000001 vs total supply 4995.000000
+  ✓ [S9-08] the token-book break also routes to RECONCILIATION_BREAK + SUSPENDED (fail-closed on every divergence)
+      expected: true
+      observed: state=RECONCILIATION_BREAK, suspended=true
+  ✓ [S9-09] machine-level invariants hold on the broken machines (INV-D: suspensions carry reasons + OPEN exceptions)
+      expected: true
+      observed: assertInvariants() passed on both break machines
+
+=== S10 — SEP-01 separation invariant — basket snapshot BYTE-IDENTICAL before/after issuance volume + SOURCE-SCAN test-of-absence ===
+  ✓ [S10-01] separation snapshot prior weights are the STRATEGIC_PRIOR fractions (27/20/9/8/5/5/26%)
+      expected: {"USD":0.27,"EUR":0.2,"JPY":0.09,"GBP":0.08,"CNY":0.05,"CHF":0.05,"Gold":0.26}
+      observed: {"USD":0.27,"EUR":0.2,"JPY":0.09,"GBP":0.08,"CNY":0.05,"CHF":0.05,"Gold":0.26}
+  ✓ [S10-02] separation snapshot constituency is the canonical genesis ASSET-registry token list (9 rows incl. governance-pending TBD placeholders; the snapshot WEIGHTS remain the 7-component STRATEGIC_PRIOR)
+      expected: ["USDC","USDP","USDT","EURC","TBD","TBD","TBD","PAXG","XAUT"]
+      observed: ["USDC","USDP","USDT","EURC","TBD","TBD","TBD","PAXG","XAUT"]
+  ✓ [S10-03] issuance 1: gross 1000.000000 → fee 1.000000 → net 999.000000 → issued 499.500000 (RECONCILED)
+      expected: RECONCILED/499.500000
+      observed: RECONCILED/499.500000
+  ✓ [S10-04] issuance 2: gross 25000.000000 → fee 25.000000 → net 24975.000000 → issued 12487.500000 (RECONCILED)
+      expected: RECONCILED/12487.500000
+      observed: RECONCILED/12487.500000
+  ✓ [S10-05] issuance 3: gross 7500.000000 → fee 7.500000 → net 7492.500000 → issued 3746.250000 (RECONCILED)
+      expected: RECONCILED/3746.250000
+      observed: RECONCILED/3746.250000
+  ✓ [S10-06] supply reaches exactly 16733.250000 across the three issuances (499.500000 + 12487.500000 + 3746.250000)
+      expected: 16733.250000
+      observed: 16733.250000
+  ✓ [S10-07] basket/constituency snapshot BYTE-IDENTICAL before vs after the issuance volume (payment volume NEVER changes basket eligibility or weights — spec §2, MANDATE-004 §7)
+      expected: true
+      observed: byte-identical=true (snapshot length 1029 bytes)
+  ✓ [S10-08] payment-instrument registry honesty snapshot UNCHANGED by issuance volume (no auto-admit, no auto-suspend, no telemetry)
+      expected: {"label":"PAYMENT-INSTRUMENT REGISTRY (pilot implementation of payment-instrument-registry-and-settlement-spec.md §3–§5) — BORN EMPTY · FAIL-CLOSED ADMISSION · NO REAL INSTRUMENT IS REGISTERED","rows":[{"instrumentId":"TEST-STBL-001","code":"TEST-USDC-X","network":"TEST-CHAIN-1 (SYNTHETIC)","state":"ACTIVE","honestyState":"SIMULATED","statusLabel":"TEST-ONLY · APPROVED TEST INSTRUMENT (SYNTHETIC) — the ONE active test instrument for the stablecoin-pathway demonstration. NOT a real stablecoin; the issuer, network, and contract identity are synthetic fixtures; no real rail or signature verification exists in this pilot.","version":1},{"instrumentId":"TEST-STBL-002","code":"TEST-USDC-X","network":"TEST-CHAIN-2 (SYNTHETIC)","state":"CANDIDATE","honestyState":"SIMULATED","statusLabel":"TEST-ONLY · CANDIDATE — same instrument code on a different network instance. NOT auto-approved (per-instance identity rule, spec §14.2 rule (a)); requires its own verified admission dossier. Quoting is refused.","version":1},{"instrumentId":"TEST-STBL-003","code":"TEST-USDC-Y","network":"TEST-CHAIN-1 (SYNTHETIC)","state":"RETIRED","honestyState":"SIMULATED","statusLabel":"TEST-ONLY · RETIRED — removed from quoting; records preserved append-only. Used to demonstrate retirement is enforced at instrument-check time.","version":2},{"instrumentId":"TEST-CBDC-001","code":"TEST-CBDC-1","network":"SIMULATED-CBDC-RAIL-1 (SYNTHETIC)","state":"CANDIDATE","honestyState":"NOT_CONNECTED","statusLabel":"TEST-ONLY · SIMULATED / NOT CONNECTED","version":1},{"instrumentId":"TEST-CBDC-002","code":"TEST-CBDC-2","network":"SIMULATED-CBDC-RAIL-2 (SYNTHETIC)","state":"CANDIDATE","honestyState":"NOT_CONNECTED","statusLabel":"TEST-ONLY · SIMULATED / NOT CONNECTED","version":1}],"notices":[]}
+      observed: {"label":"PAYMENT-INSTRUMENT REGISTRY (pilot implementation of payment-instrument-registry-and-settlement-spec.md §3–§5) — BORN EMPTY · FAIL-CLOSED ADMISSION · NO REAL INSTRUMENT IS REGISTERED","rows":[{"instrumentId":"TEST-STBL-001","code":"TEST-USDC-X","network":"TEST-CHAIN-1 (SYNTHETIC)","state":"ACTIVE","honestyState":"SIMULATED","statusLabel":"TEST-ONLY · APPROVED TEST INSTRUMENT (SYNTHETIC) — the ONE active test instrument for the stablecoin-pathway demonstration. NOT a real stablecoin; the issuer, network, and contract identity are synthetic fixtures; no real rail or signature verification exists in this pilot.","version":1},{"instrumentId":"TEST-STBL-002","code":"TEST-USDC-X","network":"TEST-CHAIN-2 (SYNTHETIC)","state":"CANDIDATE","honestyState":"SIMULATED","statusLabel":"TEST-ONLY · CANDIDATE — same instrument code on a different network instance. NOT auto-approved (per-instance identity rule, spec §14.2 rule (a)); requires its own verified admission dossier. Quoting is refused.","version":1},{"instrumentId":"TEST-STBL-003","code":"TEST-USDC-Y","network":"TEST-CHAIN-1 (SYNTHETIC)","state":"RETIRED","honestyState":"SIMULATED","statusLabel":"TEST-ONLY · RETIRED — removed from quoting; records preserved append-only. Used to demonstrate retirement is enforced at instrument-check time.","version":2},{"instrumentId":"TEST-CBDC-001","code":"TEST-CBDC-1","network":"SIMULATED-CBDC-RAIL-1 (SYNTHETIC)","state":"CANDIDATE","honestyState":"NOT_CONNECTED","statusLabel":"TEST-ONLY · SIMULATED / NOT CONNECTED","version":1},{"instrumentId":"TEST-CBDC-002","code":"TEST-CBDC-2","network":"SIMULATED-CBDC-RAIL-2 (SYNTHETIC)","state":"CANDIDATE","honestyState":"NOT_CONNECTED","statusLabel":"TEST-ONLY · SIMULATED / NOT CONNECTED","version":1}],"notices":[]}
+  ✓ [S10-09] issuance event log contains NO basket/weight/eligibility/constituency fields (structural test-of-absence at the data level)
+      expected: true
+      observed: suspicious tokens present: false
+  ✓ [S10-10] three-book C1–C4 equality holds after the three SEP issuances (payment ledger 3 · issuance 3 · token Σ = supply 16733.250000 · fee ledger 33.500000)
+      expected: true
+      observed: {"paymentLedgerSettledCount":"3","issuanceRecordCount":"3","tokenBookSum":"16733.250000","totalSupply":"16733.250000","feeLedgerTotal":"33.500000"}
+  ✓ [S10-11] SOURCE-SCAN: NO issuance data-path module imports ../blueprint, ../chain-index, ../registry, ../mase or ../constituency (spec §2 structural layer; the machine/registry/authorization/ledger/adapter/parameters/fixtures files are clean)
+      expected: true
+      observed: scanned 7 files (authorization.ts, cbdc-adapter.ts, instrument-registry.ts, issuance-machine.ts, ledger.ts, parameters.ts, test-fixtures.ts); offenders: none
+  ✓ [S10-12] the separation CHECKER (separation-check.ts — display/test side) imports ONLY the known read-only allowlist from the methodology modules (genesisRegistry · eligibilityScore · AssetRecord · strategicPriorToWeights · STRATEGIC_PRIOR)
+      expected: true
+      observed: imports=[{"names":["genesisRegistry","eligibilityScore","AssetRecord"],"module":"../registry"},{"names":["strategicPriorToWeights"],"module":"../chain-index"},{"names":["STRATEGIC_PRIOR"],"module":"../blueprint"}]
+
+=== S11 — Ledger & persistence — exact flat Prisma IssuanceEvent field set · in-memory sink collects ALL events · failing sink DISCLOSED, cursor not advanced, retry byte-stable ===
+  ✓ [S11-01] mapEventToDoc produces the EXACT flat IssuanceEventDoc field set for EVERY event kind emitted in the run (11 primitive-string fields, no more, no less)
+      expected: true
+      observed: events=323, fieldSetOk=true
+  ✓ [S11-02] every doc value is a PRIMITIVE STRING (flat Prisma shape — no nested objects, no BigInts)
+      expected: true
+      observed: primitiveStrings=true
+  ✓ [S11-03] every money field is an EXACT 6-decimal fixed-point string (or "" when not applicable) — no floating-point noise
+      expected: true
+      observed: moneyFormat=true
+  ✓ [S11-04] every payload is JSON with the exact flattened detail keys (seq, atMs, from, to, stepRef, reasonCode, detail, taxonomyClass)
+      expected: true
+      observed: payloadShape=true
+  ✓ [S11-05] every doc state is a valid IssuanceState (or "" for machine-level lifecycle events)
+      expected: true
+      observed: statesValid=true
+  ✓ [S11-06] kinds coverage: every emitted kind is in the documented enum AND all 17 core kinds are exercised by the run (REQUEST·QUOTE·PAYMENT·SETTLEMENT·INSTRUMENT·FEES·NET·AUTHORIZATION·SUPPLY·ISSUED·RECONCILIATION·REVERSAL·REFUND·ATTESTATION·PROGRAM·PIPELINE·TRANSITION_REJECT)
+      expected: true
+      observed: emitted=ATTESTATION·AUTHORIZATION·FEES·INSTRUMENT·ISSUED·NET·OTHER·PAYMENT·PIPELINE·PROGRAM·QUOTE·RECONCILIATION·REFUND·REQUEST·REVERSAL·SETTLEMENT·SUPPLY·TRANSITION_REJECT (missing: none)
+  ✓ [S11-07] the doc field set + Prisma-generated (id, createdAt) equals the prisma/schema.prisma IssuanceEvent model field set EXACTLY
+      expected: ["createdAt","feeAmount","grossAmount","id","instrument","issuedAmount","kind","netAmount","payload","quote","requestId","state","supplyAfter"]
+      observed: ["createdAt","feeAmount","grossAmount","id","instrument","issuedAmount","kind","netAmount","payload","quote","requestId","state","supplyAfter"]
+  ✓ [S11-08] in-memory sink: pending docs count == machine event-log count and the flush writes them ALL (nothing skipped, nothing doubled)
+      expected: true
+      observed: pending=21, eventLog=21, sinkDocs=21, written=21
+  ✓ [S11-09] flush with a DELIBERATELY FAILING sink returns written=0 and a NON-NULL error (the failure is DISCLOSED to the caller — never swallowed)
+      expected: true
+      observed: written=0, error=DELIBERATE TEST SINK FAILURE — persistence failure must be disclosed, never silently swallowed
+  ✓ [S11-10] cursor NOT advanced after the failed flush (every event is still pending)
+      expected: 21
+      observed: 21
+  ✓ [S11-11] retry flush succeeds and writes EVERY event (events were NOT lost by the earlier failure)
+      expected: true
+      observed: written=21, docs=21
+  ✓ [S11-12] a further flush with nothing pending writes 0 (no double-write; cursor advanced exactly once)
+      expected: true
+      observed: written=0, error=null
+  ✓ [S11-13] retry docs are BYTE-STABLE: the retried docs serialize identically to (a) the direct mapEventToDoc of the machine log and (b) the doc the failing sink was asked to write
+      expected: true
+      observed: byteStable=true, firstDocIdentical=true
+  ✓ [S11-14] IssuanceLedger.view() reflects the run (requests · payments · mints with the LEDGER-RECORD-ONLY label · reconciliation balanced · supply snapshot)
+      expected: true
+      observed: mints=1, supply=4995.000000, balanced=true
+  ✓ [S11-15] createPrismaIssuanceEventSink EXISTS as the server-side sink factory (type-checked by reference only — this deterministic runner never invokes it and never touches the Prisma DB)
+      expected: true
+      observed: typeof=function (NOT invoked)
+
+=== S12 — CBDC adapter honesty — SIMULATED / NOT CONNECTED · every simulated message labeled · ONE clearly-labeled SIMULATION-MODE demo issuance ===
+  ✓ [S12-01] adapter status is the literal SIMULATED / NOT CONNECTED
+      expected: SIMULATED / NOT CONNECTED
+      observed: SIMULATED / NOT CONNECTED
+  ✓ [S12-02] adapter marker is the literal SIMULATED — NOT CONNECTED
+      expected: SIMULATED — NOT CONNECTED
+      observed: SIMULATED — NOT CONNECTED
+  ✓ [S12-03] adapter honesty record documents all NINE §7.4 concerns + the honest limitations, and the real-adapter gate axes are ALL false
+      expected: true
+      observed: concerns=9, limitations=6, gate={"authorizedInterfaceVerified":false,"endToEndIntegrationTested":false,"admissionDossierAnnexExists":false,"status":"SIMULATED / NOT CONNECTED"}
+  ✓ [S12-04] normal mode (no SIMULATION MODE): CBDC quotes REFUSED while NOT CONNECTED (INVALID_INSTRUMENT / CBDC_NOT_CONNECTED_NO_QUOTES; spec §4 admission requires a verified authorized interface + recorded end-to-end test — NEITHER EXISTS)
+      expected: true
+      observed: state=INVALID_INSTRUMENT, reason=CBDC_NOT_CONNECTED_NO_QUOTES
+  ✓ [S12-05] every simulated message carries simulation:true + the SIMULATED — NOT CONNECTED marker (initiation)
+      expected: true
+      observed: simulation=true, marker=SIMULATED — NOT CONNECTED, status=INITIATED
+  ✓ [S12-06] verification and settlement-status messages carry the same labels; the SETTLED message carries the interface's own finality signal (finality-at timestamp, §7.4 concern 7)
+      expected: true
+      observed: verified=VERIFIED, settled=SETTLED, finalityAtMs=0
+  ✓ [S12-07] SIMULATION-MODE quote generated for the simulated CBDC descriptor (labeled — NOT an integration)
+      expected: true
+      observed: state=QUOTED, reason=QUOTE_GENERATED
+  ✓ [S12-08] the machine accepts the simulated interface's finality signal IN SIMULATION MODE ONLY (labeled source required)
+      expected: true
+      observed: state=SETTLEMENT_FINAL, reason=SETTLEMENT_FINALITY_CONFIRMED
+  ✓ [S12-09] the settlement record discloses the SIMULATED — NOT CONNECTED finality basis
+      expected: true
+      observed: rail-specific finality confirmed per CBDC simulated-interface finality signal (SIMULATED — NOT CONNECTED; no authorized …
+  ✓ [S12-10] SIMULATION-MODE demo issuance completes end-to-end to RECONCILED (gross 5000.000000 → fee 5.000000 → net 4995.000000 → issued 2497.500000)
+      expected: true
+      observed: issued=2497.500000, state=RECONCILED
+  ✓ [S12-11] the SIMULATION-MODE instance carries the full label set (SIMULATION-MODE QUOTE · SIMULATED — NOT CONNECTED · NOT-an-integration disclosure)
+      expected: true
+      observed: labels=["TEST LEDGER ONLY","LEDGER RECORDS ONLY — NEVER ON-CHAIN","SIMULATION-MODE QUOTE (SIMULATED — NOT CONNECTED)","SIMULATED — NOT CONNECTED","SIMULATION-MODE DEMO — NOT an integration; registry row unchanged"]
+  ✓ [S12-12] the registry is UNCHANGED by the simulation run: the CBDC row is still CANDIDATE / NOT_CONNECTED (the demo is NOT an integration and admits nothing) and the honesty snapshot is byte-identical
+      expected: true
+      observed: row=CANDIDATE/NOT_CONNECTED, snapshotIdentical=true
+  ✓ [S12-13] duplicate txId initiation PREVENTED at the adapter (duplicatePrevented flag + FAILED status; the original message is returned — never a second execution)
+      expected: true
+      observed: duplicatePrevented=true, status=FAILED, reason=DUPLICATE_TX_ID_PREVENTED (§7.4 concern 6)
+  ✓ [S12-14] unknown txId → FAILED (TX_NOT_FOUND) with the marker (no verification is possible for an unknown transaction)
+      expected: true
+      observed: status=FAILED, reason=TX_NOT_FOUND
+  ✓ [S12-15] first CBDC-sim issuance mints 2497.500000
+      expected: 2497.500000
+      observed: 2497.500000
+  ✓ [S12-16] a second request observing the SAME CBDC txId → DUPLICATE terminal (no double mint)
+      expected: true
+      observed: state=DUPLICATE, reason=DUPLICATE_PAYMENT_TX…
+  ✓ [S12-17] supply UNCHANGED by the duplicate (still exactly one 2497.500000 mint)
+      expected: 2497.500000
+      observed: 2497.500000
+  ✓ [S12-18] the provider-side reconciliation statement carries simulation:true + the marker + the correlation entries (a REAL reconciliation interface does not exist — spec §14.3 concern 9)
+      expected: true
+      observed: simulation=true, marker=SIMULATED — NOT CONNECTED, entries=1
+  ✓ [S12-19] machine-level invariants hold on the CBDC simulation machines (INV-E labels intact on the simulated mint)
+      expected: true
+      observed: assertInvariants() passed on both simulation machines
+
+=== S13 — Constituency quiescence — genesis 7 at STRATEGIC_PRIOR bp · zero transitions ever · empty-directive lifecycle run · weights match the separation snapshot ===
+  ✓ [S13-01] DEFAULT_REGISTRY contains exactly the 7 genesis components
+      expected: 7
+      observed: 7
+  ✓ [S13-02] genesis stable IDs (ascending)
+      expected: ["CCY-CHF","CCY-CNY","CCY-EUR","CCY-GBP","CCY-JPY","CCY-USD","CCY-XAU"]
+      observed: ["CCY-CHF","CCY-CNY","CCY-EUR","CCY-GBP","CCY-JPY","CCY-USD","CCY-XAU"]
+  ✓ [S13-03] genesis display codes (USD/EUR/JPY/GBP/CNY/CHF/Gold-XAU)
+      expected: ["CHF","CNY","EUR","GBP","JPY","USD","XAU"]
+      observed: ["CHF","CNY","EUR","GBP","JPY","USD","XAU"]
+  ✓ [S13-04] every genesis member is at its genesis lifecycle state ACTIVE (the quiescent state; no transition has ever run)
+      expected: true
+      observed: active=7/7
+  ✓ [S13-05] genesis weights sum to EXACTLY 10000 bp
+      expected: 10000
+      observed: 10000
+  ✓ [S13-06] genesis weights in bp are the STRATEGIC_PRIOR shares (CHF 500 · CNY 500 · EUR 2000 · GBP 800 · JPY 900 · USD 2700 · XAU/Gold 2600)
+      expected: {"CCY-CHF":500,"CCY-CNY":500,"CCY-EUR":2000,"CCY-GBP":800,"CCY-JPY":900,"CCY-USD":2700,"CCY-XAU":2600}
+      observed: {"CCY-CHF":500,"CCY-CNY":500,"CCY-EUR":2000,"CCY-GBP":800,"CCY-JPY":900,"CCY-USD":2700,"CCY-XAU":2600}
+  ✓ [S13-07] registry genesis weights equal the blueprint STRATEGIC_PRIOR × 10000 (byte-identical defaults — the registry-era replacement of the fixed arrays)
+      expected: true
+      observed: registry={CCY-CHF:500,CCY-CNY:500,CCY-EUR:2000,CCY-GBP:800,CCY-JPY:900,CCY-USD:2700,CCY-XAU:2600}
+  ✓ [S13-08] registry envelopes equal the blueprint ADMISSIBILITY_ENVELOPES (constitutional defaults carried as genesis data)
+      expected: true
+      observed: envelopesMatch=true
+  ✓ [S13-09] registry velocity classes equal the blueprint MAX_VELOCITY values
+      expected: true
+      observed: velocityMatch=true
+  ✓ [S13-10] registry base fixings equal the blueprint BASE_FIXINGS (incl. CHF 1.13 and XAU 2500 — Master Blueprint v1.0)
+      expected: true
+      observed: fixingsMatch=true
+  ✓ [S13-11] every genesis record cites the genesis dossier ref and carries the fixed 7-label MASE bridge (no post-genesis registration exists)
+      expected: true
+      observed: dossier+MASE labels intact on all 7 records
+  ✓ [S13-12] the QUIESCENT registry weights match the separation-check snapshot's weights (the snapshot IS the genesis basket; payment volume never touched it)
+      expected: true
+      observed: snapshotWeights={USD:0.27,EUR:0.2,JPY:0.09,GBP:0.08,CNY:0.05,CHF:0.05,Gold:0.26}
+  ✓ [S13-13] runLifecycleSimulation on an EMPTY-directives dataset (hash-verified) produces ZERO transition-ledger entries — no directive ⇒ no transition ever fires (quiescent by default)
+      expected: true
+      observed: transitions=0, directives=0, glides=0, universeEvals=0
+  ✓ [S13-14] the quiescent run commits ZERO periods and records ZERO divisor events (no weight-vector change, no chain-link adjustment)
+      expected: 0/0
+      observed: 0/0
+  ✓ [S13-15] final states after the quiescent run: all 7 members ACTIVE at their genesis bp (the machinery exists but never fires without evidence-checked directives)
+      expected: true
+      observed: finalBasketIds=7, periodsRun=0
+  ✓ [S13-16] the decision record carries the verified dataset hash (the quiescence probe is reproducible from versioned inputs)
+      expected: FK4NCVNUjICFBUfCJ2PHKlRPrkbh32YZPWpfLSzezAk
+      observed: FK4NCVNUjICFBUfCJ2PHKlRPrkbh32YZPWpfLSzezAk
+  ✓ [S13-17] constituency parameters remain UNAPPROVED DRAFT (spec §13 label) and the lifecycle parameter class is disclosed
+      expected: true
+      observed: ALL PARAMETERS UNAPPROVED DRAFT — spec §13 (currency-constituency-and-weight-tra…
+  ✓ [S13-18] a FRESH genesis registry equals the DEFAULT_REGISTRY (module-level state was never mutated by this run — the default is pure data)
+      expected: true
+      observed: createGenesisConstituencyRegistry() entries byte-identical to DEFAULT_REGISTRY entries
+
+=== INV — Final machine-level invariant sweep — INV-A..INV-E across ALL scenario machines + full-run doc-format re-check ===
+  ✓ [INV-01] INV-A/INV-B/INV-C/INV-E structural sweep: machine.assertInvariants() passes on EVERY scenario machine (no ISSUED without finality+program; no mint on failure terminals; 1:1:1:1 idempotency; labels intact)
+      expected: true
+      observed: assertInvariants() passed on all 29 machines
+  ✓ [INV-02] total mint records across the entire run (happy path 1 + reversal 1 + remediation 2 + revoked-machine 1 + resumption 1 + global-cap 1 + break-detection 2 + SEP 3 + CBDC sim 2 = 14; every other machine 0)
+      expected: 14
+      observed: 14
+  ✓ [INV-03] INV-C sweep: on EVERY machine the token book Σ equals the supply counter (supply = Σ mint records; replays never double-mint)
+      expected: true
+      observed: tokenBook=supply on all 29 machines
+  ✓ [INV-04] INV-D sweep: EVERY suspended machine carries recorded suspension reasons + an OPEN exception (fail-closed; no silent healing anywhere in the run)
+      expected: true
+      observed: suspended machines: ["M-REV:1 reasons","M-AUTH-MISS:1 reasons","M-AUTH-STALE:1 reasons","M-RECON-B1:1 reasons","M-RECON-B2:1 reasons"]
+  ✓ [INV-05] INV-E sweep: EVERY issuance-book record carries a real ALT-4 authorization reference (authorizationId AUTH-… under a defined program)
+      expected: true
+      observed: authorization references intact across 14 issuance records
+  ✓ [INV-06] full-run persistence re-check: mapEventToDoc field set + primitive strings + 6-decimal money format hold over the COMPLETE event union (every machine, every kind)
+      expected: true
+      observed: events=356 across 29 machines
+
+============================================================
+ASSERTION TABLE
+============================================================
+  S0  Labels & registry honesty (born empty · fail-closed admission · TEST fixtures · per-instance identity · CBDC NOT_CONNECTED · no telemetry) .. 22/22
+  S1  Happy path — spec §14.4 12 steps under ALT-4: gross 10000.000000 TEST-USDC-X → fee 10.000000 → net 9990.000000 → issued 4995.000000 @ quote 2.000000 .. 31/31
+  S2  Duplicates & replays — request-id replay · same idempotency key · duplicate payment txId (never a second execution) .. 10/10
+  S3  Delayed finality — settlement finality arrives after the 15-min quote expiry → EXPIRED_QUOTE, NO mint, held-or-refunded (spec §6.3) .. 8/8
+  S4  Failed payment — settlement status FAILED: never mints, taxonomy recorded, refund queued .. 8/8
+  S5  Reversals — pre-issuance → CANCELLED (no mint); post-issuance → RECONCILIATION_BREAK + SUSPENDED; recovery ONLY via the explicit authorized remediation path (INV-D) .. 19/19
+  S6  Authorization (INV-A / ALT-4) — no program ⇒ refusal · revoked mid-flight · attestation MISSING/STALE/MISMATCH ⇒ suspended · authorized resumption .. 19/19
+  S7  Invalid instrument/payment — unregistered · wrong network · RETIRED · SUSPENDED · bad auth tag · amount mismatch · jurisdiction · depeg · finality-evidence gap .. 19/19
+  S8  Supply controls — per-transaction cap · tranche cap · global max supply: each fail-closed (SUPPLY_CAP_EXCEEDED), no partial mint .. 10/10
+  S9  Three-book reconciliation — C1–C4 clean after the run; a forced 1-micro ledger break is DETECTED (reconciliation is a REAL check) .. 9/9
+  S10  SEP-01 separation invariant — basket snapshot BYTE-IDENTICAL before/after issuance volume + SOURCE-SCAN test-of-absence .. 12/12
+  S11  Ledger & persistence — exact flat Prisma IssuanceEvent field set · in-memory sink collects ALL events · failing sink DISCLOSED, cursor not advanced, retry byte-stable .. 15/15
+  S12  CBDC adapter honesty — SIMULATED / NOT CONNECTED · every simulated message labeled · ONE clearly-labeled SIMULATION-MODE demo issuance .. 19/19
+  S13  Constituency quiescence — genesis 7 at STRATEGIC_PRIOR bp · zero transitions ever · empty-directive lifecycle run · weights match the separation snapshot .. 18/18
+  INV  Final machine-level invariant sweep — INV-A..INV-E across ALL scenario machines + full-run doc-format re-check .. 6/6
+------------------------------------------------------------
+  TOTAL: 225/225 PASS, 0 FAIL
+
+  RESULT: 225/225 PASS
+  exitCode: 0
+
+Honest status: PRODUCTION TS REFERENCE ENGINE evidence only (promoted MANDATE-007 prototypes, commit 0e8a19d).
+  Stablecoin pathway: evidenced ONLY against the synthetic TEST-ONLY fixture TEST-USDC-X (registry otherwise BORN EMPTY; admission fail-closed).
+  CBDC pathway: SIMULATED / NOT CONNECTED — labeled simulated messages only; no authorized interface exists (real-adapter gate axes all false).
+  Authorization: ALT-4 ADOPTED (DELEGATED) 2026-10-23 — PENDING OWNER RATIFICATION; programs/attestations are TEST-ONLY synthetic records.
+  Fee/quote/supply-cap VALUES are ILLUSTRATIVE/UNAPPROVED (D-13.8 / §14.5 publication / D-13.19 / D-13.6 OPEN); FORM adopted under delegation.
+  Constituency: QUIESCENT genesis 7 — no transition has ever run; payment volume never changes weights or eligibility (SEP-01).
+  ISSUED = LEDGER RECORD ONLY — zero on-chain actions, zero network calls, zero key handling in this run.
+Posture: TESTNET ONLY · SHADOW MODE ENFORCED · UNAUTHORIZED RESERVE TRANSACTIONS FORBIDDEN · NOT ACCEPTED
+
+JSON record written (append-per-run evidence ledger): audit-work/task13/evidence/issuance-production-results-mandate008.json
+exit code: 0

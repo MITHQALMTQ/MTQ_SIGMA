@@ -1,0 +1,28 @@
+{
+  "choices": [
+    {
+      "finish_reason": "stop",
+      "index": 0,
+      "message": {
+        "content": "**Audit Results:**\n\n1.  **NAV Equation (Live):** **YES.** The panel displays the live NAV equation: `NAV_t = G_t * Σ_i W_{i,t} * (P_{i,t}/P_{i,0}) = 0.839210 * 1.191597 = 1.000000`. It explicitly lists the live values for the normalization factor ($G_t$) and the summation term, along with the final published NAV.\n2.  **Divisor Record Series:** **PARTIAL/CONTEXTUAL.** While a full historical time-series table is not visible in this specific viewport, the section header at the bottom (\"COO-17 · THE TWO G SENSES\") indicates the start of a record series comparing the \"Recorded\" $G_t$ (from form §9.3) against the \"Aggregate with Recorded G\". This suggests the divisor tracking data is present immediately below the fold.\n3.  **Layout & Readability:** **NO GLITCHES.** The layout is clean and professional. All text is highly legible against the dark background, the mathematical notation is clear, and the data tables are well-aligned with no overlapping elements or truncation.",
+        "role": "assistant"
+      }
+    }
+  ],
+  "created": 1792616598,
+  "id": "20261022050313e8706533c4b84deb",
+  "model": "glm-5v-turbo",
+  "object": "chat.completion",
+  "request_id": "20261022050313e8706533c4b84deb",
+  "usage": {
+    "completion_tokens": 257,
+    "completion_tokens_details": {
+      "reasoning_tokens": 0
+    },
+    "prompt_tokens": 959,
+    "prompt_tokens_details": {
+      "cached_tokens": 0
+    },
+    "total_tokens": 1216
+  }
+}

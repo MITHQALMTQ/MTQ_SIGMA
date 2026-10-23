@@ -1,0 +1,9 @@
+{
+  "scenario": "s3",
+  "trajStart": 0,
+  "trajCount": 40,
+  "survivors": 17,
+  "worstMinRr": 0.43542898250014284,
+  "totalRuns": 200,
+  "writtenAt": "2026-10-22T17:11:48.901Z"
+}

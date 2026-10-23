@@ -1,0 +1,1676 @@
+{
+ "task": "task11-fresh-evm-verification",
+ "startedAt": "2026-10-22T08:15:51.756Z",
+ "networks": {
+  "monad": {
+   "rpcEndpoint": "https://testnet-rpc.monad.xyz",
+   "probes": {},
+   "chainId": "0x279f",
+   "chainIdAssertOk": true,
+   "blockHeightStart": 73193044,
+   "blockTimestamp": "2026-10-22T08:15:51.000Z",
+   "contracts": {
+    "MTQ": {
+     "addr": "0x9e6EdC15DAc420931508d8Ddf9BC817651A253aD",
+     "codeSize": 6681,
+     "runtimeKeccak": "0xafdbad681b5c052eda0cd5aed80223e8796a780b1a2d5079b69ae5a13dc69198",
+     "eip1967": {
+      "impl": "0x0000000000000000000000000000000000000000000000000000000000000000",
+      "admin": "0x0000000000000000000000000000000000000000000000000000000000000000",
+      "beacon": "0x0000000000000000000000000000000000000000000000000000000000000000"
+     },
+     "selectorScan": {
+      "mint_40c10f19": true,
+      "burn_42966c68": true,
+      "transferFrom_23b872dd": true,
+      "approve_095ea7b3": true
+     },
+     "name": {
+      "ok": true,
+      "value": "MITHQAL"
+     },
+     "symbol": {
+      "ok": true,
+      "value": "MTQ"
+     },
+     "decimals": {
+      "ok": true,
+      "value": "18"
+     },
+     "totalSupply": {
+      "ok": true,
+      "value": "310949000000000000000"
+     },
+     "paused": {
+      "ok": true,
+      "value": false
+     },
+     "cap": {
+      "ok": false,
+      "err": "execution reverted",
+      "cls": "EVM-REVERT"
+     },
+     "roles": {
+      "admin:DEPLOYER": {
+       "ok": true,
+       "value": true
+      },
+      "admin:Safe": {
+       "ok": true,
+       "value": true
+      },
+      "admin:Governance": {
+       "ok": true,
+       "value": false
+      },
+      "admin:Mint": {
+       "ok": true,
+       "value": false
+      },
+      "admin:Reserve": {
+       "ok": true,
+       "value": false
+      },
+      "admin:Redeem": {
+       "ok": true,
+       "value": false
+      },
+      "admin:adminOfRole": {
+       "ok": true,
+       "value": "0x0000000000000000000000000000000000000000000000000000000000000000"
+      },
+      "minter:DEPLOYER": {
+       "ok": true,
+       "value": true
+      },
+      "minter:Safe": {
+       "ok": true,
+       "value": true
+      },
+      "minter:Governance": {
+       "ok": true,
+       "value": false
+      },
+      "minter:Mint": {
+       "ok": true,
+       "value": true
+      },
+      "minter:Reserve": {
+       "ok": true,
+       "value": false
+      },
+      "minter:Redeem": {
+       "ok": true,
+       "value": true
+      },
+      "minter:adminOfRole": {
+       "ok": true,
+       "value": "0x0000000000000000000000000000000000000000000000000000000000000000"
+      },
+      "pauser:DEPLOYER": {
+       "ok": true,
+       "value": true
+      },
+      "pauser:Safe": {
+       "ok": true,
+       "value": true
+      },
+      "pauser:Governance": {
+       "ok": true,
+       "value": false
+      },
+      "pauser:Mint": {
+       "ok": true,
+       "value": false
+      },
+      "pauser:Reserve": {
+       "ok": true,
+       "value": false
+      },
+      "pauser:Redeem": {
+       "ok": true,
+       "value": false
+      },
+      "pauser:adminOfRole": {
+       "ok": true,
+       "value": "0x0000000000000000000000000000000000000000000000000000000000000000"
+      }
+     }
+    },
+    "Governance": {
+     "addr": "0xE35a91801bc541fb743BB9EaD26C1FbD81EaBd66",
+     "codeSize": 25819,
+     "runtimeKeccak": "0xd93af41048b13c4b3a74ff975a98fcfb01629a72016582f7a6d2d3c39e12ae77",
+     "eip1967": {
+      "impl": "0x0000000000000000000000000000000000000000000000000000000000000000",
+      "admin": "0x0000000000000000000000000000000000000000000000000000000000000000",
+      "beacon": "0x0000000000000000000000000000000000000000000000000000000000000000"
+     },
+     "selectorScan": {
+      "mint_40c10f19": false,
+      "burn_42966c68": false,
+      "transferFrom_23b872dd": false,
+      "approve_095ea7b3": false
+     }
+    },
+    "Safe": {
+     "addr": "0xE71869C662733642bfBb262B8c6bad8B0fBfA7D0",
+     "codeSize": 171,
+     "runtimeKeccak": "0xc5569e55ccc685b192d4935d07d4845b3313b2efa70b8d2645d3a3cd6f14c834",
+     "eip1967": {
+      "impl": "0x0000000000000000000000000000000000000000000000000000000000000000",
+      "admin": "0x0000000000000000000000000000000000000000000000000000000000000000",
+      "beacon": "0x0000000000000000000000000000000000000000000000000000000000000000"
+     },
+     "safeSingletonSlot0": "0x00000000000000000000000029fcb43b46531bca003ddc8fcb67ffe91900c762",
+     "selectorScan": {
+      "mint_40c10f19": false,
+      "burn_42966c68": false,
+      "transferFrom_23b872dd": false,
+      "approve_095ea7b3": false
+     }
+    },
+    "Algorithm": {
+     "addr": "0x8839ce50e8D414005518769999c0A5b961D00CB2",
+     "codeSize": 2546,
+     "runtimeKeccak": "0x3650b62ad46e47a992f3f55dca730d1abca026897201f1b94f9aaa938618fd90",
+     "eip1967": {
+      "impl": "0x0000000000000000000000000000000000000000000000000000000000000000",
+      "admin": "0x0000000000000000000000000000000000000000000000000000000000000000",
+      "beacon": "0x0000000000000000000000000000000000000000000000000000000000000000"
+     },
+     "selectorScan": {
+      "mint_40c10f19": false,
+      "burn_42966c68": false,
+      "transferFrom_23b872dd": false,
+      "approve_095ea7b3": false
+     },
+     "roles": {
+      "admin:DEPLOYER": {
+       "ok": true,
+       "value": true
+      },
+      "admin:Safe": {
+       "ok": true,
+       "value": false
+      },
+      "minter:DEPLOYER": {
+       "ok": true,
+       "value": false
+      },
+      "minter:Safe": {
+       "ok": true,
+       "value": false
+      },
+      "pauser:DEPLOYER": {
+       "ok": true,
+       "value": false
+      },
+      "pauser:Safe": {
+       "ok": true,
+       "value": false
+      },
+      "DEFAULT_ADMIN:adminOfRole": {
+       "ok": true,
+       "value": "0x0000000000000000000000000000000000000000000000000000000000000000"
+      }
+     }
+    },
+    "Reserve": {
+     "addr": "0x1bbCd78E4DEF79b7a3B77242770cbAefAC816177",
+     "codeSize": 5703,
+     "runtimeKeccak": "0xe58fd6bca68c61664da2d93d0dac0666605a87ebdcef7f87bac7f1560a11ac83",
+     "eip1967": {
+      "impl": "0x0000000000000000000000000000000000000000000000000000000000000000",
+      "admin": "0x0000000000000000000000000000000000000000000000000000000000000000",
+      "beacon": "0x0000000000000000000000000000000000000000000000000000000000000000"
+     },
+     "selectorScan": {
+      "mint_40c10f19": false,
+      "burn_42966c68": false,
+      "transferFrom_23b872dd": false,
+      "approve_095ea7b3": false
+     },
+     "roles": {
+      "admin:DEPLOYER": {
+       "ok": true,
+       "value": true
+      },
+      "admin:Safe": {
+       "ok": true,
+       "value": false
+      },
+      "minter:DEPLOYER": {
+       "ok": true,
+       "value": true
+      },
+      "minter:Safe": {
+       "ok": true,
+       "value": false
+      },
+      "pauser:DEPLOYER": {
+       "ok": true,
+       "value": false
+      },
+      "pauser:Safe": {
+       "ok": true,
+       "value": false
+      },
+      "DEFAULT_ADMIN:adminOfRole": {
+       "ok": true,
+       "value": "0x0000000000000000000000000000000000000000000000000000000000000000"
+      }
+     }
+    },
+    "Mint": {
+     "addr": "0x197e9CB28216dfe18a199b4c2930F74C2F460809",
+     "codeSize": 5644,
+     "runtimeKeccak": "0xaf984b54230d1b4c86cf8505664651a53c696daa0e73a4d2884caf870bf692d5",
+     "eip1967": {
+      "impl": "0x0000000000000000000000000000000000000000000000000000000000000000",
+      "admin": "0x0000000000000000000000000000000000000000000000000000000000000000",
+      "beacon": "0x0000000000000000000000000000000000000000000000000000000000000000"
+     },
+     "selectorScan": {
+      "mint_40c10f19": true,
+      "burn_42966c68": false,
+      "transferFrom_23b872dd": false,
+      "approve_095ea7b3": false
+     },
+     "roles": {
+      "admin:DEPLOYER": {
+       "ok": true,
+       "value": true
+      },
+      "admin:Safe": {
+       "ok": true,
+       "value": false
+      },
+      "minter:DEPLOYER": {
+       "ok": true,
+       "value": true
+      },
+      "minter:Safe": {
+       "ok": true,
+       "value": false
+      },
+      "pauser:DEPLOYER": {
+       "ok": true,
+       "value": false
+      },
+      "pauser:Safe": {
+       "ok": true,
+       "value": false
+      },
+      "DEFAULT_ADMIN:adminOfRole": {
+       "ok": true,
+       "value": "0x0000000000000000000000000000000000000000000000000000000000000000"
+      }
+     }
+    },
+    "Redeem": {
+     "addr": "0x963201C0Fa258033CCDdFcDceb8B5E3bc2b435a4",
+     "codeSize": 6170,
+     "runtimeKeccak": "0x26500f13097b259c869cad8196dab60cb8c4c66f712f2b3c11d063fce1d46378",
+     "eip1967": {
+      "impl": "0x0000000000000000000000000000000000000000000000000000000000000000",
+      "admin": "0x0000000000000000000000000000000000000000000000000000000000000000",
+      "beacon": "0x0000000000000000000000000000000000000000000000000000000000000000"
+     },
+     "selectorScan": {
+      "mint_40c10f19": false,
+      "burn_42966c68": true,
+      "transferFrom_23b872dd": true,
+      "approve_095ea7b3": false
+     },
+     "roles": {
+      "admin:DEPLOYER": {
+       "ok": true,
+       "value": true
+      },
+      "admin:Safe": {
+       "ok": true,
+       "value": false
+      },
+      "minter:DEPLOYER": {
+       "ok": true,
+       "value": false
+      },
+      "minter:Safe": {
+       "ok": true,
+       "value": false
+      },
+      "pauser:DEPLOYER": {
+       "ok": true,
+       "value": false
+      },
+      "pauser:Safe": {
+       "ok": true,
+       "value": false
+      },
+      "DEFAULT_ADMIN:adminOfRole": {
+       "ok": true,
+       "value": "0x0000000000000000000000000000000000000000000000000000000000000000"
+      }
+     }
+    },
+    "Oracle": {
+     "addr": "0xDfcA66ac0450C9AB86307af1942E157C5A4DB713",
+     "codeSize": 5273,
+     "runtimeKeccak": "0xa004782cda903967ae64a274a6a8b6a72859451706ee89832a8617014b06cd9c",
+     "eip1967": {
+      "impl": "0x0000000000000000000000000000000000000000000000000000000000000000",
+      "admin": "0x0000000000000000000000000000000000000000000000000000000000000000",
+      "beacon": "0x0000000000000000000000000000000000000000000000000000000000000000"
+     },
+     "selectorScan": {
+      "mint_40c10f19": false,
+      "burn_42966c68": false,
+      "transferFrom_23b872dd": false,
+      "approve_095ea7b3": false
+     },
+     "roles": {
+      "admin:DEPLOYER": {
+       "ok": true,
+       "value": true
+      },
+      "admin:Safe": {
+       "ok": true,
+       "value": false
+      },
+      "minter:DEPLOYER": {
+       "ok": true,
+       "value": false
+      },
+      "minter:Safe": {
+       "ok": true,
+       "value": false
+      },
+      "pauser:DEPLOYER": {
+       "ok": true,
+       "value": false
+      },
+      "pauser:Safe": {
+       "ok": true,
+       "value": false
+      },
+      "DEFAULT_ADMIN:adminOfRole": {
+       "ok": true,
+       "value": "0x0000000000000000000000000000000000000000000000000000000000000000"
+      }
+     }
+    },
+    "Takaful": {
+     "addr": "0x3eC27BB283644eF0A98B9961E9FBED0583a02f19",
+     "codeSize": 6043,
+     "runtimeKeccak": "0xb3a11786dfdb060459c79682c85370c214395e00cf1e1f7daacc3b46b359a5de",
+     "eip1967": {
+      "impl": "0x0000000000000000000000000000000000000000000000000000000000000000",
+      "admin": "0x0000000000000000000000000000000000000000000000000000000000000000",
+      "beacon": "0x0000000000000000000000000000000000000000000000000000000000000000"
+     },
+     "selectorScan": {
+      "mint_40c10f19": false,
+      "burn_42966c68": false,
+      "transferFrom_23b872dd": true,
+      "approve_095ea7b3": false
+     },
+     "roles": {
+      "admin:DEPLOYER": {
+       "ok": true,
+       "value": true
+      },
+      "admin:Safe": {
+       "ok": true,
+       "value": false
+      },
+      "minter:DEPLOYER": {
+       "ok": true,
+       "value": false
+      },
+      "minter:Safe": {
+       "ok": true,
+       "value": false
+      },
+      "pauser:DEPLOYER": {
+       "ok": true,
+       "value": false
+      },
+      "pauser:Safe": {
+       "ok": true,
+       "value": false
+      },
+      "DEFAULT_ADMIN:adminOfRole": {
+       "ok": true,
+       "value": "0x0000000000000000000000000000000000000000000000000000000000000000"
+      }
+     }
+    }
+   },
+   "safe": {
+    "addr": "0xE71869C662733642bfBb262B8c6bad8B0fBfA7D0",
+    "threshold": {
+     "ok": true,
+     "value": "1"
+    },
+    "owners": {
+     "ok": true,
+     "value": [
+      "0x3C3932F865892EFabE45892f453f81B64f6c8d8c"
+     ]
+    },
+    "nonce": {
+     "ok": true,
+     "value": "0"
+    },
+    "VERSION": {
+     "ok": true,
+     "value": "1.4.1"
+    },
+    "modules": {
+     "ok": true,
+     "value": [
+      "",
+      "0x0000000000000000000000000000000000000001"
+     ]
+    },
+    "guard": {
+     "ok": false,
+     "err": "execution reverted",
+     "cls": "EVM-REVERT"
+    },
+    "fallbackHandler": {
+     "ok": false,
+     "err": "execution reverted",
+     "cls": "EVM-REVERT"
+    },
+    "nativeBalance": "0x0",
+    "tokenBalance": {
+     "ok": true,
+     "value": "0"
+    },
+    "generationBalances": {
+     "genA": {
+      "ok": true,
+      "value": "0"
+     },
+     "genB": {
+      "ok": true,
+      "value": "0"
+     }
+    }
+   },
+   "allowances": {
+    "deployer->Safe": {
+     "ok": true,
+     "value": "0"
+    },
+    "Safe->deployer": {
+     "ok": true,
+     "value": "0"
+    },
+    "deployer->Governance": {
+     "ok": true,
+     "value": "0"
+    },
+    "Governance->deployer": {
+     "ok": true,
+     "value": "0"
+    },
+    "deployer->Algorithm": {
+     "ok": true,
+     "value": "0"
+    },
+    "Algorithm->deployer": {
+     "ok": true,
+     "value": "0"
+    },
+    "deployer->Reserve": {
+     "ok": true,
+     "value": "0"
+    },
+    "Reserve->deployer": {
+     "ok": true,
+     "value": "0"
+    },
+    "deployer->Mint": {
+     "ok": true,
+     "value": "0"
+    },
+    "Mint->deployer": {
+     "ok": true,
+     "value": "0"
+    },
+    "deployer->Redeem": {
+     "ok": true,
+     "value": "0"
+    },
+    "Redeem->deployer": {
+     "ok": true,
+     "value": "0"
+    },
+    "deployer->Oracle": {
+     "ok": true,
+     "value": "0"
+    },
+    "Oracle->deployer": {
+     "ok": true,
+     "value": "0"
+    },
+    "deployer->Takaful": {
+     "ok": true,
+     "value": "0"
+    },
+    "Takaful->deployer": {
+     "ok": true,
+     "value": "0"
+    },
+    "deployer->DEAD": {
+     "ok": true,
+     "value": "0"
+    },
+    "DEAD->deployer": {
+     "ok": true,
+     "value": "0"
+    }
+   },
+   "holders": {
+    "0x3C3932F865892EFabE45892f453f81B64f6c8d8c": {
+     "ok": true,
+     "value": "309948999999999999997"
+    },
+    "0xE71869C662733642bfBb262B8c6bad8B0fBfA7D0": {
+     "ok": true,
+     "value": "0"
+    },
+    "0xE35a91801bc541fb743BB9EaD26C1FbD81EaBd66": {
+     "ok": true,
+     "value": "0"
+    },
+    "0x8839ce50e8D414005518769999c0A5b961D00CB2": {
+     "ok": true,
+     "value": "0"
+    },
+    "0x1bbCd78E4DEF79b7a3B77242770cbAefAC816177": {
+     "ok": true,
+     "value": "0"
+    },
+    "0x197e9CB28216dfe18a199b4c2930F74C2F460809": {
+     "ok": true,
+     "value": "0"
+    },
+    "0x963201C0Fa258033CCDdFcDceb8B5E3bc2b435a4": {
+     "ok": true,
+     "value": "0"
+    },
+    "0xDfcA66ac0450C9AB86307af1942E157C5A4DB713": {
+     "ok": true,
+     "value": "0"
+    },
+    "0x3eC27BB283644eF0A98B9961E9FBED0583a02f19": {
+     "ok": true,
+     "value": "0"
+    },
+    "0x000000000000000000000000000000000000dEaD": {
+     "ok": true,
+     "value": "1000000000000000003"
+    }
+   },
+   "selfBalance": {
+    "ok": true,
+    "value": "0"
+   },
+   "generations": {
+    "genA": {
+     "addr": "0x5D9564C27111EA65Da3228a79833F0FF129bfd4a",
+     "name": {
+      "ok": true,
+      "value": "MTQΣ"
+     },
+     "symbol": {
+      "ok": true,
+      "value": "MTQ"
+     },
+     "totalSupply": {
+      "ok": true,
+      "value": "1012987000000000000000000"
+     },
+     "balanceOf_deployer": {
+      "ok": true,
+      "value": "12986999999999999999997"
+     },
+     "balanceOf_self": {
+      "ok": true,
+      "value": "1000000000000000000000000"
+     },
+     "balanceOf_dead": {
+      "ok": true,
+      "value": "3"
+     },
+     "owner": {
+      "ok": true,
+      "value": "0x3C3932F865892EFabE45892f453f81B64f6c8d8c"
+     },
+     "paused": {
+      "ok": false,
+      "err": "execution reverted",
+      "cls": "EVM-REVERT"
+     },
+     "hasRole": {
+      "admin_deployer": {
+       "ok": false,
+       "err": "execution reverted",
+       "cls": "EVM-REVERT"
+      },
+      "minter_deployer": {
+       "ok": false,
+       "err": "execution reverted",
+       "cls": "EVM-REVERT"
+      }
+     },
+     "codeSize": 11666,
+     "runtimeKeccak": "0x9a5a521b43d8e931c9195af045290878b244c26fdfca9ff5629ce4e2810bbe04"
+    },
+    "genB": {
+     "addr": "0x0Ac20360234b4C988a19586CBe55733e18A5982f",
+     "name": {
+      "ok": true,
+      "value": "MTQΣ"
+     },
+     "symbol": {
+      "ok": true,
+      "value": "MTQ"
+     },
+     "totalSupply": {
+      "ok": true,
+      "value": "1000000000000019980000000"
+     },
+     "balanceOf_deployer": {
+      "ok": true,
+      "value": "1000000000000019979999997"
+     },
+     "balanceOf_self": {
+      "ok": true,
+      "value": "0"
+     },
+     "balanceOf_dead": {
+      "ok": true,
+      "value": "3"
+     },
+     "owner": {
+      "ok": false,
+      "err": "execution reverted",
+      "cls": "EVM-REVERT"
+     },
+     "paused": {
+      "ok": true,
+      "value": false
+     },
+     "hasRole": {
+      "admin_deployer": {
+       "ok": true,
+       "value": true
+      },
+      "minter_deployer": {
+       "ok": true,
+       "value": true
+      }
+     },
+     "codeSize": 3413,
+     "runtimeKeccak": "0x47b045e828c0ee6ddd7f8a3dee6a045aebd6f9f02b4512847ab38d3513675ffd"
+    }
+   },
+   "governor": {
+    "votingDelay": {
+     "ok": true,
+     "value": "1"
+    },
+    "votingPeriod": {
+     "ok": true,
+     "value": "1"
+    },
+    "proposalThreshold": {
+     "ok": true,
+     "value": "1"
+    },
+    "quorumNumerator": {
+     "ok": true,
+     "value": "1"
+    },
+    "name": {
+     "ok": true,
+     "value": "MITHQAL Governance"
+    },
+    "version": {
+     "ok": true,
+     "value": "1"
+    },
+    "proposalCount": {
+     "ok": false,
+     "err": "execution reverted",
+     "cls": "EVM-REVERT"
+    }
+   },
+   "deployer": {
+    "nativeBalance": "0x31d06f9459b443a",
+    "txCount": 103
+   },
+   "blockHeightEnd": 73193262
+  },
+  "arc": {
+   "rpcEndpoint": "https://rpc.testnet.arc.io",
+   "probes": {},
+   "chainId": "0x4cef52",
+   "chainIdAssertOk": true,
+   "blockHeightStart": 68490121,
+   "blockTimestamp": "2026-10-22T08:16:57.000Z",
+   "contracts": {
+    "MTQ": {
+     "addr": "0x237c3Aa2B79248f86f6523D3890095BCd1996601",
+     "codeSize": 3474,
+     "runtimeKeccak": "0xca57ff67a7f8a1f78c7ed96aa34504d8a8138e82a97385a41f8e0420f84de092",
+     "eip1967": {
+      "impl": "0x0000000000000000000000000000000000000000000000000000000000000000",
+      "admin": "0x0000000000000000000000000000000000000000000000000000000000000000",
+      "beacon": "0x0000000000000000000000000000000000000000000000000000000000000000"
+     },
+     "selectorScan": {
+      "mint_40c10f19": true,
+      "burn_42966c68": true,
+      "transferFrom_23b872dd": true,
+      "approve_095ea7b3": true
+     },
+     "name": {
+      "ok": true,
+      "value": "MITHQAL"
+     },
+     "symbol": {
+      "ok": true,
+      "value": "MTQ"
+     },
+     "decimals": {
+      "ok": true,
+      "value": "18"
+     },
+     "totalSupply": {
+      "ok": true,
+      "value": "1000000000000000000000"
+     },
+     "paused": {
+      "ok": true,
+      "value": false
+     },
+     "cap": {
+      "ok": false,
+      "err": "execution reverted",
+      "cls": "EVM-REVERT"
+     },
+     "roles": {
+      "admin:DEPLOYER": {
+       "ok": true,
+       "value": true
+      },
+      "admin:Safe": {
+       "ok": true,
+       "value": false
+      },
+      "admin:Governance": {
+       "ok": true,
+       "value": false
+      },
+      "admin:Mint": {
+       "ok": true,
+       "value": false
+      },
+      "admin:Reserve": {
+       "ok": true,
+       "value": false
+      },
+      "admin:Redeem": {
+       "ok": true,
+       "value": false
+      },
+      "admin:adminOfRole": {
+       "ok": true,
+       "value": "0x0000000000000000000000000000000000000000000000000000000000000000"
+      },
+      "minter:DEPLOYER": {
+       "ok": true,
+       "value": true
+      },
+      "minter:Safe": {
+       "ok": true,
+       "value": false
+      },
+      "minter:Governance": {
+       "ok": true,
+       "value": false
+      },
+      "minter:Mint": {
+       "ok": true,
+       "value": true
+      },
+      "minter:Reserve": {
+       "ok": true,
+       "value": false
+      },
+      "minter:Redeem": {
+       "ok": true,
+       "value": false
+      },
+      "minter:adminOfRole": {
+       "ok": true,
+       "value": "0x0000000000000000000000000000000000000000000000000000000000000000"
+      },
+      "pauser:DEPLOYER": {
+       "ok": true,
+       "value": true
+      },
+      "pauser:Safe": {
+       "ok": true,
+       "value": true
+      },
+      "pauser:Governance": {
+       "ok": true,
+       "value": false
+      },
+      "pauser:Mint": {
+       "ok": true,
+       "value": false
+      },
+      "pauser:Reserve": {
+       "ok": true,
+       "value": false
+      },
+      "pauser:Redeem": {
+       "ok": true,
+       "value": false
+      },
+      "pauser:adminOfRole": {
+       "ok": true,
+       "value": "0x0000000000000000000000000000000000000000000000000000000000000000"
+      }
+     }
+    },
+    "Governance": {
+     "addr": "0xE35a91801bc541fb743BB9EaD26C1FbD81EaBd66",
+     "codeSize": 13129,
+     "runtimeKeccak": "0x26ffdccfb2e77616faa12b65f99b2e662a9153d24c2cb64f95bc9535d664484e",
+     "eip1967": {
+      "impl": "0x0000000000000000000000000000000000000000000000000000000000000000",
+      "admin": "0x0000000000000000000000000000000000000000000000000000000000000000",
+      "beacon": "0x0000000000000000000000000000000000000000000000000000000000000000"
+     },
+     "selectorScan": {
+      "mint_40c10f19": false,
+      "burn_42966c68": false,
+      "transferFrom_23b872dd": false,
+      "approve_095ea7b3": false
+     }
+    },
+    "Safe": {
+     "addr": "0xE71869C662733642bfBb262B8c6bad8B0fBfA7D0",
+     "codeSize": 171,
+     "runtimeKeccak": "0xc5569e55ccc685b192d4935d07d4845b3313b2efa70b8d2645d3a3cd6f14c834",
+     "eip1967": {
+      "impl": "0x0000000000000000000000000000000000000000000000000000000000000000",
+      "admin": "0x0000000000000000000000000000000000000000000000000000000000000000",
+      "beacon": "0x0000000000000000000000000000000000000000000000000000000000000000"
+     },
+     "safeSingletonSlot0": "0x00000000000000000000000029fcb43b46531bca003ddc8fcb67ffe91900c762",
+     "selectorScan": {
+      "mint_40c10f19": false,
+      "burn_42966c68": false,
+      "transferFrom_23b872dd": false,
+      "approve_095ea7b3": false
+     }
+    },
+    "Algorithm": {
+     "addr": "0x62f8E5243f32eE5C87a14A7896C61104aD9e7727",
+     "codeSize": 1237,
+     "runtimeKeccak": "0x52eac4497c432e1134aba6040bffd43fb17a2ee4cd069fd6c625a754a90cf4bf",
+     "eip1967": {
+      "impl": "0x0000000000000000000000000000000000000000000000000000000000000000",
+      "admin": "0x0000000000000000000000000000000000000000000000000000000000000000",
+      "beacon": "0x0000000000000000000000000000000000000000000000000000000000000000"
+     },
+     "selectorScan": {
+      "mint_40c10f19": false,
+      "burn_42966c68": false,
+      "transferFrom_23b872dd": false,
+      "approve_095ea7b3": false
+     },
+     "roles": {
+      "admin:DEPLOYER": {
+       "ok": true,
+       "value": true
+      },
+      "admin:Safe": {
+       "ok": true,
+       "value": false
+      },
+      "minter:DEPLOYER": {
+       "ok": true,
+       "value": false
+      },
+      "minter:Safe": {
+       "ok": true,
+       "value": false
+      },
+      "pauser:DEPLOYER": {
+       "ok": true,
+       "value": false
+      },
+      "pauser:Safe": {
+       "ok": true,
+       "value": false
+      },
+      "DEFAULT_ADMIN:adminOfRole": {
+       "ok": true,
+       "value": "0x0000000000000000000000000000000000000000000000000000000000000000"
+      }
+     }
+    },
+    "Reserve": {
+     "addr": "0x27a1a201D6DF8215d0b0da3Be6211bE24ef4c471",
+     "codeSize": 2897,
+     "runtimeKeccak": "0xc2ae8f8819a980d6d83b5b9768da7821185672f135375b13260e433a2ad054ea",
+     "eip1967": {
+      "impl": "0x0000000000000000000000000000000000000000000000000000000000000000",
+      "admin": "0x0000000000000000000000000000000000000000000000000000000000000000",
+      "beacon": "0x0000000000000000000000000000000000000000000000000000000000000000"
+     },
+     "selectorScan": {
+      "mint_40c10f19": false,
+      "burn_42966c68": false,
+      "transferFrom_23b872dd": false,
+      "approve_095ea7b3": false
+     },
+     "roles": {
+      "admin:DEPLOYER": {
+       "ok": true,
+       "value": true
+      },
+      "admin:Safe": {
+       "ok": true,
+       "value": false
+      },
+      "minter:DEPLOYER": {
+       "ok": true,
+       "value": false
+      },
+      "minter:Safe": {
+       "ok": true,
+       "value": false
+      },
+      "pauser:DEPLOYER": {
+       "ok": true,
+       "value": false
+      },
+      "pauser:Safe": {
+       "ok": true,
+       "value": false
+      },
+      "DEFAULT_ADMIN:adminOfRole": {
+       "ok": true,
+       "value": "0x0000000000000000000000000000000000000000000000000000000000000000"
+      }
+     }
+    },
+    "Mint": {
+     "addr": "0x0dd8b4F8DA7fB6E3eE04ea9F24f853647F84c3aa",
+     "codeSize": 2847,
+     "runtimeKeccak": "0xf6e81f2aa9d863f89fa7b0b9897fc4c1bcf7498b45a1d9256463fac5d9202358",
+     "eip1967": {
+      "impl": "0x0000000000000000000000000000000000000000000000000000000000000000",
+      "admin": "0x0000000000000000000000000000000000000000000000000000000000000000",
+      "beacon": "0x0000000000000000000000000000000000000000000000000000000000000000"
+     },
+     "selectorScan": {
+      "mint_40c10f19": true,
+      "burn_42966c68": false,
+      "transferFrom_23b872dd": false,
+      "approve_095ea7b3": false
+     },
+     "roles": {
+      "admin:DEPLOYER": {
+       "ok": true,
+       "value": true
+      },
+      "admin:Safe": {
+       "ok": true,
+       "value": false
+      },
+      "minter:DEPLOYER": {
+       "ok": true,
+       "value": true
+      },
+      "minter:Safe": {
+       "ok": true,
+       "value": false
+      },
+      "pauser:DEPLOYER": {
+       "ok": true,
+       "value": false
+      },
+      "pauser:Safe": {
+       "ok": true,
+       "value": false
+      },
+      "DEFAULT_ADMIN:adminOfRole": {
+       "ok": true,
+       "value": "0x0000000000000000000000000000000000000000000000000000000000000000"
+      }
+     }
+    },
+    "Redeem": {
+     "addr": "0xcAde4594177829597882555Ff57d0e34092daF8e",
+     "codeSize": 3037,
+     "runtimeKeccak": "0x111fbb8ee8e41bb0f9839a8cede05fd917c2ea1cb5e93c40bb8fa7b5a39b05fb",
+     "eip1967": {
+      "impl": "0x0000000000000000000000000000000000000000000000000000000000000000",
+      "admin": "0x0000000000000000000000000000000000000000000000000000000000000000",
+      "beacon": "0x0000000000000000000000000000000000000000000000000000000000000000"
+     },
+     "selectorScan": {
+      "mint_40c10f19": false,
+      "burn_42966c68": false,
+      "transferFrom_23b872dd": true,
+      "approve_095ea7b3": false
+     },
+     "roles": {
+      "admin:DEPLOYER": {
+       "ok": true,
+       "value": true
+      },
+      "admin:Safe": {
+       "ok": true,
+       "value": false
+      },
+      "minter:DEPLOYER": {
+       "ok": true,
+       "value": false
+      },
+      "minter:Safe": {
+       "ok": true,
+       "value": false
+      },
+      "pauser:DEPLOYER": {
+       "ok": true,
+       "value": false
+      },
+      "pauser:Safe": {
+       "ok": true,
+       "value": false
+      },
+      "DEFAULT_ADMIN:adminOfRole": {
+       "ok": true,
+       "value": "0x0000000000000000000000000000000000000000000000000000000000000000"
+      }
+     }
+    },
+    "Oracle": {
+     "addr": "0xFd2B8d176bf059287638Db30D02C6651dA02861e",
+     "codeSize": 2601,
+     "runtimeKeccak": "0xe7f8dd15cc8e0d2192cd86cb9b7c73f1febd614f101a30c36340261019f577fd",
+     "eip1967": {
+      "impl": "0x0000000000000000000000000000000000000000000000000000000000000000",
+      "admin": "0x0000000000000000000000000000000000000000000000000000000000000000",
+      "beacon": "0x0000000000000000000000000000000000000000000000000000000000000000"
+     },
+     "selectorScan": {
+      "mint_40c10f19": false,
+      "burn_42966c68": false,
+      "transferFrom_23b872dd": false,
+      "approve_095ea7b3": false
+     },
+     "roles": {
+      "admin:DEPLOYER": {
+       "ok": true,
+       "value": true
+      },
+      "admin:Safe": {
+       "ok": true,
+       "value": false
+      },
+      "minter:DEPLOYER": {
+       "ok": true,
+       "value": false
+      },
+      "minter:Safe": {
+       "ok": true,
+       "value": false
+      },
+      "pauser:DEPLOYER": {
+       "ok": true,
+       "value": false
+      },
+      "pauser:Safe": {
+       "ok": true,
+       "value": false
+      },
+      "DEFAULT_ADMIN:adminOfRole": {
+       "ok": true,
+       "value": "0x0000000000000000000000000000000000000000000000000000000000000000"
+      }
+     }
+    },
+    "Takaful": {
+     "addr": "0xA3B89FfdE28577A7D30E2c22503dB33509044EF0",
+     "codeSize": 3033,
+     "runtimeKeccak": "0x8e7c8e298621b104b3afa471f8cfc16aa8c269b831a0805f1ab6dd8959dfb331",
+     "eip1967": {
+      "impl": "0x0000000000000000000000000000000000000000000000000000000000000000",
+      "admin": "0x0000000000000000000000000000000000000000000000000000000000000000",
+      "beacon": "0x0000000000000000000000000000000000000000000000000000000000000000"
+     },
+     "selectorScan": {
+      "mint_40c10f19": false,
+      "burn_42966c68": false,
+      "transferFrom_23b872dd": true,
+      "approve_095ea7b3": false
+     },
+     "roles": {
+      "admin:DEPLOYER": {
+       "ok": true,
+       "value": true
+      },
+      "admin:Safe": {
+       "ok": true,
+       "value": false
+      },
+      "minter:DEPLOYER": {
+       "ok": true,
+       "value": false
+      },
+      "minter:Safe": {
+       "ok": true,
+       "value": false
+      },
+      "pauser:DEPLOYER": {
+       "ok": true,
+       "value": false
+      },
+      "pauser:Safe": {
+       "ok": true,
+       "value": false
+      },
+      "DEFAULT_ADMIN:adminOfRole": {
+       "ok": true,
+       "value": "0x0000000000000000000000000000000000000000000000000000000000000000"
+      }
+     }
+    }
+   },
+   "safe": {
+    "addr": "0xE71869C662733642bfBb262B8c6bad8B0fBfA7D0",
+    "threshold": {
+     "ok": true,
+     "value": "1"
+    },
+    "owners": {
+     "ok": true,
+     "value": [
+      "0x3C3932F865892EFabE45892f453f81B64f6c8d8c"
+     ]
+    },
+    "nonce": {
+     "ok": true,
+     "value": "0"
+    },
+    "VERSION": {
+     "ok": true,
+     "value": "1.4.1"
+    },
+    "modules": {
+     "ok": true,
+     "value": [
+      "",
+      "0x0000000000000000000000000000000000000001"
+     ]
+    },
+    "guard": {
+     "ok": false,
+     "err": "execution reverted",
+     "cls": "EVM-REVERT"
+    },
+    "fallbackHandler": {
+     "ok": false,
+     "err": "execution reverted",
+     "cls": "EVM-REVERT"
+    },
+    "nativeBalance": "0x0",
+    "tokenBalance": {
+     "ok": true,
+     "value": "0"
+    },
+    "generationBalances": {
+     "genA": {
+      "ok": true,
+      "value": "0"
+     },
+     "genB": {
+      "ok": true,
+      "value": "0"
+     },
+     "genC": {
+      "ok": true,
+      "value": "0"
+     }
+    }
+   },
+   "allowances": {
+    "deployer->Safe": {
+     "ok": true,
+     "value": "0"
+    },
+    "Safe->deployer": {
+     "ok": true,
+     "value": "0"
+    },
+    "deployer->Governance": {
+     "ok": true,
+     "value": "0"
+    },
+    "Governance->deployer": {
+     "ok": true,
+     "value": "0"
+    },
+    "deployer->Algorithm": {
+     "ok": true,
+     "value": "0"
+    },
+    "Algorithm->deployer": {
+     "ok": true,
+     "value": "0"
+    },
+    "deployer->Reserve": {
+     "ok": true,
+     "value": "0"
+    },
+    "Reserve->deployer": {
+     "ok": true,
+     "value": "0"
+    },
+    "deployer->Mint": {
+     "ok": true,
+     "value": "0"
+    },
+    "Mint->deployer": {
+     "ok": true,
+     "value": "0"
+    },
+    "deployer->Redeem": {
+     "ok": true,
+     "value": "0"
+    },
+    "Redeem->deployer": {
+     "ok": true,
+     "value": "0"
+    },
+    "deployer->Oracle": {
+     "ok": true,
+     "value": "0"
+    },
+    "Oracle->deployer": {
+     "ok": true,
+     "value": "0"
+    },
+    "deployer->Takaful": {
+     "ok": true,
+     "value": "0"
+    },
+    "Takaful->deployer": {
+     "ok": true,
+     "value": "0"
+    },
+    "deployer->DEAD": {
+     "ok": true,
+     "value": "0"
+    },
+    "DEAD->deployer": {
+     "ok": true,
+     "value": "0"
+    }
+   },
+   "holders": {
+    "0x3C3932F865892EFabE45892f453f81B64f6c8d8c": {
+     "ok": true,
+     "value": "998999999999999999997"
+    },
+    "0xE71869C662733642bfBb262B8c6bad8B0fBfA7D0": {
+     "ok": true,
+     "value": "0"
+    },
+    "0xE35a91801bc541fb743BB9EaD26C1FbD81EaBd66": {
+     "ok": true,
+     "value": "0"
+    },
+    "0x62f8E5243f32eE5C87a14A7896C61104aD9e7727": {
+     "ok": true,
+     "value": "0"
+    },
+    "0x27a1a201D6DF8215d0b0da3Be6211bE24ef4c471": {
+     "ok": true,
+     "value": "0"
+    },
+    "0x0dd8b4F8DA7fB6E3eE04ea9F24f853647F84c3aa": {
+     "ok": true,
+     "value": "0"
+    },
+    "0xcAde4594177829597882555Ff57d0e34092daF8e": {
+     "ok": true,
+     "value": "0"
+    },
+    "0xFd2B8d176bf059287638Db30D02C6651dA02861e": {
+     "ok": true,
+     "value": "0"
+    },
+    "0xA3B89FfdE28577A7D30E2c22503dB33509044EF0": {
+     "ok": true,
+     "value": "0"
+    },
+    "0x000000000000000000000000000000000000dEaD": {
+     "ok": true,
+     "value": "1000000000000000003"
+    }
+   },
+   "selfBalance": {
+    "ok": true,
+    "value": "0"
+   },
+   "generations": {
+    "genA": {
+     "addr": "0x826b82F79FD6c5347cDC568B1d0A7918128B63c1",
+     "name": {
+      "ok": true,
+      "value": "MTQ Sigma"
+     },
+     "symbol": {
+      "ok": true,
+      "value": "MTQ"
+     },
+     "totalSupply": {
+      "ok": true,
+      "value": "1005889000000000000000000"
+     },
+     "balanceOf_deployer": {
+      "ok": true,
+      "value": "5887999999999999999997"
+     },
+     "balanceOf_self": {
+      "ok": true,
+      "value": "1000000000000000000000000"
+     },
+     "balanceOf_dead": {
+      "ok": true,
+      "value": "1000000000000000003"
+     },
+     "owner": {
+      "ok": true,
+      "value": "0x3C3932F865892EFabE45892f453f81B64f6c8d8c"
+     },
+     "paused": {
+      "ok": false,
+      "err": "execution reverted",
+      "cls": "EVM-REVERT"
+     },
+     "hasRole": {
+      "admin_deployer": {
+       "ok": false,
+       "err": "execution reverted",
+       "cls": "EVM-REVERT"
+      },
+      "minter_deployer": {
+       "ok": false,
+       "err": "execution reverted",
+       "cls": "EVM-REVERT"
+      }
+     },
+     "codeSize": 11551,
+     "runtimeKeccak": "0xded85ce8662be24a3f4c75ef2f58201afa11a30749b94c2185065ebb03c22884"
+    },
+    "genB": {
+     "addr": "0x24203404B9b971C907e8Ced96106Fa74380d9897",
+     "name": {
+      "ok": true,
+      "value": "MTQΣ"
+     },
+     "symbol": {
+      "ok": true,
+      "value": "MTQ"
+     },
+     "totalSupply": {
+      "ok": true,
+      "value": "1000000000000019980000000"
+     },
+     "balanceOf_deployer": {
+      "ok": true,
+      "value": "1000000000000019979999997"
+     },
+     "balanceOf_self": {
+      "ok": true,
+      "value": "0"
+     },
+     "balanceOf_dead": {
+      "ok": true,
+      "value": "3"
+     },
+     "owner": {
+      "ok": false,
+      "err": "execution reverted",
+      "cls": "EVM-REVERT"
+     },
+     "paused": {
+      "ok": true,
+      "value": false
+     },
+     "hasRole": {
+      "admin_deployer": {
+       "ok": true,
+       "value": true
+      },
+      "minter_deployer": {
+       "ok": true,
+       "value": true
+      }
+     },
+     "codeSize": 3413,
+     "runtimeKeccak": "0x47b045e828c0ee6ddd7f8a3dee6a045aebd6f9f02b4512847ab38d3513675ffd"
+    },
+    "genC": {
+     "addr": "0x5C728F729110013A1fa59fFc85938bbD973A2563",
+     "name": {
+      "ok": true,
+      "value": "MTQΣ"
+     },
+     "symbol": {
+      "ok": true,
+      "value": "MTQ"
+     },
+     "totalSupply": {
+      "ok": true,
+      "value": "1002997000000000000000000"
+     },
+     "balanceOf_deployer": {
+      "ok": true,
+      "value": "2996999999999999999998"
+     },
+     "balanceOf_self": {
+      "ok": true,
+      "value": "1000000000000000000000000"
+     },
+     "balanceOf_dead": {
+      "ok": true,
+      "value": "2"
+     },
+     "owner": {
+      "ok": true,
+      "value": "0x3C3932F865892EFabE45892f453f81B64f6c8d8c"
+     },
+     "paused": {
+      "ok": false,
+      "err": "execution reverted",
+      "cls": "EVM-REVERT"
+     },
+     "hasRole": {
+      "admin_deployer": {
+       "ok": false,
+       "err": "execution reverted",
+       "cls": "EVM-REVERT"
+      },
+      "minter_deployer": {
+       "ok": false,
+       "err": "execution reverted",
+       "cls": "EVM-REVERT"
+      }
+     },
+     "codeSize": 11666,
+     "runtimeKeccak": "0x9a5a521b43d8e931c9195af045290878b244c26fdfca9ff5629ce4e2810bbe04"
+    }
+   },
+   "governor": {
+    "votingDelay": {
+     "ok": true,
+     "value": "1"
+    },
+    "votingPeriod": {
+     "ok": true,
+     "value": "1"
+    },
+    "proposalThreshold": {
+     "ok": true,
+     "value": "1"
+    },
+    "quorumNumerator": {
+     "ok": true,
+     "value": "1"
+    },
+    "name": {
+     "ok": true,
+     "value": "MITHQAL Governance"
+    },
+    "version": {
+     "ok": true,
+     "value": "1"
+    },
+    "proposalCount": {
+     "ok": false,
+     "err": "execution reverted",
+     "cls": "EVM-REVERT"
+    }
+   },
+   "deployer": {
+    "nativeBalance": "0x1080c0d4d6890ecfd",
+    "txCount": 92
+   },
+   "blockHeightEnd": 68490282
+  },
+  "robinhood": {
+   "rpcEndpoint": "https://rpc.testnet.chain.robinhood.com/rpc",
+   "probes": {
+    "MTQToken": {
+     "addr": "0xAF5B85658d074e071BbF392395a2ddA9B644C5A5",
+     "codeSize": 3413,
+     "runtimeKeccak": "0x47b045e828c0ee6ddd7f8a3dee6a045aebd6f9f02b4512847ab38d3513675ffd",
+     "selectorScan": {
+      "mint_40c10f19": true,
+      "burn_42966c68": true
+     },
+     "totalSupply": {
+      "ok": true,
+      "value": "1001000000000029970000000"
+     },
+     "name": {
+      "ok": true,
+      "value": "MTQΣ"
+     },
+     "balanceOf_deployer": {
+      "ok": true,
+      "value": "1001000000000029969999997"
+     }
+    },
+    "MTQSigma": {
+     "addr": "0xA3B89FfdE28577A7D30E2c22503dB33509044EF0",
+     "codeSize": 11666,
+     "runtimeKeccak": "0x9a5a521b43d8e931c9195af045290878b244c26fdfca9ff5629ce4e2810bbe04",
+     "selectorScan": {
+      "mint_40c10f19": false,
+      "burn_42966c68": false
+     }
+    },
+    "Safe": {
+     "addr": "0xa3CE28A10854B375272D528EeC4295D6bcd75691",
+     "codeSize": 3321,
+     "runtimeKeccak": "0xa6bdd12f87ffc94af91b491f62d72203e41552c62c43647bafc83b0f3d98ebe6",
+     "selectorScan": {
+      "mint_40c10f19": false,
+      "burn_42966c68": false
+     },
+     "threshold": {
+      "ok": false,
+      "err": "execution reverted",
+      "cls": "EVM-REVERT"
+     },
+     "owners": {
+      "ok": false,
+      "err": "execution reverted",
+      "cls": "EVM-REVERT"
+     },
+     "nonce": {
+      "ok": false,
+      "err": "execution reverted",
+      "cls": "EVM-REVERT"
+     },
+     "VERSION": {
+      "ok": false,
+      "err": "execution reverted",
+      "cls": "EVM-REVERT"
+     },
+     "modules": {
+      "ok": false,
+      "err": "execution reverted",
+      "cls": "EVM-REVERT"
+     },
+     "guard": {
+      "ok": false,
+      "err": "execution reverted",
+      "cls": "EVM-REVERT"
+     },
+     "fallbackHandler": {
+      "ok": false,
+      "err": "execution reverted",
+      "cls": "EVM-REVERT"
+     }
+    },
+    "Governance": {
+     "addr": "0x80FF03DAD374E1f2f5C110F355B7a448Aa732B56",
+     "codeSize": 3487,
+     "runtimeKeccak": "0x841096b893eefa7b49a4c0c64020fc48a23d2b044fe6172c1f57446956b5b723",
+     "selectorScan": {
+      "mint_40c10f19": false,
+      "burn_42966c68": false
+     }
+    }
+   },
+   "chainId": "0xb626",
+   "chainIdAssertOk": true,
+   "blockHeightStart": 140634467,
+   "blockTimestamp": "2026-10-22T08:18:19.000Z",
+   "deployer": {
+    "nativeBalance": "0x22e44b0d00d200",
+    "txCount": 60
+   },
+   "blockHeightEnd": 140634936
+  }
+ },
+ "stats": {
+  "requests": 477,
+  "retries": 83,
+  "failures": 26,
+  "reverts": 26,
+  "calls": 265,
+  "note": "reverts are counted as errors and never treated as negative results"
+ },
+ "finishedAt": "2026-10-22T08:19:09.358Z"
+}

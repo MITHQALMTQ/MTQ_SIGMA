@@ -1,0 +1,7152 @@
+{
+  "label": "v3-final",
+  "runs": 200,
+  "viaIR": true,
+  "sourcePath": "/home/z/my-project/contracts/MTQSigmaV3.sol",
+  "solcVersion": "0.8.36+commit.8a079791.Emscripten.clang",
+  "errors": [
+    {
+      "component": "general",
+      "errorCode": "5574",
+      "formattedMessage": "Warning: Contract code size is 40411 bytes and exceeds 24576 bytes (a limit introduced in Spurious Dragon). This contract may not be deployable on Mainnet. Consider enabling the optimizer (with a low \"runs\" value!), turning off revert strings, or using libraries.\n  --> MTQSigmaV3.sol:94:1:\n   |\n94 | contract MTQSigmaV3 {\n   | ^ (Relevant source part starts here and spans across multiple lines).\n\n",
+      "message": "Contract code size is 40411 bytes and exceeds 24576 bytes (a limit introduced in Spurious Dragon). This contract may not be deployable on Mainnet. Consider enabling the optimizer (with a low \"runs\" value!), turning off revert strings, or using libraries.",
+      "severity": "warning",
+      "sourceLocation": {
+        "end": 127014,
+        "file": "MTQSigmaV3.sol",
+        "start": 5282
+      },
+      "type": "Warning"
+    }
+  ],
+  "creationBytes": 42018,
+  "deployedBytes": 40411,
+  "abi": [
+    {
+      "inputs": [],
+      "stateMutability": "nonpayable",
+      "type": "constructor"
+    },
+    {
+      "inputs": [],
+      "name": "Err01",
+      "type": "error"
+    },
+    {
+      "inputs": [],
+      "name": "Err02",
+      "type": "error"
+    },
+    {
+      "inputs": [],
+      "name": "Err03",
+      "type": "error"
+    },
+    {
+      "inputs": [],
+      "name": "Err04",
+      "type": "error"
+    },
+    {
+      "inputs": [],
+      "name": "Err05",
+      "type": "error"
+    },
+    {
+      "inputs": [],
+      "name": "Err06",
+      "type": "error"
+    },
+    {
+      "inputs": [],
+      "name": "Err07",
+      "type": "error"
+    },
+    {
+      "inputs": [],
+      "name": "Err08",
+      "type": "error"
+    },
+    {
+      "inputs": [],
+      "name": "Err09",
+      "type": "error"
+    },
+    {
+      "inputs": [],
+      "name": "Err10",
+      "type": "error"
+    },
+    {
+      "inputs": [],
+      "name": "Err100_NotEmergencyState",
+      "type": "error"
+    },
+    {
+      "inputs": [],
+      "name": "Err101_ZeroFeeWallet",
+      "type": "error"
+    },
+    {
+      "inputs": [],
+      "name": "Err102_FeeWalletNotSet",
+      "type": "error"
+    },
+    {
+      "inputs": [],
+      "name": "Err103_PermitExpired",
+      "type": "error"
+    },
+    {
+      "inputs": [],
+      "name": "Err104_InvalidSignature",
+      "type": "error"
+    },
+    {
+      "inputs": [],
+      "name": "Err105_VotesBalanceOverflow",
+      "type": "error"
+    },
+    {
+      "inputs": [],
+      "name": "Err106_DelegationExpired",
+      "type": "error"
+    },
+    {
+      "inputs": [],
+      "name": "Err107_InvalidDelegationNonce",
+      "type": "error"
+    },
+    {
+      "inputs": [],
+      "name": "Err108_FutureTimepoint",
+      "type": "error"
+    },
+    {
+      "inputs": [],
+      "name": "Err109_CheckpointKeyOverflow",
+      "type": "error"
+    },
+    {
+      "inputs": [],
+      "name": "Err11",
+      "type": "error"
+    },
+    {
+      "inputs": [],
+      "name": "Err110_CheckpointKeyUnordered",
+      "type": "error"
+    },
+    {
+      "inputs": [],
+      "name": "Err12",
+      "type": "error"
+    },
+    {
+      "inputs": [],
+      "name": "Err13",
+      "type": "error"
+    },
+    {
+      "inputs": [],
+      "name": "Err14",
+      "type": "error"
+    },
+    {
+      "inputs": [],
+      "name": "Err15",
+      "type": "error"
+    },
+    {
+      "inputs": [],
+      "name": "Err16",
+      "type": "error"
+    },
+    {
+      "inputs": [],
+      "name": "Err17",
+      "type": "error"
+    },
+    {
+      "inputs": [],
+      "name": "Err18",
+      "type": "error"
+    },
+    {
+      "inputs": [],
+      "name": "Err19",
+      "type": "error"
+    },
+    {
+      "inputs": [],
+      "name": "Err20",
+      "type": "error"
+    },
+    {
+      "inputs": [],
+      "name": "Err21",
+      "type": "error"
+    },
+    {
+      "inputs": [],
+      "name": "Err22",
+      "type": "error"
+    },
+    {
+      "inputs": [],
+      "name": "Err23",
+      "type": "error"
+    },
+    {
+      "inputs": [],
+      "name": "Err24",
+      "type": "error"
+    },
+    {
+      "inputs": [],
+      "name": "Err25",
+      "type": "error"
+    },
+    {
+      "inputs": [],
+      "name": "Err26",
+      "type": "error"
+    },
+    {
+      "inputs": [],
+      "name": "Err27",
+      "type": "error"
+    },
+    {
+      "inputs": [],
+      "name": "Err28",
+      "type": "error"
+    },
+    {
+      "inputs": [],
+      "name": "Err29",
+      "type": "error"
+    },
+    {
+      "inputs": [],
+      "name": "Err30",
+      "type": "error"
+    },
+    {
+      "inputs": [],
+      "name": "Err31",
+      "type": "error"
+    },
+    {
+      "inputs": [],
+      "name": "Err32",
+      "type": "error"
+    },
+    {
+      "inputs": [],
+      "name": "Err33",
+      "type": "error"
+    },
+    {
+      "inputs": [],
+      "name": "Err34",
+      "type": "error"
+    },
+    {
+      "inputs": [],
+      "name": "Err35",
+      "type": "error"
+    },
+    {
+      "inputs": [],
+      "name": "Err36",
+      "type": "error"
+    },
+    {
+      "inputs": [],
+      "name": "Err37",
+      "type": "error"
+    },
+    {
+      "inputs": [],
+      "name": "Err38",
+      "type": "error"
+    },
+    {
+      "inputs": [],
+      "name": "Err39",
+      "type": "error"
+    },
+    {
+      "inputs": [],
+      "name": "Err40",
+      "type": "error"
+    },
+    {
+      "inputs": [],
+      "name": "Err41",
+      "type": "error"
+    },
+    {
+      "inputs": [],
+      "name": "Err42",
+      "type": "error"
+    },
+    {
+      "inputs": [],
+      "name": "Err43",
+      "type": "error"
+    },
+    {
+      "inputs": [],
+      "name": "Err44",
+      "type": "error"
+    },
+    {
+      "inputs": [],
+      "name": "Err45",
+      "type": "error"
+    },
+    {
+      "inputs": [],
+      "name": "Err46",
+      "type": "error"
+    },
+    {
+      "inputs": [],
+      "name": "Err47",
+      "type": "error"
+    },
+    {
+      "inputs": [],
+      "name": "Err48",
+      "type": "error"
+    },
+    {
+      "inputs": [],
+      "name": "Err49",
+      "type": "error"
+    },
+    {
+      "inputs": [],
+      "name": "Err50",
+      "type": "error"
+    },
+    {
+      "inputs": [],
+      "name": "Err51",
+      "type": "error"
+    },
+    {
+      "inputs": [],
+      "name": "Err52",
+      "type": "error"
+    },
+    {
+      "inputs": [],
+      "name": "Err53",
+      "type": "error"
+    },
+    {
+      "inputs": [],
+      "name": "Err54",
+      "type": "error"
+    },
+    {
+      "inputs": [],
+      "name": "Err55",
+      "type": "error"
+    },
+    {
+      "inputs": [],
+      "name": "Err56",
+      "type": "error"
+    },
+    {
+      "inputs": [],
+      "name": "Err57",
+      "type": "error"
+    },
+    {
+      "inputs": [],
+      "name": "Err58",
+      "type": "error"
+    },
+    {
+      "inputs": [],
+      "name": "Err59",
+      "type": "error"
+    },
+    {
+      "inputs": [],
+      "name": "Err60",
+      "type": "error"
+    },
+    {
+      "inputs": [],
+      "name": "Err61",
+      "type": "error"
+    },
+    {
+      "inputs": [],
+      "name": "Err62",
+      "type": "error"
+    },
+    {
+      "inputs": [],
+      "name": "Err63",
+      "type": "error"
+    },
+    {
+      "inputs": [],
+      "name": "Err64",
+      "type": "error"
+    },
+    {
+      "inputs": [],
+      "name": "Err65",
+      "type": "error"
+    },
+    {
+      "inputs": [],
+      "name": "Err66_BankNotAuthorized",
+      "type": "error"
+    },
+    {
+      "inputs": [],
+      "name": "Err67_DailyCapExceeded",
+      "type": "error"
+    },
+    {
+      "inputs": [],
+      "name": "Err68_RequestExpired",
+      "type": "error"
+    },
+    {
+      "inputs": [],
+      "name": "Err69_NonceReused",
+      "type": "error"
+    },
+    {
+      "inputs": [],
+      "name": "Err70_JurisdictionMismatch",
+      "type": "error"
+    },
+    {
+      "inputs": [],
+      "name": "Err71_BackdingCertNotVerified",
+      "type": "error"
+    },
+    {
+      "inputs": [],
+      "name": "Err72_BackdingCertExpired",
+      "type": "error"
+    },
+    {
+      "inputs": [],
+      "name": "Err73_BackdingCertInsufficient",
+      "type": "error"
+    },
+    {
+      "inputs": [],
+      "name": "Err74_WorkflowNotSequential",
+      "type": "error"
+    },
+    {
+      "inputs": [],
+      "name": "Err75_WorkflowNotAuthorized",
+      "type": "error"
+    },
+    {
+      "inputs": [],
+      "name": "Err76_WorkflowAlreadyMinted",
+      "type": "error"
+    },
+    {
+      "inputs": [],
+      "name": "Err77_WorkflowAlreadyRejected",
+      "type": "error"
+    },
+    {
+      "inputs": [],
+      "name": "Err78_L2WorkflowGate",
+      "type": "error"
+    },
+    {
+      "inputs": [],
+      "name": "Err79_L3PolicyGate",
+      "type": "error"
+    },
+    {
+      "inputs": [],
+      "name": "Err80_L4MonetaryGate",
+      "type": "error"
+    },
+    {
+      "inputs": [],
+      "name": "Err81_L5LedgerGate",
+      "type": "error"
+    },
+    {
+      "inputs": [],
+      "name": "Err82_L6AtomicGate",
+      "type": "error"
+    },
+    {
+      "inputs": [],
+      "name": "Err83_L7FinalityGate",
+      "type": "error"
+    },
+    {
+      "inputs": [],
+      "name": "Err84_BankNotFound",
+      "type": "error"
+    },
+    {
+      "inputs": [],
+      "name": "Err85_CertNotFound",
+      "type": "error"
+    },
+    {
+      "inputs": [],
+      "name": "Err86_InvalidRequest",
+      "type": "error"
+    },
+    {
+      "inputs": [],
+      "name": "Err87_DailyCapZero",
+      "type": "error"
+    },
+    {
+      "inputs": [],
+      "name": "Err88_ConcentrationLimit",
+      "type": "error"
+    },
+    {
+      "inputs": [],
+      "name": "Err89_DMCELimit",
+      "type": "error"
+    },
+    {
+      "inputs": [],
+      "name": "Err90_NotAuthorizedBank",
+      "type": "error"
+    },
+    {
+      "inputs": [],
+      "name": "Err91_InvalidExpiry",
+      "type": "error"
+    },
+    {
+      "inputs": [],
+      "name": "Err92_BackdingCertMismatch",
+      "type": "error"
+    },
+    {
+      "inputs": [],
+      "name": "Err93_SlippageExceeded",
+      "type": "error"
+    },
+    {
+      "inputs": [],
+      "name": "Err94_PerTxCapExceeded",
+      "type": "error"
+    },
+    {
+      "inputs": [],
+      "name": "Err95_DailyRedeemCapExceeded",
+      "type": "error"
+    },
+    {
+      "inputs": [],
+      "name": "Err96_StabilityZeroAmount",
+      "type": "error"
+    },
+    {
+      "inputs": [],
+      "name": "Err97_StabilityInsufficient",
+      "type": "error"
+    },
+    {
+      "inputs": [],
+      "name": "Err98_StabilityPoolEmpty",
+      "type": "error"
+    },
+    {
+      "inputs": [],
+      "name": "Err99_StabilityAssetNotSet",
+      "type": "error"
+    },
+    {
+      "anonymous": false,
+      "inputs": [
+        {
+          "indexed": true,
+          "internalType": "address",
+          "name": "owner",
+          "type": "address"
+        },
+        {
+          "indexed": true,
+          "internalType": "address",
+          "name": "spender",
+          "type": "address"
+        },
+        {
+          "indexed": false,
+          "internalType": "uint256",
+          "name": "value",
+          "type": "uint256"
+        }
+      ],
+      "name": "Approval",
+      "type": "event"
+    },
+    {
+      "anonymous": false,
+      "inputs": [
+        {
+          "indexed": true,
+          "internalType": "address",
+          "name": "registry",
+          "type": "address"
+        },
+        {
+          "indexed": true,
+          "internalType": "address",
+          "name": "setter",
+          "type": "address"
+        }
+      ],
+      "name": "AssetRegistrySet",
+      "type": "event"
+    },
+    {
+      "anonymous": false,
+      "inputs": [
+        {
+          "indexed": true,
+          "internalType": "bytes32",
+          "name": "certId",
+          "type": "bytes32"
+        },
+        {
+          "indexed": true,
+          "internalType": "address",
+          "name": "bank",
+          "type": "address"
+        },
+        {
+          "indexed": false,
+          "internalType": "uint256",
+          "name": "amountUsd",
+          "type": "uint256"
+        },
+        {
+          "indexed": false,
+          "internalType": "uint256",
+          "name": "timestamp",
+          "type": "uint256"
+        }
+      ],
+      "name": "BackingCertificateSubmitted",
+      "type": "event"
+    },
+    {
+      "anonymous": false,
+      "inputs": [
+        {
+          "indexed": true,
+          "internalType": "bytes32",
+          "name": "certId",
+          "type": "bytes32"
+        },
+        {
+          "indexed": true,
+          "internalType": "address",
+          "name": "keeper",
+          "type": "address"
+        },
+        {
+          "indexed": false,
+          "internalType": "bool",
+          "name": "verified",
+          "type": "bool"
+        },
+        {
+          "indexed": false,
+          "internalType": "uint256",
+          "name": "timestamp",
+          "type": "uint256"
+        }
+      ],
+      "name": "BackingCertificateVerified",
+      "type": "event"
+    },
+    {
+      "anonymous": false,
+      "inputs": [
+        {
+          "indexed": true,
+          "internalType": "address",
+          "name": "bank",
+          "type": "address"
+        },
+        {
+          "indexed": false,
+          "internalType": "string",
+          "name": "name",
+          "type": "string"
+        },
+        {
+          "indexed": false,
+          "internalType": "string",
+          "name": "jurisdiction",
+          "type": "string"
+        },
+        {
+          "indexed": false,
+          "internalType": "uint256",
+          "name": "dailyCap",
+          "type": "uint256"
+        },
+        {
+          "indexed": false,
+          "internalType": "uint256",
+          "name": "timestamp",
+          "type": "uint256"
+        }
+      ],
+      "name": "BankAuthorized",
+      "type": "event"
+    },
+    {
+      "anonymous": false,
+      "inputs": [
+        {
+          "indexed": true,
+          "internalType": "address",
+          "name": "bank",
+          "type": "address"
+        },
+        {
+          "indexed": false,
+          "internalType": "uint256",
+          "name": "timestamp",
+          "type": "uint256"
+        }
+      ],
+      "name": "BankRevoked",
+      "type": "event"
+    },
+    {
+      "anonymous": false,
+      "inputs": [
+        {
+          "indexed": false,
+          "internalType": "uint256",
+          "name": "D",
+          "type": "uint256"
+        },
+        {
+          "indexed": false,
+          "internalType": "uint256",
+          "name": "bMinus",
+          "type": "uint256"
+        },
+        {
+          "indexed": false,
+          "internalType": "uint256",
+          "name": "bPlus",
+          "type": "uint256"
+        },
+        {
+          "indexed": false,
+          "internalType": "uint256",
+          "name": "timestamp",
+          "type": "uint256"
+        }
+      ],
+      "name": "ChainLinkAdjusted",
+      "type": "event"
+    },
+    {
+      "anonymous": false,
+      "inputs": [
+        {
+          "indexed": false,
+          "internalType": "uint256",
+          "name": "newPrice",
+          "type": "uint256"
+        },
+        {
+          "indexed": false,
+          "internalType": "uint256",
+          "name": "oldPrice",
+          "type": "uint256"
+        },
+        {
+          "indexed": false,
+          "internalType": "uint256",
+          "name": "jumpPct",
+          "type": "uint256"
+        }
+      ],
+      "name": "CircuitBreakerTriggered",
+      "type": "event"
+    },
+    {
+      "anonymous": false,
+      "inputs": [
+        {
+          "indexed": true,
+          "internalType": "address",
+          "name": "bank",
+          "type": "address"
+        },
+        {
+          "indexed": false,
+          "internalType": "uint256",
+          "name": "resetUsedFrom",
+          "type": "uint256"
+        },
+        {
+          "indexed": false,
+          "internalType": "uint256",
+          "name": "resetUsedTo",
+          "type": "uint256"
+        },
+        {
+          "indexed": false,
+          "internalType": "uint256",
+          "name": "timestamp",
+          "type": "uint256"
+        }
+      ],
+      "name": "DailyCapReset",
+      "type": "event"
+    },
+    {
+      "anonymous": false,
+      "inputs": [
+        {
+          "indexed": true,
+          "internalType": "address",
+          "name": "bank",
+          "type": "address"
+        },
+        {
+          "indexed": false,
+          "internalType": "uint256",
+          "name": "redeemUsd",
+          "type": "uint256"
+        },
+        {
+          "indexed": false,
+          "internalType": "uint256",
+          "name": "totalUsed",
+          "type": "uint256"
+        },
+        {
+          "indexed": false,
+          "internalType": "uint256",
+          "name": "cap",
+          "type": "uint256"
+        },
+        {
+          "indexed": false,
+          "internalType": "uint256",
+          "name": "timestamp",
+          "type": "uint256"
+        }
+      ],
+      "name": "DailyRedeemCapConsumed",
+      "type": "event"
+    },
+    {
+      "anonymous": false,
+      "inputs": [
+        {
+          "indexed": false,
+          "internalType": "uint256",
+          "name": "resetFromUsd",
+          "type": "uint256"
+        },
+        {
+          "indexed": false,
+          "internalType": "uint256",
+          "name": "resetToUsd",
+          "type": "uint256"
+        },
+        {
+          "indexed": false,
+          "internalType": "uint256",
+          "name": "resetAt",
+          "type": "uint256"
+        }
+      ],
+      "name": "DailyRedeemCapReset",
+      "type": "event"
+    },
+    {
+      "anonymous": false,
+      "inputs": [
+        {
+          "indexed": false,
+          "internalType": "uint256",
+          "name": "oldCap",
+          "type": "uint256"
+        },
+        {
+          "indexed": false,
+          "internalType": "uint256",
+          "name": "newCap",
+          "type": "uint256"
+        },
+        {
+          "indexed": true,
+          "internalType": "address",
+          "name": "setter",
+          "type": "address"
+        }
+      ],
+      "name": "DailyRedeemCapSet",
+      "type": "event"
+    },
+    {
+      "anonymous": false,
+      "inputs": [
+        {
+          "indexed": true,
+          "internalType": "address",
+          "name": "delegator",
+          "type": "address"
+        },
+        {
+          "indexed": true,
+          "internalType": "address",
+          "name": "fromDelegate",
+          "type": "address"
+        },
+        {
+          "indexed": true,
+          "internalType": "address",
+          "name": "toDelegate",
+          "type": "address"
+        }
+      ],
+      "name": "DelegateChanged",
+      "type": "event"
+    },
+    {
+      "anonymous": false,
+      "inputs": [
+        {
+          "indexed": true,
+          "internalType": "address",
+          "name": "delegate",
+          "type": "address"
+        },
+        {
+          "indexed": false,
+          "internalType": "uint256",
+          "name": "previousBalance",
+          "type": "uint256"
+        },
+        {
+          "indexed": false,
+          "internalType": "uint256",
+          "name": "newBalance",
+          "type": "uint256"
+        }
+      ],
+      "name": "DelegateVotesChanged",
+      "type": "event"
+    },
+    {
+      "anonymous": false,
+      "inputs": [
+        {
+          "indexed": false,
+          "internalType": "uint256[7]",
+          "name": "lower",
+          "type": "uint256[7]"
+        },
+        {
+          "indexed": false,
+          "internalType": "uint256[7]",
+          "name": "upper",
+          "type": "uint256[7]"
+        },
+        {
+          "indexed": false,
+          "internalType": "uint256",
+          "name": "timestamp",
+          "type": "uint256"
+        }
+      ],
+      "name": "EnvelopeChanged",
+      "type": "event"
+    },
+    {
+      "anonymous": false,
+      "inputs": [
+        {
+          "indexed": true,
+          "internalType": "address",
+          "name": "oldWallet",
+          "type": "address"
+        },
+        {
+          "indexed": true,
+          "internalType": "address",
+          "name": "newWallet",
+          "type": "address"
+        },
+        {
+          "indexed": true,
+          "internalType": "address",
+          "name": "setter",
+          "type": "address"
+        }
+      ],
+      "name": "FeeWalletSet",
+      "type": "event"
+    },
+    {
+      "anonymous": false,
+      "inputs": [
+        {
+          "indexed": false,
+          "internalType": "uint256",
+          "name": "mintFees",
+          "type": "uint256"
+        },
+        {
+          "indexed": false,
+          "internalType": "uint256",
+          "name": "redeemFees",
+          "type": "uint256"
+        },
+        {
+          "indexed": false,
+          "internalType": "uint256",
+          "name": "total",
+          "type": "uint256"
+        },
+        {
+          "indexed": true,
+          "internalType": "address",
+          "name": "feeWallet",
+          "type": "address"
+        }
+      ],
+      "name": "FeesCollected",
+      "type": "event"
+    },
+    {
+      "anonymous": false,
+      "inputs": [
+        {
+          "indexed": true,
+          "internalType": "uint256",
+          "name": "baseDenominator",
+          "type": "uint256"
+        },
+        {
+          "indexed": false,
+          "internalType": "uint256",
+          "name": "timestamp",
+          "type": "uint256"
+        }
+      ],
+      "name": "GenesisVerified",
+      "type": "event"
+    },
+    {
+      "anonymous": false,
+      "inputs": [
+        {
+          "indexed": true,
+          "internalType": "uint8",
+          "name": "which",
+          "type": "uint8"
+        },
+        {
+          "indexed": true,
+          "internalType": "address",
+          "name": "oldAddr",
+          "type": "address"
+        },
+        {
+          "indexed": true,
+          "internalType": "address",
+          "name": "newAddr",
+          "type": "address"
+        }
+      ],
+      "name": "GovernanceBodySet",
+      "type": "event"
+    },
+    {
+      "anonymous": false,
+      "inputs": [
+        {
+          "indexed": false,
+          "internalType": "uint256",
+          "name": "newIndex",
+          "type": "uint256"
+        },
+        {
+          "indexed": false,
+          "internalType": "uint256",
+          "name": "timestamp",
+          "type": "uint256"
+        }
+      ],
+      "name": "IndexAdvanced",
+      "type": "event"
+    },
+    {
+      "anonymous": false,
+      "inputs": [
+        {
+          "indexed": true,
+          "internalType": "bytes32",
+          "name": "requestId",
+          "type": "bytes32"
+        },
+        {
+          "indexed": true,
+          "internalType": "address",
+          "name": "bank",
+          "type": "address"
+        },
+        {
+          "indexed": false,
+          "internalType": "uint256",
+          "name": "amountUsd",
+          "type": "uint256"
+        },
+        {
+          "indexed": false,
+          "internalType": "uint256",
+          "name": "mintedAmount",
+          "type": "uint256"
+        },
+        {
+          "indexed": false,
+          "internalType": "uint256",
+          "name": "mtqPrice",
+          "type": "uint256"
+        },
+        {
+          "indexed": false,
+          "internalType": "uint256",
+          "name": "timestamp",
+          "type": "uint256"
+        }
+      ],
+      "name": "MintExecuted",
+      "type": "event"
+    },
+    {
+      "anonymous": false,
+      "inputs": [
+        {
+          "indexed": true,
+          "internalType": "bytes32",
+          "name": "requestId",
+          "type": "bytes32"
+        },
+        {
+          "indexed": true,
+          "internalType": "address",
+          "name": "by",
+          "type": "address"
+        },
+        {
+          "indexed": false,
+          "internalType": "string",
+          "name": "reason",
+          "type": "string"
+        },
+        {
+          "indexed": false,
+          "internalType": "uint256",
+          "name": "timestamp",
+          "type": "uint256"
+        }
+      ],
+      "name": "MintRejected",
+      "type": "event"
+    },
+    {
+      "anonymous": false,
+      "inputs": [
+        {
+          "indexed": true,
+          "internalType": "bytes32",
+          "name": "requestId",
+          "type": "bytes32"
+        },
+        {
+          "indexed": true,
+          "internalType": "address",
+          "name": "bank",
+          "type": "address"
+        },
+        {
+          "indexed": false,
+          "internalType": "uint256",
+          "name": "amountUsd",
+          "type": "uint256"
+        },
+        {
+          "indexed": true,
+          "internalType": "bytes32",
+          "name": "certId",
+          "type": "bytes32"
+        },
+        {
+          "indexed": false,
+          "internalType": "string",
+          "name": "jurisdiction",
+          "type": "string"
+        },
+        {
+          "indexed": false,
+          "internalType": "uint256",
+          "name": "timestamp",
+          "type": "uint256"
+        }
+      ],
+      "name": "MintRequested",
+      "type": "event"
+    },
+    {
+      "anonymous": false,
+      "inputs": [
+        {
+          "indexed": true,
+          "internalType": "uint8",
+          "name": "source",
+          "type": "uint8"
+        },
+        {
+          "indexed": true,
+          "internalType": "address",
+          "name": "adapter",
+          "type": "address"
+        },
+        {
+          "indexed": true,
+          "internalType": "address",
+          "name": "setter",
+          "type": "address"
+        }
+      ],
+      "name": "OracleAdapterSet",
+      "type": "event"
+    },
+    {
+      "anonymous": false,
+      "inputs": [
+        {
+          "indexed": true,
+          "internalType": "bytes32",
+          "name": "parameterId",
+          "type": "bytes32"
+        },
+        {
+          "indexed": false,
+          "internalType": "uint256",
+          "name": "newValue",
+          "type": "uint256"
+        },
+        {
+          "indexed": false,
+          "internalType": "uint256",
+          "name": "timestamp",
+          "type": "uint256"
+        }
+      ],
+      "name": "ParameterExecuted",
+      "type": "event"
+    },
+    {
+      "anonymous": false,
+      "inputs": [
+        {
+          "indexed": true,
+          "internalType": "bytes32",
+          "name": "parameterId",
+          "type": "bytes32"
+        },
+        {
+          "indexed": false,
+          "internalType": "uint256",
+          "name": "newValue",
+          "type": "uint256"
+        },
+        {
+          "indexed": false,
+          "internalType": "uint256",
+          "name": "timestamp",
+          "type": "uint256"
+        }
+      ],
+      "name": "ParameterProposed",
+      "type": "event"
+    },
+    {
+      "anonymous": false,
+      "inputs": [
+        {
+          "indexed": true,
+          "internalType": "bytes32",
+          "name": "parameterId",
+          "type": "bytes32"
+        },
+        {
+          "indexed": false,
+          "internalType": "enum MTQSigmaV3.ParameterLayer",
+          "name": "layer",
+          "type": "uint8"
+        },
+        {
+          "indexed": false,
+          "internalType": "uint256",
+          "name": "value",
+          "type": "uint256"
+        },
+        {
+          "indexed": false,
+          "internalType": "uint256",
+          "name": "minValue",
+          "type": "uint256"
+        },
+        {
+          "indexed": false,
+          "internalType": "uint256",
+          "name": "maxValue",
+          "type": "uint256"
+        },
+        {
+          "indexed": false,
+          "internalType": "uint256",
+          "name": "timestamp",
+          "type": "uint256"
+        }
+      ],
+      "name": "ParameterRegistered",
+      "type": "event"
+    },
+    {
+      "anonymous": false,
+      "inputs": [
+        {
+          "indexed": true,
+          "internalType": "bytes32",
+          "name": "parameterId",
+          "type": "bytes32"
+        },
+        {
+          "indexed": false,
+          "internalType": "uint256",
+          "name": "timestamp",
+          "type": "uint256"
+        }
+      ],
+      "name": "ParameterVetoed",
+      "type": "event"
+    },
+    {
+      "anonymous": false,
+      "inputs": [
+        {
+          "indexed": true,
+          "internalType": "address",
+          "name": "account",
+          "type": "address"
+        }
+      ],
+      "name": "Paused",
+      "type": "event"
+    },
+    {
+      "anonymous": false,
+      "inputs": [
+        {
+          "indexed": false,
+          "internalType": "uint256",
+          "name": "oldPrice",
+          "type": "uint256"
+        },
+        {
+          "indexed": false,
+          "internalType": "uint256",
+          "name": "newPrice",
+          "type": "uint256"
+        }
+      ],
+      "name": "PriceUpdated",
+      "type": "event"
+    },
+    {
+      "anonymous": false,
+      "inputs": [
+        {
+          "components": [
+            {
+              "internalType": "enum MTQSigmaV3.Component",
+              "name": "component",
+              "type": "uint8"
+            },
+            {
+              "internalType": "int256",
+              "name": "direction",
+              "type": "int256"
+            },
+            {
+              "internalType": "uint256",
+              "name": "tradeUsd",
+              "type": "uint256"
+            },
+            {
+              "internalType": "uint256",
+              "name": "level",
+              "type": "uint256"
+            }
+          ],
+          "indexed": false,
+          "internalType": "struct MTQSigmaV3.RebalanceTrade[]",
+          "name": "trades",
+          "type": "tuple[]"
+        },
+        {
+          "indexed": false,
+          "internalType": "uint256",
+          "name": "timestamp",
+          "type": "uint256"
+        }
+      ],
+      "name": "RebalanceExecuted",
+      "type": "event"
+    },
+    {
+      "anonymous": false,
+      "inputs": [
+        {
+          "indexed": true,
+          "internalType": "address",
+          "name": "redeemer",
+          "type": "address"
+        },
+        {
+          "indexed": true,
+          "internalType": "address",
+          "name": "bank",
+          "type": "address"
+        },
+        {
+          "indexed": false,
+          "internalType": "uint256",
+          "name": "mtqBurned",
+          "type": "uint256"
+        },
+        {
+          "indexed": false,
+          "internalType": "uint256",
+          "name": "grossUsd",
+          "type": "uint256"
+        },
+        {
+          "indexed": false,
+          "internalType": "uint256",
+          "name": "feeUsd",
+          "type": "uint256"
+        },
+        {
+          "indexed": false,
+          "internalType": "uint256",
+          "name": "netUsd",
+          "type": "uint256"
+        },
+        {
+          "indexed": false,
+          "internalType": "uint256",
+          "name": "navPerToken",
+          "type": "uint256"
+        },
+        {
+          "indexed": false,
+          "internalType": "uint256",
+          "name": "timestamp",
+          "type": "uint256"
+        }
+      ],
+      "name": "RedeemSettlement",
+      "type": "event"
+    },
+    {
+      "anonymous": false,
+      "inputs": [
+        {
+          "indexed": true,
+          "internalType": "uint256",
+          "name": "component",
+          "type": "uint256"
+        },
+        {
+          "indexed": false,
+          "internalType": "uint256",
+          "name": "oldValue",
+          "type": "uint256"
+        },
+        {
+          "indexed": false,
+          "internalType": "uint256",
+          "name": "newValue",
+          "type": "uint256"
+        },
+        {
+          "indexed": true,
+          "internalType": "address",
+          "name": "by",
+          "type": "address"
+        }
+      ],
+      "name": "ReserveHoldingUpdated",
+      "type": "event"
+    },
+    {
+      "anonymous": false,
+      "inputs": [
+        {
+          "indexed": true,
+          "internalType": "bytes32",
+          "name": "role",
+          "type": "bytes32"
+        },
+        {
+          "indexed": true,
+          "internalType": "address",
+          "name": "account",
+          "type": "address"
+        },
+        {
+          "indexed": true,
+          "internalType": "address",
+          "name": "sender",
+          "type": "address"
+        }
+      ],
+      "name": "RoleGranted",
+      "type": "event"
+    },
+    {
+      "anonymous": false,
+      "inputs": [
+        {
+          "indexed": true,
+          "internalType": "bytes32",
+          "name": "role",
+          "type": "bytes32"
+        },
+        {
+          "indexed": true,
+          "internalType": "address",
+          "name": "account",
+          "type": "address"
+        },
+        {
+          "indexed": true,
+          "internalType": "address",
+          "name": "sender",
+          "type": "address"
+        }
+      ],
+      "name": "RoleRevoked",
+      "type": "event"
+    },
+    {
+      "anonymous": false,
+      "inputs": [
+        {
+          "indexed": true,
+          "internalType": "address",
+          "name": "oldAsset",
+          "type": "address"
+        },
+        {
+          "indexed": true,
+          "internalType": "address",
+          "name": "newAsset",
+          "type": "address"
+        },
+        {
+          "indexed": true,
+          "internalType": "address",
+          "name": "setter",
+          "type": "address"
+        }
+      ],
+      "name": "StabilityAssetSet",
+      "type": "event"
+    },
+    {
+      "anonymous": false,
+      "inputs": [
+        {
+          "indexed": true,
+          "internalType": "address",
+          "name": "depositor",
+          "type": "address"
+        },
+        {
+          "indexed": false,
+          "internalType": "uint256",
+          "name": "amount",
+          "type": "uint256"
+        },
+        {
+          "indexed": false,
+          "internalType": "uint256",
+          "name": "totalDeposited",
+          "type": "uint256"
+        },
+        {
+          "indexed": false,
+          "internalType": "uint256",
+          "name": "timestamp",
+          "type": "uint256"
+        }
+      ],
+      "name": "StabilityDeposit",
+      "type": "event"
+    },
+    {
+      "anonymous": false,
+      "inputs": [
+        {
+          "indexed": false,
+          "internalType": "uint256",
+          "name": "deficitCovered",
+          "type": "uint256"
+        },
+        {
+          "indexed": false,
+          "internalType": "uint256",
+          "name": "remainingPool",
+          "type": "uint256"
+        },
+        {
+          "indexed": true,
+          "internalType": "address",
+          "name": "keeper",
+          "type": "address"
+        },
+        {
+          "indexed": false,
+          "internalType": "uint256",
+          "name": "timestamp",
+          "type": "uint256"
+        }
+      ],
+      "name": "StabilityPoolUsed",
+      "type": "event"
+    },
+    {
+      "anonymous": false,
+      "inputs": [
+        {
+          "indexed": false,
+          "internalType": "uint256",
+          "name": "oldRate",
+          "type": "uint256"
+        },
+        {
+          "indexed": false,
+          "internalType": "uint256",
+          "name": "newRate",
+          "type": "uint256"
+        },
+        {
+          "indexed": true,
+          "internalType": "address",
+          "name": "setter",
+          "type": "address"
+        }
+      ],
+      "name": "StabilityRewardRateSet",
+      "type": "event"
+    },
+    {
+      "anonymous": false,
+      "inputs": [
+        {
+          "indexed": true,
+          "internalType": "address",
+          "name": "depositor",
+          "type": "address"
+        },
+        {
+          "indexed": false,
+          "internalType": "uint256",
+          "name": "amount",
+          "type": "uint256"
+        },
+        {
+          "indexed": false,
+          "internalType": "uint256",
+          "name": "totalDeposited",
+          "type": "uint256"
+        },
+        {
+          "indexed": false,
+          "internalType": "uint256",
+          "name": "timestamp",
+          "type": "uint256"
+        }
+      ],
+      "name": "StabilityWithdrawal",
+      "type": "event"
+    },
+    {
+      "anonymous": false,
+      "inputs": [
+        {
+          "indexed": true,
+          "internalType": "enum MTQSigmaV3.ProtocolState",
+          "name": "oldState",
+          "type": "uint8"
+        },
+        {
+          "indexed": true,
+          "internalType": "enum MTQSigmaV3.ProtocolState",
+          "name": "newState",
+          "type": "uint8"
+        },
+        {
+          "indexed": false,
+          "internalType": "bool",
+          "name": "immediate",
+          "type": "bool"
+        },
+        {
+          "indexed": false,
+          "internalType": "uint256",
+          "name": "timestamp",
+          "type": "uint256"
+        }
+      ],
+      "name": "StateChanged",
+      "type": "event"
+    },
+    {
+      "anonymous": false,
+      "inputs": [
+        {
+          "indexed": true,
+          "internalType": "address",
+          "name": "from",
+          "type": "address"
+        },
+        {
+          "indexed": true,
+          "internalType": "address",
+          "name": "to",
+          "type": "address"
+        },
+        {
+          "indexed": false,
+          "internalType": "uint256",
+          "name": "value",
+          "type": "uint256"
+        }
+      ],
+      "name": "Transfer",
+      "type": "event"
+    },
+    {
+      "anonymous": false,
+      "inputs": [
+        {
+          "indexed": true,
+          "internalType": "address",
+          "name": "account",
+          "type": "address"
+        }
+      ],
+      "name": "Unpaused",
+      "type": "event"
+    },
+    {
+      "anonymous": false,
+      "inputs": [
+        {
+          "indexed": false,
+          "internalType": "uint256[7]",
+          "name": "newWeights",
+          "type": "uint256[7]"
+        },
+        {
+          "indexed": false,
+          "internalType": "uint256[7]",
+          "name": "targetWeights",
+          "type": "uint256[7]"
+        },
+        {
+          "indexed": false,
+          "internalType": "bytes32",
+          "name": "methodologyVersion",
+          "type": "bytes32"
+        },
+        {
+          "indexed": false,
+          "internalType": "bytes32",
+          "name": "dataVersion",
+          "type": "bytes32"
+        },
+        {
+          "indexed": false,
+          "internalType": "uint256",
+          "name": "timestamp",
+          "type": "uint256"
+        }
+      ],
+      "name": "WeightsAccepted",
+      "type": "event"
+    },
+    {
+      "anonymous": false,
+      "inputs": [
+        {
+          "indexed": false,
+          "internalType": "uint256[7]",
+          "name": "newWeights",
+          "type": "uint256[7]"
+        },
+        {
+          "indexed": false,
+          "internalType": "uint256",
+          "name": "divisor",
+          "type": "uint256"
+        },
+        {
+          "indexed": false,
+          "internalType": "uint256",
+          "name": "timestamp",
+          "type": "uint256"
+        }
+      ],
+      "name": "WeightsCommitted",
+      "type": "event"
+    },
+    {
+      "anonymous": false,
+      "inputs": [
+        {
+          "indexed": false,
+          "internalType": "string",
+          "name": "reason",
+          "type": "string"
+        },
+        {
+          "indexed": false,
+          "internalType": "uint256[7]",
+          "name": "submitted",
+          "type": "uint256[7]"
+        },
+        {
+          "indexed": false,
+          "internalType": "uint256",
+          "name": "timestamp",
+          "type": "uint256"
+        }
+      ],
+      "name": "WeightsRejected",
+      "type": "event"
+    },
+    {
+      "anonymous": false,
+      "inputs": [
+        {
+          "indexed": true,
+          "internalType": "bytes32",
+          "name": "requestId",
+          "type": "bytes32"
+        },
+        {
+          "indexed": false,
+          "internalType": "enum MTQSigmaV3.WorkflowState",
+          "name": "fromState",
+          "type": "uint8"
+        },
+        {
+          "indexed": false,
+          "internalType": "enum MTQSigmaV3.WorkflowState",
+          "name": "toState",
+          "type": "uint8"
+        },
+        {
+          "indexed": true,
+          "internalType": "address",
+          "name": "by",
+          "type": "address"
+        },
+        {
+          "indexed": false,
+          "internalType": "uint256",
+          "name": "timestamp",
+          "type": "uint256"
+        }
+      ],
+      "name": "WorkflowAdvanced",
+      "type": "event"
+    },
+    {
+      "inputs": [],
+      "name": "ADMIN_ROLE",
+      "outputs": [
+        {
+          "internalType": "bytes32",
+          "name": "",
+          "type": "bytes32"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "BASE_CHF_USD",
+      "outputs": [
+        {
+          "internalType": "uint256",
+          "name": "",
+          "type": "uint256"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "BASE_CNY_USD",
+      "outputs": [
+        {
+          "internalType": "uint256",
+          "name": "",
+          "type": "uint256"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "BASE_EUR_USD",
+      "outputs": [
+        {
+          "internalType": "uint256",
+          "name": "",
+          "type": "uint256"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "BASE_GBP_USD",
+      "outputs": [
+        {
+          "internalType": "uint256",
+          "name": "",
+          "type": "uint256"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "BASE_GOLD_USD",
+      "outputs": [
+        {
+          "internalType": "uint256",
+          "name": "",
+          "type": "uint256"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "BASE_JPY_USD",
+      "outputs": [
+        {
+          "internalType": "uint256",
+          "name": "",
+          "type": "uint256"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "CLOCK_MODE",
+      "outputs": [
+        {
+          "internalType": "string",
+          "name": "",
+          "type": "string"
+        }
+      ],
+      "stateMutability": "pure",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "uint256",
+          "name": "",
+          "type": "uint256"
+        }
+      ],
+      "name": "COMPONENTS",
+      "outputs": [
+        {
+          "internalType": "bytes3",
+          "name": "",
+          "type": "bytes3"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "DEFAULT_ADMIN_ROLE",
+      "outputs": [
+        {
+          "internalType": "bytes32",
+          "name": "",
+          "type": "bytes32"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "DELEGATION_TYPEHASH",
+      "outputs": [
+        {
+          "internalType": "bytes32",
+          "name": "",
+          "type": "bytes32"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "DIGITAL_TARGET",
+      "outputs": [
+        {
+          "internalType": "uint256",
+          "name": "",
+          "type": "uint256"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "DIRECTION_LOCK_HOURS",
+      "outputs": [
+        {
+          "internalType": "uint256",
+          "name": "",
+          "type": "uint256"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "DOMAIN_SEPARATOR",
+      "outputs": [
+        {
+          "internalType": "bytes32",
+          "name": "",
+          "type": "bytes32"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "FIAT_TARGET",
+      "outputs": [
+        {
+          "internalType": "uint256",
+          "name": "",
+          "type": "uint256"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "GOLD_TARGET",
+      "outputs": [
+        {
+          "internalType": "uint256",
+          "name": "",
+          "type": "uint256"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "INDEX_BASE_DENOMINATOR",
+      "outputs": [
+        {
+          "internalType": "uint256",
+          "name": "",
+          "type": "uint256"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "KEEPER_ROLE",
+      "outputs": [
+        {
+          "internalType": "bytes32",
+          "name": "",
+          "type": "bytes32"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "uint256",
+          "name": "",
+          "type": "uint256"
+        }
+      ],
+      "name": "LOWER_BOUND",
+      "outputs": [
+        {
+          "internalType": "uint256",
+          "name": "",
+          "type": "uint256"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "MAX_DAILY_TURNOVER",
+      "outputs": [
+        {
+          "internalType": "uint256",
+          "name": "",
+          "type": "uint256"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "MAX_MINT_PER_TX",
+      "outputs": [
+        {
+          "internalType": "uint256",
+          "name": "",
+          "type": "uint256"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "MAX_PRICE_JUMP_PCT",
+      "outputs": [
+        {
+          "internalType": "uint256",
+          "name": "",
+          "type": "uint256"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "MAX_REDEEM_PER_TX",
+      "outputs": [
+        {
+          "internalType": "uint256",
+          "name": "",
+          "type": "uint256"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "uint256",
+          "name": "",
+          "type": "uint256"
+        }
+      ],
+      "name": "MAX_VELOCITY",
+      "outputs": [
+        {
+          "internalType": "uint256",
+          "name": "",
+          "type": "uint256"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "MINTER_ROLE",
+      "outputs": [
+        {
+          "internalType": "bytes32",
+          "name": "",
+          "type": "bytes32"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "MONETARY_CONTROL_ROLE",
+      "outputs": [
+        {
+          "internalType": "bytes32",
+          "name": "",
+          "type": "bytes32"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "ORACLE_CONFIDENCE_MAX",
+      "outputs": [
+        {
+          "internalType": "uint256",
+          "name": "",
+          "type": "uint256"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "ORACLE_DEVIATION_MAX_BPS",
+      "outputs": [
+        {
+          "internalType": "uint256",
+          "name": "",
+          "type": "uint256"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "ORACLE_ROLE",
+      "outputs": [
+        {
+          "internalType": "bytes32",
+          "name": "",
+          "type": "bytes32"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "ORACLE_STALENESS_SEC",
+      "outputs": [
+        {
+          "internalType": "uint256",
+          "name": "",
+          "type": "uint256"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "PAIR_CHF_USD",
+      "outputs": [
+        {
+          "internalType": "bytes32",
+          "name": "",
+          "type": "bytes32"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "PAIR_CNY_USD",
+      "outputs": [
+        {
+          "internalType": "bytes32",
+          "name": "",
+          "type": "bytes32"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "PAIR_EUR_USD",
+      "outputs": [
+        {
+          "internalType": "bytes32",
+          "name": "",
+          "type": "bytes32"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "PAIR_GBP_USD",
+      "outputs": [
+        {
+          "internalType": "bytes32",
+          "name": "",
+          "type": "bytes32"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "PAIR_JPY_USD",
+      "outputs": [
+        {
+          "internalType": "bytes32",
+          "name": "",
+          "type": "bytes32"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "PAIR_XAU_USD",
+      "outputs": [
+        {
+          "internalType": "bytes32",
+          "name": "",
+          "type": "bytes32"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "PARAM_DEPEG_WINDOW",
+      "outputs": [
+        {
+          "internalType": "bytes32",
+          "name": "",
+          "type": "bytes32"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "PARAM_LCR_TARGET",
+      "outputs": [
+        {
+          "internalType": "bytes32",
+          "name": "",
+          "type": "bytes32"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "PARAM_MINT_FEE",
+      "outputs": [
+        {
+          "internalType": "bytes32",
+          "name": "",
+          "type": "bytes32"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "PARAM_REDEEM_FEE_DEFENSIVE",
+      "outputs": [
+        {
+          "internalType": "bytes32",
+          "name": "",
+          "type": "bytes32"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "PARAM_REDEEM_FEE_NORMAL",
+      "outputs": [
+        {
+          "internalType": "bytes32",
+          "name": "",
+          "type": "bytes32"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "PARAM_REDEEM_FEE_STRESS",
+      "outputs": [
+        {
+          "internalType": "bytes32",
+          "name": "",
+          "type": "bytes32"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "PARAM_RR_STRESS_FLOOR",
+      "outputs": [
+        {
+          "internalType": "bytes32",
+          "name": "",
+          "type": "bytes32"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "PAUSER_ROLE",
+      "outputs": [
+        {
+          "internalType": "bytes32",
+          "name": "",
+          "type": "bytes32"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "PERMIT_TYPEHASH",
+      "outputs": [
+        {
+          "internalType": "bytes32",
+          "name": "",
+          "type": "bytes32"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "PRICE_SAFETY_LOWER",
+      "outputs": [
+        {
+          "internalType": "uint256",
+          "name": "",
+          "type": "uint256"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "PRICE_SAFETY_UPPER",
+      "outputs": [
+        {
+          "internalType": "uint256",
+          "name": "",
+          "type": "uint256"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "Q_CHF",
+      "outputs": [
+        {
+          "internalType": "uint256",
+          "name": "",
+          "type": "uint256"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "Q_CNY",
+      "outputs": [
+        {
+          "internalType": "uint256",
+          "name": "",
+          "type": "uint256"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "Q_EUR",
+      "outputs": [
+        {
+          "internalType": "uint256",
+          "name": "",
+          "type": "uint256"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "Q_GBP",
+      "outputs": [
+        {
+          "internalType": "uint256",
+          "name": "",
+          "type": "uint256"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "Q_GOLD",
+      "outputs": [
+        {
+          "internalType": "uint256",
+          "name": "",
+          "type": "uint256"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "Q_JPY",
+      "outputs": [
+        {
+          "internalType": "uint256",
+          "name": "",
+          "type": "uint256"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "Q_USD",
+      "outputs": [
+        {
+          "internalType": "uint256",
+          "name": "",
+          "type": "uint256"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "REBALANCE_TOLERANCE",
+      "outputs": [
+        {
+          "internalType": "uint256",
+          "name": "",
+          "type": "uint256"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "RECOVERY_CONFIRMATION_PERIOD",
+      "outputs": [
+        {
+          "internalType": "uint256",
+          "name": "",
+          "type": "uint256"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "RR_FLOOR",
+      "outputs": [
+        {
+          "internalType": "uint256",
+          "name": "",
+          "type": "uint256"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "RR_HARD_FLOOR",
+      "outputs": [
+        {
+          "internalType": "uint256",
+          "name": "",
+          "type": "uint256"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "RR_TARGET",
+      "outputs": [
+        {
+          "internalType": "uint256",
+          "name": "",
+          "type": "uint256"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "TIMELOCK_CONSTITUTIONAL",
+      "outputs": [
+        {
+          "internalType": "uint256",
+          "name": "",
+          "type": "uint256"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "TIMELOCK_EMERGENCY",
+      "outputs": [
+        {
+          "internalType": "uint256",
+          "name": "",
+          "type": "uint256"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "TIMELOCK_MONETARY",
+      "outputs": [
+        {
+          "internalType": "uint256",
+          "name": "",
+          "type": "uint256"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "TIMELOCK_RISK",
+      "outputs": [
+        {
+          "internalType": "uint256",
+          "name": "",
+          "type": "uint256"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "uint256",
+          "name": "",
+          "type": "uint256"
+        }
+      ],
+      "name": "UPPER_BOUND",
+      "outputs": [
+        {
+          "internalType": "uint256",
+          "name": "",
+          "type": "uint256"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "accumulatedFees",
+      "outputs": [
+        {
+          "internalType": "uint256",
+          "name": "",
+          "type": "uint256"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "accumulatedRewardPerShare",
+      "outputs": [
+        {
+          "internalType": "uint256",
+          "name": "",
+          "type": "uint256"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "uint256[7]",
+          "name": "currentPrices",
+          "type": "uint256[7]"
+        }
+      ],
+      "name": "advanceIndex",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "bytes32",
+          "name": "requestId",
+          "type": "bytes32"
+        },
+        {
+          "internalType": "enum MTQSigmaV3.WorkflowState",
+          "name": "toState",
+          "type": "uint8"
+        }
+      ],
+      "name": "advanceWorkflow",
+      "outputs": [
+        {
+          "internalType": "bool",
+          "name": "",
+          "type": "bool"
+        }
+      ],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "address",
+          "name": "",
+          "type": "address"
+        },
+        {
+          "internalType": "address",
+          "name": "",
+          "type": "address"
+        }
+      ],
+      "name": "allowance",
+      "outputs": [
+        {
+          "internalType": "uint256",
+          "name": "",
+          "type": "uint256"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "address",
+          "name": "spender",
+          "type": "address"
+        },
+        {
+          "internalType": "uint256",
+          "name": "amount",
+          "type": "uint256"
+        }
+      ],
+      "name": "approve",
+      "outputs": [
+        {
+          "internalType": "bool",
+          "name": "",
+          "type": "bool"
+        }
+      ],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "assetRegistry",
+      "outputs": [
+        {
+          "internalType": "contract IAssetRegistry",
+          "name": "",
+          "type": "address"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "address",
+          "name": "bank",
+          "type": "address"
+        },
+        {
+          "internalType": "string",
+          "name": "_name",
+          "type": "string"
+        },
+        {
+          "internalType": "string",
+          "name": "_jurisdiction",
+          "type": "string"
+        },
+        {
+          "internalType": "uint256",
+          "name": "_dailyCap",
+          "type": "uint256"
+        }
+      ],
+      "name": "authorizeBank",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "authorizedBankCount",
+      "outputs": [
+        {
+          "internalType": "uint256",
+          "name": "",
+          "type": "uint256"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "uint256",
+          "name": "",
+          "type": "uint256"
+        }
+      ],
+      "name": "authorizedBanks",
+      "outputs": [
+        {
+          "internalType": "address",
+          "name": "",
+          "type": "address"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "bytes32",
+          "name": "",
+          "type": "bytes32"
+        }
+      ],
+      "name": "backingCertificates",
+      "outputs": [
+        {
+          "internalType": "bytes32",
+          "name": "certificateId",
+          "type": "bytes32"
+        },
+        {
+          "internalType": "address",
+          "name": "bank",
+          "type": "address"
+        },
+        {
+          "internalType": "uint256",
+          "name": "amountUsd",
+          "type": "uint256"
+        },
+        {
+          "internalType": "bytes32",
+          "name": "custodianAttestationHash",
+          "type": "bytes32"
+        },
+        {
+          "internalType": "uint256",
+          "name": "custodianAttestationExpiry",
+          "type": "uint256"
+        },
+        {
+          "internalType": "bytes32",
+          "name": "reserveAssetBreakdownHash",
+          "type": "bytes32"
+        },
+        {
+          "internalType": "uint256",
+          "name": "issuedAt",
+          "type": "uint256"
+        },
+        {
+          "internalType": "bool",
+          "name": "verified",
+          "type": "bool"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "address",
+          "name": "",
+          "type": "address"
+        }
+      ],
+      "name": "backingVerified",
+      "outputs": [
+        {
+          "internalType": "uint256",
+          "name": "",
+          "type": "uint256"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "address",
+          "name": "",
+          "type": "address"
+        }
+      ],
+      "name": "balanceOf",
+      "outputs": [
+        {
+          "internalType": "uint256",
+          "name": "",
+          "type": "uint256"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "address",
+          "name": "",
+          "type": "address"
+        }
+      ],
+      "name": "bankMintedTotal",
+      "outputs": [
+        {
+          "internalType": "uint256",
+          "name": "",
+          "type": "uint256"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "address",
+          "name": "",
+          "type": "address"
+        }
+      ],
+      "name": "bankRegistry",
+      "outputs": [
+        {
+          "internalType": "address",
+          "name": "bankAddress",
+          "type": "address"
+        },
+        {
+          "internalType": "string",
+          "name": "name",
+          "type": "string"
+        },
+        {
+          "internalType": "string",
+          "name": "jurisdiction",
+          "type": "string"
+        },
+        {
+          "internalType": "bool",
+          "name": "isAuthorized",
+          "type": "bool"
+        },
+        {
+          "internalType": "uint256",
+          "name": "dailyMintCap",
+          "type": "uint256"
+        },
+        {
+          "internalType": "uint256",
+          "name": "dailyMintUsed",
+          "type": "uint256"
+        },
+        {
+          "internalType": "uint256",
+          "name": "dailyMintResetAt",
+          "type": "uint256"
+        },
+        {
+          "internalType": "uint256",
+          "name": "authorizedAt",
+          "type": "uint256"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "uint256[7]",
+          "name": "holdings",
+          "type": "uint256[7]"
+        }
+      ],
+      "name": "bootstrapReserveHoldings",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "bootstrapped",
+      "outputs": [
+        {
+          "internalType": "bool",
+          "name": "",
+          "type": "bool"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "bytes32",
+          "name": "parameterId",
+          "type": "bytes32"
+        }
+      ],
+      "name": "cancelChange",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "chainLinkDivisor",
+      "outputs": [
+        {
+          "internalType": "uint256",
+          "name": "",
+          "type": "uint256"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "chainlinkAdapter",
+      "outputs": [
+        {
+          "internalType": "contract IOracleAdapter",
+          "name": "",
+          "type": "address"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "chronicleAdapter",
+      "outputs": [
+        {
+          "internalType": "contract IOracleAdapter",
+          "name": "",
+          "type": "address"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "clock",
+      "outputs": [
+        {
+          "internalType": "uint48",
+          "name": "",
+          "type": "uint48"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "commitFxRatesFromOracles",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "uint256[7]",
+          "name": "newWeights",
+          "type": "uint256[7]"
+        },
+        {
+          "internalType": "uint256[7]",
+          "name": "currentPrices",
+          "type": "uint256[7]"
+        }
+      ],
+      "name": "commitWeights",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "constitutionalCouncil",
+      "outputs": [
+        {
+          "internalType": "address",
+          "name": "",
+          "type": "address"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "crisisFlag",
+      "outputs": [
+        {
+          "internalType": "bool",
+          "name": "",
+          "type": "bool"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "crisisThreshold",
+      "outputs": [
+        {
+          "internalType": "uint256",
+          "name": "",
+          "type": "uint256"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "currentState",
+      "outputs": [
+        {
+          "internalType": "enum MTQSigmaV3.ProtocolState",
+          "name": "",
+          "type": "uint8"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "dailyRedeemCap",
+      "outputs": [
+        {
+          "internalType": "uint256",
+          "name": "",
+          "type": "uint256"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "dailyRedeemResetAt",
+      "outputs": [
+        {
+          "internalType": "uint256",
+          "name": "",
+          "type": "uint256"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "dailyRedeemedUsd",
+      "outputs": [
+        {
+          "internalType": "uint256",
+          "name": "",
+          "type": "uint256"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "dailyTradeResetAt",
+      "outputs": [
+        {
+          "internalType": "uint256",
+          "name": "",
+          "type": "uint256"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "dailyTradeUsd",
+      "outputs": [
+        {
+          "internalType": "uint256",
+          "name": "",
+          "type": "uint256"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "dao",
+      "outputs": [
+        {
+          "internalType": "address",
+          "name": "",
+          "type": "address"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "decimals",
+      "outputs": [
+        {
+          "internalType": "uint8",
+          "name": "",
+          "type": "uint8"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "address",
+          "name": "delegatee",
+          "type": "address"
+        }
+      ],
+      "name": "delegate",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "address",
+          "name": "delegatee",
+          "type": "address"
+        },
+        {
+          "internalType": "uint256",
+          "name": "nonce",
+          "type": "uint256"
+        },
+        {
+          "internalType": "uint256",
+          "name": "expiry",
+          "type": "uint256"
+        },
+        {
+          "internalType": "uint8",
+          "name": "v",
+          "type": "uint8"
+        },
+        {
+          "internalType": "bytes32",
+          "name": "r",
+          "type": "bytes32"
+        },
+        {
+          "internalType": "bytes32",
+          "name": "s",
+          "type": "bytes32"
+        }
+      ],
+      "name": "delegateBySig",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "address",
+          "name": "",
+          "type": "address"
+        }
+      ],
+      "name": "delegates",
+      "outputs": [
+        {
+          "internalType": "address",
+          "name": "",
+          "type": "address"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "depegWindow",
+      "outputs": [
+        {
+          "internalType": "uint256",
+          "name": "",
+          "type": "uint256"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "uint256",
+          "name": "usdcAmount",
+          "type": "uint256"
+        }
+      ],
+      "name": "depositToStabilityPool",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "dmceBankConcentrationCap",
+      "outputs": [
+        {
+          "internalType": "uint256",
+          "name": "",
+          "type": "uint256"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "emergencyCouncil",
+      "outputs": [
+        {
+          "internalType": "address",
+          "name": "",
+          "type": "address"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "bytes32",
+          "name": "parameterId",
+          "type": "bytes32"
+        }
+      ],
+      "name": "executeChange",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "bytes32",
+          "name": "requestId",
+          "type": "bytes32"
+        },
+        {
+          "internalType": "uint256",
+          "name": "minMinted",
+          "type": "uint256"
+        }
+      ],
+      "name": "executeMint",
+      "outputs": [
+        {
+          "internalType": "uint256",
+          "name": "minted",
+          "type": "uint256"
+        }
+      ],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "components": [
+            {
+              "internalType": "enum MTQSigmaV3.Component",
+              "name": "component",
+              "type": "uint8"
+            },
+            {
+              "internalType": "int256",
+              "name": "direction",
+              "type": "int256"
+            },
+            {
+              "internalType": "uint256",
+              "name": "tradeUsd",
+              "type": "uint256"
+            },
+            {
+              "internalType": "uint256",
+              "name": "level",
+              "type": "uint256"
+            }
+          ],
+          "internalType": "struct MTQSigmaV3.RebalanceTrade[]",
+          "name": "trades",
+          "type": "tuple[]"
+        }
+      ],
+      "name": "executeRebalance",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "feeWallet",
+      "outputs": [
+        {
+          "internalType": "address",
+          "name": "",
+          "type": "address"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "genesisDone",
+      "outputs": [
+        {
+          "internalType": "bool",
+          "name": "",
+          "type": "bool"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "genesisIndex",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "uint256",
+          "name": "amount",
+          "type": "uint256"
+        }
+      ],
+      "name": "genesisMint",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "genesisReserve",
+      "outputs": [
+        {
+          "internalType": "address",
+          "name": "",
+          "type": "address"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "genesisReserveBalance",
+      "outputs": [
+        {
+          "internalType": "uint256",
+          "name": "",
+          "type": "uint256"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "address",
+          "name": "bank",
+          "type": "address"
+        }
+      ],
+      "name": "getBank",
+      "outputs": [
+        {
+          "components": [
+            {
+              "internalType": "address",
+              "name": "bankAddress",
+              "type": "address"
+            },
+            {
+              "internalType": "string",
+              "name": "name",
+              "type": "string"
+            },
+            {
+              "internalType": "string",
+              "name": "jurisdiction",
+              "type": "string"
+            },
+            {
+              "internalType": "bool",
+              "name": "isAuthorized",
+              "type": "bool"
+            },
+            {
+              "internalType": "uint256",
+              "name": "dailyMintCap",
+              "type": "uint256"
+            },
+            {
+              "internalType": "uint256",
+              "name": "dailyMintUsed",
+              "type": "uint256"
+            },
+            {
+              "internalType": "uint256",
+              "name": "dailyMintResetAt",
+              "type": "uint256"
+            },
+            {
+              "internalType": "uint256",
+              "name": "authorizedAt",
+              "type": "uint256"
+            }
+          ],
+          "internalType": "struct MTQSigmaV3.BankRecord",
+          "name": "",
+          "type": "tuple"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "bytes32",
+          "name": "certId",
+          "type": "bytes32"
+        }
+      ],
+      "name": "getCertificate",
+      "outputs": [
+        {
+          "components": [
+            {
+              "internalType": "bytes32",
+              "name": "certificateId",
+              "type": "bytes32"
+            },
+            {
+              "internalType": "address",
+              "name": "bank",
+              "type": "address"
+            },
+            {
+              "internalType": "uint256",
+              "name": "amountUsd",
+              "type": "uint256"
+            },
+            {
+              "internalType": "bytes32",
+              "name": "custodianAttestationHash",
+              "type": "bytes32"
+            },
+            {
+              "internalType": "uint256",
+              "name": "custodianAttestationExpiry",
+              "type": "uint256"
+            },
+            {
+              "internalType": "bytes32",
+              "name": "reserveAssetBreakdownHash",
+              "type": "bytes32"
+            },
+            {
+              "internalType": "uint256",
+              "name": "issuedAt",
+              "type": "uint256"
+            },
+            {
+              "internalType": "bool",
+              "name": "verified",
+              "type": "bool"
+            }
+          ],
+          "internalType": "struct MTQSigmaV3.AvailableBackingCertificate",
+          "name": "",
+          "type": "tuple"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "getCirculatingSupply",
+      "outputs": [
+        {
+          "internalType": "uint256",
+          "name": "",
+          "type": "uint256"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "getHonestStatus",
+      "outputs": [
+        {
+          "internalType": "uint256",
+          "name": "implementedMask",
+          "type": "uint256"
+        },
+        {
+          "internalType": "uint8",
+          "name": "blueprintMajor",
+          "type": "uint8"
+        },
+        {
+          "internalType": "uint8",
+          "name": "contractVersion",
+          "type": "uint8"
+        },
+        {
+          "internalType": "string",
+          "name": "statusDeclaration",
+          "type": "string"
+        },
+        {
+          "internalType": "bytes32",
+          "name": "evidenceHash",
+          "type": "bytes32"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "getIndex",
+      "outputs": [
+        {
+          "internalType": "uint256",
+          "name": "",
+          "type": "uint256"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "getLCR",
+      "outputs": [
+        {
+          "internalType": "uint256",
+          "name": "",
+          "type": "uint256"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "getLiability",
+      "outputs": [
+        {
+          "internalType": "uint256",
+          "name": "",
+          "type": "uint256"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "getLiveWeights",
+      "outputs": [
+        {
+          "internalType": "uint256[7]",
+          "name": "",
+          "type": "uint256[7]"
+        },
+        {
+          "internalType": "bytes32",
+          "name": "",
+          "type": "bytes32"
+        },
+        {
+          "internalType": "bytes32",
+          "name": "",
+          "type": "bytes32"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "getMTQPrice",
+      "outputs": [
+        {
+          "internalType": "uint256",
+          "name": "",
+          "type": "uint256"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "getMTQPriceWithGuard",
+      "outputs": [
+        {
+          "internalType": "uint256",
+          "name": "",
+          "type": "uint256"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "getNAV",
+      "outputs": [
+        {
+          "internalType": "uint256",
+          "name": "",
+          "type": "uint256"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "getNAVperToken",
+      "outputs": [
+        {
+          "internalType": "uint256",
+          "name": "",
+          "type": "uint256"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "bytes32",
+          "name": "pair",
+          "type": "bytes32"
+        }
+      ],
+      "name": "getOracleConsensus",
+      "outputs": [
+        {
+          "internalType": "uint256",
+          "name": "finalPrice",
+          "type": "uint256"
+        },
+        {
+          "internalType": "uint8",
+          "name": "validCount",
+          "type": "uint8"
+        },
+        {
+          "internalType": "uint8",
+          "name": "method",
+          "type": "uint8"
+        },
+        {
+          "internalType": "bool",
+          "name": "paused_",
+          "type": "bool"
+        },
+        {
+          "internalType": "uint256[3]",
+          "name": "prices",
+          "type": "uint256[3]"
+        },
+        {
+          "internalType": "bool[3]",
+          "name": "valid",
+          "type": "bool[3]"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "uint256",
+          "name": "timepoint",
+          "type": "uint256"
+        }
+      ],
+      "name": "getPastTotalSupply",
+      "outputs": [
+        {
+          "internalType": "uint256",
+          "name": "",
+          "type": "uint256"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "address",
+          "name": "account",
+          "type": "address"
+        },
+        {
+          "internalType": "uint256",
+          "name": "timepoint",
+          "type": "uint256"
+        }
+      ],
+      "name": "getPastVotes",
+      "outputs": [
+        {
+          "internalType": "uint256",
+          "name": "",
+          "type": "uint256"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "uint256[7]",
+          "name": "currentPrices",
+          "type": "uint256[7]"
+        }
+      ],
+      "name": "getRelatives",
+      "outputs": [
+        {
+          "internalType": "uint256[7]",
+          "name": "rel",
+          "type": "uint256[7]"
+        }
+      ],
+      "stateMutability": "pure",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "getReserveNavUsd",
+      "outputs": [
+        {
+          "internalType": "uint256",
+          "name": "",
+          "type": "uint256"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "getReserveRatio",
+      "outputs": [
+        {
+          "internalType": "uint256",
+          "name": "",
+          "type": "uint256"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "address",
+          "name": "account",
+          "type": "address"
+        }
+      ],
+      "name": "getVotes",
+      "outputs": [
+        {
+          "internalType": "uint256",
+          "name": "",
+          "type": "uint256"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "bytes32",
+          "name": "role",
+          "type": "bytes32"
+        },
+        {
+          "internalType": "address",
+          "name": "account",
+          "type": "address"
+        }
+      ],
+      "name": "grantRole",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "bytes32",
+          "name": "role",
+          "type": "bytes32"
+        },
+        {
+          "internalType": "address",
+          "name": "account",
+          "type": "address"
+        }
+      ],
+      "name": "hasRole",
+      "outputs": [
+        {
+          "internalType": "bool",
+          "name": "",
+          "type": "bool"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "indexValue",
+      "outputs": [
+        {
+          "internalType": "uint256",
+          "name": "",
+          "type": "uint256"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "lastCommitPrice",
+      "outputs": [
+        {
+          "internalType": "uint256",
+          "name": "",
+          "type": "uint256"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "enum MTQSigmaV3.Component",
+          "name": "",
+          "type": "uint8"
+        }
+      ],
+      "name": "lastDirection",
+      "outputs": [
+        {
+          "internalType": "int256",
+          "name": "",
+          "type": "int256"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "lastIndexUpdate",
+      "outputs": [
+        {
+          "internalType": "uint256",
+          "name": "",
+          "type": "uint256"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "uint256",
+          "name": "",
+          "type": "uint256"
+        }
+      ],
+      "name": "lastPrices",
+      "outputs": [
+        {
+          "internalType": "uint256",
+          "name": "",
+          "type": "uint256"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "enum MTQSigmaV3.Component",
+          "name": "",
+          "type": "uint8"
+        }
+      ],
+      "name": "lastRebalanceAt",
+      "outputs": [
+        {
+          "internalType": "uint256",
+          "name": "",
+          "type": "uint256"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "lastRewardUpdate",
+      "outputs": [
+        {
+          "internalType": "uint256",
+          "name": "",
+          "type": "uint256"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "uint256",
+          "name": "",
+          "type": "uint256"
+        }
+      ],
+      "name": "lastWeights",
+      "outputs": [
+        {
+          "internalType": "uint256",
+          "name": "",
+          "type": "uint256"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "lcrTarget",
+      "outputs": [
+        {
+          "internalType": "uint256",
+          "name": "",
+          "type": "uint256"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "liveWeights",
+      "outputs": [
+        {
+          "internalType": "bytes32",
+          "name": "methodologyVersion",
+          "type": "bytes32"
+        },
+        {
+          "internalType": "bytes32",
+          "name": "dataVersion",
+          "type": "bytes32"
+        },
+        {
+          "internalType": "uint256",
+          "name": "updatedAt",
+          "type": "uint256"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "mintFee",
+      "outputs": [
+        {
+          "internalType": "uint256",
+          "name": "",
+          "type": "uint256"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "bytes32",
+          "name": "",
+          "type": "bytes32"
+        }
+      ],
+      "name": "mintRequests",
+      "outputs": [
+        {
+          "internalType": "bytes32",
+          "name": "requestId",
+          "type": "bytes32"
+        },
+        {
+          "components": [
+            {
+              "internalType": "address",
+              "name": "bank",
+              "type": "address"
+            },
+            {
+              "internalType": "bytes32",
+              "name": "corporateCustomerHash",
+              "type": "bytes32"
+            },
+            {
+              "internalType": "uint256",
+              "name": "amountUsd",
+              "type": "uint256"
+            },
+            {
+              "internalType": "bytes32",
+              "name": "backingCertificateId",
+              "type": "bytes32"
+            },
+            {
+              "internalType": "string",
+              "name": "jurisdiction",
+              "type": "string"
+            },
+            {
+              "internalType": "uint256",
+              "name": "nonce",
+              "type": "uint256"
+            },
+            {
+              "internalType": "uint256",
+              "name": "expiry",
+              "type": "uint256"
+            }
+          ],
+          "internalType": "struct MTQSigmaV3.BankMintRequest",
+          "name": "request",
+          "type": "tuple"
+        },
+        {
+          "internalType": "enum MTQSigmaV3.WorkflowState",
+          "name": "state",
+          "type": "uint8"
+        },
+        {
+          "internalType": "uint256",
+          "name": "createdAt",
+          "type": "uint256"
+        },
+        {
+          "internalType": "uint256",
+          "name": "authorizedAt",
+          "type": "uint256"
+        },
+        {
+          "internalType": "uint256",
+          "name": "mintedAt",
+          "type": "uint256"
+        },
+        {
+          "internalType": "uint256",
+          "name": "mintedAmount",
+          "type": "uint256"
+        },
+        {
+          "internalType": "string",
+          "name": "rejectReason",
+          "type": "string"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "enum MTQSigmaV3.ProtocolState",
+          "name": "s",
+          "type": "uint8"
+        }
+      ],
+      "name": "mintThrottle",
+      "outputs": [
+        {
+          "internalType": "uint256",
+          "name": "",
+          "type": "uint256"
+        }
+      ],
+      "stateMutability": "pure",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "enum MTQSigmaV3.ProtocolState",
+          "name": "s",
+          "type": "uint8"
+        }
+      ],
+      "name": "mintingAllowed",
+      "outputs": [
+        {
+          "internalType": "bool",
+          "name": "",
+          "type": "bool"
+        }
+      ],
+      "stateMutability": "pure",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "name",
+      "outputs": [
+        {
+          "internalType": "string",
+          "name": "",
+          "type": "string"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "address",
+          "name": "",
+          "type": "address"
+        }
+      ],
+      "name": "nonces",
+      "outputs": [
+        {
+          "internalType": "uint256",
+          "name": "",
+          "type": "uint256"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "oracleHealthy",
+      "outputs": [
+        {
+          "internalType": "bool",
+          "name": "",
+          "type": "bool"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "bytes32",
+          "name": "",
+          "type": "bytes32"
+        }
+      ],
+      "name": "parameterRegistry",
+      "outputs": [
+        {
+          "internalType": "enum MTQSigmaV3.ParameterLayer",
+          "name": "layer",
+          "type": "uint8"
+        },
+        {
+          "internalType": "uint256",
+          "name": "value",
+          "type": "uint256"
+        },
+        {
+          "internalType": "uint256",
+          "name": "minValue",
+          "type": "uint256"
+        },
+        {
+          "internalType": "uint256",
+          "name": "maxValue",
+          "type": "uint256"
+        },
+        {
+          "internalType": "bool",
+          "name": "registered",
+          "type": "bool"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "pause",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "paused",
+      "outputs": [
+        {
+          "internalType": "bool",
+          "name": "",
+          "type": "bool"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "address",
+          "name": "depositor",
+          "type": "address"
+        }
+      ],
+      "name": "pendingStabilityReward",
+      "outputs": [
+        {
+          "internalType": "uint256",
+          "name": "",
+          "type": "uint256"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "address",
+          "name": "owner",
+          "type": "address"
+        },
+        {
+          "internalType": "address",
+          "name": "spender",
+          "type": "address"
+        },
+        {
+          "internalType": "uint256",
+          "name": "value",
+          "type": "uint256"
+        },
+        {
+          "internalType": "uint256",
+          "name": "deadline",
+          "type": "uint256"
+        },
+        {
+          "internalType": "uint8",
+          "name": "v",
+          "type": "uint8"
+        },
+        {
+          "internalType": "bytes32",
+          "name": "r",
+          "type": "bytes32"
+        },
+        {
+          "internalType": "bytes32",
+          "name": "s",
+          "type": "bytes32"
+        }
+      ],
+      "name": "permit",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "bytes32",
+          "name": "",
+          "type": "bytes32"
+        }
+      ],
+      "name": "proposals",
+      "outputs": [
+        {
+          "internalType": "uint256",
+          "name": "value",
+          "type": "uint256"
+        },
+        {
+          "internalType": "address",
+          "name": "proposer",
+          "type": "address"
+        },
+        {
+          "internalType": "uint256",
+          "name": "timestamp",
+          "type": "uint256"
+        },
+        {
+          "internalType": "bool",
+          "name": "executed",
+          "type": "bool"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "bytes32",
+          "name": "parameterId",
+          "type": "bytes32"
+        },
+        {
+          "internalType": "uint256",
+          "name": "newValue",
+          "type": "uint256"
+        }
+      ],
+      "name": "proposeChange",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "pythAdapter",
+      "outputs": [
+        {
+          "internalType": "contract IOracleAdapter",
+          "name": "",
+          "type": "address"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "enum MTQSigmaV3.ProtocolState",
+          "name": "s",
+          "type": "uint8"
+        }
+      ],
+      "name": "rebalanceUrgency",
+      "outputs": [
+        {
+          "internalType": "uint8",
+          "name": "",
+          "type": "uint8"
+        }
+      ],
+      "stateMutability": "pure",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "uint256",
+          "name": "mtqAmount",
+          "type": "uint256"
+        },
+        {
+          "internalType": "address",
+          "name": "redeemer",
+          "type": "address"
+        }
+      ],
+      "name": "redeem",
+      "outputs": [
+        {
+          "internalType": "uint256",
+          "name": "netUsd",
+          "type": "uint256"
+        }
+      ],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "enum MTQSigmaV3.ProtocolState",
+          "name": "s",
+          "type": "uint8"
+        }
+      ],
+      "name": "redeemFee",
+      "outputs": [
+        {
+          "internalType": "uint256",
+          "name": "",
+          "type": "uint256"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "redeemFeeDefensive",
+      "outputs": [
+        {
+          "internalType": "uint256",
+          "name": "",
+          "type": "uint256"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "redeemFeeNormal",
+      "outputs": [
+        {
+          "internalType": "uint256",
+          "name": "",
+          "type": "uint256"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "redeemFeeStress",
+      "outputs": [
+        {
+          "internalType": "uint256",
+          "name": "",
+          "type": "uint256"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "enum MTQSigmaV3.ProtocolState",
+          "name": "s",
+          "type": "uint8"
+        }
+      ],
+      "name": "redemptionAllowed",
+      "outputs": [
+        {
+          "internalType": "bool",
+          "name": "",
+          "type": "bool"
+        }
+      ],
+      "stateMutability": "pure",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "bytes32",
+          "name": "parameterId",
+          "type": "bytes32"
+        },
+        {
+          "internalType": "enum MTQSigmaV3.ParameterLayer",
+          "name": "layer",
+          "type": "uint8"
+        },
+        {
+          "internalType": "uint256",
+          "name": "value",
+          "type": "uint256"
+        },
+        {
+          "internalType": "uint256",
+          "name": "minValue",
+          "type": "uint256"
+        },
+        {
+          "internalType": "uint256",
+          "name": "maxValue",
+          "type": "uint256"
+        }
+      ],
+      "name": "registerParameter",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "bytes32",
+          "name": "requestId",
+          "type": "bytes32"
+        },
+        {
+          "internalType": "string",
+          "name": "reason",
+          "type": "string"
+        }
+      ],
+      "name": "rejectMint",
+      "outputs": [
+        {
+          "internalType": "bool",
+          "name": "",
+          "type": "bool"
+        }
+      ],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "bytes32",
+          "name": "role",
+          "type": "bytes32"
+        },
+        {
+          "internalType": "address",
+          "name": "account",
+          "type": "address"
+        }
+      ],
+      "name": "renounceRole",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "components": [
+            {
+              "internalType": "address",
+              "name": "bank",
+              "type": "address"
+            },
+            {
+              "internalType": "bytes32",
+              "name": "corporateCustomerHash",
+              "type": "bytes32"
+            },
+            {
+              "internalType": "uint256",
+              "name": "amountUsd",
+              "type": "uint256"
+            },
+            {
+              "internalType": "bytes32",
+              "name": "backingCertificateId",
+              "type": "bytes32"
+            },
+            {
+              "internalType": "string",
+              "name": "jurisdiction",
+              "type": "string"
+            },
+            {
+              "internalType": "uint256",
+              "name": "nonce",
+              "type": "uint256"
+            },
+            {
+              "internalType": "uint256",
+              "name": "expiry",
+              "type": "uint256"
+            }
+          ],
+          "internalType": "struct MTQSigmaV3.BankMintRequest",
+          "name": "req",
+          "type": "tuple"
+        }
+      ],
+      "name": "requestMint",
+      "outputs": [
+        {
+          "internalType": "bytes32",
+          "name": "requestId",
+          "type": "bytes32"
+        }
+      ],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "enum MTQSigmaV3.Component",
+          "name": "",
+          "type": "uint8"
+        }
+      ],
+      "name": "reserveHeldUsd",
+      "outputs": [
+        {
+          "internalType": "uint256",
+          "name": "",
+          "type": "uint256"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "reserveState",
+      "outputs": [
+        {
+          "internalType": "uint256",
+          "name": "fiatValue",
+          "type": "uint256"
+        },
+        {
+          "internalType": "uint256",
+          "name": "goldValue",
+          "type": "uint256"
+        },
+        {
+          "internalType": "uint256",
+          "name": "liquidValue",
+          "type": "uint256"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "address",
+          "name": "bank",
+          "type": "address"
+        }
+      ],
+      "name": "revokeBank",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "bytes32",
+          "name": "role",
+          "type": "bytes32"
+        },
+        {
+          "internalType": "address",
+          "name": "account",
+          "type": "address"
+        }
+      ],
+      "name": "revokeRole",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "riskCouncil",
+      "outputs": [
+        {
+          "internalType": "address",
+          "name": "",
+          "type": "address"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "rrStressFloor",
+      "outputs": [
+        {
+          "internalType": "uint256",
+          "name": "",
+          "type": "uint256"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "seedGenesisWeights",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "address",
+          "name": "registry",
+          "type": "address"
+        }
+      ],
+      "name": "setAssetRegistry",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "address",
+          "name": "_cc",
+          "type": "address"
+        }
+      ],
+      "name": "setConstitutionalCouncil",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "bool",
+          "name": "flag",
+          "type": "bool"
+        }
+      ],
+      "name": "setCrisisFlag",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "uint256",
+          "name": "cap",
+          "type": "uint256"
+        }
+      ],
+      "name": "setDailyRedeemCap",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "address",
+          "name": "_dao",
+          "type": "address"
+        }
+      ],
+      "name": "setDao",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "uint256",
+          "name": "cap",
+          "type": "uint256"
+        }
+      ],
+      "name": "setDmceConcentrationCap",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "address",
+          "name": "_ec",
+          "type": "address"
+        }
+      ],
+      "name": "setEmergencyCouncil",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "uint256[7]",
+          "name": "lower",
+          "type": "uint256[7]"
+        },
+        {
+          "internalType": "uint256[7]",
+          "name": "upper",
+          "type": "uint256[7]"
+        }
+      ],
+      "name": "setEnvelopes",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "address",
+          "name": "wallet",
+          "type": "address"
+        }
+      ],
+      "name": "setFeeWallet",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "uint256",
+          "name": "eur",
+          "type": "uint256"
+        },
+        {
+          "internalType": "uint256",
+          "name": "gbp",
+          "type": "uint256"
+        },
+        {
+          "internalType": "uint256",
+          "name": "jpy",
+          "type": "uint256"
+        },
+        {
+          "internalType": "uint256",
+          "name": "cny",
+          "type": "uint256"
+        },
+        {
+          "internalType": "uint256",
+          "name": "chf",
+          "type": "uint256"
+        },
+        {
+          "internalType": "uint256",
+          "name": "xau",
+          "type": "uint256"
+        }
+      ],
+      "name": "setFxRates",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "address",
+          "name": "g",
+          "type": "address"
+        }
+      ],
+      "name": "setGenesisReserve",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "uint8",
+          "name": "source",
+          "type": "uint8"
+        },
+        {
+          "internalType": "address",
+          "name": "adapter",
+          "type": "address"
+        }
+      ],
+      "name": "setOracleAdapter",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "enum MTQSigmaV3.Component",
+          "name": "c",
+          "type": "uint8"
+        },
+        {
+          "internalType": "uint256",
+          "name": "usd",
+          "type": "uint256"
+        }
+      ],
+      "name": "setReserveHolding",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "address",
+          "name": "_rc",
+          "type": "address"
+        }
+      ],
+      "name": "setRiskCouncil",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "address",
+          "name": "asset",
+          "type": "address"
+        }
+      ],
+      "name": "setStabilityAsset",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "uint256",
+          "name": "rate",
+          "type": "uint256"
+        }
+      ],
+      "name": "setStabilityRewardRate",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "smoothingRhoNormal",
+      "outputs": [
+        {
+          "internalType": "uint256",
+          "name": "",
+          "type": "uint256"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "smoothingRhoStress",
+      "outputs": [
+        {
+          "internalType": "uint256",
+          "name": "",
+          "type": "uint256"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "stabilityAsset",
+      "outputs": [
+        {
+          "internalType": "contract IERC20",
+          "name": "",
+          "type": "address"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "address",
+          "name": "",
+          "type": "address"
+        }
+      ],
+      "name": "stabilityDeposits",
+      "outputs": [
+        {
+          "internalType": "uint256",
+          "name": "",
+          "type": "uint256"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "address",
+          "name": "",
+          "type": "address"
+        }
+      ],
+      "name": "stabilityRewardDebt",
+      "outputs": [
+        {
+          "internalType": "uint256",
+          "name": "",
+          "type": "uint256"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "stabilityRewardRate",
+      "outputs": [
+        {
+          "internalType": "uint256",
+          "name": "",
+          "type": "uint256"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "enum MTQSigmaV3.ProtocolState",
+          "name": "",
+          "type": "uint8"
+        }
+      ],
+      "name": "stateEntryTime",
+      "outputs": [
+        {
+          "internalType": "uint256",
+          "name": "",
+          "type": "uint256"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "components": [
+            {
+              "internalType": "bytes32",
+              "name": "certificateId",
+              "type": "bytes32"
+            },
+            {
+              "internalType": "address",
+              "name": "bank",
+              "type": "address"
+            },
+            {
+              "internalType": "uint256",
+              "name": "amountUsd",
+              "type": "uint256"
+            },
+            {
+              "internalType": "bytes32",
+              "name": "custodianAttestationHash",
+              "type": "bytes32"
+            },
+            {
+              "internalType": "uint256",
+              "name": "custodianAttestationExpiry",
+              "type": "uint256"
+            },
+            {
+              "internalType": "bytes32",
+              "name": "reserveAssetBreakdownHash",
+              "type": "bytes32"
+            },
+            {
+              "internalType": "uint256",
+              "name": "issuedAt",
+              "type": "uint256"
+            },
+            {
+              "internalType": "bool",
+              "name": "verified",
+              "type": "bool"
+            }
+          ],
+          "internalType": "struct MTQSigmaV3.AvailableBackingCertificate",
+          "name": "cert",
+          "type": "tuple"
+        }
+      ],
+      "name": "submitBackingCertificate",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "uint256[7]",
+          "name": "target",
+          "type": "uint256[7]"
+        },
+        {
+          "internalType": "bytes32",
+          "name": "methodologyVersion",
+          "type": "bytes32"
+        },
+        {
+          "internalType": "bytes32",
+          "name": "dataVersion",
+          "type": "bytes32"
+        }
+      ],
+      "name": "submitTargetWeights",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "symbol",
+      "outputs": [
+        {
+          "internalType": "string",
+          "name": "",
+          "type": "string"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "totalStabilityPool",
+      "outputs": [
+        {
+          "internalType": "uint256",
+          "name": "",
+          "type": "uint256"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "totalSupply",
+      "outputs": [
+        {
+          "internalType": "uint256",
+          "name": "",
+          "type": "uint256"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "address",
+          "name": "to",
+          "type": "address"
+        },
+        {
+          "internalType": "uint256",
+          "name": "amount",
+          "type": "uint256"
+        }
+      ],
+      "name": "transfer",
+      "outputs": [
+        {
+          "internalType": "bool",
+          "name": "",
+          "type": "bool"
+        }
+      ],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "address",
+          "name": "from",
+          "type": "address"
+        },
+        {
+          "internalType": "address",
+          "name": "to",
+          "type": "address"
+        },
+        {
+          "internalType": "uint256",
+          "name": "amount",
+          "type": "uint256"
+        }
+      ],
+      "name": "transferFrom",
+      "outputs": [
+        {
+          "internalType": "bool",
+          "name": "",
+          "type": "bool"
+        }
+      ],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "unpause",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "uint256",
+          "name": "rr",
+          "type": "uint256"
+        },
+        {
+          "internalType": "uint256",
+          "name": "lcr",
+          "type": "uint256"
+        }
+      ],
+      "name": "updateState",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "uint256",
+          "name": "deficitUsd18",
+          "type": "uint256"
+        }
+      ],
+      "name": "useStabilityPoolForDeficit",
+      "outputs": [
+        {
+          "internalType": "uint256",
+          "name": "covered6",
+          "type": "uint256"
+        }
+      ],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "address",
+          "name": "",
+          "type": "address"
+        },
+        {
+          "internalType": "uint256",
+          "name": "",
+          "type": "uint256"
+        }
+      ],
+      "name": "usedNonces",
+      "outputs": [
+        {
+          "internalType": "bool",
+          "name": "",
+          "type": "bool"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "bytes32",
+          "name": "certId",
+          "type": "bytes32"
+        }
+      ],
+      "name": "verifyBackingCertificate",
+      "outputs": [
+        {
+          "internalType": "bool",
+          "name": "",
+          "type": "bool"
+        }
+      ],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "weightSubmitter",
+      "outputs": [
+        {
+          "internalType": "address",
+          "name": "",
+          "type": "address"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "uint256",
+          "name": "usdcAmount",
+          "type": "uint256"
+        }
+      ],
+      "name": "withdrawFromStabilityPool",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    }
+  ],
+  "methodIdentifiers": {
+    "ADMIN_ROLE()": "75b238fc",
+    "BASE_CHF_USD()": "93d0143c",
+    "BASE_CNY_USD()": "22c1e1b9",
+    "BASE_EUR_USD()": "63d9c48a",
+    "BASE_GBP_USD()": "3f852342",
+    "BASE_GOLD_USD()": "2d2ed5b4",
+    "BASE_JPY_USD()": "35e652ee",
+    "CLOCK_MODE()": "4bf5d7e9",
+    "COMPONENTS(uint256)": "ea0ed74e",
+    "DEFAULT_ADMIN_ROLE()": "a217fddf",
+    "DELEGATION_TYPEHASH()": "e7a324dc",
+    "DIGITAL_TARGET()": "50acc2a4",
+    "DIRECTION_LOCK_HOURS()": "d16015a3",
+    "DOMAIN_SEPARATOR()": "3644e515",
+    "FIAT_TARGET()": "80982733",
+    "GOLD_TARGET()": "85d3c73c",
+    "INDEX_BASE_DENOMINATOR()": "1fd811c1",
+    "KEEPER_ROLE()": "364bc15a",
+    "LOWER_BOUND(uint256)": "41a82fbb",
+    "MAX_DAILY_TURNOVER()": "be9ebc24",
+    "MAX_MINT_PER_TX()": "8ecad721",
+    "MAX_PRICE_JUMP_PCT()": "7efffa47",
+    "MAX_REDEEM_PER_TX()": "2f91d995",
+    "MAX_VELOCITY(uint256)": "34839355",
+    "MINTER_ROLE()": "d5391393",
+    "MONETARY_CONTROL_ROLE()": "60b593e2",
+    "ORACLE_CONFIDENCE_MAX()": "a6c8cbd9",
+    "ORACLE_DEVIATION_MAX_BPS()": "472744ef",
+    "ORACLE_ROLE()": "07e2cea5",
+    "ORACLE_STALENESS_SEC()": "9ce662b1",
+    "PAIR_CHF_USD()": "e86d2965",
+    "PAIR_CNY_USD()": "dbd558d7",
+    "PAIR_EUR_USD()": "4887912b",
+    "PAIR_GBP_USD()": "c3d73948",
+    "PAIR_JPY_USD()": "7d810f70",
+    "PAIR_XAU_USD()": "1ad052a0",
+    "PARAM_DEPEG_WINDOW()": "0fc423da",
+    "PARAM_LCR_TARGET()": "ab3a9d3e",
+    "PARAM_MINT_FEE()": "2fcef19d",
+    "PARAM_REDEEM_FEE_DEFENSIVE()": "964f6c0d",
+    "PARAM_REDEEM_FEE_NORMAL()": "43fa423b",
+    "PARAM_REDEEM_FEE_STRESS()": "7783cb9d",
+    "PARAM_RR_STRESS_FLOOR()": "bb60dbef",
+    "PAUSER_ROLE()": "e63ab1e9",
+    "PERMIT_TYPEHASH()": "30adf81f",
+    "PRICE_SAFETY_LOWER()": "ef509f88",
+    "PRICE_SAFETY_UPPER()": "10555823",
+    "Q_CHF()": "56e4e14e",
+    "Q_CNY()": "02b11118",
+    "Q_EUR()": "636fcf38",
+    "Q_GBP()": "12d12f90",
+    "Q_GOLD()": "cc0dd4dc",
+    "Q_JPY()": "e5024484",
+    "Q_USD()": "3668b346",
+    "REBALANCE_TOLERANCE()": "14547de0",
+    "RECOVERY_CONFIRMATION_PERIOD()": "4c9fc148",
+    "RR_FLOOR()": "c7137def",
+    "RR_HARD_FLOOR()": "bfef9ab7",
+    "RR_TARGET()": "47493791",
+    "TIMELOCK_CONSTITUTIONAL()": "da41fc77",
+    "TIMELOCK_EMERGENCY()": "08d4b6b4",
+    "TIMELOCK_MONETARY()": "3ec2c4f4",
+    "TIMELOCK_RISK()": "f55fdc40",
+    "UPPER_BOUND(uint256)": "2e02fa67",
+    "accumulatedFees()": "587f5ed7",
+    "accumulatedRewardPerShare()": "36d42195",
+    "advanceIndex(uint256[7])": "83c2ebaa",
+    "advanceWorkflow(bytes32,uint8)": "8a88304e",
+    "allowance(address,address)": "dd62ed3e",
+    "approve(address,uint256)": "095ea7b3",
+    "assetRegistry()": "979d7e86",
+    "authorizeBank(address,string,string,uint256)": "bcbdb100",
+    "authorizedBankCount()": "6c428a06",
+    "authorizedBanks(uint256)": "678020a5",
+    "backingCertificates(bytes32)": "508b87e1",
+    "backingVerified(address)": "e816e9e8",
+    "balanceOf(address)": "70a08231",
+    "bankMintedTotal(address)": "fe499c69",
+    "bankRegistry(address)": "52caac86",
+    "bootstrapReserveHoldings(uint256[7])": "2855ea43",
+    "bootstrapped()": "35142c8c",
+    "cancelChange(bytes32)": "5449b798",
+    "chainLinkDivisor()": "335c1c46",
+    "chainlinkAdapter()": "a0a5045a",
+    "chronicleAdapter()": "f6a4d0e4",
+    "clock()": "91ddadf4",
+    "commitFxRatesFromOracles()": "1bd7bbee",
+    "commitWeights(uint256[7],uint256[7])": "f78e1b5b",
+    "constitutionalCouncil()": "5249da87",
+    "crisisFlag()": "38e538cc",
+    "crisisThreshold()": "3a719da4",
+    "currentState()": "0c3f6acf",
+    "dailyRedeemCap()": "e7c215eb",
+    "dailyRedeemResetAt()": "43ff799c",
+    "dailyRedeemedUsd()": "fe96c4d8",
+    "dailyTradeResetAt()": "a260e254",
+    "dailyTradeUsd()": "0d71e471",
+    "dao()": "4162169f",
+    "decimals()": "313ce567",
+    "delegate(address)": "5c19a95c",
+    "delegateBySig(address,uint256,uint256,uint8,bytes32,bytes32)": "c3cda520",
+    "delegates(address)": "587cde1e",
+    "depegWindow()": "867d8d1c",
+    "depositToStabilityPool(uint256)": "977ade35",
+    "dmceBankConcentrationCap()": "a706bf6c",
+    "emergencyCouncil()": "7778960e",
+    "executeChange(bytes32)": "c320049a",
+    "executeMint(bytes32,uint256)": "f7d5d90c",
+    "executeRebalance((uint8,int256,uint256,uint256)[])": "b8694e52",
+    "feeWallet()": "f25f4b56",
+    "genesisDone()": "0235dfde",
+    "genesisIndex()": "5454f5f0",
+    "genesisMint(uint256)": "fb5d96c3",
+    "genesisReserve()": "a7c75026",
+    "genesisReserveBalance()": "709f327e",
+    "getBank(address)": "83e0c31d",
+    "getCertificate(bytes32)": "f333fe08",
+    "getCirculatingSupply()": "2b112e49",
+    "getHonestStatus()": "dfb76c1d",
+    "getIndex()": "81045ead",
+    "getLCR()": "318e45c1",
+    "getLiability()": "f3c15f49",
+    "getLiveWeights()": "ca4275ec",
+    "getMTQPrice()": "ff39c474",
+    "getMTQPriceWithGuard()": "9602e287",
+    "getNAV()": "0126c606",
+    "getNAVperToken()": "c38800ff",
+    "getOracleConsensus(bytes32)": "64d2f993",
+    "getPastTotalSupply(uint256)": "8e539e8c",
+    "getPastVotes(address,uint256)": "3a46b1a8",
+    "getRelatives(uint256[7])": "5eac044d",
+    "getReserveNavUsd()": "1339e970",
+    "getReserveRatio()": "56b6d0d5",
+    "getVotes(address)": "9ab24eb0",
+    "grantRole(bytes32,address)": "2f2ff15d",
+    "hasRole(bytes32,address)": "91d14854",
+    "indexValue()": "3a387d5a",
+    "lastCommitPrice()": "dda024f5",
+    "lastDirection(uint8)": "d734aa8d",
+    "lastIndexUpdate()": "27c409b2",
+    "lastPrices(uint256)": "3245dea5",
+    "lastRebalanceAt(uint8)": "267b7884",
+    "lastRewardUpdate()": "a3c2710d",
+    "lastWeights(uint256)": "a4ce4ff4",
+    "lcrTarget()": "00d24799",
+    "liveWeights()": "70e45bc1",
+    "mintFee()": "13966db5",
+    "mintRequests(bytes32)": "0d39e46d",
+    "mintThrottle(uint8)": "7994e55e",
+    "mintingAllowed(uint8)": "adeaaf6d",
+    "name()": "06fdde03",
+    "nonces(address)": "7ecebe00",
+    "oracleHealthy()": "86087967",
+    "parameterRegistry(bytes32)": "296ad455",
+    "pause()": "8456cb59",
+    "paused()": "5c975abb",
+    "pendingStabilityReward(address)": "4e75f234",
+    "permit(address,address,uint256,uint256,uint8,bytes32,bytes32)": "d505accf",
+    "proposals(bytes32)": "32ed5b12",
+    "proposeChange(bytes32,uint256)": "ae126abd",
+    "pythAdapter()": "37e301df",
+    "rebalanceUrgency(uint8)": "1541f5d6",
+    "redeem(uint256,address)": "7bde82f2",
+    "redeemFee(uint8)": "0e776c4c",
+    "redeemFeeDefensive()": "6eb9c5f3",
+    "redeemFeeNormal()": "954bad93",
+    "redeemFeeStress()": "0ebc54bb",
+    "redemptionAllowed(uint8)": "c8464afa",
+    "registerParameter(bytes32,uint8,uint256,uint256,uint256)": "5078cfa8",
+    "rejectMint(bytes32,string)": "6f1617c8",
+    "renounceRole(bytes32,address)": "36568abe",
+    "requestMint((address,bytes32,uint256,bytes32,string,uint256,uint256))": "b21a738c",
+    "reserveHeldUsd(uint8)": "015707f5",
+    "reserveState()": "bf964953",
+    "revokeBank(address)": "d13626fb",
+    "revokeRole(bytes32,address)": "d547741f",
+    "riskCouncil()": "c444cc94",
+    "rrStressFloor()": "35a5e0da",
+    "seedGenesisWeights()": "e68b4b6c",
+    "setAssetRegistry(address)": "e84d033c",
+    "setConstitutionalCouncil(address)": "3f71dcdf",
+    "setCrisisFlag(bool)": "99dfe153",
+    "setDailyRedeemCap(uint256)": "86f1658d",
+    "setDao(address)": "6637b882",
+    "setDmceConcentrationCap(uint256)": "3dc05932",
+    "setEmergencyCouncil(address)": "e586875f",
+    "setEnvelopes(uint256[7],uint256[7])": "1daa71bf",
+    "setFeeWallet(address)": "90d49b9d",
+    "setFxRates(uint256,uint256,uint256,uint256,uint256,uint256)": "e5d5d5f9",
+    "setGenesisReserve(address)": "f1a47810",
+    "setOracleAdapter(uint8,address)": "94f8f6e9",
+    "setReserveHolding(uint8,uint256)": "3efaefeb",
+    "setRiskCouncil(address)": "7290fd34",
+    "setStabilityAsset(address)": "071e9918",
+    "setStabilityRewardRate(uint256)": "f6c05753",
+    "smoothingRhoNormal()": "e4ca880a",
+    "smoothingRhoStress()": "53c015d8",
+    "stabilityAsset()": "b7e54bbf",
+    "stabilityDeposits(address)": "dd710ed6",
+    "stabilityRewardDebt(address)": "a2c18b07",
+    "stabilityRewardRate()": "ff5ea95e",
+    "stateEntryTime(uint8)": "9afcbff7",
+    "submitBackingCertificate((bytes32,address,uint256,bytes32,uint256,bytes32,uint256,bool))": "4512497a",
+    "submitTargetWeights(uint256[7],bytes32,bytes32)": "4c5b2b86",
+    "symbol()": "95d89b41",
+    "totalStabilityPool()": "02eada80",
+    "totalSupply()": "18160ddd",
+    "transfer(address,uint256)": "a9059cbb",
+    "transferFrom(address,address,uint256)": "23b872dd",
+    "unpause()": "3f4ba83a",
+    "updateState(uint256,uint256)": "5eb62f63",
+    "useStabilityPoolForDeficit(uint256)": "3f278293",
+    "usedNonces(address,uint256)": "6a8a6894",
+    "verifyBackingCertificate(bytes32)": "8e56bbdf",
+    "weightSubmitter()": "83d49569",
+    "withdrawFromStabilityPool(uint256)": "1908ef0b"
+  },
+  "storageLayout": {
+    "storage": [
+      {
+        "astId": 336,
+        "contract": "MTQSigmaV3.sol:MTQSigmaV3",
+        "label": "_roles",
+        "offset": 0,
+        "slot": "0",
+        "type": "t_mapping(t_bytes32,t_mapping(t_address,t_bool))"
+      },
+      {
+        "astId": 525,
+        "contract": "MTQSigmaV3.sol:MTQSigmaV3",
+        "label": "paused",
+        "offset": 0,
+        "slot": "1",
+        "type": "t_bool"
+      },
+      {
+        "astId": 584,
+        "contract": "MTQSigmaV3.sol:MTQSigmaV3",
+        "label": "_status",
+        "offset": 0,
+        "slot": "2",
+        "type": "t_uint256"
+      },
+      {
+        "astId": 616,
+        "contract": "MTQSigmaV3.sol:MTQSigmaV3",
+        "label": "totalSupply",
+        "offset": 0,
+        "slot": "3",
+        "type": "t_uint256"
+      },
+      {
+        "astId": 620,
+        "contract": "MTQSigmaV3.sol:MTQSigmaV3",
+        "label": "balanceOf",
+        "offset": 0,
+        "slot": "4",
+        "type": "t_mapping(t_address,t_uint256)"
+      },
+      {
+        "astId": 626,
+        "contract": "MTQSigmaV3.sol:MTQSigmaV3",
+        "label": "allowance",
+        "offset": 0,
+        "slot": "5",
+        "type": "t_mapping(t_address,t_mapping(t_address,t_uint256))"
+      },
+      {
+        "astId": 855,
+        "contract": "MTQSigmaV3.sol:MTQSigmaV3",
+        "label": "COMPONENTS",
+        "offset": 0,
+        "slot": "6",
+        "type": "t_array(t_bytes3)7_storage"
+      },
+      {
+        "astId": 867,
+        "contract": "MTQSigmaV3.sol:MTQSigmaV3",
+        "label": "LOWER_BOUND",
+        "offset": 0,
+        "slot": "7",
+        "type": "t_array(t_uint256)7_storage"
+      },
+      {
+        "astId": 879,
+        "contract": "MTQSigmaV3.sol:MTQSigmaV3",
+        "label": "UPPER_BOUND",
+        "offset": 0,
+        "slot": "14",
+        "type": "t_array(t_uint256)7_storage"
+      },
+      {
+        "astId": 891,
+        "contract": "MTQSigmaV3.sol:MTQSigmaV3",
+        "label": "MAX_VELOCITY",
+        "offset": 0,
+        "slot": "21",
+        "type": "t_array(t_uint256)7_storage"
+      },
+      {
+        "astId": 893,
+        "contract": "MTQSigmaV3.sol:MTQSigmaV3",
+        "label": "dao",
+        "offset": 0,
+        "slot": "28",
+        "type": "t_address"
+      },
+      {
+        "astId": 895,
+        "contract": "MTQSigmaV3.sol:MTQSigmaV3",
+        "label": "riskCouncil",
+        "offset": 0,
+        "slot": "29",
+        "type": "t_address"
+      },
+      {
+        "astId": 897,
+        "contract": "MTQSigmaV3.sol:MTQSigmaV3",
+        "label": "emergencyCouncil",
+        "offset": 0,
+        "slot": "30",
+        "type": "t_address"
+      },
+      {
+        "astId": 899,
+        "contract": "MTQSigmaV3.sol:MTQSigmaV3",
+        "label": "constitutionalCouncil",
+        "offset": 0,
+        "slot": "31",
+        "type": "t_address"
+      },
+      {
+        "astId": 985,
+        "contract": "MTQSigmaV3.sol:MTQSigmaV3",
+        "label": "genesisReserve",
+        "offset": 0,
+        "slot": "32",
+        "type": "t_address"
+      },
+      {
+        "astId": 987,
+        "contract": "MTQSigmaV3.sol:MTQSigmaV3",
+        "label": "genesisReserveBalance",
+        "offset": 0,
+        "slot": "33",
+        "type": "t_uint256"
+      },
+      {
+        "astId": 990,
+        "contract": "MTQSigmaV3.sol:MTQSigmaV3",
+        "label": "genesisDone",
+        "offset": 0,
+        "slot": "34",
+        "type": "t_bool"
+      },
+      {
+        "astId": 992,
+        "contract": "MTQSigmaV3.sol:MTQSigmaV3",
+        "label": "bootstrapped",
+        "offset": 1,
+        "slot": "34",
+        "type": "t_bool"
+      },
+      {
+        "astId": 1002,
+        "contract": "MTQSigmaV3.sol:MTQSigmaV3",
+        "label": "reserveState",
+        "offset": 0,
+        "slot": "35",
+        "type": "t_struct(ReserveState)999_storage"
+      },
+      {
+        "astId": 1015,
+        "contract": "MTQSigmaV3.sol:MTQSigmaV3",
+        "label": "reserveHeldUsd",
+        "offset": 0,
+        "slot": "38",
+        "type": "t_mapping(t_enum(Component)1010,t_uint256)"
+      },
+      {
+        "astId": 1020,
+        "contract": "MTQSigmaV3.sol:MTQSigmaV3",
+        "label": "backingVerified",
+        "offset": 0,
+        "slot": "39",
+        "type": "t_mapping(t_address,t_uint256)"
+      },
+      {
+        "astId": 1038,
+        "contract": "MTQSigmaV3.sol:MTQSigmaV3",
+        "label": "dailyRedeemCap",
+        "offset": 0,
+        "slot": "40",
+        "type": "t_uint256"
+      },
+      {
+        "astId": 1041,
+        "contract": "MTQSigmaV3.sol:MTQSigmaV3",
+        "label": "dailyRedeemedUsd",
+        "offset": 0,
+        "slot": "41",
+        "type": "t_uint256"
+      },
+      {
+        "astId": 1044,
+        "contract": "MTQSigmaV3.sol:MTQSigmaV3",
+        "label": "dailyRedeemResetAt",
+        "offset": 0,
+        "slot": "42",
+        "type": "t_uint256"
+      },
+      {
+        "astId": 1047,
+        "contract": "MTQSigmaV3.sol:MTQSigmaV3",
+        "label": "lastCommitPrice",
+        "offset": 0,
+        "slot": "43",
+        "type": "t_uint256"
+      },
+      {
+        "astId": 1092,
+        "contract": "MTQSigmaV3.sol:MTQSigmaV3",
+        "label": "stabilityAsset",
+        "offset": 0,
+        "slot": "44",
+        "type": "t_contract(IERC20)48"
+      },
+      {
+        "astId": 1097,
+        "contract": "MTQSigmaV3.sol:MTQSigmaV3",
+        "label": "stabilityDeposits",
+        "offset": 0,
+        "slot": "45",
+        "type": "t_mapping(t_address,t_uint256)"
+      },
+      {
+        "astId": 1100,
+        "contract": "MTQSigmaV3.sol:MTQSigmaV3",
+        "label": "totalStabilityPool",
+        "offset": 0,
+        "slot": "46",
+        "type": "t_uint256"
+      },
+      {
+        "astId": 1103,
+        "contract": "MTQSigmaV3.sol:MTQSigmaV3",
+        "label": "stabilityRewardRate",
+        "offset": 0,
+        "slot": "47",
+        "type": "t_uint256"
+      },
+      {
+        "astId": 1106,
+        "contract": "MTQSigmaV3.sol:MTQSigmaV3",
+        "label": "accumulatedRewardPerShare",
+        "offset": 0,
+        "slot": "48",
+        "type": "t_uint256"
+      },
+      {
+        "astId": 1111,
+        "contract": "MTQSigmaV3.sol:MTQSigmaV3",
+        "label": "stabilityRewardDebt",
+        "offset": 0,
+        "slot": "49",
+        "type": "t_mapping(t_address,t_uint256)"
+      },
+      {
+        "astId": 1114,
+        "contract": "MTQSigmaV3.sol:MTQSigmaV3",
+        "label": "lastRewardUpdate",
+        "offset": 0,
+        "slot": "50",
+        "type": "t_uint256"
+      },
+      {
+        "astId": 1163,
+        "contract": "MTQSigmaV3.sol:MTQSigmaV3",
+        "label": "feeWallet",
+        "offset": 0,
+        "slot": "51",
+        "type": "t_address"
+      },
+      {
+        "astId": 1166,
+        "contract": "MTQSigmaV3.sol:MTQSigmaV3",
+        "label": "accumulatedFees",
+        "offset": 0,
+        "slot": "52",
+        "type": "t_uint256"
+      },
+      {
+        "astId": 1202,
+        "contract": "MTQSigmaV3.sol:MTQSigmaV3",
+        "label": "liveWeights",
+        "offset": 0,
+        "slot": "53",
+        "type": "t_struct(WeightState)1199_storage"
+      },
+      {
+        "astId": 1205,
+        "contract": "MTQSigmaV3.sol:MTQSigmaV3",
+        "label": "smoothingRhoNormal",
+        "offset": 0,
+        "slot": "70",
+        "type": "t_uint256"
+      },
+      {
+        "astId": 1208,
+        "contract": "MTQSigmaV3.sol:MTQSigmaV3",
+        "label": "smoothingRhoStress",
+        "offset": 0,
+        "slot": "71",
+        "type": "t_uint256"
+      },
+      {
+        "astId": 1211,
+        "contract": "MTQSigmaV3.sol:MTQSigmaV3",
+        "label": "crisisThreshold",
+        "offset": 0,
+        "slot": "72",
+        "type": "t_uint256"
+      },
+      {
+        "astId": 1213,
+        "contract": "MTQSigmaV3.sol:MTQSigmaV3",
+        "label": "crisisFlag",
+        "offset": 0,
+        "slot": "73",
+        "type": "t_bool"
+      },
+      {
+        "astId": 1215,
+        "contract": "MTQSigmaV3.sol:MTQSigmaV3",
+        "label": "weightSubmitter",
+        "offset": 1,
+        "slot": "73",
+        "type": "t_address"
+      },
+      {
+        "astId": 1256,
+        "contract": "MTQSigmaV3.sol:MTQSigmaV3",
+        "label": "indexValue",
+        "offset": 0,
+        "slot": "74",
+        "type": "t_uint256"
+      },
+      {
+        "astId": 1260,
+        "contract": "MTQSigmaV3.sol:MTQSigmaV3",
+        "label": "lastPrices",
+        "offset": 0,
+        "slot": "75",
+        "type": "t_array(t_uint256)7_storage"
+      },
+      {
+        "astId": 1264,
+        "contract": "MTQSigmaV3.sol:MTQSigmaV3",
+        "label": "lastWeights",
+        "offset": 0,
+        "slot": "82",
+        "type": "t_array(t_uint256)7_storage"
+      },
+      {
+        "astId": 1267,
+        "contract": "MTQSigmaV3.sol:MTQSigmaV3",
+        "label": "chainLinkDivisor",
+        "offset": 0,
+        "slot": "89",
+        "type": "t_uint256"
+      },
+      {
+        "astId": 1269,
+        "contract": "MTQSigmaV3.sol:MTQSigmaV3",
+        "label": "lastIndexUpdate",
+        "offset": 0,
+        "slot": "90",
+        "type": "t_uint256"
+      },
+      {
+        "astId": 1313,
+        "contract": "MTQSigmaV3.sol:MTQSigmaV3",
+        "label": "currentState",
+        "offset": 0,
+        "slot": "91",
+        "type": "t_enum(ProtocolState)1308"
+      },
+      {
+        "astId": 1318,
+        "contract": "MTQSigmaV3.sol:MTQSigmaV3",
+        "label": "stateEntryTime",
+        "offset": 0,
+        "slot": "92",
+        "type": "t_mapping(t_enum(ProtocolState)1308,t_uint256)"
+      },
+      {
+        "astId": 1322,
+        "contract": "MTQSigmaV3.sol:MTQSigmaV3",
+        "label": "rrStressFloor",
+        "offset": 0,
+        "slot": "93",
+        "type": "t_uint256"
+      },
+      {
+        "astId": 1325,
+        "contract": "MTQSigmaV3.sol:MTQSigmaV3",
+        "label": "mintFee",
+        "offset": 0,
+        "slot": "94",
+        "type": "t_uint256"
+      },
+      {
+        "astId": 1328,
+        "contract": "MTQSigmaV3.sol:MTQSigmaV3",
+        "label": "redeemFeeNormal",
+        "offset": 0,
+        "slot": "95",
+        "type": "t_uint256"
+      },
+      {
+        "astId": 1331,
+        "contract": "MTQSigmaV3.sol:MTQSigmaV3",
+        "label": "redeemFeeStress",
+        "offset": 0,
+        "slot": "96",
+        "type": "t_uint256"
+      },
+      {
+        "astId": 1334,
+        "contract": "MTQSigmaV3.sol:MTQSigmaV3",
+        "label": "redeemFeeDefensive",
+        "offset": 0,
+        "slot": "97",
+        "type": "t_uint256"
+      },
+      {
+        "astId": 1337,
+        "contract": "MTQSigmaV3.sol:MTQSigmaV3",
+        "label": "lcrTarget",
+        "offset": 0,
+        "slot": "98",
+        "type": "t_uint256"
+      },
+      {
+        "astId": 1340,
+        "contract": "MTQSigmaV3.sol:MTQSigmaV3",
+        "label": "depegWindow",
+        "offset": 0,
+        "slot": "99",
+        "type": "t_uint256"
+      },
+      {
+        "astId": 1395,
+        "contract": "MTQSigmaV3.sol:MTQSigmaV3",
+        "label": "parameterRegistry",
+        "offset": 0,
+        "slot": "100",
+        "type": "t_mapping(t_bytes32,t_struct(ParameterRecord)1369_storage)"
+      },
+      {
+        "astId": 1400,
+        "contract": "MTQSigmaV3.sol:MTQSigmaV3",
+        "label": "proposals",
+        "offset": 0,
+        "slot": "101",
+        "type": "t_mapping(t_bytes32,t_struct(Proposal)1378_storage)"
+      },
+      {
+        "astId": 1475,
+        "contract": "MTQSigmaV3.sol:MTQSigmaV3",
+        "label": "chainlinkAdapter",
+        "offset": 0,
+        "slot": "102",
+        "type": "t_contract(IOracleAdapter)61"
+      },
+      {
+        "astId": 1478,
+        "contract": "MTQSigmaV3.sol:MTQSigmaV3",
+        "label": "pythAdapter",
+        "offset": 0,
+        "slot": "103",
+        "type": "t_contract(IOracleAdapter)61"
+      },
+      {
+        "astId": 1481,
+        "contract": "MTQSigmaV3.sol:MTQSigmaV3",
+        "label": "chronicleAdapter",
+        "offset": 0,
+        "slot": "104",
+        "type": "t_contract(IOracleAdapter)61"
+      },
+      {
+        "astId": 1531,
+        "contract": "MTQSigmaV3.sol:MTQSigmaV3",
+        "label": "assetRegistry",
+        "offset": 0,
+        "slot": "105",
+        "type": "t_contract(IAssetRegistry)76"
+      },
+      {
+        "astId": 1569,
+        "contract": "MTQSigmaV3.sol:MTQSigmaV3",
+        "label": "bankRegistry",
+        "offset": 0,
+        "slot": "106",
+        "type": "t_mapping(t_address,t_struct(BankRecord)1564_storage)"
+      },
+      {
+        "astId": 1572,
+        "contract": "MTQSigmaV3.sol:MTQSigmaV3",
+        "label": "authorizedBanks",
+        "offset": 0,
+        "slot": "107",
+        "type": "t_array(t_address)dyn_storage"
+      },
+      {
+        "astId": 1780,
+        "contract": "MTQSigmaV3.sol:MTQSigmaV3",
+        "label": "backingCertificates",
+        "offset": 0,
+        "slot": "108",
+        "type": "t_mapping(t_bytes32,t_struct(AvailableBackingCertificate)1775_storage)"
+      },
+      {
+        "astId": 2004,
+        "contract": "MTQSigmaV3.sol:MTQSigmaV3",
+        "label": "mintRequests",
+        "offset": 0,
+        "slot": "109",
+        "type": "t_mapping(t_bytes32,t_struct(MintRequest)1999_storage)"
+      },
+      {
+        "astId": 2011,
+        "contract": "MTQSigmaV3.sol:MTQSigmaV3",
+        "label": "usedNonces",
+        "offset": 0,
+        "slot": "110",
+        "type": "t_mapping(t_address,t_mapping(t_uint256,t_bool))"
+      },
+      {
+        "astId": 2016,
+        "contract": "MTQSigmaV3.sol:MTQSigmaV3",
+        "label": "bankMintedTotal",
+        "offset": 0,
+        "slot": "111",
+        "type": "t_mapping(t_address,t_uint256)"
+      },
+      {
+        "astId": 2020,
+        "contract": "MTQSigmaV3.sol:MTQSigmaV3",
+        "label": "dmceBankConcentrationCap",
+        "offset": 0,
+        "slot": "112",
+        "type": "t_uint256"
+      },
+      {
+        "astId": 6585,
+        "contract": "MTQSigmaV3.sol:MTQSigmaV3",
+        "label": "lastDirection",
+        "offset": 0,
+        "slot": "113",
+        "type": "t_mapping(t_enum(Component)1010,t_int256)"
+      },
+      {
+        "astId": 6590,
+        "contract": "MTQSigmaV3.sol:MTQSigmaV3",
+        "label": "lastRebalanceAt",
+        "offset": 0,
+        "slot": "114",
+        "type": "t_mapping(t_enum(Component)1010,t_uint256)"
+      },
+      {
+        "astId": 6592,
+        "contract": "MTQSigmaV3.sol:MTQSigmaV3",
+        "label": "dailyTradeUsd",
+        "offset": 0,
+        "slot": "115",
+        "type": "t_uint256"
+      },
+      {
+        "astId": 6594,
+        "contract": "MTQSigmaV3.sol:MTQSigmaV3",
+        "label": "dailyTradeResetAt",
+        "offset": 0,
+        "slot": "116",
+        "type": "t_uint256"
+      },
+      {
+        "astId": 8123,
+        "contract": "MTQSigmaV3.sol:MTQSigmaV3",
+        "label": "nonces",
+        "offset": 0,
+        "slot": "117",
+        "type": "t_mapping(t_address,t_uint256)"
+      },
+      {
+        "astId": 8141,
+        "contract": "MTQSigmaV3.sol:MTQSigmaV3",
+        "label": "_checkpoints",
+        "offset": 0,
+        "slot": "118",
+        "type": "t_mapping(t_address,t_array(t_struct(Checkpoint)8134_storage)dyn_storage)"
+      },
+      {
+        "astId": 8146,
+        "contract": "MTQSigmaV3.sol:MTQSigmaV3",
+        "label": "_totalSupplyCheckpoints",
+        "offset": 0,
+        "slot": "119",
+        "type": "t_array(t_struct(Checkpoint)8134_storage)dyn_storage"
+      },
+      {
+        "astId": 8151,
+        "contract": "MTQSigmaV3.sol:MTQSigmaV3",
+        "label": "delegates",
+        "offset": 0,
+        "slot": "120",
+        "type": "t_mapping(t_address,t_address)"
+      }
+    ],
+    "types": {
+      "t_address": {
+        "encoding": "inplace",
+        "label": "address",
+        "numberOfBytes": "20"
+      },
+      "t_array(t_address)dyn_storage": {
+        "base": "t_address",
+        "encoding": "dynamic_array",
+        "label": "address[]",
+        "numberOfBytes": "32"
+      },
+      "t_array(t_bytes3)7_storage": {
+        "base": "t_bytes3",
+        "encoding": "inplace",
+        "label": "bytes3[7]",
+        "numberOfBytes": "32"
+      },
+      "t_array(t_struct(Checkpoint)8134_storage)dyn_storage": {
+        "base": "t_struct(Checkpoint)8134_storage",
+        "encoding": "dynamic_array",
+        "label": "struct MTQSigmaV3.Checkpoint[]",
+        "numberOfBytes": "32"
+      },
+      "t_array(t_uint256)7_storage": {
+        "base": "t_uint256",
+        "encoding": "inplace",
+        "label": "uint256[7]",
+        "numberOfBytes": "224"
+      },
+      "t_bool": {
+        "encoding": "inplace",
+        "label": "bool",
+        "numberOfBytes": "1"
+      },
+      "t_bytes3": {
+        "encoding": "inplace",
+        "label": "bytes3",
+        "numberOfBytes": "3"
+      },
+      "t_bytes32": {
+        "encoding": "inplace",
+        "label": "bytes32",
+        "numberOfBytes": "32"
+      },
+      "t_contract(IAssetRegistry)76": {
+        "encoding": "inplace",
+        "label": "contract IAssetRegistry",
+        "numberOfBytes": "20"
+      },
+      "t_contract(IERC20)48": {
+        "encoding": "inplace",
+        "label": "contract IERC20",
+        "numberOfBytes": "20"
+      },
+      "t_contract(IOracleAdapter)61": {
+        "encoding": "inplace",
+        "label": "contract IOracleAdapter",
+        "numberOfBytes": "20"
+      },
+      "t_enum(Component)1010": {
+        "encoding": "inplace",
+        "label": "enum MTQSigmaV3.Component",
+        "numberOfBytes": "1"
+      },
+      "t_enum(ParameterLayer)1357": {
+        "encoding": "inplace",
+        "label": "enum MTQSigmaV3.ParameterLayer",
+        "numberOfBytes": "1"
+      },
+      "t_enum(ProtocolState)1308": {
+        "encoding": "inplace",
+        "label": "enum MTQSigmaV3.ProtocolState",
+        "numberOfBytes": "1"
+      },
+      "t_enum(WorkflowState)1965": {
+        "encoding": "inplace",
+        "label": "enum MTQSigmaV3.WorkflowState",
+        "numberOfBytes": "1"
+      },
+      "t_int256": {
+        "encoding": "inplace",
+        "label": "int256",
+        "numberOfBytes": "32"
+      },
+      "t_mapping(t_address,t_address)": {
+        "encoding": "mapping",
+        "key": "t_address",
+        "label": "mapping(address => address)",
+        "numberOfBytes": "32",
+        "value": "t_address"
+      },
+      "t_mapping(t_address,t_array(t_struct(Checkpoint)8134_storage)dyn_storage)": {
+        "encoding": "mapping",
+        "key": "t_address",
+        "label": "mapping(address => struct MTQSigmaV3.Checkpoint[])",
+        "numberOfBytes": "32",
+        "value": "t_array(t_struct(Checkpoint)8134_storage)dyn_storage"
+      },
+      "t_mapping(t_address,t_bool)": {
+        "encoding": "mapping",
+        "key": "t_address",
+        "label": "mapping(address => bool)",
+        "numberOfBytes": "32",
+        "value": "t_bool"
+      },
+      "t_mapping(t_address,t_mapping(t_address,t_uint256))": {
+        "encoding": "mapping",
+        "key": "t_address",
+        "label": "mapping(address => mapping(address => uint256))",
+        "numberOfBytes": "32",
+        "value": "t_mapping(t_address,t_uint256)"
+      },
+      "t_mapping(t_address,t_mapping(t_uint256,t_bool))": {
+        "encoding": "mapping",
+        "key": "t_address",
+        "label": "mapping(address => mapping(uint256 => bool))",
+        "numberOfBytes": "32",
+        "value": "t_mapping(t_uint256,t_bool)"
+      },
+      "t_mapping(t_address,t_struct(BankRecord)1564_storage)": {
+        "encoding": "mapping",
+        "key": "t_address",
+        "label": "mapping(address => struct MTQSigmaV3.BankRecord)",
+        "numberOfBytes": "32",
+        "value": "t_struct(BankRecord)1564_storage"
+      },
+      "t_mapping(t_address,t_uint256)": {
+        "encoding": "mapping",
+        "key": "t_address",
+        "label": "mapping(address => uint256)",
+        "numberOfBytes": "32",
+        "value": "t_uint256"
+      },
+      "t_mapping(t_bytes32,t_mapping(t_address,t_bool))": {
+        "encoding": "mapping",
+        "key": "t_bytes32",
+        "label": "mapping(bytes32 => mapping(address => bool))",
+        "numberOfBytes": "32",
+        "value": "t_mapping(t_address,t_bool)"
+      },
+      "t_mapping(t_bytes32,t_struct(AvailableBackingCertificate)1775_storage)": {
+        "encoding": "mapping",
+        "key": "t_bytes32",
+        "label": "mapping(bytes32 => struct MTQSigmaV3.AvailableBackingCertificate)",
+        "numberOfBytes": "32",
+        "value": "t_struct(AvailableBackingCertificate)1775_storage"
+      },
+      "t_mapping(t_bytes32,t_struct(MintRequest)1999_storage)": {
+        "encoding": "mapping",
+        "key": "t_bytes32",
+        "label": "mapping(bytes32 => struct MTQSigmaV3.MintRequest)",
+        "numberOfBytes": "32",
+        "value": "t_struct(MintRequest)1999_storage"
+      },
+      "t_mapping(t_bytes32,t_struct(ParameterRecord)1369_storage)": {
+        "encoding": "mapping",
+        "key": "t_bytes32",
+        "label": "mapping(bytes32 => struct MTQSigmaV3.ParameterRecord)",
+        "numberOfBytes": "32",
+        "value": "t_struct(ParameterRecord)1369_storage"
+      },
+      "t_mapping(t_bytes32,t_struct(Proposal)1378_storage)": {
+        "encoding": "mapping",
+        "key": "t_bytes32",
+        "label": "mapping(bytes32 => struct MTQSigmaV3.Proposal)",
+        "numberOfBytes": "32",
+        "value": "t_struct(Proposal)1378_storage"
+      },
+      "t_mapping(t_enum(Component)1010,t_int256)": {
+        "encoding": "mapping",
+        "key": "t_enum(Component)1010",
+        "label": "mapping(enum MTQSigmaV3.Component => int256)",
+        "numberOfBytes": "32",
+        "value": "t_int256"
+      },
+      "t_mapping(t_enum(Component)1010,t_uint256)": {
+        "encoding": "mapping",
+        "key": "t_enum(Component)1010",
+        "label": "mapping(enum MTQSigmaV3.Component => uint256)",
+        "numberOfBytes": "32",
+        "value": "t_uint256"
+      },
+      "t_mapping(t_enum(ProtocolState)1308,t_uint256)": {
+        "encoding": "mapping",
+        "key": "t_enum(ProtocolState)1308",
+        "label": "mapping(enum MTQSigmaV3.ProtocolState => uint256)",
+        "numberOfBytes": "32",
+        "value": "t_uint256"
+      },
+      "t_mapping(t_uint256,t_bool)": {
+        "encoding": "mapping",
+        "key": "t_uint256",
+        "label": "mapping(uint256 => bool)",
+        "numberOfBytes": "32",
+        "value": "t_bool"
+      },
+      "t_string_storage": {
+        "encoding": "bytes",
+        "label": "string",
+        "numberOfBytes": "32"
+      },
+      "t_struct(AvailableBackingCertificate)1775_storage": {
+        "encoding": "inplace",
+        "label": "struct MTQSigmaV3.AvailableBackingCertificate",
+        "members": [
+          {
+            "astId": 1760,
+            "contract": "MTQSigmaV3.sol:MTQSigmaV3",
+            "label": "certificateId",
+            "offset": 0,
+            "slot": "0",
+            "type": "t_bytes32"
+          },
+          {
+            "astId": 1762,
+            "contract": "MTQSigmaV3.sol:MTQSigmaV3",
+            "label": "bank",
+            "offset": 0,
+            "slot": "1",
+            "type": "t_address"
+          },
+          {
+            "astId": 1764,
+            "contract": "MTQSigmaV3.sol:MTQSigmaV3",
+            "label": "amountUsd",
+            "offset": 0,
+            "slot": "2",
+            "type": "t_uint256"
+          },
+          {
+            "astId": 1766,
+            "contract": "MTQSigmaV3.sol:MTQSigmaV3",
+            "label": "custodianAttestationHash",
+            "offset": 0,
+            "slot": "3",
+            "type": "t_bytes32"
+          },
+          {
+            "astId": 1768,
+            "contract": "MTQSigmaV3.sol:MTQSigmaV3",
+            "label": "custodianAttestationExpiry",
+            "offset": 0,
+            "slot": "4",
+            "type": "t_uint256"
+          },
+          {
+            "astId": 1770,
+            "contract": "MTQSigmaV3.sol:MTQSigmaV3",
+            "label": "reserveAssetBreakdownHash",
+            "offset": 0,
+            "slot": "5",
+            "type": "t_bytes32"
+          },
+          {
+            "astId": 1772,
+            "contract": "MTQSigmaV3.sol:MTQSigmaV3",
+            "label": "issuedAt",
+            "offset": 0,
+            "slot": "6",
+            "type": "t_uint256"
+          },
+          {
+            "astId": 1774,
+            "contract": "MTQSigmaV3.sol:MTQSigmaV3",
+            "label": "verified",
+            "offset": 0,
+            "slot": "7",
+            "type": "t_bool"
+          }
+        ],
+        "numberOfBytes": "256"
+      },
+      "t_struct(BankMintRequest)1980_storage": {
+        "encoding": "inplace",
+        "label": "struct MTQSigmaV3.BankMintRequest",
+        "members": [
+          {
+            "astId": 1967,
+            "contract": "MTQSigmaV3.sol:MTQSigmaV3",
+            "label": "bank",
+            "offset": 0,
+            "slot": "0",
+            "type": "t_address"
+          },
+          {
+            "astId": 1969,
+            "contract": "MTQSigmaV3.sol:MTQSigmaV3",
+            "label": "corporateCustomerHash",
+            "offset": 0,
+            "slot": "1",
+            "type": "t_bytes32"
+          },
+          {
+            "astId": 1971,
+            "contract": "MTQSigmaV3.sol:MTQSigmaV3",
+            "label": "amountUsd",
+            "offset": 0,
+            "slot": "2",
+            "type": "t_uint256"
+          },
+          {
+            "astId": 1973,
+            "contract": "MTQSigmaV3.sol:MTQSigmaV3",
+            "label": "backingCertificateId",
+            "offset": 0,
+            "slot": "3",
+            "type": "t_bytes32"
+          },
+          {
+            "astId": 1975,
+            "contract": "MTQSigmaV3.sol:MTQSigmaV3",
+            "label": "jurisdiction",
+            "offset": 0,
+            "slot": "4",
+            "type": "t_string_storage"
+          },
+          {
+            "astId": 1977,
+            "contract": "MTQSigmaV3.sol:MTQSigmaV3",
+            "label": "nonce",
+            "offset": 0,
+            "slot": "5",
+            "type": "t_uint256"
+          },
+          {
+            "astId": 1979,
+            "contract": "MTQSigmaV3.sol:MTQSigmaV3",
+            "label": "expiry",
+            "offset": 0,
+            "slot": "6",
+            "type": "t_uint256"
+          }
+        ],
+        "numberOfBytes": "224"
+      },
+      "t_struct(BankRecord)1564_storage": {
+        "encoding": "inplace",
+        "label": "struct MTQSigmaV3.BankRecord",
+        "members": [
+          {
+            "astId": 1549,
+            "contract": "MTQSigmaV3.sol:MTQSigmaV3",
+            "label": "bankAddress",
+            "offset": 0,
+            "slot": "0",
+            "type": "t_address"
+          },
+          {
+            "astId": 1551,
+            "contract": "MTQSigmaV3.sol:MTQSigmaV3",
+            "label": "name",
+            "offset": 0,
+            "slot": "1",
+            "type": "t_string_storage"
+          },
+          {
+            "astId": 1553,
+            "contract": "MTQSigmaV3.sol:MTQSigmaV3",
+            "label": "jurisdiction",
+            "offset": 0,
+            "slot": "2",
+            "type": "t_string_storage"
+          },
+          {
+            "astId": 1555,
+            "contract": "MTQSigmaV3.sol:MTQSigmaV3",
+            "label": "isAuthorized",
+            "offset": 0,
+            "slot": "3",
+            "type": "t_bool"
+          },
+          {
+            "astId": 1557,
+            "contract": "MTQSigmaV3.sol:MTQSigmaV3",
+            "label": "dailyMintCap",
+            "offset": 0,
+            "slot": "4",
+            "type": "t_uint256"
+          },
+          {
+            "astId": 1559,
+            "contract": "MTQSigmaV3.sol:MTQSigmaV3",
+            "label": "dailyMintUsed",
+            "offset": 0,
+            "slot": "5",
+            "type": "t_uint256"
+          },
+          {
+            "astId": 1561,
+            "contract": "MTQSigmaV3.sol:MTQSigmaV3",
+            "label": "dailyMintResetAt",
+            "offset": 0,
+            "slot": "6",
+            "type": "t_uint256"
+          },
+          {
+            "astId": 1563,
+            "contract": "MTQSigmaV3.sol:MTQSigmaV3",
+            "label": "authorizedAt",
+            "offset": 0,
+            "slot": "7",
+            "type": "t_uint256"
+          }
+        ],
+        "numberOfBytes": "256"
+      },
+      "t_struct(Checkpoint)8134_storage": {
+        "encoding": "inplace",
+        "label": "struct MTQSigmaV3.Checkpoint",
+        "members": [
+          {
+            "astId": 8131,
+            "contract": "MTQSigmaV3.sol:MTQSigmaV3",
+            "label": "_key",
+            "offset": 0,
+            "slot": "0",
+            "type": "t_uint32"
+          },
+          {
+            "astId": 8133,
+            "contract": "MTQSigmaV3.sol:MTQSigmaV3",
+            "label": "_value",
+            "offset": 4,
+            "slot": "0",
+            "type": "t_uint224"
+          }
+        ],
+        "numberOfBytes": "32"
+      },
+      "t_struct(MintRequest)1999_storage": {
+        "encoding": "inplace",
+        "label": "struct MTQSigmaV3.MintRequest",
+        "members": [
+          {
+            "astId": 1982,
+            "contract": "MTQSigmaV3.sol:MTQSigmaV3",
+            "label": "requestId",
+            "offset": 0,
+            "slot": "0",
+            "type": "t_bytes32"
+          },
+          {
+            "astId": 1985,
+            "contract": "MTQSigmaV3.sol:MTQSigmaV3",
+            "label": "request",
+            "offset": 0,
+            "slot": "1",
+            "type": "t_struct(BankMintRequest)1980_storage"
+          },
+          {
+            "astId": 1988,
+            "contract": "MTQSigmaV3.sol:MTQSigmaV3",
+            "label": "state",
+            "offset": 0,
+            "slot": "8",
+            "type": "t_enum(WorkflowState)1965"
+          },
+          {
+            "astId": 1990,
+            "contract": "MTQSigmaV3.sol:MTQSigmaV3",
+            "label": "createdAt",
+            "offset": 0,
+            "slot": "9",
+            "type": "t_uint256"
+          },
+          {
+            "astId": 1992,
+            "contract": "MTQSigmaV3.sol:MTQSigmaV3",
+            "label": "authorizedAt",
+            "offset": 0,
+            "slot": "10",
+            "type": "t_uint256"
+          },
+          {
+            "astId": 1994,
+            "contract": "MTQSigmaV3.sol:MTQSigmaV3",
+            "label": "mintedAt",
+            "offset": 0,
+            "slot": "11",
+            "type": "t_uint256"
+          },
+          {
+            "astId": 1996,
+            "contract": "MTQSigmaV3.sol:MTQSigmaV3",
+            "label": "mintedAmount",
+            "offset": 0,
+            "slot": "12",
+            "type": "t_uint256"
+          },
+          {
+            "astId": 1998,
+            "contract": "MTQSigmaV3.sol:MTQSigmaV3",
+            "label": "rejectReason",
+            "offset": 0,
+            "slot": "13",
+            "type": "t_string_storage"
+          }
+        ],
+        "numberOfBytes": "448"
+      },
+      "t_struct(ParameterRecord)1369_storage": {
+        "encoding": "inplace",
+        "label": "struct MTQSigmaV3.ParameterRecord",
+        "members": [
+          {
+            "astId": 1360,
+            "contract": "MTQSigmaV3.sol:MTQSigmaV3",
+            "label": "layer",
+            "offset": 0,
+            "slot": "0",
+            "type": "t_enum(ParameterLayer)1357"
+          },
+          {
+            "astId": 1362,
+            "contract": "MTQSigmaV3.sol:MTQSigmaV3",
+            "label": "value",
+            "offset": 0,
+            "slot": "1",
+            "type": "t_uint256"
+          },
+          {
+            "astId": 1364,
+            "contract": "MTQSigmaV3.sol:MTQSigmaV3",
+            "label": "minValue",
+            "offset": 0,
+            "slot": "2",
+            "type": "t_uint256"
+          },
+          {
+            "astId": 1366,
+            "contract": "MTQSigmaV3.sol:MTQSigmaV3",
+            "label": "maxValue",
+            "offset": 0,
+            "slot": "3",
+            "type": "t_uint256"
+          },
+          {
+            "astId": 1368,
+            "contract": "MTQSigmaV3.sol:MTQSigmaV3",
+            "label": "registered",
+            "offset": 0,
+            "slot": "4",
+            "type": "t_bool"
+          }
+        ],
+        "numberOfBytes": "160"
+      },
+      "t_struct(Proposal)1378_storage": {
+        "encoding": "inplace",
+        "label": "struct MTQSigmaV3.Proposal",
+        "members": [
+          {
+            "astId": 1371,
+            "contract": "MTQSigmaV3.sol:MTQSigmaV3",
+            "label": "value",
+            "offset": 0,
+            "slot": "0",
+            "type": "t_uint256"
+          },
+          {
+            "astId": 1373,
+            "contract": "MTQSigmaV3.sol:MTQSigmaV3",
+            "label": "proposer",
+            "offset": 0,
+            "slot": "1",
+            "type": "t_address"
+          },
+          {
+            "astId": 1375,
+            "contract": "MTQSigmaV3.sol:MTQSigmaV3",
+            "label": "timestamp",
+            "offset": 0,
+            "slot": "2",
+            "type": "t_uint256"
+          },
+          {
+            "astId": 1377,
+            "contract": "MTQSigmaV3.sol:MTQSigmaV3",
+            "label": "executed",
+            "offset": 0,
+            "slot": "3",
+            "type": "t_bool"
+          }
+        ],
+        "numberOfBytes": "128"
+      },
+      "t_struct(ReserveState)999_storage": {
+        "encoding": "inplace",
+        "label": "struct MTQSigmaV3.ReserveState",
+        "members": [
+          {
+            "astId": 994,
+            "contract": "MTQSigmaV3.sol:MTQSigmaV3",
+            "label": "fiatValue",
+            "offset": 0,
+            "slot": "0",
+            "type": "t_uint256"
+          },
+          {
+            "astId": 996,
+            "contract": "MTQSigmaV3.sol:MTQSigmaV3",
+            "label": "goldValue",
+            "offset": 0,
+            "slot": "1",
+            "type": "t_uint256"
+          },
+          {
+            "astId": 998,
+            "contract": "MTQSigmaV3.sol:MTQSigmaV3",
+            "label": "liquidValue",
+            "offset": 0,
+            "slot": "2",
+            "type": "t_uint256"
+          }
+        ],
+        "numberOfBytes": "96"
+      },
+      "t_struct(WeightState)1199_storage": {
+        "encoding": "inplace",
+        "label": "struct MTQSigmaV3.WeightState",
+        "members": [
+          {
+            "astId": 1188,
+            "contract": "MTQSigmaV3.sol:MTQSigmaV3",
+            "label": "weights",
+            "offset": 0,
+            "slot": "0",
+            "type": "t_array(t_uint256)7_storage"
+          },
+          {
+            "astId": 1192,
+            "contract": "MTQSigmaV3.sol:MTQSigmaV3",
+            "label": "targetWeights",
+            "offset": 0,
+            "slot": "7",
+            "type": "t_array(t_uint256)7_storage"
+          },
+          {
+            "astId": 1194,
+            "contract": "MTQSigmaV3.sol:MTQSigmaV3",
+            "label": "methodologyVersion",
+            "offset": 0,
+            "slot": "14",
+            "type": "t_bytes32"
+          },
+          {
+            "astId": 1196,
+            "contract": "MTQSigmaV3.sol:MTQSigmaV3",
+            "label": "dataVersion",
+            "offset": 0,
+            "slot": "15",
+            "type": "t_bytes32"
+          },
+          {
+            "astId": 1198,
+            "contract": "MTQSigmaV3.sol:MTQSigmaV3",
+            "label": "updatedAt",
+            "offset": 0,
+            "slot": "16",
+            "type": "t_uint256"
+          }
+        ],
+        "numberOfBytes": "544"
+      },
+      "t_uint224": {
+        "encoding": "inplace",
+        "label": "uint224",
+        "numberOfBytes": "28"
+      },
+      "t_uint256": {
+        "encoding": "inplace",
+        "label": "uint256",
+        "numberOfBytes": "32"
+      },
+      "t_uint32": {
+        "encoding": "inplace",
+        "label": "uint32",
+        "numberOfBytes": "4"
+      }
+    }
+  }
+}

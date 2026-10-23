@@ -1,0 +1,38 @@
+{
+  "label": "v2-runs1-cancun",
+  "purpose": "Evidence baseline repro — byte-identical settings to contracts/out-v3/compile-standard.mjs; adds bytecode hashes + evmVersion (missing from committed artifacts)",
+  "sourcePath": "/home/z/my-project/contracts/MTQSigmaV2.sol",
+  "sourceSha256": "8efb0be0b3e84aa65c03ac05da7e31af16e178c3c6b26fcc1326642bb3db72e3",
+  "sourceLines": 1623,
+  "contractName": "MTQSigmaV2",
+  "settings": {
+    "optimizer": {
+      "enabled": true,
+      "runs": 1
+    },
+    "viaIR": true,
+    "evmVersion": "cancun"
+  },
+  "solcVersion": "0.8.36+commit.8a079791.Emscripten.clang",
+  "compileMs": 11812,
+  "errors": [
+    {
+      "severity": "warning",
+      "errorCode": "5574",
+      "firstLine": "Warning: Contract code size is 24718 bytes and exceeds 24576 bytes (a limit introduced in Spurious Dragon). This contract may not be deployable on Mainnet. Consider enabling the optimizer (with a low \"runs\" value!), turning off revert strings, or using libraries."
+    }
+  ],
+  "creationBytes": 26131,
+  "deployedBytes": 24718,
+  "eip170": {
+    "limit": 24576,
+    "within": false,
+    "exceedsBy": 143
+  },
+  "hashes": {
+    "creationKeccak256": "0xfe318db87eea39603097ec435fb2d48bb3b7eeb295dbf6e8ca75a899efcb2fdf",
+    "creationSha256": "ed246db70d4c7434222ab7a3cd7b0c6f87a80552c5e601dd21dc389edb6e2e75",
+    "deployedKeccak256": "0x0f9c28a7733f01c9b6d9f11a98b6cd5f690014d43662599611bd00292305404f",
+    "deployedSha256": "bf9843a8fc062b73730a31e0501253b135bb84e555c7d7d8bf480a240ca1059c"
+  }
+}

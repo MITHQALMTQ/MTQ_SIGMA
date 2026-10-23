@@ -1,0 +1,3147 @@
+###  Translation from RTF performed by UnRTF, version 0.21.10 
+### font table contains 8 fonts total
+
+-----------------
+MTQ   Single Source of Truth
+Consolidated Developer Mandate, MARP Corrections, Deployment Verification, Quantitative Controls, Authorization, and Roadmap
+Document ID: MTQSIGMA-SINGLE-SOURCE-OF-TRUTH-006Version: 5.0  Final Consolidated Developer HandoffDate: 19 October 2026Supersedes: MTQSIGMA-SINGLE-SOURCE-OF-TRUTH-005 (v4.0) and MTQSIGMA-SINGLE-SOURCE-OF-TRUTH-004 (v3.0), and all earlier MARP execution-protection draftsAudience: AI Platform Developer, Smart-Contract Engineering, Quantitative Committee, Risk Council, Governance, Security Auditors, OperationsStatus: Testnet operation authorized; correction and validation work required; production reserve trading NOT authorizedAuthority: This is the authoritative implementation mandate. It is not a production authorization and does not claim any correction has already been implemented.
+
+0. Executive front matter  read first
+0.1 What this document delivers and does not deliver
+This document delivers:
+ A single, authoritative implementation mandate the developer can build against.
+ Corrected, tested code patterns for every P0 defect identified in the COO audit.
+ A six-level authority hierarchy for resolving conflicting specifications.
+ The reported deployment inventory with mandatory verification procedure.
+ The five separate time measurements and three distinct prices.
+ The direction-aware deviation and signed-improvement rules, with corrected expected test values.
+ The dimensional net-benefit gate with common-numeraire enforcement.
+ Checked token-decimal scaling with explicit precision-loss rejection.
+ Gas-cost conversion with full-precision mulDiv requirement.
+ The 40-test minimum validation matrix.
+ The seven release gates with exit criteria and time estimates.
+ The thirteen open decisions with named owners.
+ The sixteen-entry conflict register with named resolutions.
+ The keeper trust boundary, decision-record schema, and reconciliation discipline.
+ A first-sprint plan the developer can execute on day one.
+This document does not deliver:
+ A production authorization. That requires Gate 6.
+ A waiver of the audit's NO-GO verdict. The verdict is correct.
+ An invented objective function J(s)J(s)J(s), threshold policy, protection margin, or purchasing-power benchmark. Those are Quantitative Committee decisions (OD-1, OD-2, OD-4, OD-5, OD-12).
+ A claim that testnet deployment equals production readiness.
+ A claim that any correction has already been deployed and verified on any chain.
+The developer must not interpret a request to "go live" as permission to bypass the release gates. The only authorized activity that touches live funds is the Gate 5 pilot, and only with separate written approval.
+0.2 Six-level authority hierarchy
+When two sources conflict, resolve in this order. Do not skip levels. Do not let code override an approved requirement merely because the code is deployed.
+1 Applicable law and binding regulatory requirements.
+2 Explicit, documented governance decisions and approved risk limits.
+3 The approved MTQ  monetary-reference and reserve-governance specification.
+4 This mandate's corrected implementation semantics.
+5 Earlier drafts and implementation notes.
+6 Existing code, where it conflicts with an approved requirement.
+Until a correction has been implemented, tested, reviewed, and deployed, the existing deployed behavior is the current technical reality. Do not claim that the new specification is already enforced on-chain.
+No developer may independently invent an economic objective, risk coefficient, monetary threshold, price source, reserve rule, emergency exception, or purchasing-power definition.
+0.3 Authorization matrix
+
+
+
+	Activity	Status	Conditions
+	Inspect existing deployments and source	Authorized	Read-only verification first
+	Continue testing on Monad Testnet, Arc Testnet, Solana Devnet	Authorized	Keep existing testnet safety practices
+	Correct code and deploy new testnet implementations	Authorized	New deployment records; old deployments remain identifiable
+	Run automated, simulation, and historical tests	Authorized	Results must be reproducible and honestly labeled
+	Run shadow-mode decision generation	Authorized as development scope	No reserve-fund movement
+	Run testnet execution and role-rotation rehearsals	Authorized	Use test assets and verify outcomes
+	Execute a limited real-asset reserve pilot	Not authorized	Requires Gate 5 and separate written approval
+	Authorize production reserve trading	Not authorized	Requires Gate 6 and written governance authorization
+	Expand to production Solana or consolidated multichain operation	Not authorized	Requires Gate 7 and separate release decision
+	0.4 Mandatory truthfulness rule
+The project may describe the system as deployed to test networks only after verifying those deployments. It must not describe testnet deployments, simulated trades, successful compilation, or an uncompleted audit as evidence of production readiness.
+The COO audit identified four principal P0 implementation defects:
+
+
+1 Direction-aware deviation arithmetic.
+2 Dimensional integrity of the monetary benefit-cost gate.
+3 Gas-cost conversion and its input/fallback controls.
+4 Token-decimal scaling and precision preservation.
+The developer must independently verify the original findings against the actual source. If the source reveals additional P0 defects, add them to the conflict register and block release until resolved.
+0.5 Time estimates and roadmap
+The following are honest estimates assuming continuous developer effort and timely Committee decisions. They are not commitments; they are the basis for planning.
+
+
+
+	Step	Duration	Dependencies
+	First sprint (verify inventory, reproduce P0s, integrate corrections)	12 weeks	None
+	Test matrix T-01 through T-40 (Part 6)	24 weeks	First sprint complete
+	Quantitative Committee approvals (OD-1 through OD-5, OD-8, OD-12)	26 weeks (calendar-dependent)	Committee constituted (OD-3)
+	Gate 1 closure (audit, conflict register,
+J
+(
+s
+)
+J(s)
+J(s), thresholds)	Combined with above	All of the above
+	Gate 2 shadow implementation on Monad	24 weeks	Gate 1 closed
+	Gate 3 quantitative and technical validation	48 weeks	Gate 2 complete
+	Gate 4 shadow acceptance (minimum 30 days + coverage criteria)	30+ days	Gate 3 complete
+	Gate 5 limited live pilot	3090 days	Gate 4 complete, OD-6, OD-7, OD-13 approved
+	Gate 6 production authorization	Governance decision	Gate 5 complete, OD-11 satisfied
+	Gate 7 Solana and multichain	Separate release	OD-9, OD-10 approved
+	Realistic time to production authorization: 612 months. Anyone who tells you "three weeks" is lying or has not read the audit. Anyone who tells you "ready today" is misrepresenting testnet deployment as production readiness.
+0.6 First sprint plan
+The developer's first sprint should produce the following, in order:
+
+
+1 Verify the reported deployment inventory on Monad, Arc, and Solana Devnet. Produce the deployment register (chain, address, code hash, build identifier, deployment transaction, verification status, current role assignments). See Part 1 and Part 5.
+2 Reproduce the four P0 findings against the actual deployed source. For each finding, cite the exact file, function, and line range. Confirm or refute the COO audit's finding.
+3 Integrate Listings C-1 through C-6 (Part 4) into a new feature branch. Do not modify the currently deployed contracts until the corrected versions pass tests.
+4 Run tests T-01 through T-10 (Part 6). Publish the results with a status label: implemented, unit-tested, or not demonstrated.
+5 Report back to the Committee with the deployment register, the P0 reproduction report, the branch commit hash, the test results, and any additional findings.
+Do not proceed to Gate 1 until the first sprint is complete and the Committee has reviewed the evidence.
+
+Part 1  Deployment inventory (reported, requires verification)
+The addresses below are provided by the project owner. The developer must verify each address, chain ID, runtime bytecode, current role assignment, and configuration before claiming that the deployment has the stated properties. A non-empty code response at an address establishes only that code exists  it does not establish that the code is correct, audited, or production-ready.
+1.1 Monad Testnet (reported chain ID 10143)
+
+
+
+	Component	Reported address
+	MTQ.sol	0x9e6EdC15DAc420931508d8Ddf9BC817651A253aD
+	Governance.sol	0xE35a91801bc541fb743BB9EaD26C1FbD81EaBd66
+	Safe	0xE71869C662733642bfBb262B8c6bad8B0fBfA7D0
+	Algorithm.sol	0x8839ce50e8D414005518769999c0A5b961D00CB2
+	Reserve.sol	0x1bbCd78E4DEF79b7a3B77242770cbAefAC816177
+	Mint.sol	0x197e9CB28216dfe18a199b4c2930F74C2F460809
+	Redeem.sol	0x963201C0Fa258033CCDdFcDceb8B5E3bc2b435a4
+	Oracle.sol	0xDfcA66ac0450C9AB86307af1942E157C5A4DB713
+	Takaful.sol	0x3eC27BB283644eF0A98B9961E9FBED0583a02f19
+	Reported deployer	0x3C3932F865892EFabE45892f453f81B64f6c8d8c
+	The RPC endpoint must be verified against the current official Monad network documentation. Do not rely on an endpoint supplied in earlier chat history without confirming it with Monad's published documentation.
+1.2 Arc Testnet (reported chain ID 5042002)
+
+
+Component	Reported address
+	MTQ.sol	0x237c3Aa2B79248f86f6523D3890095BCd1996601
+	Governance.sol	0xE35a91801bc541fb743BB9EaD26C1FbD81EaBd66
+	Safe	0xE71869C662733642bfBb262B8c6bad8B0fBfA7D0
+	Algorithm.sol	0x62f8E5243f32eE5C87a14A7896C61104aD9e7727
+	Reserve.sol	0x27a1a201D6DF8215d0b0da3Be6211bE24ef4c471
+	Mint.sol	0x0dd8b4F8DA7fB6E3eE04ea9F24f853647F84c3aa
+	Redeem.sol	0xcAde4594177829597882555Ff57d0e34092daF8e
+	Oracle.sol	0xFd2B8d176bf059287638Db30D02C6651dA02861e
+	Takaful.sol	0xA3B89FfdE28577A7D30E2c22503dB33509044EF0
+	Reported deployer	0x3C3932F865892EFabE45892f453f81B64f6c8d8c
+	Reported network details: RPC https://rpc.testnet.arc.io; explorer https://testnet.arcscan.app; reported native currency USDC at 18 decimals  verify against the actual RPC response.
+1.3 Solana Devnet
+
+
+Field	Reported value
+	RPC	https://api.devnet.solana.com (standard devnet endpoint; the earlier ""https://tokens.solana.com/"" note should be treated as a typo and verified)
+	Mint	GAGRdrY6jcRTmD7A9KzvXA5sGMpNAkkRXwDoXBrEjxS4
+	Symbol	MTQ
+	Decimals	18 (reported; verify)
+	Wallet	DbFjzWcD6kNmewadiG7ThjD7L4o3w3UhFhG31fPQhXb3
+	Inspect the actual mint account, mint authority, freeze authority, program owner, token program, metadata, and wallet/AMM compatibility.
+Do not assume that 18 decimals are universally unsupported on Solana or that all wallets and AMMs handle them correctly. Test the actual intended integration path. If the chosen wallets, token programs, or AMMs do not support the required precision reliably, submit a migration proposal for governance approval. Do not silently change decimals or represent a migration as a simple metadata edit.
+Solana distribution remains deferred until Gate 7.
+1.4 Reported EVM roles
+
+
+Role	Reported hash	Reported account
+	DEFAULT_ADMIN_ROLE	0x0000000000000000000000000000000000000000000000000000000000000000	0x3C3932F865892EFabE45892f453f81B64f6c8d8c
+	MINTER_ROLE	0x9f2df0fed2c77648de5860a4cc508cd0818c85b8b8a1ab4ceeef8d981c8956a6	0x3C3932F865892EFabE45892f453f81B64f6c8d8c
+	PAUSER_ROLE	0x65d7a28e3265b37a6474929f336521b332c1681b933f6cb9f3376673440d862a	0x3C3932F865892EFabE45892f453f81B64f6c8d8c
+	These are reported assignments, not independently verified current state. Check each role on every relevant contract and chain. A role on MTQ.sol does not prove that the same role controls Mint.sol, Reserve.sol, or another component.
+Production security finding: if one EOA holds administrator, minting, and pausing privileges, compromise of that key may enable unauthorized minting, role escalation, or disruption. The configuration is acceptable only as an explicitly accepted testnet risk. It is not the production design. Role rotation is required before Gate 5.
+1.5 Deployment verification procedure
+For each chain and contract:
+
+
+1 Verify chain ID and RPC connectivity against current official documentation.
+2 Confirm that the address contains runtime bytecode.
+3 Retrieve the deployment transaction, deployer, transaction nonce, constructor arguments, and deployment block or slot.
+4 Compare runtime bytecode with the intended build, accounting for compiler metadata and immutable values.
+5 Verify proxy implementation, admin, and upgrade mechanism if applicable.
+6 Query roles, role-admin relationships, pause state, mint authority, reserve permissions, oracle configuration, token decimals, and critical parameters.
+7 Record verification evidence: timestamp, tool version, RPC endpoint, code hash, and reviewer.
+Cross-chain caution: The matching Governance and Safe addresses on Monad and Arc do not prove CREATE2 was used. A common deployer and matching nonce can produce the same address on separate chains. Different bytecode at matching addresses is not, by itself, proof of a bug. Investigate the deployment method and verify each chain's code and configuration independently.
+Example verification commands
+Use a currently supported, documented RPC endpoint for the target chain.
+bash
+# Monad candidate endpoint: verify against Monad's current documentation first.
+export RPC="https://testnet-rpc.monad.xyz"
+export MTQ="0x9e6EdC15DAc420931508d8Ddf9BC817651A253aD"
+
+cast chain-id --rpc-url "$RPC"
+cast code --rpc-url "$RPC" "$MTQ"
+cast codehash --rpc-url "$RPC" "$MTQ"
+
+
+A non-empty code response establishes only that code exists at the address. It does not establish that the code is correct, audited, or production-ready.
+
+Part 2  Constitutional monetary requirements
+The following requirements are non-negotiable.
+The developer must not:
+1 Peg MTQ  to USD or treat USD as its permanent reference value.
+2 Replace the governed currency-and-gold reference basket with a USD peg.
+3 Confuse reference-index weights with reserve-portfolio weights.
+4 Change MTQ 's purchasing-power definition without explicit governance approval.
+5 Allow MASE or MARP to bypass governance, authorization, oracle, reserve-solvency, or execution controls.
+6 Introduce a competing rebalancing engine.
+7 Treat oracle spot prices as executable route prices.
+8 Count the same fee twice or omit an execution cost because of an inconsistent data source.
+9 Treat simulated fills as evidence of real execution quality.
+10 Treat a reserve ratio as a guarantee of redemption at the reference-index value.
+11 Claim that a successful test, audit report, or passage of time automatically authorizes production.
+12 Allow the developer to invent objective functions, risk coefficients, threshold policies, price sources, or emergency exceptions.
+USD-equivalent values may be used as a common accounting numeraire to compare heterogeneous costs and benefits. That accounting convention does not make MTQ  USD-pegged.
+The governed reference index, the reserve portfolio, and the execution system are three different systems:
+ Reference index  the governed measurement of MTQ 's purchasing-power reference.
+ Reserve portfolio  the actual assets and liabilities, subject to reserve policy, liquidity, market risk, and redemption arrangements.
+ Execution system  determines whether a specific proposed transaction is economically justified and operationally safe.
+A correct rebalancing algorithm must not silently equate these three concepts.
+
+Part 3  MARP architecture and execution protection
+3.1 Separation of responsibilities
+MASE calculates the proposed reserve target under the approved methodology.
+MARP evaluates whether and how an approved target should be approached through executable transactions.
+The architecture must separate these stages:
+1 Reference-index calculation.
+2 Reserve valuation and holdings reconciliation.
+3 Target-weight computation.
+4 Trade sizing and direction.
+5 Executable route quotation.
+6 Estimated cost and adverse-movement protection.
+7 Economic eligibility.
+8 Authorization and on-chain hard-bound enforcement.
+9 Execution.
+10 Settlement reconciliation and calibration.
+MASE must not execute trades. MARP must not rewrite the governed index. Neither component may bypass the authorization layer.
+3.2 Five separate time measurements
+Implement and record all five. Do not collapse these into a single "freshness" flag.
+1 Oracle observation age  current time minus the oracle observation timestamp.
+2 Executable-quote age  current time minus the quote's creation timestamp.
+3 Decision-to-submission delay  submission time minus decision time.
+4 Submission-to-execution delay  execution/inclusion time minus submission time, where observable.
+5 Settlement/finality delay  finality time minus execution/inclusion time.
+Each measurement requires a defined clock, units, data source, maximum permitted value, and failure behavior. If a value is not observable or reliable on a particular chain, label it unavailable and apply the approved conservative policy. Do not substitute zero.
+3.3 Three distinct prices
+
+
+
+	Price	Purpose	May authorize a trade by itself?
+	Reference valuation price	Accounting, portfolio valuation, sanity checks	No
+	Executable route quote	Trade sizing and estimated execution economics	No  only with remaining checks
+	Realized execution price	Reconciliation from actual settled input/output	No  it measures a completed transaction
+	The executable quote must come from the intended venue or route and must identify the actual route, assets, trade side, amount semantics, timestamp, expiry/deadline, and expected output or required input.
+For a multi-leg route, calculate the compounded conversion and fees for each leg. Do not apply a single-leg spread formula to a multi-leg route when actual executable quotes are available.
+3.4 Trade direction and post-trade state
+All internal weight arithmetic must be signed and use one documented scale.
+Let:
+
+
+ wiw_iw
+
+	 i	 				
+	 					
+	
+
+  observed reserve weight of asset iii.
+ wiw_i^*w
+
+	 i	 				
+	 					
+	
+
+  approved target weight.
+ wi(q)\Delta w_i(q)w
+
+	 i	 				
+	 					
+	
+
+ (q)  modeled change caused by proposed trade qqq.
+Then:
+d
+i
+=
+w
+i
+
+w
+i
+
+d_i = w_i - w_i^*
+d
+
+	i					
+						
+	=w
+i					
+						
+	w
+i
+					
+						
+	d
+i
+
+(
+q
+)
+=
+w
+i
++
+
+w
+i
+(
+q
+)
+
+w
+i
+
+d_i'(q) = w_i + \Delta w_i(q) - w_i^*
+d
+i
+					
+						
+	(q)=w
+i					
+						
+	+w
+i					
+						
+	(q)w
+i
+					
+						
+	I
+i
+(
+q
+)
+=
+
+d
+i
+
+
+
+d
+i
+
+(
+q
+)
+
+I_i(q) = |d_i| - |d_i'(q)|
+I
+i					
+						
+	(q)=d
+i					
+						
+	d
+i
+					
+						
+	(q)
+Interpretation:
+
+
+ Ii(q)>0I_i(q) > 0I
+
+	 i	 				
+	 					
+	
+
+ (q)>0  absolute deviation improves.
+ Ii(q)=0I_i(q) = 0I
+
+	 i	 				
+	 					
+	
+
+ (q)=0  no improvement.
+ Ii(q)<0I_i(q) < 0I
+
+	 i	 				
+	 					
+	
+
+ (q)<0  deviation worsens.
+Do not silently floor a negative improvement to zero. Preserve the signed value in the diagnostic record. Use a separate non-negative eligibility signal (see §3.4.1) for the eligibility decision.
+A wrong-direction trade must be rejected in normal mode. An overshoot must be flagged and resized or rejected if it worsens the objective. A trade that reduces one asset's deviation can still worsen the portfolio objective, liquidity, or risk. The single-asset improvement
+I
+i
+I_i
+I
+
+	i					
+						
+	is a diagnostic, not a substitute for the approved
+J
+(
+s
+)
+J(s)
+J(s).
+3.4.1 Required eligibility signal
+The eligibility signal for normal-mode execution must be:
+solidity
+function isEligibleForNormalMode(
+ int256 signedImprovement,
+ int256 observedW,
+ int256 targetW,
+ int256 deltaW
+) internal pure returns (bool) {
+ if (signedImprovement <= 0) return false; // must improve absolute deviation
+ int256 d = observedW - targetW;
+ if (deltaW > 0 && d >= 0) return false; // buy only when underweight
+ if (deltaW < 0 && d <= 0) return false; // sell only when overweight
+ return true;
+}
+
+
+This is not a substitute for the full
+J
+(
+s
+)
+J(s)
+J(s)-based gate. It is the minimum direction-correctness check that must precede it.
+3.5 Objective function
+J
+(
+s
+)
+J(s)
+J(s)  Committee approval required
+The Quantitative Committee must approve the complete objective before economic eligibility can be enabled for reserve trading.
+A candidate framework is:
+J
+(
+s
+)
+=
+J
+tracking
+(
+s
+)
++
+J
+reserve-risk
+(
+s
+)
+J(s) = J_{\text{tracking}}(s) + J_{\text{reserve-risk}}(s)
+J(s)=J
+tracking					
+						
+	(s)+J
+reserve-risk					
+						
+	(s)
+A candidate tracking term is:
+J
+tracking
+(
+s
+)
+=
+NAV
+
+(
+s
+)
+2
+
+i
+
+i
+(
+w
+i
+(
+s
+)
+
+w
+i
+
+)
+2
+J_{\text{tracking}}(s) = \frac{\operatorname{NAV}(s)}{2} \sum_i \kappa_i \big(w_i(s) - w_i^*\big)^2
+J
+tracking					
+						
+	(s)=
+2
+
+NAV(s)					
+						
+	i
+					
+						
+	
+i					
+						
+	(w
+i					
+						
+	(s)w
+i
+					
+						
+	)
+2					
+	This candidate is not approved for production implementation until the Committee defines and approves:
+
+
+ The state sss and valuation time.
+ The definition and numeraire of NAV.
+ Target weights and their governance source.
+ Each coefficient i\kappa_i
+
+	 i	 				
+	 					
+	
+
+ , its units, and calibration method.
+ Whether covariance, tracking error, or another portfolio-risk representation is required.
+ The reserve-risk term, horizon, scenarios, and aggregation method.
+ How concentration, liquidity, volatility, and tail risk are handled without double-counting.
+ How objective changes are evaluated when a trade changes NAV.
+ Model versioning, independent validation, and approval procedures.
+Do not assign arbitrary coefficients or claim that a quadratic tracking penalty alone represents purchasing-power preservation. Do not assign arbitrary monetary values to dimensionless urgency scores, purchasing-power improvements, or diversification benefits.
+3.6 Protected net-benefit gate
+For a candidate trade
+q
+q
+q:
+G
+(
+q
+;
+s
+)
+=
+J
+(
+s
+)
+
+J
+(
+s
+
+(
+q
+)
+)
+G(q; s) = J(s) - J(s'(q))
+G(q;s)=J(s)J(s
+
+						
+	(q))
+where
+s
+
+(
+q
+)
+s'(q)
+s
+					
+	(q) is the modeled post-trade state using the quoted route and actual asset amounts.
+Define total expected cost in the common accounting numeraire:
+C
+(
+q
+)
+=
+C
+spread
++
+C
+route
++
+C
+impact
++
+C
+fees
++
+C
+settlement
++
+C
+other
+C(q) = C_{\text{spread}} + C_{\text{route}} + C_{\text{impact}} + C_{\text{fees}} + C_{\text{settlement}} + C_{\text{other}}
+C(q)=C
+spread					
+						
+	+C
+route					
+						
+	+C
+impact					
+						
+	+C
+fees					
+						
+	+C
+settlement					
+						
+	+C
+other					
+						
+	Every cost component must be itemized. If a quoted output already includes a spread or fee, do not add that same amount again. Record which components are quote-embedded and which are incremental.
+Define the protection margin:
+B
+time
+(
+q
+)
+=
+V
+(
+q
+)
+
+b
+(
+
+t
+,
+
+,
+L
+,
+route
+,
+side
+,
+size
+)
+B_{\text{time}}(q) = V(q) \cdot b(\Delta t, \sigma, L, \text{route}, \text{side}, \text{size})
+B
+time					
+						
+	(q)=V(q)b(t,,L,route,side,size)
+where:
+
+
+ V(q)V(q)V(q)  trade value in the accounting numeraire.
+ t\Delta tt  relevant quote age and expected execution delay.
+ \sigma  a defined short-horizon volatility measure.
+ LLL  available liquidity/depth and its reliability.
+ Route, side, and size distinguish execution conditions.
+The protection function must be calibrated against actual execution data and stress tests. Before sufficient evidence exists, use a formally approved conservative fallback and hard limits. Do not claim that a guessed fixed factor is calibrated.
+The protected net benefit is:
+N
+(
+q
+;
+s
+)
+=
+G
+(
+q
+;
+s
+)
+
+C
+(
+q
+)
+
+B
+time
+(
+q
+)
+N(q; s) = G(q; s) - C(q) - B_{\text{time}}(q)
+N(q;s)=G(q;s)C(q)B
+
+	time					
+						
+	(q)
+Normal-mode execution requires:
+N
+(
+q
+;
+s
+)
+>
+
+(
+q
+)
+N(q; s) > \varepsilon(q)
+N(q;s)>(q)
+and every independent authorization, oracle, reserve, liquidity, quote-validity, slippage, and operational check must pass.
+All terms must use the same approved numeraire and compatible scale. A dimensionless deviation improvement cannot be subtracted directly from a monetary execution cost.
+The threshold
+
+(
+q
+)
+\varepsilon(q)
+(q) must have an approved definition, units, and policy. The current conflict between a $10 minimum benefit and a 1% benefit margin must be resolved under OD-2. The developer must not combine them arbitrarily or pick whichever threshold permits a trade.
+3.6.1 Gross benefit verification gap
+The on-chain contract can verify arithmetic consistency of supplied values. It cannot verify that the supplied gross benefit was computed correctly from the approved
+J
+(
+s
+)
+J(s)
+J(s). The correctness of the gross benefit is the keeper's responsibility and the auditor's check. The developer must:
+
+
+ Compute J(s)J(s)J(s) and J(s(q))J(s'(q))J(s
+
+	 					
+	
+
+ (q)) off-chain under the approved objective version.
+ Bind the gross benefit and the objective version into the signed decision record.
+ Ensure the on-chain contract enforces only what it can independently check (arithmetic consistency, authorization, hard bounds, version match).
+ Never describe on-chain enforcement as verification of the economic calculation.
+3.7 Gas-cost conversion
+When:
+ gasUnits is measured in gas units,
+ gasPriceWei is wei per gas,
+ nativeUsdPriceE18 is USD per native token scaled by 101810^{18}10
+
+	 18					
+	
+
+ ,
+the USD-equivalent cost scaled by
+10
+18
+10^{18}
+10
+
+	18					
+	is:
+text
+gasCostUsdE18 = gasUnits * gasPriceWei * nativeUsdPriceE18 / 1e18
+
+
+This formula assumes the price is in the specified units and the arithmetic is safely implemented with a full-precision mulDiv.
+GAS_FALLBACK must never be passed into this function as though it were a gas price if it represents a monetary fallback. Record when the fallback is used, its value, its source, and its effect on eligibility. If the approved fallback policy does not authorize trading without a valid native-token price, reject or defer the trade.
+Sanity checks:
+
+
+ 150,000 gas × 30 gwei × $3,000/native token = **$13.50**.
+ 300,000 gas × 100 gwei × $1,500/native token = **$45.00**.
+The accounting numeraire remains an accounting convention, not a monetary peg.
+3.8 Quote protection and hard execution bounds
+Immediately before execution, validate:
+ Route quote exists, belongs to the intended assets and trade side, and is fresh.
+ Quote timestamp, quote age, expiry, and deadline are valid.
+ Oracle data are independently fresh and satisfy approved confidence/deviation checks.
+ Input/output amount semantics are correct.
+ minAmountOut or maxAmountIn is correctly derived and denominated.
+ Route liquidity and size caps are satisfied.
+ Fees are correctly represented and not double-counted.
+ The proposed trade remains within reserve, turnover, concentration, and authorization limits.
+ The keeper is authorized.
+ The decision record and approved parameter/model versions are valid.
+If the quote is stale, the oracle fails its checks, or the price has deteriorated beyond the hard bound, reject, requote, resize, or defer according to the approved policy.
+An on-chain contract cannot independently prove that an off-chain route was globally optimal or that all estimated economic costs were correct. On-chain enforcement must enforce hard bounds and authorization. The keeper performs the approved economic analysis and signs an attributable decision record.
+3.9 Emergency mode
+Normal, degraded, and emergency modes must be separate, explicitly defined states.
+An emergency trade may bypass the normal economic eligibility threshold only if a written policy is approved in advance and defines:
+ The triggering conditions.
+ The risk-reducing objective.
+ Authorized initiators and signers.
+ Permitted assets, routes, counterparties, and maximum sizes.
+ Maximum frequency and cumulative exposure.
+ Required oracle and execution bounds.
+ Expiry and automatic return-to-normal behavior.
+ Audit logging and post-event review.
+ Independent monitoring and kill-switch behavior.
+Emergency mode must never implicitly waive authorization, reserve-solvency limits, approved oracle sanity checks, or minimum-output/maximum-input protection.
+OD-6 remains open until the relevant governance bodies approve and test the policy.
+
+Part 4  Corrected implementation patterns
+These examples define required semantics. They are not drop-in replacements for the deployed system. The developer must adapt them to the actual contract interfaces, compiler version, access-control design, state model, and approved parameters.
+Every library below must be integrated into the actual MARP contract (not left as a separate library that is never called), and must be covered by the tests in Part 6.
+4.1 Listing C-1  Signed deviation and signed improvement
+solidity
+// SPDX-License-Identifier: MIT
+pragma solidity ^0.8.19;
+
+library DeviationMath {
+ error SignedOverflow();
+
+ /// @notice Signed deviation: observed minus target.
+ /// Positive means overweight; negative means underweight.
+ function signedDeviation(
+ int256 observedW,
+ int256 targetW
+ ) internal pure returns (int256) {
+ return observedW - targetW;
+ }
+
+ /// @notice Absolute value without accepting int256 minimum.
+ function absDeviation(int256 d) internal pure returns (uint256) {
+ if (d == type(int256).min) revert SignedOverflow();
+ return uint256(d >= 0 ? d : -d);
+ }
+
+ /// @notice Signed post-trade deviation.
+ /// deltaW is positive for an increase in the asset weight.
+ function postTradeDeviation(
+ int256 observedW,
+ int256 targetW,
+ int256 deltaW
+ ) internal pure returns (int256) {
+ return (observedW + deltaW) - targetW;
+ }
+
+ /// @notice Signed improvement: positive improves absolute deviation,
+ /// negative worsens, zero means no change.
+ function signedImprovement(
+ int256 observedW,
+ int256 targetW,
+ int256 deltaW
+ ) internal pure returns (int256) {
+ uint256 beforeAbs = absDeviation(signedDeviation(observedW, targetW));
+ uint256 afterAbs = absDeviation(postTradeDeviation(observedW, targetW, deltaW));
+
+ if (beforeAbs >= afterAbs) {
+ uint256 diff = beforeAbs - afterAbs;
+ if (diff > uint256(type(int256).max)) revert SignedOverflow();
+ return int256(diff);
+ }
+
+ uint256 deterioration = afterAbs - beforeAbs;
+ if (deterioration > uint256(type(int256).max)) revert SignedOverflow();
+ return -int256(deterioration);
+ }
+
+ /// @notice Normal-mode eligibility: positive improvement, correct direction.
+ function isEligibleForNormalMode(
+ int256 signedImp,
+ int256 observedW,
+ int256 targetW,
+ int256 deltaW
+ ) internal pure returns (bool) {
+ if (signedImp <= 0) return false;
+ int256 d = observedW - targetW;
+ if (deltaW > 0 && d >= 0) return false;
+ if (deltaW < 0 && d <= 0) return false;
+ return true;
+ }
+}
+
+
+Required tests (T-01 through T-04):
+
+
+
+	Case	Observed	Target	Delta	Post-trade deviation	Signed improvement
+	Buy underweight	0.25	0.30	+0.03	-0.02	+0.03
+	Sell overweight	0.35	0.30	-0.03	+0.02	+0.03
+	Buy overweight (wrong direction)	0.35	0.30	+0.03	+0.08	-0.03
+	No trade	0.25	0.30	0	-0.05	0
+	Overshoot that worsens deviation	0.28	0.30	+0.05	+0.03	-0.01
+	The overshoot case must be rejected or resized in normal mode. The diagnostic must not report a positive improvement when absolute deviation increases. The values above use weight fractions for readability; production code must use the blueprint's actual scale.
+4.2 Listing C-2  Checked token scaling
+Never assume every token uses 18 decimals. Read and verify the actual decimals from the intended token contract or chain adapter, subject to the approved asset registry.
+solidity
+// SPDX-License-Identifier: MIT
+pragma solidity ^0.8.19;
+
+library TokenScale {
+ error UnsupportedDecimals(uint8 decimals);
+ error PrecisionLoss();
+ error ScaleOverflow();
+
+ uint8 internal constant INTERNAL_DECIMALS = 18;
+
+ /// @notice Convert a token-native amount into internal 18-decimal form.
+ /// Reverts on decimals > 18 or multiplicative overflow.
+ function to18Exact(uint256 amount, uint8 decimals)
+ internal pure returns (uint256)
+ {
+ if (decimals > 18) revert UnsupportedDecimals(decimals);
+ uint256 factor = 10 ** uint256(18 - decimals);
+ if (amount != 0 && amount > type(uint256).max / factor) {
+ revert ScaleOverflow();
+ }
+ return amount * factor;
+ }
+
+ /// @notice Convert internal 18-decimal amount into token-native form.
+ /// Reverts if the conversion cannot be represented exactly.
+ function from18Exact(uint256 amount18, uint8 decimals)
+ internal pure returns (uint256)
+ {
+ if (decimals > 18) revert UnsupportedDecimals(decimals);
+ uint256 factor = 10 ** uint256(18 - decimals);
+ if (amount18 % factor != 0) revert PrecisionLoss();
+ return amount18 / factor;
+ }
+}
+
+
+Asset registry validation (required):
+solidity
+function validateAssetForRegistry(address token) internal view {
+ uint8 decimals = IERC20Metadata(token).decimals();
+ require(decimals <= 18,
+ "Asset registry: >18 decimals requires separate precision approval");
+ // Additional checks: token standard, transfer behavior, fee-on-transfer detection, etc.
+}
+
+
+Required tests (T-05 through T-08):
+
+
+ 1,000,000 USDC (6 decimals) round-trips through internal form exactly.
+ 1.5 PAXG (18 decimals) is unchanged.
+ 100 USDC round-trips without loss.
+ Conversion to lower decimals rejects non-representable dust.
+ Unsupported decimals and overflow are rejected.
+ Token metadata mismatches trigger asset-registry failure.
+This is intentionally conservative. If the actual asset set includes a token with more than 18 decimals, the developer must propose a separate representation with explicit precision and rounding analysis. Do not silently truncate.
+4.3 Listing C-3  Gas cost with full-precision mulDiv
+solidity
+// SPDX-License-Identifier: MIT
+pragma solidity ^0.8.19;
+
+library GasCost {
+ error InvalidInput();
+ error Overflow();
+
+ uint256 internal constant SCALE = 1e18;
+
+ /// @notice Estimate gas cost in USD-equivalent 1e18 units.
+ /// @dev Inputs must be validated by the caller.
+ /// @dev The mulDiv function must be replaced with an audited
+ /// full-precision implementation before production.
+ function estimate(
+ uint256 gasUnits,
+ uint256 gasPriceWei,
+ uint256 nativeUsdPriceE18
+ ) internal pure returns (uint256) {
+ if (gasUnits == 0 || gasPriceWei == 0 || nativeUsdPriceE18 == 0) {
+ revert InvalidInput();
+ }
+ // Avoid naive a*b*c; use full-precision mulDiv.
+ // Placeholder below: replace with OpenZeppelin Math.mulDiv or equivalent.
+ return mulDivFullPrecision(
+ gasUnits * gasPriceWei, // gasCostWei
+ nativeUsdPriceE18,
+ SCALE
+ );
+ }
+
+ /// @dev Placeholder. Replace with an audited full-precision mulDiv
+ /// (e.g. OpenZeppelin Math.mulDiv, Remco Bloemen's implementation).
+ function mulDivFullPrecision(
+ uint256 x,
+ uint256 y,
+ uint256 denominator
+ ) private pure returns (uint256) {
+ if (denominator == 0) revert InvalidInput();
+ if (x != 0 && y > type(uint256).max / x) revert Overflow();
+ return (x * y) / denominator;
+ }
+}
+
+
+Implementation requirement: the placeholder mulDivFullPrecision above is deliberately a simple checked implementation and will revert when the intermediate product overflows. It is not the production solution. Replace with an audited full-precision implementation from OpenZeppelin (Math.mulDiv) or an equivalent reviewed library.
+Sanity example (must be tested, T-09 and T-10):
+ 150,000 gas × 30 gwei × $3,000/native token = $13.50 (within defined rounding tolerance).
+ 300,000 gas × 100 gwei × $1,500/native token = $45.00 (within defined rounding tolerance).
+4.4 Listing C-4  Dimensional net-benefit gate
+solidity
+// SPDX-License-Identifier: MIT
+pragma solidity ^0.8.19;
+
+library NetBenefit {
+ error ValueOutOfRange();
+
+ /// @notice All monetary inputs use the same approved numeraire and scale.
+ function calculate(
+ int256 grossBenefitE18,
+ uint256 costE18,
+ uint256 protectionE18
+ ) internal pure returns (int256 netBenefitE18) {
+ if (
+ costE18 > uint256(type(int256).max) ||
+ protectionE18 > uint256(type(int256).max)
+ ) revert ValueOutOfRange();
+
+ int256 deductions = int256(costE18);
+ if (protectionE18 > uint256(type(int256).max) - costE18) {
+ revert ValueOutOfRange();
+ }
+ deductions += int256(protectionE18);
+ return grossBenefitE18 - deductions;
+ }
+
+ function isEligible(
+ int256 grossBenefitE18,
+ uint256 costE18,
+ uint256 protectionE18,
+ uint256 thresholdE18
+ ) internal pure returns (bool eligible, int256 netBenefitE18) {
+ if (thresholdE18 > uint256(type(int256).max)) {
+ revert ValueOutOfRange();
+ }
+ netBenefitE18 = calculate(grossBenefitE18, costE18, protectionE18);
+ eligible = netBenefitE18 > int256(thresholdE18);
+ }
+}
+
+
+This library only enforces arithmetic and unit consistency. It does not validate that the gross benefit was correctly computed from the approved
+J
+(
+s
+)
+J(s)
+J(s)  see §3.6.1.
+Required tests (T-11):
+
+
+
+	Gross benefit	Cost	Protection	Threshold	Net benefit	Eligible
+	0.12	0.05	0.02	0.01	0.04	Yes
+	0.12	0.05	0.02	0.05	0.04	No
+	0.05	0.10	0.02	0	-0.07	No
+	-0.01	0	0	0	-0.01	No
+	All values are illustrative USD-equivalent amounts; the implementation must use the approved integer scale.
+4.5 Listing C-5  Corrected execution pipeline
+Do not deploy the following as a replacement contract. Integrate the steps into the actual MARP architecture.
+text
+1. Load approved target state and parameter/model versions.
+2. Read holdings and approved reference valuations.
+3. Compute target gap and proposed signed trade.
+4. Validate trade direction (isEligibleForNormalMode).
+5. Simulate post-trade state from quoted asset amounts.
+6. Apply approved per-asset, portfolio, turnover, and liquidity limits.
+7. Request a fresh executable route quote.
+8. Record quote timestamp, route legs, input/output semantics,
+ embedded fees, expiry/deadline, and estimated delay.
+9. Validate independent oracle freshness, confidence, and deviation.
+10. Compute post-trade state (signed, direction-aware).
+11. Compute gross benefit from the Committee-approved J(s).
+12. Estimate every incremental cost in the common numeraire
+ (including correctly converted gas).
+13. Compute the Committee-approved time-dependent protection margin.
+14. Apply the Committee-approved threshold policy.
+15. Reject, resize, requote, defer, or proceed.
+16. Produce a signed, attributable decision record binding:
+ - Decision ID
+ - Chain/deployment IDs
+ - Keeper/signer identity
+ - Asset/route IDs
+ - Trade direction, size, limits
+ - Quote provider and timestamp
+ - Oracle source and observation metadata
+ - Cost-model, protection-model, objective-function versions
+ - Parameter-set hash
+ - Estimated cost, protection margin, gross benefit, net benefit
+ - Threshold and safety-policy versions
+17. Verify keeper authorization and hard on-chain bounds.
+18. Execute with minAmountOut or maxAmountIn and a valid deadline.
+19. Reconcile settled amounts, actual fees, actual price, and finality.
+20. Record discrepancies, failures, and post-trade reserve state.
+21. Feed verified outcomes into the governed calibration process.
+
+
+A decision record must not be accepted solely because a keeper supplied a positive benefit value. The record must be bound to the approved objective, parameter set, valuation snapshot, route quote, cost-model version, protection-model version, and decision time.
+4.6 Listing C-6  Role rotation
+Do not implement generic wrapper functions that merely call another contract's grantRole. Verify the target's actual role-admin hierarchy first.
+Production baseline:
+
+
+ DEFAULT_ADMIN_ROLE  governance Safe or approved governance-controlled mechanism.
+ MINTER_ROLE  governance Safe or narrowly scoped, approved minter contract.
+ PAUSER_ROLE  approved emergency/governance authority.
+ Deployer EOA  no persistent privileged role unless explicit, reviewed policy permits it.
+Do not assume the Safe is a 4-of-7 Safe unless its actual configuration proves it. If the deployer is a Safe signer, that does not justify retaining a separate EOA administrator role.
+Approved signing methods for rotation (do not paste private keys anywhere):
+ Hardware wallet: cast send --ledger --rpc-url $RPC ...
+ Safe Wallet app or Safe CLI for transactions originating from the Safe.
+ Secrets manager injecting the key at runtime into a signing service that is not the developer's shell history.
+
+Part 5  Verification and role rotation operations
+5.1 Verify EVM role assignments
+bash
+export MTQ="0x9e6EdC15DAc420931508d8Ddf9BC817651A253aD"
+export SAFE="0xE71869C662733642bfBb262B8c6bad8B0fBfA7D0"
+export DEPLOYER="0x3C3932F865892EFabE45892f453f81B64f6c8d8c"
+
+export ROLE_ADMIN="0x0000000000000000000000000000000000000000000000000000000000000000"
+export ROLE_MINTER="0x9f2df0fed2c77648de5860a4cc508cd0818c85b8b8a1ab4ceeef8d981c8956a6"
+export ROLE_PAUSER="0x65d7a28e3265b37a6474929f336521b332c1681b933f6cb9f3376673440d862a"
+
+# Verify deployer holds all three
+cast call --rpc-url "$RPC" "$MTQ" "hasRole(bytes32,address)(bool)" "$ROLE_ADMIN" "$DEPLOYER"
+cast call --rpc-url "$RPC" "$MTQ" "hasRole(bytes32,address)(bool)" "$ROLE_MINTER" "$DEPLOYER"
+cast call --rpc-url "$RPC" "$MTQ" "hasRole(bytes32,address)(bool)" "$ROLE_PAUSER" "$DEPLOYER"
+
+# Verify Safe does / does not hold each role
+cast call --rpc-url "$RPC" "$MTQ" "hasRole(bytes32,address)(bool)" "$ROLE_ADMIN" "$SAFE"
+cast call --rpc-url "$RPC" "$MTQ" "hasRole(bytes32,address)(bool)" "$ROLE_MINTER" "$SAFE"
+cast call --rpc-url "$RPC" "$MTQ" "hasRole(bytes32,address)(bool)" "$ROLE_PAUSER" "$SAFE"
+
+
+Repeat on Arc using Arc's MTQ address and a verified Arc RPC. Repeat for every contract whose access-control configuration matters (Mint.sol, Reserve.sol, Governance.sol).
+These commands are read-only. They do not rotate roles.
+5.2 Testnet role-rotation rehearsal
+The developer must prepare ROLE_ROTATION.md containing the exact contract interface, role-admin configuration, transaction sequence, expected state after each step, rollback considerations, and verification commands.
+Intended sequence (testnet rehearsal first, production only after Gate 5 approval):
+1 Verify the Safe and its signers/threshold by inspecting its actual configuration.
+2 Grant the Safe the required administrative role (grantRole(ROLE_ADMIN, SAFE)).
+3 Verify the Safe can exercise the admin role.
+4 Grant the Safe the required operational roles (MINTER, PAUSER).
+5 Verify the Safe can perform the intended operational actions on each contract.
+6 Revoke the deployer's operational roles through the authorized mechanism.
+7 Verify the deployer no longer holds those roles.
+8 Revoke the deployer's admin role if the approved policy requires it.
+9 Verify that a legitimate governance administrator remains and that no critical action has become impossible.
+Template (testnet rehearsal  do not run on production without Gate 5):
+bash
+# Step 1: Grant admin to Safe
+cast send --rpc-url "$RPC" --ledger "$MTQ" \
+ "grantRole(bytes32,address)" "$ROLE_ADMIN" "$SAFE"
+
+# Step 2: Grant minter and pauser to Safe
+cast send --rpc-url "$RPC" --ledger "$MTQ" \
+ "grantRole(bytes32,address)" "$ROLE_MINTER" "$SAFE"
+cast send --rpc-url "$RPC" --ledger "$MTQ" \
+ "grantRole(bytes32,address)" "$ROLE_PAUSER" "$SAFE"
+
+# Step 3: Verify Safe holds all three
+cast call --rpc-url "$RPC" "$MTQ" "hasRole(bytes32,address)(bool)" "$ROLE_ADMIN" "$SAFE"
+cast call --rpc-url "$RPC" "$MTQ" "hasRole(bytes32,address)(bool)" "$ROLE_MINTER" "$SAFE"
+cast call --rpc-url "$RPC" "$MTQ" "hasRole(bytes32,address)(bool)" "$ROLE_PAUSER" "$SAFE"
+
+# Step 4: Execute revocations FROM the Safe (Safe UI or Safe CLI):
+# MTQ.revokeRole(ROLE_MINTER, DEPLOYER)
+# MTQ.revokeRole(ROLE_PAUSER, DEPLOYER)
+
+# Step 5: Verify deployer no longer holds operational roles
+cast call --rpc-url "$RPC" "$MTQ" "hasRole(bytes32,address)(bool)" "$ROLE_MINTER" "$DEPLOYER"
+cast call --rpc-url "$RPC" "$MTQ" "hasRole(bytes32,address)(bool)" "$ROLE_PAUSER" "$DEPLOYER"
+
+# Step 6: Optionally revoke admin from deployer if the deployer is not a Safe signer
+# (Safe execution): MTQ.revokeRole(ROLE_ADMIN, DEPLOYER)
+
+
+The --ledger flag is preferred. Do not paste private keys into source code, chat, logs, shell history, or shared command files. If a hardware wallet is unavailable, use the Safe interface or a secrets manager that injects the key at runtime into a signing service  never into the developer's interactive shell.
+5.3 Solana mint verification
+bash
+export SOLANA_RPC="https://api.devnet.solana.com"
+export MINT="GAGRdrY6jcRTmD7A9KzvXA5sGMpNAkkRXwDoXBrEjxS4"
+
+spl-token display "$MINT" --url "$SOLANA_RPC"
+
+
+Record actual mint authority, freeze authority, decimals, token program, metadata, and compatibility test results. Do not assume the reported wallet is the mint authority without inspecting the account.
+5.4 Cross-chain verification
+For the reported Governance and Safe addresses, collect on each chain independently:
+ Runtime bytecode and code hash.
+ Deployment transaction and deployer/nonce, or CREATE2 factory/salt evidence.
+ Compiler/build information and constructor arguments.
+ Proxy implementation and admin information, if applicable.
+ Role assignments and operational configuration.
+Matching addresses are not sufficient evidence of matching behavior.
+
+Part 6  Minimum validation matrix
+All tests must be automated where practical, reproducible, and linked to source commits and deployment artifacts. The status column starts as Not demonstrated until the developer supplies evidence.
+
+
+
+	IDTestExpected resultT-01Buy underweight assetCorrect direction; deviation improves; signed improvement > 0T-02Sell overweight assetCorrect direction; deviation improves; signed improvement > 0T-03Wrong-direction tradeRejected in normal modeT-04Overshoot that worsens deviationSigned deterioration recorded; trade resized or rejectedT-05Exact-input and exact-output routesCorrect minAmountOut / maxAmountIn units and enforcementT-06USDC 6-decimal round-tripExact round-trip for representable amountsT-07PAXG 18-decimal round-tripExact round-tripT-08Precision-loss conversionRejected or dust explicitly reportedT-09Gas: 150k × 30 gwei × $3,000$13.50 within defined rounding toleranceT-10Gas: 300k × 100 gwei × $1,500$45.00 within defined rounding toleranceT-11Fresh route quote and fresh oracleEligible only if every other gate passesT-12Stale executable quoteRejected or requotedT-13Fresh quote but stale oracleRejectedT-14Adverse movement between quote and inclusionHard bound enforced; unsafe execution reverts or is rejectedT-15Order exceeds pool depth or approved capRejected or resizedT-16Quote-embedded feeNot double-countedT-17Fee outside quoteAdded exactly onceT-18Partial fillResidual re-evaluated before any retryT-19Reverted transactionNo false claim of a completed trade; actual costs and failure recordedT-20Oracle-source disagreementApproved guardrail, fallback, or pause pathT-21Estimated versus realized costsReconciliation recorded and reviewedT-22Quote-age boundaryReject at the exact approved boundaryT-23Decision-to-submission delayReject or requote when approved limit exceededT-24Submission-to-execution delayApply defined delay protection and hard boundsT-25Settlement/finality delayCorrect pending/final/reverted state handlingT-26Wrong quote asset, side, or amount semanticsRejectedT-27Invalid or manipulated route responseRejected by validation and authorizationT-28Overflow and signed arithmetic boundariesNo wraparound; explicit rejectionT-29Fee-on-transfer or nonstandard tokenSafely rejected unless specifically approvedT-30Emergency modeOnly pre-approved actions and bounds permittedT-31Unauthorized keeper or invalid signatureRejectedT-32Parameter/model version mismatchRejected or quarantinedT-33Wrong target/parameter chainRejectedT-34Pause and kill switchCorrectly prevents prohibited executionsT-35Role rotationNo privilege gap; final assignments verifiedT-36Residual after failed/partial executionRecomputed using current state and fresh quotesT-37Netting of opposing flowsFuture-phase tests prevent unnecessary duplicate executionT-38Reserve-solvency boundaryNo execution beyond approved limitsT-39Oracle fallbackFollows approved policy; fallback usage fully recordedT-40Decision replayDuplicate decision cannot cause unintended repeated executionAlso run:
+ Historical replay and walk-forward validation.
+ Perturbation and parameter-sensitivity tests.
+ Volatility, liquidity, and adverse-price stress tests.
+ Monte Carlo analysis where the model and assumptions justify it.
+ Independent model review.
+ Independent smart-contract security review.
+ Reproducibility checks comparing stored decision inputs with recomputed outputs.
+Do not claim a particular historical period constitutes a "full market cycle" without defining and justifying the coverage criteria.
+
+Part 7  Release gates
+Gate 0  Current testnet state
+Status: Testnet activity authorized; audit closure not demonstrated.
+The reported deployments may continue to be used for authorized testnet work. The developer must not assume the existing addresses contain the corrected implementations.
+Gate 1  Audit closure and specification approval
+Estimated duration: 26 weeks (calendar-dependent on Committee).
+Required:
+ Source-mapped audit complete.
+ All P0 findings corrected and reviewed (Listings C-1 through C-6 integrated, tested).
+ Corrected unit tests passing (Part 6 subset).
+ Conflict register (§8.2) updated and adjudicated.
+ OD-1, OD-2, OD-3, OD-5, OD-8, OD-12 resolved or explicitly handled under an approved scope restriction.
+ Quantitative Committee constituted with named members and chair.
+ Objective function and monetary threshold policy formally approved before economic eligibility is enabled.
+Gate 2  Single-chain shadow implementation
+Estimated duration: 24 weeks after Gate 1.
+Use Monad Testnet as the proposed initial EVM environment, subject to confirming network suitability and cost assumptions. Arc remains a separate testnet deployment; one chain's results do not establish the other's correctness.
+Required:
+ Shadow keeper calculates decisions without moving reserve funds.
+ Corrected on-chain hard-bound tests pass.
+ Every decision can be reproduced from recorded inputs.
+ Oracle, quote, route, cost, buffer, threshold, and rejection data are captured.
+ Committee approves the shadow evidence plan.
+Gate 3  Quantitative and technical validation
+Estimated duration: 48 weeks after Gate 2.
+Required:
+ Applicable Part 6 tests pass (T-01 through T-40).
+ Historical and walk-forward evidence documented.
+ Stress and perturbation tests documented.
+ Independent model review complete.
+ OD-4 protection calibration or approved conservative fallback documented.
+ No unresolved critical arithmetic, units, security, or reconciliation defects.
+Gate 4  Shadow acceptance
+Estimated duration: 30+ days after Gate 3, with coverage criteria.
+Required:
+ At least 30 days of shadow observations and sufficient coverage of relevant market conditions. 30 days alone does not prove a full market cycle.
+ Adequate route, asset, liquidity, volatility, and delay coverage.
+ No unresolved critical discrepancies.
+ Estimated-versus-realized methodology validated using appropriate independent or test execution evidence.
+ Formal Committee and Risk Council approval to consider a pilot.
+No live reserve trading occurs during this gate.
+Gate 5  Limited live pilot
+Estimated duration: 3090 days after Gate 4 approval.
+Not automatic authorization to trade  requires written pilot approval.
+Required:
+ Legal/regulatory clearance for the activity and jurisdiction.
+ Independent security audit passed.
+ Production role rotation completed and verified.
+ Emergency policy OD-6 approved and tested.
+ Keeper accountability OD-7 approved or formally deferred with documented risk acceptance.
+ OD-13 reference price versus redemption NAV resolved.
+ Reconciliation evidence accepted.
+ Conservative asset, trade-size, turnover, and exposure limits approved.
+ Monitoring, incident response, rollback, pause, and shutdown procedures tested.
+ Written pilot authorization from the designated governance authority.
+Gate 6  Production authorization
+Estimated duration: Governance decision after Gate 5.
+Required:
+ Pilot review accepted.
+ Reconciliation evidence accepted by designated reviewers.
+ OD-11 commercial evidence satisfied.
+ No unresolved critical defects or unapproved exceptions.
+ Independent security, governance, quantitative, legal, and operational readiness reviews complete.
+ Written authorization issued by designated authorities.
+Passing Gate 6 does not automatically authorize every chain, asset, route, token distribution channel, or future protocol feature. Written authorization must specify scope.
+Gate 7  Expansion
+Separate release.
+For:
+ Solana execution and distribution (OD-9).
+ Portfolio-level trade sets and multileg optimization (where approved).
+ Consolidated multichain reserve/liability accounting (OD-10).
+ Cross-chain governance and parameter synchronization.
+Required approvals include OD-9 and OD-10, plus chain-specific security, accounting, legal, and operational validation.
+
+Part 8  Open decisions and conflict register
+8.1 Open decisions
+
+
+IDDecisionOwnerBlocksOD-1Full definition of
+J
+(
+s
+)
+J(s)
+J(s) (tracking term coefficients and reserve-risk term)Quantitative CommitteeGate 1; live eligibilityOD-2Threshold policy including $10 vs 1%Quantitative CommitteeGate 1; live eligibilityOD-3Committee constitution, authority, quorum, escalationProject owner and governanceGate 1OD-4Protection-margin calibration/fallbackQuantitative CommitteeGate 3, Gate 5OD-5Reserve-risk term and methodologyQuantitative CommitteeGate 1; live eligibilityOD-6Emergency execution policyCommittee, Risk Council, Emergency CouncilGate 5OD-7Keeper accountability mechanismCommittee and governanceGate 5, Gate 6OD-8Initial chain and scope (Monad recommended)Project owner and CommitteeGate 2OD-9Solana adapter and precision compatibilityCommitteeGate 7OD-10Multichain accounting and governanceCommittee, legal, governanceGate 7OD-11Commercial evidenceProduct lead and CommitteeGate 6OD-12Index chain-linking and purchasing-power benchmarkQuantitative CommitteeGate 3OD-13Reference price versus redemption NAVCommittee and governanceGate 5No developer may resolve these by silently choosing defaults. Each must have an owner, decision record, approval date, version, and affected components.
+8.2 Conflict register
+
+
+IDConflictResolutionC-001Direction-agnostic deviation arithmeticSigned post-trade arithmetic and signed improvement (Listing C-1)C-002Dimensionless benefit vs monetary costsApproved
+J
+(
+s
+)
+J(s)
+J(s), common numeraire, explicit units (Listing C-4 + OD-1)C-003Gas units vs monetary unitsValidated gas conversion and approved fallback policy (Listing C-3)C-004Token-decimal precision and roundingChecked conversions and explicit dust handling (Listing C-2)C-005Index chain-linkingOD-12C-006Reference index vs reserve/redemption NAVOD-13C-007$10 vs 1% threshold conflictOD-2C-008Inconsistent historical ETH price assumptionsCorrect dimensional gas tests; never reuse an assumed price as current market dataC-009Oracle freshness vs executable-quote freshnessFive independent timing measurements and failure policiesC-010Single EOA holding privileged rolesVerified Safe rotation and production privilege separation (Listing C-6 + Part 5.2)C-011Identical Governance/Safe addresses across EVM chainsVerify deployment method, runtime code, configuration, and roles per chainC-012Overshoot example contradicts deviation arithmeticCorrect expected signed improvement and reject/rescale worsening tradeC-013Sample code accepts unverified gross benefitBind benefit to approved objective and versioned decision recordC-014Decimal conversion can silently truncateReject unsupported precision or use separately approved exact representationC-015Route quote can become stale after decisionEnforce quote-age, deadline, slippage, and re-quote controlsC-016Testnet status confused with corrected deployment statusTrack each deployment by address, code hash, and correction version
+Part 9  Keeper trust, reconciliation, and operations
+9.1 Keeper trust boundary
+The off-chain keeper performs route discovery, quantitative evaluation, and decision preparation. On-chain contracts enforce authorization and hard execution bounds.
+Required:
+ Allowlisted keeper identities.
+ Least-privilege operational roles.
+ Key rotation and separation of duties.
+ Signed, attributable decision records.
+ Parameter, objective, oracle, cost-model, and protection-model version hashes.
+ Rate and turnover caps.
+ Independent monitoring and alerts.
+ Pause/kill-switch controls.
+ Incident response and rollback procedures.
+ A formal keeper accountability decision.
+Do not introduce bonding, slashing, or financial penalties merely for appearances. Any accountability mechanism must have a defined threat model, evidence standard, dispute procedure, proportionality, and governance authority.
+9.2 Decision and reconciliation record (required fields)
+For each decision, record at minimum:
+ Decision ID and timestamp.
+ Chain ID and relevant contract addresses.
+ Asset pair, trade side, input/output units, proposed size.
+ Holdings snapshot, NAV methodology, target weights, pre/post-trade state.
+ Reference prices, oracle sources, observation timestamps, confidence, freshness.
+ Route/venue/aggregator and all route legs.
+ Executable quote, quote timestamp, expiry, quote age.
+ Decision-to-submission, submission-to-execution, settlement/finality timing.
+ Expected and realized input/output amounts.
+ Route cost breakdown, embedded fees, incremental fees, gas estimate.
+ Protection margin and model version.
+ Gross benefit, net benefit, threshold, units, objective version.
+ Parameter-set hash and approved policy version.
+ Keeper identity, signed decision, authorization outcome.
+ Transaction hash or Solana signature, block/slot, finality state.
+ Realized execution price, fees, slippage, actual total cost.
+ Difference between expected and realized costs.
+ Post-quote adverse movement where measurable.
+ Rejection, deferral, resize, partial-fill, revert, or emergency reason.
+ Post-trade holdings, reserve NAV, reserve ratio, liquidity state.
+A failed transaction must not be logged as a completed trade. A submitted transaction must not be assumed final merely because it has a transaction hash.
+9.3 Calibration discipline
+Execution results may be used to improve the protection model only through a governed process.
+The developer must:
+1 Preserve raw observations and original model outputs.
+2 Separate calibration data from evaluation data.
+3 Use walk-forward testing and prevent information leakage.
+4 Track predictions against realized costs and adverse movements.
+5 Test across route, asset, size, volatility, liquidity, and timing regimes.
+6 Publish model versions and change logs.
+7 Require review and approval before new parameters control live reserve trades.
+Do not automatically reduce protection margins simply because a short period of execution outcomes appears favorable.
+
+Part 10  Implementation roadmap and deliverables
+10.1 Implementation phases
+Phase 0  Source and deployment audit (first sprint, 12 weeks)
+ Map each requirement to actual source files, functions, tests, and deployments.
+ Verify the reported deployment inventory on Monad, Arc, and Solana.
+ Reproduce all P0 findings.
+ Publish source-mapped audit and conflict register.
+ Identify any additional defects.
+Phase 1  Corrected single-chain implementation (24 weeks after Phase 0)
+ Begin with the approved Monad testnet scope.
+ Integrate Listings C-1 through C-6 into a new branch.
+ Bind decisions to approved versions and validated quotes.
+ Keep execution in testnet/shadow scope.
+Phase 2  Testnet and shadow validation (24 weeks after Phase 1)
+ Run tests T-01 through T-40.
+ Record shadow decisions without moving reserve funds.
+ Verify reproducibility and rejection behavior.
+ Exercise route delays, stale quotes, adverse movement, and failure cases.
+ Complete the testnet role-rotation rehearsal.
+Phase 3  Independent validation (48 weeks after Phase 2)
+ Complete quantitative, security, operational, and legal reviews.
+ Resolve required open decisions.
+ Publish evidence for Gates 14.
+ Obtain written authorization before any live pilot is considered.
+Phase 4  Limited pilot, only if authorized (3090 days after Phase 3)
+ Use one approved chain, narrowly defined asset set, strict limits, and tested monitoring.
+ Do not expand automatically.
+ Reconcile every execution and pause if any critical discrepancy occurs.
+Phase 5  Production authorization and later expansion (governance decision after Phase 4)
+ Require Gate 6 for the specifically approved production scope.
+ Treat Solana and consolidated multichain support as separate Gate 7 releases.
+ Do not enable multiple chains merely because separate testnet deployments exist.
+10.2 Required deliverables
+The developer must provide:
+1 Source-mapped audit report  findings, severity, source locations, reproducible evidence, corrections.
+2 Corrected technical specification  equations, units, assumptions, failure behavior, interfaces, approved decision dependencies.
+3 Parameter register  machine-readable and human-readable, with owner, units, defaults, bounds, version, approval status.
+4 Implementation changes  actual integrated source code, not isolated examples alone.
+5 Automated test suite  test matrix, regression tests, boundary tests, CI results.
+6 Deployment register  chain, address, code hash, build identifier, deployment transaction, verification status.
+7 Shadow-mode evidence package  inputs, quotes, outputs, decisions, rejected trades, reproducibility.
+8 Role-rotation record  Safe configuration, transaction evidence, post-rotation role checks.
+9 Operational controls  monitoring, alerting, incident response, pause, recovery, rollback procedures.
+10 Release-gate register  every criterion, evidence link, owner, reviewer, status, blocker.
+11 Open-decision register  OD-1 through OD-13, including explicit decisions and approvals.
+12 Reconciliation report  estimates vs realized outcomes, uncertainty, limitations, unresolved discrepancies.
+Every deliverable must label its state accurately: implemented, unit-tested, integration-tested, simulated, shadow-observed, internally reviewed, independently audited, or governance-approved. These labels are not interchangeable.
+
+Part 11  Final authorization statement
+11.1 Current status by chain
+
+
+ChainReported deploymentVerification statusCorrection statusMonad TestnetYes (Part 1.1)Not verified  first sprint taskNot demonstrated  P0 corrections not yet deployedArc TestnetYes (Part 1.2)Not verified  first sprint taskNot demonstratedSolana DevnetYes (Part 1.3)Not verified  first sprint taskNot applicable for P0 (no EVM execution logic)11.2 Current authorization status
+ Testnet development and testing: authorized.
+ Existing deployment correctness: requires verification.
+ P0 correction closure: not demonstrated until source and test evidence are supplied.
+ Objective function and threshold policy: require Committee approval.
+ Shadow-mode acceptance: not established.
+ Live reserve pilot: not authorized.
+ Production reserve trading: not authorized.
+ Production Solana or multichain expansion: not authorized.
+11.3 Required next actions, in order
+1 Inspect and source-map the current repository and deployed contracts. Produce the deployment register (Part 1.5) for Monad, Arc, and Solana.
+2 Reproduce the four P0 findings (Part 0.4) against the actual source. Cite exact files, functions, lines.
+3 Integrate Listings C-1 through C-6 (Part 4) into a new branch. Do not modify currently deployed contracts until the corrected versions pass tests.
+4 Resolve the approved units, objective function, risk term, and threshold dependencies (OD-1 through OD-5, OD-12) before enabling economic eligibility.
+5 Deploy corrected versions to testnets using new deployment records; preserve old addresses for auditability.
+6 Run the automated test matrix (Part 6, T-01 through T-40) and publish actual results.
+7 Verify each chain's runtime code, configuration, role assignments, and deployment history.
+8 Rehearse and document role rotation on testnet (Part 5.2).
+9 Run shadow mode and collect reproducible evidence.
+10 Submit evidence and unresolved decisions for Gate 1 through Gate 4 review.
+11 Consider a limited live pilot only after Gate 5 criteria and written authorization are satisfied.
+12 Authorize production only through Gate 6; treat expansion as a separate Gate 7 release.
+11.4 Approved public-status wording (only after inventory verification)
+"MTQ  has deployments on Monad Testnet, Arc Testnet, and Solana Devnet. The project is not authorized for production reserve trading. The team is verifying deployed code, correcting identified arithmetic and unit-handling issues, and completing the quantitative, security, and operational validation required before any live reserve-trading decision."
+11.5 Wording the developer must not use
+"MTQ  is live.""MTQ  is production-ready.""MTQ  is ready for real reserve trading.""MTQ  has been validated.""The contracts have been audited.""The objective function is approved.""The system is ready to go live."
+If the developer's marketing or community teams translate the approved wording into any of the statements in §11.5, that is a misrepresentation of the project's status. The approved wording is deliberately narrow: it says the system is deployed on testnet and under correction, nothing more.
+11.6 Final instruction to the developer
+Implement the approved requirements, preserve the existing monetary design, expose unresolved quantitative decisions instead of guessing, and produce evidence for every release gate. Neither this mandate nor a successful testnet deployment is permission to trade live reserves. The path to production runs through Gate 1  Gate 6, in order, with the Committee's approvals and the governance bodies' signatures at each gate.
+The one sentence to carry away: the value of this document is not that it authorizes anything; it is that it prevents the project from authorizing the wrong thing.
+MTQ   Extension to Single Source of Truth v5.0
+Document ID: MTQSIGMA-SINGLE-SOURCE-OF-TRUTH-006-EXT-1Version: 5.1  Essential Implementation ExtensionsDate: 19 October 2026Appends to: MTQSIGMA-SINGLE-SOURCE-OF-TRUTH-006 (v5.0)Status: Extends v5.0. Any conflict between this extension and v5.0 is resolved by applying the six-level authority hierarchy in v5.0 §0.2.
+
+Purpose of this extension
+This extension identifies gaps in v5.0 that would block a correct implementation or cause a security incident if left unaddressed. Each gap is specific, essential, and not covered by v5.0's current Listings C-1 through C-6, the 40-test matrix, or the open-decisions register.
+These are not enhancements or nice-to-haves. A developer who implements only v5.0 will produce a system with reentrancy exposure, silent precision loss in slippage calculations, no path to recover stuck tokens, undefined behavior on multi-leg route failure, and no formal invariants to detect silent corruption.
+The extension is organized in nine parts:
+ A  Contract-level safety (reentrancy, approvals, atomicity, dust, slippage precision, rescue)
+ B  Oracle and execution failure modes (circuit breakers, failover, selective pause)
+ C  Keeper trust infrastructure (EIP-712, failover, compensation)
+ D  Reserve accounting invariants (state recomputation, formal invariants, market hours)
+ E  Deployment and upgradeability (initialization, ordering, upgrade strategy)
+ F  Testing infrastructure (mocks, reproducible decisions)
+ G  Additional open decisions (OD-14 through OD-20)
+ H  Additional conflict register entries (C-017 through C-022)
+ I  Additional test matrix entries (T-41 through T-60)
+
+Part A  Contract-level safety
+A.1 Reentrancy protection
+Gap in v5.0: v5.0 does not specify reentrancy protection. The blueprint's Listing 4 and Listing 5 make external calls (aggregator, oracle, reserve module, token transfers) without explicit reentrancy guards in every path. The v3.0 draft mentioned nonReentrant but v5.0 dropped it.
+Required:
+Every external-facing function that makes any of the following calls must be guarded with a nonReentrant modifier:
+ IERC20.transfer / transferFrom
+ IAggregator.swap / quote / call
+ IOracle reads that could invoke a callback
+ IReserveManager.refresh (if it makes external calls)
+ Safe module calls
+ Emergency liquidation calls
+Recommended implementation (OpenZeppelin):
+solidity
+import "@openzeppelin/contracts/security/ReentrancyGuard.sol";
+
+contract MTQSigmaMARP is ReentrancyGuard {
+ function executeRebalance() external nonReentrant { ... }
+ function mint(...) external nonReentrant { ... }
+ function redeem(...) external nonReentrant { ... }
+ function emergencyLiquidate(...) external nonReentrant onlyEmergencyCouncil { ... }
+}
+
+
+Additional requirement: For functions that call out to a token contract before updating state (the classic Checks-Effects-Interactions violation), apply the standard CEI pattern regardless of the reentrancy guard. The guard is a safety net, not a substitute for correct ordering.
+Required test: T-41 (below)  a malicious token that reenters redeem() during transfer() must be rejected.
+Approval: Smart-contract lead + security review.
+A.2 Approval and allowance hygiene
+Gap in v5.0: v5.0 does not specify how token approvals to the aggregator are managed. The blueprint's mint() and redeem() assume transferFrom works without stating how allowance is set, reset, or scoped.
+Required:
+ Prefer exact approvals over infinite approvals. When transferring amountIn to the aggregator, approve exactly amountIn, then reset to zero after the swap. If gas cost is prohibitive and a design decision to use infinite approvals is approved, document it and list it as an open decision.
+ Handle USDT-style approve. Some ERC-20 tokens (USDT) revert if you change a non-zero allowance to a non-zero allowance. Use OpenZeppelin's SafeERC20.forceApprove (which handles the reset-to-zero case) or a wrapper that does.
+ Verify received amounts. After transferFrom, verify the contract's balance increased by exactly amountIn. For fee-on-transfer tokens, this check will fail  which is correct behavior unless the token is specifically approved as fee-on-transfer in the asset registry.
+ Audit the aggregator's allowance consumption. After the swap, verify any residual allowance is zero (or reset it explicitly). A residual allowance to a compromised aggregator is a direct theft path.
+Recommended pattern:
+solidity
+import "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
+
+using SafeERC20 for IERC20;
+
+function _executeSwap(address tokenIn, uint256 amountIn, bytes memory swapData) internal {
+ uint256 balBefore = IERC20(tokenIn).balanceOf(address(this));
+ IERC20(tokenIn).safeTransferFrom(msg.sender, address(this), amountIn);
+ uint256 received = IERC20(tokenIn).balanceOf(address(this)) - balBefore;
+ require(received == amountIn, "Fee-on-transfer not supported");
+
+ IERC20(tokenIn).forceApprove(AGGREGATOR, amountIn);
+ (bool ok, ) = AGGREGATOR.call(swapData);
+ require(ok, "Swap failed");
+
+ // Reset allowance to zero as defense in depth
+ IERC20(tokenIn).forceApprove(AGGREGATOR, 0);
+}
+
+
+Required test: T-42 (below)  USDT-style approve, fee-on-transfer rejection, residual allowance check.
+Approval: Smart-contract lead.
+A.3 Atomicity guarantees for multi-leg swaps
+Gap in v5.0: v5.0 says "For a multi-leg route, calculate the compounded conversion and fees for each leg" and "Do not assume that a direct cross-rate is executable" but does not specify what happens if leg 1 succeeds and leg 2 fails.
+Required:
+For any trade involving more than one leg (e.g., A  USDC  B, or A  USDC, then USDC  B):
+ If the swap fits in a single transaction (aggregator supports multi-hop): the whole swap must be atomic. If any leg fails, the entire transaction reverts.
+ If the swap requires multiple transactions (aggregator does not support multi-hop for the specific pair, or the chain does not fit it in one block):
+ The system must track intermediate state explicitly.
+ After leg 1 succeeds, the intermediate asset is not considered reserve value until leg 2 settles. The reserve NAV must reflect this by treating the intermediate as a zero-haircut cash-like position with a documented "in-flight" flag.
+ If leg 2 fails, the intermediate position must be either (a) rolled back through a reverse leg within a governed time window, or (b) held as a temporary position with an explicit decision record and a mandatory follow-up deadline.
+ The keeper must not submit a second multi-leg trade until the first is fully settled or rolled back.
+ On EVM: prefer single-transaction atomic swaps whenever the aggregator supports it. On Monad and Arc, both 1inch-style and 0x-style aggregators support multi-hop in a single calldata payload.
+ On Solana: Jupiter supports multi-hop in one transaction, but transaction size limits (1232 bytes) may force splitting. Track intermediate state the same way.
+Required test: T-43 (below)  leg 1 succeeds and leg 2 fails; intermediate state is correctly rolled back or held with a follow-up deadline.
+Approval: Smart-contract lead + execution lead.
+A.4 Dust handling and minimum trade size
+Gap in v5.0: v5.0's Listing C-2 rejects precision loss and dust, but does not specify a minimum trade size, a dust accumulation policy, or what happens to residual balances.
+Required:
+ Minimum trade size: Every trade must clear a minimum notional in the common numeraire. Suggested default: MIN_TRADE_NOTIONAL_USD = 100e18 (i.e., $100). Below this, the trade is deferred or suppressed. This is a governance parameter (OD-14).
+ Minimum output amount: Every swap must specify a minAmountOut that is non-zero. Zero-output swaps are rejected.
+ Dust handling: If a token balance falls below the minimum trade size after a swap and cannot be economically traded, it is:
+ Left in the reserve and counted in NAV (not ignored).
+ Flagged in the decision log as "dust below minimum trade threshold."
+ Reviewed at the next strategic review (Chapter 10.10 of the blueprint).
+ Dust accumulation cap: If cumulative dust across all assets exceeds a governance threshold (e.g., 0.1% of NAV), it is escalated to the Committee for a sweep decision.
+ No silent loss. Dust is not "written off" or "rounded away." It appears in the reconciliation record.
+Required test: T-44 (below)  dust of 0.001 USDC is held, flagged, and does not disappear from NAV.
+Approval: Quantitative Committee + Smart-contract lead.
+A.5 Slippage calculation with correct decimals
+Gap in v5.0: v5.0's Listing C-2 correctly normalizes internal amounts to 18 decimals, but the slippage calculation in §3.8 and the minAmountOut derivation do not specify what decimals the calculation runs in. Applying 1% slippage to an 18-decimal internal amount and then converting to 6-decimal USDC introduces a rounding error of up to 1e-6 USDC, which is negligible  but applying slippage in the wrong unit can produce a 1e12-scale error.
+Required:
+The slippage calculation must be performed in the output token's native decimals, not in internal 18-decimal units.
+Formula:
+text
+minAmountOutNative = floor(quotedOutputNative * (1 - tau))
+
+
+Where:
+ quotedOutputNative is the aggregator's quoted output in the output token's native decimals.
+ tau is the approved slippage tolerance expressed as a decimal fraction (e.g., 0.01e18 for 1%).
+ floor is applied once, after the multiplication.
+Do NOT:
+ Convert quotedOutputNative to 18-decimal internal units, apply slippage, then convert back. This produces double-rounding.
+ Apply slippage as quotedOutputNative * (10000 - tauBps) / 10000 if tauBps is not validated against the token's decimals. A 1 bp slippage on 1,000,000 USDC (6 decimals) is 100 USDC-wei, which is representable  but a 1 bp slippage on a 0-decimal token is 0.01 units, which is not representable and must be rejected or rounded up explicitly.
+Recommended implementation:
+solidity
+function computeMinOut(uint256 quotedOutNative, uint8 outDecimals, uint256 tauE18)
+ internal pure returns (uint256)
+{
+ require(quotedOutNative > 0, "Zero quote output");
+ require(tauE18 < 1e18, "Invalid slippage");
+ uint256 toleranceNative = quotedOutNative * tauE18 / 1e18;
+ uint256 minOutNative = quotedOutNative - toleranceNative;
+ require(minOutNative > 0, "Slippage exceeds output");
+ return minOutNative;
+}
+
+
+Required test: T-45 (below)  1% slippage on 1,000,000 USDC (6 decimals) gives minOut  990,000 USDC. 1% slippage on 1 PAXG (18 decimals) gives minOut  0.99 PAXG.
+Approval: Smart-contract lead + Quant lead.
+A.6 Emergency token rescue
+Gap in v5.0: v5.0 requires a kill switch and pause controls but does not specify how to recover tokens that become stuck in the contract due to a bug, airdrops, or unexpected transfers.
+Required:
+ A rescueToken(address token, address to, uint256 amount) function, callable only by the Safe (multi-sig) with a timelock.
+ Restrictions: Cannot rescue a token that is counted in the reserve NAV, cannot rescue during an active rebalance, cannot rescue to a non-allowlisted address.
+ Event: TokenRescued(token, to, amount, timestamp, reason).
+ Reason field: Required, stored in the decision log.
+Recommended implementation:
+solidity
+event TokenRescued(address indexed token, address indexed to, uint256 amount, string reason);
+
+function rescueToken(address token, address to, uint256 amount, string calldata reason)
+ external onlySafe nonReentrant
+{
+ require(!_isReserveAsset(token), "Cannot rescue reserve asset");
+ require(!_isRebalanceActive(), "Cannot rescue during rebalance");
+ require(_isAllowlistedRecipient(to), "Recipient not allowlisted");
+ require(bytes(reason).length > 0, "Reason required");
+ IERC20(token).safeTransfer(to, amount);
+ emit TokenRescued(token, to, amount, reason);
+}
+
+
+Required test: T-46 (below)  stuck airdrop token can be rescued; reserve assets cannot; rescue to non-allowlisted address is rejected; rescue during rebalance is rejected.
+Approval: Governance (7/7) + Committee.
+
+Part B  Oracle and execution failure modes
+B.1 Oracle failure circuit breakers
+Gap in v5.0: v5.0 says "If the quote is stale, the oracle fails its checks, or the price has deteriorated beyond the hard bound, reject, requote, resize, or defer" but does not specify what triggers a system-wide pause versus a per-trade rejection.
+Required:
+Define three escalation levels with explicit triggers:
+
+
+LevelTriggerResponseRecoveryWarningOne oracle source is stale (> threshold but < 2×) OR confidence interval > 2× normal OR deviation from median > 1%Trade is allowed but logged with warning. Protection margin increases by 1.5×.Automatic on next successful roundDegradedTwo oracle sources are stale OR deviation from median > 2.5% OR confidence interval > 3× normal OR source-family count < 2All new trade decisions are suspended. Existing open positions are held. Pausing is logged.Requires Committee approval to resumeHaltedAll oracle sources stale > 2× threshold OR all sources disagree > 5% OR all sources failAutomatic pause of all execution. Emergency mode triggered. Emergency Council notified.Requires Emergency Council approval + successful oracle roundRequired implementation:
+solidity
+enum OracleHealth { HEALTHY, WARNING, DEGRADED, HALTED }
+
+function _checkOracleHealth(bytes32 feedId) internal view returns (OracleHealth) {
+ // Read source states, ages, deviations, confidence
+ // Return the worst applicable level
+}
+
+
+The _checkOracleHealth result gates every trade:
+ HEALTHY  normal path
+ WARNING  increased protection margin, logged
+ DEGRADED  reject new trades
+ HALTED  pause contract
+Required test: T-47 (below)  force one source stale, verify WARNING; force two, verify DEGRADED; force all, verify HALTED and pause.
+Approval: Risk Council + Committee + Smart-contract lead.
+B.2 Aggregator failover
+Gap in v5.0: v5.0 says "a single initial execution provider, with a documented failure policy" but does not specify the failover mechanism.
+Required:
+ Primary aggregator: Configured by governance, listed in the parameter registry.
+ Secondary aggregator: Configured by governance.
+ Failover trigger: If the primary aggregator returns a quote that is (a) unavailable, (b) exceeds the slippage guard, or (c) returns after a timeout, the contract attempts the secondary.
+ Failover limit: At most one failover attempt per decision. No retry loops. If both fail, the trade is rejected with reason "AggregatorUnavailable".
+ Quote comparison: If both are available, the system must record both quotes in the decision log and may choose the better one (per Committee-approved policy). It must not choose the worse one without justification.
+ Failure log: Every failover event is logged with the failed aggregator, the failure type, and the fallback used.
+Required test: T-48 (below)  primary aggregator reverts, secondary succeeds; both revert, decision is rejected with the correct reason code; better-quote policy is applied correctly.
+Approval: Risk Council + Committee.
+B.3 Selective pause granularity
+Gap in v5.0: v5.0's PAUSER_ROLE implies a single on/off state, but does not specify whether pause is per-asset, per-route, per-function, or global.
+Required:
+Provide granular pause at these levels, in order of precedence (most specific wins):
+1 Global pause: Stops all execution. PAUSER_ROLE.
+2 Function pause: Stops mint, redeem, or executeRebalance separately. PAUSER_ROLE.
+3 Route pause: Stops a specific route (e.g., PAXGUSDC). Emergency Council.
+4 Asset pause: Stops a specific asset from being used as input or output. Emergency Council.
+Implementation:
+solidity
+mapping(bytes32 => bool) public pausedRoute;
+mapping(address => bool) public pausedAsset;
+
+modifier whenNotPaused(bytes32 routeId, address assetIn, address assetOut) {
+ require(!globalPaused, "Global pause");
+ require(!pausedRoute[routeId], "Route paused");
+ require(!pausedAsset[assetIn], "Asset in paused");
+ require(!pausedAsset[assetOut], "Asset out paused");
+ _;
+}
+
+
+Use case: If PAXG has an issue (issuer freeze, liquidity collapse), the Emergency Council pauses PAXG trades without pausing USDCEURC. The system continues operating normally on healthy routes.
+Required test: T-49 (below)  pause a specific asset; verify only trades involving that asset are rejected; verify other trades continue.
+Approval: Emergency Council + Smart-contract lead.
+
+Part C  Keeper trust infrastructure
+C.1 EIP-712 signed decision scheme
+Gap in v5.0: v5.0 requires "signed decision records" and "canonical serialization, signature domain separation, nonce or replay protection, expiry, and duplicate-submission handling" but does not specify the scheme.
+Required:
+The decision record must use EIP-712 structured typed data signing with the following schema:
+text
+EIP712Domain {
+ string name; // "MTQ Sigma MARP"
+ string version; // "1"
+ uint256 chainId; // actual chain ID
+ address verifyingContract; // the MTQ contract address
+ bytes32 salt; // keccak256 of the deployment identifier
+}
+
+TradeDecision {
+ bytes32 decisionId; // unique, keccak256 of the full decision
+ address keeper; // msg.sender identity
+ bytes32 assetIn; // keccak256 of the input symbol
+ bytes32 assetOut; // keccak256 of the output symbol
+ uint256 amountIn; // native decimals of assetIn
+ uint256 minAmountOut; // native decimals of assetOut
+ uint256 quoteTimestamp; // block.timestamp of quote
+ uint256 deadline; // quote expiry
+ bytes32 costModelVersion; // keccak256 of the approved cost model
+ bytes32 protectionModelVersion; // keccak256 of the approved protection model
+ bytes32 objectiveVersion; // keccak256 of the approved J(s) version
+ bytes32 parameterSetHash; // keccak256 of the parameter set
+ uint256 grossBenefitE18; // computed off-chain
+ uint256 netBenefitE18; // computed off-chain
+ uint256 thresholdE18; // approved threshold
+}
+
+function executeWithSignature(TradeDecision calldata decision, bytes calldata signature)
+ external
+ nonReentrant
+{
+ bytes32 digest = _hashTypedDataV4(_hashDecision(decision));
+ require(!usedDecisions[decision.decisionId], "Decision replay");
+ usedDecisions[decision.decisionId] = true;
+ require(block.timestamp <= decision.deadline, "Decision expired");
+ require(ECDSA.recover(digest, signature) == authorizedKeeper[decision.keeper], "Invalid signature");
+ require(_validateParameterSet(decision.parameterSetHash), "Parameter set mismatch");
+ _executeTrade(decision);
+}
+
+
+Requirements:
+ Domain separator: Must include chainId and verifyingContract, so a signature on Monad cannot be replayed on Arc.
+ Replay protection: Each decisionId is unique and must be consumed at most once.
+ Expiry: Every decision has an explicit deadline, checked at execution time.
+ Version binding: Every model and parameter version is included in the signed payload. If any version has changed since signing, the signature is invalid.
+ Signature domain: keccak256("MTQ Sigma MARP") for the EIP-712 domain, so it cannot be confused with any other protocol's signatures.
+Required test: T-50 (below)  invalid signature rejected, expired decision rejected, replayed decision rejected, decision signed on chain A rejected on chain B, decision with stale parameter version rejected.
+Approval: Smart-contract lead + security review.
+C.2 Keeper failover and separation of duties
+Gap in v5.0: v5.0 requires "allowlisted keeper identities" but does not address what happens if the primary keeper is offline, or how duties are separated.
+Required:
+ Primary keeper: Signs and submits trades. Must be online and responsive.
+ Backup keeper: Authorized by governance to sign, but must not submit unless the primary has been offline for  N minutes (default 30 minutes). Failover is logged.
+ Submitter role: A separate address (may be a relayer) submits the keeper's signed transaction. This allows the keeper to operate in cold storage or from a secure environment, and allows gas costs to be paid by a separate account.
+ Emergency keeper: Authorized by Emergency Council to sign emergency trades. Only usable when emergencyMode is active.
+ Alert: Every keeper failover emits an KeeperFailover event that triggers a monitoring alert.
+Anti-collusion: The keeper and the submitter must not be the same key. The backup keeper must not be controlled by the primary keeper's organization.
+Required test: T-51 (below)  primary offline, backup activates after 30 min; primary and submitter must be distinct; emergency keeper only usable in emergency mode.
+Approval: Risk Council + Committee.
+C.3 Keeper compensation and economic sustainability
+Gap in v5.0: v5.0 does not address how the keeper is compensated for gas costs and operational risk.
+Required:
+Without keeper compensation, either the keeper runs at a loss (unsustainable) or extracts value elsewhere (unsafe). The approved model must specify one of:
+ Gas reimbursement: Protocol reimburses gas from the Operational Wallet (blueprint Chapter 20). Requires audit of gas accounting and a cap on per-trade reimbursement.
+ Bounty model: Keeper receives a small fee (e.g., 15 bps of trade value) from the Operational Wallet, capped per period.
+ Foundation-subsidized: The Foundation pays keepers directly through a separate agreement. Not on-chain.
+ No compensation: Acceptable only if the keeper is the protocol itself (e.g., Safe-signed during initial operations), and only until Gate 6.
+If compensation is on-chain, it must be:
+ Bounded by a governance parameter.
+ Recorded in the decision log.
+ Excluded from NAV (comes from Operational Wallet, not reserve).
+ Auditable for correlation with trade frequency (anti-incentive-alignment).
+Required: OD-15 (below)  keeper compensation model.
+
+Part D  Reserve accounting invariants
+D.1 Reserve state recomputation after every trade
+Gap in v5.0: v5.0 requires reconciliation but does not specify the exact computation and event emission that must follow every trade.
+Required:
+After every trade (success or failure), the following sequence must run atomically:
+1 Read settled amounts from the transaction receipt (not from the quote).
+2 Recompute holdings: For each asset, newBalance = oldBalance + received - spent.
+3 Recompute NAV: NAV = sum(balance_i * price_i * (1 - haircut_i)) using the canonical oracle prices at the settlement block, not the quote-time prices.
+4 Recompute RR: RR = NAV / (circulatingSupply * MTQPrice).
+5 Recompute LCR: LCR = liquidAssets / stressDemand.
+6 Emit event: ReserveStateUpdated(NAV, RR, LCR, block.timestamp, tradeId).
+7 Check invariants (see D.2 below).
+8 If any invariant is breached: Trigger the appropriate circuit breaker (Warning / Degraded / Halted) per B.1.
+Required implementation:
+solidity
+event ReserveStateUpdated(uint256 nav, uint256 rr, uint256 lcr, uint256 timestamp, bytes32 tradeId);
+
+function _recomputeReserveState(bytes32 tradeId) internal {
+ uint256 nav = _computeNAV();
+ uint256 rr = _computeRR(nav);
+ uint256 lcr = _computeLCR();
+ emit ReserveStateUpdated(nav, rr, lcr, block.timestamp, tradeId);
+ _checkInvariants(nav, rr, lcr, tradeId);
+}
+
+
+Required test: T-52 (below)  after a trade, NAV, RR, and LCR match an independent recomputation; the event is emitted with correct values.
+Approval: Quant lead + Smart-contract lead.
+D.2 Formal invariants
+Gap in v5.0: v5.0 references invariants (RR floor, LCR floor) but does not list a formal set of testable invariants that must hold before and after every trade.
+Required:
+The following invariants must be checked after every state-changing operation. If any is violated, the transaction must revert (or, if the invariant is a monitoring target rather than a hard invariant, an event is emitted and the appropriate circuit breaker is triggered).
+Hard invariants (revert on violation):
+
+
+IDInvariantCheckINV-1RR >= RR_HARD_FLOOR (1.00)_computeRR() >= 1.00e18INV-2totalSupply == sum(balances of all holders)ERC-20 invariantINV-3circulatingSupply + reserveBalance == totalSupplyReserve accounting invariantINV-4sum(assetBalances[i] * price_i) == grossNAVAccounting identityINV-5netNAV <= grossNAV (haircuts reduce value)MonotonicityINV-6LCR >= 0 (never negative)Arithmetic boundINV-7sum(weights) == 1 for target weightsNormalizationSoft invariants (emit event, trigger circuit breaker if repeated):
+
+
+IDInvariantThresholdResponseINV-8LCR >= LCR_MIN (1.00)Below  DEFENSIVE modeAuto-escalate to Risk CouncilINV-9RR >= RR_TARGET (1.10)Below 1.10  CAUTIONIncrease protection marginINV-10activeOracleSources >= 2Below 2  DEGRADEDSee B.1INV-11deviationFromOracleMedian <= 2.5%Above  OUTLIERDiscard source, retryINV-12quoteAge <= MAX_QUOTE_AGEAbove  REJECTRequoteImplementation pattern:
+solidity
+function _checkInvariants(uint256 nav, uint256 rr, uint256 lcr, bytes32 tradeId) internal {
+ // Hard invariants  revert
+ require(rr >= RR_HARD_FLOOR, "INV-1 violated");
+ require(_supplyInvariant(), "INV-2/3 violated");
+
+ // Soft invariants  emit and trigger
+ if (rr < RR_TARGET) emit InvariantWarning(INV_9, rr, tradeId);
+ if (lcr < LCR_MIN) emit InvariantWarning(INV_8, lcr, tradeId);
+ // ...
+}
+
+
+Required test: T-53 (below)  construct a trade that would breach INV-1; verify it reverts; construct a trade that breaches INV-8; verify it emits and triggers CAUTION.
+Approval: Quant lead + Committee.
+D.3 Market hours and settlement windows
+Gap in v5.0: v5.0 does not address that PAXG, USDC, and FX pairs have different settlement characteristics. FX markets close; PAXG redemption is limited to London hours; USDC is 24/7.
+Required:
+ Maintain a market-hours registry (governance-controlled, versioned) that specifies, for each asset:
+ Trading hours (24/7 for on-chain; limited for FX if the reserve uses FX instruments).
+ Redemption hours (e.g., PAXG redemption windows).
+ Settlement windows (T+0 for stablecoins, T+1 or T+2 for FX).
+ Adjust execution policy by market hours:
+ During trading hours, execution proceeds normally.
+ Outside trading hours, protection margin doubles, trade size halves, and any trade above the protection-adjusted threshold requires Committee pre-approval.
+ During settlement blackouts (e.g., USDC paused), trades involving that asset are rejected.
+ Market hours are part of the five clocks (v5.0 §3.2): the settlement delay clock must account for weekends and holidays.
+Required test: T-54 (below)  attempt a PAXG trade during London close; verify protection margin doubles and trade size halves; attempt a USDC trade during a simulated USDC pause; verify rejection.
+Approval: Risk Council + Committee.
+
+Part E  Deployment and upgradeability
+E.1 Contract initialization
+Gap in v5.0: v5.0 does not specify whether contracts are initialized or constructed with the deployer, and does not address reinitialization attacks.
+Required:
+ If using immutable contracts: All parameters that do not need to change are set in the constructor. Parameters that need to change are set through governed setters.
+ If using proxies (UUPS, Transparent):
+ The implementation contract must call _disableInitializers() in the constructor.
+ The proxy must be initialized atomically in the same transaction as deployment.
+ The proxy admin must be the Safe, with a timelock.
+ The MTQ token is ERC20 with roles. If using OpenZeppelin's AccessControl, initialization must set DEFAULT_ADMIN_ROLE to the Safe (not the deployer EOA), and the deployer must be granted only the roles it needs temporarily to complete the transfer, then revoked.
+Recommended deployment pattern (immutable):
+solidity
+contract MTQSigmaToken is ERC20, AccessControl {
+ constructor(address safe, address minter, address pauser) ERC20("MTQ Sigma", "MTQ") {
+ _grantRole(DEFAULT_ADMIN_ROLE, safe);
+ _grantRole(MINTER_ROLE, minter);
+ _grantRole(PAUSER_ROLE, pauser);
+ }
+}
+
+
+Required test: T-55 (below)  verify initializer can be called exactly once; verify reinitialization attempts revert; verify DEFAULT_ADMIN_ROLE is on the Safe, not the deployer.
+Approval: Smart-contract lead + security review.
+E.2 Deployment ordering and dependency graph
+Gap in v5.0: v5.0's deployment inventory lists contracts but does not specify the deployment order or dependencies.
+Required:
+The deployment sequence must be:
+text
+1. Safe (multi-sig)  must exist before any contract that references it
+2. Oracle.sol  must exist before Reserve, Algorithm, MARP reference it
+3. Governance.sol  must exist before MTQ references it for role grants
+4. MTQ.sol  needs Governance address
+5. Algorithm.sol  needs Oracle and MTQ
+6. Reserve.sol  needs Oracle, MTQ, Safe
+7. Mint.sol  needs MTQ, Reserve, Oracle, Aggregator
+8. Redeem.sol  needs MTQ, Reserve, Oracle, Aggregator
+9. Takaful.sol  needs MTQ, Safe
+
+
+Each step:
+ Verifies the previous step's address on-chain.
+ Is logged in the deployment register (v5.0 Part 10.2 Deliverable 6).
+ Is checked for bytecode and constructor args before the next step begins.
+Required test: T-56 (below)  verify the deployment script produces the correct addresses and dependencies; verify a deployment that skips a step fails.
+Approval: DevOps lead + Smart-contract lead.
+E.3 Upgradeability strategy
+Gap in v5.0: v5.0 does not state whether the contracts are upgradeable. If they are, the upgrade governance is not specified. If they are not, the migration path is not specified.
+Required:
+The project must choose one of:
+Option A  Immutable contracts:
+ No upgrades.
+ Defects are fixed by deploying new contracts and migrating state.
+ Migration requires: new deployment, state migration script, user notification, transition period with both contracts live, final cutover.
+ Cost: each fix is a migration.
+ Benefit: no proxy admin risk, no upgrade governance attack surface.
+ Recommended for MTQ token and reserve contracts unless there is a clear case for upgradeability.
+Option B  Upgradeable contracts (UUPS or Transparent Proxy):
+ Implementation can be upgraded.
+ Upgrade governance: 7/7 Constitutional Council + 90-day timelock (per v5.0 §22.3).
+ Upgrade proposal must include: new implementation address, storage layout diff, security audit, rollback plan.
+ Recommended for MARP execution logic if the correction cadence is expected to be high.
+Regardless of choice:
+ The choice must be documented in a UPGRADEABILITY.md file.
+ The choice must be approved by the Committee.
+ The choice must be tested: T-57 (below) verifies that the chosen path works and that the other path is not accidentally enabled.
+Required: OD-16 (below)  upgradeability strategy.
+Approval: Governance + Committee.
+
+Part F  Testing infrastructure
+F.1 Mock environment requirements
+Gap in v5.0: v5.0's test matrix (T-01 through T-40) does not specify the mock infrastructure needed to run the tests.
+Required:
+The following mocks must exist and be version-controlled with the tests:
+
+
+MockPurposeBehaviorsMockERC20Standard ERC-20 with 6/18 decimalstransfer, transferFrom, approve, allowance, balanceOfMockFeeOnTransferERC20Fee-on-transfer tokenTransfer deducts a feeMockUSDTLikeERC20USDT-style approve quirkApprove(0) required before approve(non-zero)MockOracleMulti-source price oracleConfigurable prices, staleness, confidence, source countMockAggregatorDEX aggregatorConfigurable quotes, success/failure, delayMockSafeSafe multi-sigConfigurable signers, threshold, executionMockGovernanceGovernance timelockConfigurable timelock, proposal lifecycleMockReserveManagerReserve stateConfigurable NAV, RR, LCRMockCrisisOracleCrisis scoreConfigurable scoreEach mock must have:
+ Constructor parameters that expose all relevant behaviors.
+ A setBehavior() function for tests.
+ An event log for debugging.
+Required test: T-58 (below)  verify all mocks compile, deploy, and behave as expected under the full test matrix.
+Approval: Smart-contract lead + DevOps.
+F.2 Deterministic decision replay
+Gap in v5.0: v5.0 requires "reproducible decisions" but does not specify the data format or the replay procedure.
+Required:
+For every decision, the decision record must be serializable to a canonical JSON format that includes:
+ All inputs used to compute the decision.
+ All parameter and model versions.
+ The exact function signature and bytecode hash of the decision computation.
+ The output (decision, reason code).
+ A timestamp.
+ A signature.
+The replay procedure:
+Given a decision record, any auditor can:
+1 Load the inputs.
+2 Load the parameter and model versions.
+3 Execute the decision computation (either the on-chain contract or an off-chain reference implementation).
+4 Compare the output.
+5 If the outputs differ, the decision record is invalid.
+Required implementation:
+typescript
+// Off-chain reference implementation
+interface DecisionRecord {
+ decisionId: string;
+ inputs: DecisionInputs;
+ versions: { cost: string; protection: string; objective: string; parameters: string; };
+ output: { decision: 'execute' | 'reject' | 'defer'; reason: string; };
+ signature: string;
+}
+
+function replayDecision(record: DecisionRecord): DecisionRecord['output'] {
+ const computed = computeDecision(record.inputs, record.versions);
+ if (computed.decision !== record.output.decision) {
+ throw new Error(`Decision replay mismatch: expected ${record.output.decision}, got ${computed.decision}`);
+ }
+ return computed;
+}
+
+
+Required test: T-59 (below)  replay a valid decision, verify match; replay a tampered decision, verify mismatch is detected.
+Approval: Smart-contract lead + Quant lead.
+
+Part G  Additional open decisions
+
+
+IDDecisionOwnerBlocksOD-14Minimum trade notional and dust threshold policyCommitteeGate 2OD-15Keeper compensation model (gas reimbursement, bounty, foundation-subsidized, or none)Governance + CommitteeGate 5OD-16Upgradeability strategy (immutable + migration vs proxy)Governance + CommitteeGate 1OD-17Aggregator allowlist and failover policyRisk CouncilGate 2OD-18Market-hours registry and settlement windows per assetRisk Council + CommitteeGate 2OD-19Oracle health thresholds (WARNING, DEGRADED, HALTED triggers)Risk Council + CommitteeGate 2OD-20Emergency token rescue parameters (recipient allowlist, timelock, reason requirement)GovernanceGate 5
+Part H  Additional conflict register entries
+
+
+IDConflictResolutionC-017Reentrancy: v5.0 does not specify guardsPart A.1 of this extensionC-018Approvals: v5.0 does not specify approval hygienePart A.2C-019Multi-leg atomicity: v5.0 assumes atomicity without specifying itPart A.3C-020Slippage decimals: v5.0's minAmountOut computation is ambiguousPart A.5C-021Circuit breakers: v5.0 has no escalation levelsPart B.1C-022Invariants: v5.0 does not list formal testable invariantsPart D.2
+Part I  Additional test matrix entries
+
+
+IDTestExpected resultT-41Reentrancy via malicious tokenReentrant call rejected by nonReentrant guardT-42USDT-style approve, fee-on-transfer token, residual allowanceApprove reset to zero; fee-on-transfer rejected; no residual allowanceT-43Multi-leg swap: leg 1 succeeds, leg 2 failsIntermediate state correctly rolled back or held with follow-up deadlineT-44Dust below minimum notionalHeld in reserve, flagged, not lostT-451% slippage on 6-decimal and 18-decimal tokensminAmountOut correct in each token's native decimalsT-46Rescue stuck tokensAirdrop rescue succeeds; reserve asset rescue rejected; non-allowlisted recipient rejected; rescue during rebalance rejectedT-47Oracle health escalationWARNING on one stale; DEGRADED on two; HALTED on all; pause triggeredT-48Aggregator failoverPrimary fails  secondary succeeds; both fail  reject with correct reason; better-quote policy appliedT-49Selective pauseOnly paused asset's trades rejected; other trades continueT-50EIP-712 signed decisionsInvalid signature, expired, replayed, cross-chain, stale version all rejectedT-51Keeper failoverBackup activates after timeout; keeper  submitter; emergency keeper only in emergency modeT-52Reserve state recomputationNAV, RR, LCR match independent recomputation; event emittedT-53Formal invariantsINV-1 violated  revert; INV-8 violated  emit + CAUTIONT-54Market hoursPAXG trade during London close  protection doubles; USDC paused  rejectT-55Contract initializationInitializer callable once; DEFAULT_ADMIN_ROLE on Safe, not deployerT-56Deployment orderingScript produces correct dependencies; skipped step failsT-57Upgradeability pathChosen path works; other path not accidentally enabledT-58Mock environmentAll mocks compile, deploy, behave under full test matrixT-59Decision replayValid decision matches; tampered decision mismatch detectedT-60Combined invariants + circuit breakerINV violation triggers correct breaker; recovery path works
+Part J  How this extension integrates with v5.0
+J.1 Amendment to v5.0 sections
+ §0.3 Authorization matrix: No change.
+ §0.4 Mandatory truthfulness rule: No change.
+ §0.5 Time estimates: Add 2 weeks to Gate 2 and Gate 3 for the extension work.
+ §0.6 First sprint plan: Add "Review this extension and confirm applicability to the current codebase" as step 2, shifting existing steps down.
+ Part 3.8 Quote protection: Cross-reference Extension A.5 (slippage decimals).
+ Part 3.9 Emergency mode: Cross-reference Extension B.3 (selective pause).
+ Part 4 Listings: Listings C-1 through C-6 remain. Add Listings C-7 through C-10 (from this extension) as additional code patterns.
+ Part 6 Test matrix: Extend T-01 through T-40 with T-41 through T-60.
+ Part 7 Gates: Gate 1 requires OD-16 (upgradeability). Gate 2 requires OD-14, OD-17, OD-18, OD-19. Gate 5 requires OD-15, OD-20.
+ Part 8.1 Open decisions: Add OD-14 through OD-20.
+ Part 8.2 Conflict register: Add C-017 through C-022.
+ Part 9 Keeper trust: Cross-reference Extension C.1C.3.
+ Part 10 Roadmap: Add 2 weeks to Gate 2 and Gate 3.
+ Part 11 Final authorization: No change to status.
+J.2 Additional code listings introduced by this extension
+ Listing C-7  Reentrancy and approval-safe execution wrapper (Extension A.1, A.2).
+ Listing C-8  Slippage computation with correct decimals (Extension A.5).
+ Listing C-9  EIP-712 signed decision execution (Extension C.1).
+ Listing C-10  Invariant check and reserve state recomputation (Extension D.1, D.2).
+J.3 Developer first-sprint plan (amended)
+1 Verify the deployment inventory (v5.0 §1.5) on Monad, Arc, Solana.
+2 Reproduce the four P0 findings (v5.0 §0.4) against actual source.
+3 Review this extension and confirm applicability to the current codebase. Identify which extension items are already implemented, which are missing, which are partially implemented.
+4 Integrate Listings C-1 through C-10 into a new branch.
+5 Run tests T-01 through T-60 (or a documented subset, with reasons for any deferred tests).
+6 Report back to the Committee with the deployment register, P0 reproduction report, extension applicability report, branch commit hash, test results, and any additional findings.
+J.4 What is not in this extension and why
+ Portfolio-level optimization: Covered by v5.0 Appendix A (future release).
+ Solana-specific execution: Covered by v5.0 §15.3 / OD-9 (Gate 7).
+ Multichain accounting: Covered by v5.0 §16 / OD-10 (Gate 7).
+ Commercial evidence: Covered by v5.0 §C.2 / OD-11 (Gate 6).
+ Index chain-linking: Covered by v5.0 / OD-12 (Gate 3).
+ Reference vs NAV reconciliation: Covered by v5.0 / OD-13 (Gate 5).
+These are appropriately in the main document. This extension focuses only on gaps that are essential for a correct implementation of the current single-chain release.
+
+Part K  Final statement
+v5.0 is the correct architectural and process mandate. It is honest about status, rigorous about gates, and clear about what is and is not authorized.
+But v5.0 alone will produce a system with:
+ Reentrancy exposure (no guards specified).
+ Silent precision issues in slippage (no unit clarity).
+ No path to recover stuck funds (no rescue path).
+ Undefined behavior on multi-leg failure (no atomicity specification).
+ No escalation levels for oracle failure (no circuit breakers).
+ No formal invariants to detect corruption (no testable invariant set).
+ No deployment or upgrade discipline (no ordering, no upgradeability choice).
+ No mock infrastructure (tests cannot run).
+This extension closes those gaps. It does not add scope; it makes the existing scope implementable.
+The developer should implement v5.0 + this extension together. Neither is complete without the other. Neither authorizes production. Both are testnet-only until the gates close.
+End of extension.MTQ   Extension 2 to Single Source of Truth v5.0
+Document ID: MTQSIGMA-SINGLE-SOURCE-OF-TRUTH-006-EXT-2Version: 5.2  Reserve, Governance, Oracle, MEV, and Operational ExtensionsDate: 19 October 2026Appends to: MTQSIGMA-SINGLE-SOURCE-OF-TRUTH-006 (v5.0) + MTQSIGMA-SINGLE-SOURCE-OF-TRUTH-006-EXT-1 (v5.1)Status: Extends v5.0 and Extension 1. Any conflict is resolved by the six-level authority hierarchy in v5.0 §0.2.
+
+Honest acknowledgment: what v5.0 + Extension 1 still do not cover
+v5.0 and Extension 1 focus on MARP execution protection  the trades that rebalance the reserve. That focus is correct given where the P0 defects were found. But it means v5.0 + Extension 1 do not fully cover the rest of the Master Blueprint, and a developer handing off v5.0 + Extension 1 alone will produce a system that:
+ Cannot compute the Reserve Ratio from first principles (§Part B).
+ Has no Daily State Vector to feed the risk state machine (§Part C).
+ Has no Asset Admission Registry to govern which tokens the reserve can hold (§Part D).
+ Has no Geopolitical Eject mechanism for de-pegged assets (§Part E).
+ Has no Genesis Reserve, Cold Treasury, or replenishment procedure (§Part F).
+ Has no MEV protection for its own rebalances (§Part G).
+ Has no handling for paused, blacklisting, rebasing, or upgradeable tokens in its reserve (§Part H).
+These are not optional. They are the operating system that the MARP execution engine sits inside. Without them, the corrected MARP trades assets that are governed by undefined rules, priced by undefined NAV, and reported in an undefined state vector.
+Extension 2 closes these gaps. It does not cover everything in the Master Blueprint  some items are legitimately deferred to Gate 5 or Gate 7  but it covers what must exist for Gate 1 and Gate 2 to be meaningful.
+
+How to use this extension
+v5.0 = the MARP execution mandate.Extension 1 = the contract-level safety and process extensions.Extension 2 = the reserve, governance, oracle, MEV, and operational layer that the MARP engine depends on.
+The developer should read them in order. v5.0 defines what to trade. Extension 1 defines how to trade safely. Extension 2 defines what is being traded, what its value is, and what governs it.
+
+Part A  Scope clarification and full-stack readiness checklist
+A.1 What each document covers
+
+
+DocumentScopeGateReads fromv5.0MARP execution protection (direction-aware deviation, cost model, protection margin, net-benefit gate, keeper boundary, gates)Gate 1Master Blueprint Chapters 3-12Extension 1 (v5.1)Contract-level safety (reentrancy, approvals, atomicity, dust, slippage decimals, rescue), oracle circuit breakers, aggregator failover, selective pause, EIP-712, keeper failover, invariants, market hours, initialization, deployment ordering, upgradeabilityGate 1-2v5.0Extension 2 (v5.2)Reserve valuation (NAV, RR, LCR), dynamic buffer, daily state vector, asset admission, geopolitical eject, Genesis Reserve, Cold Treasury, replenishment, MEV protection, token behavior edge cases, log retention, emergency playbookGate 2-5Master Blueprint Chapters 13-24 + v5.0 + Extension 1A.2 Full-stack readiness checklist
+For a single-chain EVM deployment to pass Gate 2, the developer must implement:
+Layer 1  Reference index (Blueprint Chapters 3-9)
+  Reference basket composition and weight computation (MASE)
+  Chain-linked index calculation (OD-12)
+  Base fixings stored immutably
+  Index value published daily
+Layer 2  Reserve valuation (Blueprint Chapters 13-14, this extension)
+  Asset-specific haircuts
+  Net Asset Value (NAV) computation
+  Reserve Ratio (RR) computation with three floors
+  Liquidity Coverage Ratio (LCR) with 24h liquid classification
+  Dynamic buffer states (BASE/STRESS/EMERGENCY)
+  First-loss waterfall
+  Reserve stress equation
+Layer 3  Asset governance (Blueprint Chapter 15, this extension)
+  Asset Admission Registry
+  Eight eligibility criteria
+  Four states (ACTIVE/WATCH/RESTRICTED/EJECTED)
+  Concentration limits
+  Chain diversification policy
+Layer 4  MARP execution (v5.0 + Extension 1)
+  Direction-aware deviation
+  Complete cost model
+  Protection margin
+  Net-benefit gate
+  All Part 4 Listings C-1 through C-10
+Layer 5  Operational safety (Extension 1 + this extension)
+  Reentrancy guards
+  Approvals hygiene
+  Multi-leg atomicity
+  Oracle health circuit breakers
+  Aggregator failover
+  Selective pause
+  EIP-712 signed decisions
+  MEV protection
+  Token behavior edge cases
+Layer 6  Reporting and audit (Blueprint Chapters 18, 23-24, this extension)
+  Daily State Vector
+  Reserve state recomputation after every trade
+  Decision log
+  Reconciliation report
+  Log retention
+Layer 7  Governance and emergency (Blueprint Chapters 20-22, this extension)
+  Four-layer governance (Constitutional/Monetary/Risk/Emergency)
+  Parameter registry
+  Genesis Reserve (4/7 Safe)
+  Cold Treasury (4/7 Safe)
+  Emergency replenishment procedure
+  Geopolitical eject mechanism
+  Emergency response playbook
+Not required for Gate 2, deferred to Gate 5:
+ Live reserve pilot infrastructure
+ Keeper compensation (OD-15)
+ Emergency token rescue (OD-20)
+Not required for Gate 2, deferred to Gate 7:
+ Portfolio-level optimization
+ Solana adapter
+ Multichain accounting
+ Bridge monitoring
+
+Part B  Reserve valuation and buffer implementation
+Source: Master Blueprint Chapters 13-14, 16Gap in v5.0 + Extension 1: References RR, LCR, and haircuts but does not provide the computation, the haircut table, the buffer states, or the waterfall.
+B.1 Net Asset Value with asset-specific haircuts
+The reserve's prudential value must be computed after applying per-asset haircuts. Do not use gross market value for solvency decisions.
+Haircut table (from Blueprint §14.1.1, must be replicated on-chain or referenced from a versioned registry):
+
+
+Asset classExampleHaircutRationaleUSD stablecoinUSDC, USDP0.5%Extremely liquid; regulated; minimal depeg riskEUR stablecoinEURC0.7%Highly liquid; slightly lower depth than USDCGBP stablecoinRegistry-resolved1.0%Lower on-chain liquidityJPY stablecoinRegistry-resolved1.0%Lower on-chain liquidityCNY stablecoinOffshore CNH1.5%Limited liquidity; offshore constraintsTokenized goldPAXG, XAUT1.0%Custody spread + DEX slippageTokenized T-billsBUILD (if approved)2.0%Interest rate risk; redemption delayNAV formula:
+text
+NAV = _i (balance_i × price_i × (1 - haircut_i))
+
+
+Where prices come from the canonical oracle (Extension 1 B.1 for health checks) and haircuts come from the admitted-asset registry (Part D below).
+Required Listings:
+Listing E-1  NAV computation
+solidity
+// SPDX-License-Identifier: MIT
+pragma solidity ^0.8.19;
+
+library ReserveNAV {
+ error InvalidHaircut(uint256 haircut);
+ error OracleUnavailable(address asset);
+
+ uint256 constant HAIRCUT_SCALE = 1e18;
+
+ struct Holding {
+ address asset;
+ uint256 balance; // native decimals
+ uint8 decimals;
+ uint256 priceE18; // USD price, 1e18 scale
+ uint256 haircutE18; // 0.005e18 for 0.5%
+ }
+
+ /// @notice Compute NAV in USD-equivalent 1e18 terms.
+ function computeNAV(Holding[] memory holdings) internal pure returns (uint256 navE18) {
+ for (uint256 i = 0; i < holdings.length; i++) {
+ Holding memory h = holdings[i];
+ require(h.haircutE18 < HAIRCUT_SCALE, "InvalidHaircut");
+
+ // value = balance × price × (1 - haircut) / (10^decimals × 1e18)
+ uint256 balanceE18 = uint256(h.balance) * (10 ** uint256(18 - h.decimals));
+ uint256 grossValueE18 = (balanceE18 * h.priceE18) / 1e18;
+ uint256 netValueE18 = (grossValueE18 * (HAIRCUT_SCALE - h.haircutE18)) / HAIRCUT_SCALE;
+ navE18 += netValueE18;
+ }
+ }
+}
+
+
+Required tests: T-61  NAV matches independent recomputation across the full asset set; haircuts reduce NAV correctly; zero-balance assets are handled; NAV uses the correct price source.
+B.2 Reserve Ratio with three floors
+text
+RR_t = NAV_t / (circulatingSupply × MTQPrice)
+
+
+Where MTQPrice = I_t / I_base (chain-linked index / base index).
+Three floors (from Blueprint §14.2.1):
+
+
+FloorValueMeaningTriggerTARGET1.10Normal operating bufferContinuousSTRESS FLOOR1.05Defensive posture; minting throttledAutomatic below 1.10  CAUTION; below 1.05  STRESSHARD FLOOR1.00Never breachAutomatic below 1.00  EMERGENCYRequired Listing E-2  RR computation and floor check
+solidity
+function computeRR(uint256 navE18, uint256 circulatingSupply18, uint256 mtqPriceE18) 
+ internal pure returns (uint256 rrE18)
+{
+ require(circulatingSupply18 > 0, "No supply");
+ uint256 liabilityE18 = (circulatingSupply18 * mtqPriceE18) / 1e18;
+ return (navE18 * 1e18) / liabilityE18;
+}
+
+function checkRRFloor(uint256 rrE18) internal pure returns (ProtocolStatus) {
+ if (rrE18 < 1.00e18) return ProtocolStatus.EMERGENCY;
+ if (rrE18 < 1.05e18) return ProtocolStatus.DEFENSIVE;
+ if (rrE18 < 1.10e18) return ProtocolStatus.CAUTION;
+ return ProtocolStatus.NORMAL;
+}
+
+
+Required tests: T-62  RR = NAV / (circ × price) matches; RR < 1.00 triggers EMERGENCY; RR < 1.05 triggers DEFENSIVE; RR < 1.10 triggers CAUTION; RR  1.10 is NORMAL.
+B.3 Liquidity Coverage Ratio
+text
+LCR = liquidAssets / (circulatingSupply × MTQPrice × stressRedemptionRate)
+
+
+Where:
+ liquidAssets = only 100%-liquid assets after haircuts (stablecoins only, per Blueprint §13.4.1; tokenized gold is 0% liquid).
+ stressRedemptionRate = 25% of circulating supply in 30 days (Blueprint §13.4.2).
+Required Listing E-3  LCR computation
+solidity
+uint256 constant STRESS_REDEMPTION_RATE_E18 = 0.25e18;
+
+function computeLCR(
+ uint256 liquidAssetsE18,
+ uint256 circulatingSupply18,
+ uint256 mtqPriceE18
+) internal pure returns (uint256 lcrE18) {
+ uint256 liabilityE18 = (circulatingSupply18 * mtqPriceE18) / 1e18;
+ uint256 stressDemand = (liabilityE18 * STRESS_REDEMPTION_RATE_E18) / 1e18;
+ if (stressDemand == 0) return type(uint256).max;
+ return (liquidAssetsE18 * 1e18) / stressDemand;
+}
+
+
+Required tests: T-63  LCR = liquid / (circ × price × 0.25) matches; tokenized gold not counted as liquid; LCR < 1.00 triggers DEFENSIVE mode per Blueprint §13.4.3.
+B.4 Dynamic buffer states
+The reserve is decomposed as:
+text
+V_core = circulatingSupply × MTQPrice (100% liability coverage)
+V_buffer = 0.10 × V_core (10% excess collateral)
+
+
+Buffer composition depends on RR state:
+
+
+StateRR rangeBuffer gold %Buffer fiat %DescriptionBASERR  1.1062.5%37.5%Normal operationsSTRESS1.05  RR < 1.1085%15%Defensive posture; minting throttled to 50%EMERGENCYRR < 1.05100%0%Maximum defense; minting pausedTotal gold weight = core gold weight + (0.10 × buffer gold ratio).
+If core gold weight is 20% (Blueprint §16.2 baseline), total gold is:
+ BASE: 20% + 6.25% = 26.25%
+ STRESS: 20% + 8.5% = 28.5%
+ EMERGENCY: 20% + 10% = 30.0%
+State transitions:
+ BASE  STRESS: RR < 1.10; buffer gold ramps from 62.5% to 85% over 24 hours
+ STRESS  BASE: RR  1.10 for 24 consecutive hours; ramps back over 24 hours
+ STRESS  EMERGENCY: RR < 1.05; buffer gold jumps to 100% immediately
+ EMERGENCY  STRESS: RR  1.05 for 48 consecutive hours
+ EMERGENCY  BASE: RR  1.10 for 48 consecutive hours
+Required Listing E-4  Buffer state machine
+solidity
+enum BufferState { BASE, STRESS, EMERGENCY }
+
+function computeBufferGoldRatio(
+ BufferState state,
+ uint256 rampStart,
+ uint256 rampDuration,
+ uint256 rampStartRatio
+) internal view returns (uint256) {
+ if (state == BufferState.EMERGENCY) return 1e18;
+ uint256 target = (state == BufferState.BASE) ? 0.625e18 : 0.85e18;
+ if (block.timestamp >= rampStart + rampDuration) return target;
+ uint256 progress = ((block.timestamp - rampStart) * 1e18) / rampDuration;
+ uint256 diff = target > rampStartRatio ? target - rampStartRatio : rampStartRatio - target;
+ uint256 adjustment = (diff * progress) / 1e18;
+ return (target > rampStartRatio) ? rampStartRatio + adjustment : rampStartRatio - adjustment;
+}
+
+
+Required tests: T-64  buffer states transition correctly; ramps are linear; emergency transition is immediate; recovery requires confirmation period.
+B.5 First-loss waterfall
+Losses absorb in this order (Blueprint §16.4):
+1 Operational Surplus  fee revenue retained
+2 Buffer Fiat  37.5%/15% of buffer
+3 Buffer Gold  62.5%/85%/100% of buffer
+4 Core Fiat  80% of core
+5 Core Gold  20% of core (protected by Exhaustion Certificate, requires 4/7 Multi-Sig)
+Required Listing E-5  First-loss waterfall
+solidity
+function applyLoss(uint256 lossE18) internal {
+ uint256 remaining = lossE18;
+ remaining = _consumeLayer(remaining, operationalSurplus, "operationalSurplus");
+ if (remaining == 0) return;
+ remaining = _consumeLayer(remaining, bufferFiatValue, "bufferFiat");
+ if (remaining == 0) return;
+ remaining = _consumeLayer(remaining, bufferGoldValue, "bufferGold");
+ if (remaining == 0) return;
+ remaining = _consumeLayer(remaining, coreFiatValue, "coreFiat");
+ if (remaining == 0) return;
+ require(coreGoldExhaustionCertificate >= remaining, "Core gold protected");
+ coreGoldValue -= remaining;
+ emit BufferConsumed("coreGold", remaining, 0);
+}
+
+function _consumeLayer(uint256 loss, uint256 layerValue, string memory name) 
+ internal returns (uint256 remaining) 
+{
+ uint256 consumed = loss > layerValue ? layerValue : loss;
+ // Decrement the layer (implemented by caller)
+ emit BufferConsumed(name, consumed, loss - consumed);
+ return loss - consumed;
+}
+
+
+Required tests: T-65  small loss absorbed by operational surplus; larger loss cascades; core gold protected by exhaustion certificate; loss not accounted twice.
+B.6 Reserve stress equation
+Every stress test is scored through:
+text
+CoverageRatio_s = ReserveNAV_s / Obligations_s  1.00
+
+
+Where ReserveNAV_s uses scenario haircuts, depegs, liquidity discounts, and recovery values; Obligations_s is the outstanding claim value under the same scenario.
+Required tests: T-66  stress scenarios (gold +50%, gold 30%, currency 20%, stablecoin depeg, correlation collapse) all pass coverage  1.00 OR trigger the governed recovery mechanism.
+
+Part C  Daily State Vector
+Source: Master Blueprint Chapter 18Gap: v5.0 and Extension 1 reference "state" but do not define the Daily State Vector.
+C.1 Required daily computation
+At least once per day, the system must compute and publish:
+text
+X_t = [W_t, Risk_t, CVaR_t, MDD_t, PPError_t, Liquidity_t, Coverage_t,
+ OracleConfidence_t, CrisisScore_t, Turnover_t, Cost_t]
+
+
+
+
+FieldMeaningSourceW_tLive smoothed weight vector with version hashesMASE outputRisk_tMulti-horizon volatilities + shrunk correlationChapter 5-6CVaR_t95% CVaR with 99% monitoredChapter 6.6MDD_tMax drawdown vs constitutional envelopeChapter 6.7PPError_tPurchasing-power tracking errorChapter 6.8Liquidity_tDepth per venue, per assetChapter 11.4Coverage_tRR, LCR, and stress coveragePart B aboveOracleConfidence_tConfidence score per feedExtension 1 B.1CrisisScore_tAggregated stress evidenceChapter 5.5Turnover_tTrailing turnover rateChapter 7.3Cost_tRealized cost vs estimatedPart B / Extension 1C.2 Action = f(State), not f(Calendar)
+Every automated decision must be a function of the state vector, not the date:
+text
+Action_t = f(X_t)  f(calendar)
+
+
+This is Invariant I11 (Chapter 10.1): daily calculation does not imply daily trading. The state vector drives the decision; the calendar does not.
+C.3 Required Listing E-6  Daily state vector digest
+solidity
+struct DailyState {
+ bytes32 weightVersionHash;
+ bytes32 riskVersionHash;
+ uint256 cvar95E18;
+ uint256 mddE18;
+ uint256 ppErrorE18;
+ uint256 liquidityScoreE18;
+ uint256 reserveRatioE18;
+ uint256 lcrE18;
+ uint256 oracleConfidenceE18;
+ uint256 crisisScoreE18;
+ uint256 trailingTurnoverE18;
+ uint256 realizedCostE18;
+ uint256 timestamp;
+}
+
+mapping(uint256 => DailyState) public dailyStates; // keyed by epoch day
+mapping(uint256 => bytes32) public dailyStateHash; // for tamper evidence
+
+event DailyStatePublished(uint256 indexed epochDay, bytes32 stateHash, uint256 timestamp);
+
+function publishDailyState(uint256 epochDay, DailyState calldata state, bytes32 expectedHash) 
+ external onlyStatePublisher 
+{
+ require(dailyStates[epochDay].timestamp == 0, "Already published");
+ bytes32 computedHash = keccak256(abi.encode(state));
+ require(computedHash == expectedHash, "Hash mismatch");
+ dailyStates[epochDay] = state;
+ dailyStateHash[epochDay] = computedHash;
+ emit DailyStatePublished(epochDay, computedHash, block.timestamp);
+}
+
+
+Required tests: T-67  state vector hashes match; published daily; action = f(state) verified across multiple epochs; calendar-only changes do not trigger actions.
+
+Part D  Asset Admission Registry
+Source: Master Blueprint Chapter 15Gap: v5.0 and Extension 1 reference "approved assets" but do not provide the registry or the eligibility criteria.
+D.1 Eight eligibility criteria
+Every reserve asset must pass all eight before admission (Blueprint §15.2):
+1 Issuer Authorization  Regulated entity or enforceable legal framework
+2 Redemption Right  Verifiable right to redeem at par or for physical gold
+3 Custody Structure  Audited, segregated, qualified custodian
+4 Sanctions Policy  Compliant with OFAC, EU, UN
+5 Smart Contract Audit  Top-tier audit within 12 months
+6 Liquidity Minimum  $1M 24-hour volume on major DEXs
+7 Oracle Availability  Two independent price feeds live
+8 Concentration Limit  No single issuer > 30% of total reserve
+D.2 Four states
+
+
+StateDescriptionActionsACTIVEFully eligiblePurchase, hold, rebalanceWATCHCriterion about to failNo new purchases; maintain holdingsRESTRICTEDCriterion violatedNo new collateral; sell during next rebalanceEJECTEDConfirmed depeg or freezeLiquidate 100% via staged ladder (Part E)D.3 Required Listing E-7  Asset Registry
+solidity
+enum AssetState { ACTIVE, WATCH, RESTRICTED, EJECTED }
+
+struct AssetRecord {
+ bytes3 currencyCode;
+ address tokenAddress;
+ string name;
+ uint256 haircutE18;
+ uint256 liquidityThresholdE18;
+ uint256 admissionDate;
+ AssetState state;
+ bool isStablecoin; // drives LCR classification
+ bool isLCRLiquid; // true for 100% liquid, false for gold
+ bytes32 issuerId;
+}
+
+mapping(bytes3 => AssetRecord) public assets;
+mapping(bytes3 => address) public currencyToAsset;
+
+event AssetAdded(bytes3 indexed currency, address indexed token, string name);
+event AssetStateChanged(bytes3 indexed currency, AssetState newState);
+event AssetParametersUpdated(bytes3 indexed currency, uint256 haircut, uint256 liquidityThreshold);
+
+function addAsset(bytes3 currency, address token, string calldata name,
+ uint256 haircut, uint256 liquidityThreshold, bool isStablecoin, 
+ bool isLCRLiquid, bytes32 issuerId) 
+ external onlyRiskCouncil 
+{
+ require(currencyToAsset[currency] == address(0), "Already exists");
+ require(token != address(0), "Invalid token");
+ require(haircut >= 0.005e18 && haircut <= 0.10e18, "Haircut out of bounds");
+ require(liquidityThreshold >= 1_000_000e18, "Below $1M");
+ require(IERC20Metadata(token).decimals() <= 18, ">18 decimals");
+
+ assets[currency] = AssetRecord({
+ currencyCode: currency, tokenAddress: token, name: name,
+ haircutE18: haircut, liquidityThresholdE18: liquidityThreshold,
+ admissionDate: block.timestamp, state: AssetState.ACTIVE,
+ isStablecoin: isStablecoin, isLCRLiquid: isLCRLiquid,
+ issuerId: issuerId
+ });
+ currencyToAsset[currency] = token;
+ emit AssetAdded(currency, token, name);
+}
+
+
+D.4 Concentration limits
+ Issuer concentration:  30% of reserve value per issuer (Blueprint §15.6.1).
+ Asset concentration:  40% per asset (governance parameter).
+ Currency concentration:  constitutional envelope (Chapter 8.1).
+ Chain diversification: No wrapped assets; canonical token preference; primary-chain-only custody (Blueprint §15.6.4).
+Required tests: T-68  asset cannot be added if haircut out of bounds; concentration limit blocks rebalancing trade; state transitions require correct role; issuer concentration accounted across multiple assets.
+
+Part E  Geopolitical eject (de-peg protection)
+Source: Master Blueprint Chapter 21Gap: v5.0 and Extension 1 reference eject but do not provide the mechanism.
+E.1 De-peg detector
+Each stablecoin has asset-specific peg bands:
+
+
+AssetLowerUpperRationaleUSDC, USDP0.9951.005Extremely liquidEURC0.9951.005Highly liquidGBP0.9901.010Lower liquidityJPY0.9901.010Lower liquidityCNY (CNH)0.9851.015Limited liquidityDetection rule: price outside band for more than 12 consecutive hours.
+E.2 Staged liquidation ladder
+When de-peg confirmed:
+
+
+StageCumulative sellTrigger condition110%De-peg confirmed for > 12 hours225%De-peg > 24 hours OR RR < 1.08350%De-peg > 48 hours OR RR < 1.054100%Issuer freeze confirmed OR RR < 1.025% rule: If the asset price drops more than 5% from the start of the current stage, pause the next stage for 24 hours (anti-forced-seller).
+E.3 Reintegration score (anti-gaming)
+An ejected asset is not re-purchased when it merely returns to band. It must satisfy:
+text
+R_score = 0.40 × TimeInBand + 0.25 × LiquidityDepth + 0.20 × OracleAgreement + 0.15 × (1 - Volatility)
+
+
+Threshold: R_score  0.80 sustained for 24 hours (Stage 1), 48 hours (Stage 2), 72 hours (Stage 3).
+E.4 Required Listing E-8  De-peg detection and staged liquidation
+solidity
+mapping(bytes3 => uint256) public depegStartTimes;
+mapping(bytes3 => uint256) public liquidationStage;
+mapping(bytes3 => uint256) public stageStartPrices;
+
+function updateDepegStatus(bytes3 currency) internal {
+ address token = currencyToAsset[currency];
+ uint256 price = getPrice(token);
+ (uint256 lower, uint256 upper) = getPegBand(currency);
+
+ if (price < lower || price > upper) {
+ if (depegStartTimes[currency] == 0) {
+ depegStartTimes[currency] = block.timestamp;
+ } else if (
+ block.timestamp - depegStartTimes[currency] > 12 hours &&
+ liquidationStage[currency] == 0
+ ) {
+ emit DepegDetected(currency, price, block.timestamp);
+ }
+ } else {
+ depegStartTimes[currency] = 0;
+ }
+}
+
+function executeStagedLiquidation(bytes3 currency) external nonReentrant {
+ require(isDepegged(currency), "Not depegged");
+ require(isPriceStable(currency), "5% rule: paused");
+
+ uint256 totalValue = getAssetValue(currency);
+ uint256 depegDuration = block.timestamp - depegStartTimes[currency];
+ uint256 rr = getReserveRatio();
+ uint256 sellAmount;
+
+ if (depegDuration > 12 hours && liquidationStage[currency] < 1) {
+ sellAmount = totalValue * 10 / 100;
+ liquidationStage[currency] = 1;
+ } else if ((depegDuration > 24 hours || rr < 1.08e18) && liquidationStage[currency] < 2) {
+ sellAmount = totalValue * 15 / 100;
+ liquidationStage[currency] = 2;
+ } else if ((depegDuration > 48 hours || rr < 1.05e18) && liquidationStage[currency] < 3) {
+ sellAmount = totalValue * 25 / 100;
+ liquidationStage[currency] = 3;
+ } else if ((isIssuerFrozen(currency) || rr < 1.02e18) && liquidationStage[currency] < 4) {
+ sellAmount = totalValue - getRemainingValue(currency);
+ liquidationStage[currency] = 4;
+ }
+
+ if (sellAmount > 0) {
+ _executeSell(currency, sellAmount);
+ stageStartPrices[currency] = getPrice(currencyToAsset[currency]);
+ emit LiquidationExecuted(currency, sellAmount, liquidationStage[currency]);
+ }
+}
+
+function isPriceStable(bytes3 currency) internal view returns (bool) {
+ uint256 currentPrice = getPrice(currencyToAsset[currency]);
+ uint256 stageStart = stageStartPrices[currency];
+ if (stageStart == 0) return true;
+ if (currentPrice >= stageStart) return true;
+ uint256 drop = ((stageStart - currentPrice) * 1e18) / stageStart;
+ return drop < 0.05e18;
+}
+
+
+E.5 Issuer freeze / sanctions override
+If an issuer freezes redemptions or is sanctioned, bypass the ladder entirely and execute 100% liquidation immediately, then remove from the registry.
+solidity
+function emergencyLiquidate(bytes3 currency) external onlyEmergencyCouncil nonReentrant {
+ address token = currencyToAsset[currency];
+ uint256 balance = IERC20(token).balanceOf(address(this));
+ if (balance > 0) {
+ _sellEntireBalance(token, balance);
+ emit EmergencyLiquidation(currency, balance);
+ }
+ _removeAsset(currency);
+}
+
+
+Re-admission after emergency liquidation requires the full admission process again (no reliance on the reintegration score alone).
+Required tests: T-69  de-peg detected after 12h; ladder stages trigger correctly; 5% rule pauses next stage; emergency liquidation bypasses ladder; reintegration score prevents naive re-entry.
+
+Part F  Genesis Reserve, Cold Treasury, replenishment
+Source: Master Blueprint Chapter 20Gap: v5.0 and Extension 1 do not address these reserves.
+F.1 Genesis Reserve
+At genesis, 1,000,000 MTQ is minted to the Genesis Reserve Account  a dedicated 4/7 Gnosis Safe with the same signers as the Emergency Council.
+Rules:
+ Never counted in circulating supply.
+ Never used for profit or operations.
+ Only for emergency reserve replenishment.
+ Address is mutable by the Constitutional Council (7/7) with 90-day timelock, to support signer rotation.
+F.2 Cold Treasury
+The Cold Treasury receives excess operational surplus via the treasury sweep.
+ Sweep threshold: $10,000 USD in the Operational Wallet.
+ Trigger: Keeper bot sweeps daily, or after large fee accruals.
+ Cold Treasury address: 4/7 Multi-Sig with hardware wallets.
+ Withdrawal delay: 48-hour timelock + 4/7 signatures.
+ Signer requirements: Geographically distributed, hardware wallets, rotated annually.
+F.3 Emergency replenishment
+When Reserve Ratio drops below 1.05 (STRESS mode):
+1 Protocol enters STRESS mode (Part B).
+2 If rebalancing cannot restore RR, a surplus transfer from Cold Treasury to Reserve Vault is requested.
+3 Requires 4/7 Multi-Sig and live RR < 1.05.
+4 Fully documented on-chain via event.
+Replenishment is the last line of defense  after natural cash flows, buffer adjustments, and MARP trades.
+F.4 Required Listing E-9  Treasury and replenishment
+solidity
+uint256 public constant SWEEP_THRESHOLD = 10_000e18;
+address public immutable COLD_TREASURY;
+address public genesisReserveAddress;
+
+event TreasurySwept(uint256 amount, uint256 timestamp);
+event ReserveReplenished(uint256 amount, uint256 source, uint256 timestamp);
+event GenesisReserveTransferred(address indexed oldAddr, address indexed newAddr, uint256 timestamp);
+
+function sweepTreasury() external onlyKeeper nonReentrant {
+ uint256 balance = IERC20(USDC).balanceOf(address(this));
+ if (balance > SWEEP_THRESHOLD) {
+ uint256 sweepAmount = balance - SWEEP_THRESHOLD;
+ IERC20(USDC).safeTransfer(COLD_TREASURY, sweepAmount);
+ emit TreasurySwept(sweepAmount, block.timestamp);
+ }
+}
+
+function replenishReserve(uint256 amount, uint8 source) 
+ external onlyMultiSig nonReentrant 
+{
+ require(getReserveRatio() < 1.05e18, "RR not in stress");
+ require(source == 1 || source == 2, "Invalid source");
+ 
+ if (source == 1) {
+ // From Cold Treasury
+ IERC20(USDC).safeTransferFrom(COLD_TREASURY, address(this), amount);
+ } else {
+ // From Genesis Reserve (requires separately approved 4/7 action)
+ require(genesisReserveReplenishmentApproved, "Genesis Reserve not approved");
+ IERC20(USDC).safeTransferFrom(genesisReserveAddress, address(this), amount);
+ }
+ _recomputeReserveState(keccak256("replenish"));
+ emit ReserveReplenished(amount, source, block.timestamp);
+}
+
+function transferGenesisReserve(address newReserve) 
+ external onlyConstitutionalCouncil 
+{
+ require(newReserve != address(0), "Invalid");
+ require(newReserve != genesisReserveAddress, "Already set");
+ address old = genesisReserveAddress;
+ genesisReserveAddress = newReserve;
+ emit GenesisReserveTransferred(old, newReserve, block.timestamp);
+}
+
+
+Required tests: T-70  sweep triggers above $10K; replenishment requires RR < 1.05 and 4/7; transfer requires 7/7; Cold Treasury withdrawal has 48h timelock.
+
+Part G  MEV / front-running protection
+Source: Master Blueprint §12.6 (previously under-specified)Gap: v5.0 mentions "private-mempool or equivalent transaction-submission protections" but does not specify the mechanism, per-chain.
+G.1 Why this matters
+Every MARP rebalance is a public signal. Without MEV protection:
+ Front-running: An attacker sees the pending rebalance and trades ahead of it, moving the price.
+ Sandwich attack: An attacker places a buy before and a sell after the rebalance, capturing the price impact.
+ Back-running: An attacker extracts value from the post-trade state.
+The slippage guard (Extension 1 A.5) limits the loss per trade. But without MEV protection, the attacker simply extracts repeatedly until the slippage guard binds.
+G.2 Per-chain MEV protection
+Monad Testnet / Monad Production:
+ Monad has a different mempool architecture than Ethereum.
+ Private submission paths: use Monad's sequencer-based ordering or private RPC if available.
+ If unavailable: use a time-locked commit-reveal scheme (see below).
+Arc Testnet / Arc Production:
+ Arc uses USDC as native gas; mempool architecture TBD by Arc.
+ Use private RPC if available; otherwise commit-reveal.
+Ethereum Mainnet (if deployed):
+ Flashbots Protect RPC or MEV Blocker for private submission.
+ Bundle with deadline for atomicity.
+Solana Devnet / Mainnet (Gate 7):
+ Jito bundles or equivalent private mempool.
+ Priority fees to outbid front-runners.
+G.3 Fallback when private submission is unavailable
+If private submission is unavailable on the target chain, use commit-reveal:
+1 Keeper commits keccak256(decision, nonce, salt) on-chain.
+2 After a governed delay (e.g., 1 block on fast chains, 12 blocks on Ethereum), keeper reveals decision, nonce, salt.
+3 Contract executes only if the reveal matches the commit.
+4 Attacker who sees the commit cannot act on it (no information).
+5 Attacker who sees the reveal has only the current block to act in  same as a normal transaction.
+Cost: Slower execution (2 transactions instead of 1). Acceptable on slow chain; may not be acceptable on fast chain.
+G.4 Required Listing E-10  Private submission and commit-reveal
+solidity
+enum SubmissionMode { DIRECT, PRIVATE_MEMPOOL, COMMIT_REVEAL }
+
+SubmissionMode public submissionMode;
+
+mapping(bytes32 => uint256) public commitTimestamps;
+mapping(bytes32 => bool) public revealed;
+
+event DecisionCommitted(bytes32 indexed commitHash, uint256 timestamp);
+event DecisionRevealed(bytes32 indexed commitHash, bytes32 decisionId, uint256 timestamp);
+
+function commitDecision(bytes32 commitHash) external onlyKeeper {
+ require(submissionMode == SubmissionMode.COMMIT_REVEAL, "Wrong mode");
+ require(commitTimestamps[commitHash] == 0, "Already committed");
+ commitTimestamps[commitHash] = block.timestamp;
+ emit DecisionCommitted(commitHash, block.timestamp);
+}
+
+function revealDecision(
+ bytes32 decisionId, bytes32 nonce, bytes32 salt, bytes calldata signature
+) external nonReentrant {
+ require(submissionMode == SubmissionMode.COMMIT_REVEAL, "Wrong mode");
+ bytes32 commitHash = keccak256(abi.encodePacked(decisionId, nonce, salt));
+ require(commitTimestamps[commitHash] > 0, "Not committed");
+ require(!revealed[commitHash], "Already revealed");
+ require(block.timestamp >= commitTimestamps[commitHash] + REVEAL_DELAY, "Too early");
+ require(block.timestamp <= commitTimestamps[commitHash] + REVEAL_DELAY + REVEAL_WINDOW, "Too late");
+ revealed[commitHash] = true;
+ _executeTradeFromDecision(decisionId, nonce, salt, signature);
+ emit DecisionRevealed(commitHash, decisionId, block.timestamp);
+}
+
+
+Where:
+ REVEAL_DELAY = 1 block (Monad fast) or 12 blocks (Ethereum)
+ REVEAL_WINDOW = 5 minutes (matching trade deadline)
+Required tests: T-71  private submission route works; commit-reveal works with correct delay; reveal before delay rejected; reveal after window rejected; replay rejected.
+
+Part H  Token behavior edge cases
+Source: Extension 1 A.2 covered fee-on-transfer. This part covers the remaining token behaviors that can break a reserve.
+H.1 Pausable tokens
+Problem: USDC, EURC, and other centralized stablecoins can be paused by the issuer. If the MTQ contract is holding paused USDC, transfer reverts.
+Requirement:
+ The reserve must track the paused state of each held token.
+ If a token is paused, it is excluded from LCR liquid assets but included in NAV (at a liquidity discount, since it cannot be moved).
+ Execution that requires transferring the paused token is rejected with reason "TokenPaused".
+ The rebalancing engine must consider the paused token when computing deviation (it's still an asset, just illiquid).
+Implementation:
+solidity
+interface IPausable {
+ function paused() external view returns (bool);
+}
+
+function _isTokenPaused(address token) internal view returns (bool) {
+ try IPausable(token).paused() returns (bool p) {
+ return p;
+ } catch {
+ return false; // Not pausable
+ }
+}
+
+
+H.2 Blacklist / freeze detection
+Problem: USDC can blacklist specific addresses. If the MTQ contract is blacklisted, transfers of USDC fail permanently until resolved.
+Requirement:
+ On every transfer, wrap in try/catch and emit TokenTransferFailed(token, reason) on failure.
+ If transfers fail for a token, immediately pause all trades involving that token.
+ Escalate to Emergency Council for blacklisting confirmation.
+ Do not retry the transfer in a loop.
+Implementation:
+solidity
+function _safeTransferToken(address token, address to, uint256 amount) internal returns (bool) {
+ (bool ok, bytes memory data) = token.call(
+ abi.encodeWithSelector(IERC20.transfer.selector, to, amount)
+ );
+ if (!ok) {
+ emit TokenTransferFailed(token, bytes32(data));
+ _pauseAsset(token, "Transfer failed");
+ return false;
+ }
+ return true;
+}
+
+
+H.3 Rebasing tokens
+Problem: Some tokens (e.g., aTokens, stETH) rebase daily. Holding them means the on-chain balance can change without any transfer.
+Requirement:
+ Disallow rebasing tokens in the asset registry unless explicitly approved.
+ If approved, reserve accounting must use the actual balance read at trade time (not a cached value).
+ The NAV must be recomputed before and after every operation that reads balances.
+Registry check:
+solidity
+function _isRebasingToken(address token) internal view returns (bool) {
+ // Best-effort detection: try calling a known rebasing interface
+ // (e.g., Aave's aToken scaledBalanceOf, or Lido's stETH shares)
+ // If detectable, mark as rebasing and require explicit approval
+ (bool ok, ) = token.staticcall(abi.encodeWithSignature("scaledBalanceOf(address)", address(this)));
+ return ok; // Presence of scaledBalanceOf suggests rebasing
+}
+
+
+H.4 Upgradeable tokens
+Problem: Some tokens (USDC, USDT) have upgradeable proxies. If the implementation changes, behavior can change (e.g., new fee-on-transfer, new pause logic).
+Requirement:
+ The asset registry must record the implementation codehash at admission.
+ On every strategic review, the implementation codehash must be re-checked.
+ If it changed, the asset is automatically moved to WATCH until the change is reviewed.
+Implementation:
+solidity
+mapping(address => bytes32) public admittedImplementationHash;
+
+function _checkImplementationUnchanged(address token) internal view returns (bool) {
+ bytes32 currentHash = _getImplementationCodehash(token);
+ return currentHash == admittedImplementationHash[token];
+}
+
+
+H.5 Required tests
+T-72  paused token excluded from LCR but included in NAV; blacklisted token triggers pause; rebasing token rejected from registry unless approved; implementation change moves asset to WATCH.
+
+Part I  Log retention and auditability
+Source: Master Blueprint §24.4Gap: v5.0 requires logs but does not specify retention, backup, or legal compliance.
+I.1 Retention requirements
+
+
+Log typeRetentionReasonDecision recordsPermanent ( 10 years)Regulatory / auditTrade reconciliationsPermanent ( 10 years)Regulatory / auditDaily state vectors 7 yearsTax / regulatoryOracle observations 3 yearsModel calibrationParameter changesPermanentGovernance auditEmergency actionsPermanentPost-mortemAccess logs 1 yearSecurityI.2 Storage architecture
+ On-chain: hash of each record, or state vector digest (Extension 1 E.1).
+ Off-chain primary: append-only database (PostgreSQL, immutable tables, or similar).
+ Off-chain backup: replicated to a second location with independent access.
+ Public archive: published to IPFS or Arweave for permanent public availability.
+I.3 Tamper evidence
+ Each record includes the hash of the previous record (hash chain).
+ On-chain anchor of the latest hash published daily.
+ Any discrepancy between the on-chain anchor and the off-chain record is a critical incident.
+I.4 Legal retention
+Before any live deployment, legal must specify:
+ Jurisdictional retention requirements.
+ Data residency requirements (EU GDPR, etc.).
+ Right-to-deletion exceptions (audit records are typically exempt).
+ Authority for regulatory access.
+Required: OD-21  log retention and legal compliance requirements.
+
+Part J  Emergency response playbook
+Source: Master Blueprint Chapter 22Gap: v5.0 and Extension 1 define the governance structure but not the operational response.
+J.1 Incident classifications
+
+
+ClassExampleResponse timeAuthorityP1  CriticalOracle compromise, depeg, RR < 1.00, unauthorized mintImmediateEmergency Council (4/7)P2  HighAggregate quote failure, quote manipulation, moderate oracle degradation1 hourRisk Council (4/7)P3  MediumSingle aggregator unavailable, liquidity drop, parameter variance4 hoursKeeper + CommitteeP4  LowRoutine degradation, minor discrepanciesNext business dayKeeperJ.2 Required escalation matrix
+
+
+TriggerFirst responderEscalationNotificationOracle health = HALTEDAutomatic pauseEmergency CouncilAll stakeholdersRR < 1.00Automatic EMERGENCYEmergency CouncilImmediate + 1h writtenDepeg detectedAutomatic warningRisk CouncilImmediateAggregator revertKeeper retryRisk Council if 2+ failures1hSuspected manipulationKeeper pauseRisk CouncilImmediateLarge trade (> $1M)Keeper pre-approval requiredCommittee24h beforeJ.3 Required runbooks
+The developer must produce:
+1 Oracle failure runbook  detect, isolate, failover, recover
+2 Depeg runbook  classify, liquidate, re-admit
+3 Bank run runbook  detection, throttle, queue, communicate
+4 Keeper compromise runbook  detect, revoke, rotate, audit
+5 Smart contract exploit runbook  pause, contain, disclose, remediate
+6 Governance attack runbook  detect, delay, escalate, recover
+7 Parameter rollback runbook  identify, revert, verify
+J.4 Required communication plan
+ Internal: Slack/Telegram war room, on-call rotation, escalation tree
+ External: Status page, Twitter/X updates, Discord/Telegram announcements, press contact
+ Regulatory: Named contact at counsel and regulator (if applicable)
+J.5 Post-incident
+Every P1 or P2 incident requires:
+ Incident timeline
+ Root cause analysis
+ Corrective action plan
+ Public post-mortem (unless legal advises otherwise)
+ Follow-up governance review
+Required: OD-22  emergency response playbook and communication plan.
+
+Part K  Additional open decisions (OD-21 through OD-30)
+
+
+IDDecisionOwnerBlocksOD-21Log retention periods and legal compliance (data residency, GDPR, regulatory retention)Legal + GovernanceGate 5OD-22Emergency response playbook and communication planEmergency Council + OperationsGate 5OD-23Reserve yield strategy (idle vs. yield-bearing; if yield-bearing, which protocols)Committee + Risk CouncilGate 5OD-24MEV protection strategy per chain (private RPC, commit-reveal, or combination)Risk Council + CommitteeGate 2OD-25Native token handling per chain (native USDC on Arc vs. bridged USDC vs. ERC-20 USDC)Committee + Risk CouncilGate 2OD-26Anti-DoS rate limiting on mint/redeemRisk CouncilGate 2OD-27Upgradeable token monitoring procedure (implementation codehash check)Risk Council + CommitteeGate 2OD-28Pausable/blacklistable token policy (which tokens accepted, dispute procedure)Risk Council + LegalGate 2OD-29Supply cap (is there a maximum total supply? Who can change it?)Governance (7/7)Gate 5OD-30Frontend / wallet security requirements (transaction verification, phishing warnings)Product + SecurityGate 6
+Part L  Additional conflict register (C-023 through C-035)
+
+
+IDConflictResolutionC-023Reserve NAV computation not specified in v5.0Part B aboveC-024RR floors referenced but not computedPart B aboveC-025LCR definition ambiguousPart B aboveC-026Buffer states referenced but not specifiedPart B aboveC-027Daily state vector absentPart C aboveC-028Asset admission criteria not specifiedPart D aboveC-029De-peg detection absentPart E aboveC-030Genesis Reserve/Cold Treasury mechanics absentPart F aboveC-031MEV protection referenced but not specifiedPart G aboveC-032Pausable/blacklistable token handling absentPart H aboveC-033Log retention unspecifiedPart I aboveC-034Emergency response playbook absentPart J aboveC-035Supply cap undefinedOD-29
+Part M  Additional test matrix (T-61 through T-80)
+
+
+IDTestExpected resultT-61NAV computationNAV matches independent recomputation; haircuts applied correctly; zero balances handledT-62RR computationRR = NAV/(circ×price); RR < 1.00  EMERGENCY; RR < 1.05  DEFENSIVE; RR < 1.10  CAUTION; RR  1.10  NORMALT-63LCR computationLCR = liquid/(circ×price×0.25); tokenized gold not counted as liquid; LCR < 1.00 triggers DEFENSIVET-64Buffer state transitionsStates transition correctly; ramps linear; emergency immediate; recovery needs confirmationT-65First-loss waterfallSmall loss absorbed by surplus; larger loss cascades; core gold protected; no double-accountingT-66Reserve stressAll scenarios pass coverage  1.00 or governed recovery triggersT-67Daily state vectorHashes match; published daily; action = f(state); calendar-only changes trigger nothingT-68Asset admissionInvalid haircut rejected; concentration blocks rebalance; state transitions gated by role; issuer counted across assetsT-69De-peg and ejectDetection at 12h; ladder stages correct; 5% rule pauses; emergency liquidation bypasses; reintegration score enforcedT-70Treasury operationsSweep > $10K; replenishment requires RR<1.05 + 4/7; transfer requires 7/7; Cold Treasury 48h timelockT-71MEV protectionPrivate submission works; commit-reveal works; reveal timing enforced; replay rejectedT-72Token edge casesPaused token excluded from LCR; blacklisted triggers pause; rebasing rejected; implementation change moves to WATCHT-73Log retentionRecords appended to immutable log; hashes chain correctly; public anchor matchesT-74Emergency responseP1 triggers within SLA; escalation matrix correct; post-incident report producedT-75Combined systemShadow mode with full stack (MASE + MARP + Reserve + Governance) produces consistent decisions and statesT-76Oracle health  Reserve  Eject cascadeOracle failure triggers degradation; if depeg confirmed, eject ladder executes correctly under degradationT-77RollbackChosen upgradeability path works; state preserved; old path not accidentally enabledT-78Emergency Council authorityAll emergency actions reachable only by 4/7; P1 incident resolvable within SLAT-79Governance parameter changeAll parameters registered; change requires correct authority + timelock; old value preserved in historyT-80Full-stack integrationAll gates T-01 through T-79 pass; deployment register complete; reconciliation report produced
+Part N  Full-stack readiness checklist (Gate 2 exit)
+For Gate 2 to close, the developer must demonstrate:
+Layer 1  Reference index:
+  MASE computes weights under Constitutional constraints
+  Chain-linked index computes correctly (OD-12 approved)
+  Base fixings immutable
+  Daily index published
+Layer 2  Reserve valuation:
+  NAV with haircuts matches independent recomputation
+  RR with three floors
+  LCR with 24h liquid classification
+  Buffer states BASE/STRESS/EMERGENCY
+  First-loss waterfall
+  Stress equation passes
+Layer 3  Asset governance:
+  Registry with eight criteria
+  Four states
+  Concentration limits
+  Chain diversification
+Layer 4  MARP execution:
+  All v5.0 Part 4 Listings
+  All Extension 1 Listings C-7 through C-10
+Layer 5  Operational safety:
+  All Extension 1 requirements
+  MEV protection (Part G)
+  Token edge cases (Part H)
+Layer 6  Reporting:
+  Daily State Vector
+  Reconciliation report
+  Log retention policy approved (OD-21)
+Layer 7  Governance and emergency:
+  Four-layer governance operational
+  Parameter registry complete
+  Genesis Reserve / Cold Treasury configured
+  De-peg eject mechanism tested
+  Emergency response playbook approved (OD-22)
+All 80 tests (T-01 through T-80) must pass or have documented accepted risk.
+
+Part O  What is still deferred (and why)
+Deferred to Gate 5:
+ Reserve yield strategy (OD-23)
+ Keeper compensation (OD-15 from Extension 1)
+ Emergency token rescue parameters (OD-20 from Extension 1)
+ Supply cap (OD-29)  can be set at genesis but policy decision needed
+ Anti-DoS rate limiting (OD-26)  can launch with generous limits and tighten later
+Deferred to Gate 6:
+ Commercial evidence (OD-11)
+ Frontend / wallet security (OD-30)
+Deferred to Gate 7:
+ Portfolio-level trade-set optimization
+ Solana adapter and production deployment
+ Multichain accounting
+ Bridge risk monitoring
+Deferred indefinitely (acceptable):
+ Portfolio-level optimization if single-asset optimization proves sufficient
+ Yield strategy if the reserve is held idle
+ Advanced MEV protection if commit-reveal proves sufficient
+
+Part P  How this extension integrates with v5.0 and Extension 1
+P.1 Amendments to v5.0
+ §0.5 Time estimates: Gate 2 adds 3-4 weeks for full-stack implementation; Gate 3 adds 2 weeks for reserve/state vector testing.
+ §0.6 First sprint: Add "Review Extension 2 applicability; implement Reserve, Daily State Vector, Asset Registry" as step 3.
+ Part 3 MARP architecture: Cross-reference Part B (reserve state) and Part C (daily state vector) as inputs.
+ Part 6 Test matrix: Add T-61 through T-80.
+ Part 7 Gates: Gate 2 now requires full-stack readiness (Part N checklist).
+ Part 8 Open decisions: Add OD-21 through OD-30.
+ Part 8 Conflict register: Add C-023 through C-035.
+ Part 10 Roadmap: Add 4-6 weeks total.
+ Part 11 Next actions: Add "Implement Extension 2 (Reserve, State Vector, Asset Registry, De-peg)" as step 5.
+P.2 Amendments to Extension 1
+ Part A Contract safety: Cross-reference Part G (MEV) and Part H (token edge cases).
+ Part D Invariants: Cross-reference Part B (NAV, RR, LCR invariants).
+ Part E Initialization: Cross-reference Part F (Genesis Reserve, Cold Treasury).
+P.3 Developer first-sprint plan (final, amended)
+1 Verify the deployment inventory (v5.0 §1.5) on Monad, Arc, Solana.
+2 Reproduce the four P0 findings (v5.0 §0.4) against actual source.
+3 Review Extension 1 (v5.1) and confirm applicability.
+4 Review Extension 2 (this document) and confirm applicability. Identify which reserve, state vector, asset registry, and eject items are already partially implemented.
+5 Integrate Listings C-1 through C-10 (v5.0 + Ext 1) into a new branch.
+6 Integrate Listings E-1 through E-10 (Ext 2) into a new branch.
+7 Run tests T-01 through T-80 (or documented subset with reasons for deferral).
+8 Report back to the Committee with:
+ Deployment register
+ P0 reproduction report
+ Ext 1 and Ext 2 applicability report
+ Branch commit hashes
+ Test results (T-01 through T-80)
+ Full-stack readiness checklist (Part N)
+ Any additional findings
+P.4 What the developer must not do
+ Implement Extension 2 reserve logic without Extension 1 invariants  the reserve state is meaningless if it can be corrupted by reentrancy.
+ Implement Extension 2 eject logic without the MARP execution engine  the eject sells assets through MARP.
+ Implement the Daily State Vector without the reserve NAV computation  the state vector references NAV.
+ Deploy to testnet without running the full T-01 through T-80 matrix  incomplete tests mean invisible failure modes.
+ Treat the Part N checklist as optional  every item is required for Gate 2 to close.
+
+Part Q  Final honest statement
+v5.0 + Extension 1 + Extension 2 together are the complete implementation mandate for a testnet-live single-chain EVM deployment (Monad recommended). They are not complete for:
+ Production reserve trading (Gate 6).
+ Solana or multichain (Gate 7).
+ Portfolio-level optimization (deferred by design).
+But for Gate 2 (single-chain shadow implementation), they are what the developer needs. Nothing essential is missing.
+The remaining risk is not that a document is incomplete. The remaining risk is that the developer implements the documents partially and calls the result "done." The Part N checklist and the T-01 through T-80 test matrix exist to catch that failure mode.
+The one sentence to carry away: the value of this extension is not that it adds more specification; it is that it names the specification the developer would otherwise invent. Every item above either (a) refers to an existing blueprint section that was never implemented, or (b) specifies a behavior that the current contracts need to exhibit but do not yet. Neither is optional. Both are the difference between a working reserve and a working reserve that can be defended.
+End of Extension 2.MTQ   Extension 3: Essential Gaps Not Yet Covered
+Document ID: MTQSIGMA-SINGLE-SOURCE-OF-TRUTH-006-EXT-3Version: 5.3  Critical Missing Dependencies and External SpecificationsDate: 19 October 2026Appends to: v5.0 + Extension 1 (v5.1) + Extension 2 (v5.2)Status: Closes the remaining essential gaps. Any conflict resolved by v5.0 §0.2.
+
+Honest answer
+After double-checking, most of the architecture is now covered. But there are eight essential items still missing that will block Gate 2 or cause the developer to invent specifications the documents do not provide. I list them here without padding.
+Of the eight:
+ Four are Gate 2 blockers (developer cannot build correctly without them).
+ Two are Gate 5 requirements (needed before any live pilot).
+ Two are hard prerequisites (without them, the developer cannot even start).
+I am not going to invent new extensions for marginal items. Everything below is genuinely essential.
+
+Part A  The eight essential gaps
+A.1 MASE specification is missing (Gate 2 blocker)
+The gap: v5.0, Extension 1, and Extension 2 all treat MASE as a black box. They say "MASE calculates the proposed reserve target." But none of them specify how MASE actually computes weights. The Master Blueprint Chapters 57 do  but the developer is being given v5.0+Ext1+Ext2 as the "single source of truth," and those documents do not include the MASE algorithm.
+MARP cannot function without MASE. The direction-aware deviation (v5.0 Listing C-1) needs a target weight targetW. That target comes from MASE. If MASE is not implemented, MARP has nothing to rebalance toward.
+Also important: v5.0 §3.5 defines J(s) as the MARP trade-level economic objective. This is not the same as MASE's portfolio-level objective (Master Blueprint §7.4, the 8-term objective). Confusing them will produce a wrong implementation.
+What must be specified:
+ Read the Master Blueprint Chapters 57 as the MASE specification.
+ Understand that v5.0's J(s) (§3.5) is for trade gating, not for MASE optimization.
+ MASE's objective (Blueprint §7.4) has 8 terms: Risk, CVaR, PPError, CorrRisk, Turnover, StrategicDrift, Concentration, LiquidityRisk.
+ MASE's ensemble (Blueprint §7.5) combines 5+ candidate models (MV, ERC, Max Div, CVaR, PP, Regime, Institutional).
+ MASE's adaptive ensemble weights (Blueprint §7.6) use softmax over OOS scores.
+Required: OD-31  Confirm that MASE implementation follows Blueprint Chapters 57 with the v5.0 J(s) reserved for MARP trade gating. Confirm the eight-term MASE objective and ensemble architecture are implemented as specified.
+Owner: Committee + Smart-contract lead. Blocks: Gate 2.
+
+A.2 Minting and redemption specification is missing (Gate 2 blocker)
+The gap: Extension 1 and Extension 2 reference mint() and redeem() in examples, and the reserve needs to be seeded with assets (which requires minting). But neither document specifies the actual mint/redeem formulas, fees, or atomicity. These are in Master Blueprint Chapter 19, which the developer must read.
+Without mint/redeem:
+ The reserve cannot be seeded with initial assets.
+ User deposits cannot be converted to reserve assets.
+ Redemptions cannot release reserve assets.
+ The token has no economic function.
+What must be specified (from Blueprint Chapter 19):
+ Mint formula: MTQminted = Xnet / P_MTQ,t where Xnet = X × (1  mintFee) and mintFee = 0.10% (Normal state).
+ Redeem formula: RedeemValueUSD = Y × NAVt where NAVt = Vnet,t / Scirc,t; then RedeemValueNet = RedeemValueUSD × (1  redeemFee) with redeemFee = 0.15% (Normal state).
+ Slippage guard: minMTQOut = Xnet / P_MTQ,t × (1  user) where user = 0.5% default.
+ Single-asset router: Optional; the default is full-basket redemption.
+ Atomicity: The entire mint/redeem is one transaction; any failure reverts the whole operation.
+ State-dependent fees: The fee schedule depends on the risk state per v5.0's state machine (NORMAL, CAUTION, STRESS, DEFENSIVE, EMERGENCY, RECOVERY). v5.0 does not name this dependency; Extension 3 does.
+ Minimum amounts: MIN_MINT = MIN_REDEEM = 1 MTQ (BluePrint §19.6.4).
+ Full-basket redemption default: The user receives all fiat exposures plus gold in current reserve proportions, not a single currency.
+Required: OD-32  Confirm mint/redeem implementation follows Blueprint Chapter 19 with fee schedule tied to the v5.0 risk state machine.
+Owner: Committee + Smart-contract lead. Blocks: Gate 2.
+
+A.3 Genesis event specification is missing (Gate 2 blocker)
+The gap: Extension 1 E.1 covers contract initialization (roles, implementation pointer). Extension 2 F.1 references the Genesis Reserve (4/7 Safe holding 1M MTQ). But neither specifies the Genesis event itself. Without it:
+ No initial MTQ supply exists.
+ No initial reserve assets exist.
+ The base denominator is not computed.
+ The chain-linked index cannot start at 1.0000.
+What must be specified (from Blueprint Chapter 20.1, seven steps):
+1 Transfer 1,100,000 USDC from deployer to the contract.
+2 Atomically swap the deposit into the seven-component basket per the strategic prior (USD 27% / EUR 20% / JPY 9% / GBP 8% / CNY 5% / CHF 5% / Gold 26%).
+3 Compute and store INDEX_BASE_DENOMINATOR = 1.0000 (from the seven base fixings).
+4 Emit GenesisVerification with the denominator and all fixings.
+5 Mint 1,000,000 MTQ to the Genesis Reserve Safe (0xE71869C662733642bfBb262B8c6bad8B0fBfA7D0).
+6 Recompute the reserve state.
+7 Set genesisComplete = true; emit GenesisCompleted.
+Fidelity note: The audit correctly identified that the current genesis code was written for the five-currency GFB basket. It must be extended to seven components (add CHF and GOLD). The existing verifyGFBBase() function must be renamed verifyIndexBase() and extended to check all seven fixings.
+Required: OD-33  Confirm genesis follows the seven-step sequence with seven-component basket and correct base fixings.
+Owner: Smart-contract lead. Blocks: Gate 2.
+
+A.4 Oracle addresses and feed configuration per chain is missing (Gate 2 blocker)
+The gap: v5.0 Part 1 lists Oracle.sol at specific addresses but does not specify which oracle providers to use or which feed addresses to read. Extension 1 §B.1 requires "freshness, confidence, deviation" checks but does not specify the feeds. The developer cannot deploy a working oracle aggregator without knowing the source addresses.
+What must be specified:
+On Monad Testnet:
+ Which price feeds exist on Monad (Chainlink? Pyth? Neither? Custom?).
+ Where to get the addresses.
+ Whether to use mock oracles for Gate 2.
+ Whether the current Oracle.sol at 0xDfcA66ac0450C9AB86307af1942E157C5A4DB713 uses real or mock feeds.
+On Arc Testnet:
+ Same questions. Arc uses USDC as native gas  the "USDC/USD" price is 1.0 by construction, but the fiat and gold feeds must still come from somewhere.
+ Whether Oracle.sol at 0xFd2B8d176bf059287638Db30D02C6651dA02861e uses real or mock feeds.
+On Solana Devnet (for Gate 7):
+ Pyth devnet feeds are available for FX and gold.
+ Jupiter price API available as fallback.
+ Deferred to Gate 7.
+Blueprint §17.10 specifies:
+ Three independent sources required.
+ Source families must be independent (not all derived from same underlying market).
+ Per-pair addresses needed for: EUR/USD, GBP/USD, JPY/USD, CNY/USD, CHF/USD, PAXG/XAU, VIX, DXY.
+ Staleness thresholds: 60s for major FX and gold; 120s for minor FX, VIX, DXY.
+Required: OD-34  Confirm oracle source addresses and feed configuration for Monad Testnet and Arc Testnet. If real feeds are unavailable, confirm the mock oracle strategy is acceptable for Gate 2 shadow mode.
+Owner: Smart-contract lead + Risk Council. Blocks: Gate 2.
+
+A.5 Safe configuration is unspecified (hard prerequisite)
+The gap: The user provided the Safe address 0xE71869C662733642bfBb262B8c6bad8B0fBfA7D0 but not:
+ Its signers (who holds keys)
+ Its threshold (is it 4/7? 3/5? 1/1?)
+ Whether it's a Gnosis Safe v1.3.0 or later
+ Whether it has modules enabled
+ Whether it has a delay/guard
+ Whether it's the same Safe on both Monad and Arc
+Extension 1 E.1 (initialization) and Extension 2 F (Genesis Reserve, Cold Treasury) both assume the Safe exists and is a 4/7. But none of the documents require verification. If it's actually a 1/1 Safe held by the deployer, the security finding in v5.0 §1.4 is much worse than stated.
+What must be specified:
+ Safe address on each chain: 0xE71869C662733642bfBb262B8c6bad8B0fBfA7D0 (both chains reported).
+ Threshold: must be verified by reading getThreshold() on the Safe.
+ Signer count: must be verified by reading getOwners().
+ Safe version: must be verified by reading VERSION() on the Safe.
+ Whether modules are enabled: must be verified by reading getModulesPaginated().
+ Whether a guard is set: must be verified by reading getGuard().
+If the Safe is not 4/7, or is held by one signer, or has unauthorized modules, this is a critical security finding that must be resolved before Gate 5.
+Required: OD-35  Verify Safe configuration on each chain (threshold, signers, modules, guard) and confirm it meets the 4/7 requirement. Update the production security finding in v5.0 §1.4 if verification disagrees with the reported state.
+Owner: Governance + Security auditor. Blocks: Gate 5 (not Gate 2  testnet can proceed with current Safe).
+
+A.6 Repository access and source code location (hard prerequisite)
+The gap: Every document requires "source-mapped audit" of "actual source code." But none of them specify where the code is. The user provided contract addresses but not:
+ GitHub repository URL
+ Commit hash
+ Foundry or Hardhat project structure
+ Test framework
+ Deployment scripts
+ CI/CD configuration
+The developer cannot audit, correct, test, or deploy without access to the codebase.
+What must be specified:
+ Repository URL and access credentials.
+ Current branch (main? develop?).
+ Commit hash of the deployed contracts.
+ Foundry foundry.toml or Hardhat hardhat.config.js content.
+ Existing test suite location and pass/fail status.
+ Deployment scripts location and last execution record.
+ CI/CD status.
+ Whether any prior audits exist and where their reports are.
+Without this, the first sprint (v5.0 §0.6) cannot begin.
+Required: OD-36  Provide repository access and deployment record. Confirm commit hash of the deployed contracts matches the addresses in v5.0 Part 1.
+Owner: Project owner. Blocks: Gate 1 (first sprint).
+
+A.7 MTQ token standard specification is missing (Gate 5 requirement)
+The gap: v5.0 and extensions treat MTQ as ERC-20 but do not specify:
+ Does MTQ use ERC-20 Permits (EIP-2612)?
+ Does MTQ implement ERC-20 Votes / Snapshots (for governance)?
+ Does MTQ have transfer restrictions?
+ Does MTQ have a supply cap? If so, who can change it?
+ Is MTQ upgradeable? (Extension 1 E.3 addresses this generally, but not for the token specifically.)
+These are not just nice-to-haves:
+ Permits affect gas costs and UX. Without them, every mint/redeem requires a separate approve transaction.
+ Snapshots affect whether on-chain governance can measure voting power at historical blocks.
+ Transfer restrictions affect whether the token is freely transferable or subject to whitelisting / KYC.
+ Supply cap affects the monetary invariants and the "1 MTQ represents one basket unit" promise.
+Recommended baseline (to be approved by Committee):
+ MTQ is ERC-20 with ERC-20 Permits (EIP-2612) for UX.
+ MTQ is ERC-20 Votes / Snapshots for governance.
+ No transfer restrictions on public transfer (subject to legal review).
+ Supply cap: no fixed cap initially; supply controlled by mint/burn at reference price. Cap policy is OD-29.
+ Upgradeable: no (per Extension 1 E.3 Option A recommendation for the token itself).
+Required: OD-37  Confirm MTQ token standard (Permits, Snapshots, transfer restrictions, supply cap, upgradeability) before any production authorization.
+Owner: Committee + Legal. Blocks: Gate 5.
+
+A.8 Vulnerability disclosure policy is missing (Gate 5 requirement)
+The gap: A financial protocol will attract security researchers. Without a disclosure policy:
+ Researchers have no safe channel to report critical bugs.
+ Disclosure timing is undefined.
+ Bounty structure is undefined.
+ Legal protections for good-faith researchers are undefined.
+This is standard practice for any deployed financial protocol. Its absence is a legal and security risk.
+What must be specified:
+ Disclosure channel: e.g., security@mtq.example or a PGP key.
+ Response SLA: e.g., acknowledge within 24 hours, triage within 72 hours.
+ Disclosure timeline: e.g., public disclosure after fix or 90 days, whichever comes first.
+ Safe harbor: clear statement that good-faith research is authorized and protected.
+ Bounty scope and amounts: what's in scope (contracts, oracles, keeper, frontend), what's out of scope, bounty structure (Severity × percentage of funds at risk, or fixed amounts).
+ Bug bounty program: Immunefi, Code4rena, or self-hosted.
+Without this, Gate 5 should not open. Gate 2 (testnet) can proceed, but the moment the project announces itself publicly, the policy must exist.
+Required: OD-38  Publish vulnerability disclosure policy before any public announcement of the deployment.
+Owner: Security lead + Legal. Blocks: Gate 5 (not Gate 2, but should exist before any public-facing statement).
+
+Part B  What is definitively covered and does not need extension
+For the record, and to avoid the temptation to keep adding extensions:
+ MARP execution protection  v5.0, comprehensive.
+ Contract-level safety  Extension 1, comprehensive.
+ Reserve valuation and buffer  Extension 2, comprehensive.
+ Daily State Vector  Extension 2, comprehensive.
+ Asset Admission Registry  Extension 2, comprehensive.
+ Geopolitical eject  Extension 2, comprehensive.
+ Genesis Reserve / Cold Treasury  Extension 2, comprehensive (subject to A.3).
+ MEV protection  Extension 2, comprehensive.
+ Token behavior edge cases  Extension 2, comprehensive.
+ Governance and emergency  Extension 2, comprehensive.
+ Testing framework  Extension 1 (mocks, replay), Extension 2 (T-61 through T-80).
+ Log retention  Extension 2.
+ Emergency response playbook  Extension 2.
+The remaining items in this Extension 3 are external specifications (MASE, Mint/Redeem, Genesis, Oracle addresses), verification items (Safe, Repository), and policy items (Token standard, Disclosure). None of these are architectural gaps. All of them are prerequisites.
+
+Part C  The consolidated input document map
+For the developer to have everything they need, they must be told:
+The authoritative implementation mandate is:
+ MTQSIGMA-SINGLE-SOURCE-OF-TRUTH-006 (v5.0)
+ MTQSIGMA-SINGLE-SOURCE-OF-TRUTH-006-EXT-1 (v5.1)
+ MTQSIGMA-SINGLE-SOURCE-OF-TRUTH-006-EXT-2 (v5.2)
+ MTQSIGMA-SINGLE-SOURCE-OF-TRUTH-006-EXT-3 (v5.3, this document)
+The developer must also read the following Master Blueprint v1.0 sections as external specifications:
+
+
+Blueprint sectionContentReferenced byChapters 34Reference basket composition, Constituency Enginev5.0 §3.5, §6.2Chapters 57MASE inputs, risk models, ensemble, objectivev5.0 §3.5 (J(s))Chapter 8Constitutional constraints, envelopes, velocity, smoothingv5.0 Part 3, Ext 1 E.3Chapter 9Chain-linked index (OD-12)v5.0 Part 3, Ext 2 C.1Chapters 1012MARP execution (corrected by v5.0)v5.0Chapters 1316Reserve architecture, buffer, waterfallExt 2 Part BChapter 17Oracle architecture, canonical gold priceExt 1 B.1, Ext 2 A.4Chapter 18Monetary unit, daily state vectorExt 2 Part CChapter 19Minting and redemptionA.2 aboveChapter 20Genesis, accounting, treasuryA.3 above, Ext 2 FChapter 21Geopolitical ejectExt 2 EChapter 22GovernanceExt 2 JChapters 2324Validation, transparency, publicationv5.0 Part 9, Ext 2 IWhere v5.0 + Ext1 + Ext2 + Ext3 and the Master Blueprint conflict, the extension prevails (per v5.0 §0.2 six-level authority hierarchy). But where the extensions are silent, the Master Blueprint governs.
+What the developer must not do: Invent MASE, Mint/Redeem, Genesis, or Oracle addresses. These are specified in the Master Blueprint. If the developer finds a defect in the Master Blueprint, add it to the conflict register and escalate to the Committee.
+
+Part D  Additional open decisions (OD-31 through OD-38)
+
+
+IDDecisionOwnerBlocksOD-31Confirm MASE implementation follows Blueprint Chapters 57; confirm J(s) in v5.0 §3.5 is separate from MASE's 8-term objectiveCommittee + Smart-contract leadGate 2OD-32Confirm mint/redeem implementation follows Blueprint Chapter 19 with fee schedule tied to risk state machineCommittee + Smart-contract leadGate 2OD-33Confirm genesis follows Blueprint Chapter 20.1 seven-step sequence with seven-component basketSmart-contract leadGate 2OD-34Confirm oracle source addresses and feed configuration per chainSmart-contract lead + Risk CouncilGate 2OD-35Verify Safe configuration (threshold, signers, modules, guard)Governance + Security auditorGate 5OD-36Provide repository access and deployment record (commit hash)Project ownerGate 1OD-37Confirm MTQ token standard (Permits, Snapshots, transfer restrictions, supply cap, upgradeability)Committee + LegalGate 5OD-38Publish vulnerability disclosure policySecurity lead + LegalGate 5Total across all documents: OD-1 through OD-38.
+
+Part E  Additional conflict register (C-036 through C-040)
+
+
+IDConflictResolutionC-036v5.0 J(s) and Blueprint MASE objective confusedOD-31; they are differentC-037Mint/redeem formulas not in extensionsOD-32; Blueprint Chapter 19C-038Genesis event not fully specifiedOD-33; Blueprint Chapter 20.1C-039Oracle addresses not specifiedOD-34C-040Safe configuration assumed but not verifiedOD-35Total across all documents: C-001 through C-040.
+
+Part F  Additional test matrix (T-81 through T-88)
+These are the tests required by Extension 3. They test integration of the external specifications with the corrected MARP.
+
+
+IDTestExpected resultT-81MASE weights  MARP targetsMASE output passed as targetW; MARP uses it correctly; ensemble and objective are separate from MARP's J(s)T-82Mint flowUser deposits USDC; MTQ minted at correct formula; fee deducted to Operational Wallet; reserve state updatedT-83Redeem flow (full basket)User burns MTQ; proportional basket released; fee deducted; reserve state updatedT-84Redeem flow (single asset)Router converts; minAmountOut enforced; user receives single asset; fee deductedT-85Genesis eventSeven-step sequence executes; INDEX_BASE_DENOMINATOR = 1.0000; 1M MTQ minted to Genesis Reserve; GenesisVerified event correctT-86Oracle feed configurationConfigured feeds read correctly; staleness/confidence/deviation checks applied; mock oracles behave as expected for Gate 2T-87Safe configuration checkThreshold, signers, modules, guard match expected 4/7 config; critical security finding if notT-88MTQ token standardPermits, snapshots, transfer restrictions (or absence) verified per OD-37Total across all documents: T-01 through T-88.
+
+Part G  Consolidated Gate 2 exit criteria (all four documents)
+For Gate 2 to close, all of the following must be satisfied. This supersedes the corresponding section in Extension 2 (Part N).
+Layer 1  Reference index (MASE):
+  MASE implemented per Blueprint Chapters 57 (OD-31)
+  J(s) in v5.0 §3.5 confirmed as trade-gating objective, distinct from MASE objective
+  MASE weights published daily with version hashes
+  Chain-linked index computes correctly (OD-12 approved)
+  Base fixings immutable
+  Daily index published
+Layer 2  Reserve valuation:
+  NAV with haircuts matches independent recomputation (Ext 2 Listing E-1)
+  RR with three floors (Ext 2 Listing E-2)
+  LCR with 24h liquid classification (Ext 2 Listing E-3)
+  Buffer states BASE/STRESS/EMERGENCY (Ext 2 Listing E-4)
+  First-loss waterfall (Ext 2 Listing E-5)
+  Stress equation passes (Ext 2 §B.6)
+Layer 3  Asset governance:
+  Registry with eight criteria (Ext 2 Part D)
+  Four states
+  Concentration limits
+  Chain diversification
+Layer 4  MARP execution:
+  All v5.0 Part 4 Listings C-1 through C-6
+  All Extension 1 Listings C-7 through C-10
+  MARP correctly consumes MASE weights (OD-31)
+Layer 5  Operational safety:
+  All Extension 1 requirements
+  MEV protection (Ext 2 Part G)
+  Token edge cases (Ext 2 Part H)
+Layer 6  Reporting:
+  Daily State Vector (Ext 2 Listing E-6)
+  Reconciliation report
+  Log retention policy approved (OD-21)
+Layer 7  Governance and emergency:
+  Four-layer governance operational
+  Parameter registry complete
+  Genesis Reserve / Cold Treasury configured (OD-33)
+  De-peg eject mechanism tested (Ext 2 Listing E-8)
+  Emergency response playbook approved (OD-22)
+Layer 8  External specifications integrated:
+  MASE implementation confirmed (OD-31)
+  Mint/redeem implementation confirmed (OD-32)
+  Genesis implementation confirmed (OD-33)
+  Oracle addresses confirmed (OD-34)
+All 88 tests (T-01 through T-88) must pass or have documented accepted risk.
+
+Part H  What the developer's first sprint must produce
+Amending v5.0 §0.6 + Extension 1 §J.3 + Extension 2 §P.3:
+1 Verify the deployment inventory (v5.0 §1.5) on Monad, Arc, Solana.
+2 Reproduce the four P0 findings (v5.0 §0.4) against actual source.
+3 Obtain repository access and deployment record (OD-36). Confirm commit hash of deployed contracts.
+4 Review Extension 1, Extension 2, Extension 3 and confirm applicability.
+5 Read Master Blueprint Chapters 57, 19, 20.1 (the MASE, mint/redeem, genesis specifications).
+6 Report on MASE implementation status (OD-31): is it implemented? Where? Does it match Blueprint? Is the objective distinct from v5.0's J(s)?
+7 Report on mint/redeem implementation status (OD-32): does it match Blueprint Chapter 19? Are the fees correct? Is the risk-state dependency present?
+8 Report on genesis implementation status (OD-33): does it follow the seven-step sequence? Is the seven-component basket used? Is the base denominator computed?
+9 Report on oracle feed configuration (OD-34): what feeds does each deployed Oracle.sol use? Mock or real?
+10 Integrate Listings C-1 through C-10 and E-1 through E-10 into a new branch.
+11 Run tests T-01 through T-88 (or documented subset with reasons for deferral).
+12 Report back to the Committee with all of the above.
+
+Part I  Final honest statement
+What I am confident about:
+The four documents (v5.0, Ext 1, Ext 2, Ext 3) together, plus the Master Blueprint v1.0, are a complete specification for a testnet-live single-chain EVM deployment at Gate 2.
+The eight items above close the last essential gaps. None of them require new architecture; all of them either:
+ Point to an existing Blueprint section that was never formally listed as an input dependency.
+ Verify existing infrastructure that was assumed but not checked.
+ Add a required policy (vulnerability disclosure) that is standard practice.
+What I am not confident about:
+I cannot guarantee that no additional gaps exist. What I can say is that any remaining gap would be in one of these categories:
+ Deferred by design (portfolio optimization, multichain, yield strategy, Solana)  these are Gate 5 or Gate 7 items.
+ Operational (monitoring dashboards, incident response templates, on-call rotation)  these are Governance deliverables, not developer blockers.
+ Legal (regulatory classification, KYC/AML, jurisdiction selection)  these are Legal deliverables, not developer blockers.
+ External (audit findings, market feedback, commercial evidence)  these are Gate 3 or Gate 6 evidence items.
+If the developer begins the first sprint with these four documents and the Master Blueprint, and reports back honestly, the Committee will know within 23 weeks whether any additional gaps exist. The first sprint is itself the verification.
+What the developer must not do:
+ Assume the four documents are sufficient without reading the Master Blueprint.
+ Invent MASE, Mint/Redeem, Genesis, or Oracle addresses.
+ Skip Safe verification (OD-35) or Repository access (OD-36).
+ Deploy to testnet without running T-01 through T-88 (or documented subset).
+ Claim Gate 2 closure without the Layer 8 external specifications integrated.
+The one sentence to carry away:
+The four documents plus the Master Blueprint are the complete implementation input for Gate 2; the eight items above are the last things a developer must obtain, verify, or confirm before that input is usable.
+End of Extension 3.					
+

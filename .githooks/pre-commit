@@ -1,0 +1,9 @@
+#!/bin/sh
+# ============================================================================
+# MTQΣ — pre-commit secret gate (Task 12 §2.2)
+# FAIL-CLOSED: the commit is rejected if any staged file contains a secret-
+# shaped finding not covered by the documented allowlist. Output is redacted
+# by design (file:line + rule + first-4…last-4 only).
+# Activate with:  git config core.hooksPath .githooks
+# ============================================================================
+bun run scripts/security/secret-scan.ts --staged

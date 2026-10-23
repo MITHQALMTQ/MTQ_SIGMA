@@ -1,0 +1,744 @@
+{
+  "probe": "MTQΣ Task 9 — Monad Testnet full authorization audit",
+  "mode": "VERIFICATION-ONLY (§1) — read-only eth_call/eth_getCode/eth_getStorageAt/eth_getLogs; no transactions",
+  "startedAt": "2026-10-21T21:37:24.630Z",
+  "chain": {
+    "id": "monad",
+    "name": "Monad Testnet",
+    "expectedChainId": 10143,
+    "rpc": "https://testnet-rpc.monad.xyz",
+    "reportedChainId": 10143,
+    "chainIdMatches": true
+  },
+  "latest": 73066261,
+  "archiveSupported": null,
+  "contracts": [
+    {
+      "name": "MTQ.sol",
+      "address": "0x9e6EdC15DAc420931508d8Ddf9BC817651A253aD",
+      "explorer": "https://testnet.monadscan.com/address/0x9e6EdC15DAc420931508d8Ddf9BC817651A253aD",
+      "deployed": true,
+      "codeSizeBytes": 6681,
+      "codeKeccak256": "0x9057c3e61d81f7d3e261f71b4cb5710a2d5043666766894772459dd643d55bbb",
+      "codeKeccak256NoMeta": "0x940bfb77d07ee1c0c1c973693b1f9d4fdbef52d308726835fa1c00e5262f347e",
+      "proxy": {
+        "eip1967_implementation": null,
+        "eip1967_admin": null,
+        "eip1967_beacon": null,
+        "slot0": "0x0000000000000000000000000000000000000000000000000000000000000000"
+      },
+      "deployBlock": {
+        "status": "UNVERIFIED",
+        "reason": "search aborted at block 36533131: RPC_ERROR",
+        "detail": {
+          "block": 36533131,
+          "kind": "RPC_ERROR",
+          "message": "Block requested not found. Request might be querying historical state that is not available. If possible, reformulate qu",
+          "probes": 1
+        }
+      },
+      "roles": {
+        "DEFAULT_ADMIN_ROLE": {
+          "0x3C3932F865892EFabE45892f453f81B64f6c8d8c": "TRUE",
+          "0xE71869C662733642bfBb262B8c6bad8B0fBfA7D0": "TRUE",
+          "0xE35a91801bc541fb743BB9EaD26C1FbD81EaBd66": "FALSE",
+          "0x9e6EdC15DAc420931508d8Ddf9BC817651A253aD": "FALSE",
+          "0x8839ce50e8D414005518769999c0A5b961D00CB2": "FALSE",
+          "0x1bbCd78E4DEF79b7a3B77242770cbAefAC816177": "FALSE",
+          "0x197e9CB28216dfe18a199b4c2930F74C2F460809": "FALSE",
+          "0x963201C0Fa258033CCDdFcDceb8B5E3bc2b435a4": "FALSE",
+          "0xDfcA66ac0450C9AB86307af1942E157C5A4DB713": "FALSE",
+          "0x3eC27BB283644eF0A98B9961E9FBED0583a02f19": "FALSE"
+        },
+        "MINTER_ROLE": {
+          "0x3C3932F865892EFabE45892f453f81B64f6c8d8c": "TRUE",
+          "0xE71869C662733642bfBb262B8c6bad8B0fBfA7D0": "TRUE",
+          "0xE35a91801bc541fb743BB9EaD26C1FbD81EaBd66": "FALSE",
+          "0x9e6EdC15DAc420931508d8Ddf9BC817651A253aD": "FALSE",
+          "0x8839ce50e8D414005518769999c0A5b961D00CB2": "FALSE",
+          "0x1bbCd78E4DEF79b7a3B77242770cbAefAC816177": "FALSE",
+          "0x197e9CB28216dfe18a199b4c2930F74C2F460809": "TRUE",
+          "0x963201C0Fa258033CCDdFcDceb8B5E3bc2b435a4": "TRUE",
+          "0xDfcA66ac0450C9AB86307af1942E157C5A4DB713": "FALSE",
+          "0x3eC27BB283644eF0A98B9961E9FBED0583a02f19": "FALSE"
+        },
+        "PAUSER_ROLE": {
+          "0x3C3932F865892EFabE45892f453f81B64f6c8d8c": "TRUE",
+          "0xE71869C662733642bfBb262B8c6bad8B0fBfA7D0": "TRUE",
+          "0xE35a91801bc541fb743BB9EaD26C1FbD81EaBd66": "FALSE",
+          "0x9e6EdC15DAc420931508d8Ddf9BC817651A253aD": "FALSE",
+          "0x8839ce50e8D414005518769999c0A5b961D00CB2": "FALSE",
+          "0x1bbCd78E4DEF79b7a3B77242770cbAefAC816177": "FALSE",
+          "0x197e9CB28216dfe18a199b4c2930F74C2F460809": "FALSE",
+          "0x963201C0Fa258033CCDdFcDceb8B5E3bc2b435a4": "FALSE",
+          "0xDfcA66ac0450C9AB86307af1942E157C5A4DB713": "FALSE",
+          "0x3eC27BB283644eF0A98B9961E9FBED0583a02f19": "FALSE"
+        }
+      },
+      "roleAdmins": {
+        "DEFAULT_ADMIN_ROLE": "0x0000000000000000000000000000000000000000000000000000000000000000",
+        "MINTER_ROLE": "0x0000000000000000000000000000000000000000000000000000000000000000",
+        "PAUSER_ROLE": "0x0000000000000000000000000000000000000000000000000000000000000000"
+      },
+      "roleMemberCounts": {
+        "DEFAULT_ADMIN_ROLE": "EVM_REVERT: execution reverted",
+        "MINTER_ROLE": "EVM_REVERT: execution reverted",
+        "PAUSER_ROLE": "EVM_REVERT: execution reverted"
+      },
+      "ownerProbe": "EVM_REVERT: execution reverted",
+      "pausedProbe": "false"
+    },
+    {
+      "name": "Governance.sol",
+      "address": "0xE35a91801bc541fb743BB9EaD26C1FbD81EaBd66",
+      "explorer": "https://testnet.monadscan.com/address/0xE35a91801bc541fb743BB9EaD26C1FbD81EaBd66",
+      "deployed": true,
+      "codeSizeBytes": 25819,
+      "codeKeccak256": "0xb0624cbd4b9f219e36d4204ce180f17b2cd8f3692f097c35ff13d1011676057a",
+      "codeKeccak256NoMeta": "0x6fb8b91e02be37e0ba2aa8b86c9aeb10fd6b72686338f4782f522d7f4c7d168a",
+      "proxy": {
+        "eip1967_implementation": null,
+        "eip1967_admin": null,
+        "eip1967_beacon": null,
+        "slot0": "0x0000000000000000000000000000000000000000000000000000000000000000"
+      },
+      "deployBlock": {
+        "status": "UNVERIFIED",
+        "reason": "search aborted at block 36533131: RPC_ERROR",
+        "detail": {
+          "block": 36533131,
+          "kind": "RPC_ERROR",
+          "message": "Block requested not found. Request might be querying historical state that is not available. If possible, reformulate qu",
+          "probes": 1
+        }
+      },
+      "roles": {
+        "DEFAULT_ADMIN_ROLE": {
+          "0x3C3932F865892EFabE45892f453f81B64f6c8d8c": "EVM_REVERT: execution reverted",
+          "0xE71869C662733642bfBb262B8c6bad8B0fBfA7D0": "EVM_REVERT: execution reverted",
+          "0xE35a91801bc541fb743BB9EaD26C1FbD81EaBd66": "EVM_REVERT: execution reverted",
+          "0x9e6EdC15DAc420931508d8Ddf9BC817651A253aD": "EVM_REVERT: execution reverted",
+          "0x8839ce50e8D414005518769999c0A5b961D00CB2": "EVM_REVERT: execution reverted",
+          "0x1bbCd78E4DEF79b7a3B77242770cbAefAC816177": "EVM_REVERT: execution reverted",
+          "0x197e9CB28216dfe18a199b4c2930F74C2F460809": "EVM_REVERT: execution reverted",
+          "0x963201C0Fa258033CCDdFcDceb8B5E3bc2b435a4": "EVM_REVERT: execution reverted",
+          "0xDfcA66ac0450C9AB86307af1942E157C5A4DB713": "EVM_REVERT: execution reverted",
+          "0x3eC27BB283644eF0A98B9961E9FBED0583a02f19": "EVM_REVERT: execution reverted"
+        },
+        "MINTER_ROLE": {
+          "0x3C3932F865892EFabE45892f453f81B64f6c8d8c": "EVM_REVERT: execution reverted",
+          "0xE71869C662733642bfBb262B8c6bad8B0fBfA7D0": "EVM_REVERT: execution reverted",
+          "0xE35a91801bc541fb743BB9EaD26C1FbD81EaBd66": "EVM_REVERT: execution reverted",
+          "0x9e6EdC15DAc420931508d8Ddf9BC817651A253aD": "EVM_REVERT: execution reverted",
+          "0x8839ce50e8D414005518769999c0A5b961D00CB2": "EVM_REVERT: execution reverted",
+          "0x1bbCd78E4DEF79b7a3B77242770cbAefAC816177": "EVM_REVERT: execution reverted",
+          "0x197e9CB28216dfe18a199b4c2930F74C2F460809": "EVM_REVERT: execution reverted",
+          "0x963201C0Fa258033CCDdFcDceb8B5E3bc2b435a4": "EVM_REVERT: execution reverted",
+          "0xDfcA66ac0450C9AB86307af1942E157C5A4DB713": "EVM_REVERT: execution reverted",
+          "0x3eC27BB283644eF0A98B9961E9FBED0583a02f19": "EVM_REVERT: execution reverted"
+        },
+        "PAUSER_ROLE": {
+          "0x3C3932F865892EFabE45892f453f81B64f6c8d8c": "EVM_REVERT: execution reverted",
+          "0xE71869C662733642bfBb262B8c6bad8B0fBfA7D0": "EVM_REVERT: execution reverted",
+          "0xE35a91801bc541fb743BB9EaD26C1FbD81EaBd66": "EVM_REVERT: execution reverted",
+          "0x9e6EdC15DAc420931508d8Ddf9BC817651A253aD": "EVM_REVERT: execution reverted",
+          "0x8839ce50e8D414005518769999c0A5b961D00CB2": "EVM_REVERT: execution reverted",
+          "0x1bbCd78E4DEF79b7a3B77242770cbAefAC816177": "EVM_REVERT: execution reverted",
+          "0x197e9CB28216dfe18a199b4c2930F74C2F460809": "EVM_REVERT: execution reverted",
+          "0x963201C0Fa258033CCDdFcDceb8B5E3bc2b435a4": "EVM_REVERT: execution reverted",
+          "0xDfcA66ac0450C9AB86307af1942E157C5A4DB713": "EVM_REVERT: execution reverted",
+          "0x3eC27BB283644eF0A98B9961E9FBED0583a02f19": "EVM_REVERT: execution reverted"
+        }
+      },
+      "roleAdmins": {
+        "DEFAULT_ADMIN_ROLE": "EVM_REVERT: execution reverted",
+        "MINTER_ROLE": "EVM_REVERT: execution reverted",
+        "PAUSER_ROLE": "EVM_REVERT: execution reverted"
+      },
+      "roleMemberCounts": {
+        "DEFAULT_ADMIN_ROLE": "EVM_REVERT: execution reverted",
+        "MINTER_ROLE": "EVM_REVERT: execution reverted",
+        "PAUSER_ROLE": "EVM_REVERT: execution reverted"
+      },
+      "ownerProbe": "EVM_REVERT: execution reverted",
+      "pausedProbe": "EVM_REVERT: execution reverted"
+    },
+    {
+      "name": "Safe.sol",
+      "address": "0xE71869C662733642bfBb262B8c6bad8B0fBfA7D0",
+      "explorer": "https://testnet.monadscan.com/address/0xE71869C662733642bfBb262B8c6bad8B0fBfA7D0",
+      "deployed": true,
+      "codeSizeBytes": 171,
+      "codeKeccak256": "0xd7d408ebcd99b2b70be43e20253d6d92a8ea8fab29bd3be7f55b10032331fb4c",
+      "codeKeccak256NoMeta": "0x9b0cc9b701f89a376e0af03a21f7c804d1374d31e8a7577db28f916ed18a4a94",
+      "proxy": {
+        "eip1967_implementation": null,
+        "eip1967_admin": null,
+        "eip1967_beacon": null,
+        "slot0": "0x00000000000000000000000029fcb43b46531bca003ddc8fcb67ffe91900c762",
+        "safeProxyMasterCopy": "0x29fcB43b46531BcA003ddC8FCB67FFE91900C762",
+        "slot0IsMasterCopy": false
+      },
+      "deployBlock": {
+        "status": "UNVERIFIED",
+        "reason": "search aborted at block 36533131: RPC_ERROR",
+        "detail": {
+          "block": 36533131,
+          "kind": "RPC_ERROR",
+          "message": "Block requested not found. Request might be querying historical state that is not available. If possible, reformulate qu",
+          "probes": 1
+        }
+      },
+      "roles": {
+        "DEFAULT_ADMIN_ROLE": {
+          "0x3C3932F865892EFabE45892f453f81B64f6c8d8c": "EVM_REVERT: execution reverted",
+          "0xE71869C662733642bfBb262B8c6bad8B0fBfA7D0": "EVM_REVERT: execution reverted",
+          "0xE35a91801bc541fb743BB9EaD26C1FbD81EaBd66": "EVM_REVERT: execution reverted",
+          "0x9e6EdC15DAc420931508d8Ddf9BC817651A253aD": "EVM_REVERT: execution reverted",
+          "0x8839ce50e8D414005518769999c0A5b961D00CB2": "EVM_REVERT: execution reverted",
+          "0x1bbCd78E4DEF79b7a3B77242770cbAefAC816177": "EVM_REVERT: execution reverted",
+          "0x197e9CB28216dfe18a199b4c2930F74C2F460809": "EVM_REVERT: execution reverted",
+          "0x963201C0Fa258033CCDdFcDceb8B5E3bc2b435a4": "EVM_REVERT: execution reverted",
+          "0xDfcA66ac0450C9AB86307af1942E157C5A4DB713": "EVM_REVERT: execution reverted",
+          "0x3eC27BB283644eF0A98B9961E9FBED0583a02f19": "EVM_REVERT: execution reverted"
+        },
+        "MINTER_ROLE": {
+          "0x3C3932F865892EFabE45892f453f81B64f6c8d8c": "EVM_REVERT: execution reverted",
+          "0xE71869C662733642bfBb262B8c6bad8B0fBfA7D0": "EVM_REVERT: execution reverted",
+          "0xE35a91801bc541fb743BB9EaD26C1FbD81EaBd66": "EVM_REVERT: execution reverted",
+          "0x9e6EdC15DAc420931508d8Ddf9BC817651A253aD": "EVM_REVERT: execution reverted",
+          "0x8839ce50e8D414005518769999c0A5b961D00CB2": "EVM_REVERT: execution reverted",
+          "0x1bbCd78E4DEF79b7a3B77242770cbAefAC816177": "EVM_REVERT: execution reverted",
+          "0x197e9CB28216dfe18a199b4c2930F74C2F460809": "EVM_REVERT: execution reverted",
+          "0x963201C0Fa258033CCDdFcDceb8B5E3bc2b435a4": "EVM_REVERT: execution reverted",
+          "0xDfcA66ac0450C9AB86307af1942E157C5A4DB713": "EVM_REVERT: execution reverted",
+          "0x3eC27BB283644eF0A98B9961E9FBED0583a02f19": "EVM_REVERT: execution reverted"
+        },
+        "PAUSER_ROLE": {
+          "0x3C3932F865892EFabE45892f453f81B64f6c8d8c": "EVM_REVERT: execution reverted",
+          "0xE71869C662733642bfBb262B8c6bad8B0fBfA7D0": "EVM_REVERT: execution reverted",
+          "0xE35a91801bc541fb743BB9EaD26C1FbD81EaBd66": "EVM_REVERT: execution reverted",
+          "0x9e6EdC15DAc420931508d8Ddf9BC817651A253aD": "EVM_REVERT: execution reverted",
+          "0x8839ce50e8D414005518769999c0A5b961D00CB2": "EVM_REVERT: execution reverted",
+          "0x1bbCd78E4DEF79b7a3B77242770cbAefAC816177": "EVM_REVERT: execution reverted",
+          "0x197e9CB28216dfe18a199b4c2930F74C2F460809": "EVM_REVERT: execution reverted",
+          "0x963201C0Fa258033CCDdFcDceb8B5E3bc2b435a4": "EVM_REVERT: execution reverted",
+          "0xDfcA66ac0450C9AB86307af1942E157C5A4DB713": "EVM_REVERT: execution reverted",
+          "0x3eC27BB283644eF0A98B9961E9FBED0583a02f19": "EVM_REVERT: execution reverted"
+        }
+      },
+      "roleAdmins": {
+        "DEFAULT_ADMIN_ROLE": "EVM_REVERT: execution reverted",
+        "MINTER_ROLE": "EVM_REVERT: execution reverted",
+        "PAUSER_ROLE": "EVM_REVERT: execution reverted"
+      },
+      "roleMemberCounts": {
+        "DEFAULT_ADMIN_ROLE": "EVM_REVERT: execution reverted",
+        "MINTER_ROLE": "EVM_REVERT: execution reverted",
+        "PAUSER_ROLE": "EVM_REVERT: execution reverted"
+      },
+      "ownerProbe": "EVM_REVERT: execution reverted",
+      "pausedProbe": "EVM_REVERT: execution reverted"
+    },
+    {
+      "name": "Algorithm.sol",
+      "address": "0x8839ce50e8D414005518769999c0A5b961D00CB2",
+      "explorer": "https://testnet.monadscan.com/address/0x8839ce50e8D414005518769999c0A5b961D00CB2",
+      "deployed": true,
+      "codeSizeBytes": 2546,
+      "codeKeccak256": "0x20c147d708f712282e6823e27f5bd2785dc2ebe2387a76125cea7a1e38fd200a",
+      "codeKeccak256NoMeta": "0x7396fc6802547970d83ce5e65cae07e261b028342d79fb8a35f0a16c882c7020",
+      "proxy": {
+        "eip1967_implementation": null,
+        "eip1967_admin": null,
+        "eip1967_beacon": null,
+        "slot0": "0x0000000000000000000000000000000000000000000000000000000000000000"
+      },
+      "deployBlock": {
+        "status": "UNVERIFIED",
+        "reason": "search aborted at block 36533131: RPC_ERROR",
+        "detail": {
+          "block": 36533131,
+          "kind": "RPC_ERROR",
+          "message": "Block requested not found. Request might be querying historical state that is not available. If possible, reformulate qu",
+          "probes": 1
+        }
+      },
+      "roles": {
+        "DEFAULT_ADMIN_ROLE": {
+          "0x3C3932F865892EFabE45892f453f81B64f6c8d8c": "TRUE",
+          "0xE71869C662733642bfBb262B8c6bad8B0fBfA7D0": "FALSE",
+          "0xE35a91801bc541fb743BB9EaD26C1FbD81EaBd66": "FALSE",
+          "0x9e6EdC15DAc420931508d8Ddf9BC817651A253aD": "FALSE",
+          "0x8839ce50e8D414005518769999c0A5b961D00CB2": "FALSE",
+          "0x1bbCd78E4DEF79b7a3B77242770cbAefAC816177": "FALSE",
+          "0x197e9CB28216dfe18a199b4c2930F74C2F460809": "FALSE",
+          "0x963201C0Fa258033CCDdFcDceb8B5E3bc2b435a4": "FALSE",
+          "0xDfcA66ac0450C9AB86307af1942E157C5A4DB713": "FALSE",
+          "0x3eC27BB283644eF0A98B9961E9FBED0583a02f19": "FALSE"
+        },
+        "MINTER_ROLE": {
+          "0x3C3932F865892EFabE45892f453f81B64f6c8d8c": "FALSE",
+          "0xE71869C662733642bfBb262B8c6bad8B0fBfA7D0": "FALSE",
+          "0xE35a91801bc541fb743BB9EaD26C1FbD81EaBd66": "FALSE",
+          "0x9e6EdC15DAc420931508d8Ddf9BC817651A253aD": "FALSE",
+          "0x8839ce50e8D414005518769999c0A5b961D00CB2": "FALSE",
+          "0x1bbCd78E4DEF79b7a3B77242770cbAefAC816177": "FALSE",
+          "0x197e9CB28216dfe18a199b4c2930F74C2F460809": "FALSE",
+          "0x963201C0Fa258033CCDdFcDceb8B5E3bc2b435a4": "FALSE",
+          "0xDfcA66ac0450C9AB86307af1942E157C5A4DB713": "FALSE",
+          "0x3eC27BB283644eF0A98B9961E9FBED0583a02f19": "FALSE"
+        },
+        "PAUSER_ROLE": {
+          "0x3C3932F865892EFabE45892f453f81B64f6c8d8c": "FALSE",
+          "0xE71869C662733642bfBb262B8c6bad8B0fBfA7D0": "FALSE",
+          "0xE35a91801bc541fb743BB9EaD26C1FbD81EaBd66": "FALSE",
+          "0x9e6EdC15DAc420931508d8Ddf9BC817651A253aD": "FALSE",
+          "0x8839ce50e8D414005518769999c0A5b961D00CB2": "FALSE",
+          "0x1bbCd78E4DEF79b7a3B77242770cbAefAC816177": "FALSE",
+          "0x197e9CB28216dfe18a199b4c2930F74C2F460809": "FALSE",
+          "0x963201C0Fa258033CCDdFcDceb8B5E3bc2b435a4": "FALSE",
+          "0xDfcA66ac0450C9AB86307af1942E157C5A4DB713": "FALSE",
+          "0x3eC27BB283644eF0A98B9961E9FBED0583a02f19": "FALSE"
+        }
+      },
+      "roleAdmins": {
+        "DEFAULT_ADMIN_ROLE": "0x0000000000000000000000000000000000000000000000000000000000000000",
+        "MINTER_ROLE": "0x0000000000000000000000000000000000000000000000000000000000000000",
+        "PAUSER_ROLE": "0x0000000000000000000000000000000000000000000000000000000000000000"
+      },
+      "roleMemberCounts": {
+        "DEFAULT_ADMIN_ROLE": "EVM_REVERT: execution reverted",
+        "MINTER_ROLE": "EVM_REVERT: execution reverted",
+        "PAUSER_ROLE": "EVM_REVERT: execution reverted"
+      },
+      "ownerProbe": "EVM_REVERT: execution reverted",
+      "pausedProbe": "EVM_REVERT: execution reverted"
+    },
+    {
+      "name": "Reserve.sol",
+      "address": "0x1bbCd78E4DEF79b7a3B77242770cbAefAC816177",
+      "explorer": "https://testnet.monadscan.com/address/0x1bbCd78E4DEF79b7a3B77242770cbAefAC816177",
+      "deployed": true,
+      "codeSizeBytes": 5703,
+      "codeKeccak256": "0x04a7116dd28265573d7f8ec5c984fa25453ec59567b241c8cc03d16651af4290",
+      "codeKeccak256NoMeta": "0x301daba1906450f9e7ba607aa5061ea05a568d1f8c361287b4221414477e3d8a",
+      "proxy": {
+        "eip1967_implementation": null,
+        "eip1967_admin": null,
+        "eip1967_beacon": null,
+        "slot0": "0x0000000000000000000000000000000000000000000000000000000000000000"
+      },
+      "deployBlock": {
+        "status": "UNVERIFIED",
+        "reason": "search aborted at block 36533131: RPC_ERROR",
+        "detail": {
+          "block": 36533131,
+          "kind": "RPC_ERROR",
+          "message": "Block requested not found. Request might be querying historical state that is not available. If possible, reformulate qu",
+          "probes": 1
+        }
+      },
+      "roles": {
+        "DEFAULT_ADMIN_ROLE": {
+          "0x3C3932F865892EFabE45892f453f81B64f6c8d8c": "TRUE",
+          "0xE71869C662733642bfBb262B8c6bad8B0fBfA7D0": "FALSE",
+          "0xE35a91801bc541fb743BB9EaD26C1FbD81EaBd66": "FALSE",
+          "0x9e6EdC15DAc420931508d8Ddf9BC817651A253aD": "FALSE",
+          "0x8839ce50e8D414005518769999c0A5b961D00CB2": "FALSE",
+          "0x1bbCd78E4DEF79b7a3B77242770cbAefAC816177": "FALSE",
+          "0x197e9CB28216dfe18a199b4c2930F74C2F460809": "FALSE",
+          "0x963201C0Fa258033CCDdFcDceb8B5E3bc2b435a4": "FALSE",
+          "0xDfcA66ac0450C9AB86307af1942E157C5A4DB713": "FALSE",
+          "0x3eC27BB283644eF0A98B9961E9FBED0583a02f19": "FALSE"
+        },
+        "MINTER_ROLE": {
+          "0x3C3932F865892EFabE45892f453f81B64f6c8d8c": "TRUE",
+          "0xE71869C662733642bfBb262B8c6bad8B0fBfA7D0": "FALSE",
+          "0xE35a91801bc541fb743BB9EaD26C1FbD81EaBd66": "FALSE",
+          "0x9e6EdC15DAc420931508d8Ddf9BC817651A253aD": "FALSE",
+          "0x8839ce50e8D414005518769999c0A5b961D00CB2": "FALSE",
+          "0x1bbCd78E4DEF79b7a3B77242770cbAefAC816177": "FALSE",
+          "0x197e9CB28216dfe18a199b4c2930F74C2F460809": "TRUE",
+          "0x963201C0Fa258033CCDdFcDceb8B5E3bc2b435a4": "FALSE",
+          "0xDfcA66ac0450C9AB86307af1942E157C5A4DB713": "FALSE",
+          "0x3eC27BB283644eF0A98B9961E9FBED0583a02f19": "FALSE"
+        },
+        "PAUSER_ROLE": {
+          "0x3C3932F865892EFabE45892f453f81B64f6c8d8c": "FALSE",
+          "0xE71869C662733642bfBb262B8c6bad8B0fBfA7D0": "FALSE",
+          "0xE35a91801bc541fb743BB9EaD26C1FbD81EaBd66": "FALSE",
+          "0x9e6EdC15DAc420931508d8Ddf9BC817651A253aD": "FALSE",
+          "0x8839ce50e8D414005518769999c0A5b961D00CB2": "FALSE",
+          "0x1bbCd78E4DEF79b7a3B77242770cbAefAC816177": "FALSE",
+          "0x197e9CB28216dfe18a199b4c2930F74C2F460809": "FALSE",
+          "0x963201C0Fa258033CCDdFcDceb8B5E3bc2b435a4": "FALSE",
+          "0xDfcA66ac0450C9AB86307af1942E157C5A4DB713": "FALSE",
+          "0x3eC27BB283644eF0A98B9961E9FBED0583a02f19": "FALSE"
+        }
+      },
+      "roleAdmins": {
+        "DEFAULT_ADMIN_ROLE": "0x0000000000000000000000000000000000000000000000000000000000000000",
+        "MINTER_ROLE": "0x0000000000000000000000000000000000000000000000000000000000000000",
+        "PAUSER_ROLE": "0x0000000000000000000000000000000000000000000000000000000000000000"
+      },
+      "roleMemberCounts": {
+        "DEFAULT_ADMIN_ROLE": "EVM_REVERT: execution reverted",
+        "MINTER_ROLE": "EVM_REVERT: execution reverted",
+        "PAUSER_ROLE": "EVM_REVERT: execution reverted"
+      },
+      "ownerProbe": "EVM_REVERT: execution reverted",
+      "pausedProbe": "EVM_REVERT: execution reverted"
+    },
+    {
+      "name": "Mint.sol",
+      "address": "0x197e9CB28216dfe18a199b4c2930F74C2F460809",
+      "explorer": "https://testnet.monadscan.com/address/0x197e9CB28216dfe18a199b4c2930F74C2F460809",
+      "deployed": true,
+      "codeSizeBytes": 5644,
+      "codeKeccak256": "0x2373495eed7956512bc7cd6960d83fc19405c30332d8a251e2a5b6b57a87a9fb",
+      "codeKeccak256NoMeta": "0x78044ac0918befbf95b0ef4bf8619500778118513bb9f28b50eeebe61140b591",
+      "proxy": {
+        "eip1967_implementation": null,
+        "eip1967_admin": null,
+        "eip1967_beacon": null,
+        "slot0": "0x0000000000000000000000000000000000000000000000000000000000000000"
+      },
+      "deployBlock": {
+        "status": "UNVERIFIED",
+        "reason": "search aborted at block 36533131: RPC_ERROR",
+        "detail": {
+          "block": 36533131,
+          "kind": "RPC_ERROR",
+          "message": "Block requested not found. Request might be querying historical state that is not available. If possible, reformulate qu",
+          "probes": 1
+        }
+      },
+      "roles": {
+        "DEFAULT_ADMIN_ROLE": {
+          "0x3C3932F865892EFabE45892f453f81B64f6c8d8c": "TRUE",
+          "0xE71869C662733642bfBb262B8c6bad8B0fBfA7D0": "FALSE",
+          "0xE35a91801bc541fb743BB9EaD26C1FbD81EaBd66": "FALSE",
+          "0x9e6EdC15DAc420931508d8Ddf9BC817651A253aD": "FALSE",
+          "0x8839ce50e8D414005518769999c0A5b961D00CB2": "FALSE",
+          "0x1bbCd78E4DEF79b7a3B77242770cbAefAC816177": "FALSE",
+          "0x197e9CB28216dfe18a199b4c2930F74C2F460809": "FALSE",
+          "0x963201C0Fa258033CCDdFcDceb8B5E3bc2b435a4": "FALSE",
+          "0xDfcA66ac0450C9AB86307af1942E157C5A4DB713": "FALSE",
+          "0x3eC27BB283644eF0A98B9961E9FBED0583a02f19": "FALSE"
+        },
+        "MINTER_ROLE": {
+          "0x3C3932F865892EFabE45892f453f81B64f6c8d8c": "TRUE",
+          "0xE71869C662733642bfBb262B8c6bad8B0fBfA7D0": "FALSE",
+          "0xE35a91801bc541fb743BB9EaD26C1FbD81EaBd66": "FALSE",
+          "0x9e6EdC15DAc420931508d8Ddf9BC817651A253aD": "FALSE",
+          "0x8839ce50e8D414005518769999c0A5b961D00CB2": "FALSE",
+          "0x1bbCd78E4DEF79b7a3B77242770cbAefAC816177": "FALSE",
+          "0x197e9CB28216dfe18a199b4c2930F74C2F460809": "FALSE",
+          "0x963201C0Fa258033CCDdFcDceb8B5E3bc2b435a4": "FALSE",
+          "0xDfcA66ac0450C9AB86307af1942E157C5A4DB713": "FALSE",
+          "0x3eC27BB283644eF0A98B9961E9FBED0583a02f19": "FALSE"
+        },
+        "PAUSER_ROLE": {
+          "0x3C3932F865892EFabE45892f453f81B64f6c8d8c": "FALSE",
+          "0xE71869C662733642bfBb262B8c6bad8B0fBfA7D0": "FALSE",
+          "0xE35a91801bc541fb743BB9EaD26C1FbD81EaBd66": "FALSE",
+          "0x9e6EdC15DAc420931508d8Ddf9BC817651A253aD": "FALSE",
+          "0x8839ce50e8D414005518769999c0A5b961D00CB2": "FALSE",
+          "0x1bbCd78E4DEF79b7a3B77242770cbAefAC816177": "FALSE",
+          "0x197e9CB28216dfe18a199b4c2930F74C2F460809": "FALSE",
+          "0x963201C0Fa258033CCDdFcDceb8B5E3bc2b435a4": "FALSE",
+          "0xDfcA66ac0450C9AB86307af1942E157C5A4DB713": "FALSE",
+          "0x3eC27BB283644eF0A98B9961E9FBED0583a02f19": "FALSE"
+        }
+      },
+      "roleAdmins": {
+        "DEFAULT_ADMIN_ROLE": "0x0000000000000000000000000000000000000000000000000000000000000000",
+        "MINTER_ROLE": "0x0000000000000000000000000000000000000000000000000000000000000000",
+        "PAUSER_ROLE": "0x0000000000000000000000000000000000000000000000000000000000000000"
+      },
+      "roleMemberCounts": {
+        "DEFAULT_ADMIN_ROLE": "EVM_REVERT: execution reverted",
+        "MINTER_ROLE": "EVM_REVERT: execution reverted",
+        "PAUSER_ROLE": "EVM_REVERT: execution reverted"
+      },
+      "ownerProbe": "EVM_REVERT: execution reverted",
+      "pausedProbe": "EVM_REVERT: execution reverted"
+    },
+    {
+      "name": "Redeem.sol",
+      "address": "0x963201C0Fa258033CCDdFcDceb8B5E3bc2b435a4",
+      "explorer": "https://testnet.monadscan.com/address/0x963201C0Fa258033CCDdFcDceb8B5E3bc2b435a4",
+      "deployed": true,
+      "codeSizeBytes": 6170,
+      "codeKeccak256": "0x8e8538e58ee3708ddd8f3d7fa836a39397e7cb6d049ec8a1b9467524df97017c",
+      "codeKeccak256NoMeta": "0xcdf3263e3435732e2a95fa7d10b4ff4b2f42a5bbe7130c8548d716ead5c8276b",
+      "proxy": {
+        "eip1967_implementation": null,
+        "eip1967_admin": null,
+        "eip1967_beacon": null,
+        "slot0": "0x0000000000000000000000000000000000000000000000000000000000000000"
+      },
+      "deployBlock": {
+        "status": "UNVERIFIED",
+        "reason": "search aborted at block 36533131: RPC_ERROR",
+        "detail": {
+          "block": 36533131,
+          "kind": "RPC_ERROR",
+          "message": "Block requested not found. Request might be querying historical state that is not available. If possible, reformulate qu",
+          "probes": 1
+        }
+      },
+      "roles": {
+        "DEFAULT_ADMIN_ROLE": {
+          "0x3C3932F865892EFabE45892f453f81B64f6c8d8c": "TRUE",
+          "0xE71869C662733642bfBb262B8c6bad8B0fBfA7D0": "FALSE",
+          "0xE35a91801bc541fb743BB9EaD26C1FbD81EaBd66": "FALSE",
+          "0x9e6EdC15DAc420931508d8Ddf9BC817651A253aD": "FALSE",
+          "0x8839ce50e8D414005518769999c0A5b961D00CB2": "FALSE",
+          "0x1bbCd78E4DEF79b7a3B77242770cbAefAC816177": "FALSE",
+          "0x197e9CB28216dfe18a199b4c2930F74C2F460809": "FALSE",
+          "0x963201C0Fa258033CCDdFcDceb8B5E3bc2b435a4": "FALSE",
+          "0xDfcA66ac0450C9AB86307af1942E157C5A4DB713": "FALSE",
+          "0x3eC27BB283644eF0A98B9961E9FBED0583a02f19": "FALSE"
+        },
+        "MINTER_ROLE": {
+          "0x3C3932F865892EFabE45892f453f81B64f6c8d8c": "FALSE",
+          "0xE71869C662733642bfBb262B8c6bad8B0fBfA7D0": "FALSE",
+          "0xE35a91801bc541fb743BB9EaD26C1FbD81EaBd66": "FALSE",
+          "0x9e6EdC15DAc420931508d8Ddf9BC817651A253aD": "FALSE",
+          "0x8839ce50e8D414005518769999c0A5b961D00CB2": "FALSE",
+          "0x1bbCd78E4DEF79b7a3B77242770cbAefAC816177": "FALSE",
+          "0x197e9CB28216dfe18a199b4c2930F74C2F460809": "FALSE",
+          "0x963201C0Fa258033CCDdFcDceb8B5E3bc2b435a4": "FALSE",
+          "0xDfcA66ac0450C9AB86307af1942E157C5A4DB713": "FALSE",
+          "0x3eC27BB283644eF0A98B9961E9FBED0583a02f19": "FALSE"
+        },
+        "PAUSER_ROLE": {
+          "0x3C3932F865892EFabE45892f453f81B64f6c8d8c": "FALSE",
+          "0xE71869C662733642bfBb262B8c6bad8B0fBfA7D0": "FALSE",
+          "0xE35a91801bc541fb743BB9EaD26C1FbD81EaBd66": "FALSE",
+          "0x9e6EdC15DAc420931508d8Ddf9BC817651A253aD": "FALSE",
+          "0x8839ce50e8D414005518769999c0A5b961D00CB2": "FALSE",
+          "0x1bbCd78E4DEF79b7a3B77242770cbAefAC816177": "FALSE",
+          "0x197e9CB28216dfe18a199b4c2930F74C2F460809": "FALSE",
+          "0x963201C0Fa258033CCDdFcDceb8B5E3bc2b435a4": "FALSE",
+          "0xDfcA66ac0450C9AB86307af1942E157C5A4DB713": "FALSE",
+          "0x3eC27BB283644eF0A98B9961E9FBED0583a02f19": "FALSE"
+        }
+      },
+      "roleAdmins": {
+        "DEFAULT_ADMIN_ROLE": "0x0000000000000000000000000000000000000000000000000000000000000000",
+        "MINTER_ROLE": "0x0000000000000000000000000000000000000000000000000000000000000000",
+        "PAUSER_ROLE": "0x0000000000000000000000000000000000000000000000000000000000000000"
+      },
+      "roleMemberCounts": {
+        "DEFAULT_ADMIN_ROLE": "EVM_REVERT: execution reverted",
+        "MINTER_ROLE": "EVM_REVERT: execution reverted",
+        "PAUSER_ROLE": "EVM_REVERT: execution reverted"
+      },
+      "ownerProbe": "EVM_REVERT: execution reverted",
+      "pausedProbe": "EVM_REVERT: execution reverted"
+    },
+    {
+      "name": "Oracle.sol",
+      "address": "0xDfcA66ac0450C9AB86307af1942E157C5A4DB713",
+      "explorer": "https://testnet.monadscan.com/address/0xDfcA66ac0450C9AB86307af1942E157C5A4DB713",
+      "deployed": true,
+      "codeSizeBytes": 5273,
+      "codeKeccak256": "0xf057e6e5a983c585a46c558402738f2ba72bf5f5e8acd8a2a6e9eaa857ded2e7",
+      "codeKeccak256NoMeta": "0x4139184335dbe05850a5ff4e71e497625a4022040d13e50f8d2c198164a7c6d3",
+      "proxy": {
+        "eip1967_implementation": null,
+        "eip1967_admin": null,
+        "eip1967_beacon": null,
+        "slot0": "0x0000000000000000000000000000000000000000000000000000000000000000"
+      },
+      "deployBlock": {
+        "status": "UNVERIFIED",
+        "reason": "search aborted at block 36533131: RPC_ERROR",
+        "detail": {
+          "block": 36533131,
+          "kind": "RPC_ERROR",
+          "message": "Block requested not found. Request might be querying historical state that is not available. If possible, reformulate qu",
+          "probes": 1
+        }
+      },
+      "roles": {
+        "DEFAULT_ADMIN_ROLE": {
+          "0x3C3932F865892EFabE45892f453f81B64f6c8d8c": "TRUE",
+          "0xE71869C662733642bfBb262B8c6bad8B0fBfA7D0": "FALSE",
+          "0xE35a91801bc541fb743BB9EaD26C1FbD81EaBd66": "FALSE",
+          "0x9e6EdC15DAc420931508d8Ddf9BC817651A253aD": "FALSE",
+          "0x8839ce50e8D414005518769999c0A5b961D00CB2": "FALSE",
+          "0x1bbCd78E4DEF79b7a3B77242770cbAefAC816177": "FALSE",
+          "0x197e9CB28216dfe18a199b4c2930F74C2F460809": "FALSE",
+          "0x963201C0Fa258033CCDdFcDceb8B5E3bc2b435a4": "FALSE",
+          "0xDfcA66ac0450C9AB86307af1942E157C5A4DB713": "FALSE",
+          "0x3eC27BB283644eF0A98B9961E9FBED0583a02f19": "FALSE"
+        },
+        "MINTER_ROLE": {
+          "0x3C3932F865892EFabE45892f453f81B64f6c8d8c": "FALSE",
+          "0xE71869C662733642bfBb262B8c6bad8B0fBfA7D0": "FALSE",
+          "0xE35a91801bc541fb743BB9EaD26C1FbD81EaBd66": "FALSE",
+          "0x9e6EdC15DAc420931508d8Ddf9BC817651A253aD": "FALSE",
+          "0x8839ce50e8D414005518769999c0A5b961D00CB2": "FALSE",
+          "0x1bbCd78E4DEF79b7a3B77242770cbAefAC816177": "FALSE",
+          "0x197e9CB28216dfe18a199b4c2930F74C2F460809": "FALSE",
+          "0x963201C0Fa258033CCDdFcDceb8B5E3bc2b435a4": "FALSE",
+          "0xDfcA66ac0450C9AB86307af1942E157C5A4DB713": "FALSE",
+          "0x3eC27BB283644eF0A98B9961E9FBED0583a02f19": "FALSE"
+        },
+        "PAUSER_ROLE": {
+          "0x3C3932F865892EFabE45892f453f81B64f6c8d8c": "FALSE",
+          "0xE71869C662733642bfBb262B8c6bad8B0fBfA7D0": "FALSE",
+          "0xE35a91801bc541fb743BB9EaD26C1FbD81EaBd66": "FALSE",
+          "0x9e6EdC15DAc420931508d8Ddf9BC817651A253aD": "FALSE",
+          "0x8839ce50e8D414005518769999c0A5b961D00CB2": "FALSE",
+          "0x1bbCd78E4DEF79b7a3B77242770cbAefAC816177": "FALSE",
+          "0x197e9CB28216dfe18a199b4c2930F74C2F460809": "FALSE",
+          "0x963201C0Fa258033CCDdFcDceb8B5E3bc2b435a4": "FALSE",
+          "0xDfcA66ac0450C9AB86307af1942E157C5A4DB713": "FALSE",
+          "0x3eC27BB283644eF0A98B9961E9FBED0583a02f19": "FALSE"
+        }
+      },
+      "roleAdmins": {
+        "DEFAULT_ADMIN_ROLE": "0x0000000000000000000000000000000000000000000000000000000000000000",
+        "MINTER_ROLE": "0x0000000000000000000000000000000000000000000000000000000000000000",
+        "PAUSER_ROLE": "0x0000000000000000000000000000000000000000000000000000000000000000"
+      },
+      "roleMemberCounts": {
+        "DEFAULT_ADMIN_ROLE": "EVM_REVERT: execution reverted",
+        "MINTER_ROLE": "EVM_REVERT: execution reverted",
+        "PAUSER_ROLE": "EVM_REVERT: execution reverted"
+      },
+      "ownerProbe": "EVM_REVERT: execution reverted",
+      "pausedProbe": "EVM_REVERT: execution reverted"
+    },
+    {
+      "name": "Takaful.sol",
+      "address": "0x3eC27BB283644eF0A98B9961E9FBED0583a02f19",
+      "explorer": "https://testnet.monadscan.com/address/0x3eC27BB283644eF0A98B9961E9FBED0583a02f19",
+      "deployed": true,
+      "codeSizeBytes": 6043,
+      "codeKeccak256": "0xb28868f69b3086ab9552cb0f5378c70913eabd733367fc7998d255be0a26c8e0",
+      "codeKeccak256NoMeta": "0xd89588f0b0b49d1cda6067baade9de158258e87926657c775ebc1769d56b3fdb",
+      "proxy": {
+        "eip1967_implementation": null,
+        "eip1967_admin": null,
+        "eip1967_beacon": null,
+        "slot0": "0x0000000000000000000000000000000000000000000000000000000000000000"
+      },
+      "deployBlock": {
+        "status": "UNVERIFIED",
+        "reason": "search aborted at block 36533131: RPC_ERROR",
+        "detail": {
+          "block": 36533131,
+          "kind": "RPC_ERROR",
+          "message": "Block requested not found. Request might be querying historical state that is not available. If possible, reformulate qu",
+          "probes": 1
+        }
+      },
+      "roles": {
+        "DEFAULT_ADMIN_ROLE": {
+          "0x3C3932F865892EFabE45892f453f81B64f6c8d8c": "TRUE",
+          "0xE71869C662733642bfBb262B8c6bad8B0fBfA7D0": "FALSE",
+          "0xE35a91801bc541fb743BB9EaD26C1FbD81EaBd66": "FALSE",
+          "0x9e6EdC15DAc420931508d8Ddf9BC817651A253aD": "FALSE",
+          "0x8839ce50e8D414005518769999c0A5b961D00CB2": "FALSE",
+          "0x1bbCd78E4DEF79b7a3B77242770cbAefAC816177": "FALSE",
+          "0x197e9CB28216dfe18a199b4c2930F74C2F460809": "FALSE",
+          "0x963201C0Fa258033CCDdFcDceb8B5E3bc2b435a4": "FALSE",
+          "0xDfcA66ac0450C9AB86307af1942E157C5A4DB713": "FALSE",
+          "0x3eC27BB283644eF0A98B9961E9FBED0583a02f19": "FALSE"
+        },
+        "MINTER_ROLE": {
+          "0x3C3932F865892EFabE45892f453f81B64f6c8d8c": "FALSE",
+          "0xE71869C662733642bfBb262B8c6bad8B0fBfA7D0": "FALSE",
+          "0xE35a91801bc541fb743BB9EaD26C1FbD81EaBd66": "FALSE",
+          "0x9e6EdC15DAc420931508d8Ddf9BC817651A253aD": "FALSE",
+          "0x8839ce50e8D414005518769999c0A5b961D00CB2": "FALSE",
+          "0x1bbCd78E4DEF79b7a3B77242770cbAefAC816177": "FALSE",
+          "0x197e9CB28216dfe18a199b4c2930F74C2F460809": "FALSE",
+          "0x963201C0Fa258033CCDdFcDceb8B5E3bc2b435a4": "FALSE",
+          "0xDfcA66ac0450C9AB86307af1942E157C5A4DB713": "FALSE",
+          "0x3eC27BB283644eF0A98B9961E9FBED0583a02f19": "FALSE"
+        },
+        "PAUSER_ROLE": {
+          "0x3C3932F865892EFabE45892f453f81B64f6c8d8c": "FALSE",
+          "0xE71869C662733642bfBb262B8c6bad8B0fBfA7D0": "FALSE",
+          "0xE35a91801bc541fb743BB9EaD26C1FbD81EaBd66": "FALSE",
+          "0x9e6EdC15DAc420931508d8Ddf9BC817651A253aD": "FALSE",
+          "0x8839ce50e8D414005518769999c0A5b961D00CB2": "FALSE",
+          "0x1bbCd78E4DEF79b7a3B77242770cbAefAC816177": "FALSE",
+          "0x197e9CB28216dfe18a199b4c2930F74C2F460809": "FALSE",
+          "0x963201C0Fa258033CCDdFcDceb8B5E3bc2b435a4": "FALSE",
+          "0xDfcA66ac0450C9AB86307af1942E157C5A4DB713": "FALSE",
+          "0x3eC27BB283644eF0A98B9961E9FBED0583a02f19": "FALSE"
+        }
+      },
+      "roleAdmins": {
+        "DEFAULT_ADMIN_ROLE": "0x0000000000000000000000000000000000000000000000000000000000000000",
+        "MINTER_ROLE": "0x0000000000000000000000000000000000000000000000000000000000000000",
+        "PAUSER_ROLE": "0x0000000000000000000000000000000000000000000000000000000000000000"
+      },
+      "roleMemberCounts": {
+        "DEFAULT_ADMIN_ROLE": "EVM_REVERT: execution reverted",
+        "MINTER_ROLE": "EVM_REVERT: execution reverted",
+        "PAUSER_ROLE": "EVM_REVERT: execution reverted"
+      },
+      "ownerProbe": "EVM_REVERT: execution reverted",
+      "pausedProbe": "EVM_REVERT: execution reverted"
+    }
+  ],
+  "token": {
+    "address": "0x9e6EdC15DAc420931508d8Ddf9BC817651A253aD",
+    "name": "MITHQAL",
+    "symbol": "MTQ",
+    "decimals": "18",
+    "totalSupply": "310949000000000000000",
+    "balances": {
+      "0x3C3932F865892EFabE45892f453f81B64f6c8d8c": "309948999999999999997",
+      "0x9e6EdC15DAc420931508d8Ddf9BC817651A253aD": "0",
+      "0xE35a91801bc541fb743BB9EaD26C1FbD81EaBd66": "0",
+      "0xE71869C662733642bfBb262B8c6bad8B0fBfA7D0": "0",
+      "0x8839ce50e8D414005518769999c0A5b961D00CB2": "0",
+      "0x1bbCd78E4DEF79b7a3B77242770cbAefAC816177": "0",
+      "0x197e9CB28216dfe18a199b4c2930F74C2F460809": "0",
+      "0x963201C0Fa258033CCDdFcDceb8B5E3bc2b435a4": "0",
+      "0xDfcA66ac0450C9AB86307af1942E157C5A4DB713": "0",
+      "0x3eC27BB283644eF0A98B9961E9FBED0583a02f19": "0"
+    },
+    "nativeBalancesWei": {
+      "0x3C3932F865892EFabE45892f453f81B64f6c8d8c": "224343224122819642",
+      "0x9e6EdC15DAc420931508d8Ddf9BC817651A253aD": "0",
+      "0xE35a91801bc541fb743BB9EaD26C1FbD81EaBd66": "0",
+      "0xE71869C662733642bfBb262B8c6bad8B0fBfA7D0": "0",
+      "0x8839ce50e8D414005518769999c0A5b961D00CB2": "0",
+      "0x1bbCd78E4DEF79b7a3B77242770cbAefAC816177": "0",
+      "0x197e9CB28216dfe18a199b4c2930F74C2F460809": "0",
+      "0x963201C0Fa258033CCDdFcDceb8B5E3bc2b435a4": "0",
+      "0xDfcA66ac0450C9AB86307af1942E157C5A4DB713": "0",
+      "0x3eC27BB283644eF0A98B9961E9FBED0583a02f19": "0"
+    }
+  },
+  "safe": {
+    "address": "0xE71869C662733642bfBb262B8c6bad8B0fBfA7D0",
+    "getThreshold": 1,
+    "nonce": 0,
+    "owners": [
+      "0x3C3932F865892EFabE45892f453f81B64f6c8d8c"
+    ],
+    "version": "1.4.1",
+    "modules": "EVM_REVERT: execution reverted: GS105",
+    "guardSlot": "address(0) — NO GUARD",
+    "getGuard": "EVM_REVERT: execution reverted",
+    "guard": "EVM_REVERT: execution reverted"
+  },
+  "transfers": {
+    "status": "SKIPPED",
+    "reason": "deploy block unavailable"
+  },
+  "revertRecheck": [],
+  "finishedAt": "2026-10-21T21:37:56.016Z"
+}

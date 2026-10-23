@@ -1,0 +1,28 @@
+{
+  "choices": [
+    {
+      "finish_reason": "stop",
+      "index": 0,
+      "message": {
+        "content": "Based on the image provided, here is the detailed description of the crop:\n\n**(1) The Glass Badge (Pill)**\n*   **Text:** \"The Next Generation Monetary Protocol\"\n*   **Icon:** There is a small, stylized **sparkle or star icon** to the left of the text. It appears to be a simple 4-point star shape.\n*   **Border/Glow Color:** The border is a subtle, glowing **cyan-blue** (or electric blue).\n*   **Background:** The background is a dark, semi-transparent \"glassmorphism\" effect—likely a very dark blue or black with low opacity.\n*   **Corner Radius:** The pill has a **fully rounded** (capsule) corner radius, meaning the height and the radius are equal, creating smooth ends.\n\n**(2) First Headline Line Text**\n*   **Text:** \"A More Stable,\"\n*   **Color Treatment:** This text features a **linear gradient** that flows from left to right. It starts as a **light, icy blue/cyan** on the left side (\"A More\") and transitions into a **solid white** on the right side (\"Stable,\").\n\n**(3) Other Text**\n*   **Second Headline Line:** Below the first line, there is partial text reading \"**Transparent &**\". This text appears to be **solid white**.\n*   **Right-Side Card Text:**\n    *   Top line: \"**Real-World Ass...**\" (cut off, likely \"Assets\"). This is white text.\n    *   Bottom line: \"**Tangible, Audited...**\" (cut off). This is a smaller, greyish or muted blue text.",
+        "role": "assistant"
+      }
+    }
+  ],
+  "created": 1792492964,
+  "id": "202610201842404588f694427e42f8",
+  "model": "glm-5v-turbo",
+  "object": "chat.completion",
+  "request_id": "202610201842404588f694427e42f8",
+  "usage": {
+    "completion_tokens": 350,
+    "completion_tokens_details": {
+      "reasoning_tokens": 0
+    },
+    "prompt_tokens": 611,
+    "prompt_tokens_details": {
+      "cached_tokens": 4
+    },
+    "total_tokens": 961
+  }
+}

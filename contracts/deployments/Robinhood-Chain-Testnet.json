@@ -1,0 +1,30 @@
+{
+  "chain": "Robinhood Chain Testnet",
+  "chainId": 46630,
+  "rpc": "https://rpc.testnet.chain.robinhood.com/rpc",
+  "explorer": "https://explorer.testnet.chain.robinhood.com",
+  "deployer": "0x3C3932F865892EFabE45892f453f81B64f6c8d8c",
+  "deployedAt": "2026-09-06T13:49:17.361Z",
+  "contracts": {
+    "MTQSigma": {
+      "address": "0xA3B89FfdE28577A7D30E2c22503dB33509044EF0",
+      "abi": "MTQSigma",
+      "tx": "0xfda3f6b4221757fe48a61f60966320a92d7f37361b51e786691b2a4bd21d7d14"
+    },
+    "MockUSDC": {
+      "address": "0xFd2B8d176bf059287638Db30D02C6651dA02861e",
+      "abi": "MockUSDC",
+      "tx": "0x0066b178d4e9e2e76c11289944f700e1faca1e8463ef5858dbc6be3a61bbf022"
+    }
+  },
+  "genesis": {
+    "supply": "1000000",
+    "circulating": "0",
+    "reserveUsdc": "1100000"
+  },
+  "readBack": {
+    "gfb": "1.0",
+    "price": "1.0",
+    "totalSupply": "1000000.0"
+  }
+}

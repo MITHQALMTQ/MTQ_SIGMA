@@ -1,0 +1,28 @@
+{
+  "choices": [
+    {
+      "finish_reason": "stop",
+      "index": 0,
+      "message": {
+        "content": "Based on the provided images, **there is no STATS ROW** containing the specific metrics you described (e.g., $2.4B+ / 12 / 250K+ / 99.9%).\n\nHere is a precise breakdown of what is actually present in these two bands to confirm this:\n\n### Band 1 (Top)\n*   **Content:** This is the **Hero Header** section.\n*   **Elements:**\n    *   **Top Left:** A pill-shaped badge reading \"**THE MTQΣ ECOSYSTEM**\" with a small icon.\n    *   **Main Headline:** Large, bold text: \"**Powerful Tools. Unified in One Platform.**\" (The word \"Unified\" has a purple-to-blue gradient).\n    *   **Subheadline:** Smaller grey text describing the platform's purpose.\n*   **Right Side:** A large UI mockup of the \"MTQΣ\" dashboard application showing a sidebar, a \"Welcome back, Alex\" greeting, a portfolio value of $48,8732.21, and an asset list (MTO, USDC, ETH, SOL).\n\n### Band 2 (Bottom)\n*   **Content:** This is a continuation of the **Hero Section's descriptive text and feature list**, positioned below the main headline.\n*   **Elements:**\n    *   **Left Side:** \n        *   Paragraph text continuing from above (\"...for the next generation of users.\").\n        *   A checklist with two items:\n            1.  ✅ Real-time analytics & insights\n            2.  ✅ Multi-chain wallet support\n    *   **Right Side:** A continuation of the dashboard mockup, specifically showing a large **line chart** (portfolio performance graph) and the bottom part of the asset list.\n\n### Conclusion\nNeither band contains a horizontal row of four high-level statistics (like Total Value Locked, User Count, etc.). The only numerical data visible is inside the **dashboard mockup** on the right (specific portfolio values and asset balances), which is part of an illustrative screenshot, not a standalone stats row.",
+        "role": "assistant"
+      }
+    }
+  ],
+  "created": 1792534333,
+  "id": "202610210612044bb5adab02534eb1",
+  "model": "glm-5v-turbo",
+  "object": "chat.completion",
+  "request_id": "202610210612044bb5adab02534eb1",
+  "usage": {
+    "completion_tokens": 433,
+    "completion_tokens_details": {
+      "reasoning_tokens": 0
+    },
+    "prompt_tokens": 517,
+    "prompt_tokens_details": {
+      "cached_tokens": 0
+    },
+    "total_tokens": 950
+  }
+}

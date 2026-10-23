@@ -1,0 +1,347 @@
+{
+  "purpose": "MTQΣ custody inventory probe — Evidence Reconciliation Directive §3 (read-only)",
+  "generatedAt": "2026-10-19T20:53:46.617Z",
+  "mode": "READ-ONLY ONLY — eth_chainId/eth_blockNumber/eth_getCode/eth_getBalance/eth_call(view)/eth_getLogs/eth_getStorageAt; no keys, no signing, no broadcast, no state change",
+  "safeAddress": "0xE71869C662733642bfBb262B8c6bad8B0fBfA7D0",
+  "deployerEoa": "0x3C3932F865892EFabE45892f453f81B64f6c8d8c",
+  "chains": [
+    {
+      "key": "monad",
+      "name": "Monad Testnet",
+      "rpc": "https://testnet-rpc.monad.xyz",
+      "expectedChainId": 10143,
+      "chainIdMatch": true,
+      "blockNumber": 72486899,
+      "codeIdentity": [
+        {
+          "label": "Genesis Reserve Safe (proxy)",
+          "address": "0xE71869C662733642bfBb262B8c6bad8B0fBfA7D0",
+          "note": "sole genuine Safe in any repo record",
+          "codeBytes": 171,
+          "codeKeccak256": "0xd7d408ebcd99b2b70be43e20253d6d92a8ea8fab29bd3be7f55b10032331fb4c",
+          "codeSha256": "a8a0fbd3cdf49e751346664e01b529a58322a814cf8df8d85deb20e63bd6415e",
+          "prefix69": "0x608060405273ffffffffffffffffffffffffffffffffffffffff600054167fa619486e00000000000000000000000000000000000000000000000000000000600035141560"
+        },
+        {
+          "label": "candidate A — v5.0 §5.1 record — live name 'MITHQAL'",
+          "address": "0x9e6EdC15DAc420931508d8Ddf9BC817651A253aD",
+          "note": "live token",
+          "codeBytes": 6681,
+          "codeKeccak256": "0x9057c3e61d81f7d3e261f71b4cb5710a2d5043666766894772459dd643d55bbb",
+          "codeSha256": "8b4bed988e4936fe0609d2ea9342297ee35248e711788cd900859e5b56ea13f6",
+          "prefix69": "0x608060405234801561000f575f80fd5b5060043610610156575f3560e01c80635c975abb116100c1578063a217fddf1161007a578063a217fddf146103b0578063a9059cbb"
+        },
+        {
+          "label": "candidate B — CANONICAL_MTQ_ADDRESSES + Ecosystem-JSON — live name 'MTQΣ'",
+          "address": "0x0Ac20360234b4C988a19586CBe55733e18A5982f",
+          "note": "live token",
+          "codeBytes": 3413,
+          "codeKeccak256": "0x31496b929dbea855c0a5fd0736f42afd0b6490840b71708023c8212d168c0180",
+          "codeSha256": "8d3338c4ff43ee2fc71104eda2ff8d9c83be99bf8f3a43a723e9eba4c65d7489",
+          "prefix69": "0x608060405234801561000f575f5ffd5b5060043610610148575f3560e01c806342966c68116100bf578063a217fddf11610079578063a217fddf1461029e578063a9059cbb"
+        },
+        {
+          "label": "candidate C — deployment-JSON MTQSigma — live name 'MTQΣ'",
+          "address": "0x5D9564C27111EA65Da3228a79833F0FF129bfd4a",
+          "note": "live token",
+          "codeBytes": 11666,
+          "codeKeccak256": "0xa73310510ce003d5c7ba9b6a8eacd150488d11997d643f369e16d77df900e92e",
+          "codeSha256": "439e44685181ff6a98ba21bcee3ddd1ab0dfe9d0101afb84ef4ab4df14c54be7",
+          "prefix69": "0x608060405234801561000f575f5ffd5b506004361061029e575f3560e01c80637e4831d311610165578063bf198352116100cc578063e502448411610085578063e5024484"
+        },
+        {
+          "label": "recorded 'Safe' claim (Ecosystem-JSON) — proven NOT a Safe",
+          "address": "0x74353601354c0b71df5B16Fe1B28c7F0831dd316",
+          "note": "0/7 Safe reads revert",
+          "codeBytes": 3321,
+          "codeKeccak256": "0x3c6c7d2580a18c85428d7ad9da6d9daa114867c95a358ead58ab9ba47be6c04e",
+          "codeSha256": "b11a1a90fba08dca474c3b21490c90834f65a27db4db073afdd318fc719d10d3",
+          "prefix69": "0x608060405234801561000f575f5ffd5b50600436106100f0575f3560e01c80638790c1de11610093578063a1ebf35d11610063578063a1ebf35d14610204578063a217fddf"
+        },
+        {
+          "label": "Oracle (recorded)",
+          "address": "0xDfcA66ac0450C9AB86307af1942E157C5A4DB713",
+          "note": "same hex as Arc Ecosystem-JSON 'Safe'",
+          "codeBytes": 5273,
+          "codeKeccak256": "0xf057e6e5a983c585a46c558402738f2ba72bf5f5e8acd8a2a6e9eaa857ded2e7",
+          "codeSha256": "8ea2176e7625c43f6e0bf9898129d4744d5686568e4e8eca1c46a5e5a28ea307",
+          "prefix69": "0x608060405234801561000f575f80fd5b5060043610610109575f3560e01c806354627af0116100a0578063a217fddf1161006f578063a217fddf146102da578063b04aba31"
+        },
+        {
+          "label": "Governance (recorded)",
+          "address": "0xE35a91801bc541fb743BB9EaD26C1FbD81EaBd66",
+          "note": "same hex recorded on Arc too",
+          "codeBytes": 25819,
+          "codeKeccak256": "0xb0624cbd4b9f219e36d4204ce180f17b2cd8f3692f097c35ff13d1011676057a",
+          "codeSha256": "d026c26353b7f2a645598aa7625bd74cbffee36a43e62c3fb0fbe23ae51a744c",
+          "prefix69": "0x608060405260043610610280575f3560e01c80637d5e81e21161014e578063bc197c81116100c0578063e540d01d11610079578063e540d01d14610b21578063eb9019d414"
+        },
+        {
+          "label": "Safe singleton (slot-0)",
+          "address": "0x29fcB43b46531BcA003ddC8FCB67FFE91900C762",
+          "note": "Gnosis Safe v1.4.1 mastercopy",
+          "codeBytes": 24421,
+          "codeKeccak256": "0xb1f926978a0f44a2c0ec8fe822418ae969bd8c3f18d61e5103100339894f81ff",
+          "codeSha256": "c44b4d05d68c38405960653358247a004d6cf74c9ee508c250b7999f1aa8d524",
+          "prefix69": "0x6080604052600436106101d15760003560e01c8063affed0e0116100f7578063e19a9dd911610095578063f08a032311610064578063f08a03231461156b578063f698da25"
+        }
+      ],
+      "nativeBalances": {
+        "safe": "0x0",
+        "deployer": "0x31d06f9459b443a"
+      },
+      "candidates": [
+        {
+          "tag": "A",
+          "label": "v5.0 §5.1 record — live name 'MITHQAL'",
+          "address": "0x9e6EdC15DAc420931508d8Ddf9BC817651A253aD",
+          "name": "MITHQAL",
+          "symbol": "MTQ",
+          "decimals": "18",
+          "totalSupply": "310949000000000000000",
+          "balanceSafe": "0",
+          "balanceDeployer": "309948999999999999997",
+          "reserveGetters": [],
+          "remainderNotAtSafeOrDeployer": {
+            "rawWei": "1000000000000000003",
+            "atDiscoveredReserves": "0",
+            "unexplained": "1000000000000000003"
+          }
+        },
+        {
+          "tag": "B",
+          "label": "CANONICAL_MTQ_ADDRESSES + Ecosystem-JSON — live name 'MTQΣ'",
+          "address": "0x0Ac20360234b4C988a19586CBe55733e18A5982f",
+          "name": "MTQΣ",
+          "symbol": "MTQ",
+          "decimals": "18",
+          "totalSupply": "1000000000000019980000000",
+          "balanceSafe": "0",
+          "balanceDeployer": "1000000000000019979999997",
+          "reserveGetters": [],
+          "remainderNotAtSafeOrDeployer": {
+            "rawWei": "3",
+            "atDiscoveredReserves": "0",
+            "unexplained": "3"
+          }
+        },
+        {
+          "tag": "C",
+          "label": "deployment-JSON MTQSigma — live name 'MTQΣ'",
+          "address": "0x5D9564C27111EA65Da3228a79833F0FF129bfd4a",
+          "name": "MTQΣ",
+          "symbol": "MTQ",
+          "decimals": "18",
+          "totalSupply": "1012987000000000000000000",
+          "balanceSafe": "0",
+          "balanceDeployer": "12986999999999999999997",
+          "reserveGetters": [
+            {
+              "getter": "genesisReserve()",
+              "address": "0x5d9564c27111ea65da3228a79833f0ff129bfd4a",
+              "balance": "1000000000000000000000000"
+            },
+            {
+              "getter": "reserveVault()",
+              "address": "0x3c3932f865892efabe45892f453f81b64f6c8d8c",
+              "balance": "12986999999999999999997"
+            },
+            {
+              "getter": "owner()",
+              "address": "0x3c3932f865892efabe45892f453f81b64f6c8d8c",
+              "balance": "12986999999999999999997"
+            }
+          ],
+          "remainderNotAtSafeOrDeployer": {
+            "rawWei": "1000000000000000000000003",
+            "atDiscoveredReserves": "1025973999999999999999994",
+            "unexplained": "-25973999999999999999991"
+          }
+        }
+      ],
+      "logAccess": {
+        "fullRangeSafeOwnLogs": {
+          "accepted": false,
+          "error": "server response 413 Request Entity Too Large (request={  }, response={  }, error=null, info={ \"requestUrl\": \"https://testnet-rpc.monad.xyz\", \"responseBody\": \"{\\\"jsonrpc\\\":\\\"2.0\\\",\\\"id\\\":64,\\\"error\\\":{"
+        },
+        "boundedWindowTransferToSafe_candidateB": {
+          "accepted": false,
+          "error": "server response 413 Request Entity Too Large (request={  }, response={  }, error=null, info={ \"requestUrl\": \"https://testnet-rpc.monad.xyz\", \"responseBody\": \"{\\\"jsonrpc\\\":\\\"2.0\\\",\\\"id\\\":65,\\\"error\\\":{"
+        },
+        "fullRangeTransfer_candidateB": {
+          "accepted": false,
+          "error": "server response 413 Request Entity Too Large (request={  }, response={  }, error=null, info={ \"requestUrl\": \"https://testnet-rpc.monad.xyz\", \"responseBody\": \"{\\\"jsonrpc\\\":\\\"2.0\\\",\\\"id\\\":66,\\\"error\\\":{"
+        }
+      }
+    },
+    {
+      "key": "arc",
+      "name": "Arc Testnet",
+      "rpc": "https://rpc.testnet.arc.io",
+      "expectedChainId": 5042002,
+      "chainIdMatch": true,
+      "blockNumber": 68070028,
+      "codeIdentity": [
+        {
+          "label": "Genesis Reserve Safe (proxy)",
+          "address": "0xE71869C662733642bfBb262B8c6bad8B0fBfA7D0",
+          "note": "sole genuine Safe in any repo record",
+          "codeBytes": 171,
+          "codeKeccak256": "0xd7d408ebcd99b2b70be43e20253d6d92a8ea8fab29bd3be7f55b10032331fb4c",
+          "codeSha256": "a8a0fbd3cdf49e751346664e01b529a58322a814cf8df8d85deb20e63bd6415e",
+          "prefix69": "0x608060405273ffffffffffffffffffffffffffffffffffffffff600054167fa619486e00000000000000000000000000000000000000000000000000000000600035141560"
+        },
+        {
+          "label": "candidate A — v5.0 §5.1 record — live name 'MITHQAL'",
+          "address": "0x237c3Aa2B79248f86f6523D3890095BCd1996601",
+          "note": "live token",
+          "codeBytes": 3474,
+          "codeKeccak256": "0x0183b25ee34b9f8e7d18e976eadc6fb021652f9b52c5d6876a536aad92d12fcf",
+          "codeSha256": "f5b8e2ff90d07f0fc42bc315236a9f26a7a8b275b96bc0fbdd9ad60bca1560e6",
+          "prefix69": "0x6080806040526004361015610012575f80fd5b5f3560e01c90816301ffc9a7146108fe5750806306fdde031461082c578063095ea7b31461078457806318160ddd14610767"
+        },
+        {
+          "label": "candidate B — CANONICAL_MTQ_ADDRESSES + Ecosystem-JSON — live name 'MTQΣ'",
+          "address": "0x24203404B9b971C907e8Ced96106Fa74380d9897",
+          "note": "live token",
+          "codeBytes": 3413,
+          "codeKeccak256": "0x31496b929dbea855c0a5fd0736f42afd0b6490840b71708023c8212d168c0180",
+          "codeSha256": "8d3338c4ff43ee2fc71104eda2ff8d9c83be99bf8f3a43a723e9eba4c65d7489",
+          "prefix69": "0x608060405234801561000f575f5ffd5b5060043610610148575f3560e01c806342966c68116100bf578063a217fddf11610079578063a217fddf1461029e578063a9059cbb"
+        },
+        {
+          "label": "candidate C — deployment-JSON MTQSigma — live name 'MTQ Sigma'",
+          "address": "0x826b82F79FD6c5347cDC568B1d0A7918128B63c1",
+          "note": "live token",
+          "codeBytes": 11551,
+          "codeKeccak256": "0x0e6a6e1ad373c8e7c005c51266fb9d5bb27c7e37a294741e4f86d34ac6709a0d",
+          "codeSha256": "63cd62cd11aa720b2f6099adb55c06c0134114c6027f00962445966923d12f24",
+          "prefix69": "0x608060405234801561000f575f5ffd5b5060043610610293575f3560e01c80637999fea011610165578063bf198352116100cc578063e502448411610085578063e5024484"
+        },
+        {
+          "label": "recorded 'Safe' claim (Ecosystem-JSON) — proven NOT a Safe",
+          "address": "0xDfcA66ac0450C9AB86307af1942E157C5A4DB713",
+          "note": "0/7 Safe reads revert; same hex as Monad 'Oracle'",
+          "codeBytes": 3321,
+          "codeKeccak256": "0x3c6c7d2580a18c85428d7ad9da6d9daa114867c95a358ead58ab9ba47be6c04e",
+          "codeSha256": "b11a1a90fba08dca474c3b21490c90834f65a27db4db073afdd318fc719d10d3",
+          "prefix69": "0x608060405234801561000f575f5ffd5b50600436106100f0575f3560e01c80638790c1de11610093578063a1ebf35d11610063578063a1ebf35d14610204578063a217fddf"
+        },
+        {
+          "label": "Oracle (recorded)",
+          "address": "0xFd2B8d176bf059287638Db30D02C6651dA02861e",
+          "note": "same hex as Robinhood MockUSDC",
+          "codeBytes": 2601,
+          "codeKeccak256": "0x0c14190ddcce23aadc615b9c0750981ccb0f9a2e593b0de5616832d825f2deb6",
+          "codeSha256": "ed1814c2c493aa15cdf2bede6a417c3b747109533d3ab3a4a02986f1876fcb4d",
+          "prefix69": "0x6080806040526004361015610012575f80fd5b5f3560e01c90816301ffc9a714610783575080630acefb7b1461075957806310c7f0b91461070e578063248a9ca3146106dc"
+        },
+        {
+          "label": "Governance (recorded)",
+          "address": "0xE35a91801bc541fb743BB9EaD26C1FbD81EaBd66",
+          "note": "same hex as Monad 'Governance'",
+          "codeBytes": 13129,
+          "codeKeccak256": "0x214a785c40138641e42a955466a9c5ab977980a18dfb207215c8ed3c522c4b82",
+          "codeSha256": "e62111ef67edd429a40f1ae3b1e90e1038e245f46d8c4fc696dd70c038c04c73",
+          "prefix69": "0x6080604052600436101561001a575b3615610018575f80fd5b005b5f3560e01c806301ffc9a71461030457806302a251a3146102ff57806306f3f9e6146102fa57806306fd"
+        },
+        {
+          "label": "Safe singleton (slot-0)",
+          "address": "0x29fcB43b46531BcA003ddC8FCB67FFE91900C762",
+          "note": "Gnosis Safe v1.4.1 mastercopy",
+          "codeBytes": 24421,
+          "codeKeccak256": "0xb1f926978a0f44a2c0ec8fe822418ae969bd8c3f18d61e5103100339894f81ff",
+          "codeSha256": "c44b4d05d68c38405960653358247a004d6cf74c9ee508c250b7999f1aa8d524",
+          "prefix69": "0x6080604052600436106101d15760003560e01c8063affed0e0116100f7578063e19a9dd911610095578063f08a032311610064578063f08a03231461156b578063f698da25"
+        }
+      ],
+      "nativeBalances": {
+        "safe": "0x0",
+        "deployer": "0x1080c0d4d6890ecfd"
+      },
+      "candidates": [
+        {
+          "tag": "A",
+          "label": "v5.0 §5.1 record — live name 'MITHQAL'",
+          "address": "0x237c3Aa2B79248f86f6523D3890095BCd1996601",
+          "name": "MITHQAL",
+          "symbol": "MTQ",
+          "decimals": "18",
+          "totalSupply": "1000000000000000000000",
+          "balanceSafe": "0",
+          "balanceDeployer": "998999999999999999997",
+          "reserveGetters": [],
+          "remainderNotAtSafeOrDeployer": {
+            "rawWei": "1000000000000000003",
+            "atDiscoveredReserves": "0",
+            "unexplained": "1000000000000000003"
+          }
+        },
+        {
+          "tag": "B",
+          "label": "CANONICAL_MTQ_ADDRESSES + Ecosystem-JSON — live name 'MTQΣ'",
+          "address": "0x24203404B9b971C907e8Ced96106Fa74380d9897",
+          "name": "MTQΣ",
+          "symbol": "MTQ",
+          "decimals": "18",
+          "totalSupply": "1000000000000019980000000",
+          "balanceSafe": "0",
+          "balanceDeployer": "1000000000000019979999997",
+          "reserveGetters": [],
+          "remainderNotAtSafeOrDeployer": {
+            "rawWei": "3",
+            "atDiscoveredReserves": "0",
+            "unexplained": "3"
+          }
+        },
+        {
+          "tag": "C",
+          "label": "deployment-JSON MTQSigma — live name 'MTQ Sigma'",
+          "address": "0x826b82F79FD6c5347cDC568B1d0A7918128B63c1",
+          "name": "MTQ Sigma",
+          "symbol": "MTQ",
+          "decimals": "18",
+          "totalSupply": "1005889000000000000000000",
+          "balanceSafe": "0",
+          "balanceDeployer": "5887999999999999999997",
+          "reserveGetters": [
+            {
+              "getter": "genesisReserve()",
+              "address": "0x826b82f79fd6c5347cdc568b1d0a7918128b63c1",
+              "balance": "1000000000000000000000000"
+            },
+            {
+              "getter": "reserveVault()",
+              "address": "0x3c3932f865892efabe45892f453f81b64f6c8d8c",
+              "balance": "5887999999999999999997"
+            },
+            {
+              "getter": "owner()",
+              "address": "0x3c3932f865892efabe45892f453f81b64f6c8d8c",
+              "balance": "5887999999999999999997"
+            }
+          ],
+          "remainderNotAtSafeOrDeployer": {
+            "rawWei": "1000001000000000000000003",
+            "atDiscoveredReserves": "1011775999999999999999994",
+            "unexplained": "-11774999999999999999991"
+          }
+        }
+      ],
+      "logAccess": {
+        "fullRangeSafeOwnLogs": {
+          "accepted": false,
+          "error": "could not coalesce error (error={ \"code\": -32012, \"message\": \"requested range too large\" }, payload={ \"id\": 64, \"jsonrpc\": \"2.0\", \"method\": \"eth_getLogs\", \"params\": [ { \"address\": \"0xE71869C662733642b"
+        },
+        "boundedWindowTransferToSafe_candidateB": {
+          "accepted": false,
+          "error": "could not coalesce error (error={ \"code\": -32012, \"message\": \"requested range too large\" }, payload={ \"id\": 65, \"jsonrpc\": \"2.0\", \"method\": \"eth_getLogs\", \"params\": [ { \"address\": \"0x24203404B9b971C90"
+        },
+        "fullRangeTransfer_candidateB": {
+          "accepted": false,
+          "error": "could not coalesce error (error={ \"code\": -32012, \"message\": \"requested range too large\" }, payload={ \"id\": 66, \"jsonrpc\": \"2.0\", \"method\": \"eth_getLogs\", \"params\": [ { \"address\": \"0x24203404B9b971C90"
+        }
+      }
+    }
+  ]
+}

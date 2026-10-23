@@ -1,0 +1,192 @@
+{
+  "script": "l8-d13-26-fixture-verification.ts",
+  "purpose": "MANDATE-005 Priority 2 — empirical demonstration of the six proposed D-13.26 fixture re-pins under the CURRENT implementation. Analysis only; no canonical assertion, engine code, or spec text was modified.",
+  "timestamp": "2026-10-23T08:30:08.611Z",
+  "posture": "TESTNET ONLY · SHADOW MODE ENFORCED · NOT ACCEPTED",
+  "part1_c1": {
+    "thetaBase": 0.0075,
+    "inZone_deep_0_30pct": true,
+    "inZone_boundary_0_75pct": true,
+    "inZone_above_0_76pct": false,
+    "fpExactDeviations": {
+      "dev(0.2 + 0.0075) === 0.0075": false,
+      "dev(0.25 + 0.0075) === 0.0075": false,
+      "dev(0.26 + 0.0075) === 0.0075": false,
+      "dev(0.5 + 0.0075) === 0.0075": false,
+      "dev(0.75 + 0.0075) === 0.0075": false
+    },
+    "endToEnd_below": {
+      "shouldTrade": false,
+      "level": 2,
+      "tradeUsd": 0,
+      "reason": "No-trade zone (§10.4/§11.8): deviation ≤ θ 0.75% = θ_base 0.",
+      "thetaApplied": 0.0075
+    },
+    "endToEnd_above": {
+      "shouldTrade": true,
+      "level": 8,
+      "tradeUsd": 4319.839999999997,
+      "reason": "L1 flows netted 0USD; benefit (3040) > cost+ε (52 §12.7); ur",
+      "thetaApplied": 0.0075
+    }
+  },
+  "part2_c3": {
+    "gapUsd": -15000.000000000013,
+    "naturalFlowUsd": 9000,
+    "residualGapUsd": -6000.000000000013,
+    "betaRecord": {
+      "applied": 0.8600000000000003,
+      "raw": 0.8600000000000003,
+      "urgency": 0.7200000000000006,
+      "impactEstimate": 0,
+      "clippedAt": null
+    },
+    "thetaApplied": 0.0075,
+    "decision": {
+      "shouldTrade": true,
+      "level": 8,
+      "direction": "buy",
+      "tradeUsd": 5160.000000000014
+    },
+    "handCheck": {
+      "devUrgency": 0.3,
+      "rrUrgency": 0.5000000000000004,
+      "volFactor": 0.9,
+      "urgency": 0.7200000000000004,
+      "betaRaw": 0.8600000000000002
+    },
+    "residualSizing": 5160.000000000014,
+    "rawGapContrast": 12900.000000000004
+  },
+  "part3_rg10_boundary": {
+    "epsilon": {
+      "value": 10,
+      "definition": "Listing 5 §12.8 — strict netBenefit > ε, one ε, fixed USD units, every route; OD-2 OPEN (legacy candidate vs 1% benefit-margin conflict — neither operative)"
+    },
+    "defaultPath": {
+      "net_5945": -41577.82,
+      "net_5935": -41497.82,
+      "costModel": "§12.7 exact: gas 17.82 + tradeUsd × (τ_GOLD/2 0.5% + router 0.1% + protocol 0.2%) = 17.82 + 0.8%·tradeUsd"
+    },
+    "legacyVector": {
+      "fail": {
+        "benefit": 6000,
+        "cost": 5995,
+        "net": 5,
+        "pass": false,
+        "basis": "benefit = 0.015×$1M×λ₁(0.4) = $6,000; cost = $5.945M×0.1% slippage + $50 gas = $5,995"
+      },
+      "pass": {
+        "benefit": 6000,
+        "cost": 5985,
+        "net": 15,
+        "pass": true,
+        "basis": "cost = $5.935M×0.1% + $50 = $5,985"
+      }
+    }
+  },
+  "part4_rg10_active": {
+    "currentFixture": {
+      "decision": {
+        "shouldRebalance": true,
+        "tradeUsd": 137.9999999999998
+      },
+      "cost": {
+        "gasUsd": 17.82,
+        "slippageUsd": 0.6900000000000001,
+        "routerFeeUsd": 0.138,
+        "protocolFeeUsd": 0.276,
+        "totalUsd": 18.924000000000003,
+        "halfTau": 0.005,
+        "assetClass": "GOLD",
+        "gasBasis": "ACCOUNTING-COST ESTIMATE (Appendix-F P0-3) — GAS_FALLBACK $50 DISABLED, never a gas price"
+      },
+      "net": 36.275999999999996,
+      "note": "benefit $55.20 − §12.7 cost $18.92 = net +$36.28 > ε → executes; the reject branch is unreachable at this NAV"
+    },
+    "rejectFixture": {
+      "inputs": {
+        "nav": 6000,
+        "goldNet": 1635.0000000000002,
+        "fiatNet": 4365,
+        "rr": 1.1
+      },
+      "target": 0.2625,
+      "observedWeight": 0.2725,
+      "deviation": 0.010000000000000009,
+      "bandCheck": {
+        "deviationPct": 1.0000000000000009,
+        "bandPct": 0.75,
+        "outside": true
+      },
+      "sizingCaps": {
+        "surplusUsd": 60,
+        "maxByPool": 400000,
+        "remainingDailyTurnover": 300,
+        "tradeUsd": 60
+      },
+      "benefitBasis": "0.4×|dev|×nav = $24.00 (λ₁ legacy J-term; rr 1.10 ≥ RR_TARGET ⇒ no LAMBDA_3 term)",
+      "costBasis": {
+        "gas": 17.82,
+        "slippageHalfTau": 0.3,
+        "router": 0.06,
+        "protocol": 0.12,
+        "total": 18.3,
+        "labels": "gas $13.50×1.2×1.1 (Appendix-F P0-3 accounting estimate, never a gas price); slip τ_GOLD/2 = 0.5%; router 0.1%; protocol 0.2% §20.4"
+      },
+      "net": 5.699999999999999,
+      "decision": {
+        "shouldRebalance": false,
+        "tradeUsd": 0
+      },
+      "reason": "Net benefit not positive (§10.8/§12.8): cost 18 + ε ($10) ≥ benefit 24 — net $6 (§12.7 cost: gas 17.82 + slip τ/2 0.50% + router 0.10% + protocol 0.20% §20.4)"
+    },
+    "reachProof": {
+      "reasonIsRejectBranch": true,
+      "bypassedBandGuard": false,
+      "bypassedDirectionLock": false,
+      "citesUnifiedGate": true,
+      "conclusion": "REACHED the active-path §12.7 reject branch — no guard bypassed"
+    },
+    "executeFixture": {
+      "benefit": 80,
+      "cost": 19.419999999999998,
+      "net": 60.58,
+      "decision": {
+        "shouldRebalance": true,
+        "direction": -1,
+        "tradeUsd": 199.99999999999994
+      },
+      "reason": "Benefit − cost > ε ($10); executing (§12.8 unified gate; §12.7 cost 19)"
+    }
+  },
+  "part5_21_5": {
+    "corrected_sD": {
+      "depegHours": 0,
+      "ejectStage": 0,
+      "startPrice": 1,
+      "expectation": "0 / 0 / 1 (reset-to-zero per §21.5.2; the superseded 2×-decay would give 10)"
+    },
+    "detectorBoundary": {
+      "at_12h": {
+        "h": 12,
+        "stage": 0
+      },
+      "at_13h": {
+        "h": 13,
+        "stage": 1
+      },
+      "detectionHours": 12,
+      "expectation": "stage 0 at h = 12 (12 > 12 is false); stage 1 at h = 13"
+    },
+    "oscillation": {
+      "hAfterOut1": 10,
+      "hAfterIn": 0,
+      "hFinal": 5,
+      "stageFinal": 0,
+      "expectation": "reset semantics: 10 → 0 → 5 (stage 0); 2×-decay semantics would end at h = 13 → stage 1 — an oscillating asset never accumulates detector time"
+    },
+    "pauseRulePct": 0.05
+  },
+  "conclusion": "All six proposed D-13.26 fixture re-pins produce the claimed values under the CURRENT implementation (inclusive §10.4 boundary; state-dependent β = 0.86 on the $6,000 residual with Î = 0; legacy ε vector nets +$5/+$15; active-path reject at net +$5.70 via the §10.8/§12.8 branch with no guard bypass; reset-to-zero + 12h boundary + oscillation discriminator). The canonical suite was NOT modified; the proposed diffs remain gated on owner/validator review."
+}

@@ -1,0 +1,28 @@
+{
+  "choices": [
+    {
+      "finish_reason": "stop",
+      "index": 0,
+      "message": {
+        "content": "(1) **Full Page Sections (Top to Bottom):**\n*   **Navigation Bar:** Logo (MTQΣ), Links (Home, Product, Ecosystem, Developers, Governance, Resources), Network Status (Monad), Connect Wallet button.\n*   **Hero Section:** Tagline (\"The Next Generation Monetary Protocol\"), Main Headline (\"A More Stable, Transparent & Inclusive Financial Future\"), Subtext description, CTA buttons (\"Get Started\", \"Watch Video\").\n*   **Feature Cards Row:** Four cards with icons and text (Stable Value, Low Fees, Cross-Chain, Community Driven). *Note: Two additional floating feature bubbles (\"Real-World Asset Backing\", \"AI-Powered Economics\") appear in the hero area around the globe.*\n*   **Stats Row:** A horizontal bar containing four key metrics.\n*   **Ecosystem Section:** Heading (\"THE MTQΣ ECOSYSTEM\"), Sub-headline (\"Powerful Tools. Unified in One Platform.\"), Feature checklist, CTA button (\"Explore the Ecosystem\").\n*   **Dashboard Preview:** A large UI mockup showing a user dashboard interface.\n*   **Footer/Tagline:** Bottom text line (\"Built for a more stable, transparent and inclusive financial future.\").\n\n(2) **Yes, there is a STATS ROW.** It is located immediately below the four main feature cards and above the \"Powerful Tools\" ecosystem section. The exact stats are:\n*   **$2.4B+** (Total Value Locked)\n*   **12** (Active Chains)\n*   **250K+** (Community Members)\n*   **99.9%** (Uptime)\n\n(3) **There are mountains visible BEHIND the globe.** The terrain is not limited to the very bottom edge; dark mountain silhouettes are clearly visible in the background space between the bottom of the glowing globe and the dark sky/horizon line.\n\n(4) **The globe surface treatment is a combination of solid luminous fill and point-cloud dots.** It features a glowing, translucent blue/purple fill that reveals the continental shapes, overlaid with a dense network of bright point-cloud dots (representing cities/nodes) and intersecting wireframe grid lines (latitude/longitude).",
+        "role": "assistant"
+      }
+    }
+  ],
+  "created": 1792534271,
+  "id": "20261021061104d0abac80b15540cd",
+  "model": "glm-5v-turbo",
+  "object": "chat.completion",
+  "request_id": "20261021061104d0abac80b15540cd",
+  "usage": {
+    "completion_tokens": 462,
+    "completion_tokens_details": {
+      "reasoning_tokens": 0
+    },
+    "prompt_tokens": 2255,
+    "prompt_tokens_details": {
+      "cached_tokens": 0
+    },
+    "total_tokens": 2717
+  }
+}

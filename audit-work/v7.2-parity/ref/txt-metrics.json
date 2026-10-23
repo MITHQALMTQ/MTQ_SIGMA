@@ -1,0 +1,28 @@
+{
+  "choices": [
+    {
+      "finish_reason": "stop",
+      "index": 0,
+      "message": {
+        "content": "**Metrics Pill Text:**\n(No metrics pill is clearly visible in the cropped image, only the start of a heading)\n\n**Section Heading Lines:**\nFor the next generation of users\n\n**Subheading:**\n(Not visible in the provided image crop)\n\n**Checklist Items:**\n*   Real-time analytics & insights\n*   Multi-chain wallet support\n*   Governance & voting portal\n*   Developer tools & APIs\n\n**CTA Button Text:**\n(Only the top edge of a blue/purple button is visible; text is cut off/not visible)\n\n**Dashboard Preview - Sidebar Row Texts:**\n*   Analytics\n*   Settings\n\n**Dashboard Preview - Chart Labels (X-Axis):**\nNov, Dec, Jan, Feb, Mar, Apr, May, Jun\n*(Note: Y-axis numbers are present but too blurry to transcribe accurately)*\n\n**Dashboard Preview - Token Pair & Values:**\n*   **ETH**\n    *   1.2384\n    *   $3,421.76\n*   **SOL**\n    *   25.87\n    *   $4,121.45\n\n**Dashboard Preview - List Items with Values and Timestamps (Recent Activity):**\n*   **Staked MTQ**\n    *   +250.00 MTQ\n    *   2 hours ago\n*   **Swapped USDC -> MTQ**\n    *   +1250.00 MTQ\n    *   4 hours ago\n\n**Dashboard Preview - Network Status Headers/List Items:**\n*   **Network Status** (Header)\n*   **Monad** ... Healthy\n*   **Arbitrum** ... Healthy\n*   **Ethereum** ... Healthy\n\n**Gradient Color Information:**\nThe words **\"next generation\"** in the main section heading (\"For the next generation of users\") have a gradient color. The gradient transitions from **cyan/light blue** to **purple/violet**.",
+        "role": "assistant"
+      }
+    }
+  ],
+  "created": 1792492795,
+  "id": "20261020183949644be7f81dcd4fd4",
+  "model": "glm-5v-turbo",
+  "object": "chat.completion",
+  "request_id": "20261020183949644be7f81dcd4fd4",
+  "usage": {
+    "completion_tokens": 408,
+    "completion_tokens_details": {
+      "reasoning_tokens": 0
+    },
+    "prompt_tokens": 1138,
+    "prompt_tokens_details": {
+      "cached_tokens": 0
+    },
+    "total_tokens": 1546
+  }
+}

@@ -1,0 +1,84 @@
+# MTQΣ — Turso Daily Backup (TASK-9-MONITORING)
+#
+# Runs `bun run scripts/backup-turso.ts` daily at 03:00 UTC, uploads the
+# resulting JSON dump as a GitHub Actions artifact (90-day retention), and
+# also creates a GitHub Release tagged `backup-YYYY-MM-DD` with the dump
+# as a release asset (so backups are downloadable from the Releases page
+# even after the 90-day artifact window expires).
+#
+# Triggers:
+#   - schedule: daily at 03:00 UTC
+#   - workflow_dispatch: manual trigger from the Actions tab
+#
+# Cost: FREE for public repos (GitHub Actions minutes + Releases storage
+# are both unlimited for public repositories). No credit card required.
+#
+# Required secrets (Settings → Secrets and variables → Actions):
+#   - TURSO_DATABASE_URL — libsql://… URL (read-only DB is sufficient)
+#   - TURSO_AUTH_TOKEN   — auth token with read access
+# (GITHUB_TOKEN is auto-provided by GitHub Actions — no secret needed.)
+
+name: Turso Backup
+
+on:
+  schedule:
+    # 03:00 UTC daily — chosen to NOT collide with the 02:00 compute-engine
+    # workflow (so we don't double-load Turso with reads).
+    - cron: '0 3 * * *'
+  workflow_dispatch:
+
+permissions:
+  contents: write   # for creating the `backup-YYYY-MM-DD` git tag + release
+  actions: read
+
+jobs:
+  backup:
+    name: Backup Turso → JSON artifact + GitHub Release
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Bun
+        uses: oven-sh/setup-bun@v2
+        with:
+          bun-version: latest
+
+      - name: Install dependencies (production)
+        run: bun install --frozen-lockfile --production
+
+      - name: Run Turso backup
+        env:
+          TURSO_DATABASE_URL: ${{ secrets.TURSO_DATABASE_URL }}
+          TURSO_AUTH_TOKEN: ${{ secrets.TURSO_AUTH_TOKEN }}
+          # GITHUB_TOKEN is auto-injected by Actions. The script uses it to
+          # create the `backup-YYYY-MM-DD` release + upload the JSON asset.
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GITHUB_REPOSITORY: ${{ github.repository }}
+        run: bun run scripts/backup-turso.ts
+
+      - name: Upload backup artifact (90-day retention)
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: turso-backup-${{ github.run_id }}
+          path: backups/turso-backup-*.json
+          retention-days: 90
+          if-no-files-found: error
+
+      - name: Summary
+        if: always()
+        run: |
+          echo "### Turso Backup Summary" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "- **Workflow run:** ${{ github.run_id }}" >> $GITHUB_STEP_SUMMARY
+          echo "- **Timestamp (UTC):** $(date -u +'%Y-%m-%d %H:%M:%SZ')" >> $GITHUB_STEP_SUMMARY
+          echo "- **Artifact:** turso-backup-${{ github.run_id }} (90-day retention)" >> $GITHUB_STEP_SUMMARY
+          echo "- **Release tag:** backup-$(date -u +'%Y-%m-%d')" >> $GITHUB_STEP_SUMMARY
+          if [ -f backups/turso-backup-*.json ]; then
+            SIZE=$(du -h backups/turso-backup-*.json | cut -f1)
+            ROWS=$(jq -r '.totalRows' backups/turso-backup-*.json 2>/dev/null || echo "?")
+            echo "- **Backup size:** ${SIZE}" >> $GITHUB_STEP_SUMMARY
+            echo "- **Total rows:** ${ROWS}" >> $GITHUB_STEP_SUMMARY
+          fi

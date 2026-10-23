@@ -1,0 +1,28 @@
+{
+  "choices": [
+    {
+      "finish_reason": "stop",
+      "index": 0,
+      "message": {
+        "content": "Yes, the 4 feature panels (Real-World Asset Backing, AI-Powered Economics, Cross-Chain Interoperability, Community Governance) are visible and cleanly stacked below the hero. Yes, the stats bar renders with readable numbers (19, 4, 250/250, 0/7) in a clear 2-column grid. Yes, the ecosystem section (\"Powerful Tools\"), dashboard preview, and footer with the status ribbon containing all three required warnings are present and unbroken.",
+        "role": "assistant"
+      }
+    }
+  ],
+  "created": 1792535313,
+  "id": "20261021062830a44cfd9685fe45e6",
+  "model": "glm-5v-turbo",
+  "object": "chat.completion",
+  "request_id": "20261021062830a44cfd9685fe45e6",
+  "usage": {
+    "completion_tokens": 103,
+    "completion_tokens_details": {
+      "reasoning_tokens": 0
+    },
+    "prompt_tokens": 2134,
+    "prompt_tokens_details": {
+      "cached_tokens": 0
+    },
+    "total_tokens": 2237
+  }
+}

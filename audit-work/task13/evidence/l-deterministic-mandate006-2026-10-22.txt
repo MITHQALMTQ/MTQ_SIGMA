@@ -1,0 +1,63 @@
+============================================================
+MTQΣ — Canonical Invariants Test Suite (Deliverable G)
+============================================================
+Deliverable:      G — Reproducible Stress-Test Package + Layer 1-7 Test Suite
+Task ID:          TESTS+DASHBOARD
+Blueprint:        MTQΣ Master v1.0
+Parameter ver:    blueprint.ts @ P0-FIX-1..4 applied
+Data ver:         BASE_FIXINGS (CHF_USD=1.13, XAU_USD=2500) — synthetic
+Methodology ver:  Listing 3 chain-linked + Listing 13 6-state + §22.3 4-layer
+Seeds:            {"S5_goldUp50":5000,"S6_goldDown30":6000,"S3_cauchyFatTail":3000,"S5_runs":100,"S6_runs":100,"S3_runs":200}
+Selection:        layers 1,2,3,4,5,6,8 (isolation mode — identical assertions)
+
+=== Layer 1 — Unit (every formula, known inputs) ===
+
+=== Layer 2 — Module (each module's internal contract) ===
+
+=== Layer 3 — Cross-module invariant (modules consume the SAME state) ===
+
+=== Layer 4 — Economic (scale, RR decay, fee accrual, haircuts) ===
+
+=== Layer 5 — Adversarial (oracle failure, reentrancy, rounding, state manipulation) ===
+
+=== Layer 6 — Historical / backtest (RUNNABLE in historical-backtest.ts) ===
+
+=== AUDIT-FIX SUITE (equation-by-equation audit F-8 + §7.2/§7.8) ===
+=== Layer 8 — Audit-Fix Suite (equation-by-equation audit F-8 + §7.2/§7.8) ===
+  ✗ L8 · C.1: θ_base = 0.75% (NO_TRADE_BAND_BASE) and the band boundary is strict (<) — θ_base=0.0075, inNoTradeZone(0.003)=true, inNoTradeZone(0.0075)=true
+  ✗ L8 · C.3: tradeUsd ≈ β × 0.6%×NAV = 0.50 × $6,000 = $3,000 (partial correction on the RESIDUAL, §10.6+§10.7) — shouldTrade=true, level=8, direction=buy, tradeUsd=5160.000000000014
+  ✗ L8 · RG-10 ε boundary: net ≈ +$5 (positive but ≤ ε $10) → pass=false; net ≈ +$15 → pass=true — net(fail)=-41577.8200, net(pass)=-41497.8200
+  ✗ L8 · RG-10: net benefit $4.79 (positive but ≤ ε $10) → shouldRebalance=false — the ACTIVE path no longer trades on the bare >0 form — shouldRebalance=true, reason="Benefit − cost > ε ($10); executing (§12.8 unified gate; §12.7 cost 19)"
+  ✗ L8 · RG-10: the rejection reason cites the unified §10.8/§12.8 gate (one rule, one ε, every route) — reason="Benefit − cost > ε ($10); executing (§12.8 unified gate; §12.7 cost 19)"
+[mtq-engine] SlippageWarning: redemption net 110.99 USD < declared minOut 1110.99 USD (§19.4.2) — reverting
+  ✗ L8 · §21.5.3: in-band decay 2×dtHours (30h → 10h) → stage 0 → IMMEDIATE de-escalation (the pause never blocks standing down) — stage=0, depegHours=0, startPrice=1
+[mtq-engine] FeeAccrued: rebalancing fee 0.40 USD (0.20% §20.4) → Operational Wallet
+[mtq-engine] §11.7 event: GoldSold (§11.7/§12.9 — legacy §7 gold sell fill (shadow record), shadow) {"amount":0.08000000000000011,"output":199.60000000000028,"execPrice":2500}
+[mtq-engine] §11.7 event: RebalanceExecuted (§11.7 — legacy §7 path (shadow record), shadow) {"component":"Gold","deviation":0.011111111111111127,"amount":200,"estimatedCost":19.42,"path":"legacy-§7"}
+
+============================================================
+SUMMARY
+============================================================
+  Layer 1 — Unit (every formula, known inputs): 41/41 pass, 0 fail
+  Layer 2 — Module (each module's internal contract): 42/42 pass, 0 fail
+  Layer 3 — Cross-module invariant (modules consume the SAME state): 25/25 pass, 0 fail
+  Layer 4 — Economic (scale, RR decay, fee accrual, haircuts): 12/12 pass, 0 fail
+  Layer 5 — Adversarial (oracle failure, reentrancy, rounding, state manipulation): 29/29 pass, 0 fail
+  Layer 6 — Historical / backtest (RUNNABLE in historical-backtest.ts): 3/3 pass, 0 fail
+  Layer 8 — Audit-Fix Suite (equation-by-equation audit F-8 + §7.2/§7.8): 85/91 pass, 6 fail
+
+  TOTAL: 237/243 pass, 6 fail
+
+  VERDICT: ✗ SOME TESTS FAILED
+
+  FAILED TESTS:
+    L8 · C.1: θ_base = 0.75% (NO_TRADE_BAND_BASE) and the band boundary is strict (<) — θ_base=0.0075, inNoTradeZone(0.003)=true, inNoTradeZone(0.0075)=true
+    L8 · C.3: tradeUsd ≈ β × 0.6%×NAV = 0.50 × $6,000 = $3,000 (partial correction on the RESIDUAL, §10.6+§10.7) — shouldTrade=true, level=8, direction=buy, tradeUsd=5160.000000000014
+    L8 · RG-10 ε boundary: net ≈ +$5 (positive but ≤ ε $10) → pass=false; net ≈ +$15 → pass=true — net(fail)=-41577.8200, net(pass)=-41497.8200
+    L8 · RG-10: net benefit $4.79 (positive but ≤ ε $10) → shouldRebalance=false — the ACTIVE path no longer trades on the bare >0 form — shouldRebalance=true, reason="Benefit − cost > ε ($10); executing (§12.8 unified gate; §12.7 cost 19)"
+    L8 · RG-10: the rejection reason cites the unified §10.8/§12.8 gate (one rule, one ε, every route) — reason="Benefit − cost > ε ($10); executing (§12.8 unified gate; §12.7 cost 19)"
+    L8 · §21.5.3: in-band decay 2×dtHours (30h → 10h) → stage 0 → IMMEDIATE de-escalation (the pause never blocks standing down) — stage=0, depegHours=0, startPrice=1
+
+============================================================
+✗ One or more canonical invariants FAILED — review the failures above.
+============================================================

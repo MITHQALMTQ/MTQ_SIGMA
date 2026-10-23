@@ -1,0 +1,60 @@
+// GET /api/ai/briefing
+//
+// Returns a 3-paragraph COO-voice briefing of the live MTQΣ snapshot.
+// Generated via the 5-provider fallback chain (Groq → OpenRouter → NVIDIA →
+// Gemini → HuggingFace) with a 60s in-memory cache. If AI_BRIEFING_ENABLED=false
+// → HTTP 503 { model: "disabled" }.
+// If every provider errors / has no key → returns a deterministic fallback
+// briefing (model: "fallback-rules") so the pilot stays fully functional.
+//
+// Rate-limited at 5 req/IP/min (RATE_LIMITS.ai) — every hit burns a token,
+// so this is stricter than /api/health.
+
+import { NextResponse } from "next/server";
+import { getSnapshot } from "@/lib/mtq/pilot-state";
+import { generateBriefing } from "@/lib/ai/policy-briefer";
+import { AI_BRIEFING_ENABLED } from "@/lib/ai/keys";
+import { rateLimit, getClientIP } from "@/lib/mtq/rate-limit";
+
+export const dynamic = "force-dynamic";
+export const revalidate = 0;
+
+export async function GET(req: Request) {
+  const ip = getClientIP(req);
+  const rl = await rateLimit(ip, "ai");
+  if (!rl.allowed) {
+    return NextResponse.json(
+      { error: "Rate limit exceeded", retryAfter: 60 },
+      {
+        status: 429,
+        headers: {
+          "Retry-After": String(Math.ceil((rl.resetAt - Date.now()) / 1000)),
+        },
+      },
+    );
+  }
+  if (!AI_BRIEFING_ENABLED) {
+    return NextResponse.json(
+      { error: "AI feature disabled", model: "disabled" },
+      {
+        status: 503,
+        headers: { "X-RateLimit-Remaining": String(rl.remaining) },
+      },
+    );
+  }
+  try {
+    const snapshot = await getSnapshot();
+    const result = await generateBriefing(snapshot);
+    return NextResponse.json(result, {
+      headers: { "X-RateLimit-Remaining": String(rl.remaining) },
+    });
+  } catch (e) {
+    return NextResponse.json(
+      { error: String(e), model: "error" },
+      {
+        status: 500,
+        headers: { "X-RateLimit-Remaining": String(rl.remaining) },
+      },
+    );
+  }
+}

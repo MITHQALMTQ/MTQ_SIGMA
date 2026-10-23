@@ -1,0 +1,329 @@
+generator client {
+  provider        = "prisma-client-js"
+  previewFeatures = ["driverAdapters"]
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+model PilotTrial {
+  id        String   @id @default(cuid())
+  type      String
+  chain     String
+  inputAmount  Float
+  inputSymbol  String
+  outputAmount Float
+  outputSymbol String
+  gfbIndex     Float
+  mtqPrice     Float
+  nav          Float
+  reserveRatio Float
+  lcr          Float
+  status       String
+  basketJson   String?
+  ok           Boolean  @default(true)
+  reason       String?
+  wallet       String?
+  createdAt    DateTime @default(now())
+
+  // Indexes (TASK-4) — PilotTrial was previously unindexed, which made every
+  // dashboard query (by wallet / status / chain / time) a full table scan at
+  // scale. These four single-column indexes cover the dashboard's read paths:
+  //   - /api/trials/export  → findMany({ where: { wallet } })
+  //   - /api/trials         → findMany({ where: { status }, orderBy: { createdAt } })
+  //   - dashboard chain tab → findMany({ where: { chain } })
+  //   - dashboard recents   → findMany({ orderBy: { createdAt: 'desc' }, take: 50 })
+  @@index([wallet])
+  @@index([status])
+  @@index([chain])
+  @@index([createdAt])
+}
+
+model MetricSample {
+  id        String   @id @default(cuid())
+  gfbIndex  Float
+  mtqPrice  Float
+  nav       Float
+  reserveRatio Float
+  lcr       Float
+  status    String
+  vix       Float
+  dxy       Float
+  targetGold Float
+  bufferState String
+  createdAt DateTime @default(now())
+
+  // DEPRECATED / RESERVED (audit 16d-008, 2026-10-23): this table currently
+  // has NO writer and NO reader — 0 rows. The earlier claims were false: the
+  // dashboard sparklines do NOT read this table (they render in-memory
+  // engine history), and the pilot-state tick loop does NOT write it (the
+  // keeper has no DB writes either). Retained as a reserved table; the indexes
+  // below are kept for whenever a writer is actually wired. Do not present
+  // this table as a live data source.
+  @@index([createdAt])
+  @@index([status])
+}
+
+// === Chapter 24 — Audit Trail (Auditability & Reproducibility) ===
+// These three tables persist the daily/hourly state vectors, every rebalancing
+// decision (with reason), and every oracle sample. Together they let any third
+// party reproduce the system's monetary state at any past timestamp — which is
+// the §24 auditability requirement. They are written by the engine tick loop
+// (pilot-state.ts) and the rebalance evaluator.
+
+// §24.1 — Daily (tick-level in pilot) state vector: full monetary snapshot.
+// Lets an auditor reconstruct NAV, RR, LCR, weights, buffer state at any time.
+model DailyStateVector {
+  id              String   @id @default(cuid())
+  tickAt          DateTime                         // when this state was computed
+  tickCount       Int                              // monotonic pilot tick counter
+  // §24.2/§18.3 integrity chain (v2.0): rowHash = sha256(prevHash ‖ rowPayload);
+  // two rows never share a predecessor. Windowed retention disclosed in UI.
+  prevHash        String?
+  rowHash         String?
+
+  // Core monetary state (§3, §4)
+  gfbIndex        Float
+  mtqPrice        Float
+  priceInBand     Boolean
+  navUsd          Float
+  liabilityUsd    Float
+  reserveRatio    Float
+  lcr             Float
+  status          String                          // NORMAL | CAUTION | DEFENSIVE | EMERGENCY | RECOVERY
+  circulatingSupply Float
+  totalSupply     Float
+
+  // Reserve composition (net USD value per component)
+  usdNet          Float
+  eurNet          Float
+  gbpNet          Float
+  jpyNet          Float
+  cnyNet          Float
+  chfNet          Float
+  goldNet         Float
+  fiatNet         Float
+
+  // Adaptive macro + buffer (§6, §8)
+  vix             Float
+  dxy             Float
+  zVix            Float
+  zDxy            Float
+  rawTheta        Float
+  smoothedGoldWeight Float
+  targetGoldWeight Float
+  observedGoldWeight Float
+  bufferState     String                          // BASE | STRESS | EMERGENCY
+  bufferGoldRatio Float
+
+  // Peg health + eject (§11)
+  ejectStage      Int
+  pegHealthJson   String                          // per-currency peg health serialized
+
+  createdAt       DateTime @default(now())
+
+  @@index([tickAt])
+  @@index([status])
+}
+
+// §24.2 — Rebalancing decision log: every evaluateRebalance + applyRebalanceTrade.
+// Records both the decision (should/shouldn't, direction, tradeUsd, reason) and
+// the post-trade state (delta in gold/fiat, new RR, new gold weight).
+model RebalancingDecision {
+  id              String   @id @default(cuid())
+  tickAt          DateTime
+  tickCount       Int
+  // §24.4 decision-log integrity chain (v2.0): rowHash = sha256(prevHash ‖ payload).
+  prevHash        String?
+  rowHash         String?
+
+  // Decision inputs
+  navUsd          Float
+  reserveRatio    Float
+  observedGoldWeight Float
+  targetGoldWeight Float
+  deviationPct    Float
+
+  // Decision output
+  shouldRebalance Boolean
+  direction        Int                              // +1 buy gold, -1 sell gold, 0 no trade
+  tradeUsd         Float
+  reason           String                           // human-readable reason from MarpDecision
+  blockedBy        String?                          // if shouldRebalance=false, why (e.g. "direction lock", "turnover cap")
+
+  // Post-trade state (filled when trade applied)
+  applied          Boolean  @default(false)
+  preGoldNet       Float?
+  postGoldNet      Float?
+  preFiatNet       Float?
+  postFiatNet      Float?
+  postReserveRatio Float?
+  postObservedGoldWeight Float?
+
+  createdAt        DateTime @default(now())
+
+  @@index([tickAt])
+  @@index([shouldRebalance])
+}
+
+// §24.3 — Oracle sample log: every oracle consensus result per pair per tick.
+// Captures the 3 feeds (with validity), finalPrice, method, spreadBps, paused.
+// Lets an auditor verify the §9 validation pipeline behaved correctly.
+model OracleSample {
+  id              String   @id @default(cuid())
+  tickAt          DateTime
+  tickCount       Int
+  pair            String                          // "EUR/USD", "GBP/USD", "JPY/USD", "CNY/USD", "XAU/USD"
+
+  // Per-feed validity (1 if valid, 0 if discarded) — order: CHAINLINK, PYTH, CHRONICLE
+  chainlinkValid  Boolean
+  chainlinkPrice  Float
+  pythValid       Boolean
+  pythPrice       Float
+  chronicleValid  Boolean
+  chroniclePrice  Float
+
+  // Consensus output
+  validCount      Int                              // 0..3
+  finalPrice      Float
+  method          String                          // "median" | "average" | "paused"
+  spreadBps       Int
+  paused          Boolean                          // true if <2 valid feeds
+
+  // First discard reason among the discarded feeds (for observability)
+  discardReasons  String?                          // JSON: { CHAINLINK?: "...", PYTH?: "...", CHRONICLE?: "..." }
+
+  createdAt       DateTime @default(now())
+
+  @@index([tickAt])
+  @@index([pair])
+  @@index([paused])
+}
+
+// ============================================================================
+// V3 — MBG (MITHQAL Bank Gateway) Mint Request (Blueprint v25.3 §6/§8)
+// ----------------------------------------------------------------------------
+// Off-chain persistence of every mint request submitted by an authorized bank
+// to the MBG Gateway. The on-chain source of truth is
+// MTQSigmaV3.mintRequests[requestId]; this table is the operator-facing
+// mirror used by the dashboard / status page. The MBG Gateway writes a row
+// here at BM-01 (PENDING) and updates it on every workflow advance.
+// ============================================================================
+
+model MbzMintRequest {
+  id                     String   @id @default(cuid())
+  requestId              String   @unique                  // on-chain 0x... 32-byte hash
+  bank                   String                             // EIP-55 bank address
+  corporateCustomerHash  String                             // hash of the corporate customer identity
+  amountUsd              Float                              // USD amount (1 USD = 1 unit)
+  backingCertificateId   String                             // on-chain 0x... 32-byte hash
+  jurisdiction           String                             // ISO 3166-1 alpha-2
+  nonce                  BigInt                             // bank-unique anti-replay
+  expiry                 BigInt                             // unix seconds
+
+  // Workflow state (mirror of MTQSigmaV3.WorkflowState)
+  state                  String   @default("BM01_PENDING") // BM01..BM16 | REJECTED
+  rejectReason           String?
+
+  // Ledger timestamps (mirror of MTQSigmaV3.MintRequest fields)
+  createdAt              DateTime @default(now())
+  authorizedAt           BigInt?
+  mintedAt               BigInt?
+  mintedAmount           Float?
+
+  // MBG Gateway audit fields
+  apiAuthMethod          String   @default("hmac")          // "hmac" | "apikey" | "testnet"
+  apiRemoteIp            String?
+  apiUserAgent           String?
+
+  @@index([bank])
+  @@index([state])
+  @@index([createdAt])
+  @@index([jurisdiction])
+}
+
+// V3 — AvailableBackingCertificate (Blueprint v25.3 §7). Off-chain persistence
+// of every ABC submitted by a bank. The on-chain source of truth is
+// MTQSigmaV3.backingCertificates[certificateId]; this table is the operator-
+// facing mirror.
+model MbzBackingCertificate {
+  id                          String   @id @default(cuid())
+  certificateId               String   @unique              // on-chain 0x... 32-byte hash
+  bank                        String                         // EIP-55 bank address
+  amountUsd                   Float                          // USD amount backed
+  custodianAttestationHash    String                         // SHA-256 hash of the custodian attestation
+  custodianAttestationExpiry  BigInt                         // unix seconds
+  reserveAssetBreakdownHash   String                         // SHA-256 hash of the reserve composition
+  issuedAt                    BigInt                         // unix seconds
+  verified                    Boolean  @default(false)       // keeper-verified?
+
+  createdAt                   DateTime @default(now())
+
+  @@index([bank])
+  @@index([verified])
+  @@index([custodianAttestationExpiry])
+}
+
+// V3 — Bank registry (Blueprint v25.3 §6). Off-chain persistence of the bank
+// registry. The on-chain source of truth is MTQSigmaV3.bankRegistry[address];
+// this table is the operator-facing mirror.
+model MbzBank {
+  id              String   @id @default(cuid())
+  address         String   @unique              // EIP-55 bank address
+  name            String
+  jurisdiction    String                         // ISO 3166-1 alpha-2
+  isAuthorized    Boolean  @default(false)
+  dailyMintCap    Float                          // USD
+  dailyMintUsed   Float    @default(0)           // USD (resets UTC midnight)
+  authorizedAt    DateTime?
+  apiKeyHash      String?                        // SHA-256 of the bank's HMAC API key
+  createdAt       DateTime @default(now())
+
+  @@index([isAuthorized])
+  @@index([jurisdiction])
+}
+
+// ============================================================================
+// M8-3b — Payment-funded primary issuance audit trail (spec §14.4 step 12).
+// ----------------------------------------------------------------------------
+// Persistence of EVERY issuance event from the payment-funded primary
+// issuance pilot module (src/lib/mtq/issuance/) for auditability. The
+// authoritative in-memory record is the issuance machine's synchronous event
+// log; this table is the durability mirror (fail-soft-disclosed: sink
+// failures are disclosed and retried, never silently swallowed — the
+// machine's event log is the source of truth).
+//
+// HONEST LABELS (spec §14.6 REVISION 2, 2026-10-23 delegated adoption):
+//   • "Issued" tokens are LEDGER RECORDS ONLY — NEVER ON-CHAIN. No token
+//     contract is involved; no chain action occurs anywhere in the module.
+//   • ALL economic values are UNAPPROVED / ILLUSTRATIVE named defaults
+//     (fee 0.10% = D-13.8 OPEN; quote 2.000000 TU/token per §14.5 FORM with
+//     the derivation-policy publication OPEN; supply caps D-13.6 deferred;
+//     depeg bands D-13.19 UNAPPROVED — see parameters.ts provenance block).
+//   • No real instrument is registered anywhere (registry born empty,
+//     fail-closed admission; the only rows are TEST-ONLY synthetic fixtures).
+// Flat primitive fields only; all money values are exact 6-decimal
+// fixed-point strings in TEST-QUOTE-UNITs (micro-preserving, no FP error).
+// ============================================================================
+model IssuanceEvent {
+  id           String   @id @default(cuid())
+  requestId    String                          // issuance request id ("" for machine-level lifecycle events)
+  kind         String                          // REQUEST · QUOTE · PAYMENT · SETTLEMENT · INSTRUMENT · FEES · NET · AUTHORIZATION · SUPPLY · ISSUED · RECONCILIATION · REVERSAL · REFUND · ATTESTATION · PROGRAM · PIPELINE · FAILURE · TRANSITION_REJECT · OTHER
+  state        String                          // issuance state at event time (IssuanceState; "" for lifecycle events)
+  instrument   String                          // "<code> @ <network>" at event time ("" when not applicable)
+  grossAmount  String                          // exact 6-decimal string, TEST-QUOTE-UNIT (ILLUSTRATIVE — UNAPPROVED)
+  feeAmount    String                          // exact 6-decimal string (ILLUSTRATIVE — D-13.8 value UNAPPROVED)
+  netAmount    String                          // exact 6-decimal string (ILLUSTRATIVE — UNAPPROVED)
+  quote        String                          // quote TU per token (§14.5 FORM; derivation policy OPEN)
+  issuedAmount String                          // exact 6-decimal string — LEDGER RECORD ONLY, NEVER ON-CHAIN
+  supplyAfter  String                          // total supply counter after the event (LEDGER-ONLY)
+  payload      String                          // JSON detail: seq, atMs, from, to, stepRef, reasonCode, detail, taxonomyClass
+  createdAt    DateTime @default(now())
+
+  @@index([requestId])
+  @@index([kind])
+  @@index([state])
+  @@index([createdAt])
+}

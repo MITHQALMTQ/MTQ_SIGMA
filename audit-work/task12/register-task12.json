@@ -1,0 +1,83 @@
+{
+  "taskId": "TASK12",
+  "title": "Executable Security Remediation, Authority-Migration Readiness & Release Control",
+  "posture": "TESTNET ONLY · SHADOW MODE ENFORCED · UNAUTHORIZED RESERVE TRANSACTIONS FORBIDDEN",
+  "releaseStatus": "NOT_ACCEPTED",
+  "generatedAt": "2026-10-23",
+  "executedTransactions": 0,
+  "keysRotated": false,
+  "historyRewritten": false,
+  "canonicalSelected": false,
+
+  "implementationChanges": [
+    { "id": "A1", "file": "scripts/security/redact-known-secrets.ts", "kind": "new-tool", "status": "implemented", "summary": "Fingerprint-anchored purge tool for C-045-a/b (hex + base58); value-safe output" },
+    { "id": "A2", "file": "worklog.md + 7 scripts (hex literals)", "kind": "redaction", "status": "implemented", "summary": "9 worktree occurrences purged incl. in-place worklog notice; evidence: evidence/redaction-report-task12.json" },
+    { "id": "A3", "file": "scripts/verify-sol-key2.ts", "kind": "new-finding", "status": "implemented", "summary": "CENSUS CORRECTION: 7th worktree copy of C-045-b in BASE58 form (2mvV…j13V) — MISSED by Task 10/11 census; found by Task 12 scanner; purged; script retired" },
+    { "id": "A4", "file": "scripts/verify-key-and-audit-roles.ts", "kind": "rewrite", "status": "implemented", "summary": "Public-address read-only role auditor (ethers eth_call); key-verification retired" },
+    { "id": "A5", "file": "scripts/verify-hex-key.ts", "kind": "rewrite", "status": "implemented", "summary": "Public-address read-only Solana mint/wallet auditor (fetch JSON-RPC)" },
+    { "id": "A6", "file": "scripts/solana-create-fresh.ts, solana-create-umi.ts, solana-create-with-metadata.ts, solana-set-metadata.ts, solana-set-metadata-v2.ts", "kind": "retire", "status": "implemented", "summary": "Fail-closed retired stubs (compromised-key + u64-overflow + blocked-action reasons in each)" },
+    { "id": "A8", "file": "scripts/set-solana-multisig.mjs", "kind": "retire", "status": "implemented", "summary": "Fail-closed stub (Squads identity UNVERIFIED; signing must be owner-side)" },
+    { "id": "A9", "file": "scripts/generate-new-evm-key.mjs", "kind": "harden", "status": "implemented", "summary": "No stdout secrets (PI-3 class); 0600 file output; explicit ack flag; gitignored output" },
+    { "id": "A10", "file": "CRITICAL-PRIVATE-KEY-ROTATION.md", "kind": "correct-doc", "status": "implemented", "summary": "Corrected obsolete/unsafe guidance; current facts + five-channel record + standing rules" },
+    { "id": "A11", "file": "SECURITY.md", "kind": "add-doc", "status": "implemented", "summary": "§9 repository secret handling: controls, FP process, incident/rotation procedure" },
+    { "id": "B1", "file": "scripts/security/secret-scan.ts", "kind": "new-tool", "status": "implemented", "summary": "Fail-closed scanner (10 rules; known-literal tripwires unsuppressible); worktree PASS" },
+    { "id": "B2", "file": "scripts/security/secret-scan-allowlist.json", "kind": "new-config", "status": "implemented", "summary": "11 documented false-positive entries with verification bases (never values)" },
+    { "id": "B3", "file": "scripts/security/secret-scan.test.ts", "kind": "new-test", "status": "implemented", "summary": "12/12 PASS — seeded synthetic secrets block the gate without printing values" },
+    { "id": "B4", "file": ".github/workflows/ci.yml", "kind": "ci-gate", "status": "implemented", "summary": "secret-scan job runs FIRST; all jobs depend on it; includes regression + release-control tests" },
+    { "id": "B5", "file": ".githooks/pre-commit", "kind": "hook", "status": "implemented", "summary": "Staged-files scan; activated via git config core.hooksPath .githooks in this clone" },
+    { "id": "B6", "file": ".gitignore", "kind": "config", "status": "implemented", "summary": "tool-results/ (AI-tool cache) + fresh-keypair output ignored" },
+    { "id": "B7", "file": "package.json", "kind": "config", "status": "implemented", "summary": "security:scan / :scan:staged / :redact:dryrun / :redact:execute / :tests scripts" },
+    { "id": "C1", "file": "src/lib/mtq/release-controls.ts", "kind": "new-module", "status": "implemented", "summary": "8 control states; 10-action fail-closed map; owner authorization-file mechanism; no inference paths" },
+    { "id": "C2", "file": "mini-services/keeper/index.ts", "kind": "guard", "status": "implemented", "summary": "Release-control guard FIRST in runTick (before signer/contract construction); /health exposes states; live-verified observe-only" },
+    { "id": "C3", "file": "src/app/api/release-state/route.ts", "kind": "new-route", "status": "implemented", "summary": "Read-only exposure of control states + action map + address-book validation (grants nothing)" },
+    { "id": "D1", "file": "src/lib/mtq/address-book-validation.ts", "kind": "new-module", "status": "implemented", "summary": "Six-way classification; contamination findings surfaced not deleted; no auto-selection" },
+    { "id": "D2", "file": "src/lib/mtq/__tests__/address-book-validation.test.ts", "kind": "new-test", "status": "implemented", "summary": "12/12 PASS — contamination facts as durable invariants" },
+    { "id": "D3", "file": "audit-work/task12/probe-fresh-anchors.ts", "kind": "evidence", "status": "implemented", "summary": "Read-only fresh anchors: Monad 73243944, Arc 68520264, RH 140748341, Solana slot 513885476 — state unchanged vs Task 11" }
+  ],
+
+  "testResults": [
+    { "check": "bun run typecheck", "result": "PASS", "note": "clean; bun-types reference added to the 2 new test files" },
+    { "check": "bun run lint", "result": "PASS", "note": "zero findings" },
+    { "check": "bun run security:scan (worktree gate)", "result": "PASS", "note": "2162 files, 14 allowlisted suppressions, 0 findings" },
+    { "check": "bun test scripts/security/secret-scan.test.ts", "result": "12/12 PASS" },
+    { "check": "bun test src/lib/mtq/__tests__/release-controls.test.ts", "result": "13/13 PASS" },
+    { "check": "bun test src/lib/mtq/__tests__/address-book-validation.test.ts", "result": "12/12 PASS" },
+    { "check": "bun test (full suite)", "result": "37/37 PASS", "note": "3 files" },
+    { "check": "bun run src/lib/mtq/__tests__/canonical-invariants.ts", "result": "PASS (exit 0)", "note": "Layers 1-8" },
+    { "check": "bun run check:no-neon", "result": "PASS", "note": "45 API routes clean" },
+    { "check": "keeper fail-closed (live)", "result": "PASS", "note": "GET /health + POST /tick on running service: guard denies, lastTick null" },
+    { "check": "GET /api/release-state (live)", "result": "PASS", "note": "0 grants; keeper-tx DENIED; addressBook ok=false (honest)" },
+    { "check": "CI runner execution", "result": "UNVERIFIED", "note": "no remote configured; identical commands executed locally" }
+  ],
+
+  "migrationProposals": [
+    { "id": "D4-EVM", "file": "D4-EVM-AUTHORITY-MIGRATION-PACKAGE.md", "unsigned": true, "chains": ["Monad 10143", "Arc 5042002", "Robinhood 46630 (disposition)"], "phases": ["T-1.1..T-1.5 destination provisioning + quorum proof (hard gate)", "T-2.1..T-2.7 grants (handover window)", "T-3.1..T-3.8 revocations + evacuation (last-revokes invariant)"], "blockers": ["signer addresses OWNER-1..7 not bound", "factory + fallback policy unselected", "ECON-DEC-2", "evacuation destinations", "N-01 governor sources"] },
+    { "id": "D5-SOLANA", "file": "D5-SOLANA-AUTHORITY-MIGRATION-PACKAGE.md", "unsigned": true, "chains": ["Solana devnet"], "steps": ["T-4.1 Squads provisioning (conditional)", "T-4.4 SOL evacuation (urgent)", "T-4.3/T-4.5 superseded-mint authority revocation", "T-4.2 current-mint disposition (SOL-DEC-1)", "T-4.6 annotation"], "blockers": ["Squads program identity UNVERIFIED (CKPT-8)", "DbFjz custody (CKPT-2)", "SOL-DEC-1", "DEC-3 decimals (economic)"] },
+    { "id": "D3-HISTORY", "file": "D3-GIT-HISTORY-REMEDIATION-PLAN.md", "unsigned": true, "scope": "git history rewrite plan (filter-repo/BFG) — APPROVAL REQUIRED BEFORE EXECUTION", "blockers": ["owner + security lead approval", "OWNER-ATT-1 remote attestation for blast radius"] }
+  ],
+
+  "approvalDependencies": [
+    { "id": "CKPT-0", "decision": "Accept Task 11 (as corrected) + Task 12 packages as remediation baseline", "approver": "Owner" },
+    { "id": "T12-0", "decision": "Accept census correction (base58 7th copy of C-045-b)", "approver": "Owner + Security Lead" },
+    { "id": "CKPT-1/OWNER-ATT-1", "decision": "Remote/CI/backup/clone existence attestation", "approver": "Owner" },
+    { "id": "T12-1", "decision": "Git-history rewrite approval (D3 plan)", "approver": "Owner + Security Lead" },
+    { "id": "T12-3", "decision": "Credential rotation (conditional on ATT-1)", "approver": "Owner + Security Lead" },
+    { "id": "CKPT-2/OWNER-ATT-2", "decision": "DbFjz custody attestation", "approver": "Owner" },
+    { "id": "CKPT-3/4", "decision": "7-signer ceremony + OWNER-1..7 public addresses", "approver": "Owner + Security Lead" },
+    { "id": "CKPT-5/6", "decision": "Safe-B dossiers + quorum proofs + exact grant set (+ECON-DEC-2, OPS-DEC-1)", "approver": "Owner + Committee (+ Economic authority)" },
+    { "id": "T12-6", "decision": "Handover-window policy (batch/pause/accept)", "approver": "Owner" },
+    { "id": "CKPT-7", "decision": "Revoke set + irreversibility + evacuation destinations (EVM + Solana)", "approver": "Owner + Committee" },
+    { "id": "T12-8", "decision": "4saT SOL evacuation urgency acknowledgment", "approver": "Owner" },
+    { "id": "CKPT-8", "decision": "Squads program identity owner-side verification", "approver": "Owner" },
+    { "id": "SOL-DEC-1", "decision": "Current-mint disposition (S-1/S-2/S-3/S-4)", "approver": "Owner (+ Economic authority if S-4)" },
+    { "id": "DEC-3", "decision": "Solana decimals (economic approval; option not automatic)", "approver": "Owner + Economic Authority" },
+    { "id": "DEC-1..7", "decision": "Canonical architecture selection + conflict dispositions", "approver": "Constituted governance" },
+    { "id": "CKPT-9", "decision": "Independent reviewer commissioning (D9 plan)", "approver": "Security Lead" },
+    { "id": "RELEASE-GRANTS", "decision": "Any release-control grant (owner authorization file; per-control sign-offs)", "approver": "Owner + named role per control" }
+  ],
+
+  "residualRisks": "See D10-REMAINING-RISKS-AND-DEPENDENCIES.md (R-1..R-16). Headline: both compromised keys remain REAL and fully privileged; git history still contains both literals; remote/CI/backup exposure UNVERIFIED; canonical architecture unselected.",
+
+  "notDoneByDesign": ["no transactions/signatures/deployments", "no role/authority/asset changes", "no history rewrite", "no canonical selection", "no tokenomics/decimals change", "no release-gate advancement", "no key-material handling"],
+  "finalPosture": "TESTNET ONLY · SHADOW MODE ENFORCED · UNAUTHORIZED RESERVE TRANSACTIONS FORBIDDEN · NOT ACCEPTED"
+}

@@ -1,0 +1,692 @@
+{
+  "script": "src/lib/mtq/__tests__/issuance-production-e2e.ts",
+  "task": "MANDATE-008 · M8-3c-a — deterministic production e2e runner for the promoted issuance + constituency modules (M8-3a/M8-3b)",
+  "evidenceTranscript": "audit-work/task13/evidence/issuance-production-mandate008-2026-10-23.txt",
+  "posture": "TESTNET ONLY · SHADOW MODE ENFORCED · UNAUTHORIZED RESERVE TRANSACTIONS FORBIDDEN · NOT ACCEPTED",
+  "runs": [
+    {
+      "startedAtUTC": "2026-10-23T12:26:27.278Z",
+      "endedAtUTC": "2026-10-23T12:26:27.421Z",
+      "command": "bun src/lib/mtq/__tests__/issuance-production-e2e.ts",
+      "deterministic": true,
+      "determinismBasis": "fixed machine clock (clockStartMs 0; advanceClock only) · BigInt-exact money math · no Date.now() in any decision path (the run banner is the only wall-clock surface)",
+      "totals": {
+        "pass": 225,
+        "fail": 0,
+        "total": 225
+      },
+      "perSection": [
+        {
+          "section": "S0",
+          "name": "Labels & registry honesty (born empty · fail-closed admission · TEST fixtures · per-instance identity · CBDC NOT_CONNECTED · no telemetry)",
+          "pass": 22,
+          "fail": 0,
+          "total": 22
+        },
+        {
+          "section": "S1",
+          "name": "Happy path — spec §14.4 12 steps under ALT-4: gross 10000.000000 TEST-USDC-X → fee 10.000000 → net 9990.000000 → issued 4995.000000 @ quote 2.000000",
+          "pass": 31,
+          "fail": 0,
+          "total": 31
+        },
+        {
+          "section": "S2",
+          "name": "Duplicates & replays — request-id replay · same idempotency key · duplicate payment txId (never a second execution)",
+          "pass": 10,
+          "fail": 0,
+          "total": 10
+        },
+        {
+          "section": "S3",
+          "name": "Delayed finality — settlement finality arrives after the 15-min quote expiry → EXPIRED_QUOTE, NO mint, held-or-refunded (spec §6.3)",
+          "pass": 8,
+          "fail": 0,
+          "total": 8
+        },
+        {
+          "section": "S4",
+          "name": "Failed payment — settlement status FAILED: never mints, taxonomy recorded, refund queued",
+          "pass": 8,
+          "fail": 0,
+          "total": 8
+        },
+        {
+          "section": "S5",
+          "name": "Reversals — pre-issuance → CANCELLED (no mint); post-issuance → RECONCILIATION_BREAK + SUSPENDED; recovery ONLY via the explicit authorized remediation path (INV-D)",
+          "pass": 19,
+          "fail": 0,
+          "total": 19
+        },
+        {
+          "section": "S6",
+          "name": "Authorization (INV-A / ALT-4) — no program ⇒ refusal · revoked mid-flight · attestation MISSING/STALE/MISMATCH ⇒ suspended · authorized resumption",
+          "pass": 19,
+          "fail": 0,
+          "total": 19
+        },
+        {
+          "section": "S7",
+          "name": "Invalid instrument/payment — unregistered · wrong network · RETIRED · SUSPENDED · bad auth tag · amount mismatch · jurisdiction · depeg · finality-evidence gap",
+          "pass": 19,
+          "fail": 0,
+          "total": 19
+        },
+        {
+          "section": "S8",
+          "name": "Supply controls — per-transaction cap · tranche cap · global max supply: each fail-closed (SUPPLY_CAP_EXCEEDED), no partial mint",
+          "pass": 10,
+          "fail": 0,
+          "total": 10
+        },
+        {
+          "section": "S9",
+          "name": "Three-book reconciliation — C1–C4 clean after the run; a forced 1-micro ledger break is DETECTED (reconciliation is a REAL check)",
+          "pass": 9,
+          "fail": 0,
+          "total": 9
+        },
+        {
+          "section": "S10",
+          "name": "SEP-01 separation invariant — basket snapshot BYTE-IDENTICAL before/after issuance volume + SOURCE-SCAN test-of-absence",
+          "pass": 12,
+          "fail": 0,
+          "total": 12
+        },
+        {
+          "section": "S11",
+          "name": "Ledger & persistence — exact flat Prisma IssuanceEvent field set · in-memory sink collects ALL events · failing sink DISCLOSED, cursor not advanced, retry byte-stable",
+          "pass": 15,
+          "fail": 0,
+          "total": 15
+        },
+        {
+          "section": "S12",
+          "name": "CBDC adapter honesty — SIMULATED / NOT CONNECTED · every simulated message labeled · ONE clearly-labeled SIMULATION-MODE demo issuance",
+          "pass": 19,
+          "fail": 0,
+          "total": 19
+        },
+        {
+          "section": "S13",
+          "name": "Constituency quiescence — genesis 7 at STRATEGIC_PRIOR bp · zero transitions ever · empty-directive lifecycle run · weights match the separation snapshot",
+          "pass": 18,
+          "fail": 0,
+          "total": 18
+        },
+        {
+          "section": "INV",
+          "name": "Final machine-level invariant sweep — INV-A..INV-E across ALL scenario machines + full-run doc-format re-check",
+          "pass": 6,
+          "fail": 0,
+          "total": 6
+        }
+      ],
+      "exitCode": 0,
+      "failedAssertionIds": [],
+      "machines": 29,
+      "keyObservedNumbers": {
+        "happyPath": {
+          "grossInstrument": "10000.000000 TEST-USDC-X",
+          "conversion": "1.000000 TU per TEST-USDC-X (SYNTHETIC-ORACLE-BOARD stand-in)",
+          "feeBps": "10 (0.10% flat — ILLUSTRATIVE, D-13.8 OPEN)",
+          "feeTU": "10.000000",
+          "netTU": "9990.000000",
+          "quote": "2.000000 TU per token (ILLUSTRATIVE — spec §14.5; derivation policy publication OPEN)",
+          "issued": "4995.000000",
+          "supplyBefore": "0.000000",
+          "supplyAfter": "4995.000000"
+        },
+        "duplicatesReplays": "replay detected / DUPLICATE terminal / duplicate payment txId — supply unchanged, exactly 1 mint (INV-C)",
+        "delayedFinality": "EXPIRED_QUOTE (taxonomy CONFIRMATION_TIMEOUT); refund PENDING_REFUND → REFUNDED; retry on the same key forbidden",
+        "reversals": "pre-issuance → CANCELLED (no mint); post-issuance → RECONCILIATION_BREAK + SUSPENDED + OPEN exception; remediation refused while books diverge; full remediation loop succeeds after the explicit authorized correction",
+        "authorization": "no program ⇒ NO_AUTHORIZATION_PROGRAM; no attestation ⇒ NO_ATTESTATION + suspended; mismatch ⇒ suspended + authorized resumption; stale ⇒ suspended; revoked mid-flight ⇒ ALL_PROGRAMS_REVOKED",
+        "supplyCaps": "PER_TX_CAP_EXCEEDED / TRANCHE_CAP_EXCEEDED / GLOBAL_MAX_SUPPLY_EXCEEDED — all fail-closed, no partial mint",
+        "sep01": {
+          "issuances": "1000 + 25000 + 7500 gross TU",
+          "issued": [
+            "499.500000",
+            "12487.500000",
+            "3746.250000"
+          ],
+          "supplyAfter": "16733.250000",
+          "basketSnapshot": "BYTE-IDENTICAL before/after",
+          "sourceScan": "issuance data-path modules import no weighting/eligibility module"
+        },
+        "cbdcSimulation": {
+          "status": "SIMULATED / NOT CONNECTED",
+          "demoIssued": "2497.500000 (SIMULATION-MODE demo only; registry row remained NOT_CONNECTED)",
+          "realAdapterGate": "authorizedInterfaceVerified=false · endToEndIntegrationTested=false · admissionDossierAnnexExists=false"
+        },
+        "quiescence": {
+          "genesisComponents": 7,
+          "weightsBp": "2700/2000/900/800/500/500/2600 (sum 10000)",
+          "transitionsEver": 0,
+          "emptyDirectiveRun": "0 transitions · 0 commits · 0 divisor records"
+        }
+      },
+      "honestNotes": [
+        "PRODUCTION TS REFERENCE ENGINE evidence only — LEDGER RECORDS ONLY, never on-chain; zero network calls; zero key handling.",
+        "All instruments are SYNTHETIC TEST-ONLY fixtures (TEST-USDC-X & co.); the production registry is BORN EMPTY with fail-closed admission.",
+        "Fee/quote/supply-cap VALUES are ILLUSTRATIVE/UNAPPROVED (D-13.8 value, §14.5 derivation publication, D-13.19, D-13.6 numbers all OPEN); only the FORM is adopted (delegated, pending ratification).",
+        "CBDC adapter is SIMULATED / NOT CONNECTED; the SIMULATION-MODE demo is not an integration and admits nothing.",
+        "Constituency layer is QUIESCENT: genesis 7 at STRATEGIC_PRIOR weights; no lifecycle transition has ever run.",
+        "The deterministic runner uses the in-memory event sink; the Prisma sink is asserted by type/label only (no DB is touched)."
+      ],
+      "posture": "TESTNET ONLY · SHADOW MODE ENFORCED · UNAUTHORIZED RESERVE TRANSACTIONS FORBIDDEN · NOT ACCEPTED"
+    },
+    {
+      "startedAtUTC": "2026-10-23T12:26:32.261Z",
+      "endedAtUTC": "2026-10-23T12:26:32.319Z",
+      "command": "bun src/lib/mtq/__tests__/issuance-production-e2e.ts",
+      "deterministic": true,
+      "determinismBasis": "fixed machine clock (clockStartMs 0; advanceClock only) · BigInt-exact money math · no Date.now() in any decision path (the run banner is the only wall-clock surface)",
+      "totals": {
+        "pass": 225,
+        "fail": 0,
+        "total": 225
+      },
+      "perSection": [
+        {
+          "section": "S0",
+          "name": "Labels & registry honesty (born empty · fail-closed admission · TEST fixtures · per-instance identity · CBDC NOT_CONNECTED · no telemetry)",
+          "pass": 22,
+          "fail": 0,
+          "total": 22
+        },
+        {
+          "section": "S1",
+          "name": "Happy path — spec §14.4 12 steps under ALT-4: gross 10000.000000 TEST-USDC-X → fee 10.000000 → net 9990.000000 → issued 4995.000000 @ quote 2.000000",
+          "pass": 31,
+          "fail": 0,
+          "total": 31
+        },
+        {
+          "section": "S2",
+          "name": "Duplicates & replays — request-id replay · same idempotency key · duplicate payment txId (never a second execution)",
+          "pass": 10,
+          "fail": 0,
+          "total": 10
+        },
+        {
+          "section": "S3",
+          "name": "Delayed finality — settlement finality arrives after the 15-min quote expiry → EXPIRED_QUOTE, NO mint, held-or-refunded (spec §6.3)",
+          "pass": 8,
+          "fail": 0,
+          "total": 8
+        },
+        {
+          "section": "S4",
+          "name": "Failed payment — settlement status FAILED: never mints, taxonomy recorded, refund queued",
+          "pass": 8,
+          "fail": 0,
+          "total": 8
+        },
+        {
+          "section": "S5",
+          "name": "Reversals — pre-issuance → CANCELLED (no mint); post-issuance → RECONCILIATION_BREAK + SUSPENDED; recovery ONLY via the explicit authorized remediation path (INV-D)",
+          "pass": 19,
+          "fail": 0,
+          "total": 19
+        },
+        {
+          "section": "S6",
+          "name": "Authorization (INV-A / ALT-4) — no program ⇒ refusal · revoked mid-flight · attestation MISSING/STALE/MISMATCH ⇒ suspended · authorized resumption",
+          "pass": 19,
+          "fail": 0,
+          "total": 19
+        },
+        {
+          "section": "S7",
+          "name": "Invalid instrument/payment — unregistered · wrong network · RETIRED · SUSPENDED · bad auth tag · amount mismatch · jurisdiction · depeg · finality-evidence gap",
+          "pass": 19,
+          "fail": 0,
+          "total": 19
+        },
+        {
+          "section": "S8",
+          "name": "Supply controls — per-transaction cap · tranche cap · global max supply: each fail-closed (SUPPLY_CAP_EXCEEDED), no partial mint",
+          "pass": 10,
+          "fail": 0,
+          "total": 10
+        },
+        {
+          "section": "S9",
+          "name": "Three-book reconciliation — C1–C4 clean after the run; a forced 1-micro ledger break is DETECTED (reconciliation is a REAL check)",
+          "pass": 9,
+          "fail": 0,
+          "total": 9
+        },
+        {
+          "section": "S10",
+          "name": "SEP-01 separation invariant — basket snapshot BYTE-IDENTICAL before/after issuance volume + SOURCE-SCAN test-of-absence",
+          "pass": 12,
+          "fail": 0,
+          "total": 12
+        },
+        {
+          "section": "S11",
+          "name": "Ledger & persistence — exact flat Prisma IssuanceEvent field set · in-memory sink collects ALL events · failing sink DISCLOSED, cursor not advanced, retry byte-stable",
+          "pass": 15,
+          "fail": 0,
+          "total": 15
+        },
+        {
+          "section": "S12",
+          "name": "CBDC adapter honesty — SIMULATED / NOT CONNECTED · every simulated message labeled · ONE clearly-labeled SIMULATION-MODE demo issuance",
+          "pass": 19,
+          "fail": 0,
+          "total": 19
+        },
+        {
+          "section": "S13",
+          "name": "Constituency quiescence — genesis 7 at STRATEGIC_PRIOR bp · zero transitions ever · empty-directive lifecycle run · weights match the separation snapshot",
+          "pass": 18,
+          "fail": 0,
+          "total": 18
+        },
+        {
+          "section": "INV",
+          "name": "Final machine-level invariant sweep — INV-A..INV-E across ALL scenario machines + full-run doc-format re-check",
+          "pass": 6,
+          "fail": 0,
+          "total": 6
+        }
+      ],
+      "exitCode": 0,
+      "failedAssertionIds": [],
+      "machines": 29,
+      "keyObservedNumbers": {
+        "happyPath": {
+          "grossInstrument": "10000.000000 TEST-USDC-X",
+          "conversion": "1.000000 TU per TEST-USDC-X (SYNTHETIC-ORACLE-BOARD stand-in)",
+          "feeBps": "10 (0.10% flat — ILLUSTRATIVE, D-13.8 OPEN)",
+          "feeTU": "10.000000",
+          "netTU": "9990.000000",
+          "quote": "2.000000 TU per token (ILLUSTRATIVE — spec §14.5; derivation policy publication OPEN)",
+          "issued": "4995.000000",
+          "supplyBefore": "0.000000",
+          "supplyAfter": "4995.000000"
+        },
+        "duplicatesReplays": "replay detected / DUPLICATE terminal / duplicate payment txId — supply unchanged, exactly 1 mint (INV-C)",
+        "delayedFinality": "EXPIRED_QUOTE (taxonomy CONFIRMATION_TIMEOUT); refund PENDING_REFUND → REFUNDED; retry on the same key forbidden",
+        "reversals": "pre-issuance → CANCELLED (no mint); post-issuance → RECONCILIATION_BREAK + SUSPENDED + OPEN exception; remediation refused while books diverge; full remediation loop succeeds after the explicit authorized correction",
+        "authorization": "no program ⇒ NO_AUTHORIZATION_PROGRAM; no attestation ⇒ NO_ATTESTATION + suspended; mismatch ⇒ suspended + authorized resumption; stale ⇒ suspended; revoked mid-flight ⇒ ALL_PROGRAMS_REVOKED",
+        "supplyCaps": "PER_TX_CAP_EXCEEDED / TRANCHE_CAP_EXCEEDED / GLOBAL_MAX_SUPPLY_EXCEEDED — all fail-closed, no partial mint",
+        "sep01": {
+          "issuances": "1000 + 25000 + 7500 gross TU",
+          "issued": [
+            "499.500000",
+            "12487.500000",
+            "3746.250000"
+          ],
+          "supplyAfter": "16733.250000",
+          "basketSnapshot": "BYTE-IDENTICAL before/after",
+          "sourceScan": "issuance data-path modules import no weighting/eligibility module"
+        },
+        "cbdcSimulation": {
+          "status": "SIMULATED / NOT CONNECTED",
+          "demoIssued": "2497.500000 (SIMULATION-MODE demo only; registry row remained NOT_CONNECTED)",
+          "realAdapterGate": "authorizedInterfaceVerified=false · endToEndIntegrationTested=false · admissionDossierAnnexExists=false"
+        },
+        "quiescence": {
+          "genesisComponents": 7,
+          "weightsBp": "2700/2000/900/800/500/500/2600 (sum 10000)",
+          "transitionsEver": 0,
+          "emptyDirectiveRun": "0 transitions · 0 commits · 0 divisor records"
+        }
+      },
+      "honestNotes": [
+        "PRODUCTION TS REFERENCE ENGINE evidence only — LEDGER RECORDS ONLY, never on-chain; zero network calls; zero key handling.",
+        "All instruments are SYNTHETIC TEST-ONLY fixtures (TEST-USDC-X & co.); the production registry is BORN EMPTY with fail-closed admission.",
+        "Fee/quote/supply-cap VALUES are ILLUSTRATIVE/UNAPPROVED (D-13.8 value, §14.5 derivation publication, D-13.19, D-13.6 numbers all OPEN); only the FORM is adopted (delegated, pending ratification).",
+        "CBDC adapter is SIMULATED / NOT CONNECTED; the SIMULATION-MODE demo is not an integration and admits nothing.",
+        "Constituency layer is QUIESCENT: genesis 7 at STRATEGIC_PRIOR weights; no lifecycle transition has ever run.",
+        "The deterministic runner uses the in-memory event sink; the Prisma sink is asserted by type/label only (no DB is touched)."
+      ],
+      "posture": "TESTNET ONLY · SHADOW MODE ENFORCED · UNAUTHORIZED RESERVE TRANSACTIONS FORBIDDEN · NOT ACCEPTED"
+    },
+    {
+      "startedAtUTC": "2026-10-23T12:32:19.349Z",
+      "endedAtUTC": "2026-10-23T12:32:19.400Z",
+      "command": "bun src/lib/mtq/__tests__/issuance-production-e2e.ts",
+      "deterministic": true,
+      "determinismBasis": "fixed machine clock (clockStartMs 0; advanceClock only) · BigInt-exact money math · no Date.now() in any decision path (the run banner is the only wall-clock surface)",
+      "totals": {
+        "pass": 225,
+        "fail": 0,
+        "total": 225
+      },
+      "perSection": [
+        {
+          "section": "S0",
+          "name": "Labels & registry honesty (born empty · fail-closed admission · TEST fixtures · per-instance identity · CBDC NOT_CONNECTED · no telemetry)",
+          "pass": 22,
+          "fail": 0,
+          "total": 22
+        },
+        {
+          "section": "S1",
+          "name": "Happy path — spec §14.4 12 steps under ALT-4: gross 10000.000000 TEST-USDC-X → fee 10.000000 → net 9990.000000 → issued 4995.000000 @ quote 2.000000",
+          "pass": 31,
+          "fail": 0,
+          "total": 31
+        },
+        {
+          "section": "S2",
+          "name": "Duplicates & replays — request-id replay · same idempotency key · duplicate payment txId (never a second execution)",
+          "pass": 10,
+          "fail": 0,
+          "total": 10
+        },
+        {
+          "section": "S3",
+          "name": "Delayed finality — settlement finality arrives after the 15-min quote expiry → EXPIRED_QUOTE, NO mint, held-or-refunded (spec §6.3)",
+          "pass": 8,
+          "fail": 0,
+          "total": 8
+        },
+        {
+          "section": "S4",
+          "name": "Failed payment — settlement status FAILED: never mints, taxonomy recorded, refund queued",
+          "pass": 8,
+          "fail": 0,
+          "total": 8
+        },
+        {
+          "section": "S5",
+          "name": "Reversals — pre-issuance → CANCELLED (no mint); post-issuance → RECONCILIATION_BREAK + SUSPENDED; recovery ONLY via the explicit authorized remediation path (INV-D)",
+          "pass": 19,
+          "fail": 0,
+          "total": 19
+        },
+        {
+          "section": "S6",
+          "name": "Authorization (INV-A / ALT-4) — no program ⇒ refusal · revoked mid-flight · attestation MISSING/STALE/MISMATCH ⇒ suspended · authorized resumption",
+          "pass": 19,
+          "fail": 0,
+          "total": 19
+        },
+        {
+          "section": "S7",
+          "name": "Invalid instrument/payment — unregistered · wrong network · RETIRED · SUSPENDED · bad auth tag · amount mismatch · jurisdiction · depeg · finality-evidence gap",
+          "pass": 19,
+          "fail": 0,
+          "total": 19
+        },
+        {
+          "section": "S8",
+          "name": "Supply controls — per-transaction cap · tranche cap · global max supply: each fail-closed (SUPPLY_CAP_EXCEEDED), no partial mint",
+          "pass": 10,
+          "fail": 0,
+          "total": 10
+        },
+        {
+          "section": "S9",
+          "name": "Three-book reconciliation — C1–C4 clean after the run; a forced 1-micro ledger break is DETECTED (reconciliation is a REAL check)",
+          "pass": 9,
+          "fail": 0,
+          "total": 9
+        },
+        {
+          "section": "S10",
+          "name": "SEP-01 separation invariant — basket snapshot BYTE-IDENTICAL before/after issuance volume + SOURCE-SCAN test-of-absence",
+          "pass": 12,
+          "fail": 0,
+          "total": 12
+        },
+        {
+          "section": "S11",
+          "name": "Ledger & persistence — exact flat Prisma IssuanceEvent field set · in-memory sink collects ALL events · failing sink DISCLOSED, cursor not advanced, retry byte-stable",
+          "pass": 15,
+          "fail": 0,
+          "total": 15
+        },
+        {
+          "section": "S12",
+          "name": "CBDC adapter honesty — SIMULATED / NOT CONNECTED · every simulated message labeled · ONE clearly-labeled SIMULATION-MODE demo issuance",
+          "pass": 19,
+          "fail": 0,
+          "total": 19
+        },
+        {
+          "section": "S13",
+          "name": "Constituency quiescence — genesis 7 at STRATEGIC_PRIOR bp · zero transitions ever · empty-directive lifecycle run · weights match the separation snapshot",
+          "pass": 18,
+          "fail": 0,
+          "total": 18
+        },
+        {
+          "section": "INV",
+          "name": "Final machine-level invariant sweep — INV-A..INV-E across ALL scenario machines + full-run doc-format re-check",
+          "pass": 6,
+          "fail": 0,
+          "total": 6
+        }
+      ],
+      "exitCode": 0,
+      "failedAssertionIds": [],
+      "machines": 29,
+      "keyObservedNumbers": {
+        "happyPath": {
+          "grossInstrument": "10000.000000 TEST-USDC-X",
+          "conversion": "1.000000 TU per TEST-USDC-X (SYNTHETIC-ORACLE-BOARD stand-in)",
+          "feeBps": "10 (0.10% flat — ILLUSTRATIVE, D-13.8 OPEN)",
+          "feeTU": "10.000000",
+          "netTU": "9990.000000",
+          "quote": "2.000000 TU per token (ILLUSTRATIVE — spec §14.5; derivation policy publication OPEN)",
+          "issued": "4995.000000",
+          "supplyBefore": "0.000000",
+          "supplyAfter": "4995.000000"
+        },
+        "duplicatesReplays": "replay detected / DUPLICATE terminal / duplicate payment txId — supply unchanged, exactly 1 mint (INV-C)",
+        "delayedFinality": "EXPIRED_QUOTE (taxonomy CONFIRMATION_TIMEOUT); refund PENDING_REFUND → REFUNDED; retry on the same key forbidden",
+        "reversals": "pre-issuance → CANCELLED (no mint); post-issuance → RECONCILIATION_BREAK + SUSPENDED + OPEN exception; remediation refused while books diverge; full remediation loop succeeds after the explicit authorized correction",
+        "authorization": "no program ⇒ NO_AUTHORIZATION_PROGRAM; no attestation ⇒ NO_ATTESTATION + suspended; mismatch ⇒ suspended + authorized resumption; stale ⇒ suspended; revoked mid-flight ⇒ ALL_PROGRAMS_REVOKED",
+        "supplyCaps": "PER_TX_CAP_EXCEEDED / TRANCHE_CAP_EXCEEDED / GLOBAL_MAX_SUPPLY_EXCEEDED — all fail-closed, no partial mint",
+        "sep01": {
+          "issuances": "1000 + 25000 + 7500 gross TU",
+          "issued": [
+            "499.500000",
+            "12487.500000",
+            "3746.250000"
+          ],
+          "supplyAfter": "16733.250000",
+          "basketSnapshot": "BYTE-IDENTICAL before/after",
+          "sourceScan": "issuance data-path modules import no weighting/eligibility module"
+        },
+        "cbdcSimulation": {
+          "status": "SIMULATED / NOT CONNECTED",
+          "demoIssued": "2497.500000 (SIMULATION-MODE demo only; registry row remained NOT_CONNECTED)",
+          "realAdapterGate": "authorizedInterfaceVerified=false · endToEndIntegrationTested=false · admissionDossierAnnexExists=false"
+        },
+        "quiescence": {
+          "genesisComponents": 7,
+          "weightsBp": "2700/2000/900/800/500/500/2600 (sum 10000)",
+          "transitionsEver": 0,
+          "emptyDirectiveRun": "0 transitions · 0 commits · 0 divisor records"
+        }
+      },
+      "honestNotes": [
+        "PRODUCTION TS REFERENCE ENGINE evidence only — LEDGER RECORDS ONLY, never on-chain; zero network calls; zero key handling.",
+        "All instruments are SYNTHETIC TEST-ONLY fixtures (TEST-USDC-X & co.); the production registry is BORN EMPTY with fail-closed admission.",
+        "Fee/quote/supply-cap VALUES are ILLUSTRATIVE/UNAPPROVED (D-13.8 value, §14.5 derivation publication, D-13.19, D-13.6 numbers all OPEN); only the FORM is adopted (delegated, pending ratification).",
+        "CBDC adapter is SIMULATED / NOT CONNECTED; the SIMULATION-MODE demo is not an integration and admits nothing.",
+        "Constituency layer is QUIESCENT: genesis 7 at STRATEGIC_PRIOR weights; no lifecycle transition has ever run.",
+        "The deterministic runner uses the in-memory event sink; the Prisma sink is asserted by type/label only (no DB is touched)."
+      ],
+      "posture": "TESTNET ONLY · SHADOW MODE ENFORCED · UNAUTHORIZED RESERVE TRANSACTIONS FORBIDDEN · NOT ACCEPTED"
+    },
+    {
+      "startedAtUTC": "2026-10-23T12:32:23.105Z",
+      "endedAtUTC": "2026-10-23T12:32:23.156Z",
+      "command": "bun src/lib/mtq/__tests__/issuance-production-e2e.ts",
+      "deterministic": true,
+      "determinismBasis": "fixed machine clock (clockStartMs 0; advanceClock only) · BigInt-exact money math · no Date.now() in any decision path (the run banner is the only wall-clock surface)",
+      "totals": {
+        "pass": 225,
+        "fail": 0,
+        "total": 225
+      },
+      "perSection": [
+        {
+          "section": "S0",
+          "name": "Labels & registry honesty (born empty · fail-closed admission · TEST fixtures · per-instance identity · CBDC NOT_CONNECTED · no telemetry)",
+          "pass": 22,
+          "fail": 0,
+          "total": 22
+        },
+        {
+          "section": "S1",
+          "name": "Happy path — spec §14.4 12 steps under ALT-4: gross 10000.000000 TEST-USDC-X → fee 10.000000 → net 9990.000000 → issued 4995.000000 @ quote 2.000000",
+          "pass": 31,
+          "fail": 0,
+          "total": 31
+        },
+        {
+          "section": "S2",
+          "name": "Duplicates & replays — request-id replay · same idempotency key · duplicate payment txId (never a second execution)",
+          "pass": 10,
+          "fail": 0,
+          "total": 10
+        },
+        {
+          "section": "S3",
+          "name": "Delayed finality — settlement finality arrives after the 15-min quote expiry → EXPIRED_QUOTE, NO mint, held-or-refunded (spec §6.3)",
+          "pass": 8,
+          "fail": 0,
+          "total": 8
+        },
+        {
+          "section": "S4",
+          "name": "Failed payment — settlement status FAILED: never mints, taxonomy recorded, refund queued",
+          "pass": 8,
+          "fail": 0,
+          "total": 8
+        },
+        {
+          "section": "S5",
+          "name": "Reversals — pre-issuance → CANCELLED (no mint); post-issuance → RECONCILIATION_BREAK + SUSPENDED; recovery ONLY via the explicit authorized remediation path (INV-D)",
+          "pass": 19,
+          "fail": 0,
+          "total": 19
+        },
+        {
+          "section": "S6",
+          "name": "Authorization (INV-A / ALT-4) — no program ⇒ refusal · revoked mid-flight · attestation MISSING/STALE/MISMATCH ⇒ suspended · authorized resumption",
+          "pass": 19,
+          "fail": 0,
+          "total": 19
+        },
+        {
+          "section": "S7",
+          "name": "Invalid instrument/payment — unregistered · wrong network · RETIRED · SUSPENDED · bad auth tag · amount mismatch · jurisdiction · depeg · finality-evidence gap",
+          "pass": 19,
+          "fail": 0,
+          "total": 19
+        },
+        {
+          "section": "S8",
+          "name": "Supply controls — per-transaction cap · tranche cap · global max supply: each fail-closed (SUPPLY_CAP_EXCEEDED), no partial mint",
+          "pass": 10,
+          "fail": 0,
+          "total": 10
+        },
+        {
+          "section": "S9",
+          "name": "Three-book reconciliation — C1–C4 clean after the run; a forced 1-micro ledger break is DETECTED (reconciliation is a REAL check)",
+          "pass": 9,
+          "fail": 0,
+          "total": 9
+        },
+        {
+          "section": "S10",
+          "name": "SEP-01 separation invariant — basket snapshot BYTE-IDENTICAL before/after issuance volume + SOURCE-SCAN test-of-absence",
+          "pass": 12,
+          "fail": 0,
+          "total": 12
+        },
+        {
+          "section": "S11",
+          "name": "Ledger & persistence — exact flat Prisma IssuanceEvent field set · in-memory sink collects ALL events · failing sink DISCLOSED, cursor not advanced, retry byte-stable",
+          "pass": 15,
+          "fail": 0,
+          "total": 15
+        },
+        {
+          "section": "S12",
+          "name": "CBDC adapter honesty — SIMULATED / NOT CONNECTED · every simulated message labeled · ONE clearly-labeled SIMULATION-MODE demo issuance",
+          "pass": 19,
+          "fail": 0,
+          "total": 19
+        },
+        {
+          "section": "S13",
+          "name": "Constituency quiescence — genesis 7 at STRATEGIC_PRIOR bp · zero transitions ever · empty-directive lifecycle run · weights match the separation snapshot",
+          "pass": 18,
+          "fail": 0,
+          "total": 18
+        },
+        {
+          "section": "INV",
+          "name": "Final machine-level invariant sweep — INV-A..INV-E across ALL scenario machines + full-run doc-format re-check",
+          "pass": 6,
+          "fail": 0,
+          "total": 6
+        }
+      ],
+      "exitCode": 0,
+      "failedAssertionIds": [],
+      "machines": 29,
+      "keyObservedNumbers": {
+        "happyPath": {
+          "grossInstrument": "10000.000000 TEST-USDC-X",
+          "conversion": "1.000000 TU per TEST-USDC-X (SYNTHETIC-ORACLE-BOARD stand-in)",
+          "feeBps": "10 (0.10% flat — ILLUSTRATIVE, D-13.8 OPEN)",
+          "feeTU": "10.000000",
+          "netTU": "9990.000000",
+          "quote": "2.000000 TU per token (ILLUSTRATIVE — spec §14.5; derivation policy publication OPEN)",
+          "issued": "4995.000000",
+          "supplyBefore": "0.000000",
+          "supplyAfter": "4995.000000"
+        },
+        "duplicatesReplays": "replay detected / DUPLICATE terminal / duplicate payment txId — supply unchanged, exactly 1 mint (INV-C)",
+        "delayedFinality": "EXPIRED_QUOTE (taxonomy CONFIRMATION_TIMEOUT); refund PENDING_REFUND → REFUNDED; retry on the same key forbidden",
+        "reversals": "pre-issuance → CANCELLED (no mint); post-issuance → RECONCILIATION_BREAK + SUSPENDED + OPEN exception; remediation refused while books diverge; full remediation loop succeeds after the explicit authorized correction",
+        "authorization": "no program ⇒ NO_AUTHORIZATION_PROGRAM; no attestation ⇒ NO_ATTESTATION + suspended; mismatch ⇒ suspended + authorized resumption; stale ⇒ suspended; revoked mid-flight ⇒ ALL_PROGRAMS_REVOKED",
+        "supplyCaps": "PER_TX_CAP_EXCEEDED / TRANCHE_CAP_EXCEEDED / GLOBAL_MAX_SUPPLY_EXCEEDED — all fail-closed, no partial mint",
+        "sep01": {
+          "issuances": "1000 + 25000 + 7500 gross TU",
+          "issued": [
+            "499.500000",
+            "12487.500000",
+            "3746.250000"
+          ],
+          "supplyAfter": "16733.250000",
+          "basketSnapshot": "BYTE-IDENTICAL before/after",
+          "sourceScan": "issuance data-path modules import no weighting/eligibility module"
+        },
+        "cbdcSimulation": {
+          "status": "SIMULATED / NOT CONNECTED",
+          "demoIssued": "2497.500000 (SIMULATION-MODE demo only; registry row remained NOT_CONNECTED)",
+          "realAdapterGate": "authorizedInterfaceVerified=false · endToEndIntegrationTested=false · admissionDossierAnnexExists=false"
+        },
+        "quiescence": {
+          "genesisComponents": 7,
+          "weightsBp": "2700/2000/900/800/500/500/2600 (sum 10000)",
+          "transitionsEver": 0,
+          "emptyDirectiveRun": "0 transitions · 0 commits · 0 divisor records"
+        }
+      },
+      "honestNotes": [
+        "PRODUCTION TS REFERENCE ENGINE evidence only — LEDGER RECORDS ONLY, never on-chain; zero network calls; zero key handling.",
+        "All instruments are SYNTHETIC TEST-ONLY fixtures (TEST-USDC-X & co.); the production registry is BORN EMPTY with fail-closed admission.",
+        "Fee/quote/supply-cap VALUES are ILLUSTRATIVE/UNAPPROVED (D-13.8 value, §14.5 derivation publication, D-13.19, D-13.6 numbers all OPEN); only the FORM is adopted (delegated, pending ratification).",
+        "CBDC adapter is SIMULATED / NOT CONNECTED; the SIMULATION-MODE demo is not an integration and admits nothing.",
+        "Constituency layer is QUIESCENT: genesis 7 at STRATEGIC_PRIOR weights; no lifecycle transition has ever run.",
+        "The deterministic runner uses the in-memory event sink; the Prisma sink is asserted by type/label only (no DB is touched)."
+      ],
+      "posture": "TESTNET ONLY · SHADOW MODE ENFORCED · UNAUTHORIZED RESERVE TRANSACTIONS FORBIDDEN · NOT ACCEPTED"
+    }
+  ]
+}

@@ -1,0 +1,104 @@
+{
+  "probe": "MTQΣ Task 9 — arc deployment-block recovery + bounded Transfer scan",
+  "startedAt": "2026-10-21T21:47:03.649Z",
+  "latest": 68415808,
+  "deployBlocks": {
+    "MTQ.sol": {
+      "status": "FOUND",
+      "block": 55772115,
+      "probes": 26,
+      "timestamp": "2026-08-07T12:03:14.000Z"
+    },
+    "Governance.sol": {
+      "status": "FOUND",
+      "block": 55772118,
+      "probes": 26,
+      "timestamp": "2026-08-07T12:03:16.000Z"
+    },
+    "Safe.sol": {
+      "status": "FOUND",
+      "block": 55875156,
+      "probes": 26,
+      "timestamp": "2026-08-08T02:46:26.000Z"
+    },
+    "Algorithm.sol": {
+      "status": "FOUND",
+      "block": 55772122,
+      "probes": 26,
+      "timestamp": "2026-08-07T12:03:18.000Z"
+    },
+    "Reserve.sol": {
+      "status": "FOUND",
+      "block": 55774558,
+      "probes": 26,
+      "timestamp": "2026-08-07T12:24:41.000Z"
+    },
+    "Mint.sol": {
+      "status": "FOUND",
+      "block": 55775391,
+      "probes": 26,
+      "timestamp": "2026-08-07T12:32:10.000Z"
+    },
+    "Redeem.sol": {
+      "status": "FOUND",
+      "block": 55775393,
+      "probes": 26,
+      "timestamp": "2026-08-07T12:32:11.000Z"
+    },
+    "Oracle.sol": {
+      "status": "FOUND",
+      "block": 55775396,
+      "probes": 26,
+      "timestamp": "2026-08-07T12:32:13.000Z"
+    },
+    "Takaful.sol": {
+      "status": "FOUND",
+      "block": 55775399,
+      "probes": 26,
+      "timestamp": "2026-08-07T12:32:15.000Z"
+    }
+  },
+  "duplicateDeployBlocks": {
+    "gen-A 0x826b…63c1": {
+      "status": "FOUND",
+      "block": 60619345,
+      "probes": 26,
+      "timestamp": "2026-09-05T18:22:12.000Z"
+    },
+    "gen-B 0x2420…d9897": {
+      "status": "FOUND",
+      "block": 60768469,
+      "probes": 26,
+      "timestamp": "2026-09-06T15:44:01.000Z"
+    }
+  },
+  "safeModules": {
+    "array": [],
+    "next": "0x0000000000000000000000000000000000000001"
+  },
+  "getLogsWorkingSpan": 5000,
+  "getLogsCapProbes": {
+    "5000": "OK",
+    "10000": "requested range too large",
+    "50000": "requested range too large"
+  },
+  "transferScan": {
+    "status": "ABORTED",
+    "atBlock": 55872115,
+    "message": "rate limit exceeded",
+    "calls": 21
+  },
+  "nativeBalances": {
+    "0x3C3932F865892EFabE45892f453f81B64f6c8d8c": "RPC_ERROR: rate limit exceeded",
+    "0x237c3Aa2B79248f86f6523D3890095BCd1996601": "RPC_ERROR: rate limit exceeded",
+    "0xE35a91801bc541fb743BB9EaD26C1FbD81EaBd66": "RPC_ERROR: rate limit exceeded",
+    "0xE71869C662733642bfBb262B8c6bad8B0fBfA7D0": "RPC_ERROR: rate limit exceeded",
+    "0x62f8E5243f32eE5C87a14A7896C61104aD9e7727": "RPC_ERROR: rate limit exceeded",
+    "0x27a1a201D6DF8215d0b0da3Be6211bE24ef4c471": "0",
+    "0x0dd8b4F8DA7fB6E3eE04ea9F24f853647F84c3aa": "0",
+    "0xcAde4594177829597882555Ff57d0e34092daF8e": "0",
+    "0xFd2B8d176bf059287638Db30D02C6651dA02861e": "0",
+    "0xA3B89FfdE28577A7D30E2c22503dB33509044EF0": "0"
+  },
+  "finishedAt": "2026-10-21T21:48:00.815Z"
+}

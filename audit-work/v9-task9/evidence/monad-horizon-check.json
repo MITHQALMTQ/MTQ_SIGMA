@@ -1,0 +1,17 @@
+{
+  "latest": 73069003,
+  "horizon": 68268912,
+  "checks": {
+    "horizon": 68268912,
+    "latest": 73069003,
+    "MTQ.sol": "PRESENT_AT_HORIZON(deployed before)",
+    "Governance.sol": "PRESENT_AT_HORIZON(deployed before)",
+    "Safe.sol": "PRESENT_AT_HORIZON(deployed before)",
+    "Algorithm.sol": "PRESENT_AT_HORIZON(deployed before)",
+    "Reserve.sol": "PRESENT_AT_HORIZON(deployed before)",
+    "Mint.sol": "PRESENT_AT_HORIZON(deployed before)",
+    "Redeem.sol": "PRESENT_AT_HORIZON(deployed before)",
+    "Oracle.sol": "PRESENT_AT_HORIZON(deployed before)",
+    "Takaful.sol": "PRESENT_AT_HORIZON(deployed before)"
+  }
+}

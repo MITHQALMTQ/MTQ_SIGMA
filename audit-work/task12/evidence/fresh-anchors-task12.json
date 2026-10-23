@@ -1,0 +1,127 @@
+{
+  "probe": "audit-work/task12/probe-fresh-anchors.ts — READ-ONLY (eth_call/getBalance/getBlockNumber/chainId + Solana getAccountInfo/getBalance)",
+  "posture": "TESTNET ONLY · SHADOW MODE ENFORCED · UNAUTHORIZED RESERVE TRANSACTIONS FORBIDDEN",
+  "startedAt": "2026-10-22T12:32:23.998Z",
+  "endedAt": "2026-10-22T12:32:35.065Z",
+  "rules": "A failed or unmade query is UNVERIFIED — never a negative result. Public addresses only; no key material processed.",
+  "monad": {
+    "chain": "Monad Testnet",
+    "chainId": 10143,
+    "rpc": "https://testnet-rpc.monad.xyz",
+    "network": "chainId 10143",
+    "blockNumber": 73243944,
+    "mtqRoles": {
+      "ADMIN·deployerEOA": true,
+      "ADMIN·genesisSafe": true,
+      "ADMIN·mintModule": false,
+      "ADMIN·redeemModule": false,
+      "MINTER·deployerEOA": true,
+      "MINTER·genesisSafe": true,
+      "MINTER·mintModule": true,
+      "MINTER·redeemModule": true,
+      "PAUSER·deployerEOA": true,
+      "PAUSER·genesisSafe": true,
+      "PAUSER·mintModule": false,
+      "PAUSER·redeemModule": false
+    },
+    "mtq_name": "MITHQAL",
+    "mtq_symbol": "MTQ",
+    "mtq_totalSupply": "310949000000000000000",
+    "mtq_paused": false,
+    "deployerMtqBalance": "309.948999999999999997",
+    "moduleRoles": {
+      "Mint module·ADMIN(deployer)": true,
+      "Redeem module·ADMIN(deployer)": true,
+      "Reserve module·ADMIN(deployer)": true,
+      "Algorithm module·ADMIN(deployer)": true,
+      "Oracle module·ADMIN(deployer)": true,
+      "Takaful module·ADMIN(deployer)": true
+    },
+    "safeOwners": [
+      "0x3C3932F865892EFabE45892f453f81B64f6c8d8c"
+    ],
+    "safeThreshold": "1",
+    "safeNonce": "0",
+    "safeVersion": "1.4.1",
+    "deployerNative": "0.224343224122819642"
+  },
+  "arc": {
+    "chain": "Arc Testnet",
+    "chainId": 5042002,
+    "rpc": "https://rpc.testnet.arc.io",
+    "network": "chainId 5042002",
+    "blockNumber": 68520264,
+    "mtqRoles": {
+      "ADMIN·deployerEOA": true,
+      "ADMIN·genesisSafe": false,
+      "ADMIN·mintModule": false,
+      "ADMIN·redeemModule": false,
+      "MINTER·deployerEOA": true,
+      "MINTER·genesisSafe": false,
+      "MINTER·mintModule": true,
+      "MINTER·redeemModule": false,
+      "PAUSER·deployerEOA": true,
+      "PAUSER·genesisSafe": true,
+      "PAUSER·mintModule": false,
+      "PAUSER·redeemModule": false
+    },
+    "mtq_name": "MITHQAL",
+    "mtq_symbol": "MTQ",
+    "mtq_totalSupply": "1000000000000000000000",
+    "mtq_paused": false,
+    "deployerMtqBalance": "998.999999999999999997",
+    "moduleRoles": {
+      "Mint module·ADMIN(deployer)": true,
+      "Redeem module·ADMIN(deployer)": true,
+      "Reserve module·ADMIN(deployer)": true,
+      "Algorithm module·ADMIN(deployer)": true,
+      "Oracle module·ADMIN(deployer)": true,
+      "Takaful module·ADMIN(deployer)": true
+    },
+    "safeOwners": [
+      "0x3C3932F865892EFabE45892f453f81B64f6c8d8c"
+    ],
+    "safeThreshold": "1",
+    "safeNonce": "0",
+    "safeVersion": "1.4.1",
+    "deployerNative": "19.026597151851474173"
+  },
+  "robinhood": {
+    "chain": "Robinhood Chain Testnet",
+    "chainId": 46630,
+    "rpc": "https://rpc.testnet.chain.robinhood.com/rpc",
+    "network": "chainId 46630",
+    "blockNumber": 140748341,
+    "deployerNative": "0.0098211602",
+    "deployerTxCount": 60
+  },
+  "solana": {
+    "slot": 513885476,
+    "epoch": 1189,
+    "epochSha": "a9ec48f4fb88b099",
+    "currentMint_GAGRdrY6": {
+      "mintAuthority": "DbFjzWcD6kNmewadiG7ThjD7L4o3w3UhFhG31fPQhXb3",
+      "freezeAuthority": "NONE",
+      "decimals": 18,
+      "supplyRaw": "18446744073709551615",
+      "responseSha": "c327c8bcf7dde120"
+    },
+    "supersededMint_2EaK5c": {
+      "mintAuthority": "4saTectHYExxsyBFwZVUbgAP7hYYbkAVKz5SxPewcA1d",
+      "freezeAuthority": "4saTectHYExxsyBFwZVUbgAP7hYYbkAVKz5SxPewcA1d",
+      "decimals": 18,
+      "supplyRaw": "4477988020393345024",
+      "responseSha": "584e0aec607bd7d1"
+    },
+    "wallet_4saT_exposed": {
+      "lamports": 4983685960,
+      "sol": 4.98368596,
+      "responseSha": "08b4fa991dcc0611"
+    },
+    "wallet_DbFjz_currentAuthority": {
+      "lamports": 9995007520,
+      "sol": 9.99500752,
+      "responseSha": "632d136060a2e59c"
+    }
+  }
+}

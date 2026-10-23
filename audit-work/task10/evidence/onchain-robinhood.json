@@ -1,0 +1,50 @@
+{
+  "chain": "robinhood",
+  "startedAt": "2026-10-22T06:12:06.646Z",
+  "chainId": "0xb626",
+  "block": 140564404,
+  "MTQToken": {
+    "addr": "0xAF5B85658d074e071BbF392395a2ddA9B644C5A5",
+    "codeSize": 3413,
+    "keccak": "0x31496b929dbea855c0a5fd0736f42afd0b6490840b71708023c8212d168c0180",
+    "totalSupply": {
+      "ok": true,
+      "value": "1001000000000029970000000"
+    },
+    "name": {
+      "ok": true,
+      "value": "MTQΣ"
+    }
+  },
+  "MTQSigma": {
+    "addr": "0xA3B89FfdE28577A7D30E2c22503dB33509044EF0",
+    "codeSize": 11666,
+    "keccak": "0xa73310510ce003d5c7ba9b6a8eacd150488d11997d643f369e16d77df900e92e"
+  },
+  "Safe": {
+    "addr": "0xa3CE28A10854B375272D528EeC4295D6bcd75691",
+    "codeSize": 3321,
+    "keccak": "0x3c6c7d2580a18c85428d7ad9da6d9daa114867c95a358ead58ab9ba47be6c04e",
+    "threshold": {
+      "ok": false,
+      "err": "execution reverted (no data present; likely require(false) occurred (action=\"call\", data=\"0x\", reason=\"require(false)\", transaction={ \"data\": \"0xe75235b8\", \"to\"",
+      "cls": "EVM-REVERT"
+    },
+    "owners": {
+      "ok": false,
+      "err": "execution reverted (no data present; likely require(false) occurred (action=\"call\", data=\"0x\", reason=\"require(false)\", transaction={ \"data\": \"0xa0e67e2b\", \"to\"",
+      "cls": "EVM-REVERT"
+    },
+    "nonce": {
+      "ok": false,
+      "err": "execution reverted (no data present; likely require(false) occurred (action=\"call\", data=\"0x\", reason=\"require(false)\", transaction={ \"data\": \"0xaffed0e0\", \"to\"",
+      "cls": "EVM-REVERT"
+    }
+  },
+  "Governance": {
+    "addr": "0x80FF03DAD374E1f2f5C110F355B7a448Aa732B56",
+    "codeSize": 3487,
+    "keccak": "0xcf0c00d3734fd1b6434561871ca1e49329e1ecd1bd2606d93e637acf57cf0ac3"
+  },
+  "finishedAt": "2026-10-22T06:12:23.184Z"
+}

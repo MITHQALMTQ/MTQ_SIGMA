@@ -1,0 +1,28 @@
+{
+  "choices": [
+    {
+      "finish_reason": "stop",
+      "index": 0,
+      "message": {
+        "content": "**Transcribed Text:**\n\n*   **CTA Button:** Explore the Ecosystem →\n*   **Dashboard - Recent Activity (Left Column):**\n    *   Governance Vote\n    *   Voted: Proposal #12\n    *   6 hours ago\n    *(Note: There is a partially visible row above this, but the text is cut off.)*\n*   **Dashboard - Network Status (Right Column):**\n    *   Ethereum\n    *   Healthy\n    *   Solana\n    *   Healthy\n*   **Bottom Tagline:** Built for a more stable, transparent and inclusive financial future.\n\n**Visual Description:**\n\n*   **Background Colors:** The overall background is a deep, dark navy blue or black. It features a subtle, glowing landscape silhouette of mountains in the distance with a faint purple/blue horizon line. The dashboard interface itself is a dark, semi-transparent panel with rounded corners.\n*   **Decorations:** \n    *   The \"Explore the Ecosystem\" button has a bright gradient background shifting from cyan/blue to purple.\n    *   The bottom tagline is flanked by two thin, horizontal lines that glow with a soft blue/cyan light.\n    *   There are no visible stars or specific footer text beyond the tagline.",
+        "role": "assistant"
+      }
+    }
+  ],
+  "created": 1792492801,
+  "id": "20261020183956dad6151d03174e04",
+  "model": "glm-5v-turbo",
+  "object": "chat.completion",
+  "request_id": "20261020183956dad6151d03174e04",
+  "usage": {
+    "completion_tokens": 263,
+    "completion_tokens_details": {
+      "reasoning_tokens": 0
+    },
+    "prompt_tokens": 765,
+    "prompt_tokens_details": {
+      "cached_tokens": 0
+    },
+    "total_tokens": 1028
+  }
+}

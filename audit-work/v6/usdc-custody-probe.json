@@ -1,0 +1,103 @@
+{
+  "purpose": "USDC-side custody probe — Evidence Reconciliation Directive §3 (read-only)",
+  "generatedAt": "2026-10-19T21:00:56.616Z",
+  "mode": "READ-ONLY eth_call(view) only",
+  "chains": [
+    {
+      "key": "monad",
+      "name": "Monad Testnet",
+      "usdc": "0x28a2f9812BeC1252eee3992D56e5Bbd51393d6DE",
+      "chainIdMatch": true,
+      "blockNumber": 72488308,
+      "usdcName": "USD Coin (Mock Pilot)",
+      "usdcSymbol": "USDC",
+      "usdcDecimals": "6",
+      "usdcTotalSupply": "1100000000000",
+      "holders": [
+        {
+          "label": "deployer EOA",
+          "address": "0x3C3932F865892EFabE45892f453f81B64f6c8d8c",
+          "balanceRaw": "1100000000000"
+        },
+        {
+          "label": "Genesis Reserve Safe",
+          "address": "0xE71869C662733642bfBb262B8c6bad8B0fBfA7D0",
+          "balanceRaw": "0"
+        },
+        {
+          "label": "Ecosystem MintContract (JSON)",
+          "address": "0x4deA71BdB5Af2ce76e34c2AccA815855Af36A5fA",
+          "balanceRaw": "0"
+        },
+        {
+          "label": "Ecosystem ReserveVault (JSON)",
+          "address": "0xC472c5122B07935C66b1Ca956456e7574eae11bF",
+          "balanceRaw": "0"
+        },
+        {
+          "label": "contracts.ts Mint",
+          "address": "0x197e9CB28216dfe18a199b4c2930F74C2F460809",
+          "balanceRaw": "0"
+        },
+        {
+          "label": "contracts.ts Reserve",
+          "address": "0x1bbCd78E4DEF79b7a3B77242770cbAefAC816177",
+          "balanceRaw": "0"
+        },
+        {
+          "label": "MTQSigma candidate C (deployment JSON)",
+          "address": "0x5D9564C27111EA65Da3228a79833F0FF129bfd4a",
+          "balanceRaw": "0"
+        }
+      ]
+    },
+    {
+      "key": "arc",
+      "name": "Arc Testnet",
+      "usdc": "0x334D14E7E39e1f02a60fc1169CdF7b0BEDE30dEb",
+      "chainIdMatch": true,
+      "blockNumber": 68070826,
+      "usdcName": "USD Coin (Mock Pilot)",
+      "usdcSymbol": "USDC",
+      "usdcDecimals": "6",
+      "usdcTotalSupply": "1100000000000",
+      "holders": [
+        {
+          "label": "deployer EOA",
+          "address": "0x3C3932F865892EFabE45892f453f81B64f6c8d8c",
+          "balanceRaw": "1100000000000"
+        },
+        {
+          "label": "Genesis Reserve Safe",
+          "address": "0xE71869C662733642bfBb262B8c6bad8B0fBfA7D0",
+          "balanceRaw": "0"
+        },
+        {
+          "label": "Ecosystem MintContract (JSON)",
+          "address": "0x28a2f9812BeC1252eee3992D56e5Bbd51393d6DE",
+          "balanceRaw": "0"
+        },
+        {
+          "label": "Ecosystem ReserveVault (JSON)",
+          "address": "0x5EDb5e9d65691b654c906869dFFF2a6B9279c499",
+          "balanceRaw": "0"
+        },
+        {
+          "label": "contracts.ts Mint",
+          "address": "0x0dd8b4F8DA7fB6E3eE04ea9F24f853647F84c3aa",
+          "balanceRaw": "0"
+        },
+        {
+          "label": "contracts.ts Reserve",
+          "address": "0x27a1a201D6DF8215d0b0da3Be6211bE24ef4c471",
+          "balanceRaw": "0"
+        },
+        {
+          "label": "MTQSigma candidate C (deployment JSON)",
+          "address": "0x826b82F79FD6c5347cDC568B1d0A7918128B63c1",
+          "balanceRaw": "0"
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,105 @@
+{
+  "title": "MTQΣ Task 12 K-1 — Known-Secret Redaction Report (reconstructed two-phase evidence record)",
+  "note": "This file records BOTH redaction phases executed 2026-10-23 (UTC) by scripts/security/redact-known-secrets.ts, plus the post-purge verification sweep. Phase 1 purged the 8 hex-literal occurrences (2 EVM + 6 Solana-hex). Phase 2 purged the NEWLY-DISCOVERED base58 form of C-045-b (see findings). The tool prints and stores only file paths, occurrence counts, and sha256 digests — never matched values. Files subsequently rewritten by Task 12 (read-only verifiers / retired stubs) have additional hashes in their git diffs; the hashes below record the redaction events themselves.",
+  "posture": "TESTNET ONLY · SHADOW MODE ENFORCED · UNAUTHORIZED RESERVE TRANSACTIONS FORBIDDEN",
+  "phase1_hexLiterals": {
+    "executedAt": "2026-10-23 (session UTC), mode=execute, scanned=2537 files",
+    "findings": [
+      {
+        "file": "worklog.md",
+        "incidentId": "C-045-a",
+        "occurrences": 1,
+        "action": "in-place-redaction",
+        "note": "append-only discipline: the literal was replaced IN PLACE by a redaction notice marker; the surrounding log sentence is preserved; log history is not silently deleted.",
+        "sha256Before": "f96b8555fd991c3e3292415d6ecbb0979f1ccdb9adf24b0edeeb861c07b67923",
+        "sha256After": "627f9a604089528b243c11170742cda6149d3d74ce85124ba4bf3aed3b92c569"
+      },
+      {
+        "file": "scripts/verify-key-and-audit-roles.ts",
+        "incidentId": "C-045-a",
+        "occurrences": 1,
+        "action": "in-place-redaction",
+        "sha256Before": "bd3d9a15a3720296aa3374a348a4fedeff4f092a7f6e62d82640c5fbead91548",
+        "sha256After": "fb1c8394aa87c589c594653d7cf7ce440c93ac7e9599e19a6de9518212303e28",
+        "note": "file subsequently REWRITTEN by Task 12 as a public-address read-only verifier (see D1)."
+      },
+      {
+        "file": "scripts/verify-hex-key.ts",
+        "incidentId": "C-045-b",
+        "occurrences": 1,
+        "action": "in-place-redaction",
+        "sha256Before": "025d63038ca2d36cd7b108dc6120e24bfb02aa3baf51e0fe53771bf87d2d4f94",
+        "sha256After": "8c5a920daf99424faa1c0fc44c617020f9805e7f0957a996ddff77c83ac561aa",
+        "note": "file subsequently REWRITTEN by Task 12 as a public-address read-only verifier (see D1)."
+      },
+      {
+        "file": "scripts/solana-create-fresh.ts",
+        "incidentId": "C-045-b",
+        "occurrences": 1,
+        "action": "in-place-redaction",
+        "sha256Before": "399905e8cb249b1d5553c91a05679f600041c2fac4ff7e6861ea7e8731487149",
+        "sha256After": "19486683b736a149d8fed7a5fadd1427174c4b59c8a8b66d260def5af3a4a5bf",
+        "note": "file subsequently REPLACED by a fail-closed retired stub (10B×10^18 plan is u64-unrepresentable; never execute as written)."
+      },
+      {
+        "file": "scripts/solana-create-umi.ts",
+        "incidentId": "C-045-b",
+        "occurrences": 1,
+        "action": "in-place-redaction",
+        "sha256Before": "0ef5666c6eb09d6c230f118adb81c05d662c68825a2fd003fe7399b7a12c3056",
+        "sha256After": "cfb10c58000d3726a0ae1c3a7558179ab2c0b43fb6628fa11b5a7be8e7d0bc56",
+        "note": "file subsequently REPLACED by a fail-closed retired stub."
+      },
+      {
+        "file": "scripts/solana-create-with-metadata.ts",
+        "incidentId": "C-045-b",
+        "occurrences": 1,
+        "action": "in-place-redaction",
+        "sha256Before": "1c32d328abf2e7aea8613fa22781b4c7ecfc21cb963fecd8e7741a6da9c8f2",
+        "sha256After": "06f29e74450018274ab076a5b6ffc4ff181187d863bbe37915942e78cc1754fa",
+        "note": "file subsequently REPLACED by a fail-closed retired stub."
+      },
+      {
+        "file": "scripts/solana-set-metadata.ts",
+        "incidentId": "C-045-b",
+        "occurrences": 1,
+        "action": "in-place-redaction",
+        "sha256Before": "e9bfed85509b65c89a08e313667eaa96324daa03c28d062d5668d5b16d51e4b9",
+        "sha256After": "e663bf8a70aec7f8d416ac2978550fbada6efca857da4d0012c22f0f795fefe9",
+        "note": "file subsequently REPLACED by a fail-closed retired stub."
+      },
+      {
+        "file": "scripts/solana-set-metadata-v2.ts",
+        "incidentId": "C-045-b",
+        "occurrences": 1,
+        "action": "in-place-redaction",
+        "sha256Before": "b4450a1a9dd2806dedd4bcd9039150037255198bcd0064b9e66d974e8458e1ec",
+        "sha256After": "7188b80e3c60ef64764247396654171836b58c8791e1bb5f0e3f1aa7ccf90111",
+        "note": "file subsequently REPLACED by a fail-closed retired stub."
+      }
+    ]
+  },
+  "phase2_base58Form": {
+    "executedAt": "2026-10-23 (session UTC), mode=execute, scanned=2540 files",
+    "newFinding": "NEW TASK-12 FINDING (census correction): scripts/verify-sol-key2.ts embedded the C-045-b compromised Solana key in BASE58 form (seed‖pubkey, 88 chars, fingerprint 2mvV…j13V) — a SEVENTH worktree copy the Task 10/11 census MISSED (its base58 sweep had reported 'none'). Identified WITHOUT handling the value beyond redaction: the embedded last-32-bytes equal the PUBLIC address 4saTectHYExxsyBFwZVUbgAP7hYYbkAVKz5SxPewcA1d (crypto-free embedded-pubkey check). Original preserved in git history.",
+    "findings": [
+      {
+        "file": "scripts/verify-sol-key2.ts",
+        "incidentId": "C-045-b (base58 form)",
+        "occurrences": 1,
+        "action": "in-place-redaction",
+        "sha256Before": "50871792e1cb3f0e8957c51b183d2cda0b33950b83ee40d939684efe644166ab",
+        "sha256After": "9fdb37009ff6c8fb784617aac3b8231b78792c20968e28caf5e766137dd84b02",
+        "note": "file subsequently REPLACED by a fail-closed retired stub."
+      }
+    ]
+  },
+  "postPurgeVerification": {
+    "executedAt": "2026-10-23 (session UTC), mode=dry-run, scanned=2540 files",
+    "result": "NO occurrences of the known C-045-a / C-045-b literals (hex or base58 forms) remain in the working tree.",
+    "standingNote": "Git history still contains both literals in all commits (history remediation is a separate owner-approved plan — D3). Repository cleanup does NOT revoke the exposed keys (task11 D2 §1.4)."
+  },
+  "falsePositiveTriageDuringDevelopment": {
+    "note": "The scanner's first full-worktree run produced 44 detections; triage resolved them into: 9 true findings (all purged above), 13+1 documented allowlist entries (foundry build artifacts, public on-chain role constants, a verified sha256 document digest, the scanner's own public BIP39 test vector), and context-rule refinements (base58 signatures vs secrets; env placeholder semantics). No value was ever printed during triage."
+  }
+}

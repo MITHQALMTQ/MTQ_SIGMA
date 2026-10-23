@@ -1,0 +1,220 @@
+{
+ "task": "task11-exposure-surface-census",
+ "generatedAt": "2026-10-22T08:31:58.149Z",
+ "literals": {
+  "evm": {
+   "fingerprint": "0xdbe1…62d6 (len=66)",
+   "seededFrom": "scripts/verify-key-and-audit-roles.ts"
+  },
+  "sol": {
+   "fingerprint": "58c19e…eb60 (len=128)",
+   "seededFrom": "scripts/verify-hex-key.ts"
+  }
+ },
+ "worktree": [
+  {
+   "file": "worklog.md",
+   "kind": "EVM-EXACT"
+  },
+  {
+   "file": "scripts/verify-key-and-audit-roles.ts",
+   "kind": "EVM-EXACT"
+  },
+  {
+   "file": "scripts/solana-create-with-metadata.ts",
+   "kind": "SOL-EXACT"
+  },
+  {
+   "file": "scripts/solana-create-umi.ts",
+   "kind": "SOL-EXACT"
+  },
+  {
+   "file": "scripts/verify-hex-key.ts",
+   "kind": "SOL-EXACT"
+  },
+  {
+   "file": "scripts/solana-create-fresh.ts",
+   "kind": "SOL-EXACT"
+  },
+  {
+   "file": "scripts/solana-set-metadata-v2.ts",
+   "kind": "SOL-EXACT"
+  },
+  {
+   "file": "scripts/solana-set-metadata.ts",
+   "kind": "SOL-EXACT"
+  }
+ ],
+ "git": {
+  "commitCount": 25,
+  "head": "ad1e1cfe305204097a18b79d94341ed61ec3347a",
+  "literalsReachableInHistory": {
+   "evmInCommits": 25,
+   "solInCommits": 25,
+   "allCommitsContainEvm": true,
+   "allCommitsContainSol": true,
+   "firstCommit": "ad1e1cfe305204097a18b79d94341ed61ec3347a 2026-10-22T07:09:04Z"
+  }
+ },
+ "cicd": {
+  "gitRemoteConfigured": "NONE (no remote — repository has never been pushed from this machine; remote existence UNVERIFIED)",
+  "workflows": [
+   {
+    "file": ".github/workflows/compute-engine.yml",
+    "referencesSecrets": [
+     "TURSO_DATABASE_URL",
+     "TURSO_AUTH_TOKEN"
+    ],
+    "uploadsArtifacts": true,
+    "checkoutsFullRepo": true,
+    "triggers": []
+   },
+   {
+    "file": ".github/workflows/forge-tests.yml",
+    "referencesSecrets": [],
+    "uploadsArtifacts": true,
+    "checkoutsFullRepo": true,
+    "triggers": []
+   },
+   {
+    "file": ".github/workflows/keeper-heartbeat.yml",
+    "referencesSecrets": [
+     "KEEPER_URL",
+     "DISCORD_WEBHOOK"
+    ],
+    "uploadsArtifacts": false,
+    "checkoutsFullRepo": false,
+    "triggers": []
+   },
+   {
+    "file": ".github/workflows/backup.yml",
+    "referencesSecrets": [
+     "TURSO_DATABASE_URL",
+     "TURSO_AUTH_TOKEN",
+     "GITHUB_TOKEN"
+    ],
+    "uploadsArtifacts": true,
+    "checkoutsFullRepo": true,
+    "triggers": []
+   },
+   {
+    "file": ".github/workflows/backtest-nightly.yml",
+    "referencesSecrets": [
+     "FRED_API_KEY"
+    ],
+    "uploadsArtifacts": true,
+    "checkoutsFullRepo": true,
+    "triggers": []
+   },
+   {
+    "file": ".github/workflows/ci.yml",
+    "referencesSecrets": [],
+    "uploadsArtifacts": false,
+    "checkoutsFullRepo": true,
+    "triggers": []
+   }
+  ],
+  "note": "Workflows exist locally and are written for GitHub Actions. Whether ANY remote repository/organization exists, whether these workflows ever executed, and whether artifacts/backups derived from this repository exist on GitHub or any other provider is UNVERIFIABLE from this machine and must be answered by the owner."
+ },
+ "env": {
+  ".env": {
+   "containsEvmLiteral": false,
+   "containsSolLiteral": false,
+   "keysPresent": [
+    "DATABASE_URL"
+   ]
+  },
+  ".env.local": "ABSENT"
+ },
+ "database": {
+  "db/custom.db": {
+   "containsEvmLiteral": false,
+   "containsSolLiteral": false,
+   "sizeBytes": 5689344
+  },
+  "dev.log": {
+   "containsEvmLiteral": false,
+   "containsSolLiteral": false,
+   "sizeBytes": 3097693
+  },
+  "CRITICAL-PRIVATE-KEY-ROTATION.md": {
+   "containsEvmLiteral": false,
+   "containsSolLiteral": false,
+   "sizeBytes": 2134
+  }
+ },
+ "devLog": {},
+ "remoteSurfaces": {
+  "upload/private_key.txt": "ABSENT from disk (Task 10: deleted at unknown time; never git-tracked)",
+  "tursoScripts": [
+   "scripts/backup-turso.ts",
+   "scripts/migrate-turso.ts",
+   "scripts/migrate-to-turso.ts",
+   "scripts/push-turso.ts"
+  ],
+  "remoteBackups": "UNVERIFIED — Turso/remote database, remote clones, CI caches, developer machines cannot be inspected from this sandbox; assign UNRESOLVED until the owner attests"
+ },
+ "timeline": [
+  {
+   "file": "scripts/verify-key-and-audit-roles.ts",
+   "mtime": "2026-10-18T09:33:21.000Z"
+  },
+  {
+   "file": "scripts/verify-hex-key.ts",
+   "mtime": "2026-10-18T09:33:21.000Z"
+  },
+  {
+   "file": "scripts/solana-create-fresh.ts",
+   "mtime": "2026-10-18T09:33:21.000Z"
+  },
+  {
+   "file": "scripts/solana-create-umi.ts",
+   "mtime": "2026-10-18T09:33:21.000Z"
+  },
+  {
+   "file": "scripts/solana-create-with-metadata.ts",
+   "mtime": "2026-10-18T09:33:21.000Z"
+  },
+  {
+   "file": "scripts/solana-set-metadata.ts",
+   "mtime": "2026-10-18T09:33:21.000Z"
+  },
+  {
+   "file": "scripts/solana-set-metadata-v2.ts",
+   "mtime": "2026-10-18T09:33:21.000Z"
+  }
+ ],
+ "evmDerived": {
+  "address": "0x3C3932F865892EFabE45892f453f81B64f6c8d8c",
+  "matchesDeployer": true,
+  "classification": "REAL — live-privileged deployer EOA"
+ },
+ "solDerived": {
+  "publicKeyBase58": "4saTectHYExxsyBFwZVUbgAP7hYYbkAVKz5SxPewcA1d",
+  "embeddedPubkeyConsistent": true,
+  "matchesExposedWallet_4saT": true,
+  "classification": "REAL — well-formed keypair for the exposed 4saT wallet"
+ },
+ "worktreeSummary": {
+  "evmFiles": [
+   "worklog.md",
+   "scripts/verify-key-and-audit-roles.ts"
+  ],
+  "solFiles": [
+   "scripts/solana-create-with-metadata.ts",
+   "scripts/solana-create-umi.ts",
+   "scripts/verify-hex-key.ts",
+   "scripts/solana-create-fresh.ts",
+   "scripts/solana-set-metadata-v2.ts",
+   "scripts/solana-set-metadata.ts"
+  ],
+  "countsMatchTask10": {
+   "evm": 2,
+   "sol": 6,
+   "task10Was": {
+    "evm": 2,
+    "sol": 6
+   }
+  }
+ }
+}

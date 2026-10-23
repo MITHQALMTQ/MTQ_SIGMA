@@ -1,0 +1,28 @@
+{
+  "choices": [
+    {
+      "finish_reason": "stop",
+      "index": 0,
+      "message": {
+        "content": "Based on the image provided, here is the exact internal layout of the fintech dashboard:\n\n**1) Navigation: LEFT SIDEBAR**\nThe dashboard utilizes a **left sidebar** with vertical navigation items, not a horizontal tab row.\n*   **Items (Top to Bottom):** Dashboard, Trading, Finance, NFTs, Settings.\n*   **Active Item Style:** The \"Dashboard\" item is active. It features a **solid blue/purple background** with white text. The inactive items have transparent backgrounds and gray text.\n\n**2) Top Bar Contents (Left-to-Right)**\n*   **Left:** The dashboard logo/icon (looks like a stylized Greek Sigma 'Σ' or similar).\n*   **Right Side:**\n    *   A wallet address button displaying `0x3f4...9e28` with a dropdown arrow.\n    *   A circular user profile icon/avatar.\n\n**3) Main Content Panels & Layout**\nThe main area uses a **2x2 grid layout** for its primary widgets:\n*   **Top-Left (Largest Panel - approx. 60% width):** **Welcome/Portfolio Panel.** Contains the greeting \"Welcome back, Alex\", the total value ($48,732.21), and the main performance chart.\n*   **Top-Right (Narrower Panel):** **Your Assets.** A list of crypto holdings (MTQ, USDC, ETH, SOL) with icons, balances, and USD values.\n*   **Bottom-Left Panel:** **Recent Activity.** A transaction history list (Staked MTQ, Swapped USDC, Governance Vote).\n*   **Bottom-Right Panel:** **Network Status.** A status list for blockchains (Monad, Arbitrum, Ethereum, Solana) showing green \"Healthy\" indicators.\n*   *Note:* There is also a floating action bar above the right-hand panels containing buttons for **Deposit** (active purple), **Swap**, and **Send**.\n\n**4) Chart Appearance**\n*   **Line Color:** A bright **cyan/blue** gradient line.\n*   **Fill:** The area under the line is filled with a **semi-transparent blue/purple gradient** that fades towards the bottom.\n*   **Axis Labels:** The Y-axis shows numerical values (100, 200, 300... 600). The X-axis shows time intervals or data points (00:00, 02:00, etc.).",
+        "role": "assistant"
+      }
+    }
+  ],
+  "created": 1792494163,
+  "id": "202610201902354bf681a55b014de4",
+  "model": "glm-5v-turbo",
+  "object": "chat.completion",
+  "request_id": "202610201902354bf681a55b014de4",
+  "usage": {
+    "completion_tokens": 504,
+    "completion_tokens_details": {
+      "reasoning_tokens": 0
+    },
+    "prompt_tokens": 1654,
+    "prompt_tokens_details": {
+      "cached_tokens": 0
+    },
+    "total_tokens": 2158
+  }
+}

@@ -1,0 +1,165 @@
+{
+  "generatedAt": "2026-10-19T20:56:14.498Z",
+  "script": "scripts/verify-safe-balances.ts",
+  "mode": "READ-ONLY (eth_call/eth_getLogs/eth_getBalance — no keys, no signing, no broadcast)",
+  "safe": "0xE71869C662733642bfBb262B8c6bad8B0fBfA7D0",
+  "deployerEoaOnChainOwner": "0x3C3932F865892EFabE45892f453f81B64f6c8d8c",
+  "chains": {
+    "monad": {
+      "name": "Monad Testnet",
+      "expectedChainId": 10143,
+      "chainIdVerified": true,
+      "blockNumber": 72487374,
+      "safeNativeBalance": "0.0",
+      "tokenProbes": [
+        {
+          "label": "candidateA-v5.0-§5.1 (MITHQAL)",
+          "address": "0x9e6EdC15DAc420931508d8Ddf9BC817651A253aD",
+          "symbol": "MTQ",
+          "totalSupply": "310.949",
+          "safeBalance": "0.0",
+          "deployerBalance": "309.948999999999999997",
+          "raw": {
+            "totalSupply": "310949000000000000000",
+            "safe": "0",
+            "deployer": "309948999999999999997"
+          }
+        },
+        {
+          "label": "candidateB-canonical-map+ecosystem (MTQΣ)",
+          "address": "0x0Ac20360234b4C988a19586CBe55733e18A5982f",
+          "symbol": "MTQ",
+          "totalSupply": "1000000.00000001998",
+          "safeBalance": "0.0",
+          "deployerBalance": "1000000.000000019979999997",
+          "raw": {
+            "totalSupply": "1000000000000019980000000",
+            "safe": "0",
+            "deployer": "1000000000000019979999997"
+          }
+        },
+        {
+          "label": "candidateC-deployment-json (MTQΣ)",
+          "address": "0x5D9564C27111EA65Da3228a79833F0FF129bfd4a",
+          "symbol": "MTQ",
+          "totalSupply": "1012987.0",
+          "safeBalance": "0.0",
+          "deployerBalance": "12986.999999999999999997",
+          "raw": {
+            "totalSupply": "1012987000000000000000000",
+            "safe": "0",
+            "deployer": "12986999999999999999997"
+          }
+        }
+      ],
+      "safeOwnLogs": {
+        "count": null,
+        "error": "eth_getLogs(SAFE, all topics, fromBlock=0): server response 413 Request Entity Too Large"
+      },
+      "transfersToSafe": [
+        {
+          "label": "candidateA-v5.0-§5.1 (MITHQAL)",
+          "address": "0x9e6EdC15DAc420931508d8Ddf9BC817651A253aD",
+          "count": null,
+          "first": null,
+          "last": null,
+          "error": "eth_getLogs(candidateA-v5.0-§5.1 (MITHQAL) Transfer→SAFE, fromBlock=0): server response 413 Request Entity Too Large"
+        },
+        {
+          "label": "candidateB-canonical-map+ecosystem (MTQΣ)",
+          "address": "0x0Ac20360234b4C988a19586CBe55733e18A5982f",
+          "count": null,
+          "first": null,
+          "last": null,
+          "error": "eth_getLogs(candidateB-canonical-map+ecosystem (MTQΣ) Transfer→SAFE, fromBlock=0): server response 413 Request Entity Too Large"
+        },
+        {
+          "label": "candidateC-deployment-json (MTQΣ)",
+          "address": "0x5D9564C27111EA65Da3228a79833F0FF129bfd4a",
+          "count": null,
+          "first": null,
+          "last": null,
+          "error": "eth_getLogs(candidateC-deployment-json (MTQΣ) Transfer→SAFE, fromBlock=0): server response 413 Request Entity Too Large"
+        }
+      ]
+    },
+    "arc": {
+      "name": "Arc Testnet",
+      "expectedChainId": 5042002,
+      "chainIdVerified": true,
+      "blockNumber": 68070288,
+      "safeNativeBalance": "0.0",
+      "tokenProbes": [
+        {
+          "label": "candidateA-v5.0-§5.1 (MITHQAL)",
+          "address": "0x237c3Aa2B79248f86f6523D3890095BCd1996601",
+          "symbol": "MTQ",
+          "totalSupply": "1000.0",
+          "safeBalance": "0.0",
+          "deployerBalance": "998.999999999999999997",
+          "raw": {
+            "totalSupply": "1000000000000000000000",
+            "safe": "0",
+            "deployer": "998999999999999999997"
+          }
+        },
+        {
+          "label": "candidateB-canonical-map+ecosystem (MTQΣ)",
+          "address": "0x24203404B9b971C907e8Ced96106Fa74380d9897",
+          "symbol": "MTQ",
+          "totalSupply": "1000000.00000001998",
+          "safeBalance": "0.0",
+          "deployerBalance": "1000000.000000019979999997",
+          "raw": {
+            "totalSupply": "1000000000000019980000000",
+            "safe": "0",
+            "deployer": "1000000000000019979999997"
+          }
+        },
+        {
+          "label": "candidateC-deployment-json (MTQ Sigma)",
+          "address": "0x826b82F79FD6c5347cDC568B1d0A7918128B63c1",
+          "symbol": "MTQ",
+          "totalSupply": "1005889.0",
+          "safeBalance": "0.0",
+          "deployerBalance": "5887.999999999999999997",
+          "raw": {
+            "totalSupply": "1005889000000000000000000",
+            "safe": "0",
+            "deployer": "5887999999999999999997"
+          }
+        }
+      ],
+      "safeOwnLogs": {
+        "count": null,
+        "error": "eth_getLogs(SAFE, all topics, fromBlock=0): could not coalesce error"
+      },
+      "transfersToSafe": [
+        {
+          "label": "candidateA-v5.0-§5.1 (MITHQAL)",
+          "address": "0x237c3Aa2B79248f86f6523D3890095BCd1996601",
+          "count": null,
+          "first": null,
+          "last": null,
+          "error": "eth_getLogs(candidateA-v5.0-§5.1 (MITHQAL) Transfer→SAFE, fromBlock=0): could not coalesce error"
+        },
+        {
+          "label": "candidateB-canonical-map+ecosystem (MTQΣ)",
+          "address": "0x24203404B9b971C907e8Ced96106Fa74380d9897",
+          "count": null,
+          "first": null,
+          "last": null,
+          "error": "eth_getLogs(candidateB-canonical-map+ecosystem (MTQΣ) Transfer→SAFE, fromBlock=0): could not coalesce error"
+        },
+        {
+          "label": "candidateC-deployment-json (MTQ Sigma)",
+          "address": "0x826b82F79FD6c5347cDC568B1d0A7918128B63c1",
+          "count": null,
+          "first": null,
+          "last": null,
+          "error": "eth_getLogs(candidateC-deployment-json (MTQ Sigma) Transfer→SAFE, fromBlock=0): could not coalesce error"
+        }
+      ]
+    }
+  }
+}

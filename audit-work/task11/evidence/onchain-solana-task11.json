@@ -1,0 +1,197 @@
+{
+ "task": "task11-fresh-solana-verification",
+ "startedAt": "2026-10-22T08:30:51.196Z",
+ "rpcEndpoint": "https://api.devnet.solana.com",
+ "slot": 513824771,
+ "epochInfo": {
+  "absoluteSlot": 513824771,
+  "blockHeight": 501031040,
+  "epoch": 1189,
+  "slotIndex": 176771,
+  "slotsInEpoch": 432000,
+  "transactionCount": 19723654597
+ },
+ "currentMint": {
+  "exists": true,
+  "ownerProgram": "TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA",
+  "lamports": 1461600,
+  "isInitialized": true,
+  "mintAuthority": "DbFjzWcD6kNmewadiG7ThjD7L4o3w3UhFhG31fPQhXb3",
+  "freezeAuthority": null,
+  "decimals": 18,
+  "supplyRaw": "18446744073709551615",
+  "supplyIsU64Ceiling": true,
+  "tokenSupplyRpc": {
+   "amount": "18446744073709551615",
+   "decimals": 18,
+   "uiAmountString": "18.446744073709551615"
+  },
+  "parse": "jsonParsed (RPC-authoritative)"
+ },
+ "supersededMint": {
+  "exists": true,
+  "ownerProgram": "TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA",
+  "lamports": 1066800,
+  "isInitialized": true,
+  "mintAuthority": "4saTectHYExxsyBFwZVUbgAP7hYYbkAVKz5SxPewcA1d",
+  "freezeAuthority": "4saTectHYExxsyBFwZVUbgAP7hYYbkAVKz5SxPewcA1d",
+  "decimals": 18,
+  "supplyRaw": "4477988020393345024",
+  "supplyIsU64Ceiling": false,
+  "tokenSupplyRpc": {
+   "amount": "4477988020393345024",
+   "decimals": 18,
+   "uiAmountString": "4.477988020393345024"
+  },
+  "parse": "jsonParsed (RPC-authoritative)"
+ },
+ "wallet_currentAuthority": {
+  "lamports": 9995007520,
+  "sol": "9.995007520",
+  "tokenAccounts": [
+   {
+    "ata": "3FfntZrcBWgXsiTryTFpMsXapW1wssyzwYJkrag6MUKi",
+    "mint": "CURRENT_MINT",
+    "amountRaw": "18446744073709551615",
+    "uiAmountString": "18.446744073709551615",
+    "delegate": null,
+    "delegatedAmount": null,
+    "state": "initialized",
+    "closeAuthority": null
+   }
+  ],
+  "signatureCount": 6,
+  "signatures": [
+   {
+    "slot": 494140319,
+    "ts": "2026-09-06T16:04:22.000Z",
+    "err": null
+   },
+   {
+    "slot": 482635377,
+    "ts": "2026-08-10T12:06:09.000Z",
+    "err": null
+   },
+   {
+    "slot": 482635372,
+    "ts": "2026-08-10T12:06:07.000Z",
+    "err": null
+   },
+   {
+    "slot": 482635368,
+    "ts": "2026-08-10T12:06:06.000Z",
+    "err": null
+   },
+   {
+    "slot": 482634624,
+    "ts": "2026-08-10T12:02:12.000Z",
+    "err": null
+   },
+   {
+    "slot": 482634515,
+    "ts": "2026-08-10T12:01:38.000Z",
+    "err": null
+   }
+  ]
+ },
+ "wallet_exposed": {
+  "lamports": 4983685960,
+  "sol": "4.983685960",
+  "tokenAccounts": [
+   {
+    "ata": "BLwtDcSnRTZ5MAehLiQXhyRk35VtQ9Y3WknhdMuBsX33",
+    "mint": "SUPERSEDED_MINT",
+    "amountRaw": "4477988020393345024",
+    "uiAmountString": "4.477988020393345024",
+    "delegate": null,
+    "delegatedAmount": null,
+    "state": "initialized",
+    "closeAuthority": null
+   }
+  ],
+  "signatureCount": 5,
+  "signatures": [
+   {
+    "slot": 494168798,
+    "ts": "2026-09-06T17:22:59.000Z",
+    "err": null
+   },
+   {
+    "slot": 494165864,
+    "ts": "2026-09-06T17:14:51.000Z",
+    "err": null
+   },
+   {
+    "slot": 494165860,
+    "ts": "2026-09-06T17:14:50.000Z",
+    "err": null
+   },
+   {
+    "slot": 494165857,
+    "ts": "2026-09-06T17:14:50.000Z",
+    "err": null
+   },
+   {
+    "slot": 494144404,
+    "ts": "2026-09-06T16:15:38.000Z",
+    "err": null
+   }
+  ]
+ },
+ "squadsMplProgram": {
+  "candidateId": "SMPLecH531NA7dL1u4Yb2uJkg7who9g2mFxpM18i4rL",
+  "devnetResult": "NULL — account does not exist on devnet",
+  "verdict": "UNVERIFIED — the candidate program ID could not be confirmed live on devnet (NULL). No Squads program identity is asserted in this report; the owner MUST confirm the exact program ID and version from official Squads documentation before any multisig provisioning. mainnet probe also NULL (see raw log)."
+ },
+ "u64Ceilings": {
+  "decimals_18": {
+   "maxWholeTokens": "18",
+   "mandated_1M_raw": "1000000000000000000000000",
+   "mandated_1M_representable": false,
+   "scripted_10B_raw": "10000000000000000000000000000",
+   "scripted_10B_representable": false
+  },
+  "decimals_13": {
+   "maxWholeTokens": "1844674",
+   "mandated_1M_raw": "10000000000000000000",
+   "mandated_1M_representable": true,
+   "scripted_10B_raw": "100000000000000000000000",
+   "scripted_10B_representable": false
+  },
+  "decimals_12": {
+   "maxWholeTokens": "18446744",
+   "mandated_1M_raw": "1000000000000000000",
+   "mandated_1M_representable": true,
+   "scripted_10B_raw": "10000000000000000000000",
+   "scripted_10B_representable": false
+  },
+  "decimals_9": {
+   "maxWholeTokens": "18446744073",
+   "mandated_1M_raw": "1000000000000000",
+   "mandated_1M_representable": true,
+   "scripted_10B_raw": "10000000000000000000",
+   "scripted_10B_representable": true
+  },
+  "decimals_8": {
+   "maxWholeTokens": "184467440737",
+   "mandated_1M_raw": "100000000000000",
+   "mandated_1M_representable": true,
+   "scripted_10B_raw": "1000000000000000000",
+   "scripted_10B_representable": true
+  },
+  "decimals_6": {
+   "maxWholeTokens": "18446744073709",
+   "mandated_1M_raw": "1000000000000",
+   "mandated_1M_representable": true,
+   "scripted_10B_raw": "10000000000000000",
+   "scripted_10B_representable": true
+  }
+ },
+ "finishedAt": "2026-10-22T08:30:52.733Z",
+ "stats": {
+  "requests": 13,
+  "retries": 0,
+  "failures": 0,
+  "note": "failures are recorded as UNVERIFIED, never as negative results"
+ }
+}

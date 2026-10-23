@@ -1,0 +1,2453 @@
+{
+  "datasetId": "MTQSIGMA-DR-INPUTS-v1",
+  "dataClass": "SIMULATED — deterministic test fixture. Every field is synthetic. NO real-world data, NO live oracle input, NO network access. NON-PRODUCTION.",
+  "datasetHash": "BLL1gp66AnSkMSuN3THyp6uLLtSlnqFaC_JXcdiiCko",
+  "datasetHashNote": "datasetHash = sha256(canonicalSerialize(this JSON with the top-level datasetHash field omitted)), base64url-encoded. base64url (not hex) is used throughout this evidence directory by design: bare 64-hex literals are treated as credential-shaped by this repository's secret scanner, and no digest is ever emitted in hex here.",
+  "methodology": {
+    "version": "CCY-LIFECYCLE-PROTOTYPE-v0.1",
+    "provenance": "implements currency-constituency-and-weight-transition-spec.md v0.1 PROPOSED (Task 13 deliverable 4, Stage C) §2-§5 and reference-index-and-gold-methodology.md §2.2; ALL PARAMETERS UNAPPROVED DRAFT — spec §13",
+    "posture": "TESTNET ONLY · SHADOW MODE ENFORCED · NON-PRODUCTION PROTOTYPE · NOT ACCEPTED",
+    "dataLabel": "SIMULATED — deterministic test fixture (no real-world data)",
+    "specCitations": [
+      "currency-constituency-and-weight-transition-spec.md §2 (registry model: versioned records, stable IDs, content-hash registry version)",
+      "currency-constituency-and-weight-transition-spec.md §3 (lifecycle states CANDIDATE→ELIGIBLE→ACTIVE→WATCH→RETIRING→EXCLUDED + EMERGENCY-SUSPENDED overlay; T1-T9)",
+      "currency-constituency-and-weight-transition-spec.md §4 (normalized [0,1] inputs; composite γ=1/9; hard gates; θ_in/θ_out/H hysteresis; §4.3 recording obligation)",
+      "currency-constituency-and-weight-transition-spec.md §5 (§5.1 pipeline; §5.2 floors/caps; §5.3 bp largest-remainder rounding + 1e-9 sum tolerance; §5.4 exclusion-zero + pro-rata redistribution; §5.5 linear glides with derived N; §5.6 lifecycle semantics)",
+      "reference-index-and-gold-methodology.md §2.2 (composition-change procedure: rel vs genesis fixings; B^-; B^+; D_t = B^-/B^+)",
+      "currency-constituency-and-dynamic-replacement-validation.md §4 (ten mandatory behaviors) + §7 (mandated acceptance-test scenarios)"
+    ],
+    "prototypeChoices": [
+      "PROTOTYPE-CHOICE (spec leaves OPEN): RR_i merged into L_i so uniform γ=1/9 (spec §4.2 draft) sums to 1 — §4.1 lists ten rows but defines RR_i 'as L_i'",
+      "PROTOTYPE-CHOICE (spec leaves OPEN): day-based windows converted to 30-day periods (T_obs_entry 180d→6, T_obs_exit 120d→4, T_watch 30d→1, T_ann 30d→1, T_rein 30d→1)",
+      "PROTOTYPE-CHOICE (spec leaves OPEN): WATCH→ACTIVE recovery rule (T4R) — not T-numbered in spec §3; requires score ≥ warning threshold for 1 period; draft: WATCH is informational (spec §12)",
+      "PROTOTYPE-CHOICE (spec leaves OPEN): T8(a) fast-track uses 'suspension duration ≤ T_rein' on a monthly grid (spec draft is strict < on days)",
+      "PROTOTYPE-CHOICE (spec leaves OPEN): ELIGIBLE-decay rule T2-EXPIRY (exit breach for a full entry window while queued) — implemented, NOT exercised by this dataset",
+      "PROTOTYPE-CHOICE (spec leaves OPEN): per-component velocity Δ = 0.10/period for ALL components — the blueprint draft velocities (0.20-0.50%/period, blueprint.ts:241-244) imply 60-140-period glides for the 23-30% moves this fixture needs, breaching the draft N∈[1,10] bound; the spec's own §5.5 worked derivation records exactly this conflict and leaves it UNRESOLVED (D-13.14)",
+      "PROTOTYPE-CHOICE (spec leaves OPEN): envelope [0.10, 0.40] and single-component cap 0.40 — the blueprint 7-component envelopes (blueprint.ts:78-86: max sum 75% over 4 members) and the spec §13 w_cap 0.35 draft are INFEASIBLE for 3-4-member baskets (sum of maxima < 100%; at N=3 the minimum achievable HHI is 1/3 = 0.3333, leaving ~5% headroom over perfect equality)",
+      "PROTOTYPE-CHOICE (spec leaves OPEN): HHI cap 0.40 — the spec §13 draft HHI_max 0.35 presumes N≈7; at N=3 the min-max HHI is 1/3, so 0.35 is near-infeasible (see prior row); N-dependence of HHI_max is flagged as a D-13.14 input",
+      "PROTOTYPE-CHOICE (spec leaves OPEN): aggregate weight-turnover cap T_cap 0.02 (spec §13 draft) is enforced on NORMAL rebalances; SCHEDULED GLIDES ARE EXEMPT (a glide moves the retiring component by construction more than 2%/period) — the spec leaves the T_cap × glide interaction OPEN (§6, §12)",
+      "PROTOTYPE-CHOICE (spec leaves OPEN): entrants inside an entry ramp are exempt from the positive floor until ramp completion (an entry ramp necessarily starts at 0, below any positive floor) — spec §5.2/§5.5 interaction left OPEN; the EXCLUSION side is NOT exempt: exclusion-zero wins over floors per §5.4",
+      "PROTOTYPE-CHOICE (spec leaves OPEN): the MASE ensemble is NOT re-implemented; a deterministic score-squared target stand-in over the ACTIVE set fills the W^Target slot (spec §5.1 step 1). NO effectiveness claim is made about the stand-in — the transition machinery, not the optimizer, is the mandate's subject",
+      "PROTOTYPE-CHOICE (spec leaves OPEN): emergency suspension is IMMEDIATE per spec §3 T7 (no pre-announcement by definition) — the weight freezes at the pre-trigger committed value from the directive period's commit onward and the suspended component's price relative is pinned at 1.0 for the suspension periods (fail-closed: a non-VALID leg never advances the index — reference-index-and-gold-methodology.md §8); the spec §5.6 mid-glide freeze alternative is implemented but not exercised by this dataset (disclosed in RESULTS.md)",
+      "PROTOTYPE-CHOICE (spec leaves OPEN): pre-announcement quiescence — a T5-confirmed retiree is pinned at its current committed weight until its glide starts"
+    ]
+  },
+  "parameters": {
+    "parameterClass": "ALL PARAMETERS UNAPPROVED DRAFT — spec §13 (currency-constituency-and-weight-transition-spec.md v0.1 PROPOSED). Values marked PROTOTYPE-CHOICE deviate from (or convert) a draft and are labeled in methodology.prototypeChoices.",
+    "nMax": 7,
+    "thetaIn": 0.75,
+    "thetaOut": 0.65,
+    "hysteresisBandH": 0.1,
+    "warningThreshold": 0.7,
+    "hardGates": {
+      "liquidityMin": 0.3,
+      "dataQualityMin": 0.5,
+      "convertibilityMin": 0.5,
+      "jurisdictionalRestrictionsExact": 1,
+      "benchmarkAvailabilityMin": 0.6
+    },
+    "compositeWeightMode": "uniform γ = 1/9 over the nine inputs (spec §4.2 draft); RR merged into L (PROTOTYPE-CHOICE)",
+    "entryPersistencePeriods": 6,
+    "exitPersistencePeriods": 4,
+    "watchPersistencePeriods": 1,
+    "watchRecoveryPeriods": 1,
+    "announcementLagPeriods": 1,
+    "reinstatementWindowPeriods": 1,
+    "emergencyGlideMaxPeriods": 3,
+    "velocityPerPeriod": 0.1,
+    "glideBoundPeriods": [
+      1,
+      10
+    ],
+    "envelopeMin": 0.1,
+    "envelopeMax": 0.4,
+    "singleComponentCap": 0.4,
+    "hhiCap": 0.4,
+    "weightTurnoverCapPerPeriod": 0.02,
+    "smoothingRho": 0.5,
+    "sumTolerance": 1e-9,
+    "indexEquivalenceTolerance": 1e-12,
+    "indexContinuityTolerance": 1e-9,
+    "bpQuantum": 0.0001,
+    "periodLengthDays": 30,
+    "fixedEpochIso": "2026-11-01T00:00:00.000Z",
+    "targetFunction": "score-squared shares over the ACTIVE+WATCH domain (deterministic MASE stand-in — PROTOTYPE-CHOICE; MASE NOT re-implemented)"
+  },
+  "universe": [
+    {
+      "registryId": 1,
+      "id": "CCY-USD",
+      "displayCode": "USD",
+      "name": "Simulated US Dollar",
+      "componentType": "FIAT",
+      "initialStatus": "ACTIVE",
+      "priorHistoryNote": "SIMULATED genesis incumbent",
+      "dossierRef": "SIM-DOSSIER-USD",
+      "envelope": {
+        "min": 0.1,
+        "max": 0.4
+      },
+      "velocityPerPeriod": 0.1
+    },
+    {
+      "registryId": 2,
+      "id": "CCY-EUR",
+      "displayCode": "EUR",
+      "name": "Simulated Euro",
+      "componentType": "FIAT",
+      "initialStatus": "ACTIVE",
+      "priorHistoryNote": "SIMULATED genesis incumbent; T7 emergency-suspension episode P12-P13 (data-integrity risk, SIMULATED cause; score healthy throughout — not score-driven) with T8(a) fast-track reinstatement within T_rein",
+      "dossierRef": "SIM-DOSSIER-EUR",
+      "envelope": {
+        "min": 0.1,
+        "max": 0.4
+      },
+      "velocityPerPeriod": 0.1
+    },
+    {
+      "registryId": 3,
+      "id": "CCY-JPY",
+      "displayCode": "JPY",
+      "name": "Simulated Japanese Yen",
+      "componentType": "FIAT",
+      "initialStatus": "ACTIVE",
+      "priorHistoryNote": "SIMULATED genesis incumbent; temporary deterioration at P5-P7 (WATCH, recovered); persistent deterioration P13-P16 (retirement without substitution)",
+      "dossierRef": "SIM-DOSSIER-JPY",
+      "envelope": {
+        "min": 0.1,
+        "max": 0.4
+      },
+      "velocityPerPeriod": 0.1
+    },
+    {
+      "registryId": 4,
+      "id": "CCY-GBP",
+      "displayCode": "GBP",
+      "name": "Simulated British Pound",
+      "componentType": "FIAT",
+      "initialStatus": "ACTIVE",
+      "priorHistoryNote": "SIMULATED genesis incumbent; deteriorates below warning (P3) then below exit threshold (P4-P7); retiring incumbent of the substitution cycle",
+      "dossierRef": "SIM-DOSSIER-GBP",
+      "envelope": {
+        "min": 0.1,
+        "max": 0.4
+      },
+      "velocityPerPeriod": 0.1
+    },
+    {
+      "registryId": 5,
+      "id": "CCY-CHF",
+      "displayCode": "CHF",
+      "name": "Simulated Swiss Franc",
+      "componentType": "FIAT",
+      "initialStatus": "EXCLUDED",
+      "priorHistoryNote": "SIMULATED backstory: ACTIVE in a prior synthetic registry epoch, EXCLUDED via T5/T6 before this dataset window; re-nominated at P0 via T9 with a fresh dossier (the 'previously excluded candidate' of the mandated narrative)",
+      "dossierRef": "SIM-DOSSIER-CCY-CHF-RE-NOM-2026-10",
+      "envelope": {
+        "min": 0.1,
+        "max": 0.4
+      },
+      "velocityPerPeriod": 0.1
+    },
+    {
+      "registryId": 6,
+      "id": "CCY-AUD",
+      "displayCode": "AUD",
+      "name": "Simulated Australian Dollar",
+      "componentType": "FIAT",
+      "initialStatus": "CANDIDATE",
+      "priorHistoryNote": "SIMULATED candidate; scores rise but never reach θ_in within the window; a premature T3 attempt at P7 is REJECTED by the engine (negative control)",
+      "dossierRef": "SIM-DOSSIER-AUD",
+      "envelope": {
+        "min": 0.1,
+        "max": 0.4
+      },
+      "velocityPerPeriod": 0.1
+    },
+    {
+      "registryId": 7,
+      "id": "CCY-SGD",
+      "displayCode": "SGD",
+      "name": "Simulated Singapore Dollar",
+      "componentType": "FIAT",
+      "initialStatus": "CANDIDATE",
+      "priorHistoryNote": "SIMULATED quiet candidate; gates pass but composite stays far below θ_in for the whole window",
+      "dossierRef": "SIM-DOSSIER-SGD",
+      "envelope": {
+        "min": 0.1,
+        "max": 0.4
+      },
+      "velocityPerPeriod": 0.1
+    },
+    {
+      "registryId": 8,
+      "id": "CCY-XXX",
+      "displayCode": "XXX",
+      "name": "Simulated Insufficient Candidate (obviously-fake identifier)",
+      "componentType": "FIAT",
+      "initialStatus": "CANDIDATE",
+      "priorHistoryNote": "SIMULATED deliberately insufficient candidate: jurisdictional-restrictions hard gate = 0.0 (sanctions gate failed), data-quality 0.40 < 0.50, benchmark-availability 0.40 < 0.60, composite far below θ_in — must be rejected at every evaluation",
+      "dossierRef": "SIM-DOSSIER-XXX-REJECTED",
+      "envelope": {
+        "min": 0.1,
+        "max": 0.4
+      },
+      "velocityPerPeriod": 0.1
+    }
+  ],
+  "genesis": {
+    "weightsBp": {
+      "CCY-USD": 3000,
+      "CCY-EUR": 2800,
+      "CCY-JPY": 1200,
+      "CCY-GBP": 3000,
+      "CCY-CHF": 0,
+      "CCY-AUD": 0,
+      "CCY-SGD": 0,
+      "CCY-XXX": 0
+    },
+    "note": "SIMULATED genesis vector: 4 incumbents summing to exactly 10000 bp. Registry-based membership: the basket is the set of ACTIVE registry records — no fixed-size array, no slot positions."
+  },
+  "periods": [
+    {
+      "period": 0,
+      "timestampIso": "2026-11-01T00:00:00.000Z",
+      "narrative": "genesis/base: basket {USD,EUR,JPY,GBP}; CHF prior-EXCLUDED, T9 re-nomination",
+      "scores": {
+        "CCY-USD": {
+          "liquidity": 0.95,
+          "dataQuality": 0.95,
+          "convertibility": 0.9,
+          "jurisdictionalRestrictions": 1,
+          "currencyControl": 0.9,
+          "benchmarkAvailability": 0.95,
+          "volatility": 0.85,
+          "diversification": 0.55,
+          "geopoliticalExposure": 0.85
+        },
+        "CCY-EUR": {
+          "liquidity": 0.9,
+          "dataQuality": 0.93,
+          "convertibility": 0.9,
+          "jurisdictionalRestrictions": 1,
+          "currencyControl": 0.9,
+          "benchmarkAvailability": 0.95,
+          "volatility": 0.82,
+          "diversification": 0.6,
+          "geopoliticalExposure": 0.82
+        },
+        "CCY-JPY": {
+          "liquidity": 0.8,
+          "dataQuality": 0.88,
+          "convertibility": 0.85,
+          "jurisdictionalRestrictions": 1,
+          "currencyControl": 0.82,
+          "benchmarkAvailability": 0.9,
+          "volatility": 0.72,
+          "diversification": 0.68,
+          "geopoliticalExposure": 0.75
+        },
+        "CCY-GBP": {
+          "liquidity": 0.82,
+          "dataQuality": 0.85,
+          "convertibility": 0.84,
+          "jurisdictionalRestrictions": 1,
+          "currencyControl": 0.8,
+          "benchmarkAvailability": 0.88,
+          "volatility": 0.74,
+          "diversification": 0.66,
+          "geopoliticalExposure": 0.7
+        },
+        "CCY-CHF": {
+          "liquidity": 0.55,
+          "dataQuality": 0.85,
+          "convertibility": 0.82,
+          "jurisdictionalRestrictions": 1,
+          "currencyControl": 0.8,
+          "benchmarkAvailability": 0.85,
+          "volatility": 0.84,
+          "diversification": 0.45,
+          "geopoliticalExposure": 0.5
+        },
+        "CCY-AUD": {
+          "liquidity": 0.52,
+          "dataQuality": 0.78,
+          "convertibility": 0.75,
+          "jurisdictionalRestrictions": 1,
+          "currencyControl": 0.72,
+          "benchmarkAvailability": 0.72,
+          "volatility": 0.68,
+          "diversification": 0.45,
+          "geopoliticalExposure": 0.32
+        },
+        "CCY-SGD": {
+          "liquidity": 0.46,
+          "dataQuality": 0.74,
+          "convertibility": 0.7,
+          "jurisdictionalRestrictions": 1,
+          "currencyControl": 0.68,
+          "benchmarkAvailability": 0.7,
+          "volatility": 0.64,
+          "diversification": 0.38,
+          "geopoliticalExposure": 0.33
+        },
+        "CCY-XXX": {
+          "liquidity": 0.45,
+          "dataQuality": 0.4,
+          "convertibility": 0.55,
+          "jurisdictionalRestrictions": 0,
+          "currencyControl": 0.5,
+          "benchmarkAvailability": 0.4,
+          "volatility": 0.3,
+          "diversification": 0.4,
+          "geopoliticalExposure": 0.2
+        }
+      },
+      "priceRelative": {
+        "CCY-USD": 1,
+        "CCY-EUR": 1,
+        "CCY-JPY": 1,
+        "CCY-GBP": 1,
+        "CCY-CHF": 1,
+        "CCY-AUD": 1,
+        "CCY-SGD": 1,
+        "CCY-XXX": 1
+      },
+      "integrityRiskFlags": [],
+      "integrityRiskResolved": [],
+      "governanceDirectives": [
+        {
+          "index": 1,
+          "period": 0,
+          "type": "T9-RENOMINATION",
+          "componentId": "CCY-CHF",
+          "effectivePeriod": 1,
+          "authority": "SIMULATED Economic Authority nomination + Risk Council docket (2-of-7 recorded quorum; deterministic fixture)",
+          "dossierRef": "SIM-DOSSIER-CCY-CHF-RE-NOM-2026-10 (fresh provenance dossier, SIMULATED)",
+          "note": "CHF was EXCLUDED in a prior synthetic registry epoch; T9 re-nomination opens a full fresh T1→T2→T3 cycle"
+        }
+      ]
+    },
+    {
+      "period": 1,
+      "timestampIso": "2026-12-01T00:00:00.000Z",
+      "narrative": "CHF entry window 1/6; GBP deterioration begins",
+      "scores": {
+        "CCY-USD": {
+          "liquidity": 0.96,
+          "dataQuality": 0.96,
+          "convertibility": 0.91,
+          "jurisdictionalRestrictions": 1,
+          "currencyControl": 0.91,
+          "benchmarkAvailability": 0.96,
+          "volatility": 0.86,
+          "diversification": 0.56,
+          "geopoliticalExposure": 0.86
+        },
+        "CCY-EUR": {
+          "liquidity": 0.9,
+          "dataQuality": 0.93,
+          "convertibility": 0.9,
+          "jurisdictionalRestrictions": 1,
+          "currencyControl": 0.9,
+          "benchmarkAvailability": 0.95,
+          "volatility": 0.82,
+          "diversification": 0.6,
+          "geopoliticalExposure": 0.82
+        },
+        "CCY-JPY": {
+          "liquidity": 0.8,
+          "dataQuality": 0.88,
+          "convertibility": 0.85,
+          "jurisdictionalRestrictions": 1,
+          "currencyControl": 0.82,
+          "benchmarkAvailability": 0.9,
+          "volatility": 0.72,
+          "diversification": 0.68,
+          "geopoliticalExposure": 0.75
+        },
+        "CCY-GBP": {
+          "liquidity": 0.73,
+          "dataQuality": 0.76,
+          "convertibility": 0.75,
+          "jurisdictionalRestrictions": 1,
+          "currencyControl": 0.7100000000000001,
+          "benchmarkAvailability": 0.79,
+          "volatility": 0.65,
+          "diversification": 0.5700000000000001,
+          "geopoliticalExposure": 0.61
+        },
+        "CCY-CHF": {
+          "liquidity": 0.5700000000000001,
+          "dataQuality": 0.87,
+          "convertibility": 0.84,
+          "jurisdictionalRestrictions": 1,
+          "currencyControl": 0.8200000000000001,
+          "benchmarkAvailability": 0.87,
+          "volatility": 0.86,
+          "diversification": 0.47000000000000003,
+          "geopoliticalExposure": 0.52
+        },
+        "CCY-AUD": {
+          "liquidity": 0.53,
+          "dataQuality": 0.79,
+          "convertibility": 0.76,
+          "jurisdictionalRestrictions": 1,
+          "currencyControl": 0.73,
+          "benchmarkAvailability": 0.73,
+          "volatility": 0.6900000000000001,
+          "diversification": 0.46,
+          "geopoliticalExposure": 0.33
+        },
+        "CCY-SGD": {
+          "liquidity": 0.46,
+          "dataQuality": 0.74,
+          "convertibility": 0.7,
+          "jurisdictionalRestrictions": 1,
+          "currencyControl": 0.68,
+          "benchmarkAvailability": 0.7,
+          "volatility": 0.64,
+          "diversification": 0.38,
+          "geopoliticalExposure": 0.33
+        },
+        "CCY-XXX": {
+          "liquidity": 0.45,
+          "dataQuality": 0.4,
+          "convertibility": 0.55,
+          "jurisdictionalRestrictions": 0,
+          "currencyControl": 0.5,
+          "benchmarkAvailability": 0.4,
+          "volatility": 0.3,
+          "diversification": 0.4,
+          "geopoliticalExposure": 0.2
+        }
+      },
+      "priceRelative": {
+        "CCY-USD": 1,
+        "CCY-EUR": 1.001,
+        "CCY-JPY": 0.9994,
+        "CCY-GBP": 1,
+        "CCY-CHF": 1.0006,
+        "CCY-AUD": 0.999,
+        "CCY-SGD": 0.9996,
+        "CCY-XXX": 1.0002
+      },
+      "integrityRiskFlags": [],
+      "integrityRiskResolved": [],
+      "governanceDirectives": []
+    },
+    {
+      "period": 2,
+      "timestampIso": "2026-12-31T00:00:00.000Z",
+      "narrative": "CHF 2/6; GBP above warning band still",
+      "scores": {
+        "CCY-USD": {
+          "liquidity": 0.96,
+          "dataQuality": 0.96,
+          "convertibility": 0.91,
+          "jurisdictionalRestrictions": 1,
+          "currencyControl": 0.91,
+          "benchmarkAvailability": 0.96,
+          "volatility": 0.86,
+          "diversification": 0.56,
+          "geopoliticalExposure": 0.86
+        },
+        "CCY-EUR": {
+          "liquidity": 0.91,
+          "dataQuality": 0.9400000000000001,
+          "convertibility": 0.91,
+          "jurisdictionalRestrictions": 1,
+          "currencyControl": 0.91,
+          "benchmarkAvailability": 0.96,
+          "volatility": 0.83,
+          "diversification": 0.61,
+          "geopoliticalExposure": 0.83
+        },
+        "CCY-JPY": {
+          "liquidity": 0.8,
+          "dataQuality": 0.88,
+          "convertibility": 0.85,
+          "jurisdictionalRestrictions": 1,
+          "currencyControl": 0.82,
+          "benchmarkAvailability": 0.9,
+          "volatility": 0.72,
+          "diversification": 0.68,
+          "geopoliticalExposure": 0.75
+        },
+        "CCY-GBP": {
+          "liquidity": 0.72,
+          "dataQuality": 0.75,
+          "convertibility": 0.74,
+          "jurisdictionalRestrictions": 1,
+          "currencyControl": 0.7000000000000001,
+          "benchmarkAvailability": 0.78,
+          "volatility": 0.64,
+          "diversification": 0.56,
+          "geopoliticalExposure": 0.6
+        },
+        "CCY-CHF": {
+          "liquidity": 0.5900000000000001,
+          "dataQuality": 0.89,
+          "convertibility": 0.86,
+          "jurisdictionalRestrictions": 1,
+          "currencyControl": 0.8400000000000001,
+          "benchmarkAvailability": 0.89,
+          "volatility": 0.88,
+          "diversification": 0.49,
+          "geopoliticalExposure": 0.54
+        },
+        "CCY-AUD": {
+          "liquidity": 0.54,
+          "dataQuality": 0.8,
+          "convertibility": 0.77,
+          "jurisdictionalRestrictions": 1,
+          "currencyControl": 0.74,
+          "benchmarkAvailability": 0.74,
+          "volatility": 0.7000000000000001,
+          "diversification": 0.47000000000000003,
+          "geopoliticalExposure": 0.34
+        },
+        "CCY-SGD": {
+          "liquidity": 0.46,
+          "dataQuality": 0.74,
+          "convertibility": 0.7,
+          "jurisdictionalRestrictions": 1,
+          "currencyControl": 0.68,
+          "benchmarkAvailability": 0.7,
+          "volatility": 0.64,
+          "diversification": 0.38,
+          "geopoliticalExposure": 0.33
+        },
+        "CCY-XXX": {
+          "liquidity": 0.45,
+          "dataQuality": 0.4,
+          "convertibility": 0.55,
+          "jurisdictionalRestrictions": 0,
+          "currencyControl": 0.5,
+          "benchmarkAvailability": 0.4,
+          "volatility": 0.3,
+          "diversification": 0.4,
+          "geopoliticalExposure": 0.2
+        }
+      },
+      "priceRelative": {
+        "CCY-USD": 1,
+        "CCY-EUR": 1.0002,
+        "CCY-JPY": 1.0008,
+        "CCY-GBP": 0.9992,
+        "CCY-CHF": 0.9998,
+        "CCY-AUD": 1.0004,
+        "CCY-SGD": 1.001,
+        "CCY-XXX": 0.9994
+      },
+      "integrityRiskFlags": [],
+      "integrityRiskResolved": [],
+      "governanceDirectives": []
+    },
+    {
+      "period": 3,
+      "timestampIso": "2027-01-30T00:00:00.000Z",
+      "narrative": "CHF 3/6; GBP breaches warning threshold → T4 WATCH",
+      "scores": {
+        "CCY-USD": {
+          "liquidity": 0.95,
+          "dataQuality": 0.95,
+          "convertibility": 0.9,
+          "jurisdictionalRestrictions": 1,
+          "currencyControl": 0.9,
+          "benchmarkAvailability": 0.95,
+          "volatility": 0.85,
+          "diversification": 0.55,
+          "geopoliticalExposure": 0.85
+        },
+        "CCY-EUR": {
+          "liquidity": 0.9,
+          "dataQuality": 0.93,
+          "convertibility": 0.9,
+          "jurisdictionalRestrictions": 1,
+          "currencyControl": 0.9,
+          "benchmarkAvailability": 0.95,
+          "volatility": 0.82,
+          "diversification": 0.6,
+          "geopoliticalExposure": 0.82
+        },
+        "CCY-JPY": {
+          "liquidity": 0.8,
+          "dataQuality": 0.88,
+          "convertibility": 0.85,
+          "jurisdictionalRestrictions": 1,
+          "currencyControl": 0.82,
+          "benchmarkAvailability": 0.9,
+          "volatility": 0.72,
+          "diversification": 0.68,
+          "geopoliticalExposure": 0.75
+        },
+        "CCY-GBP": {
+          "liquidity": 0.69,
+          "dataQuality": 0.72,
+          "convertibility": 0.71,
+          "jurisdictionalRestrictions": 1,
+          "currencyControl": 0.67,
+          "benchmarkAvailability": 0.75,
+          "volatility": 0.61,
+          "diversification": 0.53,
+          "geopoliticalExposure": 0.57
+        },
+        "CCY-CHF": {
+          "liquidity": 0.5800000000000001,
+          "dataQuality": 0.88,
+          "convertibility": 0.85,
+          "jurisdictionalRestrictions": 1,
+          "currencyControl": 0.8300000000000001,
+          "benchmarkAvailability": 0.88,
+          "volatility": 0.87,
+          "diversification": 0.48,
+          "geopoliticalExposure": 0.53
+        },
+        "CCY-AUD": {
+          "liquidity": 0.54,
+          "dataQuality": 0.8,
+          "convertibility": 0.77,
+          "jurisdictionalRestrictions": 1,
+          "currencyControl": 0.74,
+          "benchmarkAvailability": 0.74,
+          "volatility": 0.7000000000000001,
+          "diversification": 0.47000000000000003,
+          "geopoliticalExposure": 0.34
+        },
+        "CCY-SGD": {
+          "liquidity": 0.46,
+          "dataQuality": 0.74,
+          "convertibility": 0.7,
+          "jurisdictionalRestrictions": 1,
+          "currencyControl": 0.68,
+          "benchmarkAvailability": 0.7,
+          "volatility": 0.64,
+          "diversification": 0.38,
+          "geopoliticalExposure": 0.33
+        },
+        "CCY-XXX": {
+          "liquidity": 0.45,
+          "dataQuality": 0.4,
+          "convertibility": 0.55,
+          "jurisdictionalRestrictions": 0,
+          "currencyControl": 0.5,
+          "benchmarkAvailability": 0.4,
+          "volatility": 0.3,
+          "diversification": 0.4,
+          "geopoliticalExposure": 0.2
+        }
+      },
+      "priceRelative": {
+        "CCY-USD": 1,
+        "CCY-EUR": 0.9994,
+        "CCY-JPY": 1,
+        "CCY-GBP": 1.0006,
+        "CCY-CHF": 0.999,
+        "CCY-AUD": 0.9996,
+        "CCY-SGD": 1.0002,
+        "CCY-XXX": 1.0008
+      },
+      "integrityRiskFlags": [],
+      "integrityRiskResolved": [],
+      "governanceDirectives": []
+    },
+    {
+      "period": 4,
+      "timestampIso": "2027-03-01T00:00:00.000Z",
+      "narrative": "CHF 4/6; GBP breaches exit threshold (exit window 1/4)",
+      "scores": {
+        "CCY-USD": {
+          "liquidity": 0.95,
+          "dataQuality": 0.95,
+          "convertibility": 0.9,
+          "jurisdictionalRestrictions": 1,
+          "currencyControl": 0.9,
+          "benchmarkAvailability": 0.95,
+          "volatility": 0.85,
+          "diversification": 0.55,
+          "geopoliticalExposure": 0.85
+        },
+        "CCY-EUR": {
+          "liquidity": 0.9,
+          "dataQuality": 0.93,
+          "convertibility": 0.9,
+          "jurisdictionalRestrictions": 1,
+          "currencyControl": 0.9,
+          "benchmarkAvailability": 0.95,
+          "volatility": 0.82,
+          "diversification": 0.6,
+          "geopoliticalExposure": 0.82
+        },
+        "CCY-JPY": {
+          "liquidity": 0.8,
+          "dataQuality": 0.88,
+          "convertibility": 0.85,
+          "jurisdictionalRestrictions": 1,
+          "currencyControl": 0.82,
+          "benchmarkAvailability": 0.9,
+          "volatility": 0.72,
+          "diversification": 0.68,
+          "geopoliticalExposure": 0.75
+        },
+        "CCY-GBP": {
+          "liquidity": 0.6299999999999999,
+          "dataQuality": 0.6599999999999999,
+          "convertibility": 0.6499999999999999,
+          "jurisdictionalRestrictions": 1,
+          "currencyControl": 0.6100000000000001,
+          "benchmarkAvailability": 0.69,
+          "volatility": 0.55,
+          "diversification": 0.47000000000000003,
+          "geopoliticalExposure": 0.51
+        },
+        "CCY-CHF": {
+          "liquidity": 0.6000000000000001,
+          "dataQuality": 0.9,
+          "convertibility": 0.87,
+          "jurisdictionalRestrictions": 1,
+          "currencyControl": 0.8500000000000001,
+          "benchmarkAvailability": 0.9,
+          "volatility": 0.89,
+          "diversification": 0.5,
+          "geopoliticalExposure": 0.55
+        },
+        "CCY-AUD": {
+          "liquidity": 0.55,
+          "dataQuality": 0.81,
+          "convertibility": 0.78,
+          "jurisdictionalRestrictions": 1,
+          "currencyControl": 0.75,
+          "benchmarkAvailability": 0.75,
+          "volatility": 0.7100000000000001,
+          "diversification": 0.48,
+          "geopoliticalExposure": 0.35
+        },
+        "CCY-SGD": {
+          "liquidity": 0.46,
+          "dataQuality": 0.74,
+          "convertibility": 0.7,
+          "jurisdictionalRestrictions": 1,
+          "currencyControl": 0.68,
+          "benchmarkAvailability": 0.7,
+          "volatility": 0.64,
+          "diversification": 0.38,
+          "geopoliticalExposure": 0.33
+        },
+        "CCY-XXX": {
+          "liquidity": 0.45,
+          "dataQuality": 0.4,
+          "convertibility": 0.55,
+          "jurisdictionalRestrictions": 0,
+          "currencyControl": 0.5,
+          "benchmarkAvailability": 0.4,
+          "volatility": 0.3,
+          "diversification": 0.4,
+          "geopoliticalExposure": 0.2
+        }
+      },
+      "priceRelative": {
+        "CCY-USD": 1,
+        "CCY-EUR": 1.0008,
+        "CCY-JPY": 0.9992,
+        "CCY-GBP": 0.9998,
+        "CCY-CHF": 1.0004,
+        "CCY-AUD": 1.001,
+        "CCY-SGD": 0.9994,
+        "CCY-XXX": 1
+      },
+      "integrityRiskFlags": [],
+      "integrityRiskResolved": [],
+      "governanceDirectives": []
+    },
+    {
+      "period": 5,
+      "timestampIso": "2027-03-31T00:00:00.000Z",
+      "narrative": "CHF 5/6; GBP 2/4; JPY temporary dip into warning band → T4 WATCH (no exit breach)",
+      "scores": {
+        "CCY-USD": {
+          "liquidity": 0.96,
+          "dataQuality": 0.96,
+          "convertibility": 0.91,
+          "jurisdictionalRestrictions": 1,
+          "currencyControl": 0.91,
+          "benchmarkAvailability": 0.96,
+          "volatility": 0.86,
+          "diversification": 0.56,
+          "geopoliticalExposure": 0.86
+        },
+        "CCY-EUR": {
+          "liquidity": 0.91,
+          "dataQuality": 0.9400000000000001,
+          "convertibility": 0.91,
+          "jurisdictionalRestrictions": 1,
+          "currencyControl": 0.91,
+          "benchmarkAvailability": 0.96,
+          "volatility": 0.83,
+          "diversification": 0.61,
+          "geopoliticalExposure": 0.83
+        },
+        "CCY-JPY": {
+          "liquidity": 0.65,
+          "dataQuality": 0.73,
+          "convertibility": 0.7,
+          "jurisdictionalRestrictions": 1,
+          "currencyControl": 0.6699999999999999,
+          "benchmarkAvailability": 0.75,
+          "volatility": 0.57,
+          "diversification": 0.53,
+          "geopoliticalExposure": 0.6
+        },
+        "CCY-GBP": {
+          "liquidity": 0.6199999999999999,
+          "dataQuality": 0.6499999999999999,
+          "convertibility": 0.6399999999999999,
+          "jurisdictionalRestrictions": 1,
+          "currencyControl": 0.6000000000000001,
+          "benchmarkAvailability": 0.6799999999999999,
+          "volatility": 0.54,
+          "diversification": 0.46,
+          "geopoliticalExposure": 0.49999999999999994
+        },
+        "CCY-CHF": {
+          "liquidity": 0.5900000000000001,
+          "dataQuality": 0.89,
+          "convertibility": 0.86,
+          "jurisdictionalRestrictions": 1,
+          "currencyControl": 0.8400000000000001,
+          "benchmarkAvailability": 0.89,
+          "volatility": 0.88,
+          "diversification": 0.49,
+          "geopoliticalExposure": 0.54
+        },
+        "CCY-AUD": {
+          "liquidity": 0.56,
+          "dataQuality": 0.8200000000000001,
+          "convertibility": 0.79,
+          "jurisdictionalRestrictions": 1,
+          "currencyControl": 0.76,
+          "benchmarkAvailability": 0.76,
+          "volatility": 0.7200000000000001,
+          "diversification": 0.49,
+          "geopoliticalExposure": 0.36
+        },
+        "CCY-SGD": {
+          "liquidity": 0.46,
+          "dataQuality": 0.74,
+          "convertibility": 0.7,
+          "jurisdictionalRestrictions": 1,
+          "currencyControl": 0.68,
+          "benchmarkAvailability": 0.7,
+          "volatility": 0.64,
+          "diversification": 0.38,
+          "geopoliticalExposure": 0.33
+        },
+        "CCY-XXX": {
+          "liquidity": 0.45,
+          "dataQuality": 0.4,
+          "convertibility": 0.55,
+          "jurisdictionalRestrictions": 0,
+          "currencyControl": 0.5,
+          "benchmarkAvailability": 0.4,
+          "volatility": 0.3,
+          "diversification": 0.4,
+          "geopoliticalExposure": 0.2
+        }
+      },
+      "priceRelative": {
+        "CCY-USD": 1,
+        "CCY-EUR": 1,
+        "CCY-JPY": 1.0006,
+        "CCY-GBP": 0.999,
+        "CCY-CHF": 0.9996,
+        "CCY-AUD": 1.0002,
+        "CCY-SGD": 1.0008,
+        "CCY-XXX": 0.9992
+      },
+      "integrityRiskFlags": [],
+      "integrityRiskResolved": [],
+      "governanceDirectives": []
+    },
+    {
+      "period": 6,
+      "timestampIso": "2027-04-30T00:00:00.000Z",
+      "narrative": "CHF 6/6 → T2 ELIGIBLE; GBP 3/4; JPY still in warning band",
+      "scores": {
+        "CCY-USD": {
+          "liquidity": 0.95,
+          "dataQuality": 0.95,
+          "convertibility": 0.9,
+          "jurisdictionalRestrictions": 1,
+          "currencyControl": 0.9,
+          "benchmarkAvailability": 0.95,
+          "volatility": 0.85,
+          "diversification": 0.55,
+          "geopoliticalExposure": 0.85
+        },
+        "CCY-EUR": {
+          "liquidity": 0.9,
+          "dataQuality": 0.93,
+          "convertibility": 0.9,
+          "jurisdictionalRestrictions": 1,
+          "currencyControl": 0.9,
+          "benchmarkAvailability": 0.95,
+          "volatility": 0.82,
+          "diversification": 0.6,
+          "geopoliticalExposure": 0.82
+        },
+        "CCY-JPY": {
+          "liquidity": 0.65,
+          "dataQuality": 0.73,
+          "convertibility": 0.7,
+          "jurisdictionalRestrictions": 1,
+          "currencyControl": 0.6699999999999999,
+          "benchmarkAvailability": 0.75,
+          "volatility": 0.57,
+          "diversification": 0.53,
+          "geopoliticalExposure": 0.6
+        },
+        "CCY-GBP": {
+          "liquidity": 0.61,
+          "dataQuality": 0.64,
+          "convertibility": 0.63,
+          "jurisdictionalRestrictions": 1,
+          "currencyControl": 0.5900000000000001,
+          "benchmarkAvailability": 0.67,
+          "volatility": 0.53,
+          "diversification": 0.45000000000000007,
+          "geopoliticalExposure": 0.49
+        },
+        "CCY-CHF": {
+          "liquidity": 0.6100000000000001,
+          "dataQuality": 0.9099999999999999,
+          "convertibility": 0.8799999999999999,
+          "jurisdictionalRestrictions": 1,
+          "currencyControl": 0.8600000000000001,
+          "benchmarkAvailability": 0.9099999999999999,
+          "volatility": 0.8999999999999999,
+          "diversification": 0.51,
+          "geopoliticalExposure": 0.56
+        },
+        "CCY-AUD": {
+          "liquidity": 0.5700000000000001,
+          "dataQuality": 0.8300000000000001,
+          "convertibility": 0.8,
+          "jurisdictionalRestrictions": 1,
+          "currencyControl": 0.77,
+          "benchmarkAvailability": 0.77,
+          "volatility": 0.7300000000000001,
+          "diversification": 0.5,
+          "geopoliticalExposure": 0.37
+        },
+        "CCY-SGD": {
+          "liquidity": 0.46,
+          "dataQuality": 0.74,
+          "convertibility": 0.7,
+          "jurisdictionalRestrictions": 1,
+          "currencyControl": 0.68,
+          "benchmarkAvailability": 0.7,
+          "volatility": 0.64,
+          "diversification": 0.38,
+          "geopoliticalExposure": 0.33
+        },
+        "CCY-XXX": {
+          "liquidity": 0.45,
+          "dataQuality": 0.4,
+          "convertibility": 0.55,
+          "jurisdictionalRestrictions": 0,
+          "currencyControl": 0.5,
+          "benchmarkAvailability": 0.4,
+          "volatility": 0.3,
+          "diversification": 0.4,
+          "geopoliticalExposure": 0.2
+        }
+      },
+      "priceRelative": {
+        "CCY-USD": 1,
+        "CCY-EUR": 0.9992,
+        "CCY-JPY": 0.9998,
+        "CCY-GBP": 1.0004,
+        "CCY-CHF": 1.001,
+        "CCY-AUD": 0.9994,
+        "CCY-SGD": 1,
+        "CCY-XXX": 1.0006
+      },
+      "integrityRiskFlags": [],
+      "integrityRiskResolved": [],
+      "governanceDirectives": []
+    },
+    {
+      "period": 7,
+      "timestampIso": "2027-05-30T00:00:00.000Z",
+      "narrative": "GBP exit window 4/4 → T5 confirmed (RETIRING); CHF T3 confirmed (ramp effective P8); JPY recovers → ACTIVE; AUD premature T3 REJECTED; substitution evaluated",
+      "scores": {
+        "CCY-USD": {
+          "liquidity": 0.95,
+          "dataQuality": 0.95,
+          "convertibility": 0.9,
+          "jurisdictionalRestrictions": 1,
+          "currencyControl": 0.9,
+          "benchmarkAvailability": 0.95,
+          "volatility": 0.85,
+          "diversification": 0.55,
+          "geopoliticalExposure": 0.85
+        },
+        "CCY-EUR": {
+          "liquidity": 0.9,
+          "dataQuality": 0.93,
+          "convertibility": 0.9,
+          "jurisdictionalRestrictions": 1,
+          "currencyControl": 0.9,
+          "benchmarkAvailability": 0.95,
+          "volatility": 0.82,
+          "diversification": 0.6,
+          "geopoliticalExposure": 0.82
+        },
+        "CCY-JPY": {
+          "liquidity": 0.75,
+          "dataQuality": 0.83,
+          "convertibility": 0.7999999999999999,
+          "jurisdictionalRestrictions": 1,
+          "currencyControl": 0.7699999999999999,
+          "benchmarkAvailability": 0.85,
+          "volatility": 0.6699999999999999,
+          "diversification": 0.63,
+          "geopoliticalExposure": 0.7
+        },
+        "CCY-GBP": {
+          "liquidity": 0.6,
+          "dataQuality": 0.63,
+          "convertibility": 0.62,
+          "jurisdictionalRestrictions": 1,
+          "currencyControl": 0.5800000000000001,
+          "benchmarkAvailability": 0.66,
+          "volatility": 0.52,
+          "diversification": 0.44000000000000006,
+          "geopoliticalExposure": 0.48
+        },
+        "CCY-CHF": {
+          "liquidity": 0.6100000000000001,
+          "dataQuality": 0.9099999999999999,
+          "convertibility": 0.8799999999999999,
+          "jurisdictionalRestrictions": 1,
+          "currencyControl": 0.8600000000000001,
+          "benchmarkAvailability": 0.9099999999999999,
+          "volatility": 0.8999999999999999,
+          "diversification": 0.51,
+          "geopoliticalExposure": 0.56
+        },
+        "CCY-AUD": {
+          "liquidity": 0.5800000000000001,
+          "dataQuality": 0.8400000000000001,
+          "convertibility": 0.81,
+          "jurisdictionalRestrictions": 1,
+          "currencyControl": 0.78,
+          "benchmarkAvailability": 0.78,
+          "volatility": 0.74,
+          "diversification": 0.51,
+          "geopoliticalExposure": 0.38
+        },
+        "CCY-SGD": {
+          "liquidity": 0.46,
+          "dataQuality": 0.74,
+          "convertibility": 0.7,
+          "jurisdictionalRestrictions": 1,
+          "currencyControl": 0.68,
+          "benchmarkAvailability": 0.7,
+          "volatility": 0.64,
+          "diversification": 0.38,
+          "geopoliticalExposure": 0.33
+        },
+        "CCY-XXX": {
+          "liquidity": 0.45,
+          "dataQuality": 0.4,
+          "convertibility": 0.55,
+          "jurisdictionalRestrictions": 0,
+          "currencyControl": 0.5,
+          "benchmarkAvailability": 0.4,
+          "volatility": 0.3,
+          "diversification": 0.4,
+          "geopoliticalExposure": 0.2
+        }
+      },
+      "priceRelative": {
+        "CCY-USD": 1,
+        "CCY-EUR": 1.0006,
+        "CCY-JPY": 0.999,
+        "CCY-GBP": 0.9996,
+        "CCY-CHF": 1.0002,
+        "CCY-AUD": 1.0008,
+        "CCY-SGD": 0.9992,
+        "CCY-XXX": 0.9998
+      },
+      "integrityRiskFlags": [],
+      "integrityRiskResolved": [],
+      "governanceDirectives": [
+        {
+          "index": 2,
+          "period": 7,
+          "type": "T3-CONFIRM",
+          "componentId": "CCY-CHF",
+          "effectivePeriod": 8,
+          "authority": "SIMULATED Monetary Authority proposal + constitutional ratification (fixture)"
+        },
+        {
+          "index": 3,
+          "period": 7,
+          "type": "T3-CONFIRM",
+          "componentId": "CCY-AUD",
+          "effectivePeriod": 8,
+          "authority": "SIMULATED premature admission attempt (negative control — the engine must REJECT: no T2 record, score below θ_in, entry window never opened)"
+        },
+        {
+          "index": 4,
+          "period": 7,
+          "type": "T5-CONFIRM",
+          "componentId": "CCY-GBP",
+          "effectivePeriod": 8,
+          "authority": "SIMULATED Risk Council 4-of-7 confirmation of the rule-completed retirement docket (fixture)"
+        }
+      ]
+    },
+    {
+      "period": 8,
+      "timestampIso": "2027-06-29T00:00:00.000Z",
+      "narrative": "joint glide 1/3: GBP decaying, CHF ramping from 0; CHF mid-ramp dip below warning → T4 WATCH (ramp immutable); ALL price relatives = 1.0 (unchanged-price boundary)",
+      "scores": {
+        "CCY-USD": {
+          "liquidity": 0.96,
+          "dataQuality": 0.96,
+          "convertibility": 0.91,
+          "jurisdictionalRestrictions": 1,
+          "currencyControl": 0.91,
+          "benchmarkAvailability": 0.96,
+          "volatility": 0.86,
+          "diversification": 0.56,
+          "geopoliticalExposure": 0.86
+        },
+        "CCY-EUR": {
+          "liquidity": 0.91,
+          "dataQuality": 0.9400000000000001,
+          "convertibility": 0.91,
+          "jurisdictionalRestrictions": 1,
+          "currencyControl": 0.91,
+          "benchmarkAvailability": 0.96,
+          "volatility": 0.83,
+          "diversification": 0.61,
+          "geopoliticalExposure": 0.83
+        },
+        "CCY-JPY": {
+          "liquidity": 0.8,
+          "dataQuality": 0.88,
+          "convertibility": 0.85,
+          "jurisdictionalRestrictions": 1,
+          "currencyControl": 0.82,
+          "benchmarkAvailability": 0.9,
+          "volatility": 0.72,
+          "diversification": 0.68,
+          "geopoliticalExposure": 0.75
+        },
+        "CCY-GBP": {
+          "liquidity": 0.59,
+          "dataQuality": 0.62,
+          "convertibility": 0.61,
+          "jurisdictionalRestrictions": 1,
+          "currencyControl": 0.5700000000000001,
+          "benchmarkAvailability": 0.65,
+          "volatility": 0.51,
+          "diversification": 0.43000000000000005,
+          "geopoliticalExposure": 0.47
+        },
+        "CCY-CHF": {
+          "liquidity": 0.49000000000000005,
+          "dataQuality": 0.79,
+          "convertibility": 0.76,
+          "jurisdictionalRestrictions": 1,
+          "currencyControl": 0.74,
+          "benchmarkAvailability": 0.79,
+          "volatility": 0.78,
+          "diversification": 0.39,
+          "geopoliticalExposure": 0.44
+        },
+        "CCY-AUD": {
+          "liquidity": 0.5800000000000001,
+          "dataQuality": 0.8400000000000001,
+          "convertibility": 0.81,
+          "jurisdictionalRestrictions": 1,
+          "currencyControl": 0.78,
+          "benchmarkAvailability": 0.78,
+          "volatility": 0.74,
+          "diversification": 0.51,
+          "geopoliticalExposure": 0.38
+        },
+        "CCY-SGD": {
+          "liquidity": 0.46,
+          "dataQuality": 0.74,
+          "convertibility": 0.7,
+          "jurisdictionalRestrictions": 1,
+          "currencyControl": 0.68,
+          "benchmarkAvailability": 0.7,
+          "volatility": 0.64,
+          "diversification": 0.38,
+          "geopoliticalExposure": 0.33
+        },
+        "CCY-XXX": {
+          "liquidity": 0.45,
+          "dataQuality": 0.4,
+          "convertibility": 0.55,
+          "jurisdictionalRestrictions": 0,
+          "currencyControl": 0.5,
+          "benchmarkAvailability": 0.4,
+          "volatility": 0.3,
+          "diversification": 0.4,
+          "geopoliticalExposure": 0.2
+        }
+      },
+      "priceRelative": {
+        "CCY-USD": 1,
+        "CCY-EUR": 1,
+        "CCY-JPY": 1,
+        "CCY-GBP": 1,
+        "CCY-CHF": 1,
+        "CCY-AUD": 1,
+        "CCY-SGD": 1,
+        "CCY-XXX": 1
+      },
+      "integrityRiskFlags": [],
+      "integrityRiskResolved": [],
+      "governanceDirectives": []
+    },
+    {
+      "period": 9,
+      "timestampIso": "2027-07-29T00:00:00.000Z",
+      "narrative": "joint glide 2/3; CHF still in warning band (post-completion WATCH will persist)",
+      "scores": {
+        "CCY-USD": {
+          "liquidity": 0.95,
+          "dataQuality": 0.95,
+          "convertibility": 0.9,
+          "jurisdictionalRestrictions": 1,
+          "currencyControl": 0.9,
+          "benchmarkAvailability": 0.95,
+          "volatility": 0.85,
+          "diversification": 0.55,
+          "geopoliticalExposure": 0.85
+        },
+        "CCY-EUR": {
+          "liquidity": 0.9,
+          "dataQuality": 0.93,
+          "convertibility": 0.9,
+          "jurisdictionalRestrictions": 1,
+          "currencyControl": 0.9,
+          "benchmarkAvailability": 0.95,
+          "volatility": 0.82,
+          "diversification": 0.6,
+          "geopoliticalExposure": 0.82
+        },
+        "CCY-JPY": {
+          "liquidity": 0.8,
+          "dataQuality": 0.88,
+          "convertibility": 0.85,
+          "jurisdictionalRestrictions": 1,
+          "currencyControl": 0.82,
+          "benchmarkAvailability": 0.9,
+          "volatility": 0.72,
+          "diversification": 0.68,
+          "geopoliticalExposure": 0.75
+        },
+        "CCY-GBP": {
+          "liquidity": 0.58,
+          "dataQuality": 0.61,
+          "convertibility": 0.6,
+          "jurisdictionalRestrictions": 1,
+          "currencyControl": 0.56,
+          "benchmarkAvailability": 0.64,
+          "volatility": 0.5,
+          "diversification": 0.42000000000000004,
+          "geopoliticalExposure": 0.45999999999999996
+        },
+        "CCY-CHF": {
+          "liquidity": 0.5,
+          "dataQuality": 0.7999999999999999,
+          "convertibility": 0.7699999999999999,
+          "jurisdictionalRestrictions": 1,
+          "currencyControl": 0.75,
+          "benchmarkAvailability": 0.7999999999999999,
+          "volatility": 0.7899999999999999,
+          "diversification": 0.4,
+          "geopoliticalExposure": 0.45
+        },
+        "CCY-AUD": {
+          "liquidity": 0.5800000000000001,
+          "dataQuality": 0.8400000000000001,
+          "convertibility": 0.81,
+          "jurisdictionalRestrictions": 1,
+          "currencyControl": 0.78,
+          "benchmarkAvailability": 0.78,
+          "volatility": 0.74,
+          "diversification": 0.51,
+          "geopoliticalExposure": 0.38
+        },
+        "CCY-SGD": {
+          "liquidity": 0.46,
+          "dataQuality": 0.74,
+          "convertibility": 0.7,
+          "jurisdictionalRestrictions": 1,
+          "currencyControl": 0.68,
+          "benchmarkAvailability": 0.7,
+          "volatility": 0.64,
+          "diversification": 0.38,
+          "geopoliticalExposure": 0.33
+        },
+        "CCY-XXX": {
+          "liquidity": 0.45,
+          "dataQuality": 0.4,
+          "convertibility": 0.55,
+          "jurisdictionalRestrictions": 0,
+          "currencyControl": 0.5,
+          "benchmarkAvailability": 0.4,
+          "volatility": 0.3,
+          "diversification": 0.4,
+          "geopoliticalExposure": 0.2
+        }
+      },
+      "priceRelative": {
+        "CCY-USD": 1,
+        "CCY-EUR": 0.999,
+        "CCY-JPY": 0.9996,
+        "CCY-GBP": 1.0002,
+        "CCY-CHF": 1.0008,
+        "CCY-AUD": 0.9992,
+        "CCY-SGD": 0.9998,
+        "CCY-XXX": 1.0004
+      },
+      "integrityRiskFlags": [],
+      "integrityRiskResolved": [],
+      "governanceDirectives": []
+    },
+    {
+      "period": 10,
+      "timestampIso": "2027-08-28T00:00:00.000Z",
+      "narrative": "joint glide 3/3 completes: GBP EXCLUDED at exactly 0 (T6), CHF ramp completes; USD T5 attempt REJECTED (no docket)",
+      "scores": {
+        "CCY-USD": {
+          "liquidity": 0.95,
+          "dataQuality": 0.95,
+          "convertibility": 0.9,
+          "jurisdictionalRestrictions": 1,
+          "currencyControl": 0.9,
+          "benchmarkAvailability": 0.95,
+          "volatility": 0.85,
+          "diversification": 0.55,
+          "geopoliticalExposure": 0.85
+        },
+        "CCY-EUR": {
+          "liquidity": 0.9,
+          "dataQuality": 0.93,
+          "convertibility": 0.9,
+          "jurisdictionalRestrictions": 1,
+          "currencyControl": 0.9,
+          "benchmarkAvailability": 0.95,
+          "volatility": 0.82,
+          "diversification": 0.6,
+          "geopoliticalExposure": 0.82
+        },
+        "CCY-JPY": {
+          "liquidity": 0.8,
+          "dataQuality": 0.88,
+          "convertibility": 0.85,
+          "jurisdictionalRestrictions": 1,
+          "currencyControl": 0.82,
+          "benchmarkAvailability": 0.9,
+          "volatility": 0.72,
+          "diversification": 0.68,
+          "geopoliticalExposure": 0.75
+        },
+        "CCY-GBP": {
+          "liquidity": 0.57,
+          "dataQuality": 0.6,
+          "convertibility": 0.59,
+          "jurisdictionalRestrictions": 1,
+          "currencyControl": 0.55,
+          "benchmarkAvailability": 0.63,
+          "volatility": 0.49,
+          "diversification": 0.41000000000000003,
+          "geopoliticalExposure": 0.44999999999999996
+        },
+        "CCY-CHF": {
+          "liquidity": 0.5,
+          "dataQuality": 0.7999999999999999,
+          "convertibility": 0.7699999999999999,
+          "jurisdictionalRestrictions": 1,
+          "currencyControl": 0.75,
+          "benchmarkAvailability": 0.7999999999999999,
+          "volatility": 0.7899999999999999,
+          "diversification": 0.4,
+          "geopoliticalExposure": 0.45
+        },
+        "CCY-AUD": {
+          "liquidity": 0.5900000000000001,
+          "dataQuality": 0.8500000000000001,
+          "convertibility": 0.8200000000000001,
+          "jurisdictionalRestrictions": 1,
+          "currencyControl": 0.79,
+          "benchmarkAvailability": 0.79,
+          "volatility": 0.75,
+          "diversification": 0.52,
+          "geopoliticalExposure": 0.39
+        },
+        "CCY-SGD": {
+          "liquidity": 0.46,
+          "dataQuality": 0.74,
+          "convertibility": 0.7,
+          "jurisdictionalRestrictions": 1,
+          "currencyControl": 0.68,
+          "benchmarkAvailability": 0.7,
+          "volatility": 0.64,
+          "diversification": 0.38,
+          "geopoliticalExposure": 0.33
+        },
+        "CCY-XXX": {
+          "liquidity": 0.45,
+          "dataQuality": 0.4,
+          "convertibility": 0.55,
+          "jurisdictionalRestrictions": 0,
+          "currencyControl": 0.5,
+          "benchmarkAvailability": 0.4,
+          "volatility": 0.3,
+          "diversification": 0.4,
+          "geopoliticalExposure": 0.2
+        }
+      },
+      "priceRelative": {
+        "CCY-USD": 1,
+        "CCY-EUR": 1.0004,
+        "CCY-JPY": 1.001,
+        "CCY-GBP": 0.9994,
+        "CCY-CHF": 1,
+        "CCY-AUD": 1.0006,
+        "CCY-SGD": 0.999,
+        "CCY-XXX": 0.9996
+      },
+      "integrityRiskFlags": [],
+      "integrityRiskResolved": [],
+      "governanceDirectives": [
+        {
+          "index": 5,
+          "period": 10,
+          "type": "T5-CONFIRM",
+          "componentId": "CCY-USD",
+          "effectivePeriod": 11,
+          "authority": "SIMULATED unsupported retirement attempt (negative control — the engine must REJECT: no exit-window docket, USD score healthy)"
+        }
+      ]
+    },
+    {
+      "period": 11,
+      "timestampIso": "2027-09-27T00:00:00.000Z",
+      "narrative": "CHF recovers above warning → back to ACTIVE (temporary episodes do not reverse retirement — GBP stays EXCLUDED)",
+      "scores": {
+        "CCY-USD": {
+          "liquidity": 0.96,
+          "dataQuality": 0.96,
+          "convertibility": 0.91,
+          "jurisdictionalRestrictions": 1,
+          "currencyControl": 0.91,
+          "benchmarkAvailability": 0.96,
+          "volatility": 0.86,
+          "diversification": 0.56,
+          "geopoliticalExposure": 0.86
+        },
+        "CCY-EUR": {
+          "liquidity": 0.91,
+          "dataQuality": 0.9400000000000001,
+          "convertibility": 0.91,
+          "jurisdictionalRestrictions": 1,
+          "currencyControl": 0.91,
+          "benchmarkAvailability": 0.96,
+          "volatility": 0.83,
+          "diversification": 0.61,
+          "geopoliticalExposure": 0.83
+        },
+        "CCY-JPY": {
+          "liquidity": 0.8,
+          "dataQuality": 0.88,
+          "convertibility": 0.85,
+          "jurisdictionalRestrictions": 1,
+          "currencyControl": 0.82,
+          "benchmarkAvailability": 0.9,
+          "volatility": 0.72,
+          "diversification": 0.68,
+          "geopoliticalExposure": 0.75
+        },
+        "CCY-GBP": {
+          "liquidity": 0.5599999999999999,
+          "dataQuality": 0.59,
+          "convertibility": 0.58,
+          "jurisdictionalRestrictions": 1,
+          "currencyControl": 0.54,
+          "benchmarkAvailability": 0.62,
+          "volatility": 0.48,
+          "diversification": 0.4,
+          "geopoliticalExposure": 0.43999999999999995
+        },
+        "CCY-CHF": {
+          "liquidity": 0.5800000000000001,
+          "dataQuality": 0.88,
+          "convertibility": 0.85,
+          "jurisdictionalRestrictions": 1,
+          "currencyControl": 0.8300000000000001,
+          "benchmarkAvailability": 0.88,
+          "volatility": 0.87,
+          "diversification": 0.48,
+          "geopoliticalExposure": 0.53
+        },
+        "CCY-AUD": {
+          "liquidity": 0.5900000000000001,
+          "dataQuality": 0.8500000000000001,
+          "convertibility": 0.8200000000000001,
+          "jurisdictionalRestrictions": 1,
+          "currencyControl": 0.79,
+          "benchmarkAvailability": 0.79,
+          "volatility": 0.75,
+          "diversification": 0.52,
+          "geopoliticalExposure": 0.39
+        },
+        "CCY-SGD": {
+          "liquidity": 0.46,
+          "dataQuality": 0.74,
+          "convertibility": 0.7,
+          "jurisdictionalRestrictions": 1,
+          "currencyControl": 0.68,
+          "benchmarkAvailability": 0.7,
+          "volatility": 0.64,
+          "diversification": 0.38,
+          "geopoliticalExposure": 0.33
+        },
+        "CCY-XXX": {
+          "liquidity": 0.45,
+          "dataQuality": 0.4,
+          "convertibility": 0.55,
+          "jurisdictionalRestrictions": 0,
+          "currencyControl": 0.5,
+          "benchmarkAvailability": 0.4,
+          "volatility": 0.3,
+          "diversification": 0.4,
+          "geopoliticalExposure": 0.2
+        }
+      },
+      "priceRelative": {
+        "CCY-USD": 1,
+        "CCY-EUR": 0.9996,
+        "CCY-JPY": 1.0002,
+        "CCY-GBP": 1.0008,
+        "CCY-CHF": 0.9992,
+        "CCY-AUD": 0.9998,
+        "CCY-SGD": 1.0004,
+        "CCY-XXX": 1.001
+      },
+      "integrityRiskFlags": [],
+      "integrityRiskResolved": [],
+      "governanceDirectives": []
+    },
+    {
+      "period": 12,
+      "timestampIso": "2027-10-27T00:00:00.000Z",
+      "narrative": "EUR EMERGENCY-SUSPENDED (T7, data-integrity risk; score healthy — not score-driven); IMMEDIATE: weight frozen at the pre-trigger committed value from this commit, EUR price leg pinned fail-closed (rel = 1.0)",
+      "scores": {
+        "CCY-USD": {
+          "liquidity": 0.95,
+          "dataQuality": 0.95,
+          "convertibility": 0.9,
+          "jurisdictionalRestrictions": 1,
+          "currencyControl": 0.9,
+          "benchmarkAvailability": 0.95,
+          "volatility": 0.85,
+          "diversification": 0.55,
+          "geopoliticalExposure": 0.85
+        },
+        "CCY-EUR": {
+          "liquidity": 0.9,
+          "dataQuality": 0.93,
+          "convertibility": 0.9,
+          "jurisdictionalRestrictions": 1,
+          "currencyControl": 0.9,
+          "benchmarkAvailability": 0.95,
+          "volatility": 0.82,
+          "diversification": 0.6,
+          "geopoliticalExposure": 0.82
+        },
+        "CCY-JPY": {
+          "liquidity": 0.8,
+          "dataQuality": 0.88,
+          "convertibility": 0.85,
+          "jurisdictionalRestrictions": 1,
+          "currencyControl": 0.82,
+          "benchmarkAvailability": 0.9,
+          "volatility": 0.72,
+          "diversification": 0.68,
+          "geopoliticalExposure": 0.75
+        },
+        "CCY-GBP": {
+          "liquidity": 0.5499999999999999,
+          "dataQuality": 0.58,
+          "convertibility": 0.57,
+          "jurisdictionalRestrictions": 1,
+          "currencyControl": 0.53,
+          "benchmarkAvailability": 0.61,
+          "volatility": 0.47,
+          "diversification": 0.39,
+          "geopoliticalExposure": 0.42999999999999994
+        },
+        "CCY-CHF": {
+          "liquidity": 0.5900000000000001,
+          "dataQuality": 0.89,
+          "convertibility": 0.86,
+          "jurisdictionalRestrictions": 1,
+          "currencyControl": 0.8400000000000001,
+          "benchmarkAvailability": 0.89,
+          "volatility": 0.88,
+          "diversification": 0.49,
+          "geopoliticalExposure": 0.54
+        },
+        "CCY-AUD": {
+          "liquidity": 0.5900000000000001,
+          "dataQuality": 0.8500000000000001,
+          "convertibility": 0.8200000000000001,
+          "jurisdictionalRestrictions": 1,
+          "currencyControl": 0.79,
+          "benchmarkAvailability": 0.79,
+          "volatility": 0.75,
+          "diversification": 0.52,
+          "geopoliticalExposure": 0.39
+        },
+        "CCY-SGD": {
+          "liquidity": 0.46,
+          "dataQuality": 0.74,
+          "convertibility": 0.7,
+          "jurisdictionalRestrictions": 1,
+          "currencyControl": 0.68,
+          "benchmarkAvailability": 0.7,
+          "volatility": 0.64,
+          "diversification": 0.38,
+          "geopoliticalExposure": 0.33
+        },
+        "CCY-XXX": {
+          "liquidity": 0.45,
+          "dataQuality": 0.4,
+          "convertibility": 0.55,
+          "jurisdictionalRestrictions": 0,
+          "currencyControl": 0.5,
+          "benchmarkAvailability": 0.4,
+          "volatility": 0.3,
+          "diversification": 0.4,
+          "geopoliticalExposure": 0.2
+        }
+      },
+      "priceRelative": {
+        "CCY-USD": 1,
+        "CCY-EUR": 1.001,
+        "CCY-JPY": 0.9994,
+        "CCY-GBP": 1,
+        "CCY-CHF": 1.0006,
+        "CCY-AUD": 0.999,
+        "CCY-SGD": 0.9996,
+        "CCY-XXX": 1.0002
+      },
+      "integrityRiskFlags": [
+        "CCY-EUR"
+      ],
+      "integrityRiskResolved": [],
+      "governanceDirectives": [
+        {
+          "index": 6,
+          "period": 12,
+          "type": "T7-EMERGENCY-SUSPENSION",
+          "componentId": "CCY-EUR",
+          "effectivePeriod": 12,
+          "authority": "SIMULATED Emergency Council 2-of-3 quorum (immediate; no pre-announcement by definition)",
+          "cause": "DATA-INTEGRITY-RISK: SIMULATED oracle feed integrity failure on the EUR leg (deliverable-10 emergency class; deterministic fixture)",
+          "note": "post-hoc disclosure within 24h (recorded at period 12); IMMEDIATE per spec §3 T7 — weight frozen at the pre-trigger committed value and the EUR price leg pinned fail-closed from the period-12 commit onward"
+        }
+      ]
+    },
+    {
+      "period": 13,
+      "timestampIso": "2027-11-26T00:00:00.000Z",
+      "narrative": "EUR weight still frozen + price leg still pinned (suspension period); cause resolved at P13 → T8(a) fast-track reinstatement (duration 1 ≤ T_rein 1; ACTIVE from P14); JPY exit-window breach 1/4 → T4 WATCH",
+      "scores": {
+        "CCY-USD": {
+          "liquidity": 0.95,
+          "dataQuality": 0.95,
+          "convertibility": 0.9,
+          "jurisdictionalRestrictions": 1,
+          "currencyControl": 0.9,
+          "benchmarkAvailability": 0.95,
+          "volatility": 0.85,
+          "diversification": 0.55,
+          "geopoliticalExposure": 0.85
+        },
+        "CCY-EUR": {
+          "liquidity": 0.9,
+          "dataQuality": 0.93,
+          "convertibility": 0.9,
+          "jurisdictionalRestrictions": 1,
+          "currencyControl": 0.9,
+          "benchmarkAvailability": 0.95,
+          "volatility": 0.82,
+          "diversification": 0.6,
+          "geopoliticalExposure": 0.82
+        },
+        "CCY-JPY": {
+          "liquidity": 0.5900000000000001,
+          "dataQuality": 0.67,
+          "convertibility": 0.64,
+          "jurisdictionalRestrictions": 1,
+          "currencyControl": 0.61,
+          "benchmarkAvailability": 0.6900000000000001,
+          "volatility": 0.51,
+          "diversification": 0.4700000000000001,
+          "geopoliticalExposure": 0.54
+        },
+        "CCY-GBP": {
+          "liquidity": 0.5399999999999999,
+          "dataQuality": 0.57,
+          "convertibility": 0.5599999999999999,
+          "jurisdictionalRestrictions": 1,
+          "currencyControl": 0.52,
+          "benchmarkAvailability": 0.6,
+          "volatility": 0.45999999999999996,
+          "diversification": 0.38,
+          "geopoliticalExposure": 0.41999999999999993
+        },
+        "CCY-CHF": {
+          "liquidity": 0.5900000000000001,
+          "dataQuality": 0.89,
+          "convertibility": 0.86,
+          "jurisdictionalRestrictions": 1,
+          "currencyControl": 0.8400000000000001,
+          "benchmarkAvailability": 0.89,
+          "volatility": 0.88,
+          "diversification": 0.49,
+          "geopoliticalExposure": 0.54
+        },
+        "CCY-AUD": {
+          "liquidity": 0.5900000000000001,
+          "dataQuality": 0.8500000000000001,
+          "convertibility": 0.8200000000000001,
+          "jurisdictionalRestrictions": 1,
+          "currencyControl": 0.79,
+          "benchmarkAvailability": 0.79,
+          "volatility": 0.75,
+          "diversification": 0.52,
+          "geopoliticalExposure": 0.39
+        },
+        "CCY-SGD": {
+          "liquidity": 0.46,
+          "dataQuality": 0.74,
+          "convertibility": 0.7,
+          "jurisdictionalRestrictions": 1,
+          "currencyControl": 0.68,
+          "benchmarkAvailability": 0.7,
+          "volatility": 0.64,
+          "diversification": 0.38,
+          "geopoliticalExposure": 0.33
+        },
+        "CCY-XXX": {
+          "liquidity": 0.45,
+          "dataQuality": 0.4,
+          "convertibility": 0.55,
+          "jurisdictionalRestrictions": 0,
+          "currencyControl": 0.5,
+          "benchmarkAvailability": 0.4,
+          "volatility": 0.3,
+          "diversification": 0.4,
+          "geopoliticalExposure": 0.2
+        }
+      },
+      "priceRelative": {
+        "CCY-USD": 1,
+        "CCY-EUR": 1.0002,
+        "CCY-JPY": 1.0008,
+        "CCY-GBP": 0.9992,
+        "CCY-CHF": 0.9998,
+        "CCY-AUD": 1.0004,
+        "CCY-SGD": 1.001,
+        "CCY-XXX": 0.9994
+      },
+      "integrityRiskFlags": [],
+      "integrityRiskResolved": [
+        "CCY-EUR"
+      ],
+      "governanceDirectives": [
+        {
+          "index": 7,
+          "period": 13,
+          "type": "T8-RESOLUTION",
+          "componentId": "CCY-EUR",
+          "effectivePeriod": 14,
+          "authority": "SIMULATED joint Emergency Council + Risk Council resolution (fixture)",
+          "causeResolved": true,
+          "note": "feed integrity restored; SIMULATED evidence ref INTEG-EUR-13"
+        }
+      ]
+    },
+    {
+      "period": 14,
+      "timestampIso": "2027-12-26T00:00:00.000Z",
+      "narrative": "JPY exit window 2/4; EUR resumes normal treatment",
+      "scores": {
+        "CCY-USD": {
+          "liquidity": 0.96,
+          "dataQuality": 0.96,
+          "convertibility": 0.91,
+          "jurisdictionalRestrictions": 1,
+          "currencyControl": 0.91,
+          "benchmarkAvailability": 0.96,
+          "volatility": 0.86,
+          "diversification": 0.56,
+          "geopoliticalExposure": 0.86
+        },
+        "CCY-EUR": {
+          "liquidity": 0.91,
+          "dataQuality": 0.9400000000000001,
+          "convertibility": 0.91,
+          "jurisdictionalRestrictions": 1,
+          "currencyControl": 0.91,
+          "benchmarkAvailability": 0.96,
+          "volatility": 0.83,
+          "diversification": 0.61,
+          "geopoliticalExposure": 0.83
+        },
+        "CCY-JPY": {
+          "liquidity": 0.5800000000000001,
+          "dataQuality": 0.66,
+          "convertibility": 0.63,
+          "jurisdictionalRestrictions": 1,
+          "currencyControl": 0.6,
+          "benchmarkAvailability": 0.68,
+          "volatility": 0.5,
+          "diversification": 0.4600000000000001,
+          "geopoliticalExposure": 0.53
+        },
+        "CCY-GBP": {
+          "liquidity": 0.53,
+          "dataQuality": 0.56,
+          "convertibility": 0.55,
+          "jurisdictionalRestrictions": 1,
+          "currencyControl": 0.51,
+          "benchmarkAvailability": 0.5900000000000001,
+          "volatility": 0.45,
+          "diversification": 0.37000000000000005,
+          "geopoliticalExposure": 0.41
+        },
+        "CCY-CHF": {
+          "liquidity": 0.6000000000000001,
+          "dataQuality": 0.9,
+          "convertibility": 0.87,
+          "jurisdictionalRestrictions": 1,
+          "currencyControl": 0.8500000000000001,
+          "benchmarkAvailability": 0.9,
+          "volatility": 0.89,
+          "diversification": 0.5,
+          "geopoliticalExposure": 0.55
+        },
+        "CCY-AUD": {
+          "liquidity": 0.6,
+          "dataQuality": 0.86,
+          "convertibility": 0.83,
+          "jurisdictionalRestrictions": 1,
+          "currencyControl": 0.7999999999999999,
+          "benchmarkAvailability": 0.7999999999999999,
+          "volatility": 0.76,
+          "diversification": 0.53,
+          "geopoliticalExposure": 0.4
+        },
+        "CCY-SGD": {
+          "liquidity": 0.46,
+          "dataQuality": 0.74,
+          "convertibility": 0.7,
+          "jurisdictionalRestrictions": 1,
+          "currencyControl": 0.68,
+          "benchmarkAvailability": 0.7,
+          "volatility": 0.64,
+          "diversification": 0.38,
+          "geopoliticalExposure": 0.33
+        },
+        "CCY-XXX": {
+          "liquidity": 0.45,
+          "dataQuality": 0.4,
+          "convertibility": 0.55,
+          "jurisdictionalRestrictions": 0,
+          "currencyControl": 0.5,
+          "benchmarkAvailability": 0.4,
+          "volatility": 0.3,
+          "diversification": 0.4,
+          "geopoliticalExposure": 0.2
+        }
+      },
+      "priceRelative": {
+        "CCY-USD": 1,
+        "CCY-EUR": 0.9994,
+        "CCY-JPY": 1,
+        "CCY-GBP": 1.0006,
+        "CCY-CHF": 0.999,
+        "CCY-AUD": 0.9996,
+        "CCY-SGD": 1.0002,
+        "CCY-XXX": 1.0008
+      },
+      "integrityRiskFlags": [],
+      "integrityRiskResolved": [],
+      "governanceDirectives": []
+    },
+    {
+      "period": 15,
+      "timestampIso": "2028-01-25T00:00:00.000Z",
+      "narrative": "JPY exit window 3/4",
+      "scores": {
+        "CCY-USD": {
+          "liquidity": 0.95,
+          "dataQuality": 0.95,
+          "convertibility": 0.9,
+          "jurisdictionalRestrictions": 1,
+          "currencyControl": 0.9,
+          "benchmarkAvailability": 0.95,
+          "volatility": 0.85,
+          "diversification": 0.55,
+          "geopoliticalExposure": 0.85
+        },
+        "CCY-EUR": {
+          "liquidity": 0.9,
+          "dataQuality": 0.93,
+          "convertibility": 0.9,
+          "jurisdictionalRestrictions": 1,
+          "currencyControl": 0.9,
+          "benchmarkAvailability": 0.95,
+          "volatility": 0.82,
+          "diversification": 0.6,
+          "geopoliticalExposure": 0.82
+        },
+        "CCY-JPY": {
+          "liquidity": 0.5700000000000001,
+          "dataQuality": 0.65,
+          "convertibility": 0.62,
+          "jurisdictionalRestrictions": 1,
+          "currencyControl": 0.59,
+          "benchmarkAvailability": 0.67,
+          "volatility": 0.49,
+          "diversification": 0.45000000000000007,
+          "geopoliticalExposure": 0.52
+        },
+        "CCY-GBP": {
+          "liquidity": 0.52,
+          "dataQuality": 0.55,
+          "convertibility": 0.54,
+          "jurisdictionalRestrictions": 1,
+          "currencyControl": 0.5,
+          "benchmarkAvailability": 0.5800000000000001,
+          "volatility": 0.44,
+          "diversification": 0.36000000000000004,
+          "geopoliticalExposure": 0.39999999999999997
+        },
+        "CCY-CHF": {
+          "liquidity": 0.6100000000000001,
+          "dataQuality": 0.9099999999999999,
+          "convertibility": 0.8799999999999999,
+          "jurisdictionalRestrictions": 1,
+          "currencyControl": 0.8600000000000001,
+          "benchmarkAvailability": 0.9099999999999999,
+          "volatility": 0.8999999999999999,
+          "diversification": 0.51,
+          "geopoliticalExposure": 0.56
+        },
+        "CCY-AUD": {
+          "liquidity": 0.6,
+          "dataQuality": 0.86,
+          "convertibility": 0.83,
+          "jurisdictionalRestrictions": 1,
+          "currencyControl": 0.7999999999999999,
+          "benchmarkAvailability": 0.7999999999999999,
+          "volatility": 0.76,
+          "diversification": 0.53,
+          "geopoliticalExposure": 0.4
+        },
+        "CCY-SGD": {
+          "liquidity": 0.46,
+          "dataQuality": 0.74,
+          "convertibility": 0.7,
+          "jurisdictionalRestrictions": 1,
+          "currencyControl": 0.68,
+          "benchmarkAvailability": 0.7,
+          "volatility": 0.64,
+          "diversification": 0.38,
+          "geopoliticalExposure": 0.33
+        },
+        "CCY-XXX": {
+          "liquidity": 0.45,
+          "dataQuality": 0.4,
+          "convertibility": 0.55,
+          "jurisdictionalRestrictions": 0,
+          "currencyControl": 0.5,
+          "benchmarkAvailability": 0.4,
+          "volatility": 0.3,
+          "diversification": 0.4,
+          "geopoliticalExposure": 0.2
+        }
+      },
+      "priceRelative": {
+        "CCY-USD": 1,
+        "CCY-EUR": 1.0008,
+        "CCY-JPY": 0.9992,
+        "CCY-GBP": 0.9998,
+        "CCY-CHF": 1.0004,
+        "CCY-AUD": 1.001,
+        "CCY-SGD": 0.9994,
+        "CCY-XXX": 1
+      },
+      "integrityRiskFlags": [],
+      "integrityRiskResolved": [],
+      "governanceDirectives": []
+    },
+    {
+      "period": 16,
+      "timestampIso": "2028-02-24T00:00:00.000Z",
+      "narrative": "JPY exit window 4/4 → T5 confirmed (RETIRING, glide effective P17); NO candidate qualifies → no substitution (AUD below θ_in; SGD far below; XXX hard-gate failures)",
+      "scores": {
+        "CCY-USD": {
+          "liquidity": 0.95,
+          "dataQuality": 0.95,
+          "convertibility": 0.9,
+          "jurisdictionalRestrictions": 1,
+          "currencyControl": 0.9,
+          "benchmarkAvailability": 0.95,
+          "volatility": 0.85,
+          "diversification": 0.55,
+          "geopoliticalExposure": 0.85
+        },
+        "CCY-EUR": {
+          "liquidity": 0.9,
+          "dataQuality": 0.93,
+          "convertibility": 0.9,
+          "jurisdictionalRestrictions": 1,
+          "currencyControl": 0.9,
+          "benchmarkAvailability": 0.95,
+          "volatility": 0.82,
+          "diversification": 0.6,
+          "geopoliticalExposure": 0.82
+        },
+        "CCY-JPY": {
+          "liquidity": 0.56,
+          "dataQuality": 0.64,
+          "convertibility": 0.61,
+          "jurisdictionalRestrictions": 1,
+          "currencyControl": 0.58,
+          "benchmarkAvailability": 0.66,
+          "volatility": 0.48,
+          "diversification": 0.44000000000000006,
+          "geopoliticalExposure": 0.51
+        },
+        "CCY-GBP": {
+          "liquidity": 0.51,
+          "dataQuality": 0.54,
+          "convertibility": 0.53,
+          "jurisdictionalRestrictions": 1,
+          "currencyControl": 0.49000000000000005,
+          "benchmarkAvailability": 0.5700000000000001,
+          "volatility": 0.43,
+          "diversification": 0.35000000000000003,
+          "geopoliticalExposure": 0.38999999999999996
+        },
+        "CCY-CHF": {
+          "liquidity": 0.6100000000000001,
+          "dataQuality": 0.9099999999999999,
+          "convertibility": 0.8799999999999999,
+          "jurisdictionalRestrictions": 1,
+          "currencyControl": 0.8600000000000001,
+          "benchmarkAvailability": 0.9099999999999999,
+          "volatility": 0.8999999999999999,
+          "diversification": 0.51,
+          "geopoliticalExposure": 0.56
+        },
+        "CCY-AUD": {
+          "liquidity": 0.6,
+          "dataQuality": 0.86,
+          "convertibility": 0.83,
+          "jurisdictionalRestrictions": 1,
+          "currencyControl": 0.7999999999999999,
+          "benchmarkAvailability": 0.7999999999999999,
+          "volatility": 0.76,
+          "diversification": 0.53,
+          "geopoliticalExposure": 0.4
+        },
+        "CCY-SGD": {
+          "liquidity": 0.46,
+          "dataQuality": 0.74,
+          "convertibility": 0.7,
+          "jurisdictionalRestrictions": 1,
+          "currencyControl": 0.68,
+          "benchmarkAvailability": 0.7,
+          "volatility": 0.64,
+          "diversification": 0.38,
+          "geopoliticalExposure": 0.33
+        },
+        "CCY-XXX": {
+          "liquidity": 0.45,
+          "dataQuality": 0.4,
+          "convertibility": 0.55,
+          "jurisdictionalRestrictions": 0,
+          "currencyControl": 0.5,
+          "benchmarkAvailability": 0.4,
+          "volatility": 0.3,
+          "diversification": 0.4,
+          "geopoliticalExposure": 0.2
+        }
+      },
+      "priceRelative": {
+        "CCY-USD": 1,
+        "CCY-EUR": 1,
+        "CCY-JPY": 1.0006,
+        "CCY-GBP": 0.999,
+        "CCY-CHF": 0.9996,
+        "CCY-AUD": 1.0002,
+        "CCY-SGD": 1.0008,
+        "CCY-XXX": 0.9992
+      },
+      "integrityRiskFlags": [],
+      "integrityRiskResolved": [],
+      "governanceDirectives": [
+        {
+          "index": 8,
+          "period": 16,
+          "type": "T5-CONFIRM",
+          "componentId": "CCY-JPY",
+          "effectivePeriod": 17,
+          "authority": "SIMULATED Risk Council 4-of-7 confirmation of the rule-completed retirement docket (fixture)"
+        }
+      ]
+    },
+    {
+      "period": 17,
+      "timestampIso": "2028-03-25T00:00:00.000Z",
+      "narrative": "JPY exit glide 1/3 (pro-rata §5.4 redistribution to survivors; N=3 DERIVED by the engine from the endpoint moves and Δ per §5.5)",
+      "scores": {
+        "CCY-USD": {
+          "liquidity": 0.96,
+          "dataQuality": 0.96,
+          "convertibility": 0.91,
+          "jurisdictionalRestrictions": 1,
+          "currencyControl": 0.91,
+          "benchmarkAvailability": 0.96,
+          "volatility": 0.86,
+          "diversification": 0.56,
+          "geopoliticalExposure": 0.86
+        },
+        "CCY-EUR": {
+          "liquidity": 0.91,
+          "dataQuality": 0.9400000000000001,
+          "convertibility": 0.91,
+          "jurisdictionalRestrictions": 1,
+          "currencyControl": 0.91,
+          "benchmarkAvailability": 0.96,
+          "volatility": 0.83,
+          "diversification": 0.61,
+          "geopoliticalExposure": 0.83
+        },
+        "CCY-JPY": {
+          "liquidity": 0.55,
+          "dataQuality": 0.63,
+          "convertibility": 0.6,
+          "jurisdictionalRestrictions": 1,
+          "currencyControl": 0.57,
+          "benchmarkAvailability": 0.65,
+          "volatility": 0.47,
+          "diversification": 0.43000000000000005,
+          "geopoliticalExposure": 0.5
+        },
+        "CCY-GBP": {
+          "liquidity": 0.49999999999999994,
+          "dataQuality": 0.53,
+          "convertibility": 0.52,
+          "jurisdictionalRestrictions": 1,
+          "currencyControl": 0.48000000000000004,
+          "benchmarkAvailability": 0.56,
+          "volatility": 0.42,
+          "diversification": 0.34,
+          "geopoliticalExposure": 0.37999999999999995
+        },
+        "CCY-CHF": {
+          "liquidity": 0.6100000000000001,
+          "dataQuality": 0.9099999999999999,
+          "convertibility": 0.8799999999999999,
+          "jurisdictionalRestrictions": 1,
+          "currencyControl": 0.8600000000000001,
+          "benchmarkAvailability": 0.9099999999999999,
+          "volatility": 0.8999999999999999,
+          "diversification": 0.51,
+          "geopoliticalExposure": 0.56
+        },
+        "CCY-AUD": {
+          "liquidity": 0.6,
+          "dataQuality": 0.86,
+          "convertibility": 0.83,
+          "jurisdictionalRestrictions": 1,
+          "currencyControl": 0.7999999999999999,
+          "benchmarkAvailability": 0.7999999999999999,
+          "volatility": 0.76,
+          "diversification": 0.53,
+          "geopoliticalExposure": 0.4
+        },
+        "CCY-SGD": {
+          "liquidity": 0.46,
+          "dataQuality": 0.74,
+          "convertibility": 0.7,
+          "jurisdictionalRestrictions": 1,
+          "currencyControl": 0.68,
+          "benchmarkAvailability": 0.7,
+          "volatility": 0.64,
+          "diversification": 0.38,
+          "geopoliticalExposure": 0.33
+        },
+        "CCY-XXX": {
+          "liquidity": 0.45,
+          "dataQuality": 0.4,
+          "convertibility": 0.55,
+          "jurisdictionalRestrictions": 0,
+          "currencyControl": 0.5,
+          "benchmarkAvailability": 0.4,
+          "volatility": 0.3,
+          "diversification": 0.4,
+          "geopoliticalExposure": 0.2
+        }
+      },
+      "priceRelative": {
+        "CCY-USD": 1,
+        "CCY-EUR": 0.9992,
+        "CCY-JPY": 0.9998,
+        "CCY-GBP": 1.0004,
+        "CCY-CHF": 1.001,
+        "CCY-AUD": 0.9994,
+        "CCY-SGD": 1,
+        "CCY-XXX": 1.0006
+      },
+      "integrityRiskFlags": [],
+      "integrityRiskResolved": [],
+      "governanceDirectives": []
+    },
+    {
+      "period": 18,
+      "timestampIso": "2028-04-24T00:00:00.000Z",
+      "narrative": "JPY exit glide 2/3",
+      "scores": {
+        "CCY-USD": {
+          "liquidity": 0.95,
+          "dataQuality": 0.95,
+          "convertibility": 0.9,
+          "jurisdictionalRestrictions": 1,
+          "currencyControl": 0.9,
+          "benchmarkAvailability": 0.95,
+          "volatility": 0.85,
+          "diversification": 0.55,
+          "geopoliticalExposure": 0.85
+        },
+        "CCY-EUR": {
+          "liquidity": 0.9,
+          "dataQuality": 0.93,
+          "convertibility": 0.9,
+          "jurisdictionalRestrictions": 1,
+          "currencyControl": 0.9,
+          "benchmarkAvailability": 0.95,
+          "volatility": 0.82,
+          "diversification": 0.6,
+          "geopoliticalExposure": 0.82
+        },
+        "CCY-JPY": {
+          "liquidity": 0.54,
+          "dataQuality": 0.62,
+          "convertibility": 0.59,
+          "jurisdictionalRestrictions": 1,
+          "currencyControl": 0.5599999999999999,
+          "benchmarkAvailability": 0.64,
+          "volatility": 0.45999999999999996,
+          "diversification": 0.42000000000000004,
+          "geopoliticalExposure": 0.49
+        },
+        "CCY-GBP": {
+          "liquidity": 0.48999999999999994,
+          "dataQuality": 0.52,
+          "convertibility": 0.51,
+          "jurisdictionalRestrictions": 1,
+          "currencyControl": 0.47000000000000003,
+          "benchmarkAvailability": 0.55,
+          "volatility": 0.41,
+          "diversification": 0.33,
+          "geopoliticalExposure": 0.36999999999999994
+        },
+        "CCY-CHF": {
+          "liquidity": 0.6200000000000001,
+          "dataQuality": 0.9199999999999999,
+          "convertibility": 0.8899999999999999,
+          "jurisdictionalRestrictions": 1,
+          "currencyControl": 0.8700000000000001,
+          "benchmarkAvailability": 0.9199999999999999,
+          "volatility": 0.9099999999999999,
+          "diversification": 0.52,
+          "geopoliticalExposure": 0.5700000000000001
+        },
+        "CCY-AUD": {
+          "liquidity": 0.6,
+          "dataQuality": 0.86,
+          "convertibility": 0.83,
+          "jurisdictionalRestrictions": 1,
+          "currencyControl": 0.7999999999999999,
+          "benchmarkAvailability": 0.7999999999999999,
+          "volatility": 0.76,
+          "diversification": 0.53,
+          "geopoliticalExposure": 0.4
+        },
+        "CCY-SGD": {
+          "liquidity": 0.46,
+          "dataQuality": 0.74,
+          "convertibility": 0.7,
+          "jurisdictionalRestrictions": 1,
+          "currencyControl": 0.68,
+          "benchmarkAvailability": 0.7,
+          "volatility": 0.64,
+          "diversification": 0.38,
+          "geopoliticalExposure": 0.33
+        },
+        "CCY-XXX": {
+          "liquidity": 0.45,
+          "dataQuality": 0.4,
+          "convertibility": 0.55,
+          "jurisdictionalRestrictions": 0,
+          "currencyControl": 0.5,
+          "benchmarkAvailability": 0.4,
+          "volatility": 0.3,
+          "diversification": 0.4,
+          "geopoliticalExposure": 0.2
+        }
+      },
+      "priceRelative": {
+        "CCY-USD": 1,
+        "CCY-EUR": 1.0006,
+        "CCY-JPY": 0.999,
+        "CCY-GBP": 0.9996,
+        "CCY-CHF": 1.0002,
+        "CCY-AUD": 1.0008,
+        "CCY-SGD": 0.9992,
+        "CCY-XXX": 0.9998
+      },
+      "integrityRiskFlags": [],
+      "integrityRiskResolved": [],
+      "governanceDirectives": []
+    },
+    {
+      "period": 19,
+      "timestampIso": "2028-05-24T00:00:00.000Z",
+      "narrative": "JPY exit glide 3/3 completes → EXCLUDED at exactly 0 (T6); final basket {USD, EUR, CHF} (3 members)",
+      "scores": {
+        "CCY-USD": {
+          "liquidity": 0.95,
+          "dataQuality": 0.95,
+          "convertibility": 0.9,
+          "jurisdictionalRestrictions": 1,
+          "currencyControl": 0.9,
+          "benchmarkAvailability": 0.95,
+          "volatility": 0.85,
+          "diversification": 0.55,
+          "geopoliticalExposure": 0.85
+        },
+        "CCY-EUR": {
+          "liquidity": 0.9,
+          "dataQuality": 0.93,
+          "convertibility": 0.9,
+          "jurisdictionalRestrictions": 1,
+          "currencyControl": 0.9,
+          "benchmarkAvailability": 0.95,
+          "volatility": 0.82,
+          "diversification": 0.6,
+          "geopoliticalExposure": 0.82
+        },
+        "CCY-JPY": {
+          "liquidity": 0.53,
+          "dataQuality": 0.61,
+          "convertibility": 0.58,
+          "jurisdictionalRestrictions": 1,
+          "currencyControl": 0.5499999999999999,
+          "benchmarkAvailability": 0.63,
+          "volatility": 0.44999999999999996,
+          "diversification": 0.41000000000000003,
+          "geopoliticalExposure": 0.48
+        },
+        "CCY-GBP": {
+          "liquidity": 0.4799999999999999,
+          "dataQuality": 0.51,
+          "convertibility": 0.49999999999999994,
+          "jurisdictionalRestrictions": 1,
+          "currencyControl": 0.46,
+          "benchmarkAvailability": 0.54,
+          "volatility": 0.39999999999999997,
+          "diversification": 0.32,
+          "geopoliticalExposure": 0.35999999999999993
+        },
+        "CCY-CHF": {
+          "liquidity": 0.6200000000000001,
+          "dataQuality": 0.9199999999999999,
+          "convertibility": 0.8899999999999999,
+          "jurisdictionalRestrictions": 1,
+          "currencyControl": 0.8700000000000001,
+          "benchmarkAvailability": 0.9199999999999999,
+          "volatility": 0.9099999999999999,
+          "diversification": 0.52,
+          "geopoliticalExposure": 0.5700000000000001
+        },
+        "CCY-AUD": {
+          "liquidity": 0.6,
+          "dataQuality": 0.86,
+          "convertibility": 0.83,
+          "jurisdictionalRestrictions": 1,
+          "currencyControl": 0.7999999999999999,
+          "benchmarkAvailability": 0.7999999999999999,
+          "volatility": 0.76,
+          "diversification": 0.53,
+          "geopoliticalExposure": 0.4
+        },
+        "CCY-SGD": {
+          "liquidity": 0.46,
+          "dataQuality": 0.74,
+          "convertibility": 0.7,
+          "jurisdictionalRestrictions": 1,
+          "currencyControl": 0.68,
+          "benchmarkAvailability": 0.7,
+          "volatility": 0.64,
+          "diversification": 0.38,
+          "geopoliticalExposure": 0.33
+        },
+        "CCY-XXX": {
+          "liquidity": 0.45,
+          "dataQuality": 0.4,
+          "convertibility": 0.55,
+          "jurisdictionalRestrictions": 0,
+          "currencyControl": 0.5,
+          "benchmarkAvailability": 0.4,
+          "volatility": 0.3,
+          "diversification": 0.4,
+          "geopoliticalExposure": 0.2
+        }
+      },
+      "priceRelative": {
+        "CCY-USD": 1,
+        "CCY-EUR": 0.9998,
+        "CCY-JPY": 1.0004,
+        "CCY-GBP": 1.001,
+        "CCY-CHF": 0.9994,
+        "CCY-AUD": 1,
+        "CCY-SGD": 1.0006,
+        "CCY-XXX": 0.999
+      },
+      "integrityRiskFlags": [],
+      "integrityRiskResolved": [],
+      "governanceDirectives": []
+    }
+  ]
+}
