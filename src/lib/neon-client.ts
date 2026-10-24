@@ -12,6 +12,13 @@
 // perfect for Vercel serverless functions (no connection limit issues).
 
 import { neon } from "@neondatabase/serverless";
+import {
+  camelToSnake,
+  coerceParam,
+  coerceDateParam,
+  DATE_COLUMNS,
+  tableByModel,
+} from "@/lib/neon-schema";
 
 let _sql: any = null;
 
@@ -44,78 +51,87 @@ export const neonClient = {
     return { rows: rows as any[], rowCount: rows.length, latencyMs: Date.now() - start };
   },
 
-  /** Sync latest data from Turso → Neon (called by Inngest hourly) */
+  /**
+   * Incremental Turso → Neon sync (called by the Inngest "turso-neon-sync"
+   * hourly cron, and by scripts/full-neon-sync.ts's incremental sibling path).
+   *
+   * [Task 20, 2026-10-24] Complete rewrite. Previously this method was a
+   * half-implemented stub: it created REDUCED 12-column tables and only
+   * inserted DSV rows — its column shape drifted from the authoritative
+   * full mirror built by scripts/full-neon-sync.ts (35/21/17 columns).
+   * Both paths now share src/lib/neon-schema.ts verbatim, so the analytical
+   * replica keeps ONE shape. Full Prisma column set is mirrored; hash-chain
+   * columns (prevHash/rowHash) are intentionally excluded (UPSCALE-1 design).
+   *
+   * Input rows may come from the Prisma client (Date objects) or raw
+   * libsql/Turso reads (ISO strings / epoch-ms numbers) — both are coerced
+   * uniformly (see neon-schema.ts).
+   *
+   * Idempotent: INSERT … ON CONFLICT (id) DO NOTHING — safe to re-run.
+   * NON-destructive: never updates or deletes existing Neon rows.
+   */
   async syncFromTurso(data: {
     dsv: any[];
     rd: any[];
     os: any[];
-  }): Promise<{ rows: number; table: string }> {
+  }): Promise<{
+    tables: Record<string, { read: number; written: number }>;
+    total: { read: number; written: number };
+  }> {
     const fn = getSql();
     if (!fn) throw new Error("Neon not configured");
 
-    // Create tables if they don't exist (idempotent)
-    await fn(`
-      CREATE TABLE IF NOT EXISTS mtq_daily_state_vector (
-        id TEXT PRIMARY KEY,
-        tick_at TIMESTAMPTZ,
-        tick_count INTEGER,
-        gfb_index REAL,
-        mtq_price REAL,
-        nav_usd REAL,
-        reserve_ratio REAL,
-        lcr REAL,
-        status TEXT,
-        vix REAL,
-        dxy REAL,
-        buffer_state TEXT,
-        created_at TIMESTAMPTZ DEFAULT NOW()
-      );
-    `);
+    const batches: Array<{ model: string; rows: any[] }> = [
+      { model: "DailyStateVector", rows: data.dsv ?? [] },
+      { model: "RebalancingDecision", rows: data.rd ?? [] },
+      { model: "OracleSample", rows: data.os ?? [] },
+    ];
 
-    await fn(`
-      CREATE TABLE IF NOT EXISTS mtq_rebalancing_decision (
-        id TEXT PRIMARY KEY,
-        tick_at TIMESTAMPTZ,
-        tick_count INTEGER,
-        nav_usd REAL,
-        reserve_ratio REAL,
-        should_rebalance BOOLEAN,
-        direction INTEGER,
-        trade_usd REAL,
-        reason TEXT,
-        applied BOOLEAN,
-        created_at TIMESTAMPTZ DEFAULT NOW()
-      );
-    `);
+    const BATCH_ROWS = 50; // 50 rows × 35 cols = 1750 params — well under limits
+    const tables: Record<string, { read: number; written: number }> = {};
+    let totalRead = 0;
+    let totalWritten = 0;
 
-    await fn(`
-      CREATE TABLE IF NOT EXISTS mtq_oracle_sample (
-        id TEXT PRIMARY KEY,
-        tick_at TIMESTAMPTZ,
-        tick_count INTEGER,
-        pair TEXT,
-        valid_count INTEGER,
-        final_price REAL,
-        method TEXT,
-        spread_bps INTEGER,
-        paused BOOLEAN,
-        created_at TIMESTAMPTZ DEFAULT NOW()
-      );
-    `);
+    for (const { model, rows } of batches) {
+      const def = tableByModel(model);
+      if (!def) throw new Error(`Unknown sync table: ${model}`);
+      const cols = def.columns.map(camelToSnake);
+      const colList = cols.join(", ");
 
-    // Insert data (upsert)
-    let totalRows = 0;
-    for (const row of data.dsv) {
-      await fn(
-        `INSERT INTO mtq_daily_state_vector (id, tick_at, tick_count, gfb_index, mtq_price, nav_usd, reserve_ratio, lcr, status, vix, dxy, buffer_state)
-         VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12)
-         ON CONFLICT (id) DO NOTHING`,
-        [row.id, row.tickAt, row.tickCount, row.gfbIndex, row.mtqPrice, row.navUsd, row.reserveRatio, row.lcr, row.status, row.vix, row.dxy, row.bufferState],
-      );
-      totalRows++;
+      // Ensure the table + indexes exist (self-bootstrapping; matches the
+      // full-sync shape exactly since both share neon-schema.ts).
+      await fn(`${def.createTable.replace(/;\s*$/, "")}`);
+      for (const idx of def.indexes) {
+        try { await fn(idx); } catch { /* index warnings are non-fatal */ }
+      }
+
+      let written = 0;
+      for (let i = 0; i < rows.length; i += BATCH_ROWS) {
+        const slice = rows.slice(i, i + BATCH_ROWS);
+        const values: unknown[] = [];
+        const placeholders: string[] = [];
+        slice.forEach((row, n) => {
+          placeholders.push(
+            `(${cols.map((_, c) => `$${n * cols.length + c + 1}`).join(", ")})`,
+          );
+          for (const c of def.columns) {
+            const cell = row?.[c];
+            values.push(DATE_COLUMNS.has(c) ? coerceDateParam(cell) : coerceParam(cell));
+          }
+        });
+        await fn(
+          `INSERT INTO ${def.name} (${colList}) VALUES ${placeholders.join(", ")} ON CONFLICT (id) DO NOTHING`,
+          values as any[],
+        );
+        written += slice.length; // attempted; conflicts are silently ignored
+      }
+
+      tables[model] = { read: rows.length, written };
+      totalRead += rows.length;
+      totalWritten += written;
     }
 
-    return { rows: totalRows, table: "all" };
+    return { tables, total: { read: totalRead, written: totalWritten } };
   },
 
   /** Heavy analytical query: daily state vector aggregation */
