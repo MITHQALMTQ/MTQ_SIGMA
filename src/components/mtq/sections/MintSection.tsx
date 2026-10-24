@@ -460,9 +460,10 @@ export function MintSection({
               />
             </div>
             <p className="mt-4 text-[0.68rem] text-white/45 leading-relaxed">
-              F_mint is the Normal-state default: the risk-state fee schedule of Ch 21 governs the
-              effective rate actually charged, and the parameter itself is tunable only through the
-              governance process of §19.7 (parameter registry §22.3 is the definitive mapping).
+              F_mint is state-independent — 0.10% in every risk state (§19.7); Chapter 21 governs
+              whether minting is allowed, throttled or paused, and the parameter itself is tunable
+              only through the governance process of §19.7 (parameter registry §22.3 is the
+              definitive mapping).
             </p>
           </Panel>
         </Reveal>

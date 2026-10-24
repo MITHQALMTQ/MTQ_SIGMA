@@ -250,7 +250,12 @@ export function BlueprintQA({ className = "" }: { className?: string }) {
               Ask the Blueprint
             </h3>
             <p className="text-[0.72rem] text-white/75 leading-relaxed">
-              Gemini-powered Q&amp;A over the v1.0 Master Blueprint constants. Informational only.
+              {/* 24-e-2: provider-neutral — Gemini is only the 4th provider in the
+                  fallback chain; with no key set the pilot serves deterministic
+                  fallback rules (see the model badge). */}
+              AI Q&amp;A over the v1.0 Master Blueprint constants — served by the configured
+              provider when a key is set, otherwise deterministic fallback rules (see the model
+              badge). Informational only.
             </p>
           </div>
           <Pill tone={tone} className="font-mono shrink-0">

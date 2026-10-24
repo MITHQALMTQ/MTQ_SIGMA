@@ -44,9 +44,9 @@ export const DELIVERABLES: Deliverable[] = [
     file: "audit-work/v6/D1-ACCEPTANCE-REPORT.md",
     title: "Corrected Acceptance Report + Evidence Baseline Manifest",
     summary:
-      "Commit relationship b24e7e0↔b68ccb8 resolved; hashes (mandate source, sources, lockfile, bytecode keccak/sha256); every documented suite re-run green at HEAD; gate-by-gate status; OD decision matrix; stop-condition dispositions; secure remote + CI proposal.",
+      "Commit relationship b24e7e0↔b68ccb8 resolved; hashes (mandate source, sources, lockfile, bytecode keccak/sha256); every documented suite re-run green at the verification baseline HEAD (b68ccb8, 2026-10-19); gate-by-gate status; OD decision matrix; stop-condition dispositions; secure remote + CI proposal.",
     keyPoints: [
-      "All suites re-run at HEAD: canonical 250/250 · vectors 66/66 · e2e 26/26 · stress 11/11 · retention PASS · backtest PASS (synthetic-data caveat) · EIP-712 digests 4/4 (digest-level) · onchain 28/28 · lint/tsc clean",
+      "All suites re-run at the verification baseline HEAD (b68ccb8, 2026-10-19): canonical 250/250 · vectors 66/66 · e2e 26/26 · stress 11/11 · retention PASS · backtest PASS (synthetic-data caveat) · EIP-712 digests 4/4 (digest-level) · onchain 28/28 · lint/tsc clean",
       "Every claim now tied to an exact commit + block anchor; stale references catalogued",
       "No gate advanced; no committee approval exists anywhere in the register",
     ],

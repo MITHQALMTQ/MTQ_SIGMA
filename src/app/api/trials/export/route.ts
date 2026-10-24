@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import { db } from "@/lib/db";
+import { rateLimit, getClientIP } from "@/lib/mtq/rate-limit";
 
 export const dynamic = "force-dynamic";
 
@@ -18,6 +19,23 @@ function csvCell(value: unknown): string {
 }
 
 export async function GET(req: Request) {
+  // [Task 24-c hardening] "evidence" bucket, 10 req/IP/min — each request
+  // reads up to 5,000 pilot-trial rows from SQLite and (format=csv) builds
+  // the full export string in memory; unbounded hammering stalls the single
+  // writer connection shared with live mint/redeem logging.
+  const rl = await rateLimit(getClientIP(req), "evidence");
+  if (!rl.allowed) {
+    return NextResponse.json(
+      { error: "Rate limit exceeded" },
+      {
+        status: 429,
+        headers: {
+          "Retry-After": String(Math.max(1, Math.ceil((rl.resetAt - Date.now()) / 1000))),
+          "X-RateLimit-Remaining": "0",
+        },
+      },
+    );
+  }
   const url = new URL(req.url);
   const format = url.searchParams.get("format") ?? "json";
   // [16a-008 fix, Task 16-fix-A] Strict limit parsing — same class as

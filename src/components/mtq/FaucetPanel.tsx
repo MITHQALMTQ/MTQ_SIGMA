@@ -7,7 +7,7 @@
 //
 // HONEST ASSET SEMANTICS: /api/simulate/mint takes a single `amount` and mints
 // MTQ as if it were a USD-equivalent pilot deposit — regardless of which
-// asset the picker shows (MON / ETH / SOL / USDC / MockUSDC / MTQ; the trial
+// asset the picker shows (MON / SOL / USDC / MockUSDC / MTQ; the trial
 // ledger logs inputSymbol "USDC" for every claim). The selector is therefore
 // DISPLAY-ONLY and the UI says so at the picker, in the banner, and on the
 // result card. No asset conversion ever happens.
@@ -70,12 +70,17 @@ interface FaucetAsset {
 const ASSETS_BY_CHAIN: Record<string, FaucetAsset[]> = {
   monad: [
     { symbol: "MON", name: "Monad Testnet MON", decimals: 18, description: "Native gas token" },
-    { symbol: "MockUSDC", name: "Mock USDC (pilot collateral)", decimals: 6, description: "Pilot collateral · mint MTQ against this" },
+    // 24-e-2: display-only/simulated — there is NO on-chain MockUSDC contract
+    // in the current Monad registry; claims are USD-equivalent engine deposits.
+    { symbol: "MockUSDC", name: "Mock USDC (pilot collateral)", decimals: 6, description: "Simulated pilot collateral — display-only; no on-chain MockUSDC contract exists in the current Monad registry (claims are USD-equivalent engine deposits)" },
     { symbol: "MTQ", name: "MTQΣ test token", decimals: 18, description: "Protocol claim token" },
   ],
   arc: [
     { symbol: "USDC", name: "Arc Testnet USDC", decimals: 18, description: "Native gas token (testnet)" },
-    { symbol: "MockUSDC", name: "Mock USDC (pilot collateral)", decimals: 6, description: "Pilot collateral · mint MTQ against this" },
+    // 24-e-2: display-only/simulated — the "MockUSDC" faucet row is a simulated
+    // pilot claim; the chain's native USDC (0x334D…30dEb) is the real on-chain
+    // asset. Claims are USD-equivalent engine deposits.
+    { symbol: "MockUSDC", name: "Mock USDC (pilot collateral)", decimals: 6, description: "Simulated pilot collateral — display-only; no on-chain MockUSDC contract in the current Arc registry (the chain's native USDC 0x334D…30dEb is the real on-chain asset; claims are USD-equivalent engine deposits)" },
     { symbol: "MTQ", name: "MTQΣ test token", decimals: 18, description: "Protocol claim token" },
   ],
   solana: [
@@ -584,7 +589,9 @@ export function FaucetPanel() {
                         className="mtqs-focus text-mtqs-gold/70 hover:text-mtqs-gold transition shrink-0 inline-flex items-center gap-1"
                       >
                         <ExternalLink className="h-3 w-3" />
-                        <span className="hidden sm:inline">explorer</span>
+                        {/* 24-e-2: visible qualifier — the (will not exist) note
+                            previously lived only in the aria-label. */}
+                        <span className="hidden sm:inline">explorer (sim — will not resolve)</span>
                       </a>
                       <span className="ml-auto font-mono tabular-nums text-white/55 shrink-0">
                         block #{lastTx.block.toLocaleString()}

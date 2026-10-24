@@ -309,9 +309,11 @@ export function Pill({
   );
 }
 
-/* ---------- BrandPrinciples — "Honest · Sovereign · Collateralized · Calm" row ---------- */
+/* ---------- BrandPrinciples — "Honest · Sovereign · Basket-Referenced · Calm" row ---------- */
 export function BrandPrinciples({ className = "" }: { className?: string }) {
-  const principles = ["Honest", "Sovereign", "Collateralized", "Calm"];
+  // 24-e-2: v3.0 has no conventional reserve — "Collateralized" was a false
+  // claim; the index references the basket (Basket-Referenced).
+  const principles = ["Honest", "Sovereign", "Basket-Referenced", "Calm"];
   return (
     <div
       className={`flex flex-wrap items-center gap-x-3 gap-y-1 text-[0.65rem] uppercase tracking-[0.22em] text-white/75 ${className}`}

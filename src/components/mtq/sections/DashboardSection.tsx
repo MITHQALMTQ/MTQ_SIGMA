@@ -1,5 +1,6 @@
 // MTQΣ — Dashboard Section
-// Renders all 22 existing MTQ components in the original page.tsx order.
+// Renders all 27 existing MTQ components (26 imported + shared BrandPrinciples)
+// in the original page.tsx order.
 // Fetches snapshot, oracle, registry, trials on mount (with 4s polling for snapshot).
 // Shows a boot skeleton during the first fetch.
 
@@ -411,7 +412,7 @@ export function DashboardSection({
                   Open Mint simulator →
                 </button>
               ) : (
-                <span className="mt-auto text-[0.72rem] text-white/40">Terminal → User Operations → Mint</span>
+                <span className="mt-auto text-[0.72rem] text-white/40">Terminal → Operations → Mint Simulator</span>
               )}
             </Panel>
           </Reveal>
@@ -437,7 +438,7 @@ export function DashboardSection({
                   Open Redeem simulator →
                 </button>
               ) : (
-                <span className="mt-auto text-[0.72rem] text-white/40">Terminal → User Operations → Redeem</span>
+                <span className="mt-auto text-[0.72rem] text-white/40">Terminal → Operations → Redeem Simulator</span>
               )}
             </Panel>
           </Reveal>
@@ -533,7 +534,7 @@ export function DashboardSection({
         right={
           <Pill tone="gold">
             <GlowDot color="gold" size="h-1.5 w-1.5" />
-            16 parameters · 6 calc
+            16 parameters · 4 lineage
           </Pill>
         }
       >

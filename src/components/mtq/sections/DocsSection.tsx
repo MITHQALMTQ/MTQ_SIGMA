@@ -5,7 +5,7 @@
 //   3. Four-State Weights (WEIGHT_STATE_DESCRIPTIONS — Prior/Target/Smooth/Execution)
 //   4. MASE Ensemble (MASE_MODELS — 6 candidate models)
 //   5. Constitutional Invariants (CONSTITUTIONAL_INVARIANTS — I1–I12 per v2.0)
-//   6. Risk State Machine (RISK_STATE_MACHINE — 5 states)
+//   6. Risk State Machine (RISK_STATE_MACHINE — 6 states)
 //   7. Governance Hierarchy (GOVERNANCE_HIERARCHY — 4 tiers)
 //   8. Honest Status (HONEST_STATUS)
 //   9. Unsupported Claims (UNSUPPORTED_CLAIMS — incl. new v1.0 entries)
@@ -383,7 +383,7 @@ export function DocsSection({
           <div className="mt-4">
             <RefTable
               title="Risk State Machine (§14.1)"
-              subtitle="5 states · Minting/Redemption/Rebalancing policy per state · RR target"
+              subtitle="6 states · Minting/Redemption/Rebalancing policy per state · RR target"
               headers={["Status", "Minting", "Redemption", "Rebalancing", "RR Target"]}
               rows={RISK_STATE_MACHINE.map((row) => {
                 const sc = STATUS_COLORS[row.status] ?? STATUS_COLORS.NORMAL;

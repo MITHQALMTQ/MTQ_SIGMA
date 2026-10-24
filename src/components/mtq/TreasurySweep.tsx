@@ -24,7 +24,7 @@ export function TreasurySweep({ snapshot }: { snapshot: MetricsSnapshot | null }
       <div className="mb-3 flex items-center justify-between">
         <div>
           <div className="text-sm font-semibold text-white/90">Treasury Sweep (§13.2)</div>
-          <div className="text-[0.7rem] text-white/55">hot-wallet surplus → 4/7 Multi-Sig Cold Treasury</div>
+          <div className="text-[0.7rem] text-white/55">hot-wallet surplus → 4/7 Multi-Sig Cold Treasury (design target — not yet instantiated; the pilot Safe is 1/1 deployer-controlled)</div>
         </div>
         <Pill tone={overThreshold ? "rose" : nearThreshold ? "amber" : "emerald"}>
           <GlowDot color={overThreshold ? "rose" : nearThreshold ? "amber" : "emerald"} size="h-1.5 w-1.5" />
@@ -81,7 +81,7 @@ export function TreasurySweep({ snapshot }: { snapshot: MetricsSnapshot | null }
       </div>
 
       <p className="mt-3 text-[0.72rem] text-white/55 leading-relaxed">
-        Authority: <span className="font-mono text-mtqs-gold">{TREASURY_SWEEP_AUTHORITY}</span>. When the hot-wallet surplus stablecoins exceed <span className="font-mono text-mtqs-gold">{fmtUsd(TREASURY_SWEEP_THRESHOLD_USD)}</span>, the excess is swept to the cold treasury (keeping a $5,000 operating float).
+        Authority: <span className="font-mono text-mtqs-gold">{TREASURY_SWEEP_AUTHORITY}</span> (design target — not yet instantiated; the pilot Safe is 1/1 deployer-controlled). When the hot-wallet surplus stablecoins exceed <span className="font-mono text-mtqs-gold">{fmtUsd(TREASURY_SWEEP_THRESHOLD_USD)}</span>, the excess above $10,000 is swept to the cold treasury, keeping the $10,000 threshold as the operating balance (§20.3).
       </p>
     </Panel>
   );

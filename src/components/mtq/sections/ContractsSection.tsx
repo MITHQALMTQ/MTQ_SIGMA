@@ -309,7 +309,7 @@ function RoleMatrixPanel() {
           <p className="text-[0.68rem] text-white/55 mt-1 max-w-xl leading-relaxed">
             READ-ONLY <code className="font-mono">hasRole()</code> / <code className="font-mono">paused()</code> view calls
             (§1 VERIFICATION-ONLY — no transactions, no state changes). TESTNET ONLY · SHADOW MODE ENFORCED ·
-            UNAUTHORIZED RESERVE TRANSACTIONS.
+            RESERVE TRADING NOT AUTHORIZED.
           </p>
         </div>
         <div className="flex items-center gap-2">
@@ -633,8 +633,9 @@ export function ContractsSection({ onNavigate: _onNavigate }: { onNavigate: (id:
             <p className="leading-relaxed">
               The canonical MTQΣ address per chain is the source-of-truth token contract.
               Ecosystem contracts (Governance, Safe, Algorithm, Reserve, Mint, Redeem, Oracle,
-              Takaful) are the surrounding protocol layer deployed by the same wallet. Visit the
-              Trial section to mint and redeem against these contracts in the simulator.
+              Takaful) are the surrounding protocol layer deployed by the same wallet. Run a
+              simulated mint or redeem in the Operations simulator — the engine mirrors these
+              contracts' fee and policy parameters; no on-chain transaction is made.
             </p>
           </div>
           <div className="mt-3">
@@ -642,7 +643,7 @@ export function ContractsSection({ onNavigate: _onNavigate }: { onNavigate: (id:
               onClick={() => _onNavigate("activity")}
               className="inline-flex items-center gap-1.5 text-[0.75rem] text-mtqs-gold/85 hover:text-mtqs-gold-light transition"
             >
-              Open Trial simulator
+              Open Mint/Redeem simulator
               <ArrowRight className="h-3.5 w-3.5" aria-hidden="true" />
             </button>
           </div>

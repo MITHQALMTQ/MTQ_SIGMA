@@ -1,7 +1,8 @@
 // MTQΣ — Reserve Vault (§4 + §8)
 // Bespoke layered vault visual: core 100% liability + 10% buffer (§8.3).
 // Buffer split by BASE/STRESS/EMERGENCY gold ratio. Per-asset net values.
-// Plus the Gold Weight gauge (22-30% bounds, 26.25% base, observed vs target).
+// Plus the Gold Weight gauge (20–32% envelope bounds, 26% strategic-prior
+// base, observed vs target).
 
 "use client";
 
@@ -311,6 +312,9 @@ export function ReserveVault({ snapshot }: { snapshot: MetricsSnapshot | null })
             <span className="text-[0.625rem] uppercase tracking-[0.25em] text-white/55">Vault Composition</span>
             <Pill tone="gold">§4 + §8.3</Pill>
           </div>
+          <p className="mb-2 text-[0.62rem] text-white/45">
+            Simulated pilot reserve (G8) — no real tokens or vaults exist.
+          </p>
           <VaultDiagram snapshot={snapshot} />
         </Panel>
       </Reveal>

@@ -299,7 +299,13 @@ export function LandingNav({
               }}
             >
               <span className="lp-chain-dot" aria-hidden />
-              Monad Testnet
+              {/* 24-e-2: the static face previously read "Monad Testnet" (implying
+                  one selected network) while the popover honestly lists all 3
+                  testnets — the face now summarizes, sized down slightly to keep
+                  the pill layout safe on md screens. */}
+              <span className="whitespace-nowrap text-[0.68rem] xl:text-[0.78rem]">
+                3 Testnets Live
+              </span>
               <ChevronDown
                 className={`size-3.5 text-slate-400 transition-transform ${chainOpen ? "rotate-180" : ""}`}
                 aria-hidden

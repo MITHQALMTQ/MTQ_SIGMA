@@ -338,7 +338,7 @@ export function EvidencePackageSection() {
             </table>
           </div>
           <div className="border-t border-white/[0.05] px-3 py-2 text-[11px] text-rose-200/90 flex items-center gap-2">
-            <Ban className="h-3.5 w-3.5 shrink-0" aria-hidden /> C-044: the repository currently contains ZERO deployable-within-limit token source (best case +142 B over).
+            <Ban className="h-3.5 w-3.5 shrink-0" aria-hidden /> C-044: at the package baseline, the repository contained ZERO deployable-within-limit token source (best case +142 B over) — see the compile-matrix revision anchors.
           </div>
         </Panel>
       </Reveal>

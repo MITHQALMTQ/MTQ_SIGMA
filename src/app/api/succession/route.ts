@@ -7,6 +7,7 @@
 //        zero artificial index return at every step (chain-link divisors).
 import { NextResponse } from "next/server";
 import { getSnapshot } from "@/lib/mtq/pilot-state";
+import { rateLimit, getClientIP } from "@/lib/mtq/rate-limit";
 import {
   CANDIDATE_UNIVERSE,
   fetchCandidateQuotes,
@@ -30,7 +31,24 @@ function holdingPerMtqFor(code: string, perMtq: Record<string, number>): number 
   }
 }
 
-export async function GET() {
+export async function GET(req: Request) {
+  // [Task 24-c hardening] "simulate" bucket, 12 req/IP/min — GET fires an
+  // UNCACHED external fetch (fetchCandidateQuotes → Frankfurter, 6s timeout,
+  // two fallback URLs) plus live snapshot assembly; unguarded it is an
+  // external-fetch amplifier (same bucket class as mint/redeem sims).
+  const rl = await rateLimit(getClientIP(req), "simulate");
+  if (!rl.allowed) {
+    return NextResponse.json(
+      { error: "Rate limit exceeded" },
+      {
+        status: 429,
+        headers: {
+          "Retry-After": String(Math.max(1, Math.ceil((rl.resetAt - Date.now()) / 1000))),
+          "X-RateLimit-Remaining": "0",
+        },
+      },
+    );
+  }
   try {
     const [snap, quotes] = await Promise.all([getSnapshot(), fetchCandidateQuotes()]);
     return NextResponse.json({
@@ -55,6 +73,22 @@ export async function GET() {
 }
 
 export async function POST(req: Request) {
+  // [Task 24-c hardening] "simulate" bucket, 12 req/IP/min — POST runs the
+  // same uncached external quote fetch + the full §21.5 staged-ladder
+  // simulation (heaviest pure-compute endpoint outside the AI family).
+  const rl = await rateLimit(getClientIP(req), "simulate");
+  if (!rl.allowed) {
+    return NextResponse.json(
+      { error: "Rate limit exceeded" },
+      {
+        status: 429,
+        headers: {
+          "Retry-After": String(Math.max(1, Math.ceil((rl.resetAt - Date.now()) / 1000))),
+          "X-RateLimit-Remaining": "0",
+        },
+      },
+    );
+  }
   try {
     const body = await req.json().catch(() => ({}));
     const ejected = typeof body.ejected === "string" ? body.ejected.toUpperCase() : "";

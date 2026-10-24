@@ -1,6 +1,8 @@
 // MTQΣ — Adaptive Macro Engine (§6)
 // VIX/DXY current + z-score bars (centered 0), raw θ, raw target, EMA-smoothed target.
-// All §6 coefficients. PROMINENT SIMULATED disclaimer.
+// All §6 coefficients. VIX/DXY chips mirror the LIVE source state
+// (fx.liveVix / fx.liveDxy — emerald when live, amber when the honest
+// seeded OU-walk fallback produced the value).
 
 "use client";
 
@@ -52,9 +54,13 @@ export function MacroEngine({ snapshot }: { snapshot: MetricsSnapshot | null }) 
       <Reveal>
         <Panel className="p-4 sm:p-5 border-mtqs-amber/30">
           <div className="flex items-start gap-3">
-            <span className="mtqs-eyebrow shrink-0 text-mtqs-amber">⚠ Simulated Pilot Macro Signals</span>
+            <span className="mtqs-eyebrow shrink-0 text-mtqs-amber">⚠ Pilot Macro Signals — live when reachable</span>
             <p className="text-[0.72rem] text-white/55 leading-relaxed">
-              VIX and DXY are not sourced from a live no-key API (no such source exists). The pilot models them as a seeded stochastic walk (mean-reverting around plausible late-2025 baselines) so the Adaptive Macro Engine can be exercised end-to-end. They are honestly labelled as simulated. The §6 math (z-scores, θ, EMA smoothing, clamping) is fully real.
+              VIX &amp; DXY are LIVE from no-key sources when reachable — Yahoo Finance (CBOE ^VIX,
+              ICE DX-Y.NYB), with FRED (VIXCLS / DTWEXBGS) preferred when the optional key is
+              configured — and fall back honestly to a seeded mean-reverting stochastic walk
+              when no feed answers (each chip below shows its live/sim state this tick). The §6
+              math (z-scores, θ, EMA smoothing, clamping) is fully real.
             </p>
           </div>
         </Panel>
@@ -66,7 +72,7 @@ export function MacroEngine({ snapshot }: { snapshot: MetricsSnapshot | null }) 
           <Panel className="p-5">
             <div className="mb-3 flex items-center justify-between">
               <span className="text-[0.625rem] uppercase tracking-[0.25em] text-white/55">VIX · CBOE Volatility Index</span>
-              <Pill tone="amber">simulated</Pill>
+              <Pill tone={snapshot.fx.liveVix ? "emerald" : "amber"}>{snapshot.fx.liveVix ? "live" : "sim (fallback)"}</Pill>
             </div>
             <div className="flex items-baseline gap-2">
               <TickNumber value={m.vix} format={(n) => n.toFixed(2)} className="text-3xl font-semibold text-mtqs-gold" />
@@ -98,7 +104,7 @@ export function MacroEngine({ snapshot }: { snapshot: MetricsSnapshot | null }) 
           <Panel className="p-5">
             <div className="mb-3 flex items-center justify-between">
               <span className="text-[0.625rem] uppercase tracking-[0.25em] text-white/55">DXY · US Dollar Index</span>
-              <Pill tone="amber">simulated</Pill>
+              <Pill tone={snapshot.fx.liveDxy ? "emerald" : "amber"}>{snapshot.fx.liveDxy ? "live" : "sim (fallback)"}</Pill>
             </div>
             <div className="flex items-baseline gap-2">
               <TickNumber value={m.dxy} format={(n) => n.toFixed(2)} className="text-3xl font-semibold text-mtqs-gold" />

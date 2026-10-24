@@ -3638,21 +3638,24 @@ export function rebalanceForConcentration(
   };
 }
 
-// --- FIX: §12.2 vs §3.4.2 Reconciliation --------------------------------------
+// --- FIX: §12.2 vs §3.4.2 Reconciliation (SUPERSEDED by P0-FIX-2, 2026-10-19) -
 // The blueprint is internally inconsistent: §3.4.2 prices redemption at P_MTQ
-// (index price — arbitrage-safe), §12.2 at NAV_per_token = V_net/S (book value
-// per token — would drain the buffer surplus at RR>100%).
-// CANONICAL POLICY: §3.4.2 is the settlement price. §12.2's NAV_per_token is
-// an INFORMATIONAL "book value per token" metric, NOT a settlement price.
+// (index price — arbitrage-safe), §12.2/§19.3.2 at NAV_per_token = V_net/S
+// (book value per token).
+// CANONICAL POLICY (P0-FIX-2 audit 2026-10-19, Invariant I6 + §19.3.2 Step 2):
+// redemption settles at NAV_t. The §3.4.2 index quote is an INFORMATIONAL
+// audit-only comparison, NOT the settlement price.
 export const REDEMPTION_POLICY = {
-  canonical: "§3.4.2 — Redeem at P_MTQ (index price, arbitrage-safe)",
-  informational: "§12.2 — NAV per token (book value, informational only, NOT settlement)",
+  canonical: "§19.3.2/§12.2 — Redeem at NAV_per_token = V_net/S (book value, Invariant I6)",
+  informational: "§3.4.2 — index quote Y × P_MTQ (audit-only comparison, NOT settlement)",
   reason:
-    "At RR>100%, §12.2's Y×(V_net/S) pays redeemers MORE than the index price, " +
-    "draining the 10% buffer surplus via arbitrage. §3.4.2's Y×P_MTQ preserves " +
-    "the buffer and is economically correct. The pilot settles on §3.4.2 and " +
-    "surfaces §12.2's figure as an informational book-value metric only.",
-  status: "RECONCILED — §3.4.2 adopted as canonical",
+    "BLUEPRINT AUDIT 2026-10-19 (P0-FIX-2): redemption settles at NAV_t per " +
+    "§19.3.2 Step 2 and Invariant I6 — 'the exit side uses what the reserve is " +
+    "actually worth'. The legacy B8 §3.4.2 P_MTQ settlement was a v1.2-era " +
+    "deviation and is reverted; the index quote is retained as an audit-only " +
+    "comparison (auditGrossUsdIndex) and the NAV-vs-index divergence is a " +
+    "transparency metric.",
+  status: "RECONCILED — NAV settlement adopted (P0-FIX-2)",
 } as const;
 
 // --- Reconciliation status (for the Honest Audit panel) ---------------------
@@ -3681,7 +3684,7 @@ export function getReconciliationFindings(s: ReserveState, vals: { usdcUsd: numb
       description:
         "Blueprint §3.4.2 prices redemption at P_MTQ (index price); §12.2 at NAV_per_token (V_net/S). At RR>100% these diverge, and §12.2 would drain the buffer surplus via arbitrage.",
       resolution:
-        "§3.4.2 adopted as the canonical settlement price. §12.2's NAV-per-token retained as an informational 'book value per token' metric, clearly labelled as non-settlement.",
+        "Resolved per P0-FIX-2 (2026-10-19 audit): redemption settles at NAV_t = V_net/S (§19.3.2 Step 2, Invariant I6) — 'the exit side uses what the reserve is actually worth'. The §3.4.2 index quote (Y × P_MTQ) is retained as the audit-only comparison; the NAV-vs-index divergence is a transparency metric.",
     },
     {
       id: "F2-circle-concentration",

@@ -152,7 +152,7 @@ function buildExplanation(
   const direction = (decision?.direction ?? "hold") as "buy" | "sell" | "hold";
   const tradeUsd = decision?.tradeUsd ?? 0;
   const urgency = decision?.urgency ?? 0;
-  const reason = decision?.reason ?? "No MARP trade pending — deviation inside the no-trade zone (L1).";
+  const reason = decision?.reason ?? "No MARP trade pending — deviation inside the no-trade zone (L2, ≤0.75%).";
   const shouldTrade = decision?.shouldTrade ?? false;
 
   // Deterministic decision ID (DEC-YYYYMMDD-COMP-NNNN)
@@ -181,11 +181,11 @@ function buildExplanation(
       ? `near the edge of the ${(env.lower * 100).toFixed(0)}–${(env.upper * 100).toFixed(0)}% admissibility envelope`
       : `outside the ${(env.lower * 100).toFixed(0)}–${(env.upper * 100).toFixed(0)}% admissibility envelope (would require governance override to persist)`;
   const marpPhrase = shouldTrade
-    ? `MARP (§10) has scheduled a ${direction} of ${fmtUsdCompact(tradeUsd)} (urgency ${(urgency * 100).toFixed(1)}%, level L6 execute).`
-    : `MARP (§10) is in the no-trade zone for this component (deviation < 0.5%, L1).`;
+    ? `MARP (§10) has scheduled a ${direction} of ${fmtUsdCompact(tradeUsd)} (urgency ${(urgency * 100).toFixed(1)}%, level L8 execute).`
+    : `MARP (§10) is in the no-trade zone for this component (deviation ≤ 0.75%, L2).`;
   const summary =
     `The MASE ensemble (§6/§7) ${moveStr} in response to ${regimePhrase} (VIX ${macro.vix.toFixed(1)}, DXY ${macro.dxy.toFixed(1)}). ` +
-    `The smoothed weight (${(smoothed * 100).toFixed(2)}%) lags the target under EMA λ=20% by ${smoothLag.toFixed(2)}pp (§8.4); ` +
+    `The smoothed weight (${(smoothed * 100).toFixed(2)}%) lags the target under EMA smoothing ρ=0.50 (0.75 stress) by ${smoothLag.toFixed(2)}pp (§8.4); ` +
     `the execution weight (${(execution * 100).toFixed(2)}%) tracks the smoothed target with a ${execDev >= 0 ? "+" : "−"}${Math.abs(execDev).toFixed(2)}pp deviation. ` +
     `Live holdings sit at ${(live * 100).toFixed(2)}% — ${constraintPhrase}. ${marpPhrase}`;
 

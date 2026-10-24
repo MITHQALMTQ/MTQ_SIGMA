@@ -209,11 +209,11 @@ function LiveStatsBand({ snapshot }: { snapshot: MetricsSnapshot | null }) {
   );
 }
 
-/* ---------- Testnet cards (4 canonical MTQΣ addresses) ---------- */
+/* ---------- Testnet cards (3 canonical MTQΣ addresses) ---------- */
 function TestnetCards() {
   const entries = Object.entries(CANONICAL_MTQ_ADDRESSES);
   return (
-    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
+    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
       {entries.map(([id, info]) => (
         <PremiumCard key={id} className="p-4 flex flex-col gap-2">
           <div className="flex items-start justify-between gap-2">

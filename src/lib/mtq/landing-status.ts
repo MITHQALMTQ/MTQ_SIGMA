@@ -110,13 +110,17 @@ export const HERO_PANELS = [
     id: "cross-chain",
     icon: "link" as const,
     title: "Cross-Chain Interoperability",
-    subtitle: "More Chains. More Access.",
+    // 24-e-2: aspirational subtitle replaced — cross-chain movement is paused
+    // by governance (X-1); the honest posture is a stated design goal.
+    subtitle: "Design goal — movement paused by governance (X-1).",
   },
   {
     id: "community",
     icon: "users" as const,
     title: "Community Governance",
-    subtitle: "Your Voice. Our Future.",
+    // 24-e-2: aspirational subtitle replaced — no voting portal exists and the
+    // governance councils are not yet constituted (OD-3 open).
+    subtitle: "Design goal — councils not yet constituted (OD-3 open).",
   },
 ] as const;
 
@@ -146,7 +150,7 @@ export const PROTOCOL_CARDS = [
     id: "community",
     icon: "users" as const,
     title: "Community Driven",
-    body: "Governed by you, for a more inclusive financial system.",
+    body: "Designed to be governed by its community (councils specified, not yet constituted).",
   },
 ] as const;
 
@@ -183,7 +187,7 @@ export const ECOSYSTEM = {
     { text: "Unified in One Platform.", tone: "gradient" as const },
   ],
   paragraph:
-    "Manage your assets, track performance, and participate in governance — all in a sleek, intuitive interface designed for the next generation of users.",
+    "Track performance, run simulated operations, and follow governance transparency — all in a sleek, intuitive interface designed for the next generation of users.",
   checklist: [
     "Real-time analytics & insights",
     "Simulated mint/redeem across 3 testnets",
@@ -265,7 +269,7 @@ export const WALLET_DIALOG = {
 
 export const VIDEO_DIALOG = {
   title: "Protocol overview",
-  body: "A protocol overview video has not been published. What exists today is the committed evidence package: 13 verification suites re-run at HEAD with committed results — including reproduced critical findings (Genesis Safe 1/1 CRITICAL, C-043, custody: USDC 100% in the deployer EOA) — 49 registered conflicts preserved, and 0 of 7 release gates (evidence register) closed.",
+  body: "A protocol overview video has not been published. What exists today is the committed evidence package: 13 verification suites re-run at the 2026-10-19 verification baseline (b68ccb8) with committed results — including reproduced critical findings (Genesis Safe 1/1 CRITICAL, C-043, custody: USDC 100% in the deployer EOA) — 49 registered conflicts preserved, and 0 of 7 release gates (evidence register) closed.",
 } as const;
 
 // Nav dialogs for Developers / Governance / Resources — condensed truthful
@@ -282,10 +286,10 @@ export const INFO_DIALOGS = [
       { label: "MTQ token identity", value: "name() MITHQAL · symbol() MTQ", status: "ok" as const },
       { label: "On-chain read-only tests", value: "28/28 PASS", status: "ok" as const },
       { label: "EIP-712 digests", value: "4/4 MATCH (digest-level)", status: "ok" as const },
-      { label: "Foundry execution tests", value: "not runnable in sandbox", status: "warn" as const },
+      { label: "Foundry execution tests", value: "CI run FAILS (R-06, pre-existing) · not runnable in this sandbox", status: "warn" as const },
       { label: "Production deploy", value: "NOT AUTHORIZED", status: "fail" as const },
     ],
-    footnote: "Canonical addresses: src/lib/mtq/contracts.ts — re-probed read-only this session; explorer links included per chain.",
+    footnote: "Canonical addresses: src/lib/mtq/contracts.ts — re-probed read-only 2026-10-24; explorer links included per chain.",
   },
   {
     id: "governance",

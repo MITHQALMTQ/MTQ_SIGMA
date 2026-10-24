@@ -46,7 +46,9 @@ export async function GET(req: Request, { params }: { params: Promise<{ chain: s
       return NextResponse.json({ error: "Upchain RPC unavailable" }, { status: 502 });
     }
   }
-  if (cp === "solana") {
+  // [Task 24-e fix] Accept the registry's Solana chainId string ("devnet") as
+  // an alias for "solana" so registry-driven callers can't 404.
+  if (cp === "solana" || cp === "devnet") {
     const solMint = CANONICAL_MTQ_ADDRESSES.solana.address; // GAGRdrY6…jxS4 (owner-provided "WHAT YOU HAVE NOW")
     try {
       const r = await fetch("https://api.devnet.solana.com",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({jsonrpc:"2.0",id:1,method:"getAccountInfo",params:[solMint,{encoding:"jsonParsed"}]}),signal:AbortSignal.timeout(9000)});

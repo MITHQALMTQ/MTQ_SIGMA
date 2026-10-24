@@ -218,11 +218,13 @@ export function HonestStatus({ snapshot }: { snapshot: MetricsSnapshot | null })
           )}
 
           <p className="mt-3 text-[0.72rem] text-white/55 leading-relaxed">
-            These are honest findings surfaced by the pilot. As of the V3 reconciliation pass:
-            F1 (§12.2 vs §3.4.2 redemption contradiction), F2 (issuer concentration breach), and
-            F3 (VIX/DXY now LIVE from Yahoo Finance) are all <span className="text-mtqs-emerald font-medium">fixed</span>;
-            F4 (Sharia not certified) remains <span className="text-mtqs-gold font-medium">informational</span> (requires independent scholarly review).
-            The live status of each finding is read from the engine snapshot above — not hardcoded.
+            These are honest findings surfaced by the pilot. F1 (§12.2 vs §3.4.2 redemption
+            contradiction — resolved per P0-FIX-2: NAV settlement), F2 (issuer concentration
+            breach) and F3 (VIX/DXY now LIVE from Yahoo Finance) were resolved at the V3
+            reconciliation pass; F4 (Sharia not certified) remains{" "}
+            <span className="text-mtqs-gold font-medium">informational</span> (requires independent scholarly review).
+            The live severity of each finding is shown by the badges above (read from the engine
+            snapshot — not hardcoded).
           </p>
         </Panel>
       </Reveal>

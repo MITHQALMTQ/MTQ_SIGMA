@@ -130,7 +130,10 @@ export function ReproducibilityPanel({ snapshot }: { snapshot: MetricsSnapshot |
         )}
 
         <p className="mt-3 text-[0.7rem] text-white/40">
-          Version lineage above is live (same fields as the §24.2 cards in the Transparency section).
+          {/* 24-e-2: the Param Version row above is a hardcoded static register —
+              only Data/Model/Oracle are live snapshot fields. */}
+          Data/Model/Oracle versions are live; the param register is the static pilot §22.4 registry
+          (same fields as the §24.2 cards in the Transparency section).
           Reproducibility uses the same data, model, parameter, and oracle versions. Every published output can be independently recomputed from public inputs.
         </p>
       </Panel>

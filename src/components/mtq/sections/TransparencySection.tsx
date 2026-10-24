@@ -766,7 +766,8 @@ export function TransparencySection({
                     <p className="text-[0.68rem] text-amber-100/75 leading-relaxed">
                       The app-layer divisor machinery previously valued B<sup>±</sup> in RAW USD
                       (Σ W × P<sub>i,t</sub>). Per Blueprint v2.0 §9.3 / Listing 3 (§9.8) and the
-                      deployed-source reference MTQSigmaV3.sol commitWeights (L1384–1407), the basis
+                      reference source MTQSigmaV3.sol commitWeights (L1384–1407) — reference
+                      implementation, not deployed — the basis
                       is now pinned <span className="text-white/90">BASE-RELATIVE</span>: B<sup>±</sup>{" "}
                       = Σ W × (P<sub>i,t</sub>/P<sub>i,0</sub>) against the immutable genesis fixings
                       §3.4. The raw-USD basis is <span className="text-white/90">SUPERSEDED</span> —

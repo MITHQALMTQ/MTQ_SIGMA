@@ -235,8 +235,12 @@ export function AuthorizationAuditSection() {
             Methods: {TASK9_META.methods}. Evidence: <span className="font-mono">{TASK9_META.evidencePath}</span>
           </p>
           <p className="mt-1.5 font-mono text-[0.66rem] leading-relaxed text-white/65">
-            Task 10 re-probe {TASK10_META.probedAt} · Monad block {TASK10_META.monadBlock} · Arc block {""}
-            {TASK10_META.arcBlock} · Robinhood block {TASK10_META.robinhoodBlock.split(" ")[0]} · transactions sent:{" "}
+            Task 10 re-probe {TASK10_META.probedAt} · Monad block {TASK10_META.monadBlock} · Arc block{" "}
+            {TASK10_META.arcBlock} · Robinhood block {TASK10_META.robinhoodBlock.split(" ")[0]}{" "}
+            <span className="text-white/40">
+              (network removed from the estate 2026-10-24 — historical probe record only)
+            </span>{" "}
+            · transactions sent:{" "}
             {TASK10_META.transactionCount} · evidence: <span className="font-mono">{TASK10_META.evidencePath}</span>
           </p>
         </div>
@@ -990,7 +994,7 @@ export function AuthorizationAuditSection() {
               <table className="w-full text-[0.7rem] min-w-[640px]">
                 <caption className="sr-only">
                   Duplicate token generations — current, generation-A and generation-B MTQ
-                  tokens per chain, all probed live this session.
+                  tokens per chain, probed live in the Task 9 session (2026-10-21).
                 </caption>
                 <thead className="bg-white/[0.03] text-white/55">
                   <tr>
