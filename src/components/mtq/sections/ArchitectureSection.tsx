@@ -470,12 +470,19 @@ export function ArchitectureSection({
         />
         <Reveal>
           <Panel className="p-5 sm:p-6">
-            <p className="mb-4 text-[0.78rem] leading-relaxed text-white/55">
+            <p className="mb-2 text-[0.78rem] leading-relaxed text-white/55">
               MTQΣ v2.0 is a closed-loop monetary architecture: every obligation the unit creates is
               defined, measured, collateralized, executed, verified and published inside one
               constitutionally governed loop. The declaration restates the whole architecture in
               one place — fixed-quantity references replaced by methodology references under
               invariant I3.
+            </p>
+            <p className="mb-4 text-[0.7rem] leading-relaxed text-mtqs-amber/80">
+              v3.0 supersession note: the &ldquo;collateralized&rdquo; obligation above is v2.0
+              doctrine, reproduced verbatim. Under the v3.0 no-conventional-reserve objective
+              (Gate B, D-13.3–D-13.7 open) MTQΣ is issued against settled payment and references
+              the published measuring service — it is NOT collateralized by a conventional
+              reserve; the legacy v1/v2 pilot-ledger path is retained, labeled.
             </p>
             <ul className="space-y-2.5">
               {DECLARATION_POINTS.map((p) => (

@@ -309,9 +309,14 @@ export function Pill({
   );
 }
 
-/* ---------- BrandPrinciples — "Honest · Sovereign · Collateralized · Calm" row ---------- */
+/* ---------- BrandPrinciples — "Honest · Sovereign · Asset-Referencing · Calm" row ---------- */
+// v3 posture (Task 23): "Collateralized" → "Asset-Referencing" — under the
+// v3.0 no-conventional-reserve objective (Gate B open) MTQΣ references a
+// real-world asset basket and is issued against settled payment; it is NOT
+// collateralized by a reserve. Renders in the terminal Footer + Home +
+// Dashboard heroes, so this word must not overclaim.
 export function BrandPrinciples({ className = "" }: { className?: string }) {
-  const principles = ["Honest", "Sovereign", "Collateralized", "Calm"];
+  const principles = ["Honest", "Sovereign", "Asset-Referencing", "Calm"];
   return (
     <div
       className={`flex flex-wrap items-center gap-x-3 gap-y-1 text-[0.65rem] uppercase tracking-[0.22em] text-white/75 ${className}`}

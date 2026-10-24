@@ -41,14 +41,16 @@ export function getValidationGates(): ValidationGate[] {
       name: "Smart Contract Audit",
       description: "Complete audit by a top-tier firm (CertiK, Hacken, Trail of Bits). All critical issues remediated.",
       passed: false,
-      evidence: "NOT CONDUCTED — internal audit complete (54 findings, all criticals fixed; 159 canonical tests + Foundry suite green). No external firm engaged yet",
+      evidence:
+        "NOT CONDUCTED — internal audit complete (54 findings, all criticals fixed; 253 canonical tests green at the 2026-10-23 baseline: deterministic Layers 1-6+8 re-run fresh 246/246 + Layer-7 7/7 carried). Foundry on-chain suite: 20/30 pass, 10 price-path failures — R-06, the documented pre-existing owner-side finding (fails identically on every commit). No external firm engaged yet",
     },
     {
       id: "G2",
       name: "Independent Model Validation",
       description: "Quantitative validation of the reserve model, the reference index, and the MASE/MARP engines (fed by the Chapter 23 research program).",
       passed: false,
-      evidence: "NOT CONDUCTED — internal research program partially executed (Layer 6 backtest 2015-2025 runs; stress S5/S6/S3 pass; walk-forward/purged-CV pending). No independent quantitative firm engaged",
+      evidence:
+        "NOT CONDUCTED — internal research program partially executed (Layer 6 backtest 2015-2025 runs; stress S5/S6/S3 pass in the corrected-engine Layer-7 re-run — the un-massaged §23 register at /api/validation still publishes 6 FAIL incl. S5 0% survival, both surfaces labeled; walk-forward/purged-CV pending). No independent quantitative firm engaged",
     },
     {
       id: "G3",
@@ -69,7 +71,8 @@ export function getValidationGates(): ValidationGate[] {
       name: "Public Testnet Deployment",
       description: "Successful deployment on a public testnet (Arbitrum Sepolia or equivalent) with 100+ simulated users.",
       passed: false,
-      evidence: "DEVNETS ONLY — Arc/Monad/Solana devnet contracts deployed; local pilot running. No public-testnet campaign with 100+ simulated users",
+      evidence:
+        "DEVNETS ONLY — Arc/Monad/Solana devnet + Robinhood Chain Testnet (46630) contracts deployed (4 testnets total); local pilot running. No public-testnet campaign with 100+ simulated users",
     },
     {
       id: "G6",

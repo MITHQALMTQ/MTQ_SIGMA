@@ -1,0 +1,28 @@
+{
+  "choices": [
+    {
+      "finish_reason": "stop",
+      "index": 0,
+      "message": {
+        "content": "Based on the provided Ground Truth and the screenshots, here is the list of visible text/numbers that contradict the ground truth or are stale/wrong:\n\n**Section 1: Transparency**\n*   **`§24.1 DETERMINISM` block (Body Text):**\n    *   *Quote:* \"...blocks the **G7** reproducibility gate of **§23.1**.\"\n    *   *Location:* First paragraph under \"Deterministic Reproducibility\".\n    *   *Contradiction:* The ground truth defines the reproducibility gate as **§23.1**, but the live register status is **5 PASS / 6 FAIL**. The text implies this is a pass/fail condition for the section (\"A re-run that diverges... is a defect that blocks...\"), yet the section header displays a green `✓ Gate prerequisite` badge. This visually contradicts the FAIL status of the register cited.\n*   **`§24.4 ACTION RECORDS` Header:**\n    *   *Quote:* \"**appended-only · SHA-256 hash-chained [§24.4]**\"\n    *   *Location:* Top right tag of the \"Rebalancing Decision Log\" section.\n    *   *Contradiction:* Stale/Wrong Section Numbering. The Ground Truth lists the canonical count as **253/253**. The screenshot numbering jumps from **§24.3** to **§24.4** (and later to §25.5 in Governance), indicating the document structure is fragmented or non-canonical compared to the verified 253 sections.\n\n**Section 2: Governance**\n*   **`§25.5 HONEST STATUS` Header:**\n    *   *Quote:* \"**Honest Validation Gate Status**\"\n    *   *Location:* Main heading of the second section.\n    *   *Contradiction:* **Overstated/Misleading Title.** The Ground Truth explicitly states the status is **\"5 PASS / 6 FAIL\"**. Labeling the overall status as \"Honest Validation\" (implying validity) without displaying the specific **FAIL** count prominently in the title or immediate summary is a contradiction of the \"live, verified\" failure state.\n\n**Section 3: Mint Simulator**\n*   **`§19 MINT SIMULATOR` (Top Stats Row):**\n    *   *Quote:* \"**CIRCULATING SUPPLY** ... **0**\"\n    *   *Location:* Third column in the stats row below the warning banner.\n    *   *Contradiction:* **Stale Data.** While the supply might be technically zero if no user has minted in this specific session, the Ground Truth notes a **\"legacy v1/v2 pilot ledger retained labeled\"** and **\"canonical 253/253\"**. A value of absolute zero ignores the retained legacy pilot ledger data implied by the ground truth state.\n*   **`§12.1 RECONCILED WITH §19.2` Box:**\n    *   *Quote:* \"**fee 0.10%**\"\n    *   *Location:* Tag inside the Mint Simulator card (top right).\n    *   *Contradiction:* **Matches Ground Truth (0.10%).** (Listed here to confirm it matches, unlike Redeem).\n\n**Section 4: Redeem Simulator**\n*   **`§19 REDEEM MTQΣ` (Top Stats Row):**\n    *   *Quote:* \"**CURRENT REDEMPTION FEE** ... **0.15%**\"\n    *   *Location:* Third column in the stats row below the warning banner.\n    *   *Contradiction:* **Matches Ground Truth (0.15%).**\n*   **`§12.2 NAV SETTLEMENT` Box:**\n    *   *Quote:* \"**fee 0.15% (NORMAL)**\"\n    *   *Location:* Tag inside the Redeem Simulator card (top right).\n    *   *Contradiction:* **Matches Ground Truth.**\n\n**Summary of Critical Failures:**\nThe primary contradictions are the **misleading \"Honest\" status label** in Governance despite a **5P/6F** fail rate, and the **stale/non-canonical section numbering** (§24.4) which does not align with the **253-section canonical** count.",
+        "role": "assistant"
+      }
+    }
+  ],
+  "created": 1792881384,
+  "id": "20261025063610577d2f37ac384864",
+  "model": "glm-5v-turbo",
+  "object": "chat.completion",
+  "request_id": "20261025063610577d2f37ac384864",
+  "usage": {
+    "completion_tokens": 907,
+    "completion_tokens_details": {
+      "reasoning_tokens": 0
+    },
+    "prompt_tokens": 21127,
+    "prompt_tokens_details": {
+      "cached_tokens": 2
+    },
+    "total_tokens": 22034
+  }
+}

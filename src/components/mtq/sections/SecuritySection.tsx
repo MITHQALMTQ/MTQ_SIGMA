@@ -496,7 +496,11 @@ export function SecuritySection({ onNavigate: _onNavigate }: { onNavigate: (id: 
                 </li>
                 <li className="flex gap-2">
                   <CheckCircle2 className="h-3.5 w-3.5 text-mtqs-emerald shrink-0 mt-0.5" aria-hidden="true" />
-                  <span>OFAC / EU / UN sanctions compliance required for every reserve issuer (§5.2 #4).</span>
+                  <span>
+                    OFAC / EU / UN sanctions compliance required for every reserve issuer on the
+                    legacy v1/v2 reserve path (§5.2 #4; the v3.0 no-conventional-reserve objective
+                    has no reserve issuers — Gate B open).
+                  </span>
                 </li>
                 <li className="flex gap-2">
                   <CheckCircle2 className="h-3.5 w-3.5 text-mtqs-emerald shrink-0 mt-0.5" aria-hidden="true" />
@@ -527,7 +531,13 @@ export function SecuritySection({ onNavigate: _onNavigate }: { onNavigate: (id: 
                 </li>
                 <li className="flex gap-2">
                   <CheckCircle2 className="h-3.5 w-3.5 text-mtqs-emerald shrink-0 mt-0.5" aria-hidden="true" />
-                  <span>Asset-backed: every MTQΣ is collateralized by audited reserve assets.</span>
+                  <span>
+                    Asset-referencing: MTQΣ references a real-world asset basket — issued against
+                    settled payment under the v3.0 no-conventional-reserve objective (Gate B open).
+                    It is NOT collateralized by a reserve; the pilot ledger is simulated (G8) with
+                    internal audit only (G1). The legacy v1/v2 path was reserve-collateralized
+                    (simulated pilot reserve).
+                  </span>
                 </li>
                 <li className="flex gap-2">
                   <CheckCircle2 className="h-3.5 w-3.5 text-mtqs-emerald shrink-0 mt-0.5" aria-hidden="true" />
@@ -545,7 +555,7 @@ export function SecuritySection({ onNavigate: _onNavigate }: { onNavigate: (id: 
                   <span>
                     The earlier draft&apos;s claim of automatic Sharia compliance was removed (§15.1) and
                     replaced with &ldquo;designed for Sharia review.&rdquo; The design is interest-free,
-                    asset-backed, and non-speculative — independent scholarly review remains the
+                    asset-referencing, and non-speculative — independent scholarly review remains the
                     explicit ask (F4 informational finding).
                   </span>
                 </li>

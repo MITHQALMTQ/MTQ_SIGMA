@@ -28,7 +28,7 @@ const PANELS = [
     body: [
       "Existing stablecoins peg to a single fiat currency, exposing holders to that currency's inflation and political risk. Algorithmic stables have repeatedly depegged and collapsed.",
       "Tokenized gold is liquid only within its issuer's rails. CBDCs are sovereign instruments, programmable by the issuing state — not a neutral unit of global purchasing power.",
-      "There is no on-chain unit that is collateralized, multi-currency, oracle-priced, and governed by a transparent constitution.",
+      "There is no on-chain unit that is asset-referencing, multi-currency, oracle-priced, and governed by a transparent constitution.",
     ],
     tone: "rose" as const,
   },
@@ -48,9 +48,9 @@ const PANELS = [
     eyebrow: "03 · Market",
     title: "A neutral unit for global settlement, savings, and reserves.",
     body: [
-      "Market context (industry estimates — no live source is quoted on this site): stablecoin supply was estimated to cross $200B in 2025; tokenized gold at an estimated ~$1.2B — fragmented and single-issuer. Institutional demand for a collateralized, multi-currency unit is unmet.",
-      "Cross-border payments, treasury reserves for DAOs, and Sharia-compliant savings each need a unit that is asset-backed, interest-free, and non-speculative.",
-      "MTQΣ is designed for Sharia review (interest-free, asset-backed, non-speculative), opening a market segment largely unaddressed by existing stablecoins.",
+      "Market context (industry estimates — no live source is quoted on this site): stablecoin supply was estimated to cross $200B in 2025; tokenized gold at an estimated ~$1.2B — fragmented and single-issuer. Institutional demand for an asset-referencing, multi-currency unit is unmet.",
+      "Cross-border payments, treasury reserves for DAOs, and Sharia-compliant savings each need a unit that is asset-referencing, interest-free, and non-speculative.",
+      "MTQΣ is designed for Sharia review (interest-free, asset-referencing, non-speculative), opening a market segment largely unaddressed by existing stablecoins.",
     ],
     tone: "gold" as const,
   },
@@ -81,7 +81,7 @@ const PANELS = [
     eyebrow: "06 · The Ask",
     title: "Independent Sharia review + institutional pilot partners.",
     body: [
-      "We are seeking (1) an independent Sharia review board to certify the design as interest-free, asset-backed, and non-speculative — closing the F4 informational finding honestly.",
+      "We are seeking (1) an independent Sharia review board to certify the design as interest-free, asset-referencing, and non-speculative — closing the F4 informational finding honestly.",
       "(2) Institutional pilot partners to deploy reserve collateral under the §5 registry criteria (issuer authorization, redemption right, custody, sanctions, audit, liquidity, oracle, concentration).",
       "(3) Security auditors for the on-chain contracts (currently live on testnet — see the Security section). The protocol is candidate for public testing, not production-authorized.",
     ],
@@ -173,7 +173,7 @@ export function PitchSection({ onNavigate: _onNavigate }: { onNavigate: (id: Sec
               {BRAND_VOICE.coreObjective} {BRAND_VOICE.designConstraint}. {BRAND_VOICE.statusDeclaration}.
               The six panels below are the full investor pitch — Problem, Solution, Market, Business
               Model, Traction, and The Ask — written in the brand voice: honest, sovereign,
-              collateralized, calm.
+              asset-referencing, calm.
             </p>
           </div>
         </Panel>

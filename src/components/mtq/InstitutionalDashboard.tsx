@@ -119,6 +119,11 @@ function SectionA() {
           </div>
         </div>
         <p className="mt-3 text-[0.72rem] text-white/55 leading-relaxed">{r.finalStatus}</p>
+        <p className="mt-2 text-[0.68rem] text-white/45 leading-relaxed">
+          Register note: the §87 institutional gates (G01–G13, this tab) are the
+          implementation-status register — a different register from the §25.5
+          validation gates (0/11) shown in the status bar and Tab B.
+        </p>
       </Panel>
       <Panel className="p-5">
         <div className="mb-2 flex items-center gap-2"><GlowDot color="gold" size="h-2 w-2" /><h4 className="text-sm font-semibold text-white/90">All {r.institutionalGates.length} gates (0 passed)</h4></div>

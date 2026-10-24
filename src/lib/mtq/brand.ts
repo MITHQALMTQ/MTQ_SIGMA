@@ -127,18 +127,23 @@ export const BRAND_TYPOGRAPHY = {
 } as const;
 
 // === Voice & principles (from the brand board taglines) ===
+// Task-23 honesty pass: "Real Assets" / "asset-backed" / "collateralized"
+// overclaims replaced with the v3 truth (asset-referencing; issued against
+// settled payment; no conventional reserve — Gate B open). taglineFull and
+// principles currently have ZERO render consumers, but are kept honest so a
+// future consumer cannot resurrect the stale claim.
 export const BRAND_VOICE = {
   tagline: "The Global Digital Asset",
-  taglineFull: "Real Assets · Transparent Governance · Global Reach",
+  taglineFull: "Asset-Referencing Basket · Transparent Governance · Global Reach",
   taglineFooter: "Multi-Chain · Multi-Asset · One Vision",
-  principles: ["Real Assets", "Transparent Governance", "Global Reach"],
+  principles: ["Asset-Referencing Basket", "Transparent Governance", "Global Reach"],
   // 16f-004 (v3 posture, Task-15 phrasing): the index defines what one MTQΣ
   // references — under the no-conventional-reserve objective there is no
   // reserve portfolio; the legacy v1/v2 pilot-ledger path is retained, labeled.
   coreObjective:
     "The Adaptive Reference Basket defines what one MTQΣ references. Under the v3.0 no-conventional-reserve objective (Gate B, D-13.3–D-13.7 open) there is no reserve portfolio — the legacy v1/v2 pilot-ledger path is retained, labeled.",
   statusDeclaration: "Candidate for public testing — NOT production-authorized",
-  designConstraint: "Designed for Sharia review (interest-free, asset-backed, non-speculative)",
+  designConstraint: "Designed for Sharia review (interest-free, asset-referencing, non-speculative)",
 } as const;
 
 // === Logo mark description (CURRENT — platform-unified) ===
