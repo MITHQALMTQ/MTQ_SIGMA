@@ -2,9 +2,16 @@
 
 import { inngest } from "./client";
 
-// 1. Keeper Tick — every 15 seconds
+// 1. Keeper Tick — every minute
+// [Task 21 fix] Was "*/15 * * * * *" (every 15 seconds) — INVALID on Inngest:
+// the platform only supports minute-granularity 5-field crons, and the whole
+// app registration was rejected because of this one trigger ("'*' isn't a
+// valid cron schedule"). Every minute is the closest valid cadence (4× fewer
+// runs than the 15s intent, ~43k runs/month — see RUNBOOK §2.3 run-rate note).
+// The engine still self-ticks in-process between heartbeats; this cron keeps
+// the serverless engine advancing when there is no API traffic.
 export const keeperTick = (inngest as any).createFunction(
-  { id: "keeper-tick", name: "MTQΣ Keeper Tick", retries: 3, triggers: [{ cron: "*/15 * * * * *" }] },
+  { id: "keeper-tick", name: "MTQΣ Keeper Tick", retries: 3, triggers: [{ cron: "* * * * *" }] },
   async ({ step, logger }: any) => {
     const fx = await step.run("fetch-fx", async () => {
       const { fetchFxSnapshot } = await import("@/lib/mtq/fx");
