@@ -1,6 +1,6 @@
 // MTQΣ — Contracts Section
-// Chain tabs (4 live testnets + 2 MAINNET pending-deploy placeholders from
-// ALL_CHAINS) · Canonical MTQΣ card (gold, CANONICAL_MTQ_ADDRESSES)
+// Chain tabs (the 3 live testnets from ALL_CHAINS — Monad, Arc, Solana devnet)
+// · Canonical MTQΣ card (gold, CANONICAL_MTQ_ADDRESSES)
 // · Ecosystem contracts table (with search filter) · Copy buttons + explorer links.
 // · AccessControl Role Matrix (Task 8-e) — LIVE /api/roles read-only verification
 //   with the owner-pinned role hashes, honest REVERT/anomaly display, and the
@@ -53,9 +53,12 @@ function CopyButton({ value, label }: { value: string; label: string }) {
 }
 
 /* ---------- Chain tab ---------- */
-// A chain whose every contract entry is the zero address is a PENDING-DEPLOY
-// placeholder (Base + Arbitrum mainnet) — labeled as such, never presented as
-// a live deployment (TESTNET-ONLY posture).
+// Defensive guard: a chain whose every contract entry is the zero address is
+// a PENDING-DEPLOY placeholder — labeled as such, never presented as a live
+// deployment (TESTNET-ONLY posture). No current registry chain trips this
+// (the Base/Arbitrum placeholders were removed 2026-10-24 per the owner's
+// directive), but the guard stays so any future placeholder is still
+// labeled honestly.
 function isPendingDeploy(chain: ChainInfo): boolean {
   return (
     chain.contracts.length > 0 &&
@@ -470,14 +473,12 @@ export function ContractsSection({ onNavigate: _onNavigate }: { onNavigate: (id:
   const [query, setQuery] = useState("");
   const active = ALL_CHAINS.find((c) => c.id === activeId) ?? ALL_CHAINS[0];
 
-  // Canonical chain id map — the 4 canonical MTQΣ addresses (testnets only;
-  // base/arbitrum have NO canonical entry → their tabs render the pending-deploy
-  // notice instead of silently showing another chain's address).
+  // Canonical chain id map — the 3 canonical MTQΣ addresses (the owner's
+  // current deployment set; every registry chain now has a canonical entry).
   const canonicalChainIds: Record<string, string> = {
     monad: "monad",
     arc: "arc",
     solana: "solana",
-    robinhood: "robinhood",
   };
   const canonicalKey = canonicalChainIds[active.id];
 
@@ -487,7 +488,7 @@ export function ContractsSection({ onNavigate: _onNavigate }: { onNavigate: (id:
       <div>
         <div className="flex items-end justify-between gap-4 mb-5">
           <div className="space-y-1.5 min-w-0">
-            <span className="mtqs-eyebrow">Deployments · 4 testnets + 2 mainnet placeholders</span>
+            <span className="mtqs-eyebrow">Deployments · 3 testnets (Monad · Arc · Solana devnet)</span>
             <h2 className="text-lg sm:text-xl font-medium tracking-tight text-white">
               Contract Registry &amp; Canonical MTQΣ
             </h2>

@@ -50,8 +50,8 @@
 // HONEST POSTURE (label discipline — no production-readiness claims):
 //   • On-chain adapters (contracts/adapters/*.sol) are COMPILED but NOT
 //     deployed by us; no provider feed address is configured anywhere here.
-//   • The three protocol-owner Oracle.sol deployments have an UNPUBLISHED
-//     ABI — whether they serve real or mock feeds is UNVERIFIED (the exact
+//   • The two protocol-owner Oracle.sol deployments (Monad + Arc) have an
+//     UNPUBLISHED ABI — whether they serve real or mock feeds is UNVERIFIED (the exact
 //     Ext-3 A.4 question); codeStatus stays "existence-unverified" until the
 //     orchestrator folds in the parallel eth_getCode probe JSON.
 //   • The pilot's Gate 2 shadow mode prices from OFF-CHAIN families
@@ -71,7 +71,6 @@ import {
   ARC_TESTNET,
   DEPLOYER_WALLET,
   MONAD_TESTNET,
-  ROBINHOOD_TESTNET,
   SOLANA_DEVNET,
 } from "./contracts";
 import type { ChainInfo, ContractEntry } from "./contracts";
@@ -136,8 +135,8 @@ const SECTION_17_10_REQUIRED_FAMILIES: RequiredSourceFamily[] = [
  * adapters (contracts/adapters/{Chainlink,Pyth,Chronicle}Adapter.sol) each
  * implement IOracleAdapter.getPrice(bytes32) → (price, timestamp, confidence)
  * normalized to 1e18. `providerFeedAddress` is NULL by design: OD-34 forbids
- * inventing oracle addresses, and which provider feeds exist on Monad/Arc/
- * Robinhood testnets is UNVERIFIED (Ext-3 A.4 asks verbatim: "Chainlink?
+ * inventing oracle addresses, and which provider feeds exist on Monad/Arc
+ * testnets is UNVERIFIED (Ext-3 A.4 asks verbatim: "Chainlink?
  * Pyth? Neither? Custom?").
  */
 export interface OnChainAdapterFamily {
@@ -149,7 +148,7 @@ export interface OnChainAdapterFamily {
 }
 
 const ADAPTER_AVAILABILITY_COMMON =
-  "compiled in contracts/adapters (IOracleAdapter.getPrice(bytes32), 1e18-normalized); NO instance deployed by us on any chain and NO provider feed address configured — provider presence on Monad/Arc/Robinhood testnets is UNVERIFIED (Ext-3 A.4: 'Chainlink? Pyth? Neither? Custom?')";
+  "compiled in contracts/adapters (IOracleAdapter.getPrice(bytes32), 1e18-normalized); NO instance deployed by us on any chain and NO provider feed address configured — provider presence on Monad/Arc testnets is UNVERIFIED (Ext-3 A.4: 'Chainlink? Pyth? Neither? Custom?')";
 
 /** The three compiled adapter families; `pairNote` appends per-pair honesty. */
 function compiledAdapterFamilies(pairNote?: string): OnChainAdapterFamily[] {
@@ -442,7 +441,7 @@ export const FEED_PAIRS: PerPairFeedConfig[] = [
       },
     ],
     onChainAdapterFamilies: compiledAdapterFamilies(
-      "Additionally: no known on-chain VIX feed exists on any of the three testnets — the §17.10 per-pair on-chain address for VIX must come from the OD-34 confirmation, not from this registry (nothing invented).",
+      "Additionally: no known on-chain VIX feed exists on either EVM testnet — the §17.10 per-pair on-chain address for VIX must come from the OD-34 confirmation, not from this registry (nothing invented).",
     ),
     feedStatus: "off-chain-official-with-simulated-fallback",
     honestDetermination:
@@ -485,7 +484,7 @@ export const FEED_PAIRS: PerPairFeedConfig[] = [
       },
     ],
     onChainAdapterFamilies: compiledAdapterFamilies(
-      "Additionally: no known on-chain DXY feed exists on any of the three testnets — the §17.10 per-pair on-chain address for DXY must come from the OD-34 confirmation, not from this registry (nothing invented).",
+      "Additionally: no known on-chain DXY feed exists on either EVM testnet — the §17.10 per-pair on-chain address for DXY must come from the OD-34 confirmation, not from this registry (nothing invented).",
     ),
     feedStatus: "off-chain-official-with-simulated-fallback",
     honestDetermination:
@@ -494,11 +493,10 @@ export const FEED_PAIRS: PerPairFeedConfig[] = [
   {
     // Ext-3 A.4 (Arc): "Arc uses USDC as native gas — the 'USDC/USD' price is
     // 1.0 by construction, but the fiat and gold feeds must still come from
-    // somewhere." This row records that construct honestly; on Monad and
-    // Robinhood the pair must come from the USDC issuer oracle family, which
-    // the pilot does NOT wire (USDC enters bookkeeping at 1.0 — the USD leg
-    // is the unit of account per §9.7.4; Robinhood pilot collateral is
-    // MockUSDC per contracts.ts).
+    // somewhere." This row records that construct honestly; on Monad the
+    // pair must come from the USDC issuer oracle family, which the pilot
+    // does NOT wire (USDC enters bookkeeping at 1.0 — the USD leg is the
+    // unit of account per §9.7.4).
     pairId: "USDC/USD",
     displayName: "USDC / US Dollar (stablecoin construct)",
     assetClass: "stablecoin-construct",
@@ -537,22 +535,22 @@ export const FEED_PAIRS: PerPairFeedConfig[] = [
       {
         family: "USDC issuer (Circle) oracle family",
         upstream: "none wired in the pilot",
-        role: "the family USDC/USD must come from on Monad and Robinhood (any non-Arc chain) per Ext-3 A.4 — NOT wired.",
+        role: "the family USDC/USD must come from on Monad (any non-Arc chain) per Ext-3 A.4 — NOT wired.",
         status: "not-wired",
       },
       {
         family: "Unit-of-account assumption (USD leg, §9.7.4)",
         upstream: "oracle.ts board note: 'USD is the unit of account — price 1.0 by construction'",
-        role: "pilot treats USD (and USDC bookkeeping) at 1.0; Robinhood pilot collateral is MockUSDC (contracts.ts) — disclosed pilot substitution.",
+        role: "pilot treats USD (and USDC bookkeeping) at 1.0 — disclosed pilot substitution.",
         status: "construct-by-construction",
       },
     ],
     onChainAdapterFamilies: compiledAdapterFamilies(
-      "For this pair an adapter would read an issuer-oracle-derived USDC/USD feed on Monad/Robinhood; on Arc NO oracle read is required (1.0 by construction, Ext-3 A.4); no feed address configured anywhere.",
+      "For this pair an adapter would read an issuer-oracle-derived USDC/USD feed on Monad; on Arc NO oracle read is required (1.0 by construction, Ext-3 A.4); no feed address configured anywhere.",
     ),
     feedStatus: "construct-arc-issuer-unwired-elsewhere",
     honestDetermination:
-      "USDC/USD is NOT an oracle-read pair: on Arc it is 1.0 BY CONSTRUCTION (USDC is Arc's native gas token, 18 decimals, Ext-3 A.4); on Monad/Robinhood it must come from the USDC issuer (Circle) oracle family, which is NOT wired in the pilot — USDC enters bookkeeping at 1.0 (§9.7.4 unit-of-account; MockUSDC pilot collateral on Robinhood Testnet). The ≥3-family extension for this pair is POLICY-PENDING (§17.10 lists 8 pairs; the extension belongs to the OD-34 owners).",
+      "USDC/USD is NOT an oracle-read pair: on Arc it is 1.0 BY CONSTRUCTION (USDC is Arc's native gas token, 18 decimals, Ext-3 A.4); on Monad it must come from the USDC issuer (Circle) oracle family, which is NOT wired in the pilot — USDC enters bookkeeping at 1.0 (§9.7.4 unit-of-account). The ≥3-family extension for this pair is POLICY-PENDING (§17.10 lists 8 pairs; the extension belongs to the OD-34 owners).",
   },
 ];
 
@@ -570,9 +568,10 @@ export function getFeedPair(pairId: string): PerPairFeedConfig | undefined {
  * FOLD-IN COMPLETE (2026-10-19, orchestrator): Monad + Arc are "verified-present"
  * from the live probes in audit-work/v5/safe-verification.json (Task 3-a:
  * non-empty bytecode at Monad block 72,421,819 — 5,273 bytes; Arc block
- * 68,031,046 — 2,601 bytes). Robinhood remains "existence-unverified" — it was
- * NOT probed (no Robinhood RPC in the 2026-10-19 run) and Monad/Arc evidence
- * does not transfer (OD-8). Do NOT hand-edit further without new probe JSON.
+ * 68,031,046 — 2,601 bytes). (2026-10-24 owner-directed cleanup: the Robinhood
+ * oracle row was REMOVED from this registry along with the chain — its
+ * historical "existence-unverified" record is preserved in git history and
+ * the audit registers.) Do NOT hand-edit further without new probe JSON.
  */
 export type OnChainCodeStatus =
   | "verified-present"
@@ -603,7 +602,7 @@ export interface PlannedGate7Family {
  * real?") with the only defensible answer today: UNVERIFIED.
  */
 export interface PerChainOracleDeployment {
-  /** contracts.ts chain slug ("monad" | "arc" | "robinhood" | "solana"). */
+  /** contracts.ts chain slug ("monad" | "arc" | "solana"). */
   id: string;
   /** Human chain label, imported from contracts.ts. */
   label: string;
@@ -698,29 +697,8 @@ export const ARC_ORACLE_DEPLOYMENT: PerChainOracleDeployment = {
   note:
     "Arc uses USDC as native gas — USDC/USD = 1.0 BY CONSTRUCTION here (Ext-3 A.4), but the fiat and gold feeds must still come from somewhere: pilot source = off-chain families (Frankfurter/gold-api/FRED-Yahoo), on-chain contents UNVERIFIED. " +
     "CODE PRESENCE VERIFIED 2026-10-19 (read-only eth_getCode, audit-work/v5/safe-verification.json): non-empty bytecode, 2,601 bytes at block 68,031,046 via https://rpc.testnet.arc.io — existence ≠ feed contents; ABI still unpublished. " +
-    "Address-book contamination flagged (same hex as Robinhood MockUSDC — different chains, per contracts.ts; see SAFE-VERIFICATION.md §4). " +
+    "Address-book contamination was flagged historically (the same hex appeared as Robinhood MockUSDC in a superseded registry row — C-042; see SAFE-VERIFICATION.md §4). " +
     "nativeCurrency per contracts.ts: 'USDC (18 decimals)'.",
-};
-
-// --- Robinhood Chain Testnet (chainId 46630) — Ext-3 A.4 / OD-34 -------------
-const ROBINHOOD_ORACLE_ENTRY = oracleEntryFor(ROBINHOOD_TESTNET);
-
-/** OD-34 row for the protocol-owner Oracle.sol on Robinhood Chain Testnet (46630). */
-export const ROBINHOOD_ORACLE_DEPLOYMENT: PerChainOracleDeployment = {
-  id: ROBINHOOD_TESTNET.id,
-  label: ROBINHOOD_TESTNET.label,
-  chainId: ROBINHOOD_TESTNET.chainId,
-  onChainOracle: ROBINHOOD_ORACLE_ENTRY.address,
-  oracleContract: ROBINHOOD_ORACLE_ENTRY.symbol,
-  deployedBy: DEPLOYER_WALLET,
-  codeStatus: "existence-unverified",
-  abiStatus: "not published by protocol owner",
-  feedDetermination: UNVERIFIED_FEED_DETERMINATION,
-  pilotStalenessEnforcement: PILOT_STALENESS_ENFORCEMENT,
-  gateStatus: "Gate-2-configured",
-  note:
-    "Robinhood Chain Testnet deployment (chainId 46630, deployed 2026-09-05 per contracts.ts). Registry quirk flagged for the orchestrator's OD-34 address reconciliation: contracts.ts records Robinhood MockUSDC (pilot collateral) at the SAME hex string as the Arc Oracle.sol entry — different chains, per contracts.ts. Pilot collateral is MockUSDC, so USDC/USD on this chain is issuer-unwired (see FEED_PAIRS USDC/USD row). " +
-    "codeStatus stays 'existence-unverified' honestly: the 2026-10-19 OD-35 probe run (audit-work/v5/safe-verification.json) covered Monad + Arc only — Robinhood was NOT probed and cross-chain evidence does not transfer (OD-8).",
 };
 
 // --- Solana Devnet — deferred to Gate 7 (Ext-3 A.4) --------------------------
@@ -760,15 +738,15 @@ export const SOLANA_GATE7: PerChainOracleDeployment = {
 };
 
 /**
- * OD-34 per-chain on-chain oracle deployment registry: the three
- * protocol-owner EVM Oracle.sol deployments (Monad 10143 / Arc 5042002 /
- * Robinhood 46630, addresses imported from contracts.ts) plus the deferred-G7
- * Solana devnet entry.
+ * OD-34 per-chain on-chain oracle deployment registry: the two
+ * protocol-owner EVM Oracle.sol deployments (Monad 10143 / Arc 5042002,
+ * addresses imported from contracts.ts) plus the deferred-G7 Solana devnet
+ * entry. (2026-10-24 owner-directed cleanup: the Robinhood row was removed
+ * with the chain; its historical record is preserved in git history.)
  */
 export const CHAIN_ORACLE_DEPLOYMENTS: PerChainOracleDeployment[] = [
   MONAD_ORACLE_DEPLOYMENT,
   ARC_ORACLE_DEPLOYMENT,
-  ROBINHOOD_ORACLE_DEPLOYMENT,
   SOLANA_GATE7,
 ];
 
@@ -940,12 +918,12 @@ export function getOracleFeedSummary(): OracleFeedSummary {
     })),
     limitations: [
       "On-chain adapter families (Chainlink/Pyth/Chronicle, contracts/adapters/*.sol) are COMPILED but NOT deployed by us — no adapter instance exists at any address on any chain, and every providerFeedAddress in this registry is null pending OD-34 confirmation.",
-      "The three Oracle.sol deployments (Monad 10143 / Arc 5042002 / Robinhood 46630) belong to the PROTOCOL OWNER and the ABI is NOT PUBLISHED — whether they serve real or mock feeds is UNVERIFIED (Ext-3 A.4's exact question). codeStatus FOLD-IN (2026-10-19, audit-work/v5/safe-verification.json): Monad + Arc VERIFIED-PRESENT (non-empty bytecode 5,273 B / 2,601 B at blocks 72,421,819 / 68,031,046); Robinhood existence-unverified (not probed). Existence ≠ feed contents.",
-      "Arc: USDC is the native gas currency (18 decimals, contracts.ts), so USDC/USD = 1.0 BY CONSTRUCTION per Ext-3 A.4 — a construct, not an oracle read; on Monad/Robinhood the pair must come from the USDC issuer (Circle) oracle family, which is NOT wired in the pilot (USDC enters bookkeeping at 1.0; MockUSDC pilot collateral on Robinhood).",
+      "The two Oracle.sol deployments (Monad 10143 / Arc 5042002) belong to the PROTOCOL OWNER and the ABI is NOT PUBLISHED — whether they serve real or mock feeds is UNVERIFIED (Ext-3 A.4's exact question). codeStatus FOLD-IN (2026-10-19, audit-work/v5/safe-verification.json): Monad + Arc VERIFIED-PRESENT (non-empty bytecode 5,273 B / 2,601 B at blocks 72,421,819 / 68,031,046). Existence ≠ feed contents.",
+      "Arc: USDC is the native gas currency (18 decimals, contracts.ts), so USDC/USD = 1.0 BY CONSTRUCTION per Ext-3 A.4 — a construct, not an oracle read; on Monad the pair must come from the USDC issuer (Circle) oracle family, which is NOT wired in the pilot (USDC enters bookkeeping at 1.0).",
       "Solana devnet is DEFERRED-G7: Pyth devnet feeds (FX + gold) primary + Jupiter price API fallback per Ext-3 A.4 — nothing wired, nothing verified.",
       "The pilot's Gate 2 shadow mode prices all pairs from OFF-CHAIN families (Frankfurter ECB, gold-api.com, FRED/Yahoo macro) with oracle.ts running the 3-source consensus as SYNTHETIC WITNESSES over a single upstream per FX/gold pair — §17.10's 3-INDEPENDENT-family requirement is NOT met in the pilot; Ext-3 A.4 accepts the mock-oracle strategy for Gate 2 shadow mode.",
-      "Which price feeds exist on Monad/Arc/Robinhood testnets (Ext-3 A.4: 'Chainlink? Pyth? Neither? Custom?') is UNANSWERED — no provider feed id is configured for any pair on any chain in this registry (oracle addresses are never invented).",
-      "VIX and DXY have no known on-chain feeds on the three EVM testnets and are not part of the runtime 6-pair consensus board — consumed as macro signals (fx.ts: FRED official daily-lag primary, Yahoo fallback, honest simulated OU-walk last resort).",
+      "Which price feeds exist on Monad/Arc testnets (Ext-3 A.4: 'Chainlink? Pyth? Neither? Custom?') is UNANSWERED — no provider feed id is configured for any pair on any chain in this registry (oracle addresses are never invented).",
+      "VIX and DXY have no known on-chain feeds on either EVM testnet and are not part of the runtime 6-pair consensus board — consumed as macro signals (fx.ts: FRED official daily-lag primary, Yahoo fallback, honest simulated OU-walk last resort).",
       "The ≥3-family extension for USDC/USD is POLICY-PENDING: Blueprint §17.10 lists 8 pairs and is silent on stablecoin constructs; the extension belongs to the OD-34 owners (Smart-contract lead + Risk Council).",
     ],
   };

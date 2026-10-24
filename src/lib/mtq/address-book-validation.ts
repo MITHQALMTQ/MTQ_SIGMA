@@ -9,8 +9,13 @@
 //                             owner's "WHAT YOU HAVE NOW" summary) but NOT yet
 //                             approved by governance.
 //   • CURRENT-UNAPPROVED   — live, wired, but not governance-approved.
-//   • SUPERSEDED            — older generations retained for PROVENANCE ONLY
-//                             (records stay traceable; never deleted).
+//   • SUPERSEDED            — classification reserved for provenance rows.
+//                             (2026-10-24 owner-directed registry cleanup: the
+//                             superseded-generation rows were REMOVED from the
+//                             registry per the owner's explicit "delete what is
+//                             not used" instruction; history is preserved in
+//                             git + the audit registers, so no row currently
+//                             carries this classification.)
 //   • DUPLICATE-CONFLICT   — the same deployment hex appearing on multiple
 //                             chains or in conflicting roles — requires
 //                             per-chain independent verification before the
@@ -25,15 +30,17 @@
 //   missing chain IDs · conflicting canonical entries · duplicate deployments
 //   presented as authoritative · unsupported network aliases · inconsistent
 //   cross-chain mappings. The underlying records in contracts.ts are NEVER
-//   deleted or rewritten by this module — conflicting evidence is surfaced,
-//   not erased (Task 12 §5: "Do not delete conflicting evidence simply to
-//   achieve a green validation result").
+//   deleted or rewritten by this module — findings reflect the registry as
+//   it exists. (2026-10-24: the owner explicitly ordered the non-current
+//   generations REMOVED from the registry; that disposition was executed in
+//   contracts.ts, not by this validator. Task 12 §5's "do not delete
+//   conflicting evidence to achieve a green result" still binds THIS module:
+//   it deletes nothing and surfaces exactly what the registry contains.)
 // ============================================================================
 
 import {
   ALL_CHAINS,
   CANONICAL_MTQ_ADDRESSES,
-  SUPERSEDED_CANONICAL_MTQ,
   type ChainInfo,
 } from "./contracts";
 
@@ -88,8 +95,8 @@ export interface AddressBookValidation {
 
 const ZERO_ADDRESS = "0x0000000000000000000000000000000000000000";
 
-/** Known TESTNET chains by explicit id (the audit's verified surfaces). */
-const TESTNET_CHAIN_IDS = new Set([10143, 5042002, 46630]);
+/** Known TESTNET chains by explicit id (the owner's current deployment set). */
+const TESTNET_CHAIN_IDS = new Set([10143, 5042002]);
 
 function hexOf(addr: string): string {
   return addr.toLowerCase();
@@ -202,14 +209,14 @@ export function validateAddressBook(): AddressBookValidation {
     }
   }
 
-  // ---- §2.4 Superseded generations (traceability, never deleted) ----------
-  for (const [slug, addr] of Object.entries(SUPERSEDED_CANONICAL_MTQ)) {
-    classifications.push({
-      chain: slug, chainId: slug === "solana" ? "devnet" : "(varies)", name: "superseded MTQ generation",
-      address: addr, classification: "SUPERSEDED",
-      reason: "prior OD-35-era generation; retained for PROVENANCE ONLY (never deleted); disposition reserved to governance",
-    });
-  }
+  // ---- §2.4 Superseded generations -----------------------------------------
+  // 2026-10-24 owner-directed cleanup: the superseded-generation rows were
+  // REMOVED from the registry (contracts.ts) per the owner's explicit
+  // "delete what is not used" instruction, so no SUPERSEDED rows are
+  // classified here anymore. The classification type is retained for
+  // interface stability; the historical evidence lives in git history and
+  // the audit registers (task9-audit / task10-containment /
+  // mandate-register / evidence_package).
 
   // ---- §2.5 Cross-chain hex reuse (duplicate/conflict detection) -----------
   const allRows: DeploymentClassificationRow[] = [];
@@ -267,8 +274,12 @@ export function validateAddressBook(): AddressBookValidation {
 
   return {
     summary: {
-      // ok=false is EXPECTED and honest: the address book contains documented
-      // conflicts + zero approved canonical selections. "ok" would be a lie.
+      // Post-cleanup (2026-10-24): the BLOCKER-class contamination rows
+      // (Robinhood hex collisions) were removed from the registry by the
+      // owner's explicit instruction, so ok=true is now the honest state;
+      // the remaining MAJOR findings (Governance/Safe same-hex on
+      // Monad+Arc) still require per-chain verification, and canonical
+      // approval remains pending.
       ok: blockers === 0,
       blockerCount: blockers,
       majorCount: majors,
@@ -277,9 +288,11 @@ export function validateAddressBook(): AddressBookValidation {
       canonicalDecisionPending: approvedCanonical === 0,
       note:
         "NO canonical generation is selected by this validator. Candidates exist; governance approval is pending. " +
-        "Conflicting/duplicate evidence is preserved and surfaced, never deleted. ok=false reflects open BLOCKER " +
-        "findings (cross-chain hex conflicts + any conflicting canonical rows) — resolving them requires " +
-        "per-chain independent verification and a governance decision, not a code change.",
+        "Findings reflect the registry as it exists: the 2026-10-24 owner-directed cleanup removed the " +
+        "non-current generations (Robinhood chain, Base/Arbitrum placeholders, superseded map) from the registry " +
+        "itself — an owner decision, not a validator mutation. The remaining findings (cross-chain same-hex rows " +
+        "for Governance + Safe on Monad/Arc) are surfaced, not merged; per-chain verification remains required " +
+        "before any row is treated as authoritative, and canonical selection is reserved to humans.",
     },
     findings,
     classifications: deduped,

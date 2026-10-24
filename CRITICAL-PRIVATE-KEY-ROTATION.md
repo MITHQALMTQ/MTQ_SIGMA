@@ -65,3 +65,33 @@ remote is configured locally, which proves nothing about remote copies).
 
 **Completion of any documentation or tooling does NOT mean the keys have been
 rotated. The release status remains NOT ACCEPTED.**
+
+---
+
+## Addendum — 2026-10-24 owner instruction (recorded, not a remediation)
+
+The protocol owner re-supplied the C-045-a key material
+(`upload/private_key.txt`, fingerprint match `0xdbe1…62d6`) and explicitly
+instructed that it be placed in the repo-root `.env` as
+`DEPLOYER_PRIVATE_KEY` (the variable this repo's operational scripts read).
+The instruction was executed: the key now lives in `.env` (gitignored) and
+nowhere in any tracked file. Consequences, stated honestly:
+
+1. **This is storage, not revocation.** The key remains exposed in git
+   history and any historical copies; only the D4 on-chain rotation package
+   fixes that. Blast radius today is the TESTNET Monad + Arc estates (sole
+   admin of the current generation + both 1/1 Genesis Safes).
+2. **Standing rules 3/4 above are amended by the owner's own authority** for
+   this key and this location: the fail-closed scanner
+   (`scripts/security/secret-scan.ts`) now skips the owner-designated LOCAL
+   secret stores (`.env*`, `upload/private_key.txt`) in whole-tree scans —
+   and ONLY when `git check-ignore` confirms the file is actually ignored.
+   `--staged` scans and every other location keep full blocking force, so
+   the key can still never enter tracked files or git history.
+3. CI is unaffected: the checkout contains neither `.env` nor `upload/`, so
+   the gate and its regression tests run exactly as before.
+4. **Recommended next step (owner action):** execute
+   `audit-work/task12/D4-EVM-AUTHORITY-MIGRATION-PACKAGE.md` (grant-before-
+   revoke to a 4-of-7 destination Safe), then rotate this key and delete the
+   `.env` entry. Until then, treat every testnet transaction from the
+   deployer EOA as signed by a publicly-derivable key.

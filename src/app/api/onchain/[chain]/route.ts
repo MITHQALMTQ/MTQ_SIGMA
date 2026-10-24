@@ -4,7 +4,9 @@ import { CANONICAL_MTQ_ADDRESSES } from "@/lib/mtq/contracts";
 import { rateLimit, getClientIP } from "@/lib/mtq/rate-limit";
 export const dynamic = "force-dynamic";
 const ABI = ["function name() view returns (string)","function symbol() view returns (string)","function decimals() view returns (uint8)","function totalSupply() view returns (uint256)","function hasRole(bytes32,address) view returns (bool)","function paused() view returns (bool)"];
-const RPC: Record<number,string> = { 10143: "https://testnet-rpc.monad.xyz", 5042002: "https://rpc.testnet.arc.io", 46630: "https://rpc.testnet.chain.robinhood.com/rpc" };
+// 2026-10-24 owner-directed registry cleanup: chain 46630 (Robinhood) removed —
+// CANONICAL_MTQ_ADDRESSES no longer carries it, so the RPC map stays in sync.
+const RPC: Record<number,string> = { 10143: "https://testnet-rpc.monad.xyz", 5042002: "https://rpc.testnet.arc.io" };
 const RA = "0x0000000000000000000000000000000000000000000000000000000000000000";
 const RM = "0x9f2df0fed2c77648de5860a4cc508cd0818c85b8b8a1ab4ceeef8d981c8956a6";
 const RP = "0x65d7a28e3265b37a6474929f336521b332c1681b933f6cb9f3376673440d862a";

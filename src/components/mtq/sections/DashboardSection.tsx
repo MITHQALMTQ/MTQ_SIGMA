@@ -477,7 +477,8 @@ export function DashboardSection({
                 <div className="text-[0.85rem] text-white/90">
                   {ALL_CHAINS.length} networks ·{" "}
                   {ALL_CHAINS.reduce((a, c) => a + c.contracts.length, 0)} registry entries ·
-                  4 testnets live · 2 mainnet placeholders (pending deploy, zero addresses)
+                  3 testnets live (Monad · Arc · Solana devnet) — registry contains only the
+                  owner-declared current deployments
                 </div>
                 <p className="mt-1.5 text-[0.7rem] text-white/55 leading-relaxed max-w-2xl">
                   Compact pointer — canonical MTQΣ addresses, per-chain ecosystem contracts, explorer

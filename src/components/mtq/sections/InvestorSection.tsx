@@ -51,7 +51,7 @@ const INVESTOR_ENDPOINTS = [
   { label: "Live snapshot", url: "/api/metrics", desc: "Full MetricsSnapshot — GFB, price, NAV, RR, LCR, status, reconciliation" },
   { label: "Oracle board", url: "/api/oracle", desc: "6-pair oracle consensus (3-of-3 validity, deviation, staleness)" },
   { label: "Asset registry", url: "/api/registry", desc: "9 eligible reserve assets + per-issuer concentration report" },
-  { label: "On-chain verify (EVM)", url: "/api/onchain/<chainId>", desc: "Per-chain live bytecode + name/symbol/decimals + role checks (10143, 5042002, 46630)" },
+  { label: "On-chain verify (EVM)", url: "/api/onchain/<chainId>", desc: "Per-chain live bytecode + name/symbol/decimals + role checks (10143, 5042002)" },
   { label: "On-chain verify (Solana)", url: "/api/onchain/solana", desc: "Solana devnet SPL mint account info + mintAuthority" },
   { label: "Trial export (JSON)", url: "/api/trials/export?format=json", desc: "All mint/redeem trials (SQLite) — full audit trail" },
   { label: "Trial export (CSV)", url: "/api/trials/export?format=csv", desc: "Same trail as CSV for spreadsheet analysis" },

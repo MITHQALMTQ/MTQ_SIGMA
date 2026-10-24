@@ -9,7 +9,7 @@
 //   5. Constitutional Separation — signature visual
 //   6. Live Monetary State — GFB chart + 4 stat tiles + basket display
 //   7. Reference Index Chart — time-range chart with markers
-//   8. MTQΣ on 4 Testnets — canonical address cards
+//   8. MTQΣ on 3 Testnets — canonical address cards
 //   9. Closing call-out — explore the closed-loop architecture
 //
 // Props: { onNavigate } — used by the hero CTAs.
@@ -593,12 +593,12 @@ export function HomeSection({
         </section>
       </SectionFade>
 
-      {/* ===== 4 testnet cards ===== */}
+      {/* ===== 3 testnet cards ===== */}
       <SectionFade>
         <section>
           <SectionHeading
             eyebrow="Canonical Deployments"
-            title="MTQΣ on 4 Testnets"
+            title="MTQΣ on 3 Testnets"
             right={
               <button
                 onClick={() => onNavigate("contracts")}

@@ -162,15 +162,15 @@ export const PROTOCOL_STATS = {
   // Honest tag: these four values are point-in-time verified constants (true
   // against the live registry / evidence register as of the dated baseline),
   // NOT live reads — live values are served in the Pilot Command Center.
-  tag: "STATUS AT HEAD · 2026-10-23 · READ-ONLY VERIFIED",
+  tag: "STATUS AT HEAD · 2026-10-24 · READ-ONLY VERIFIED",
   items: [
     { value: "19", label: "Contracts Verified On-Chain" },
-    { value: "4", label: "Testnets Deployed" },
+    { value: "3", label: "Testnets Deployed" },
     { value: "253/253", label: "Canonical Invariant Tests Passing" },
     { value: "0/7", label: "Release Gates (Evidence Register) Closed — Production Not Authorized" },
   ],
   footnote:
-    "Point-in-time verified values, not live reads (live values are served in the Pilot Command Center terminal). 19 = 9 Monad Testnet (10143) + 9 Arc Testnet (5042002) contracts + 1 Solana devnet SPL mint, each code/account verified by read-only RPC probe. 4 = Monad, Arc, Robinhood testnets + Solana devnet. 253/253 = canonical invariant suite green at the 2026-10-23 baseline: deterministic Layers 1-6+8 re-run fresh 246/246 + Layer-7 7/7 carried from the recorded chunked evidence (six D-13.26 stale-assertion re-pins applied under the owner directive, +3 new invariant assertions; code-quality evidence only — no release authority). 0/7 = the evidence register's release gates (D-5) — a different register from the terminal's §25.5 validation gates (0/11). The reference design's TVL / user-count / uptime figures are not reproduced: they are not real for a shadow-mode testnet pilot.",
+    "Point-in-time verified values, not live reads (live values are served in the Pilot Command Center terminal). 19 = 9 Monad Testnet (10143) + 9 Arc Testnet (5042002) contracts + 1 Solana devnet SPL mint, each code/account verified by read-only RPC probe. 3 = Monad, Arc testnets + Solana devnet (the 2026-10-24 owner-directed registry cleanup removed the Robinhood Chain suite and the Base/Arbitrum placeholders from the registry). 253/253 = canonical invariant suite green at the 2026-10-23 baseline: deterministic Layers 1-6+8 re-run fresh 246/246 + Layer-7 7/7 carried from the recorded chunked evidence (six D-13.26 stale-assertion re-pins applied under the owner directive, +3 new invariant assertions; code-quality evidence only — no release authority). 0/7 = the evidence register's release gates (D-5) — a different register from the terminal's §25.5 validation gates (0/11). The reference design's TVL / user-count / uptime figures are not reproduced: they are not real for a shadow-mode testnet pilot.",
 } as const;
 
 // ---------------------------------------------------------------------------
@@ -186,7 +186,7 @@ export const ECOSYSTEM = {
     "Manage your assets, track performance, and participate in governance — all in a sleek, intuitive interface designed for the next generation of users.",
   checklist: [
     "Real-time analytics & insights",
-    "Simulated mint/redeem across 4 testnets",
+    "Simulated mint/redeem across 3 testnets",
     // 16c-012: no voting portal exists — the real surface is the Governance
     // transparency view (councils, gates, spec status) in the terminal.
     "Governance transparency & gates view",

@@ -112,8 +112,9 @@ export function Footer() {
               ))}
             </div>
             <div className="mt-2 text-[0.62rem] text-white/40">
-              4 testnets live (Monad · Arc · Robinhood · Solana devnet) — Base and Arbitrum One
-              are pending-deploy mainnet targets (no deployment on either chain).
+              3 testnets live (Monad · Arc · Solana devnet) — TESTNET-ONLY pilot; mainnet
+              deployment not authorized. (Robinhood Chain + Base/Arbitrum placeholders removed
+              from the registry 2026-10-24 per the owner's directive.)
             </div>
             <div className="mt-2 text-[0.7rem] text-white/55">
               Deployer wallet:{" "}

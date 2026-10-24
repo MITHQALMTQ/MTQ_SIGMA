@@ -1,7 +1,7 @@
 // MTQΣ — On-Chain vs Off-Chain Implementation Matrix
 // Honest, explicit two-column table that maps every Master Blueprint v1.0
 // component to:
-//   - ✅ On-chain (deployed & verified on Arc Testnet / Monad / Robinhood)
+//   - ✅ On-chain (deployed & verified on Arc Testnet / Monad)
 //   - 📝 Source ready (contracts/MTQSigmaV2.sol written & compiles, pending deploy)
 //   - ⚙️ TypeScript engine only (src/lib/mtq/* — faithful blueprint math, NOT on-chain)
 //   - ❌ Not implemented

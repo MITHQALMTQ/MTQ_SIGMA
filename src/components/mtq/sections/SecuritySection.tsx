@@ -208,7 +208,7 @@ export function SecuritySection({ onNavigate: _onNavigate }: { onNavigate: (id: 
                 {canonicalCount} canonical MTQΣ contracts live
               </div>
               <div className="mt-1 text-[0.7rem] text-white/55 leading-relaxed">
-                Monad · Arc · Robinhood · Solana testnets. Bytecode verified per chain in the
+                Monad · Arc · Solana testnets. Bytecode verified per chain in the
                 Investor section.
               </div>
             </Panel>

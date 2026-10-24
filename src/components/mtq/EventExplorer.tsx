@@ -157,12 +157,12 @@ function buildSyntheticEvents(now: number): ProtocolEvent[] {
     description: "MTQΣ v1.0 genesis (simulated pilot-ledger initialization) · 1,000,000 MTQ minted to deployer",
     txHash: fakeTxHash(`genesis-${hourBucket}`),
     block: fakeBlock(`genesis-${hourBucket}`),
-    chain: "robinhood",
+    chain: "monad",
     source: "simulated",
     details: [
       { label: "Genesis supply", value: "1,000,000 MTQ", mono: true },
       { label: "Custody finding (C-047)", value: "1.1M USDC mandate — funds remained in the deployer EOA; no external custody proof", mono: true },
-      { label: "Chain", value: "Robinhood Testnet (46630)" },
+      { label: "Chain", value: "Monad Testnet (10143) — simulated pilot-ledger row" },
       { label: "Status", value: "simulated row · C-047: no external custody proof" },
     ],
   });
@@ -292,7 +292,7 @@ function buildSyntheticEvents(now: number): ProtocolEvent[] {
       description: `Reserve NAV ${nav.toLocaleString()} · RR ${(Number(rr) * 100).toFixed(2)}% · gold share 26.4%`,
       txHash: fakeTxHash(seed),
       block: fakeBlock(seed),
-      chain: "robinhood",
+      chain: "arc",
       source: "simulated",
       details: [
         { label: "NAV (USD)", value: nav.toLocaleString(), mono: true },
@@ -370,7 +370,7 @@ function buildSyntheticEvents(now: number): ProtocolEvent[] {
       description: `${comp} admissibility check · status ok · haircut ${comp === "Gold" ? "5%" : "0%"}`,
       txHash: null,
       block: null,
-      chain: "robinhood",
+      chain: "monad",
       source: "simulated",
       details: [
         { label: "Asset", value: comp },

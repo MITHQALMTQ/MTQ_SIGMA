@@ -53,8 +53,8 @@ const COOLDOWN_SECONDS = 30;
 const DEFAULT_CLAIM_AMOUNT = 1000;
 const MAX_CLAIM_AMOUNT = 100_000;
 
-/** Testnet-only filter — mainnet chains (Base / Arbitrum) are pending deploy. */
-const TESTNET_CHAIN_IDS = ["monad", "arc", "robinhood", "solana"];
+/** Testnet-only filter — the owner's current 3-network deployment set. */
+const TESTNET_CHAIN_IDS = ["monad", "arc", "solana"];
 
 /** Per-network faucet asset catalogue. Each asset has a symbol + decimals +
  *  a short description. We surface the canonical mock-collateral (MockUSDC)
@@ -75,11 +75,6 @@ const ASSETS_BY_CHAIN: Record<string, FaucetAsset[]> = {
   ],
   arc: [
     { symbol: "USDC", name: "Arc Testnet USDC", decimals: 18, description: "Native gas token (testnet)" },
-    { symbol: "MockUSDC", name: "Mock USDC (pilot collateral)", decimals: 6, description: "Pilot collateral · mint MTQ against this" },
-    { symbol: "MTQ", name: "MTQΣ test token", decimals: 18, description: "Protocol claim token" },
-  ],
-  robinhood: [
-    { symbol: "ETH", name: "Robinhood Testnet ETH", decimals: 18, description: "Native gas token" },
     { symbol: "MockUSDC", name: "Mock USDC (pilot collateral)", decimals: 6, description: "Pilot collateral · mint MTQ against this" },
     { symbol: "MTQ", name: "MTQΣ test token", decimals: 18, description: "Protocol claim token" },
   ],

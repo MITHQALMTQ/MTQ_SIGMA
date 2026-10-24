@@ -1189,10 +1189,6 @@ export function PilotCommandCenter({ onExit }: { onExit?: () => void }) {
                                     <div className="text-white/55">pilot collateral</div>
                                   </div>
                                   <div className="rounded-md border border-white/[0.06] px-2 py-1.5">
-                                    <div className="font-mono text-mtqs-gold">ETH</div>
-                                    <div className="text-white/55">Robinhood testnet</div>
-                                  </div>
-                                  <div className="rounded-md border border-white/[0.06] px-2 py-1.5">
                                     <div className="font-mono text-mtqs-gold">SOL</div>
                                     <div className="text-white/55">Solana devnet</div>
                                   </div>
