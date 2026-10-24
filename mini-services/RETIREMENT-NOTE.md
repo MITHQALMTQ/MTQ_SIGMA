@@ -11,6 +11,15 @@ The platform's MASTER MANDATE audit (Task 16) found both mini-services to be
 Both processes consumed **~1.9GB RSS combined** on the 4GB box — the root
 cause of the recurring dev-server OOM kills (see `dev-watchdog.sh` header).
 
+**Boot-respawn fix (2026-10-24, Task 18):** the container's boot flow
+(`/start.sh` → `.zscripts/dev.sh` → `start_mini_services()`) used to blindly
+`bun run dev` every directory under `mini-services/`, so every container
+restart resurrected both retired services. Both now carry a
+`RETIRED-LOCALLY` marker file, and `.zscripts/dev.sh`'s scan skips any
+service directory containing that marker (with an explicit log line). To
+re-activate a service locally: delete its `RETIRED-LOCALLY` marker, then
+follow the restart procedure below.
+
 **To restart (if ever needed):**
 ```bash
 cd mini-services/mtq-feed && bun run dev   # port 3003 — requires re-wiring a consumer first

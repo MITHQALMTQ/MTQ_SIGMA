@@ -1,0 +1,11 @@
+RETIRED-LOCALLY (2026-10-23, Task 16 audit remediation)
+
+This service is deliberately NOT started at container boot or by
+.zscripts/dev.sh's start_mini_services() scan. Locally it ran
+observe-only with KEEPER_PRIVATE_KEY unset, its gold price source is
+TLS-dead, and nothing reads its output. Rationale and the restart
+procedure (cloud deployment remains the documented intent): see
+../RETIREMENT-NOTE.md.
+
+Contract: the presence of this file makes .zscripts/dev.sh skip the
+service with a log line instead of spawning `bun run dev` here.

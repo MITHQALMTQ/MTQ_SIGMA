@@ -1,0 +1,8 @@
+RETIRED-LOCALLY (2026-10-23, Task 16 audit remediation — finding 16b-003 HIGH)
+
+This service is deliberately NOT started at container boot or by
+.zscripts/dev.sh's start_mini_services() scan. Rationale and the
+restart procedure (if ever needed): see ../RETIREMENT-NOTE.md.
+
+Contract: the presence of this file makes .zscripts/dev.sh skip the
+service with a log line instead of spawning `bun run dev` here.
