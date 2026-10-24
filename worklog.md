@@ -8989,3 +8989,8 @@ Stage Summary:
 - Two latent bug classes fixed before they could ever fire (driver call-form crash; reduced-column schema drift); analytics methods parameterized properly.
 - Credential plane verified end-to-end: Vercel token working, NEON_DATABASE_URL byte-exact + live through the app's own driver, both Turso Actions secrets intact, zero credential literals in any tracked file.
 - Remaining owner actions (RUNBOOK §6): INNGEST_SIGNING_KEY + Inngest Cloud registration to arm the crons; unchanged key-rotation D4/D5, R-06, GC request.
+
+Task 20 — post-push addendum:
+- Push landed (82782d9..e85c125); auto-triggered production deployment dpl_FGKVx14tXnzgbYBf3TkvG6KwceLK built READY on first attempt.
+- Production verified live: /api/health healthy (engine:true, db:true — same lazy-init design as local; /api/metrics boots it), /api/sync neon:true + turso:true, browser E2E clean (landing + Pilot Command Center render, all v3 markers present, zero page errors, 390px no overflow, footer ok). Evidence: audit-work/production-verification-task20.png.
+- GitHub CI on e85c125: CI workflow SUCCESS; Foundry Tests failure is the documented pre-existing owner-side finding (R-06 — fails identically on every prior commit; unrelated to this change).
