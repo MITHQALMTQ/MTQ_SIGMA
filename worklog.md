@@ -8950,3 +8950,20 @@ Stage Summary:
 - One new real bug found + fixed en route: the container boot resurrected the retired mini-services; the RETIRED-LOCALLY marker contract now makes .zscripts/dev.sh honor the Task-16 retirement at every boot (committed, pushed, simulation-verified).
 - Token hygiene: the transient turbopack cache copy was found and purged; the token exists only in GitHub's sealed secrets now. No historical rows, no Vercel env vars, no app code touched.
 - Honest environment residual (documented above): tool-exec-spawned processes are swept between calls; the dev server persists via boot/runtime-recovery paths only. Owner-side items unchanged from Task 17 (key rotation D4/D5, v3 contract R-06, GitHub GC request, read-only Turso token as a drop-in hardening).
+
+---
+Task ID: 19
+Agent: Orchestrator (CTO)
+Task: Owner directive (chat, 2026-10-24): fresh GitHub PAT + repo link (github.com/MITHQALMTQ/MTQ_SIGMA) — rotate the push credential and leave the repo verifiably synced; final close-out of the gold-card v3-framing engagement.
+
+Work Log:
+- CREDENTIAL ROTATION: replaced the remote origin URL's embedded x-access-token with the owner-provided fresh PAT (token literal stored ONLY in local .git/config — never in any tracked file; secret-scan hygiene class of Task 17/18 maintained). Verified: git fetch clean, ls-remote HEAD == local main tip (209a753), git push → "Everything up-to-date" (write path proven), GitHub REST API repo metadata 200 + both Task-18 Actions secrets (TURSO_DATABASE_URL, TURSO_AUTH_TOKEN) confirmed present.
+- SYNC STATE: working tree clean; local main == origin/main at 209a753 (Task-18 tip: Turso token provisioned, 9-table backup, boot-respawn fix). Nothing outstanding to push at rotation time.
+- FINAL VERIFICATION BATTERY (close-out): dev server healthy — GET / 200, /api/health {"status":"healthy","engine":true,"db":true} (v3-source-ready), /api/metrics 200; engine §11.7 event stream + MARP executions flowing in dev.log; lint 0 errors.
+- BROWSER E2E (agent-browser): landing renders (title "MTQΣ — Monetary Architecture Protocol", HMR connected, zero page errors, zero console errors); Launch App → Pilot Command Center loads (12.4k chars); v3-framing markers all verified LIVE on the rendered page: "∞ — no liability" (fmtRatio fix), "(V1/V2)" legacy path labels, "not a backing" + "measuring service" qualifiers, "Illustrative — synthetic trajectory" caption, Gate B open disclosure; footer present with v3 tagline, sticky at natural content bottom; mobile 390px — zero horizontal overflow; desktop 1280px — clean. Screenshot archived: audit-work/final-verification-2026-10-24.png.
+- CLOSE-OUT: this closes the gold-card v3-framing engagement — Task 15 (fix), Task 16 (full-platform audit, framing verified holding), Task 17 (D3-sanitized push + production deploy + CI/CD repair), Task 18 (Turso provisioning + first-ever green backups), Task 19 (credential rotation + final live verification).
+
+Stage Summary:
+- Repo is verifiably synced at 209a753 with a working push credential; both Turso Actions secrets intact; all v3-framing gold-card fixes verified live end-to-end one final time.
+- The platform stands: honest v3 no-reserve framing everywhere, healthy dev + production deploys, green CI/backups, zero key material reachable from any public ref.
+- Owner-side items unchanged and documented (RUNBOOK): key rotation D4/D5, v3 contract remediation R-06, GitHub Support GC request, optional read-only Turso token hardening.
