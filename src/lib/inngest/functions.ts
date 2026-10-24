@@ -41,22 +41,40 @@ export const tursoNeonSync = (inngest as any).createFunction(
       logger.info("Neon not configured — skipping");
       return { skipped: true };
     }
-    const tursoData = await step.run("read-turso", async () => {
+    // [Task 20, 2026-10-24] REAL sync — the read-count stub is retired. Read
+    // and write happen in ONE step so rows never serialize through Inngest's
+    // inter-step state; a retry re-reads and re-upserts the same window,
+    // which is idempotent (INSERT … ON CONFLICT (id) DO NOTHING).
+    // Boundaries, honestly:
+    //   - Incremental TAIL sync only: latest SYNC_WINDOW rows per table
+    //     (well above the pilot's ~5–9 rows/hour/table growth rate). Full
+    //     history + parity check = scripts/full-neon-sync.ts (maintenance).
+    //   - Column shape shared verbatim with the full sync via
+    //     src/lib/neon-schema.ts (single source of truth).
+    //   - Crons only FIRE when Inngest Cloud is wired: INNGEST_SIGNING_KEY
+    //     must be set in Vercel + the app registered (owner action, see
+    //     RUNBOOK §Neon).
+    const SYNC_WINDOW = 100;
+    const result = await step.run("sync-turso-to-neon", async () => {
       const { db } = await import("@/lib/db");
+      const { neonClient } = await import("@/lib/neon-client");
       const [dsv, rd, os] = await Promise.all([
-        db.dailyStateVector.findMany({ take: 100, orderBy: { tickAt: "desc" } }),
-        db.rebalancingDecision.findMany({ take: 100, orderBy: { tickAt: "desc" } }),
-        db.oracleSample.findMany({ take: 100, orderBy: { tickAt: "desc" } }),
+        db.dailyStateVector.findMany({ take: SYNC_WINDOW, orderBy: { tickAt: "desc" } }),
+        db.rebalancingDecision.findMany({ take: SYNC_WINDOW, orderBy: { tickAt: "desc" } }),
+        db.oracleSample.findMany({ take: SYNC_WINDOW, orderBy: { tickAt: "desc" } }),
       ]);
-      return { dsvCount: dsv.length, rdCount: rd.length, osCount: os.length };
+      const written = await neonClient.syncFromTurso({ dsv, rd, os });
+      return {
+        read: { dsv: dsv.length, rd: rd.length, os: os.length },
+        written: written.tables,
+        wroteToNeon: true,
+        timestamp: new Date().toISOString(),
+      };
     });
-    logger.info(`turso-neon-sync: read ${tursoData.dsvCount + tursoData.rdCount + tursoData.osCount} latest rows from Turso (counts only)`);
-    // HONESTY NOTE (2026-10-24): this Inngest function is currently a READ-COUNT
-    // STUB — it does NOT write to Neon. The real full-table sync lives in
-    // scripts/full-neon-sync.ts (chunked read → TRUNCATE+INSERT). Wiring that
-    // logic into this step is pending (flagged in Task 16 + the 2026-10-24
-    // pre-push report). Until then the hourly cron reports counts, not syncs.
-    return { readCounts: tursoData, wroteToNeon: false, timestamp: new Date().toISOString() };
+    logger.info(
+      `turso-neon-sync: read ${result.read.dsv + result.read.rd + result.read.os} rows from Turso, upserted (new + already-present) into Neon — ${JSON.stringify(result.written)}`,
+    );
+    return result;
   },
 );
 

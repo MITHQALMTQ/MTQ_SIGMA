@@ -46,8 +46,11 @@ export const neonClient = {
   async query(sql: string, params?: any[]): Promise<NeonQueryResult | null> {
     const fn = getSql();
     if (!fn) return null;
+    // [Task 20] The installed @neondatabase/serverless requires the
+    // conventional fn.query(string, params) form — fn(string, params) throws
+    // "tagged-template only". (Latent bug in the old dead code path.)
     const start = Date.now();
-    const rows = await fn(sql, params);
+    const rows = await fn.query(sql, params ?? []);
     return { rows: rows as any[], rowCount: rows.length, latencyMs: Date.now() - start };
   },
 
@@ -100,9 +103,9 @@ export const neonClient = {
 
       // Ensure the table + indexes exist (self-bootstrapping; matches the
       // full-sync shape exactly since both share neon-schema.ts).
-      await fn(`${def.createTable.replace(/;\s*$/, "")}`);
+      await fn.query(def.createTable.replace(/;\s*$/, ""), []);
       for (const idx of def.indexes) {
-        try { await fn(idx); } catch { /* index warnings are non-fatal */ }
+        try { await fn.query(idx, []); } catch { /* index warnings are non-fatal */ }
       }
 
       let written = 0;
@@ -119,7 +122,7 @@ export const neonClient = {
             values.push(DATE_COLUMNS.has(c) ? coerceDateParam(cell) : coerceParam(cell));
           }
         });
-        await fn(
+        await fn.query(
           `INSERT INTO ${def.name} (${colList}) VALUES ${placeholders.join(", ")} ON CONFLICT (id) DO NOTHING`,
           values as any[],
         );
@@ -138,7 +141,7 @@ export const neonClient = {
   async getDailyAggregates(days: number = 30): Promise<any[] | null> {
     const fn = getSql();
     if (!fn) return null;
-    return await fn(`
+    return await fn.query(`
       SELECT
         DATE(tick_at) as date,
         AVG(nav_usd) as avg_nav,
@@ -148,17 +151,17 @@ export const neonClient = {
         AVG(dxy) as avg_dxy,
         COUNT(*) as tick_count
       FROM mtq_daily_state_vector
-      WHERE tick_at > NOW() - INTERVAL '${days} days'
+      WHERE tick_at > NOW() - make_interval(days => $1)
       GROUP BY DATE(tick_at)
       ORDER BY date DESC
-    `);
+    `, [days]);
   },
 
   /** Heavy analytical query: rebalancing decisions summary */
   async getRebalancingSummary(days: number = 30): Promise<any[] | null> {
     const fn = getSql();
     if (!fn) return null;
-    return await fn(`
+    return await fn.query(`
       SELECT
         DATE(tick_at) as date,
         COUNT(*) as total_decisions,
@@ -167,17 +170,17 @@ export const neonClient = {
         SUM(trade_usd) as total_trade_usd,
         AVG(reserve_ratio) as avg_rr
       FROM mtq_rebalancing_decision
-      WHERE tick_at > NOW() - INTERVAL '${days} days'
+      WHERE tick_at > NOW() - make_interval(days => $1)
       GROUP BY DATE(tick_at)
       ORDER BY date DESC
-    `);
+    `, [days]);
   },
 
   /** Heavy analytical query: oracle health over time */
   async getOracleHealthHistory(days: number = 7): Promise<any[] | null> {
     const fn = getSql();
     if (!fn) return null;
-    return await fn(`
+    return await fn.query(`
       SELECT
         pair,
         DATE(tick_at) as date,
@@ -187,19 +190,19 @@ export const neonClient = {
         STDDEV(final_price) as price_stddev,
         AVG(spread_bps) as avg_spread_bps
       FROM mtq_oracle_sample
-      WHERE tick_at > NOW() - INTERVAL '${days} days'
+      WHERE tick_at > NOW() - make_interval(days => $1)
       GROUP BY pair, DATE(tick_at)
       ORDER BY pair, date DESC
-    `);
+    `, [days]);
   },
 
   /** Get table sizes (for monitoring) */
   async getTableSizes(): Promise<any[] | null> {
     const fn = getSql();
     if (!fn) return null;
-    const result = await fn(`SELECT schemaname as schema, relname as table, n_live_tup as row_count,
+    const result = await fn.query(`SELECT schemaname as schema, relname as table, n_live_tup as row_count,
        pg_size_pretty(pg_total_relation_size(relid)) as size
-       FROM pg_stat_user_tables ORDER BY n_live_tup DESC`);
+       FROM pg_stat_user_tables ORDER BY n_live_tup DESC`, []);
     return Array.isArray(result) ? result as any[] : [];
   },
 };

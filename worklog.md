@@ -8967,3 +8967,25 @@ Stage Summary:
 - Repo is verifiably synced at 209a753 with a working push credential; both Turso Actions secrets intact; all v3-framing gold-card fixes verified live end-to-end one final time.
 - The platform stands: honest v3 no-reserve framing everywhere, healthy dev + production deploys, green CI/backups, zero key material reachable from any public ref.
 - Owner-side items unchanged and documented (RUNBOOK): key rotation D4/D5, v3 contract remediation R-06, GitHub Support GC request, optional read-only Turso token hardening.
+
+---
+Task ID: 20
+Agent: Orchestrator (CTO)
+Task: Owner directive (chat, 2026-10-24): fresh Vercel token + Neon credentials (Postgres URL, Data API REST endpoint, project ID super-silence-93915920) + standing directive "always use English" — verify the deployment plane, close the documented Turso→Neon sync wiring gap, and leave everything verifiably working.
+
+Work Log:
+- VERCEL TOKEN VERIFIED: API access confirmed (team + project mtq-sigma visible); all 4 recent deployments READY; the 10 env vars enumerated — NEON_DATABASE_URL decrypted + compared in-shell: BYTE-EXACT match with the owner-provided Postgres URL (147 chars; Task 17 had provisioned this same credential). Both Task-18 Actions secrets (TURSO_*) untouched and present. Token literal lives only in this chat + shell history — never in any tracked file (secret-scan hygiene class maintained).
+- NEON LIVE-VERIFIED THROUGH THE APP'S OWN DRIVER PATH (closing a Task-17 gap — the previous test used psql-class tooling, not the app path): @neondatabase/serverless neon() HTTP driver against the pooled endpoint: PostgreSQL 18.6, all 5 mtq_* mirror tables present, full-column live shapes confirmed (DSV 35 / RD 21 / OS 17 cols).
+- LATENT BUG CLASS FOUND + FIXED (neon-client): the installed @neondatabase/serverless version throws on conventional fn(string, params) calls ("tagged-template only"); correct form is fn.query(string, params). The old syncFromTurso + all 5 analytics methods used the throwing form — dead code that would have crashed the moment anyone wired it. All fixed to fn.query(); the 3 analytics methods also had string-interpolated `days` params (SQL-injection-shaped) — now proper $1 params via make_interval(days => $1).
+- SCHEMA DRIFT FIXED (the real "wiring pending" root cause): the old syncFromTurso created REDUCED 12-column tables while full-neon-sync.ts built the authoritative 35-column mirror. Extracted the schema into src/lib/neon-schema.ts (single source of truth: 5 table defs + DDL + indexes + coercion helpers); both paths now import it verbatim. scripts/full-neon-sync.ts refactored to consume it (identical behavior, ~230 duplicated lines deleted).
+- SYNC WIRED FOR REAL: Inngest "turso-neon-sync" hourly cron is no longer a read-count stub — it reads the latest 100 rows/table from Turso (single step, so rows never serialize through Inngest inter-step state) and calls the rewritten neonClient.syncFromTurso(): full-column, batched (50 rows/INSERT), INSERT … ON CONFLICT (id) DO NOTHING (idempotent, non-destructive, self-bootstrapping DDL+indexes).
+- LIVE PROOF (real Turso → real Neon, through the exact production code path): probe read 100/100/100 rows from production Turso, synced all 300 (DSV 5,000→5,100, RD 10,016→10,116, OS 5,010→5,110), idempotency PASS (re-run wrote zero new rows), newest row spot-checked for full-column fidelity (liability_usd, observed_gold_weight, peg_health_json populated — the old reduced shape would have left them NULL). Probe was code-only (credentials via env); deleted + tree/.next swept clean afterward.
+- GUARDS: check-no-neon.ts PASS (47 routes clean — Neon access stays in lib/Inngest); lint 0; tsc 0.
+- NEON DATA API (REST) DOCUMENTED: the apirest endpoint requires a JWT bearer token (the DB password does not open it — verified 401-with-hint); no code consumes it; documented in RUNBOOK §2.3 so the owner knows what it is and what opens it.
+- RUNBOOK §2.3 added (Neon analytical replica: verified state, the two sync paths, the guard, REST endpoint note) + §6 TODO gains the honest INNGEST_SIGNING_KEY owner action: without it Inngest Cloud never invokes /api/inngest, so the six scheduled functions (incl. the new sync) do not fire on production until the owner registers the app at inngest.com + sets the signing key. The sync code is deployed, tested, and waiting.
+
+Stage Summary:
+- The Turso→Neon hourly sync — a documented-pending item since the Task 16 audit — is now genuinely wired, full-fidelity, idempotent, and PROVEN against the real production databases (300 real rows landed; re-run wrote nothing).
+- Two latent bug classes fixed before they could ever fire (driver call-form crash; reduced-column schema drift); analytics methods parameterized properly.
+- Credential plane verified end-to-end: Vercel token working, NEON_DATABASE_URL byte-exact + live through the app's own driver, both Turso Actions secrets intact, zero credential literals in any tracked file.
+- Remaining owner actions (RUNBOOK §6): INNGEST_SIGNING_KEY + Inngest Cloud registration to arm the crons; unchanged key-rotation D4/D5, R-06, GC request.

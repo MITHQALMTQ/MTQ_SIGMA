@@ -168,6 +168,50 @@ If the primary Turso DB is corrupted / deleted / region-down:
 6. Trigger a redeploy on Vercel.
 7. Verify by hitting `/api/health` — should return `db: true`.
 
+### 2.3 Neon analytical replica (Turso → Neon sync)
+
+The analytical replica on **Neon PostgreSQL 18.6** (project
+`super-silence-93915920`, region `aws-us-east-1`). Credential
+`NEON_DATABASE_URL` lives in Vercel env (production/preview/development),
+provisioned 2026-10-24 (Task 17) from the owner-provided string and
+re-verified byte-exact + live through the app's actual driver path
+(`@neondatabase/serverless` HTTP driver via the pooled endpoint) in Task 20.
+
+**Verified state (Task 20, 2026-10-24):** all 5 `mtq_*` mirror tables present
+with full-column shape (35/21/17/18/12 cols); live probe synced 300 real
+production rows (DSV 5,000→5,100, RD 10,016→10,116, OS 5,010→5,110) and
+proved idempotency (re-run wrote nothing new).
+
+**Two sync paths, one schema (single source of truth `src/lib/neon-schema.ts`):**
+
+- **Hourly incremental tail** — Inngest cron `turso-neon-sync` (`0 * * * *`):
+  latest 100 rows/table, `INSERT … ON CONFLICT (id) DO NOTHING` (idempotent,
+  non-destructive). Wired for real in Task 20 (the previous read-count stub
+  is retired).
+- **Full re-sync (maintenance)** — `bun run scripts/full-neon-sync.ts`
+  (TURSO_DATABASE_URL + TURSO_AUTH_TOKEN + NEON_DATABASE_URL env):
+  DROP+CREATE all 5 tables, all rows, parity check. **Destructive to the
+  replica only** — never touches Turso.
+
+**Serverless-route guard:** `scripts/check-no-neon.ts` (CI-enforced) keeps
+all `src/app/api/**` routes free of Neon imports — ALL Neon data movement
+belongs to the Inngest functions.
+
+**Neon Data API (REST):** the project exposes the HTTPS Data API at
+`https://ep-super-dew-b77xmqbm.apirest.c-13.us-east-1.aws.neon.tech/neondb/rest/v1`.
+It authenticates with a **JWT bearer token** (not the DB password) minted from
+the Neon console/API — no code consumes it today; noted here so the owner
+knows it exists and why the DB password does not open it.
+
+**Owner action to activate the hourly cron:** `INNGEST_SIGNING_KEY` is not
+provisioned in Vercel, so Inngest Cloud never invokes `/api/inngest` — the
+six scheduled functions (keeper tick, sync, backup, oracle health, FRED
+refresh, audit prune) do not fire on production until the owner registers
+the app at inngest.com (app id `mtq-sigma`, serve endpoint
+`https://mtq-sigma.vercel.app/api/inngest`) and sets the signing key env var.
+The sync code is deployed, tested, and waiting; until then the replica only
+advances via manual runs of `scripts/full-neon-sync.ts`.
+
 ---
 
 ## 3. Emergency Pause Procedure
@@ -332,6 +376,7 @@ the team Notion (link redacted from this public runbook).
 - [ ] Add UptimeRobot / BetterStack probe on `/api/health` (see §1.3).
 - [ ] Wire the Tenderly alert → PagerDuty / BetterStack for 24/7 paging (currently Discord-only).
 - [ ] Add an explicit `EMERGENCY_ROLE` mapping to `PAUSER_ROLE` (alias) if external auditors require the exact name — currently deferred because it requires contract redeployment.
+- [ ] Provision `INNGEST_SIGNING_KEY` in Vercel + register the app in Inngest Cloud to activate the hourly Turso→Neon sync cron (code wired + live-tested in Task 20; see §2.3).
 
 ---
 
