@@ -1,0 +1,62 @@
+name: Production health probe
+
+# RUNBOOK §1.3 — zero-external-account uptime probe. Public repos get free
+# GitHub Actions minutes, so this polls the production /api/health every 15
+# minutes and turns red in the Actions history the moment the app degrades.
+# (External 24/7 paging via UptimeRobot/BetterStack remains the §1.3 owner
+# recommendation — this workflow gives in-repo visible history instead.)
+#
+# Semantics: /api/health returns 503 while the serverless engine is cold
+# (lazy boot — a fresh instance answers engine:false until its store boots,
+# which the first request itself triggers). A single 503 is therefore normal
+# cold behavior; the probe retries within the run and only fails if health
+# stays degraded across ALL attempts (~40s), matching RUNBOOK §1.3's
+# "consecutive polls" alerting intent.
+
+on:
+  schedule:
+    - cron: "*/15 * * * *"
+  workflow_dispatch:
+
+concurrency:
+  group: health-probe
+  cancel-in-progress: false
+
+jobs:
+  probe:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - name: "GET / (must return 200 within 2 attempts)"
+        run: |
+          for i in 1 2; do
+            code="$(curl -s --max-time 15 -o /dev/null -w '%{http_code}' https://mtq-sigma.vercel.app/ || true)"
+            if [ "$code" = "200" ]; then echo "GET / -> 200 (attempt $i)"; exit 0; fi
+            echo "GET / -> $code (attempt $i)"; sleep 20
+          done
+          echo "::error::Production root not serving 200"
+          exit 1
+
+      - name: "GET /api/health (must be healthy within 3 attempts)"
+        run: |
+          for i in 1 2 3; do
+            body="$(curl -fsS --max-time 15 https://mtq-sigma.vercel.app/api/health || true)"
+            ok="$(printf '%s' "$body" | python3 -c '
+              import json, sys
+              try:
+                  d = json.load(sys.stdin)
+              except Exception:
+                  print("no"); raise SystemExit
+              checks = d.get("checks") or {}
+              healthy = (
+                  d.get("status") == "healthy"
+                  and checks.get("engine") is True
+                  and checks.get("db") is True
+              )
+              print("yes" if healthy else "no")
+            ' 2>/dev/null || true)"
+            if [ "$ok" = "yes" ]; then echo "healthy (attempt $i): $body"; exit 0; fi
+            echo "attempt $i not healthy yet: ${body:-<empty>}"; sleep 20
+          done
+          echo "::error::Production health degraded across all attempts"
+          exit 1

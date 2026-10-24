@@ -40,6 +40,25 @@ export const keeperTick = (inngest as any).createFunction(
 );
 
 // 2. Turso→Neon Sync — hourly
+// [Task 20] Real sync (the read-count stub retired). [Task 22] CURSOR
+// REWRITE: the original "latest 100 rows/table" window was proven lossy in
+// production at the 17:00Z 2026-10-24 run — live growth is DSV ~52 rows/h,
+// RD ~260 rows/h, OS ~240 rows/h (keeper-tick every minute), so RD/OS grew
+// ~2.4× faster than the window and ~60% of their rows were silently never
+// mirrored. The sync now pages Turso with a DURABLE high-water cursor
+// (Neon-side mtq_sync_state): WHERE (tickAt > cursor) OR (tickAt = cursor
+// AND id > cursorId) ORDER BY tickAt,id — composite cursor on a PK is a
+// total order, so no row can ever be skipped, regardless of growth rate or
+// multi-hour gaps. First run (no cursor) sweeps from the beginning — ON
+// CONFLICT DO NOTHING makes already-present rows free, so the sweep is the
+// self-healing bootstrap that also backfills everything the window design
+// skipped. Bounded per run: 500 rows/page × max 10 pages = 5,000 rows/table
+// per hourly invocation (>> growth), so a backlog converges over a few runs
+// without risking step timeouts. Turso retention (pruneAuditTrail, caps
+// DSV 5k / RD 10k / OS 5k, oldest first) gives the honest outage bound: if
+// the sync is down longer than a row's Turso lifetime (~21h OS, ~38h RD,
+// ~83h DSV at current growth), pruned rows can only be recovered from the
+// daily GitHub backup — see RUNBOOK §2.2/§2.3.
 export const tursoNeonSync = (inngest as any).createFunction(
   { id: "turso-neon-sync", name: "Turso → Neon Sync", retries: 2, triggers: [{ cron: "0 * * * *" }] },
   async ({ step, logger }: any) => {
@@ -48,38 +67,74 @@ export const tursoNeonSync = (inngest as any).createFunction(
       logger.info("Neon not configured — skipping");
       return { skipped: true };
     }
-    // [Task 20, 2026-10-24] REAL sync — the read-count stub is retired. Read
-    // and write happen in ONE step so rows never serialize through Inngest's
-    // inter-step state; a retry re-reads and re-upserts the same window,
-    // which is idempotent (INSERT … ON CONFLICT (id) DO NOTHING).
-    // Boundaries, honestly:
-    //   - Incremental TAIL sync only: latest SYNC_WINDOW rows per table
-    //     (well above the pilot's ~5–9 rows/hour/table growth rate). Full
-    //     history + parity check = scripts/full-neon-sync.ts (maintenance).
-    //   - Column shape shared verbatim with the full sync via
-    //     src/lib/neon-schema.ts (single source of truth).
-    //   - Crons only FIRE when Inngest Cloud is wired: INNGEST_SIGNING_KEY
-    //     must be set in Vercel + the app registered (owner action, see
-    //     RUNBOOK §Neon).
-    const SYNC_WINDOW = 100;
     const result = await step.run("sync-turso-to-neon", async () => {
       const { db } = await import("@/lib/db");
       const { neonClient } = await import("@/lib/neon-client");
-      const [dsv, rd, os] = await Promise.all([
-        db.dailyStateVector.findMany({ take: SYNC_WINDOW, orderBy: { tickAt: "desc" } }),
-        db.rebalancingDecision.findMany({ take: SYNC_WINDOW, orderBy: { tickAt: "desc" } }),
-        db.oracleSample.findMany({ take: SYNC_WINDOW, orderBy: { tickAt: "desc" } }),
-      ]);
-      const written = await neonClient.syncFromTurso({ dsv, rd, os });
-      return {
-        read: { dsv: dsv.length, rd: rd.length, os: os.length },
-        written: written.tables,
-        wroteToNeon: true,
-        timestamp: new Date().toISOString(),
+      await neonClient.ensureSyncStateTable();
+
+      const delegates: Record<string, any> = {
+        DailyStateVector: db.dailyStateVector,
+        RebalancingDecision: db.rebalancingDecision,
+        OracleSample: db.oracleSample,
       };
+      const payloadKey: Record<string, "dsv" | "rd" | "os"> = {
+        DailyStateVector: "dsv",
+        RebalancingDecision: "rd",
+        OracleSample: "os",
+      };
+
+      const PAGE = 500; // Turso rows read per page
+      const MAX_PAGES = 10; // bounded per run: 5,000 rows/table ≫ hourly growth
+      const report: Record<string, { read: number; pages: number; truncated: boolean; cursor: string | null }> = {};
+      let totalRead = 0;
+
+      for (const model of Object.keys(delegates)) {
+        const delegate = delegates[model];
+        let cursor = await neonClient.getSyncCursor(model);
+        let pages = 0;
+        let read = 0;
+        let lastPageFull = false;
+        while (pages < MAX_PAGES) {
+          const where = cursor
+            ? {
+                OR: [
+                  { tickAt: { gt: cursor.tickAt } },
+                  { tickAt: cursor.tickAt, id: { gt: cursor.id } },
+                ],
+              }
+            : undefined;
+          const rows = await delegate.findMany({
+            where,
+            orderBy: [{ tickAt: "asc" }, { id: "asc" }],
+            take: PAGE,
+          });
+          if (rows.length === 0) break;
+          await neonClient.syncFromTurso({ [payloadKey[model]]: rows });
+          read += rows.length;
+          pages++;
+          lastPageFull = rows.length === PAGE;
+          const lastRow = rows[rows.length - 1];
+          cursor = {
+            tickAt: lastRow.tickAt instanceof Date ? lastRow.tickAt.toISOString() : String(lastRow.tickAt),
+            id: String(lastRow.id),
+          };
+          if (!lastPageFull) break;
+        }
+        if (cursor) {
+          await neonClient.setSyncCursor(model, cursor.tickAt, cursor.id);
+        }
+        report[model] = {
+          read,
+          pages,
+          truncated: lastPageFull && pages === MAX_PAGES,
+          cursor: cursor ? cursor.tickAt : null,
+        };
+        totalRead += read;
+      }
+      return { read: report, totalRead, timestamp: new Date().toISOString() };
     });
     logger.info(
-      `turso-neon-sync: read ${result.read.dsv + result.read.rd + result.read.os} rows from Turso, upserted (new + already-present) into Neon — ${JSON.stringify(result.written)}`,
+      `turso-neon-sync: read ${result.totalRead} rows from Turso — ${JSON.stringify(result.read)}`,
     );
     return result;
   },

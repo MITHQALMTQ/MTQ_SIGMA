@@ -56,7 +56,7 @@ export const neonClient = {
 
   /**
    * Incremental Turso → Neon sync (called by the Inngest "turso-neon-sync"
-   * hourly cron, and by scripts/full-neon-sync.ts's incremental sibling path).
+   * hourly cron).
    *
    * [Task 20, 2026-10-24] Complete rewrite. Previously this method was a
    * half-implemented stub: it created REDUCED 12-column tables and only
@@ -66,6 +66,13 @@ export const neonClient = {
    * replica keeps ONE shape. Full Prisma column set is mirrored; hash-chain
    * columns (prevHash/rowHash) are intentionally excluded (UPSCALE-1 design).
    *
+   * [Task 22, 2026-10-24] Input keys are OPTIONAL — the Inngest cron now
+   * syncs each table independently, page by page, driven by a durable
+   * high-water cursor (see getSyncCursor/setSyncCursor below). The old
+   * "latest 100 rows" window design silently skipped rows whenever hourly
+   * growth exceeded 100 (measured live at the 17:00Z run: RD ~260 rows/h,
+   * OS ~240 rows/h — ~60% of those tables' rows never reached Neon).
+   *
    * Input rows may come from the Prisma client (Date objects) or raw
    * libsql/Turso reads (ISO strings / epoch-ms numbers) — both are coerced
    * uniformly (see neon-schema.ts).
@@ -74,9 +81,9 @@ export const neonClient = {
    * NON-destructive: never updates or deletes existing Neon rows.
    */
   async syncFromTurso(data: {
-    dsv: any[];
-    rd: any[];
-    os: any[];
+    dsv?: any[];
+    rd?: any[];
+    os?: any[];
   }): Promise<{
     tables: Record<string, { read: number; written: number }>;
     total: { read: number; written: number };
@@ -89,6 +96,9 @@ export const neonClient = {
       { model: "RebalancingDecision", rows: data.rd ?? [] },
       { model: "OracleSample", rows: data.os ?? [] },
     ];
+    if (batches.every((b) => b.rows.length === 0)) {
+      return { tables: {}, total: { read: 0, written: 0 } };
+    }
 
     const BATCH_ROWS = 50; // 50 rows × 35 cols = 1750 params — well under limits
     const tables: Record<string, { read: number; written: number }> = {};
@@ -135,6 +145,63 @@ export const neonClient = {
     }
 
     return { tables, total: { read: totalRead, written: totalWritten } };
+  },
+
+  // -------------------------------------------------------------------------
+  // Sync cursor (Task 22) — durable high-water mark per Prisma model, stored
+  // in a small Neon-side state table. The Inngest cron pages new rows with
+  // WHERE (tickAt > cursor) OR (tickAt = cursor AND id > cursorId), so no
+  // row can be skipped regardless of hourly growth or multi-hour gaps.
+  // -------------------------------------------------------------------------
+
+  async ensureSyncStateTable(): Promise<void> {
+    const fn = getSql();
+    if (!fn) throw new Error("Neon not configured");
+    await fn.query(
+      `CREATE TABLE IF NOT EXISTS mtq_sync_state (
+         prisma_model TEXT PRIMARY KEY,
+         last_tick_at TIMESTAMPTZ NOT NULL,
+         last_id TEXT NOT NULL,
+         updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
+       )`,
+      [],
+    );
+  },
+
+  /**
+   * Get the durable sync cursor for a Prisma model, or null if the model has
+   * never been (fully) synced. null means: caller should sweep from the
+   * beginning — ON CONFLICT DO NOTHING makes the re-read of already-present
+   * rows free, so a full sweep is the self-healing bootstrap.
+   */
+  async getSyncCursor(model: string): Promise<{ tickAt: string; id: string } | null> {
+    const fn = getSql();
+    if (!fn) throw new Error("Neon not configured");
+    const rows = await fn.query(
+      `SELECT last_tick_at, last_id FROM mtq_sync_state WHERE prisma_model = $1`,
+      [model],
+    );
+    const row = (rows as any[])[0];
+    if (!row) return null;
+    return {
+      tickAt: row.last_tick_at instanceof Date ? row.last_tick_at.toISOString() : String(row.last_tick_at),
+      id: String(row.last_id),
+    };
+  },
+
+  /** Persist the sync cursor after rows up to (tickAt, id) were written. */
+  async setSyncCursor(model: string, tickAt: string, id: string): Promise<void> {
+    const fn = getSql();
+    if (!fn) throw new Error("Neon not configured");
+    await fn.query(
+      `INSERT INTO mtq_sync_state (prisma_model, last_tick_at, last_id, updated_at)
+       VALUES ($1, $2, $3, NOW())
+       ON CONFLICT (prisma_model) DO UPDATE SET
+         last_tick_at = EXCLUDED.last_tick_at,
+         last_id = EXCLUDED.last_id,
+         updated_at = NOW()`,
+      [model, coerceDateParam(tickAt), id],
+    );
   },
 
   /** Heavy analytical query: daily state vector aggregation */

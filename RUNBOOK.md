@@ -73,6 +73,16 @@ External uptime monitors (UptimeRobot / BetterStack — both free) should poll
 `/api/health` every 60s and alert the on-call if 5 consecutive polls return
 non-200 or take > 5s.
 
+**In-repo probe (2026-10-24, Task 22):** `.github/workflows/health-probe.yml`
+polls production `/` and `/api/health` every 15 minutes on GitHub Actions
+(free on public repos) and turns the scheduled run red in the Actions history
+the moment production degrades — visible in-repo alerting with zero external
+accounts or secrets. Cold-boot 503s are retried within the run (a single 503
+is normal lazy-engine behavior on a fresh serverless instance; the probe
+request itself warms it). The external UptimeRobot/BetterStack integration
+above remains the owner recommendation for true 24/7 paging (GitHub can
+delay scheduled workflows at busy times and does not page anyone).
+
 ---
 
 ## 2. Backup & Recovery
@@ -155,18 +165,30 @@ the 2026-10-23T12:55Z loss incident is why it exists:)
 
 If the primary Turso DB is corrupted / deleted / region-down:
 
-1. Download the most recent backup from the GitHub Releases page (tag `backup-YYYY-MM-DD`).
-2. Provision a new Turso DB: `turso db create mtqs-restore --region aws-us-east-1`.
-3. Apply the Prisma schema to the new DB: `DATABASE_URL='libsql://…?auth=…' bunx prisma db push`.
-4. Restore rows from JSON:
+1. Provision a new Turso DB: `turso db create mtqs-restore --region aws-us-east-1`.
+2. Restore the backup into it (the script auto-creates all 9 missing tables —
+   the Prisma `db push` in step 3 below is only needed if you want the Prisma
+   client's own migration state aligned):
    ```bash
-   bun run scripts/restore-turso.ts backups/turso-backup-YYYY-MM-DD-HHMM.json
+   TURSO_DATABASE_URL='libsql://mtqs-restore…' TURSO_AUTH_TOKEN='…' \
+     bun run scripts/restore-turso.ts --release backup-YYYY-MM-DD --apply
    ```
-   (NOTE: `restore-turso.ts` is not yet implemented — see §6 TODO. Until then,
-   use any SQLite JSON-import tool or hand-write the INSERT loop.)
-5. Update `TURSO_DATABASE_URL` + `TURSO_AUTH_TOKEN` in Vercel + GitHub Actions secrets to point at the new DB.
-6. Trigger a redeploy on Vercel.
-7. Verify by hitting `/api/health` — should return `db: true`.
+   or from a local file: `… restore-turso.ts --file backups/….json --apply`.
+   - **Dry-run by default** — omit `--apply` to validate + preview, zero writes.
+   - **Merge by default** (`INSERT OR IGNORE`): existing rows are never
+     overwritten; rows newer than the backup (e.g. the engine kept writing
+     while you diagnosed) are preserved. Idempotent — safe to re-run.
+   - **`--wipe`** = destructive cold recovery: deletes every row first. Only
+     for a blank-slate restore into a quiesced/paused DB (the engine writes
+     every minute — a wiped live DB diverges immediately).
+   - Works against `--url file:…` targets for drill-restores; verified 2026-10-24:
+     full 25,471-row cold restore 3.2s with exact parity, idempotent re-run
+     0 rows, wipe removes strays and restores parity.
+3. (Optional, after a wipe-restore) Align Prisma's migration state:
+   `DATABASE_URL='libsql://…?auth=…' bunx prisma db push`.
+4. Update `TURSO_DATABASE_URL` + `TURSO_AUTH_TOKEN` in Vercel + GitHub Actions secrets to point at the new DB.
+5. Trigger a redeploy on Vercel.
+6. Verify by hitting `/api/health` — should return `db: true`.
 
 ### 2.3 Neon analytical replica (Turso → Neon sync)
 
@@ -184,14 +206,33 @@ proved idempotency (re-run wrote nothing new).
 
 **Two sync paths, one schema (single source of truth `src/lib/neon-schema.ts`):**
 
-- **Hourly incremental tail** — Inngest cron `turso-neon-sync` (`0 * * * *`):
-  latest 100 rows/table, `INSERT … ON CONFLICT (id) DO NOTHING` (idempotent,
-  non-destructive). Wired for real in Task 20 (the previous read-count stub
-  is retired).
+- **Hourly incremental** — Inngest cron `turso-neon-sync` (`0 * * * *`):
+  **cursor-based** (Task 22). A durable high-water mark per table lives in
+  Neon's `mtq_sync_state`; each run pages Turso with
+  `WHERE (tickAt > cursor) OR (tickAt = cursor AND id > cursorId) ORDER BY
+  tickAt, id` — a total order on a PK, so **no row can be skipped** no matter
+  the growth rate or how long the sync was down. Bounded per run
+  (500×10 pages = 5,000 rows/table) so backlogs converge over a few runs
+  without step-timeout risk; `INSERT … ON CONFLICT (id) DO NOTHING` keeps it
+  idempotent. The first cursor-less run sweeps from the beginning, which
+  self-heals any gap (the previous "latest 100 rows" design — Task 20/21 —
+  was proven lossy at the 17:00Z 2026-10-24 run: measured growth DSV ~52/h,
+  RD ~260/h, OS ~240/h meant ~60% of RD/OS rows never reached Neon; the
+  first cursor run backfills exactly those).
 - **Full re-sync (maintenance)** — `bun run scripts/full-neon-sync.ts`
   (TURSO_DATABASE_URL + TURSO_AUTH_TOKEN + NEON_DATABASE_URL env):
   DROP+CREATE all 5 tables, all rows, parity check. **Destructive to the
   replica only** — never touches Turso.
+
+**Turso retention vs Neon archive (why Neon can hold MORE rows than Turso):**
+the engine's `pruneAuditTrail()` caps the Turso hot tables (DSV 5,000 /
+RD 10,000 / OS 5,000 rows, oldest deleted every 5 min). Neon never deletes —
+the mirror is a strictly growing archive, so Neon naturally holds rows beyond
+Turso's window (and all history for backtesting/reports). Outage tolerance:
+if the hourly sync is down longer than a row's Turso lifetime (~21h OS,
+~38h RD, ~83h DSV at current growth), pruned rows are only recoverable from
+the daily GitHub backup (§2.1/§2.2) — beyond that window they are gone from
+Turso forever.
 
 **Serverless-route guard:** `scripts/check-no-neon.ts` (CI-enforced) keeps
 all `src/app/api/**` routes free of Neon imports — ALL Neon data movement
@@ -199,9 +240,15 @@ belongs to the Inngest functions.
 
 **Neon Data API (REST):** the project exposes the HTTPS Data API at
 `https://ep-super-dew-b77xmqbm.apirest.c-13.us-east-1.aws.neon.tech/neondb/rest/v1`.
-It authenticates with a **JWT bearer token** (not the DB password) minted from
-the Neon console/API — no code consumes it today; noted here so the owner
-knows it exists and why the DB password does not open it.
+It authenticates with a **JWT bearer token** (not the DB password) — empirically
+confirmed 2026-10-24 (Task 22): the endpoint answers 400 "required authorization
+bearer token in JWT format" for password-less/password attempts; there is no
+mint function inside the database (the `neon` SQL extension ships no
+JWT-minting functions; `POST /token` on the API host is 404). Tokens are
+generated in the **Neon Console** (the project's Data API section) — an owner
+action. No MTQΣ code consumes the REST API today (the `neon()` HTTP driver
+covers all DB access); the token only needs provisioning if you want
+curl-only operational queries without any Postgres driver.
 
 **Owner action COMPLETE (2026-10-24, Task 21): INNGEST_SIGNING_KEY +
 INNGEST_EVENT_KEY provisioned in Vercel** (production/preview/development,
@@ -228,13 +275,21 @@ the pilot ledger grows ~10k rows/day at this cadence.
   handshake: `curl -X PUT https://mtq-sigma.vercel.app/api/inngest` →
   `{"message":"Successfully registered","modified":true}`. All 6 functions
   synced; keeper-tick + oracle-health verified executing Completed.
-- **Resync after any deploy that changes function definitions** (IDs,
-  triggers, names): re-run the same PUT. Deploys that don't touch function
-  definitions need no resync. (Optional owner hardening: install the Inngest
-  Vercel integration, which resyncs automatically on every deploy.)
+- **Resync is AUTOMATED (2026-10-24, Task 22):**
+  `.github/workflows/inngest-resync.yml` runs on every push to `main` that
+  touches `src/lib/inngest/**` or `src/app/api/inngest/**`, waits for the
+  production deployment of that commit to go live (polls `/api/health`'s
+  `checks.commitSha`, which mirrors Vercel's `VERCEL_GIT_COMMIT_SHA`), then
+  issues the same PUT and asserts the "Successfully registered" response.
+  Manual fallback for a one-off resync: run the workflow via workflow_dispatch
+  or `curl -X PUT https://mtq-sigma.vercel.app/api/inngest`. (Optional owner
+  hardening: install the Inngest Vercel integration instead.)
 - Verified live: first keeper-tick run 15:29:03Z Completed; production
   engine ticking (fresh OracleSample rows in Turso within seconds of each
-  heartbeat).
+  heartbeat); **17:00Z 2026-10-24 autonomous run verified end-to-end** —
+  four timers fired on the hour, all functions Completed, and the (then
+  window-based) sync landed +248 rows in Neon with zero human involvement.
+  The 18:00Z run was the first to execute the cursor-based sync (Task 22).
 
 ---
 
@@ -396,10 +451,11 @@ the team Notion (link redacted from this public runbook).
 ## 6. TODO / Known Gaps
 
 - [ ] Migrate `PAUSER_ROLE` from deployer EOA to a Safe multi-sig (see §3.2).
-- [ ] Implement `scripts/restore-turso.ts` for automated cold-recovery (see §2.2).
-- [ ] Add UptimeRobot / BetterStack probe on `/api/health` (see §1.3).
+- [x] ~~Implement `scripts/restore-turso.ts` for automated cold-recovery~~ **DONE 2026-10-24 (Task 22)** — dry-run default, merge default (`INSERT OR IGNORE`), opt-in `--wipe`, auto-creates all 9 tables, GitHub-Release download via `--release`; live-tested: 25,471-row cold restore 3.2s exact parity, idempotent re-run 0 rows, wipe restores parity (see §2.2).
+- [x] ~~Add UptimeRobot / BetterStack probe on `/api/health`~~ **in-repo equivalent DONE 2026-10-24 (Task 22)** — `.github/workflows/health-probe.yml` probes production every 15 min on Actions (see §1.3). External 24/7 paging service remains an optional owner add-on.
 - [ ] Wire the Tenderly alert → PagerDuty / BetterStack for 24/7 paging (currently Discord-only).
 - [ ] Add an explicit `EMERGENCY_ROLE` mapping to `PAUSER_ROLE` (alias) if external auditors require the exact name — currently deferred because it requires contract redeployment.
+- [ ] Provision a Neon Data API JWT in the Neon Console if curl-only operational queries are ever wanted (see §2.3 — everything already works via the `neon()` driver; no code consumer pending).
 - [x] ~~Provision `INNGEST_SIGNING_KEY` in Vercel + register the app in Inngest Cloud to activate the hourly Turso→Neon sync cron~~ **DONE 2026-10-24 (Task 21)** — keys provisioned, app registered, crons armed; see §2.3 run-rate note before relying on the 15s keeper tick.
 
 ---

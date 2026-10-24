@@ -1,0 +1,56 @@
+name: Inngest auto-resync
+
+# RUNBOOK §2.3 — "Resync after any deploy that changes function definitions".
+# This workflow automates that step: it waits for the production deployment
+# of the pushed commit to go live (polling /api/health's commitSha, which is
+# Vercel's VERCEL_GIT_COMMIT_SHA system env), then issues the SDK's PUT sync
+# handshake against the Inngest serve endpoint and verifies the response.
+# No secrets required. Dispatch manually for a one-off resync.
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - "src/lib/inngest/**"
+      - "src/app/api/inngest/**"
+      - ".github/workflows/inngest-resync.yml"
+  workflow_dispatch:
+
+concurrency:
+  group: inngest-resync
+  cancel-in-progress: false
+
+jobs:
+  resync:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - name: Wait for production deployment of ${{ github.sha }} to go live
+        run: |
+          deadline=$((SECONDS + 600))
+          last=""
+          while true; do
+            body="$(curl -fsS --max-time 15 https://mtq-sigma.vercel.app/api/health || true)"
+            sha="$(printf '%s' "$body" | python3 -c 'import json,sys; d=json.load(sys.stdin); print((d.get("checks") or {}).get("commitSha") or "")' 2>/dev/null || true)"
+            if [ -n "$sha" ]; then last="$sha"; fi
+            if [ "$sha" = "${{ github.sha }}" ]; then
+              echo "Deployment live: commitSha=$sha"
+              exit 0
+            fi
+            echo "Waiting for ${{ github.sha }} (currently serving: ${last:-unknown})…"
+            if [ $SECONDS -ge $deadline ]; then
+              echo "Timeout waiting for deployment of ${{ github.sha }} (currently serving: ${last:-unknown})"
+              exit 1
+            fi
+            sleep 20
+          done
+
+      - name: Resync Inngest app (PUT /api/inngest)
+        run: |
+          resp="$(curl -fsS --max-time 30 -X PUT https://mtq-sigma.vercel.app/api/inngest)"
+          echo "PUT response: $resp"
+          printf '%s' "$resp" | grep -q "Successfully registered" || {
+            echo "::error::Resync did not confirm registration"
+            exit 1
+          }
+          echo "Inngest app mtq-sigma resynced against the live deployment."
