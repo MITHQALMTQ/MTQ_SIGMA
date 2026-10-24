@@ -203,14 +203,21 @@ It authenticates with a **JWT bearer token** (not the DB password) minted from
 the Neon console/API — no code consumes it today; noted here so the owner
 knows it exists and why the DB password does not open it.
 
-**Owner action to activate the hourly cron:** `INNGEST_SIGNING_KEY` is not
-provisioned in Vercel, so Inngest Cloud never invokes `/api/inngest` — the
-six scheduled functions (keeper tick, sync, backup, oracle health, FRED
-refresh, audit prune) do not fire on production until the owner registers
-the app at inngest.com (app id `mtq-sigma`, serve endpoint
-`https://mtq-sigma.vercel.app/api/inngest`) and sets the signing key env var.
-The sync code is deployed, tested, and waiting; until then the replica only
-advances via manual runs of `scripts/full-neon-sync.ts`.
+**Owner action COMPLETE (2026-10-24, Task 21): INNGEST_SIGNING_KEY +
+INNGEST_EVENT_KEY provisioned in Vercel** (production/preview/development,
+encrypted) and the `mtq-sigma` app registered in Inngest Cloud — the six
+scheduled functions (keeper tick 15s, sync hourly, backup 03:00 UTC, oracle
+health 5min, FRED refresh hourly, audit prune 6h) now fire against
+`https://mtq-sigma.vercel.app/api/inngest` with signature verification.
+
+**Run-rate note (honest cost math):** keeper-tick at `*/15s` ≈ 5,760
+runs/day ≈ 172k runs/month on Inngest + ~5.8k Vercel invocations/day — this
+EXCEEDS typical free tiers. If the plan caps out, the scheduled functions
+stop firing (the app still works — request-driven ticking is unaffected).
+Relax the cron in `src/lib/inngest/functions.ts` (keeperTick triggers) and
+re-deploy to throttle. Turso row-I/O at 15s ticks is well under Spark-plan
+limits (~1.8M writes vs 25M/month allowance) but grows the pilot ledger
+~60k rows/day.
 
 ---
 
@@ -376,7 +383,7 @@ the team Notion (link redacted from this public runbook).
 - [ ] Add UptimeRobot / BetterStack probe on `/api/health` (see §1.3).
 - [ ] Wire the Tenderly alert → PagerDuty / BetterStack for 24/7 paging (currently Discord-only).
 - [ ] Add an explicit `EMERGENCY_ROLE` mapping to `PAUSER_ROLE` (alias) if external auditors require the exact name — currently deferred because it requires contract redeployment.
-- [ ] Provision `INNGEST_SIGNING_KEY` in Vercel + register the app in Inngest Cloud to activate the hourly Turso→Neon sync cron (code wired + live-tested in Task 20; see §2.3).
+- [x] ~~Provision `INNGEST_SIGNING_KEY` in Vercel + register the app in Inngest Cloud to activate the hourly Turso→Neon sync cron~~ **DONE 2026-10-24 (Task 21)** — keys provisioned, app registered, crons armed; see §2.3 run-rate note before relying on the 15s keeper tick.
 
 ---
 
