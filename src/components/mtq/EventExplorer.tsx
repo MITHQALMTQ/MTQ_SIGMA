@@ -157,12 +157,12 @@ function buildSyntheticEvents(now: number): ProtocolEvent[] {
     description: "MTQΣ v1.0 genesis (simulated pilot-ledger initialization) · 1,000,000 MTQ minted to deployer",
     txHash: fakeTxHash(`genesis-${hourBucket}`),
     block: fakeBlock(`genesis-${hourBucket}`),
-    chain: "robinhood",
+    chain: "monad",
     source: "simulated",
     details: [
       { label: "Genesis supply", value: "1,000,000 MTQ", mono: true },
       { label: "Custody finding (C-047)", value: "1.1M USDC mandate — funds remained in the deployer EOA; no external custody proof", mono: true },
-      { label: "Chain", value: "Robinhood Testnet (46630)" },
+      { label: "Chain", value: "Monad Testnet (10143) — simulated pilot-ledger row" },
       { label: "Status", value: "simulated row · C-047: no external custody proof" },
     ],
   });
@@ -292,7 +292,7 @@ function buildSyntheticEvents(now: number): ProtocolEvent[] {
       description: `Reserve NAV ${nav.toLocaleString()} · RR ${(Number(rr) * 100).toFixed(2)}% · gold share 26.4%`,
       txHash: fakeTxHash(seed),
       block: fakeBlock(seed),
-      chain: "robinhood",
+      chain: "arc",
       source: "simulated",
       details: [
         { label: "NAV (USD)", value: nav.toLocaleString(), mono: true },
@@ -370,7 +370,7 @@ function buildSyntheticEvents(now: number): ProtocolEvent[] {
       description: `${comp} admissibility check · status ok · haircut ${comp === "Gold" ? "5%" : "0%"}`,
       txHash: null,
       block: null,
-      chain: "robinhood",
+      chain: "monad",
       source: "simulated",
       details: [
         { label: "Asset", value: comp },
@@ -712,8 +712,13 @@ export function EventExplorer({ limit = 60 }: { limit?: number }) {
                             </div>
                           </td>
                           <td className="px-3 py-2.5 font-mono whitespace-nowrap">
+                            {/* 24-e-2: DB-trial rows carry engine-generated sim hashes —
+                                title them so the hash is never mistaken for an on-chain tx. */}
                             {e.txHash ? (
-                              <span className="inline-flex items-center gap-1.5 text-mtqs-gold/85">
+                              <span
+                                className="inline-flex items-center gap-1.5 text-mtqs-gold/85"
+                                title="sim hash — no on-chain tx (engine simulation)"
+                              >
                                 <Hash className="h-3 w-3 text-white/40" />
                                 {shortAddr(e.txHash, 8, 6)}
                               </span>
@@ -782,7 +787,7 @@ export function EventExplorer({ limit = 60 }: { limit?: number }) {
                                           target="_blank"
                                           rel="noopener noreferrer"
                                           onClick={(ev) => ev.stopPropagation()}
-                                          aria-label="Open simulated tx on explorer (will not exist for synthetic events)"
+                                          aria-label="Open simulated tx on explorer (will not exist — all rows are engine simulations)"
                                           className="mtqs-focus inline-flex items-center gap-1.5 rounded-md border border-white/[0.08] px-2 py-1 text-white/65 hover:border-mtqs-gold/30 hover:text-mtqs-gold transition"
                                         >
                                           <ExternalLink className="h-3 w-3" />

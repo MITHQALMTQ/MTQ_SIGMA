@@ -1,10 +1,12 @@
 // MTQΣ — MASE Ensemble + 4-State Weights + MARP (§6 / §7 / §8 / §10 — v1.0)
-// Surfaces the live Multi-Asset Stochastic Ensemble output: the 6 candidate
-// model weight vectors, the equal-weight ensemble target, the per-component
-// admissibility envelope status, the four-state weight distinction
+// Surfaces the live Multi-Asset Stochastic Ensemble output: the 7 candidate
+// models across the six §7.5 families (Stability blends Min-Variance + ERC),
+// the family-weight ensemble target (uniform 1/6 cold start → adaptive §7.6
+// softmax once OOS samples accumulate), the per-component admissibility
+// envelope status, the four-state weight distinction
 // (W^Prior ≠ W^Target ≠ W^Smooth ≠ W^Execution), and the MARP per-component
-// rebalancing decisions (urgency, no-trade zone, cost-benefit gate, partial
-// correction, daily-turnover cap, execute).
+// 8-level gate pipeline (natural flows, no-trade zone, urgency, zero size,
+// cost-benefit, thin liquidity, turnover cap, execute).
 //
 // The legacy §6 macro engine (VIX/DXY → θ ±3%) is retained above this section
 // as one input to MASE. The legacy §7 rebalance engine (single-direction gold
@@ -118,16 +120,19 @@ function MarpDirectionBadge({ direction, shouldTrade }: { direction: string; sho
   );
 }
 
-/* ---------- Level badge (MARP 6-level hierarchy) ---------- */
+/* ---------- Level badge (MARP 8-level gate pipeline — matches marp.ts;
+            same labels as RebalanceEngine, audit 7-b gap 4 correction) ---------- */
 function MarpLevelBadge({ level, shouldTrade }: { level: number; shouldTrade: boolean }) {
-  const tone = shouldTrade ? "gold" : level <= 1 ? "muted" : "amber";
+  const tone = shouldTrade ? "gold" : level <= 2 ? "muted" : "amber";
   const labels: Record<number, string> = {
-    1: "L1 · no-trade zone",
-    2: "L2 · low urgency",
-    3: "L3 · sized",
-    4: "L4 · cost-benefit fail",
-    5: "L5 · turnover cap",
-    6: "L6 · execute",
+    1: "L1 · flows cover gap",
+    2: "L2 · no-trade zone (≤0.75%)",
+    3: "L3 · low urgency",
+    4: "L4 · zero size",
+    5: "L5 · cost-benefit fail",
+    6: "L6 · thin liquidity",
+    7: "L7 · turnover cap",
+    8: "L8 · execute",
   };
   return <Pill tone={tone as "gold" | "muted" | "amber"}>{labels[level] ?? `L${level}`}</Pill>;
 }
@@ -848,14 +853,16 @@ export function MaseEngine({ snapshot }: { snapshot: MetricsSnapshot | null }) {
               MARP decisions not computed yet.
             </div>
           )}
-          <div className="mt-3 grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-2">
-            {[
-              { level: 1, label: "L1 · No-trade zone", desc: "deviation < 0.5%" },
-              { level: 2, label: "L2 · Low urgency", desc: "urgency < 5%" },
-              { level: 3, label: "L3 · Sized", desc: "50% correction" },
-              { level: 4, label: "L4 · Cost-benefit fail", desc: "NetBenefit ≤ ε = $10 (§12.8)" },
-              { level: 5, label: "L5 · Turnover cap", desc: "capped at 5% NAV" },
-              { level: 6, label: "L6 · Execute", desc: "trade fires" },
+          <div className="mt-3 grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-8 gap-2">
+            {[/* 8-level gate pipeline legend — matches marp.ts + RebalanceEngine */
+              { level: 1, label: "L1 · Natural flows", desc: "CF nets the gap (§10.7)" },
+              { level: 2, label: "L2 · No-trade zone", desc: "deviation ≤ 0.75% (§10.4/§11.8)" },
+              { level: 3, label: "L3 · Low urgency", desc: "U < U_min 5% (§10.2)" },
+              { level: 4, label: "L4 · Zero size", desc: "β·residual = 0 (§10.6)" },
+              { level: 5, label: "L5 · Cost-benefit fail", desc: "legacy ε gate (OD-2 OPEN)" },
+              { level: 6, label: "L6 · Thin liquidity", desc: "≤ 10% of 24h depth (§11.4)" },
+              { level: 7, label: "L7 · Turnover cap", desc: "≤ 5% NAV/day (§7.3)" },
+              { level: 8, label: "L8 · Execute", desc: "direction lock passed (§11.5.3)" },
             ].map((l) => (
               <div key={l.level} className="rounded-md border border-white/[0.06] bg-white/[0.02] p-2">
                 <div className="text-[0.62rem] uppercase tracking-[0.16em] text-white/55">{l.label}</div>

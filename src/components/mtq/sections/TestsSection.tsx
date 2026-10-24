@@ -180,9 +180,10 @@ export function TestsSection({ onNavigate: _onNavigate }: { onNavigate: (id: Sec
             <p className="text-[0.82rem] text-white/55 leading-relaxed">
               The Monte Carlo audit runs {totalRuns > 0 ? `${totalRuns.toLocaleString()} ` : ""}survival
               simulations across {suites.length > 0 ? `${suites.length} ` : ""}stress suites. Each
-              suite seeds the protocol with realistic shocks (depeg cascade, oracle failure,
+              stress suite seeds the protocol with realistic shocks (depeg cascade, oracle failure,
               liquidity crisis, hyperinflation, depression, black swan) and runs the full §3-§14
-              engine forward 90-180 days. A run &ldquo;survives&rdquo; if the Reserve Ratio never
+              engine forward 60-365 days (per-suite horizon; the Baseline and Monte Carlo suites run
+              unshocked). A run &ldquo;survives&rdquo; if the Reserve Ratio never
               breaches the hard floor (RR ≥ 1.00). The audit verdict aggregates all suites.
             </p>
           </div>

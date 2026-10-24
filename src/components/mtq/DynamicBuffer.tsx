@@ -107,7 +107,7 @@ export function DynamicBuffer({ snapshot }: { snapshot: MetricsSnapshot | null }
           </div>
 
           <p className="mt-3 text-[0.7rem] text-white/55 leading-relaxed">
-            Total target gold weight formula: <span className="font-mono text-mtqs-gold">W_target = 0.20 + 0.10·B_gold(RR) + θ_smoothed</span> clamped to [22%, 30%]. Ramp duration: {RAMP_DURATION_HOURS}h.
+            Total target gold weight formula: <span className="font-mono text-mtqs-gold">W_target = 0.20 + 0.10·B_gold(RR) + θ_smoothed</span> clamped to [22%, 30%] (pre-MASE genesis fallback only — not the live rule; the live target is the MASE admissibility envelope 20–32%). Ramp duration: {RAMP_DURATION_HOURS}h.
           </p>
         </Panel>
       </Reveal>

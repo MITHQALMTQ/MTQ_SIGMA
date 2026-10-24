@@ -321,6 +321,9 @@ export function LiveMonetaryState({ snapshot }: { snapshot: MetricsSnapshot | nu
                   <div className="font-mono text-white">{fmtNum(snapshot.genesisReserve, 0)} MTQ</div>
                 </div>
               </div>
+              <p className="text-[0.62rem] text-white/45">
+                engine ledger (simulated) — on-chain supplies: see Contracts
+              </p>
             </div>
           </MetricTile>
         </Reveal>

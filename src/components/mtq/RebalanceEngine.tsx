@@ -114,7 +114,10 @@ function MarpLevelBadge({ level, shouldTrade, hierarchy }: { level: number; shou
   };
   return (
     <span className="inline-flex items-center gap-1.5">
-      <Pill tone={tone as "gold" | "muted" | "amber"}>{labels[level] ?? `L${level}`}</Pill>
+      <Pill tone={tone as "gold" | "muted" | "amber"}>
+        {/* Level-8 non-trades are direction-lock holds (§11.5.3), not executes. */}
+        {level === 8 && !shouldTrade ? "L8 · direction-lock hold" : labels[level] ?? `L${level}`}
+      </Pill>
       {hierarchy ? (
         <span className="text-[0.58rem] uppercase tracking-wider text-white/40">{hierarchy}</span>
       ) : null}
@@ -181,7 +184,7 @@ export function RebalanceEngine({ snapshot }: { snapshot: MetricsSnapshot | null
                 Legacy §7 single-direction vs MARP §10/§11 per-component
               </div>
               <div className="text-[0.7rem] text-white/55 mt-1">
-                Both paths compute live every tick; only one mutates the reserve (per the feature flag).
+                Both paths compute live every tick; only one mutates the simulated pilot ledger (per the feature flag).
               </div>
             </div>
             <div className="flex flex-col items-end gap-1.5">
@@ -302,7 +305,7 @@ export function RebalanceEngine({ snapshot }: { snapshot: MetricsSnapshot | null
               <div className="mt-3 flex flex-wrap gap-2 text-[0.7rem]">
                 <span className="text-white/55">decision:</span>
                 {d.shouldRebalance
-                  ? <Pill tone="emerald">EXECUTING</Pill>
+                  ? <Pill tone="emerald">WOULD EXECUTE (advisory)</Pill>
                   : <Pill tone="muted">no trade</Pill>}
                 <span className="text-white/55">·</span>
                 <span className="text-white/55">direction:</span>

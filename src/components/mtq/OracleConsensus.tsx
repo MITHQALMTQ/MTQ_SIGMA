@@ -8,8 +8,7 @@ import { motion } from "framer-motion";
 import { Panel, Reveal, GlowDot, Pill, TickNumber } from "./primitives";
 import { fmtFixed, fmtAgo } from "./format";
 import {
-  ORACLE_STALENESS_MS,
-  ORACLE_CONFIDENCE_MAX_PCT,
+  ORACLE_VALIDATION,
   ORACLE_DEVIATION_MAX_PCT,
 } from "@/lib/mtq/blueprint";
 import type { OracleBoard, OracleFeed, OracleConsensus as OracleConsensusType } from "@/lib/mtq/oracle";
@@ -158,12 +157,16 @@ export function OracleConsensus({
           {/* Legend of validation rules */}
           <div className="grid grid-cols-2 lg:grid-cols-4 gap-2 text-[0.7rem]">
             <div className="rounded-md border border-white/[0.06] bg-white/[0.02] px-2.5 py-1.5">
-              <div className="text-white/55">§9.2.1 · Staleness</div>
-              <div className="font-mono text-mtqs-gold">≤ {ORACLE_STALENESS_MS / 1000}s</div>
+              <div className="text-white/55">§17.3.1 · Staleness</div>
+              <div className="font-mono text-mtqs-gold">
+                ≤ {(ORACLE_VALIDATION.STALENESS_MS.MAJOR_FX / 1000).toFixed(0)}s (major FX/gold) · {(ORACLE_VALIDATION.STALENESS_MS.MINOR_FX / 1000).toFixed(0)}s (minor FX, VIX/DXY)
+              </div>
             </div>
             <div className="rounded-md border border-white/[0.06] bg-white/[0.02] px-2.5 py-1.5">
-              <div className="text-white/55">§9.2.3 · Confidence</div>
-              <div className="font-mono text-mtqs-gold">&lt; {(ORACLE_CONFIDENCE_MAX_PCT * 100).toFixed(1)}%</div>
+              <div className="text-white/55">§17.3.2 · Confidence</div>
+              <div className="font-mono text-mtqs-gold">
+                &lt; {(ORACLE_VALIDATION.CONFIDENCE_MAX_PCT.MAJOR_FX * 100).toFixed(1)}–{(ORACLE_VALIDATION.CONFIDENCE_MAX_PCT.VIX_DXY * 100).toFixed(1)}% by feed class
+              </div>
             </div>
             <div className="rounded-md border border-white/[0.06] bg-white/[0.02] px-2.5 py-1.5">
               <div className="text-white/55">§9.2.4 · Deviation</div>
@@ -189,10 +192,20 @@ export function OracleConsensus({
               <GlowDot color="rose" size="h-3 w-3" className="mt-1" />
               <div>
                 <div className="text-sm font-semibold text-rose-200 mb-1">
-                  ORACLE PAUSED — minting & rebalancing suspended (§9.3)
+                  {failed
+                    ? "ORACLE PAUSED — all operations paused (§17.7)"
+                    : "ORACLE PAUSED — minting & rebalancing suspended (§9.3)"}
                 </div>
                 <div className="text-[0.75rem] text-rose-200/80">
-                  At least one pair has &lt;2 valid feeds. The protocol halts mint operations and rebalancing until quorum is restored. Redeeming remains allowed at the live reference price.
+                  {failed ? (
+                    "All operations paused — quorum lost (§17.7)."
+                  ) : (
+                    <>
+                      At least one pair has &lt;2 valid feeds. The protocol halts mint operations and
+                      rebalancing until quorum is restored. Redeeming remains allowed at the live
+                      reference price.
+                    </>
+                  )}
                 </div>
               </div>
             </div>

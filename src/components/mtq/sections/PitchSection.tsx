@@ -61,16 +61,16 @@ const PANELS = [
     body: [
       "Mint fee 0.10% (§3.4). Redeem fee 0.15% (§3.4). Fees accrue to the protocol treasury.",
       "On the legacy v1/v2 pilot-ledger path, the reserve portfolio holds yield-bearing stablecoins + tokenized gold; net yield (post-haircut) accrues to the protocol, not to MTQΣ holders (MTQΣ is non-yield-bearing by design). The v3.0 no-conventional-reserve objective supersedes this path (Gate B open).",
-      "Treasury sweep (§13.2) moves surplus hot-wallet balance to a 4/7 Multi-Sig cold treasury above a $10K threshold, separating operational flow from long-term reserves.",
+      "Treasury sweep (§13.2) moves surplus hot-wallet balance to a 4/7 Multi-Sig cold treasury above a $10K threshold (production design target — the pilot Safe is 1/1 deployer-controlled; the pilot sweep is a simulated engine module), separating operational flow from long-term reserves.",
     ],
     tone: "gold" as const,
   },
   {
     icon: Activity,
     eyebrow: "05 · Traction",
-    title: "Live on 4 testnets · Monte Carlo survival audit · audit trail in SQLite.",
+    title: "Live on 3 testnets · Monte Carlo survival audit · audit trail in SQLite.",
     body: [
-      `Canonical MTQΣ deployed across ${Object.keys(CANONICAL_MTQ_ADDRESSES).length} testnets (Monad, Arc, Robinhood, Solana). Every chain has verified bytecode + role assignments.`,
+      `Canonical MTQΣ deployed across ${Object.keys(CANONICAL_MTQ_ADDRESSES).length} testnets (Monad, Arc, Solana). Monad and Arc have verified bytecode + live role assignments; the Solana devnet mint account and its authority are verified live.`,
       "Monte Carlo survival runs across the stress suites (Baseline, Monte Carlo, Depression, Hyperinflation, Depeg Cascade, Oracle Failure, Liquidity Crisis, Black Swan) — run count and verdict are fetched live from /api/tests.",
       "Live pilot: every mint/redeem is logged to SQLite with full input/output, Reference Index, Reference Value, NAV (USD reporting), RR, LCR, and pass/fail reason — full audit trail via /api/trials/export.",
     ],
@@ -188,7 +188,7 @@ export function PitchSection({ onNavigate: _onNavigate }: { onNavigate: (id: Sec
           const isTraction = p.eyebrow === "05 · Traction";
           const panelTitle =
             isTraction && (auditFailed || totalRuns != null)
-              ? `Live on 4 testnets · ${
+              ? `Live on 3 testnets · ${
                   auditFailed ? "—" : (totalRuns ?? 0).toLocaleString()
                 } Monte Carlo runs · audit trail in SQLite.`
               : p.title;

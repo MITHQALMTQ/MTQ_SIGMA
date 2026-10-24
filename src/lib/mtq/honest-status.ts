@@ -72,7 +72,7 @@ export function getValidationGates(): ValidationGate[] {
       description: "Successful deployment on a public testnet (Arbitrum Sepolia or equivalent) with 100+ simulated users.",
       passed: false,
       evidence:
-        "DEVNETS ONLY — Arc/Monad/Solana devnet + Robinhood Chain Testnet (46630) contracts deployed (4 testnets total); local pilot running. No public-testnet campaign with 100+ simulated users",
+        "DEVNETS ONLY — Arc/Monad/Solana devnet contracts deployed (3-network estate per the 2026-10-24 owner registry cleanup; the Robinhood Chain Testnet suite was removed from the estate — historical record only); local pilot running. No public-testnet campaign with 100+ simulated users",
     },
     {
       id: "G6",

@@ -164,7 +164,7 @@ export function ReferenceChart({
         t: tt,
         type: "rebalance",
         label: "MARP rebalance",
-        detail: "Per-component MARP (§10) trade executed: deviation exceeded the no-trade zone (L6), 50% partial correction applied, capped at 5% NAV daily turnover. (Illustrative — synthetic history.)",
+        detail: "Per-component MARP (§10) trade executed: deviation exceeded the no-trade zone (L8 execute), 50% partial correction applied, capped at 5% NAV daily turnover. (Illustrative — synthetic history.)",
       });
     }
     // Weight-change events (MASE target recomputation): 3-5 across the range.
@@ -175,7 +175,7 @@ export function ReferenceChart({
         t: tt,
         type: "weight",
         label: "Weight recompute",
-        detail: "MASE ensemble (§6/§7) recomputed W^Target under the per-component admissibility envelopes (§8.1); EMA λ=20% smoothing applied (§8.4). (Illustrative — synthetic history.)",
+        detail: "MASE ensemble (§6/§7) recomputed W^Target under the per-component admissibility envelopes (§8.1); EMA smoothing ρ=0.50/0.75 applied (§8.4). (Illustrative — synthetic history.)",
       });
     }
     mlist.sort((a, b) => a.t - b.t);

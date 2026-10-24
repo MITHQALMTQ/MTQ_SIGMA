@@ -125,7 +125,7 @@ const REPO_ARTIFACTS: { name: string; purpose: string }[] = [
   { name: "CRITICAL-PRIVATE-KEY-ROTATION.md", purpose: "BLOCKING notice: deployer private-key rotation required before public testnet launch." },
   { name: "CHANGELOG.md", purpose: "Project changelog." },
   { name: "README.md · AGENTS.md", purpose: "Repository overview + agent working instructions." },
-  { name: "contracts/", purpose: "Solidity sources: MTQSigmaV2.sol · MTQSigmaV3.sol · MtqEcosystem.sol · adapters/ (ChainlinkAdapter, PythAdapter, ChronicleAdapter) · deployments/*.json register · foundry.toml." },
+  { name: "contracts/", purpose: "Solidity sources: MTQSigma.sol · MTQSigmaV2.sol · MTQSigmaV2.t.sol · MTQSigmaV3.sol · MtqEcosystem.sol · adapters/ (ChainlinkAdapter, PythAdapter, ChronicleAdapter) · deployments/ register (MTQSigmaV2-PENDING.json only; superseded generation JSONs removed 2026-10-24) · foundry.toml." },
   { name: "foundry.toml", purpose: "Root Foundry configuration." },
   { name: "scripts/verify-safe.ts", purpose: "Read-only Safe verification script (eth_call / eth_getCode / eth_getStorageAt) behind the OD-35 evidence." },
   { name: "docs/", purpose: "Audit & record set: MAINNET-AUDIT-REPORT.md, BANK-GRADE-AUDIT.md, CORRECTED-BANK-AUDIT.md, BLUEPRINT-GAP-ANALYSIS.md, DEPLOYMENT-RECORD.md (OD-36), SIMPLIFICATION-MEMO.md." },

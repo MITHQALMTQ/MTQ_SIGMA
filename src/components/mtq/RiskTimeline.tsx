@@ -176,7 +176,7 @@ function buildHistory(snapshot: MetricsSnapshot): RiskTransition[] {
     let thresholdCrossed: string;
     if (toState === "RECOVERY") {
       trigger = "Recovery confirmation";
-      thresholdCrossed = "RR ≥ 1.10 AND LCR ≥ 1.00 sustained for 48h confirmation window";
+      thresholdCrossed = "RR ≥ 1.05 (rising) AND LCR ≥ 0.90 sustained for 48h confirmation window (§21.2 S6)";
     } else if (worseCondition === "both") {
       trigger = "Both RR + LCR";
       thresholdCrossed = `RR ${rr.toFixed(3)} < 1.10 AND LCR ${lcr.toFixed(3)} < 1.00 (worse condition binds → ${toState})`;
@@ -188,34 +188,37 @@ function buildHistory(snapshot: MetricsSnapshot): RiskTransition[] {
       thresholdCrossed = `LCR ${lcr.toFixed(3)} crossed into the ${toState} band`;
     } else {
       trigger = "Manual override";
-      thresholdCrossed = "Risk Council 4/7 governance vote (§14.2 risk-tier timelock 24h)";
+      thresholdCrossed = "Risk Council 4/7 governance vote (§22.3 risk-tier timelock 24h)";
     }
 
-    // Action taken (the policy row for each state from §14.1).
+    // Action taken (the policy row for each state from §21.4 — verified against
+    // state-machine.ts: mint fee is state-independent 0.10% (§19.7); mint
+    // throttle S2 50% · S3/S4/S5 paused · S6 25%; redemption PAUSED in S5;
+    // rebalancing PAUSED in S5 (council-only); treasury sweep PAUSED in S5).
     const actionMap: Record<RiskStateName, string> = {
-      NORMAL: "Mint 0.1% fee · redeem 0.15% fee · no throttle · normal rebalance urgency",
-      CAUTION: "Mint 0.1% fee · redeem 0.30% fee · light throttle · elevated rebalance urgency",
-      STRESS: "Mint 0.25% fee · redeem 0.50% fee · 25% mint throttle · high rebalance urgency",
-      DEFENSIVE: "Mint 0.50% fee · redeem 1.00% fee · 50% mint throttle · max rebalance urgency",
-      EMERGENCY: "Mint paused · redeem 2.00% fee · 100% redeem throttle · emergency treasury sweep + governance alert",
-      RECOVERY: "Mint paused pending 48h confirmation · redeem 1.00% fee · throttled · risk-monitoring active",
+      NORMAL: "Mint 0.10% fee · redeem 0.15% fee · no throttle · rebalance urgency 1 (normal)",
+      CAUTION: "Mint 0.10% fee · redeem 0.15% fee · 50% mint throttle · rebalance urgency 2",
+      STRESS: "Mint PAUSED · redeem 0.50% fee · rebalance urgency 3 (emergency rebalance)",
+      DEFENSIVE: "Mint PAUSED · redeem 1.00% fee · rebalance urgency 4 (forced rebalance)",
+      EMERGENCY: "Mint paused · redemption PAUSED · rebalancing PAUSED (council-only) · treasury sweep paused · immediate governance notification",
+      RECOVERY: "Mint 25% throttle · redeem 0.30% fee · rebalance urgency 2 · 48h step confirmation",
     };
     const action = actionMap[toState];
 
     // Evidence summary
     const evidence =
       toState === "RECOVERY"
-        ? `Conditions improved back to RR ≥ 1.10 AND LCR ≥ 1.00. Entered RECOVERY at ${new Date(ts).toISOString().slice(0, 16)}Z; confirmation period ends in 48h.`
+        ? `Conditions improved back to RR ≥ 1.05 (rising) AND LCR ≥ 0.90 (§21.2 S6). Entered RECOVERY at ${new Date(ts).toISOString().slice(0, 16)}Z; confirmation period ends in 48h.`
         : toState === "EMERGENCY"
-        ? `Immediate entry — markets don't wait. RR=${rr.toFixed(3)}, LCR=${lcr.toFixed(3)}. Emergency treasury sweep (§13.2) armed; risk Council 4/7 vote pending; circuit-breaker (§3.6) armed if Reference Value exits [0.50, 2.00].`
-        : `Worse-condition-binds rule (§14.1): RR-derived state (${rrBandStatus(rr)}) vs LCR-derived state (${lcrBandStatus(lcr)}) → ${toState} (the more severe). Confirmation: immediate (RR/LCR instantaneous).`;
+        ? `Immediate entry — markets don't wait. RR=${rr.toFixed(3)}, LCR=${lcr.toFixed(3)}. Treasury sweep PAUSED (§21.4 EMERGENCY row); risk Council 4/7 notified; circuit-breaker armed if Reference Value exits [0.50, 2.00].`
+        : `Worse-condition-binds rule (§21.2): RR-derived state (${rrBandStatus(rr)}) vs LCR-derived state (${lcrBandStatus(lcr)}) → ${toState} (EMERGENCY only from RR < 1.00; LCR < 0.70 with solvency → residual RECOVERY). Confirmation: immediate (RR/LCR instantaneous).`;
 
     const policyChanges: string[] = [];
-    if (toState !== "NORMAL") policyChanges.push(`mintThrottle applied (§14.1 policy row)`);
-    if (toState === "EMERGENCY") policyChanges.push("treasury sweep armed (§13.2)");
-    if (toState === "EMERGENCY") policyChanges.push("governance alert fired (§14.2 emergency tier 4/7)");
-    if (toState === "RECOVERY") policyChanges.push("48h confirmation window started (§14.1 RECOVERY hysteresis)");
-    if (toState !== "NORMAL" && toState !== "RECOVERY") policyChanges.push(`rebalance urgency raised to ${(severity[toState] * 0.25).toFixed(2)} (§7)`);
+    if (toState !== "NORMAL") policyChanges.push(`mint throttle applied (§21.4 policy row)`);
+    if (toState === "EMERGENCY") policyChanges.push("treasury sweep PAUSED (§21.4 EMERGENCY row)");
+    if (toState === "EMERGENCY") policyChanges.push("governance notification fired (§21.4 immediate tier)");
+    if (toState === "RECOVERY") policyChanges.push("48h confirmation window started (§21.2 S6 hysteresis)");
+    if (toState !== "NORMAL" && toState !== "RECOVERY" && toState !== "EMERGENCY") policyChanges.push(`rebalance urgency raised to ${(severity[toState] * 0.25).toFixed(2)} (§21.4)`);
 
     transitions.push({
       id: `RT-${i}-${toState}-${ts}`,
@@ -247,12 +250,15 @@ function rrBandStatus(rr: number): RiskStateName {
   return "EMERGENCY";
 }
 function lcrBandStatus(lcr: number): RiskStateName {
+  // §21.2: LCR < 0.70 is NOT EMERGENCY — S5 entry is the RR hard-floor breach
+  // only. An LCR collapse with solvency (RR ≥ 1.05) is the residual RECOVERY
+  // posture; below that it binds DEFENSIVE (mirrors lcrDerived in
+  // state-machine.ts — never EMERGENCY).
   if (!Number.isFinite(lcr)) return "NORMAL";
   if (lcr >= 1.0) return "NORMAL";
   if (lcr >= 0.9) return "CAUTION";
   if (lcr >= 0.8) return "STRESS";
-  if (lcr >= 0.7) return "DEFENSIVE";
-  return "EMERGENCY";
+  return "DEFENSIVE";
 }
 
 interface RiskTimelineProps {

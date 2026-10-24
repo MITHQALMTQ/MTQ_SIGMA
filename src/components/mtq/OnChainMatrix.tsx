@@ -1,7 +1,7 @@
 // MTQΣ — On-Chain vs Off-Chain Implementation Matrix
 // Honest, explicit two-column table that maps every Master Blueprint v1.0
 // component to:
-//   - ✅ On-chain (deployed & verified on Arc Testnet / Monad / Robinhood)
+//   - ✅ On-chain (deployed & verified on Arc Testnet / Monad)
 //   - 📝 Source ready (contracts/MTQSigmaV2.sol written & compiles, pending deploy)
 //   - ⚙️ TypeScript engine only (src/lib/mtq/* — faithful blueprint math, NOT on-chain)
 //   - ❌ Not implemented
@@ -16,10 +16,11 @@
 // the shared registry — CANONICAL_MTQ_ADDRESSES.arc in contracts.ts, which
 // also serves /api/contracts and /api/onchain; chain 5042002) is a v1.2
 // 5-currency GFB pilot. The v1.0 Master Blueprint
-// on-chain implementation (contracts/MTQSigmaV2.sol, 1057 lines, compiles to
-// 22,627 bytes with optimizer runs=200) is SOURCE_READY_PENDING_DEPLOY —
-// getHonestStatus() will return 0x7FF (all 11 v1.0 bits set) once the protocol
-// owner runs scripts/deploy.ts. The v1.0 math is also fully implemented in the
+// on-chain implementation (contracts/MTQSigmaV2.sol, 1,622 lines; compile
+// size: see Evidence Package §5 — still over the EIP-170 24,576 B limit per
+// C-044, not deployable as-is) is SOURCE_READY_PENDING_DEPLOY —
+// getHonestStatus() claims 0x7FF (all 11 v1.0 bits — claimed, pending
+// deployment + test evidence). The v1.0 math is also fully implemented in the
 // TypeScript reference engine (src/lib/mtq/*) which is live in this pilot.
 
 "use client";
@@ -128,10 +129,10 @@ const ROWS: MatrixRow[] = [
   },
   {
     num: 11,
-    component: "Risk state machine (5 states)",
+    component: "Risk state machine (6 states)",
     onChain: { status: "on-chain", text: "Arc pilot Status enum" },
     tsEngine: { status: "on-chain", text: "RISK_STATE_MACHINE" },
-    notes: "On-chain + TS",
+    notes: "v1.2 Arc pilot Status enum is the on-chain 5-state subset; TS engine + V2 source implement all 6 (NORMAL…RECOVERY)",
   },
   {
     num: 12,
@@ -173,7 +174,7 @@ const ROWS: MatrixRow[] = [
     component: "Dynamic buffer (BASE / STRESS / EMERGENCY, §8)",
     onChain: { status: "source-ready", text: "MTQSigmaV2 (pending)" },
     tsEngine: { status: "on-chain", text: "engine.ts::updateBufferState" },
-    notes: "V2: 5 risk states + status-throttled mint/redeem encode buffer policy on-chain",
+    notes: "V2: 6 risk states + status-throttled mint/redeem encode buffer policy on-chain",
   },
   {
     num: 18,
@@ -325,10 +326,11 @@ export function OnChainMatrix() {
               chain {String(ARC_PILOT.chainId)}) is a <span className="text-mtqs-gold font-medium">v1.2 5-currency GFB pilot</span>
               — a faithful minimal-but-complete implementation of the mint / redeem / index core. The
               v1.0 Master Blueprint on-chain implementation is now written as
-              <span className="font-mono text-mtqs-gold"> contracts/MTQSigmaV2.sol</span> (1057 lines, compiles
-              clean with optimizer runs=200 → 22,627 bytes — deployable on Mainnet), with
-              <span className="font-mono text-mtqs-gold"> getHonestStatus() returning 0x7FF</span> (all 11 v1.0
-              bits set). <span className="text-mtqs-amber font-medium">STATUS: SOURCE_READY_PENDING_DEPLOY</span> —
+              <span className="font-mono text-mtqs-gold"> contracts/MTQSigmaV2.sol</span> (1,622 lines, compiles
+              clean (see Evidence Package §5 compile matrix — still over the EIP-170 24,576 B limit per
+              C-044; not deployable as-is); testnet deploy pending), with
+              <span className="font-mono text-mtqs-gold"> getHonestStatus() claiming 0x7FF</span> (all 11 v1.0
+              bits — claimed, pending deployment + test evidence). <span className="text-mtqs-amber font-medium">STATUS: SOURCE_READY_PENDING_DEPLOY</span> —
               the protocol owner needs to run <span className="font-mono text-mtqs-gold">scripts/deploy.ts</span>
               with the new source path + optimizer enabled. The v1.0 math is also fully implemented in
               the TypeScript reference engine (<span className="font-mono text-mtqs-gold">src/lib/mtq/*</span>)
@@ -431,8 +433,8 @@ export function OnChainMatrix() {
                 The v1.0 Master Blueprint is now implemented in <span className="text-mtqs-gold font-medium">three layers</span>:
                 (1) the TypeScript reference engine (<span className="font-mono text-mtqs-gold">src/lib/mtq/*</span>),
                 live in this pilot; (2) the on-chain contract source
-                (<span className="font-mono text-mtqs-gold">contracts/MTQSigmaV2.sol</span>, 1057 lines,
-                compiles to 22,627 bytes with optimizer runs=200), awaiting protocol-owner deploy;
+                (<span className="font-mono text-mtqs-gold">contracts/MTQSigmaV2.sol</span>, 1,622 lines;
+                compile size: see Evidence Package §5 — over the EIP-170 limit, C-044), awaiting protocol-owner deploy;
                 (3) the Chapter 24 audit-trail database (3 new Prisma tables — DailyStateVector,
                 RebalancingDecision, OracleSample — being populated every tick).
               </p>

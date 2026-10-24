@@ -309,14 +309,14 @@ export function Pill({
   );
 }
 
-/* ---------- BrandPrinciples — "Honest · Sovereign · Asset-Referencing · Calm" row ---------- */
-// v3 posture (Task 23): "Collateralized" → "Asset-Referencing" — under the
-// v3.0 no-conventional-reserve objective (Gate B open) MTQΣ references a
-// real-world asset basket and is issued against settled payment; it is NOT
-// collateralized by a reserve. Renders in the terminal Footer + Home +
-// Dashboard heroes, so this word must not overclaim.
+/* ---------- BrandPrinciples — "Honest · Sovereign · Basket-Referenced · Calm" row ---------- */
 export function BrandPrinciples({ className = "" }: { className?: string }) {
-  const principles = ["Honest", "Sovereign", "Asset-Referencing", "Calm"];
+  // 24-e-2 (merged with the Task-23 residual sweep): v3.0 has no conventional
+  // reserve — "Collateralized" was a false claim; the index references a
+  // real-world asset basket and is issued against settled payment, so the
+  // chip says Basket-Referenced. Renders in the terminal Footer + Home +
+  // Dashboard heroes — this word must not overclaim.
+  const principles = ["Honest", "Sovereign", "Basket-Referenced", "Calm"];
   return (
     <div
       className={`flex flex-wrap items-center gap-x-3 gap-y-1 text-[0.65rem] uppercase tracking-[0.22em] text-white/75 ${className}`}

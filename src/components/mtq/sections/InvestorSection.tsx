@@ -50,8 +50,8 @@ interface TrialsExportResp {
 const INVESTOR_ENDPOINTS = [
   { label: "Live snapshot", url: "/api/metrics", desc: "Full MetricsSnapshot — GFB, price, NAV, RR, LCR, status, reconciliation" },
   { label: "Oracle board", url: "/api/oracle", desc: "6-pair oracle consensus (3-of-3 validity, deviation, staleness)" },
-  { label: "Asset registry", url: "/api/registry", desc: "9 eligible reserve assets + per-issuer concentration report" },
-  { label: "On-chain verify (EVM)", url: "/api/onchain/<chainId>", desc: "Per-chain live bytecode + name/symbol/decimals + role checks (10143, 5042002, 46630)" },
+  { label: "Asset registry", url: "/api/registry", desc: "9 registry asset records (6 admitted · 3 governance-pending) + per-issuer concentration report" },
+  { label: "On-chain verify (EVM)", url: "/api/onchain/<chainId>", desc: "Per-chain live bytecode + name/symbol/decimals + role checks (10143, 5042002)" },
   { label: "On-chain verify (Solana)", url: "/api/onchain/solana", desc: "Solana devnet SPL mint account info + mintAuthority" },
   { label: "Trial export (JSON)", url: "/api/trials/export?format=json", desc: "All mint/redeem trials (SQLite) — full audit trail" },
   { label: "Trial export (CSV)", url: "/api/trials/export?format=csv", desc: "Same trail as CSV for spreadsheet analysis" },
@@ -96,7 +96,11 @@ export function InvestorSection({
       const results = await Promise.all(
         entries.map(async ([id, info]) => {
           try {
-            const res = await fetch(`/api/onchain/${info.chainId}`, { cache: "no-store" });
+            // [Task 24-e fix] The onchain route accepts numeric EVM chainIds
+            // (10143/5042002) and the literal "solana" — the registry's
+            // Solana chainId string is "devnet", which 404s. Map it.
+            const param = info.chainId === "devnet" ? "solana" : info.chainId;
+            const res = await fetch(`/api/onchain/${param}`, { cache: "no-store" });
             if (!res.ok) return [id, { error: `HTTP ${res.status}` }] as const;
             const data = (await res.json()) as OnchainResp;
             return [id, data] as const;
@@ -588,8 +592,9 @@ export function InvestorSection({
             <div className="mt-3 flex items-start gap-2 text-[0.7rem] text-white/55">
               <GlowDot color="gold" size="h-1.5 w-1.5" className="mt-1.5" />
               <p className="leading-relaxed">
-                All endpoints are read-only GET. Run a trial in the Trial section to populate the
-                trial log, then re-fetch the export endpoint above to see your new trial.
+                All endpoints are read-only GET. Run a simulated mint or redeem in the Operations
+                section (Activity Explorer) to populate the trial log, then re-fetch the export
+                endpoint above to see your new trial.
               </p>
             </div>
           </Panel>

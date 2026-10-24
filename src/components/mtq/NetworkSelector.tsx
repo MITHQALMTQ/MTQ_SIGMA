@@ -38,13 +38,15 @@ const STORAGE_KEY = "mtqs-active-network";
 
 /** Heuristic live/dead classification — base it on whether the canonical
  *  MTQΣ token contract has a non-zero address. Mainnet "pending deploy"
- *  rows get amber ("pending"). Testnets get emerald ("live"). Solana is
- *  special-cased (non-EVM but live on devnet). */
+ *  rows would get amber ("pending"). Testnets get emerald ("live"). Solana
+ *  is special-cased (non-EVM but live on devnet). */
 function networkStatus(chain: ChainInfo): "live" | "pending" | "devnet" {
   if (chain.id === "solana") return "devnet";
   const canonical = CANONICAL_MTQ_ADDRESSES[chain.id];
   const hasCanonical = canonical && canonical.address && !/^0x0+$/.test(canonical.address);
-  // Pending-deploy placeholder contracts on Base / Arbitrum
+  // Defensive: pending-deploy placeholder contracts (zero-address rows; none
+  // in the current registry — the Base/Arbitrum placeholders were removed
+  // 2026-10-24 per the owner's directive).
   const hasZeroContract =
     chain.contracts.length > 0 && /^0x0+$/.test(chain.contracts[0].address);
   if (hasCanonical) return "live";

@@ -1,6 +1,6 @@
 # MTQΣ — The Global Purchasing Power Unit
 
-A closed-loop monetary architecture pilot — GFB Index (5-currency basket), gold-collateralized reserve at 110%, mint/redeem priced against the index. Deployed on 4 testnets (Monad, Arc, Robinhood, Solana).
+A closed-loop monetary architecture pilot — GFB Index (5-currency basket), gold-collateralized reserve at 110%, mint/redeem priced against the index. Deployed on 3 testnets (Monad, Arc, Solana devnet).
 
 ## Quick start
 ```bash

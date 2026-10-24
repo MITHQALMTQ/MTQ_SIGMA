@@ -10,7 +10,7 @@
 // item launches the Pilot Command Center at its matching section (every
 // target is a real terminal screen, nothing fabricated). The honest status
 // register dialog remains available inside each menu ("Status register").
-// The chain selector is now a real popover (4 testnets + Networks link)
+// The chain selector is now a real popover (3 testnets + Networks link)
 // instead of a dead button.
 import { useEffect, useRef, useState, type ReactNode } from "react";
 import { Menu, ChevronDown, Rocket, Wallet, ClipboardCheck, ArrowUpRight } from "lucide-react";
@@ -52,7 +52,7 @@ const NAV_MENUS: NavMenu[] = [
     which: "developers",
     label: "Developers",
     items: [
-      { kind: "launch", label: "Contract Registry", hint: "4 testnets + mainnet targets, canonical addresses", section: "contracts" },
+      { kind: "launch", label: "Contract Registry", hint: "3 testnets, canonical addresses", section: "contracts" },
       { kind: "launch", label: "Testnet Networks", hint: "Chains · RPC · explorers · oracles", section: "networks" },
       { kind: "launch", label: "Developer Reference & API", hint: "40 read-only endpoints + verification", section: "developers" },
       { kind: "dialog", label: "Status register", hint: "Deployment & test evidence summary", which: "developers" },
@@ -93,12 +93,11 @@ const linkCls = (isActive: boolean) =>
     isActive ? "bg-white/[0.07] text-white" : "text-slate-300 hover:bg-white/[0.05] hover:text-white"
   }`;
 
-/* The four live testnets (verbatim registry facts — read-only verified; the
+/* The three live testnets (verbatim registry facts — read-only verified; the
    same registry that serves /api/contracts). */
 const TESTNETS = [
   { label: "Monad Testnet", chainId: "10143", note: "9 contracts + wallet, code verified" },
   { label: "Arc Testnet", chainId: "5042002", note: "9 contracts, native USDC (18 dec)" },
-  { label: "Robinhood Chain Testnet", chainId: "46630", note: "10 contracts, MTQΣ token live-read" },
   { label: "Solana Devnet", chainId: "devnet", note: "SPL mint GAGRdrY6…, decimals 18" },
 ] as const;
 
@@ -300,7 +299,13 @@ export function LandingNav({
               }}
             >
               <span className="lp-chain-dot" aria-hidden />
-              Monad Testnet
+              {/* 24-e-2: the static face previously read "Monad Testnet" (implying
+                  one selected network) while the popover honestly lists all 3
+                  testnets — the face now summarizes, sized down slightly to keep
+                  the pill layout safe on md screens. */}
+              <span className="whitespace-nowrap text-[0.68rem] xl:text-[0.78rem]">
+                3 Testnets Live
+              </span>
               <ChevronDown
                 className={`size-3.5 text-slate-400 transition-transform ${chainOpen ? "rotate-180" : ""}`}
                 aria-hidden
@@ -336,7 +341,7 @@ export function LandingNav({
                         <ArrowUpRight className="size-3 shrink-0 text-cyan-300" aria-hidden />
                       </span>
                       <span className="mt-0.5 block truncate text-[0.66rem] text-slate-400">
-                        Full registry: 4 testnets + 2 mainnet targets (pending deploy)
+                        Full registry: 3 testnets (Monad · Arc · Solana devnet)
                       </span>
                     </span>
                   </button>

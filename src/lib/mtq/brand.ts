@@ -143,7 +143,7 @@ export const BRAND_VOICE = {
   coreObjective:
     "The Adaptive Reference Basket defines what one MTQΣ references. Under the v3.0 no-conventional-reserve objective (Gate B, D-13.3–D-13.7 open) there is no reserve portfolio — the legacy v1/v2 pilot-ledger path is retained, labeled.",
   statusDeclaration: "Candidate for public testing — NOT production-authorized",
-  designConstraint: "Designed for Sharia review (interest-free, asset-referencing, non-speculative)",
+  designConstraint: "Designed for Sharia review (interest-free, basket-referencing, non-speculative)",
 } as const;
 
 // === Logo mark description (CURRENT — platform-unified) ===

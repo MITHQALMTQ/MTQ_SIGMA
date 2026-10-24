@@ -1,5 +1,6 @@
 // MTQΣ — Dashboard Section
-// Renders all 22 existing MTQ components in the original page.tsx order.
+// Renders all 27 existing MTQ components (26 imported + shared BrandPrinciples)
+// in the original page.tsx order.
 // Fetches snapshot, oracle, registry, trials on mount (with 4s polling for snapshot).
 // Shows a boot skeleton during the first fetch.
 
@@ -411,7 +412,7 @@ export function DashboardSection({
                   Open Mint simulator →
                 </button>
               ) : (
-                <span className="mt-auto text-[0.72rem] text-white/40">Terminal → User Operations → Mint</span>
+                <span className="mt-auto text-[0.72rem] text-white/40">Terminal → Operations → Mint Simulator</span>
               )}
             </Panel>
           </Reveal>
@@ -437,7 +438,7 @@ export function DashboardSection({
                   Open Redeem simulator →
                 </button>
               ) : (
-                <span className="mt-auto text-[0.72rem] text-white/40">Terminal → User Operations → Redeem</span>
+                <span className="mt-auto text-[0.72rem] text-white/40">Terminal → Operations → Redeem Simulator</span>
               )}
             </Panel>
           </Reveal>
@@ -477,7 +478,8 @@ export function DashboardSection({
                 <div className="text-[0.85rem] text-white/90">
                   {ALL_CHAINS.length} networks ·{" "}
                   {ALL_CHAINS.reduce((a, c) => a + c.contracts.length, 0)} registry entries ·
-                  4 testnets live · 2 mainnet placeholders (pending deploy, zero addresses)
+                  3 testnets live (Monad · Arc · Solana devnet) — registry contains only the
+                  owner-declared current deployments
                 </div>
                 <p className="mt-1.5 text-[0.7rem] text-white/55 leading-relaxed max-w-2xl">
                   Compact pointer — canonical MTQΣ addresses, per-chain ecosystem contracts, explorer
@@ -532,7 +534,7 @@ export function DashboardSection({
         right={
           <Pill tone="gold">
             <GlowDot color="gold" size="h-1.5 w-1.5" />
-            16 parameters · 6 calc
+            16 parameters · 4 lineage
           </Pill>
         }
       >

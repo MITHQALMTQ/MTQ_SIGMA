@@ -121,10 +121,12 @@ const SUBSYSTEMS: Subsystem[] = [
     category: "Implementation",
   },
   {
+    // 24-e-2: the "feature-flagged off" claim was FALSE — USE_MARP_EXECUTION
+    // is TRUE and MARP is the ACTIVE simulated-pilot route.
     name: "MARP execution",
-    status: "PARTIAL",
+    status: "ACTIVE (simulated-pilot route)",
     color: "AMBER",
-    evidence: "engine.ts has applyMarpRebalance; feature-flagged off (USE_MARP_EXECUTION in pilot-state.ts)",
+    evidence: "engine.ts::applyMarpRebalance; USE_MARP_EXECUTION=true — per-component MARP is the active simulated-pilot execution route (legacy §7 path advisory-only); not production-authorized",
     category: "Implementation",
   },
   {
@@ -135,10 +137,13 @@ const SUBSYSTEMS: Subsystem[] = [
     category: "Implementation",
   },
   {
+    // 24-e-2: the V2-era "audit verified 0x5A7 (7 of 11 bits)" figure is
+    // superseded by the V3 audit verdicts (all 11 bits) rendered in
+    // AuditFindings — the honest blocker is that V3 is NOT DEPLOYED.
     name: "Honest status",
     status: "REQUIRES EVIDENCE",
     color: "AMBER",
-    evidence: "getHonestStatus claims 0x7FF; audit verified 0x5A7 (7 of 11 bits); needs deployment + test evidence",
+    evidence: "V3 source claims 0x7FF; AuditFindings' bit-by-bit verdicts mark all 11 truthfully earned in the V3 contract source — but it is NOT DEPLOYED, so on-chain + test evidence remains pending",
     category: "Implementation",
   },
   {
@@ -281,7 +286,7 @@ const GATES: Gate[] = [
     number: 2,
     name: "P0 fixes",
     status: "PASS",
-    detail: "All 4 P0 fixes applied in BOTH the TS engine (chain-index.ts, state-machine.ts, NAV redemption, 6 states, 4 governance layers) AND the V3 contract source (MTQSigmaV2.sol, 1467 lines, compiles clean with solcjs). V3 is source-ready pending deploy (needs testnet ETH).",
+    detail: "All 4 P0 fixes applied in BOTH the TS engine (chain-index.ts, state-machine.ts, NAV redemption, 6 states, 4 governance layers) AND the V3 contract source (MTQSigmaV2.sol (1,622 lines) compiles clean with solcjs). V3 is source-ready pending deploy (needs testnet ETH).",
   },
   {
     number: 3,
@@ -494,8 +499,11 @@ export function ProductionReadinessDashboard() {
             </h4>
           </div>
           <p className="text-[0.72rem] text-white/55 mb-3 leading-relaxed">
-            All 5 gates must pass before any mainnet deployment approval. Gate 1 (chain-linking)
-            is the only one complete. The protocol is honestly a strong pilot — but{" "}
+            {/* 24-e-2: matches the GATES array below (3 PASS · 2 NOT_STARTED) and the
+                3-of-5 verdict — "Gate 1 is the only one complete" was stale. */}
+            All 5 gates must pass before any mainnet deployment approval. Gates 1–3 (chain-linking,
+            P0 fixes, §23 validation) are complete; Gates 4–5 (independent audit, genesis +
+            governance) are not started. The protocol is honestly a strong pilot — but{" "}
             <span className="text-mtqs-rose/90 font-medium">NOT production-authorized</span>.
           </p>
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">

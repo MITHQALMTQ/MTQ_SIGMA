@@ -27,7 +27,7 @@ const NODES: Record<string, Node> = {
 };
 
 const EDGES: Array<{ from: string; to: string; label: string; dash?: "fast" | "slow"; reverse?: boolean }> = [
-  { from: "gfb",   to: "price", label: "P_MTQ = GFB_t", dash: "fast" },
+  { from: "gfb",   to: "price", label: "P_MTQ = I_t × PAR", dash: "fast" },
   { from: "price", to: "liab",  label: "L = S·P_MTQ",   dash: "fast" },
   { from: "liab",  to: "nav",   label: "RR = NAV / L",  dash: "slow" },
   { from: "nav",   to: "mint",  label: "W_target",      dash: "slow" },
@@ -38,7 +38,7 @@ const EDGES: Array<{ from: string; to: string; label: string; dash?: "fast" | "s
 export function ClosedLoopMap({ snapshot }: { snapshot: MetricsSnapshot | null }) {
   const edgeValue = (label: string): string => {
     if (!snapshot) return "—";
-    if (label === "P_MTQ = GFB_t") return fmtFixed(snapshot.mtqPrice, 4);
+    if (label === "P_MTQ = I_t × PAR") return fmtFixed(snapshot.mtqPrice, 4);
     if (label === "L = S·P_MTQ") return fmtUsdCompact(snapshot.liability);
     if (label === "RR = NAV / L")
       return Number.isFinite(snapshot.reserveRatio) ? fmtRatio(snapshot.reserveRatio) : "∞";

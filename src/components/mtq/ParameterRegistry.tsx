@@ -23,17 +23,17 @@ const PARAMS: ParamRow[] = [
   { name: "RR Stress Floor", value: "1.05", unit: "ratio", layer: "Monetary", authority: "DAO 51%", timelock: "48h", status: "GOVERNED" },
   { name: "RR Hard Floor", value: "1.00", unit: "ratio", layer: "Constitutional", authority: "7/7 Multi-Sig", timelock: "90 days", status: "IMMUTABLE" },
   { name: "LCR Target", value: "1.00", unit: "ratio", layer: "Risk", authority: "Risk Council 4/7", timelock: "24h", status: "GOVERNED" },
-  { name: "Mint Fee", value: "0.10%", unit: "bps", layer: "Monetary", authority: "DAO 51%", timelock: "48h", status: "GOVERNED" },
-  { name: "Redeem Fee (Normal)", value: "0.15%", unit: "bps", layer: "Monetary", authority: "DAO 51%", timelock: "48h", status: "GOVERNED" },
-  { name: "Redeem Fee (Stress)", value: "0.50%", unit: "bps", layer: "Risk", authority: "Risk Council 4/7", timelock: "24h", status: "GOVERNED" },
-  { name: "Redeem Fee (Defensive)", value: "1.00%", unit: "bps", layer: "Risk", authority: "Risk Council 4/7", timelock: "24h", status: "GOVERNED" },
+  { name: "Mint Fee", value: "0.10%", unit: "% per tx", layer: "Monetary", authority: "DAO 51%", timelock: "48h", status: "GOVERNED" },
+  { name: "Redeem Fee (Normal)", value: "0.15%", unit: "% per tx", layer: "Monetary", authority: "DAO 51%", timelock: "48h", status: "GOVERNED" },
+  { name: "Redeem Fee (Stress)", value: "0.50%", unit: "% per tx", layer: "Risk", authority: "Risk Council 4/7", timelock: "24h", status: "GOVERNED" },
+  { name: "Redeem Fee (Defensive)", value: "1.00%", unit: "% per tx", layer: "Risk", authority: "Risk Council 4/7", timelock: "24h", status: "GOVERNED" },
   { name: "Smoothing ρ (Normal/Stress)", value: "0.50 / 0.75", unit: "fraction", layer: "Risk", authority: "Risk Council 4/7", timelock: "24h", status: "GOVERNED" },
   { name: "Slippage Tolerance (τ_user / per-class)", value: "0.50% / 0.5–1.5%", unit: "fraction", layer: "Risk", authority: "Risk Council 4/7", timelock: "24h", status: "GOVERNED" },
   { name: "Max Daily Turnover", value: "5.00%", unit: "% NAV", layer: "Risk", authority: "Risk Council 4/7", timelock: "24h", status: "GOVERNED" },
   { name: "Direction Lock", value: "24h same-direction", unit: "hours", layer: "Constitutional", authority: "7/7 Multi-Sig", timelock: "90 days", status: "IMMUTABLE" },
   { name: "De-peg Window", value: "12h", unit: "hours", layer: "Risk", authority: "Risk Council 4/7", timelock: "24h", status: "GOVERNED" },
   { name: "Admissibility Envelopes", value: "per-component (Gold 20-32%)", unit: "% per component", layer: "Constitutional", authority: "7/7 Multi-Sig", timelock: "90 days", status: "IMMUTABLE" },
-  { name: "Max Weight Velocity", value: "0.5%", unit: "% per update", layer: "Risk", authority: "Risk Council 4/7", timelock: "24h", status: "GOVERNED" },
+  { name: "Max Weight Velocity", value: "0.2–0.5% (per-component caps, §8.3)", unit: "% per update", layer: "Risk", authority: "Risk Council 4/7", timelock: "24h", status: "GOVERNED" },
 ];
 
 const LAYER_COLORS: Record<string, string> = {

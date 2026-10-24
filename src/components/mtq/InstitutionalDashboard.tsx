@@ -126,7 +126,9 @@ function SectionA() {
         </p>
       </Panel>
       <Panel className="p-5">
-        <div className="mb-2 flex items-center gap-2"><GlowDot color="gold" size="h-2 w-2" /><h4 className="text-sm font-semibold text-white/90">All {r.institutionalGates.length} gates (0 passed)</h4></div>
+        {/* 24-e-2: passed count is derived from the same institutionalGatesSummary the
+            bar above renders — previously a hardcoded "(0 passed)". */}
+        <div className="mb-2 flex items-center gap-2"><GlowDot color="gold" size="h-2 w-2" /><h4 className="text-sm font-semibold text-white/90">All {r.institutionalGates.length} gates ({gs.passed} passed)</h4></div>
         <ScrollList rows={r.institutionalGates.map((g) => (
           <div key={g.id} className="grid grid-cols-[auto_minmax(0,2fr)_minmax(0,3fr)] gap-2 items-center">
             <span className="font-mono text-[0.65rem] text-mtqs-gold/75">{g.id}</span>

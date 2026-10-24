@@ -18,6 +18,17 @@
 //   • The two KNOWN compromised literals (C-045-a / C-045-b fingerprints) are
 //     always flagged regardless of context — if one reappears anywhere in the
 //     tree this gate turns red.
+//   • 2026-10-24 OWNER AMENDMENT (local secret stores): the protocol owner
+//     explicitly re-supplied the C-045-a deployer key and instructed that it
+//     live in the repo-root .env (see CRITICAL-PRIVATE-KEY-ROTATION.md
+//     addendum + worklog Task 23). Whole-tree scans therefore skip the
+//     OWNER-DESIGNATED LOCAL SECRET STORES (.env*, upload/private_key.txt)
+//     — but ONLY when `git check-ignore` confirms at scan time that the file
+//     is actually ignored (fail-closed: tracked files / git-unavailable →
+//     still scanned). `--staged` and targeted subtree scans keep FULL force:
+//     force-adding .env or placing key material ANYWHERE else still blocks.
+//     Storage is NOT revocation — the C-045-a on-chain rotation package
+//     (audit-work/task12/D4) remains the actual fix.
 //   • Honest scope: this scanner detects SECRET-SHAPED patterns in TEXT files.
 //     A clean scan does NOT prove that no external copy of any secret exists,
 //     and does NOT revoke any exposed key (Task 11 D2 §1.4).
@@ -36,7 +47,7 @@
 // ============================================================================
 
 import { readFileSync, readdirSync, statSync, existsSync } from "node:fs";
-import { join, relative, isAbsolute } from "node:path";
+import { join, relative, isAbsolute, resolve } from "node:path";
 import { execFileSync } from "node:child_process";
 
 // ---------------------------------------------------------------------------
@@ -317,6 +328,41 @@ function isAllowed(allowlist: AllowlistEntry[], rel: string, rule: RuleId): bool
 }
 
 // ---------------------------------------------------------------------------
+// §3.5  Owner-designated LOCAL SECRET STORES (2026-10-24 owner instruction)
+// ---------------------------------------------------------------------------
+// The protocol owner explicitly re-supplied the C-045-a deployer key
+// (upload/private_key.txt) on 2026-10-24 and instructed that it live in the
+// repo-root .env — the standard local secret store, gitignored by this repo
+// (.gitignore: .env, .env.local, .env.*.local, upload/private_key.txt,
+// upload/*.txt). This amends the Task-12 posture ("no key material may be
+// handled inside this repository or any AI environment") by the owner's own
+// authority: the gate's contract is now "key material never enters TRACKED
+// files or git history; the owner-designated local stores are where secrets
+// are supposed to live."
+//   • Applies ONLY to whole-tree scans rooted at the repo root (worktree /
+//     self path scan). `--staged` keeps full force (force-adding .env still
+//     blocks) and targeted subtree scans keep full force.
+//   • FAIL-CLOSED: a store is skipped ONLY when `git check-ignore` CONFIRMS
+//     the file is actually ignored at scan time — tracked files or a missing
+//     git binary mean the file is scanned with every rule.
+const OWNER_LOCAL_SECRET_STORE_RE = /^(\.env(\..*)?|upload\/private_key\.txt)$/;
+
+function isOwnerLocalSecretStore(root: string, rel: string): boolean {
+  if (!OWNER_LOCAL_SECRET_STORE_RE.test(rel)) return false;
+  try {
+    execFileSync("git", ["check-ignore", "-q", "--", rel], { cwd: root, stdio: "ignore" });
+    return true; // exit 0 → confirmed git-ignored
+  } catch {
+    return false; // not ignored (or git unavailable) → scan it, fail-closed
+  }
+}
+
+function filterOwnerLocalSecretStores(root: string, files: string[], wholeTree: boolean): string[] {
+  if (!wholeTree) return files;
+  return files.filter((f) => !isOwnerLocalSecretStore(root, relative(root, f)));
+}
+
+// ---------------------------------------------------------------------------
 // §4  Scan drivers
 // ---------------------------------------------------------------------------
 
@@ -351,7 +397,7 @@ function scanFiles(root: string, files: string[]): ScanResult {
 }
 
 export function scanWorktree(root: string): ScanResult {
-  return scanFiles(root, collectFiles(root));
+  return scanFiles(root, filterOwnerLocalSecretStores(root, collectFiles(root), true));
 }
 
 export function scanPath(root: string, target: string): ScanResult {
@@ -359,8 +405,14 @@ export function scanPath(root: string, target: string): ScanResult {
   let st;
   try { st = statSync(abs); } catch { return { scannedFiles: 0, findings: [], suppressed: 0, errors: [{ file: target, error: "path not found" }] }; }
   const files: string[] = [];
-  if (st.isDirectory()) collectFiles(abs, files);
-  else files.push(abs);
+  if (st.isDirectory()) {
+    collectFiles(abs, files);
+    // Whole-tree self-scan (target resolves to the scan root) → the
+    // owner-designated local secret stores are skipped (git-ignored-verified);
+    // any other subtree keeps full force.
+    const wholeTree = resolve(abs) === resolve(root);
+    return scanFiles(root, filterOwnerLocalSecretStores(root, files, wholeTree));
+  }
   return scanFiles(root, files);
 }
 

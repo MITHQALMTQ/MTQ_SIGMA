@@ -1,5 +1,5 @@
 // MTQΣ — Asset Admission Registry (§5)
-// 9 admitted assets across 3 USD issuers + 1 EUR issuer + 2 gold issuers
+// 9 registry records (6 admitted · 3 governance-pending) across 3 USD issuers + 1 EUR issuer + 2 gold issuers
 // (Circle/Paxos/Tether), with 8-criteria checklist + state badge + concentration
 // report.
 //
@@ -252,6 +252,8 @@ export function AssetRegistry({
     (acc, c) => (c.sharePct > (acc?.sharePct ?? 0) ? c : acc),
     null as ConcentrationReport | null,
   );
+  const activeCount = (registry ?? []).filter((a) => a.state === "ACTIVE").length;
+  const watchCount = (registry ?? []).filter((a) => a.state === "WATCH").length;
 
   return (
     <div className="space-y-5">
@@ -263,7 +265,7 @@ export function AssetRegistry({
                 Genesis Asset Registry · §5.4.2
               </div>
               <div className="text-[0.7rem] text-white/55">
-                {registry?.length ?? 0} admitted assets · 8 eligibility criteria · state machine ACTIVE/WATCH/RESTRICTED/EJECTED
+                {registry?.length ?? 0} registry records · {activeCount} admitted (ACTIVE) · {watchCount} governance-pending (WATCH) · 8 eligibility criteria · state machine ACTIVE/WATCH/RESTRICTED/EJECTED
               </div>
             </div>
             <Pill tone="amber">
@@ -288,7 +290,7 @@ export function AssetRegistry({
                   : "Resolved Finding — issuer concentration breach (§5.6) · fixed"}
               </div>
               <p className="text-[0.75rem] text-white/55 leading-relaxed">
-                The v1.0 genesis mapping (USD → USDC, EUR → EURC, both Circle) placed Circle at
+                The legacy v1.2 genesis mapping (USD → USDC, EUR → EURC, both Circle) placed Circle at
                 ~54% of NAV, breaching the §5.6 30% issuer concentration limit. The registry now
                 admits 3 USD issuers (USDC/Circle + USDP/Paxos + USDT/Tether) and 2 gold issuers
                 (PAXG/Paxos + XAUT/Tether); the §5.6 optimizer splits USD 3-way and gold 50/50

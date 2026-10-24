@@ -110,13 +110,17 @@ export const HERO_PANELS = [
     id: "cross-chain",
     icon: "link" as const,
     title: "Cross-Chain Interoperability",
-    subtitle: "More Chains. More Access.",
+    // 24-e-2: aspirational subtitle replaced — cross-chain movement is paused
+    // by governance (X-1); the honest posture is a stated design goal.
+    subtitle: "Design goal — movement paused by governance (X-1).",
   },
   {
     id: "community",
     icon: "users" as const,
     title: "Community Governance",
-    subtitle: "Your Voice. Our Future.",
+    // 24-e-2: aspirational subtitle replaced — no voting portal exists and the
+    // governance councils are not yet constituted (OD-3 open).
+    subtitle: "Design goal — councils not yet constituted (OD-3 open).",
   },
 ] as const;
 
@@ -146,7 +150,7 @@ export const PROTOCOL_CARDS = [
     id: "community",
     icon: "users" as const,
     title: "Community Driven",
-    body: "Governed by you, for a more inclusive financial system.",
+    body: "Designed to be governed by its community (councils specified, not yet constituted).",
   },
 ] as const;
 
@@ -162,15 +166,15 @@ export const PROTOCOL_STATS = {
   // Honest tag: these four values are point-in-time verified constants (true
   // against the live registry / evidence register as of the dated baseline),
   // NOT live reads — live values are served in the Pilot Command Center.
-  tag: "STATUS AT HEAD · 2026-10-23 · READ-ONLY VERIFIED",
+  tag: "STATUS AT HEAD · 2026-10-24 · READ-ONLY VERIFIED",
   items: [
     { value: "19", label: "Contracts Verified On-Chain" },
-    { value: "4", label: "Testnets Deployed" },
+    { value: "3", label: "Testnets Deployed" },
     { value: "253/253", label: "Canonical Invariant Tests Passing" },
     { value: "0/7", label: "Release Gates (Evidence Register) Closed — Production Not Authorized" },
   ],
   footnote:
-    "Point-in-time verified values, not live reads (live values are served in the Pilot Command Center terminal). 19 = 9 Monad Testnet (10143) + 9 Arc Testnet (5042002) contracts + 1 Solana devnet SPL mint, each code/account verified by read-only RPC probe. 4 = Monad, Arc, Robinhood testnets + Solana devnet. 253/253 = canonical invariant suite green at the 2026-10-23 baseline: deterministic Layers 1-6+8 re-run fresh 246/246 + Layer-7 7/7 carried from the recorded chunked evidence (six D-13.26 stale-assertion re-pins applied under the owner directive, +3 new invariant assertions; code-quality evidence only — no release authority). 0/7 = the evidence register's release gates (D-5) — a different register from the terminal's §25.5 validation gates (0/11). The reference design's TVL / user-count / uptime figures are not reproduced: they are not real for a shadow-mode testnet pilot.",
+    "Point-in-time verified values, not live reads (live values are served in the Pilot Command Center terminal). 19 = 9 Monad Testnet (10143) + 9 Arc Testnet (5042002) contracts + 1 Solana devnet SPL mint, each code/account verified by read-only RPC probe. 3 = Monad, Arc testnets + Solana devnet (the 2026-10-24 owner-directed registry cleanup removed the Robinhood Chain suite and the Base/Arbitrum placeholders from the registry). 253/253 = canonical invariant suite green at the 2026-10-23 baseline: deterministic Layers 1-6+8 re-run fresh 246/246 + Layer-7 7/7 carried from the recorded chunked evidence (six D-13.26 stale-assertion re-pins applied under the owner directive, +3 new invariant assertions; code-quality evidence only — no release authority). 0/7 = the evidence register's release gates (D-5) — a different register from the terminal's §25.5 validation gates (0/11). The reference design's TVL / user-count / uptime figures are not reproduced: they are not real for a shadow-mode testnet pilot.",
 } as const;
 
 // ---------------------------------------------------------------------------
@@ -183,10 +187,10 @@ export const ECOSYSTEM = {
     { text: "Unified in One Platform.", tone: "gradient" as const },
   ],
   paragraph:
-    "Manage your assets, track performance, and participate in governance — all in a sleek, intuitive interface designed for the next generation of users.",
+    "Track performance, run simulated operations, and follow governance transparency — all in a sleek, intuitive interface designed for the next generation of users.",
   checklist: [
     "Real-time analytics & insights",
-    "Simulated mint/redeem across 4 testnets",
+    "Simulated mint/redeem across 3 testnets",
     // 16c-012: no voting portal exists — the real surface is the Governance
     // transparency view (councils, gates, spec status) in the terminal.
     "Governance transparency & gates view",
@@ -265,7 +269,7 @@ export const WALLET_DIALOG = {
 
 export const VIDEO_DIALOG = {
   title: "Protocol overview",
-  body: "A protocol overview video has not been published. What exists today is the committed evidence package: 13 verification suites re-run at HEAD with committed results — including reproduced critical findings (Genesis Safe 1/1 CRITICAL, C-043, custody: USDC 100% in the deployer EOA) — 49 registered conflicts preserved, and 0 of 7 release gates (evidence register) closed.",
+  body: "A protocol overview video has not been published. What exists today is the committed evidence package: 13 verification suites re-run at the 2026-10-19 verification baseline (b68ccb8) with committed results — including reproduced critical findings (Genesis Safe 1/1 CRITICAL, C-043, custody: USDC 100% in the deployer EOA) — 49 registered conflicts preserved, and 0 of 7 release gates (evidence register) closed.",
 } as const;
 
 // Nav dialogs for Developers / Governance / Resources — condensed truthful
@@ -282,10 +286,10 @@ export const INFO_DIALOGS = [
       { label: "MTQ token identity", value: "name() MITHQAL · symbol() MTQ", status: "ok" as const },
       { label: "On-chain read-only tests", value: "28/28 PASS", status: "ok" as const },
       { label: "EIP-712 digests", value: "4/4 MATCH (digest-level)", status: "ok" as const },
-      { label: "Foundry execution tests", value: "not runnable in sandbox", status: "warn" as const },
+      { label: "Foundry execution tests", value: "CI run FAILS (R-06, pre-existing) · not runnable in this sandbox", status: "warn" as const },
       { label: "Production deploy", value: "NOT AUTHORIZED", status: "fail" as const },
     ],
-    footnote: "Canonical addresses: src/lib/mtq/contracts.ts — re-probed read-only this session; explorer links included per chain.",
+    footnote: "Canonical addresses: src/lib/mtq/contracts.ts — re-probed read-only 2026-10-24; explorer links included per chain.",
   },
   {
     id: "governance",

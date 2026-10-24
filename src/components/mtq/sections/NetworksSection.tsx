@@ -64,9 +64,10 @@ function Cell({ label, children }: { label: string; children: React.ReactNode })
 /* ---------- One chain card ---------- */
 function ChainCard({ chain }: { chain: ChainInfo }) {
   const canonical = CANONICAL_MTQ_ADDRESSES[chain.id];
-  // A chain whose only records are the zero-address placeholder has NO live
-  // deployment (Base / Arbitrum mainnet targets, pending V3 per R3) — derived
-  // from the data, never from a hardcoded chain id.
+  // Defensive: a chain whose only records are the zero-address placeholder
+  // has NO live deployment — derived from the data, never from a hardcoded
+  // chain id. (No current registry chain is placeholder-only: the
+  // Base/Arbitrum mainnet targets were removed from the registry 2026-10-24.)
   const zeroAddr = "0x0000000000000000000000000000000000000000";
   const isPendingOnly = chain.contracts.length > 0 && chain.contracts.every((c) => c.address === zeroAddr);
   const note = canonical?.note ?? chain.contracts[0]?.note;
@@ -214,10 +215,11 @@ export function NetworksSection({
         <Reveal>
           <TruthBanner lines={["TESTNET ONLY", "RESERVE TRADING NOT AUTHORIZED"]}>
             <p className="text-[0.68rem] leading-relaxed text-white/55">
-              Appendix D.1: the v2.0 testnet edition targets Arc, Monad and Solana Devnet.
-              Base and Arbitrum One appear below only as mainnet deployment targets with no
-              live deployment — the pilot operates on testnets, and every network the contracts
-              inhabit must return the same honest status.
+              Appendix D.1: the v2.0 testnet edition targets Arc, Monad and Solana Devnet —
+              the registry contains exactly these three owner-declared deployments (the former
+              Base/Arbitrum mainnet placeholders were removed 2026-10-24). The pilot operates
+              on testnets only, and every network the contracts inhabit must return the same
+              honest status.
             </p>
           </TruthBanner>
         </Reveal>

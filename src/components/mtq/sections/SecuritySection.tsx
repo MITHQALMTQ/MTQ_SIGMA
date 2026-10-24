@@ -208,7 +208,7 @@ export function SecuritySection({ onNavigate: _onNavigate }: { onNavigate: (id: 
                 {canonicalCount} canonical MTQΣ contracts live
               </div>
               <div className="mt-1 text-[0.7rem] text-white/55 leading-relaxed">
-                Monad · Arc · Robinhood · Solana testnets. Bytecode verified per chain in the
+                Monad · Arc · Solana testnets. Bytecode verified per chain in the
                 Investor section.
               </div>
             </Panel>
@@ -280,7 +280,7 @@ export function SecuritySection({ onNavigate: _onNavigate }: { onNavigate: (id: 
           </div>
           <Pill tone="rose">
             <AlertOctagon className="h-3 w-3" aria-hidden="true" />
-            pilot · key rotated post-session
+            pilot · key rotation pending
           </Pill>
         </div>
         <Reveal>
@@ -311,8 +311,8 @@ export function SecuritySection({ onNavigate: _onNavigate }: { onNavigate: (id: 
                 exposed={false}
               />
               <ExposedBadge
-                label="Oracle keys"
-                value="Chainlink + Pyth + Chronicle (3 independent operators)"
+                label="Oracle keys (production target)"
+                value="Chainlink + Pyth + Chronicle (3 independent operators) — adapters compiled, NOT deployed in the pilot; on-chain feeds remain simulated witnesses"
                 exposed={false}
               />
             </div>
@@ -532,11 +532,10 @@ export function SecuritySection({ onNavigate: _onNavigate }: { onNavigate: (id: 
                 <li className="flex gap-2">
                   <CheckCircle2 className="h-3.5 w-3.5 text-mtqs-emerald shrink-0 mt-0.5" aria-hidden="true" />
                   <span>
-                    Asset-referencing: MTQΣ references a real-world asset basket — issued against
-                    settled payment under the v3.0 no-conventional-reserve objective (Gate B open).
-                    It is NOT collateralized by a reserve; the pilot ledger is simulated (G8) with
-                    internal audit only (G1). The legacy v1/v2 path was reserve-collateralized
-                    (simulated pilot reserve).
+                    Asset-referencing (legacy v1/v2 design): the legacy reserve design
+                    collateralized each MTQΣ with audited reserve assets — the v3.0
+                    payment-funded objective (Gate B, open) supersedes it; the pilot reserve is
+                    simulated (G8), audited internally only (G1).
                   </span>
                 </li>
                 <li className="flex gap-2">
@@ -691,7 +690,7 @@ export function SecuritySection({ onNavigate: _onNavigate }: { onNavigate: (id: 
         <Panel className="p-5 sm:p-6 text-center">
           <p className="text-[0.82rem] text-white/55 leading-relaxed max-w-2xl mx-auto mb-4">
             Security posture is honestly disclosed: pilot-grade, key-rotation-pending, Sharia
-            review-pending, audit-PASS. For the full reconciliation, see Docs; for live on-chain
+            review-pending, audit verdict shown live. For the full reconciliation, see Docs; for live on-chain
             verification, see Investors.
           </p>
           <div className="flex flex-wrap items-center justify-center gap-2">

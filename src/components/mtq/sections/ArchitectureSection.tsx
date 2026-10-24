@@ -44,7 +44,7 @@ const DECLARATION_POINTS: { text: string; ref: string }[] = [
 /* §26.8.2 — Final honest status declaration (testnet edition) */
 const HONEST_STATUS_ROWS: { aspect: string; status: string }[] = [
   { aspect: "Production-Ready?", status: "NO — deployed only on testnet (Arc, Monad, Solana Devnet; Appendix D)" },
-  { aspect: "Oracles", status: "MOCKED — all price feeds are simulated for testnet" },
+  { aspect: "Oracles", status: "PILOT SUBSTITUTION — no on-chain oracle feeds consumed on testnet (Oracle.sol ABI unpublished, OD-34); runtime board = live off-chain families (Frankfurter ECB FX · gold-api XAU · Yahoo VIX/DXY) with the 3 consensus sources as disclosed synthetic witnesses (M10)" },
   { aspect: "Assets", status: "MOCKED — all ERC-20 assets are testnet mocks (except native USDC on Arc)" },
   { aspect: "Live Weights (v2.0)", status: "VALIDATION-STAGE — genesis snapshot equals the strategic prior; all subsequent targets are research outputs" },
   { aspect: "Mainnet Deployment", status: "NOT PLANNED — pending the 11 validation gates (§25.5)" },
@@ -214,7 +214,7 @@ const DEPLOYMENT_PHASES: { phase: string; title: string; items: string[]; note?:
       "riskCouncil — 4/7 Multi-Sig; approves MASE submitters and risk parameters.",
       "emergencyCouncil — 4/7 Multi-Sig; emergency controls.",
       "constitutionalCouncil — 7/7 Multi-Sig; envelopes, gates and constitutional changes.",
-      "genesisReserveAddress = the recorded (reported 4/7) Safe on Arc and Monad testnet.",
+      "genesisReserveAddress = the recorded Safe on Arc and Monad testnet (reported 4/7 — on-chain verification 2026-10-19, OD-35: threshold 1/1, sole owner = deployer EOA; reconfiguration to the mandated 4/7 pending, Gate 5 blocked).",
       "coldTreasury = same as the Genesis Reserve on testnet; a separate address on mainnet.",
       "keeper = deployer or a dedicated bot address (MASE submission, sweeps).",
     ],
