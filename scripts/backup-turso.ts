@@ -3,20 +3,33 @@
 // ----------------------------------------------------------------------------
 // Run:   bun run scripts/backup-turso.ts
 //
-// Reads all 5 audit-trail tables from Turso, dumps them to a timestamped
-// JSON file under ./backups/, and (when run in CI with GITHUB_TOKEN set)
-// attaches the backup to a GitHub Release tagged `backup-YYYY-MM-DD`.
+// Reads ALL 9 Turso-resident tables, dumps them to a timestamped JSON file
+// under ./backups/, and (when run in CI with GITHUB_TOKEN set) attaches the
+// backup to a GitHub Release tagged `backup-YYYY-MM-DD`.
 //
-// Tables (matches prisma/schema.prisma):
+// Tables (Turso-resident set — 2026-10-24 extended from 5 → 9):
+//   Audit-trail tables (prisma/schema.prisma):
 //   - PilotTrial
 //   - MetricSample
 //   - DailyStateVector
 //   - RebalancingDecision
 //   - OracleSample
+//   Mbz mirrors (prisma/schema.prisma; also covered by the local all-9-table
+//   backup per 16d-006/007 — included here so a Turso-side wipe is also
+//   recoverable):
+//   - MbzBackingCertificate
+//   - MbzBank
+//   - MbzMintRequest
+//   Legacy table (NOT a Prisma model — created by the retired keeper service,
+//   exists ONLY on Turso; sole-copy evidence, covered by no other backup):
+//   - keeper_audit
+//
+// NOTE: IssuanceEvent is local-SQLite-only (never synced to Turso) and is
+// covered by scripts/backup-sqlite.ts instead.
 //
 // Output file format (pretty-printed JSON for diff-friendliness):
 //   {
-//     "schemaVersion": 1,
+//     "schemaVersion": 2,
 //     "exportedAt": "2026-01-01T03:00:00.000Z",
 //     "tursoUrl": "libsql://…",  // host only — authToken NEVER written
 //     "tables": {
@@ -24,11 +37,17 @@
 //       "MetricSample":        [ {…}, {…}, … ],
 //       "DailyStateVector":    [ {…}, {…}, … ],
 //       "RebalancingDecision": [ {…}, {…}, … ],
-//       "OracleSample":        [ {…}, {…}, … ]
+//       "OracleSample":        [ {…}, {…}, … ],
+//       "MbzBackingCertificate":[ {…}, … ],
+//       "MbzBank":             [ {…}, … ],
+//       "MbzMintRequest":      [ {…}, … ],
+//       "keeper_audit":        [ {…}, … ]
 //     },
 //     "rowCounts": { "PilotTrial": 30, "MetricSample": 0, … },
 //     "totalRows": 30
 //   }
+// (schemaVersion 2 = the 2026-10-24 5→9 table extension; format is purely
+//  additive — older v1 dumps restore with the same per-table logic.)
 //
 // CI upload (when GITHUB_TOKEN env is set):
 //   - Creates a release tagged `backup-YYYY-MM-DD` (idempotent — if the tag
@@ -64,8 +83,19 @@ const TABLES = [
   "DailyStateVector",
   "RebalancingDecision",
   "OracleSample",
+  "MbzBackingCertificate",
+  "MbzBank",
+  "MbzMintRequest",
+  "keeper_audit",
 ] as const;
 type TableName = (typeof TABLES)[number];
+
+// Sort key per table. Every Prisma-managed table has `createdAt`; the legacy
+// keeper_audit table does NOT (its columns are id/tick_at/tick_epoch/…), so it
+// sorts by its INTEGER id (monotonic insertion order) instead.
+const ORDER_KEY: Partial<Record<TableName, string>> = {
+  keeper_audit: "id",
+};
 
 // ---------------------------------------------------------------------------
 // Helpers
@@ -121,7 +151,7 @@ async function backupTurso(): Promise<void> {
 
   console.log(`[backup-turso] Connecting to Turso: ${TURSO_URL.replace(/\?auth=.*/, "")}`);
 
-  // Sanity check: confirm all 5 expected tables exist before dumping.
+  // Sanity check: confirm all 9 expected tables exist before dumping.
   const tablesRes = await client.execute(
     "SELECT name FROM sqlite_master WHERE type='table' AND name NOT LIKE 'sqlite_%' ORDER BY name",
   );
@@ -145,7 +175,10 @@ async function backupTurso(): Promise<void> {
       rowCounts[table] = 0;
       continue;
     }
-    const res = await client.execute(`SELECT * FROM "${table}" ORDER BY "createdAt" ASC`);
+    const orderKey = ORDER_KEY[table] ?? "createdAt";
+    const res = await client.execute(
+      `SELECT * FROM "${table}" ORDER BY "${orderKey}" ASC`,
+    );
     const rows = res.rows.map((r) => normalizeRow(r as unknown as Record<string, unknown>));
     tables[table] = rows;
     rowCounts[table] = rows.length;
@@ -157,7 +190,7 @@ async function backupTurso(): Promise<void> {
   // (never the authToken) into the dump so the backup file is safe to
   // commit to git / ship as a GitHub Release asset if needed.
   const dump = {
-    schemaVersion: 1,
+    schemaVersion: 2,
     exportedAt: new Date().toISOString(),
     tursoUrl: TURSO_URL.replace(/\?auth=.*/, "").replace(/(libsql:\/\/[^/]+).*/, "$1"),
     tables,

@@ -86,7 +86,9 @@ non-200 or take > 5s.
   - **Local:** `backups/turso-backup-YYYY-MM-DD-HHMM.json` (gitignored)
   - **CI artifact:** `turso-backup-<run_id>` (90-day retention in the Actions UI)
   - **GitHub Release:** tag `backup-YYYY-MM-DD` (releases page; permanent until manually deleted)
-- **Tables backed up (5 total, matching `prisma/schema.prisma`):**
+- **Tables backed up (9 total — extended from 5 on 2026-10-24, same-day as
+  the first-ever green CI run; mirrors the all-9-table local policy of
+  16d-006/007 so a Turso-side wipe is fully recoverable):**
   1. `PilotTrial` — every mint/redeem trial simulation
   2. `MetricSample` — **deprecated/reserved** (currently 0 rows — NO writer and
      NO reader; the keeper does not write it and dashboard sparklines render
@@ -95,10 +97,17 @@ non-200 or take > 5s.
   3. `DailyStateVector` — per-tick full monetary state (NAV, RR, LCR, weights, buffer)
   4. `RebalancingDecision` — every evaluateRebalance + applyRebalanceTrade
   5. `OracleSample` — per-pair per-tick oracle consensus result
+  6. `MbzBackingCertificate` — mirror (0 rows on Turso)
+  7. `MbzBank` — mirror (0 rows on Turso)
+  8. `MbzMintRequest` — mirror (0 rows on Turso)
+  9. `keeper_audit` — legacy table of the RETIRED keeper service; NOT a Prisma
+     model and NOT present in local SQLite — its 5,091 rows exist ONLY on
+     Turso and were covered by NO backup before this change (sorted by `id`;
+     the table has no `createdAt` column)
 - **Backup file schema:**
   ```json
   {
-    "schemaVersion": 1,
+    "schemaVersion": 2,
     "exportedAt": "2026-09-14T14:49:55.688Z",
     "tursoUrl": "libsql://mtqs-fortleem.aws-us-east-1.turso.io",
     "tables": { "PilotTrial": [...], "MetricSample": [...], ... },
@@ -109,17 +118,26 @@ non-200 or take > 5s.
 - **Verified:** 2026-09-14 dry run produced a 17MB JSON file with 20,124 rows
   across 5 tables (PilotTrial=30, MetricSample=0, DailyStateVector=5006,
   RebalancingDecision=10058, OracleSample=5030). All rows ordered by `createdAt ASC`.
-- **Required secrets (GitHub Actions → Settings → Secrets):**
-  - `TURSO_DATABASE_URL` — libsql:// URL (read-only DB sufficient)
-  - `TURSO_AUTH_TOKEN` — auth token with read access
+- **2026-10-24 (first-ever green CI run, #40078300306):** with the owner's
+  fresh token sealed into the repo secrets, the workflow completed SUCCESS —
+  release `backup-2026-10-24`, asset `turso-backup-2026-10-24-0830.json`
+  (17.6 MB, 20,380 rows, 5-table era). Post-extension dry run the same day:
+  **25,471 rows across 9 tables** (adds keeper_audit=5,091 sole-copy rows);
+  dump validated parseable + row counts live-matched against the DB.
+- **Required secrets (GitHub Actions → Settings → Secrets) — PROVISIONED
+  2026-10-24 after the owner issued a fresh token (the first chat-shared token
+  arrived corrupted in transit and never worked):**
+  - `TURSO_DATABASE_URL` — libsql:// URL ✓ set
+  - `TURSO_AUTH_TOKEN` — auth token ✓ set (owner-issued, read-write; a
+    read-only token would suffice and can replace it under the same name)
   - (`GITHUB_TOKEN` is auto-provided by GitHub Actions)
 
 ### 2.1.1 Local SQLite backup (this environment — fix 16d-006/16d-007)
 
-The Turso workflow above requires credentials that are **not configured** in
-this environment (no cloud remote, ever — the 2026-10-23T12:55Z artifacts
-were lost when only the manifest survived). The local-path backup that
-actually works here:
+(2026-10-24 update: the Turso workflow's secrets ARE now provisioned repo-side
+and its first green run landed — see §2.1. Until the next scheduled run at
+03:00 UTC, this local path below remains the most recent on-disk artifact;
+the 2026-10-23T12:55Z loss incident is why it exists:)
 
 - **Script:** `scripts/backup-sqlite.ts` (run with `bun run scripts/backup-sqlite.ts`)
 - **Covers ALL 9 tables** (adds `IssuanceEvent` + the three `Mbz*` mirrors

@@ -14,16 +14,21 @@
 # are both unlimited for public repositories). No credit card required.
 #
 # Required secrets (Settings → Secrets and variables → Actions):
-#   - TURSO_DATABASE_URL — libsql://… URL (read-only DB is sufficient)
-#   - TURSO_AUTH_TOKEN   — auth token with read access
+#   - TURSO_DATABASE_URL — libsql://… URL
+#   - TURSO_AUTH_TOKEN   — auth token (read access suffices)
 # (GITHUB_TOKEN is auto-provided by GitHub Actions — no secret needed.)
 #
-# PROVISIONING STATE (2026-10-24): the TURSO_* secrets are NOT yet provisioned
-# on this repo, so every scheduled run currently fails FAIL-CLOSED-LOUD at the
-# script's credential gate. That is INTENTIONAL: a skipped backup must never
-# look green. To make this workflow green: create the two secrets above (use a
-# FRESH Turso token — the token shared in chat on 2026-10-24 was corrupted in
-# transit and is cryptographically unrepairable) and re-run this workflow.
+# PROVISIONING STATE (2026-10-24, updated 08:35Z): BOTH TURSO_* secrets are
+# PROVISIONED (fresh owner-issued token — the earlier chat-shared token was
+# corrupted in transit and was never usable; the replacement validated clean
+# byte-level AND live against the DB before being sealed). First green run:
+# #40078300306 (2026-10-24 08:30Z) — release `backup-2026-10-24`, asset
+# `turso-backup-2026-10-24-0830.json` (5-table era, 20,380 rows). The same
+# day the dump was extended 5 → 9 tables (adds the 3 Mbz mirrors + the
+# sole-copy legacy keeper_audit table), so runs from commit ≥ that change
+# capture all 25,471 Turso-resident rows. NOTE: the provisioned token is
+# read-WRITE (owner-issued); a read-only token would suffice — swapping one
+# in later is a drop-in replacement for the same secret name.
 
 name: Turso Backup
 
