@@ -9069,3 +9069,18 @@ Stage Summary:
 - The owner's three role queries (DEFAULT_ADMIN / MINTER / PAUSER for 0x3C39…8d8c on the MTQ token) are TRUE, live-verified read-only on BOTH chains (and via the app's own /api/onchain endpoints); all 19 contracts code-present with matching bytecode sizes; Solana mint authority = owner wallet.
 - DEPLOYER_PRIVATE_KEY (C-045-a) now lives in .env per owner instruction — disclosed as compromised-history storage, not revocation; the secret-scanning gate was amended (git-ignore-verified local-store exemption, staged scans keep full force) and the key-rotation advisory carries a dated addendum recommending the D4 rotation as the next owner action.
 - All gates green (lint/tsc/no-neon/secret-scan/32 tests), browser E2E green on desktop + mobile, evidence screenshots committed.
+
+---
+Task ID: 23 (addendum — post-push verification, same session)
+Agent: Orchestrator (COO/CTO/CFO/PM)
+Task: Prove the pushed cleanup (commit a6baced) end-to-end: CI, production deployment, Inngest registration, and the hourly automation chain.
+
+Work Log:
+- PUSH: commit a6baced ("feat(contracts): Task 23 — registry cleanup to owner's WHAT-YOU-HAVE-NOW set") → origin/main; staged-mode secret scan (full force, no exemptions) PASS on the exact pushed diff — the C-045-a key is provably absent from git.
+- CI on a6baced: **success** (secret-scan + release-controls/address-book tests + typecheck + lint + no-neon + 32/32 unit tests + honest-status). Foundry Tests: failure — the documented pre-existing owner-side finding R-06, failing identically on every commit (1c4ee5e, 73b6d30…); this change touches no Solidity.
+- VERCEL PRODUCTION: deployment of a6baced live and healthy — /api/health status healthy, engine:true, db:true, commitSha a6baced…; /api/metrics 200 (GFB 1 · price 1 · NORMAL).
+- INNGEST (verify-only, no re-provisioning — done in Tasks 21/22): PUT /api/inngest against the new deployment → {"message":"Successfully registered","modified":true} (HTTP 200) — signing key + serve endpoint intact on the cleanup deploy.
+- 19:00Z NATURAL CRON on the NEW deployment (the decisive automation proof): turso-neon-sync executed at 19:00:09Z — Neon mtq_daily_state_vector 10,210→10,355 (cursor → 18:59:02, live edge), mtq_rebalancing_decision 20,016→21,737 (backfill CONVERGED: cursor → 19:00:09 = newest row), mtq_oracle_sample 10,388→10,790 (cursor → 19:00:09). All three mtq_sync_state cursors updated ~19:00:10Z — the hourly Turso→Neon chain runs unmodified by the registry cleanup.
+
+Stage Summary:
+- Cleanup commit a6baced fully proven in production: CI green, deployment READY+healthy, Inngest re-registered, and the first natural hourly cron after the deploy mirrored all three audit tables to the live edge (RD backfill now converged). No regression anywhere; the ONLY red anywhere remains the documented pre-existing R-06 Foundry failure.
