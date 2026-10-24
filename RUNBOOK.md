@@ -206,18 +206,35 @@ knows it exists and why the DB password does not open it.
 **Owner action COMPLETE (2026-10-24, Task 21): INNGEST_SIGNING_KEY +
 INNGEST_EVENT_KEY provisioned in Vercel** (production/preview/development,
 encrypted) and the `mtq-sigma` app registered in Inngest Cloud — the six
-scheduled functions (keeper tick 15s, sync hourly, backup 03:00 UTC, oracle
-health 5min, FRED refresh hourly, audit prune 6h) now fire against
+scheduled functions (keeper tick every minute, sync hourly, backup 03:00 UTC,
+oracle health 5min, FRED refresh hourly, audit prune 6h) now fire against
 `https://mtq-sigma.vercel.app/api/inngest` with signature verification.
 
-**Run-rate note (honest cost math):** keeper-tick at `*/15s` ≈ 5,760
-runs/day ≈ 172k runs/month on Inngest + ~5.8k Vercel invocations/day — this
-EXCEEDS typical free tiers. If the plan caps out, the scheduled functions
-stop firing (the app still works — request-driven ticking is unaffected).
-Relax the cron in `src/lib/inngest/functions.ts` (keeperTick triggers) and
-re-deploy to throttle. Turso row-I/O at 15s ticks is well under Spark-plan
-limits (~1.8M writes vs 25M/month allowance) but grows the pilot ledger
-~60k rows/day.
+**Run-rate note (honest cost math, post-fix cadence):** keeper-tick every
+minute ≈ 1,440 runs/day ≈ 43k runs/month, oracle-health every 5min ≈ 8.6k
+runs/month, hourly trio ≈ 2.2k/month — **~54k Inngest runs/month total**,
+which brushes against typical free-tier ceilings (check the plan). If the
+plan caps out, scheduled functions stop firing (the app itself still works —
+request-driven ticking is unaffected). To throttle, relax the crons in
+`src/lib/inngest/functions.ts` and re-deploy + re-PUT the serve URL to
+resync. Turso row-I/O at 1-minute ticks is well under Spark-plan limits;
+the pilot ledger grows ~10k rows/day at this cadence.
+
+**Registration + resync (Task 21 findings):**
+- Inngest only supports MINUTE-granularity 5-field crons — the original
+  `*/15 * * * * *` (15s) keeper-tick trigger was invalid and rejected the
+  ENTIRE app registration. Fixed to every minute (`* * * * *`).
+- Registered 2026-10-24T15:28Z via the SDK's unauthenticated PUT sync
+  handshake: `curl -X PUT https://mtq-sigma.vercel.app/api/inngest` →
+  `{"message":"Successfully registered","modified":true}`. All 6 functions
+  synced; keeper-tick + oracle-health verified executing Completed.
+- **Resync after any deploy that changes function definitions** (IDs,
+  triggers, names): re-run the same PUT. Deploys that don't touch function
+  definitions need no resync. (Optional owner hardening: install the Inngest
+  Vercel integration, which resyncs automatically on every deploy.)
+- Verified live: first keeper-tick run 15:29:03Z Completed; production
+  engine ticking (fresh OracleSample rows in Turso within seconds of each
+  heartbeat).
 
 ---
 
