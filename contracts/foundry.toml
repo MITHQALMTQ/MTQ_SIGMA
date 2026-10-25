@@ -20,10 +20,23 @@
 src = "."
 out = "foundry-out"
 libs = ["lib"]
-solc = "0.8.20"
+# SOLC PIN (2026-10-25, task 24): 0.8.36 is the DEPLOYABLE compiler. The
+# previous 0.8.20 pin produced a 30,609 B runtime — and the documented
+# "23,220 B @ runs=200" predated the P1 constructor, which grew the
+# runtime past the 24,576 B EIP-170 limit (24,867 B measured). This
+# profile is the SIZE-FIT deployable build: solc 0.8.36 + via_ir +
+# runs=1 (optimize for deployment size) + bytecode_hash "none" + the
+# compacted §25 statusDeclaration → MTQSigmaV2 = 24,314 B deployed
+# (262 B headroom). The full 30-test suite runs against THIS bytecode —
+# tests verify exactly what deploys. runs=200 would re-break EIP-170.
+solc = "0.8.36"
 optimizer = true
-optimizer_runs = 200
+optimizer_runs = 1
 via_ir = true
+# Size-fit lever (2026-10-25): strip the CBOR+IPFS metadata appendix from
+# deployed bytecode (~58-64 B). Required to fit EIP-170 after the P1
+# constructor growth; verified against the full 30-test suite.
+bytecode_hash = "none"
 
 # Remappings: forge-std is the standard Foundry test library; OpenZeppelin
 # is referenced (as @openzeppelin) for optional ERC-20 helpers and for
@@ -33,28 +46,23 @@ remappings = [
     "forge-std/=lib/forge-std/src/"
 ]
 
-# SKIP (2026-10-24) — the non-deployable v3 DRAFT cluster + the OZ-dependent
-# ecosystem contract are excluded so the Deliverable-J2 suite (the
-# self-contained MTQSigmaV2 30-test suite) compiles hermetically:
-#  - MTQSigmaV3.sol — known non-deployable draft per audit C-044 (runtime
-#    40,500 B > 24,576 B EIP-170 limit) with GENUINE source errors (Error
-#    7364 destructuring arity, 9574 bytes32→MintRequest conversion, 9582
-#    missing member DailyRedeemCapReset — CI runs e01ce89/32a7f39).
-#  - test/MTQSigmaV3.t.sol + adapters/{Chainlink,Chronicle,Pyth}Adapter.sol
-#    — import FROM MTQSigmaV3.sol (the adapters pull in IOracleAdapter from
-#    the draft), re-adding it to the build graph despite the skip above.
+# SKIP (FINAL 2026-10-25 — deploy-implementation task 24): the v3-draft
+# cluster is FULLY BACK IN THE BUILD and green — MTQSigmaV3.sol compiles
+# (the three documented source errors were confined to its TEST FILE and
+# are fixed: the public-mapping getter destructures at test lines 315/349;
+# error 9582 no longer reproduces), its 26 workflow/stability tests pass,
+# and the adapters compile at deployable sizes. Still excluded:
 #  - MtqEcosystem.sol — the only file importing @openzeppelin (not vendored;
-#    owner-side prerequisite per the foundry.toml.example header).
-# The whole v3-draft cluster returns to the build when the owner commissions
-# the v3 contract remediation (R-06) — remove these skips then. Contract
-# sources are deliberately NOT edited here.
+#    owner-side prerequisite per the foundry.toml.example header). NOTE: a
+#    plain `forge install OpenZeppelin/openzeppelin-contracts` is NOT a
+#    working prerequisite — the released fv/harnesses/*.sol files carry
+#    unresolvable ../patched/ imports and break any build that globs lib/
+#    (observed with v5.7.0 here); vendor a minimal OZ subset or skip fv/**
+#    when adding it. The DRAFT contract itself remains NON-DEPLOYABLE per
+#    audit C-044 (40,408 B > 24,576 B EIP-170) — documented; the canonical
+#    deployable contract is MTQSigmaV2 (24,314 B, 30/30 tests).
 skip = [
     "MtqEcosystem.sol",
-    "MTQSigmaV3.sol",
-    "test/MTQSigmaV3.t.sol",
-    "adapters/ChainlinkAdapter.sol",
-    "adapters/ChronicleAdapter.sol",
-    "adapters/PythAdapter.sol",
 ]
 
 # Test configuration: longer timeout for the S5 stochastic fuzz tests

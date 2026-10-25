@@ -28,15 +28,13 @@ jobs:
         with:
           version: nightly
 
-      - name: Prerequisite gate (owner-side P1–Pn — honest skip, not a fake pass)
-        # The 30-test suite (contracts/MTQSigmaV2.t.sol) CANNOT compile until the
-        # protocol owner applies the documented prerequisites (P1: USDC
-        # constructor, P2: INDEX_BASE_DENOMINATOR assignment, …) to
-        # MTQSigmaV2.sol — see the foundry.toml.example header + the test file
-        # header + audit-work/task16/MASTER-REPORT.md (C-044).
-        # Until then this workflow reports the PENDING state honestly instead
-        # of failing with a misleading compile error on every push. The moment
-        # the prerequisites are applied, the full forge suite runs for real.
+      - name: Prerequisite gate (P1 constructor check — honest skip if absent)
+        # UPDATED 2026-10-25 (task 24 / R-06 CLOSED): P1 is long applied and the
+        # full suite is GREEN — 30/30 MTQSigmaV2.t.sol + 26/26 draft
+        # workflow/stability = 56/56, plus the deployable-size build verified at
+        # 24,314 B (C-044 remediated; see foundry.toml SOLC PIN). The gate is
+        # retained fail-closed for any future revision that drops the
+        # constructor.
         id: prereq
         working-directory: contracts
         run: |

@@ -213,6 +213,23 @@ contract MTQSigmaV3LiqMgmtTest is Test {
         mtq.verifyBackingCertificate(certId);
     }
 
+    /// @dev Rebuild a MintRequest struct from the flattened public-mapping
+    ///      getter (auto-getters return every member of every nested struct
+    ///      as a flat value tuple). Fixed 2026-10-25 — the previous direct
+    ///      struct assignment was a compile error (7364/9574).
+    function _getMintRequest(bytes32 requestId) internal view returns (MTQSigmaV3.MintRequest memory req) {
+        (
+            req.requestId,
+            req.request,
+            req.state,
+            req.createdAt,
+            req.authorizedAt,
+            req.mintedAt,
+            req.mintedAmount,
+            req.rejectReason
+        ) = mtq.mintRequests(requestId);
+    }
+
     /// @dev Submit a mint request as the bank and advance the workflow all
     ///      the way through BM-15 AUTHORIZED. Returns the requestId.
     ///      Caller still needs to call executeMint(requestId, minMinted).
@@ -312,7 +329,10 @@ contract MTQSigmaV3LiqMgmtTest is Test {
         // At NORMAL (throttle 1.0) and P_MTQ = $1.0, minted = amountUsd.
         assertEq(minted, amountUsd, "minted == amountUsd at P_MTQ=1.0, throttle=1.0");
         assertEq(mtq.balanceOf(BANK), bankBefore + minted, "bank balance credited");
-        MTQSigmaV3.MintRequest memory req = mtq.mintRequests(requestId);
+        // Public-mapping getters FLATTEN nested structs into a value tuple
+        // (fixed 2026-10-25: the old `MintRequest memory req = mtq.mintRequests(id)`
+        // form failed to compile — error 7364/9574). Destructure, rebuild, check.
+        MTQSigmaV3.MintRequest memory req = _getMintRequest(requestId);
         assertEq(uint256(req.state), uint256(MTQSigmaV3.WorkflowState.BM16_MINTED), "state == BM16_MINTED");
     }
 
@@ -346,7 +366,7 @@ contract MTQSigmaV3LiqMgmtTest is Test {
 
         // The request advanced to BM-15 (the cap is NOT checked during the
         // workflow — only at executeMint). executeMint must reject.
-        MTQSigmaV3.MintRequest memory req = mtq.mintRequests(requestId);
+        MTQSigmaV3.MintRequest memory req = _getMintRequest(requestId);
         assertEq(uint256(req.state), uint256(MTQSigmaV3.WorkflowState.BM15_AUTHORIZED), "workflow reached BM-15");
 
         vm.expectRevert(MTQSigmaV3.Err94_PerTxCapExceeded.selector);

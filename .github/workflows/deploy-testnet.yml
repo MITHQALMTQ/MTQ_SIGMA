@@ -1,0 +1,190 @@
+name: Testnet Deployment (canonical MTQΣ + full role architecture)
+
+# Owner-triggered deployment of the CANONICAL contract generation.
+#
+# WHAT IT DEPLOYS: MTQSigmaV2 (24,314 B, 56/56 Foundry tests) + 3 oracle
+# adapters + the ordered genesis sequence + EVERY role granted to its
+# designated holder + on-chain verification battery + deployment JSON.
+# See scripts/deploy-canonical.ts (dry-run by default, zero transactions).
+#
+# ⚠️ SECURITY POSTURE (C-045-a / CRITICAL-PRIVATE-KEY-ROTATION.md):
+#   - The PRIOR deployer key (0x3C39…c8d8c) is COMPROMISED — the deploy
+#     script hard-aborts if it is ever detected. Use a FRESH key.
+#   - The fresh key enters ONLY as the repository secret
+#     DEPLOYER_PRIVATE_KEY (GitHub encrypted secret store — satisfies the
+#     ROLE_ROTATION.md §7 secrets-manager rule: the key never touches the
+#     repo, the chat, or any shell history). Fund it from the target
+#     testnet faucet BEFORE the first run.
+#   - Grant-before-revoke admin rotation to the Safe runs only when
+#     rotate_admin=true AND safe_address is provided; it verifies the
+#     grant BEFORE revoking the deployer (never leaves the contract
+#     adminless).
+#
+# FIRST-RUN CHECKLIST (one-time, in this order):
+#   1. Create a fresh EVM key OUTSIDE any AI/chat environment.
+#   2. Fund it from the target testnet faucet (Monad / Arc / Robinhood).
+#   3. Repo Settings → Secrets and variables → Actions → new secret:
+#      DEPLOYER_PRIVATE_KEY = <fresh funded key>
+#   4. Run this workflow (Actions tab → "Testnet Deployment" → Run
+#      workflow), filling the public addresses (USDC, Safe, councils,
+#      keeper/oracle/pauser/DAO, reserve/genesis holders).
+#   5. The deployment JSON lands as a workflow artifact — commit it to
+#      contracts/deployments/ and the Pilot Command Center picks it up.
+
+on:
+  workflow_dispatch:
+    inputs:
+      chain_name:
+        description: "Target network display name (e.g. Arc Testnet)"
+        required: true
+      chain_id:
+        description: "Target chain ID (e.g. 5042002)"
+        required: true
+      rpc_url:
+        description: "JSON-RPC endpoint for the target testnet"
+        required: true
+      usdc_address:
+        description: "USDC (6-dec) collateral address on the target chain"
+        required: true
+      keeper_address:
+        description: "KEEPER_ROLE holder (MARP keeper / MASE submitter)"
+        required: true
+      oracle_address:
+        description: "ORACLE_ROLE holder (oracle committee / adapter admin)"
+        required: true
+      pauser_address:
+        description: "PAUSER_ROLE holder (emergency pauser)"
+        required: true
+      dao_admin_address:
+        description: "ADMIN_ROLE holder (DAO / timelock)"
+        required: true
+      dao_address:
+        description: "§2.7 governance body — DAO"
+        required: true
+      risk_council_address:
+        description: "§2.7 governance body — Risk Council"
+        required: true
+      emergency_council_address:
+        description: "§2.7 governance body — Emergency Council"
+        required: true
+      constitutional_council_address:
+        description: "§2.7 governance body — Constitutional Council (7/7)"
+        required: true
+      reserve_vault_address:
+        description: "USDC collateral vault (H5: != 0)"
+        required: true
+      genesis_reserve_address:
+        description: "Locked genesis MTQ holder (dedicated multi-sig recommended)"
+        required: true
+      safe_address:
+        description: "Governance Safe (DEFAULT_ADMIN rotation destination; required if rotate_admin=true)"
+        required: false
+        default: ""
+      rotate_admin:
+        description: "Rotate DEFAULT_ADMIN deployer→Safe after genesis (grant-before-revoke; needs safe_address)"
+        required: false
+        type: boolean
+        default: false
+
+permissions:
+  contents: read
+
+jobs:
+  deploy:
+    name: Deploy canonical MTQΣ (contract + adapters + roles)
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install Foundry
+        uses: foundry-rs/foundry-toolchain@v1
+        with:
+          version: nightly
+
+      - name: Install Bun
+        uses: oven-sh/setup-bun@v2
+
+      - name: Verify vendored forge-std
+        working-directory: contracts
+        run: |
+          [ -L lib/forge-std ] && rm -f lib/forge-std
+          [ -f lib/forge-std ] && rm -f lib/forge-std
+          if [ ! -d lib/forge-std/src ]; then
+            forge install foundry-rs/forge-std --no-commit
+          fi
+          echo "forge-std present: $(ls lib/forge-std/src/*.sol | wc -l) .sol files"
+
+      - name: Compile (deployable profile: solc 0.8.36 + via_ir + runs=1)
+        working-directory: contracts
+        run: |
+          forge build --force
+          SIZE=$(python3 -c "import json;print(len(json.load(open('foundry-out/MTQSigmaV2.sol/MTQSigmaV2.json'))['deployedBytecode']['object'])//2)")
+          echo "MTQSigmaV2 deployed bytecode: ${SIZE} B (EIP-170 limit 24576 B)"
+          if [ "$SIZE" -gt 24576 ]; then
+            echo "::error::Runtime exceeds EIP-170 — the deployable build profile is broken (C-044 regression). Do not deploy."
+            exit 1
+          fi
+
+      - name: Run the full test battery against the exact deployed bytecode
+        working-directory: contracts
+        run: forge test
+
+      - name: Fail-closed secret check
+        env:
+          DEPLOYER_PRIVATE_KEY: ${{ secrets.DEPLOYER_PRIVATE_KEY }}
+        run: |
+          if [ -z "$DEPLOYER_PRIVATE_KEY" ]; then
+            echo "::error::Repository secret DEPLOYER_PRIVATE_KEY is not set. Add a FRESH funded key (never the compromised 0x3C39…c8d8c — C-045-a) under Settings → Secrets → Actions."
+            exit 1
+          fi
+          echo "DEPLOYER_PRIVATE_KEY present (never echoed)."
+
+      - name: Dry-run first (zero transactions — prints the full plan)
+        env:
+          MTQ_V3_CHAIN_NAME: ${{ inputs.chain_name }}
+          MTQ_V3_CHAIN_ID: ${{ inputs.chain_id }}
+          RPC_URL: ${{ inputs.rpc_url }}
+          USDC_ADDRESS: ${{ inputs.usdc_address }}
+          KEEPER_ADDRESS: ${{ inputs.keeper_address }}
+          ORACLE_ADDRESS: ${{ inputs.oracle_address }}
+          PAUSER_ADDRESS: ${{ inputs.pauser_address }}
+          DAO_ADMIN_ADDRESS: ${{ inputs.dao_admin_address }}
+          DAO_ADDRESS: ${{ inputs.dao_address }}
+          RISK_COUNCIL_ADDRESS: ${{ inputs.risk_council_address }}
+          EMERGENCY_COUNCIL_ADDRESS: ${{ inputs.emergency_council_address }}
+          CONSTITUTIONAL_COUNCIL_ADDRESS: ${{ inputs.constitutional_council_address }}
+          RESERVE_VAULT_ADDRESS: ${{ inputs.reserve_vault_address }}
+          GENESIS_RESERVE_ADDRESS: ${{ inputs.genesis_reserve_address }}
+          SAFE_ADDRESS: ${{ inputs.safe_address }}
+          ROTATE_ADMIN: ${{ inputs.rotate_admin && 'true' || 'false' }}
+        run: bun run scripts/deploy-canonical.ts
+
+      - name: Deploy (sends transactions with the fresh key)
+        env:
+          DEPLOYER_PRIVATE_KEY: ${{ secrets.DEPLOYER_PRIVATE_KEY }}
+          MTQ_V3_CHAIN_NAME: ${{ inputs.chain_name }}
+          MTQ_V3_CHAIN_ID: ${{ inputs.chain_id }}
+          RPC_URL: ${{ inputs.rpc_url }}
+          USDC_ADDRESS: ${{ inputs.usdc_address }}
+          KEEPER_ADDRESS: ${{ inputs.keeper_address }}
+          ORACLE_ADDRESS: ${{ inputs.oracle_address }}
+          PAUSER_ADDRESS: ${{ inputs.pauser_address }}
+          DAO_ADMIN_ADDRESS: ${{ inputs.dao_admin_address }}
+          DAO_ADDRESS: ${{ inputs.dao_address }}
+          RISK_COUNCIL_ADDRESS: ${{ inputs.risk_council_address }}
+          EMERGENCY_COUNCIL_ADDRESS: ${{ inputs.emergency_council_address }}
+          CONSTITUTIONAL_COUNCIL_ADDRESS: ${{ inputs.constitutional_council_address }}
+          RESERVE_VAULT_ADDRESS: ${{ inputs.reserve_vault_address }}
+          GENESIS_RESERVE_ADDRESS: ${{ inputs.genesis_reserve_address }}
+          SAFE_ADDRESS: ${{ inputs.safe_address }}
+          ROTATE_ADMIN: ${{ inputs.rotate_admin && 'true' || 'false' }}
+        run: bun run scripts/deploy-canonical.ts
+
+      - name: Upload deployment record
+        uses: actions/upload-artifact@v4
+        with:
+          name: deployment-record-${{ inputs.chain_id }}
+          path: contracts/deployments/MTQSigmaV3-${{ inputs.chain_id }}.json
+          retention-days: 90
+          if-no-files-found: error

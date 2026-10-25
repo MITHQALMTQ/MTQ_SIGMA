@@ -378,11 +378,78 @@ contract MTQSigmaV3Test is Test {
 
         // 12. Warp to a known timestamp (so oracle staleness checks pass).
         vm.warp(1_000_000);
+
+        // 13. R-06 fix (2026-10-25): wire 3 healthy mock oracle adapters
+        //     (Chainlink/Pyth/Chronicle slots) seeded at the base fixings.
+        //     mint()/redeem() enforce the B3 oracle-health gate
+        //     (_requireOracleHealthy: all 6 critical pairs need >=3 valid
+        //     feeds — strict I9 quorum). Before this step, every price-path
+        //     test reverted Err39 because setUp wired no adapters at all.
+        //     Oracle-negative tests (5.6/5.8) still hold: 5.6 re-wires its own
+        //     slots and the zero-drop still leaves <3 valid feeds -> Err39.
+        _wireHealthyOracles(mtq);
     }
 
     // ---------------------------------------------------------------------
     //  Helpers
     // ---------------------------------------------------------------------
+
+    /// @dev R-06 fix: deploy + register 3 healthy MockOracleAdapters on the
+    ///      target contract (slots 0/1/2 = Chainlink/Pyth/Chronicle). Feeds:
+    ///      all 6 critical pairs at the base fixings, timestamp = now (0s
+    ///      staleness vs the 60s filter), 0.1% confidence (passes the <1%
+    ///      filter). Deviation = 0 across sources (passes the 2.5% filter).
+    ///      Requires the caller to hold ORACLE_ROLE on the target.
+    function _wireHealthyOracles(MTQSigmaV2 target) internal {
+        MockOracleAdapter cl    = new MockOracleAdapter();
+        MockOracleAdapter pyth  = new MockOracleAdapter();
+        MockOracleAdapter chron = new MockOracleAdapter();
+
+        bytes32[6] memory pairs = [
+            target.PAIR_EUR_USD(), target.PAIR_GBP_USD(), target.PAIR_JPY_USD(),
+            target.PAIR_CNY_USD(), target.PAIR_CHF_USD(), target.PAIR_XAU_USD()
+        ];
+        uint256[6] memory fixings = [
+            EUR_BASE, GBP_BASE, JPY_BASE, CNY_BASE, CHF_BASE, GOLD_BASE
+        ];
+        for (uint256 i = 0; i < 6; i++) {
+            cl.setFeed(pairs[i],    fixings[i], block.timestamp, 0.001e18);
+            pyth.setFeed(pairs[i],  fixings[i], block.timestamp, 0.001e18);
+            chron.setFeed(pairs[i], fixings[i], block.timestamp, 0.001e18);
+        }
+
+        vm.startPrank(address(this));
+        target.setOracleAdapter(0, address(cl));
+        target.setOracleAdapter(1, address(pyth));
+        target.setOracleAdapter(2, address(chron));
+        vm.stopPrank();
+    }
+
+    /// @dev R-06 fix: walk the Gold reserve mirror to the target USD value in
+    ///      <=5% steps (the B5 per-call cap on setReserveHolding) — the
+    ///      production keeper's mark-to-market sequence. Bounded at 128 steps
+    ///      (128 steps x 5% covers any +/-50% move with margin); the final
+    ///      step lands exactly on target. Call BEFORE advanceIndex so RR never
+    ///      reads against a half-marked reserve.
+    function _markGoldTo(MTQSigmaV2 target, uint256 targetUsd) internal {
+        for (uint256 step = 0; step < 128; step++) {
+            uint256 current = target.reserveHeldUsd(MTQSigmaV2.Component.Gold);
+            if (current == targetUsd) return;
+            uint256 next;
+            if (targetUsd > current) {
+                next = current * 105 / 100;
+                if (next <= current) next = current + 1; // dust guard
+                if (next > targetUsd) next = targetUsd;   // land exactly
+            } else {
+                next = current * 95 / 100;
+                if (next >= current || next < targetUsd) next = targetUsd; // dust/land
+            }
+            vm.prank(address(this));
+            target.setReserveHolding(MTQSigmaV2.Component.Gold, next);
+            if (next == targetUsd) return;
+        }
+        revert("_markGoldTo: did not converge in 128 steps");
+    }
 
     /// @dev Advance the chain index with a price shock applied to component i.
     function _advanceWithShock(uint256 shockIdx, uint256 newPrice) internal {
@@ -634,6 +701,9 @@ contract MTQSigmaV3Test is Test {
         vm.startPrank(address(this));
         mtqBad.grantRole(mtqBad.ADMIN_ROLE(),  address(this));
         mtqBad.grantRole(mtqBad.KEEPER_ROLE(), address(this));
+        // R-06 fix: mint()/redeem() enforce the B3 oracle-health gate, so the
+        // fresh contract needs its own healthy oracle adapter set wired.
+        mtqBad.grantRole(mtqBad.ORACLE_ROLE(), address(this));
         mtqBad.setReserveVault(RESERVE_VAULT);
         mtqBad.setGenesisReserve(GENESIS_RESERVE);
         mtqBad.seedGenesisWeights();
@@ -643,6 +713,7 @@ contract MTQSigmaV3Test is Test {
         mtqBad.bootstrapReserveHoldings(holdings);
         mtqBad.genesisMint(1_000_000e18);
         vm.stopPrank();
+        _wireHealthyOracles(mtqBad);
 
         // Fund the reserve vault with the bad USDC and approve.
         badUsdc.mint(RESERVE_VAULT, 10_000_000e6);
@@ -685,6 +756,10 @@ contract MTQSigmaV3Test is Test {
         vm.startPrank(address(this));
         mtqBad.grantRole(mtqBad.ADMIN_ROLE(),  address(this));
         mtqBad.grantRole(mtqBad.KEEPER_ROLE(), address(this));
+        // R-06 fix: both mint() (below) and redeem() (the re-entry target) run
+        // the B3 oracle-health gate — wire healthy adapters on the fresh
+        // contract exactly like setUp does for the main `mtq`.
+        mtqBad.grantRole(mtqBad.ORACLE_ROLE(), address(this));
         mtqBad.setReserveVault(RESERVE_VAULT);
         mtqBad.setGenesisReserve(GENESIS_RESERVE);
         mtqBad.seedGenesisWeights();
@@ -694,6 +769,7 @@ contract MTQSigmaV3Test is Test {
         mtqBad.bootstrapReserveHoldings(holdings);
         mtqBad.genesisMint(1_000_000e18);
         vm.stopPrank();
+        _wireHealthyOracles(mtqBad);
 
         badUsdc.mint(RESERVE_VAULT, 10_000_000e6);
         vm.prank(RESERVE_VAULT);
@@ -891,10 +967,14 @@ contract MTQSigmaV3Test is Test {
         uint256 liab = mtq.getLiability();
         assertGt(liab, 0, "liability > 0 after mint");
 
-        // 2. Drain the Gold reserve so RR < rrStressFloor — this engages the
-        //    solvency override inside executeRebalance (contract line ~1159).
+        // 2. Take one legal -5% Gold reserve step. The original test drained
+        //    Gold to 0 in one call, which the B5 per-call +/-5% cap on
+        //    setReserveHolding rejects (Err64). RR < rrStressFloor already
+        //    holds from the mint liability alone (0.110 << 1.05); the step
+        //    keeps the reserve-mirror write exercised legally.
+        uint256 goldUsd = mtq.reserveHeldUsd(MTQSigmaV2.Component.Gold);
         vm.prank(address(this));
-        mtq.setReserveHolding(MTQSigmaV2.Component.Gold, 0);
+        mtq.setReserveHolding(MTQSigmaV2.Component.Gold, goldUsd * 95 / 100);
 
         uint256 rr = mtq.getReserveRatio();
         assertLt(rr, mtq.rrStressFloor(), "RR < rrStressFloor (override engaged)");
@@ -1069,13 +1149,16 @@ contract MTQSigmaV3Test is Test {
             }
 
             if (t > 0) {
+                // R-06 fix: mark the reserve to market FIRST — in <=5% steps
+                // (the B5 per-call cap on setReserveHolding forbids the one-shot
+                // +50% rewrite this test originally did; a one-shot call
+                // reverts Err64) — then advance the index, so RR never reads
+                // against a half-marked reserve (mark: 286k -> 429k in ~9 steps;
+                // NAV 1.243M vs liab 1.13M -> RR 1.10 survives the tick 1 shock).
+                uint256 newGoldUsd = goldQty * prices[6] / 1e18;
+                _markGoldTo(mtqFuzz, newGoldUsd);
                 vm.prank(address(this));
                 mtqFuzz.advanceIndex(prices);
-                // Revalue the gold reserve to the new price (production
-                // keeper's role — mirrors the TS engine's mark-to-market).
-                uint256 newGoldUsd = goldQty * prices[6] / 1e18;
-                vm.prank(address(this));
-                mtqFuzz.setReserveHolding(MTQSigmaV2.Component.Gold, newGoldUsd);
             }
 
             uint256 rr = mtqFuzz.getReserveRatio();
@@ -1125,11 +1208,14 @@ contract MTQSigmaV3Test is Test {
             }
 
             if (t > 0) {
+                // R-06 fix: same mark-first sequence as S5 — <=5% steps
+                // (B5 cap), reserve marked BEFORE advanceIndex. S6 mark:
+                // 286k -> 200.2k in ~6 steps; NAV 1.014M vs liab 0.922M
+                // -> RR 1.10 improves, exactly as the test's math predicts.
+                uint256 newGoldUsd = goldQty * prices[6] / 1e18;
+                _markGoldTo(mtqFuzz, newGoldUsd);
                 vm.prank(address(this));
                 mtqFuzz.advanceIndex(prices);
-                uint256 newGoldUsd = goldQty * prices[6] / 1e18;
-                vm.prank(address(this));
-                mtqFuzz.setReserveHolding(MTQSigmaV2.Component.Gold, newGoldUsd);
             }
 
             uint256 rr = mtqFuzz.getReserveRatio();

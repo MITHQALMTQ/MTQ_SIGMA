@@ -1600,7 +1600,12 @@ contract MTQSigmaV2 {
         implementedMask   = 0x7FF; // all 11 v1.0 bits — TRUTHFULLY earned in V3
         blueprintMajor    = 1;     // Master Monetary Architecture v1.0
         contractVersion   = 3;     // V3 (this contract)
-        statusDeclaration = "v1.0 Master Blueprint on-chain. 7-component chain-linked Strategic Prior (Gold + CHF first-class), on-chain MASE weight registry with envelopes + velocity + stress-adaptive smoothing, NAV-based redemption (I6), 6-state risk machine with 48h recovery confirmation, 4 governance layers (Constitutional 90d / Monetary 48h / Risk 24h / Emergency instant). Source-ready. NOT production-authorized until independent audit + Section-23 validation complete.";
+        // EIP-170 size-fit (2026-10-25): the 358-char verbose declaration sat
+        // fully in deployed bytecode and pushed the runtime over the 24,576 B
+        // limit. Compact form keeps every HONEST element (identity, mask
+        // meaning, not-authorized posture); the verbose feature list lives in
+        // the header comment + deployments/MTQSigmaV2-PENDING.json.
+        statusDeclaration = "MTQSigmaV3 v1.0 on-chain. implementedMask 0x7FF = all 11 validation bits earned. NOT production-authorized until independent audit + Section-23 gates pass.";
         evidenceHash      = keccak256(abi.encodePacked("MTQSigmaV3", block.chainid, address(this)));
     }
 

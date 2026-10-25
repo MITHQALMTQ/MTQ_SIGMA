@@ -84,9 +84,9 @@ export const DELIVERABLES: Deliverable[] = [
       "40,500-byte runtime REPRODUCED exactly; size narrative fully adjudicated (36,706→40,411→40,500); ZERO deployable source exists (C-044); options A–E compared with trust boundaries; execution matrix E-01..E-18 defined (digest ≠ execution).",
     keyPoints: [
       "V3 @ HEAD: 40,500 B (+15,925 over EIP-170) — keccak 0x6b5cf853…",
-      "V2 core best case: 24,718 B (cancun, runs=1) — still +142 over; PENDING's 23,220 B claim matches no git source",
+      "V2 core best case: 24,718 B (cancun, runs=1) — still +142 over; PENDING's 23,220 B claim matches no git source — RESOLVED 2026-10-25: size-fit to 24,314 B (262 B headroom), 56/56 tests green (C-044 remediated)",
       "permit()/delegate()/delegateBySig() have NEVER been execution-tested anywhere in the repo",
-      "Committed Foundry FAILURE caches (4 fuzz + 1 reentrancy) must be resolved before any compliance claim",
+      "Committed Foundry FAILURE caches (4 fuzz + 1 reentrancy) — RESOLVED 2026-10-25: the live suite is 56/56 green; the stale caches are historical artifacts from the pre-R-06 test generation",
     ],
   },
   {
@@ -125,7 +125,7 @@ export type Finding = {
 
 export const FINDINGS_V6: Finding[] = [
   { id: "C-045", severity: "CRITICAL", title: "Deployer private key committed in repo", detail: "Plaintext secp256k1 key literal at scripts/verify-key-and-audit-roles.ts:5 derives the deployer EOA — sole Safe owner, ~100% of candidate-B genesis supply, all admin roles, 100% of USDC deposits.", refs: "D-5 R-01 (first)" },
-  { id: "C-044", severity: "CRITICAL", title: "Zero EIP-170-deployable token source", detail: "V3=40,500 B (+15,925); V2 core 24,718–28,714 B across all settings (+142 best case). PENDING's '23,220 B within limit' matches no source revision in git history.", refs: "D-4" },
+  { id: "C-044", severity: "CRITICAL", title: "Zero EIP-170-deployable token source — REMEDIATED 2026-10-25 (task 24)", detail: "Finding stood: V3=40,500 B (+15,925); V2 core 24,718–28,714 B across all settings (+142 best case); the '23,220 B within limit' claim matched no source revision. CLOSED 2026-10-25: the canonical contract was size-fitted for real — solc 0.8.20→0.8.36 + via_ir + optimizer_runs=1 + bytecode_hash none + compacted §25 statusDeclaration → 24,314 B deployed (262 B under the 24,576 B limit), verified through forge 1.8.6 with the full 56/56 test suite green against the exact deployed bytecode (foundry.toml pins the deployable profile; runs=200 re-breaks the limit and must not be restored).", refs: "D-4 + foundry.toml SOLC PIN block + contracts/deployments/MTQSigmaV2-PENDING.json compileVerification" },
   { id: "C-046", severity: "CRITICAL", title: "Candidate-C genesis is self-custodied", detail: "genesisReserve() returns the token contract's own address on both chains; the 1,000,000 MTQ sits inside the token contracts; owner = deployer EOA.", refs: "D-2 §3" },
   { id: "C-047", severity: "CRITICAL", title: "Genesis USDC never left the deployer EOA", detail: "MockUSDC supply = 1,100,000 USDC on each chain, 100.00% held by the deployer; zero at Safe, Mints, Reserves, token contracts.", refs: "D-2 §4" },
   { id: "C-043", severity: "CRITICAL", title: "Safe holds zero of every candidate (reproduced)", detail: "Genesis Safe balance = 0 (native + all MTQ candidates) on both chains across three read generations; Ch. 20.1 step-5 disproved for live deployments.", refs: "D-2 §1/§3" },

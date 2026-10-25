@@ -134,7 +134,6 @@ export const SOLANA_DEVNET: ChainInfo = {
 
 
 export const ALL_CHAINS: ChainInfo[] = [MONAD_TESTNET, ARC_TESTNET, SOLANA_DEVNET];
-
 export function getChain(id: string): ChainInfo | undefined {
   return ALL_CHAINS.find((c) => c.id === id);
 }

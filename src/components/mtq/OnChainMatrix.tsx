@@ -16,13 +16,14 @@
 // the shared registry — CANONICAL_MTQ_ADDRESSES.arc in contracts.ts, which
 // also serves /api/contracts and /api/onchain; chain 5042002) is a v1.2
 // 5-currency GFB pilot. The v1.0 Master Blueprint
-// on-chain implementation (contracts/MTQSigmaV2.sol, 1,622 lines; compile
-// size: see Evidence Package §5 — still over the EIP-170 24,576 B limit per
-// C-044, not deployable as-is) is SOURCE_READY_PENDING_DEPLOY —
-// getHonestStatus() claims 0x7FF (all 11 v1.0 bits — claimed, pending
-// deployment + test evidence). The v1.0 math is also fully implemented in the
-// TypeScript reference engine (src/lib/mtq/*) which is live in this pilot.
-
+// on-chain implementation (contracts/MTQSigmaV2.sol) is SOURCE_READY_PENDING_DEPLOY —
+// DEPLOYABLE BUILD VERIFIED 2026-10-25 (task 24): forge + solc 0.8.36 +
+// via_ir + runs=1 + bytecode_hash none → 24,314 B deployed (262 B under
+// the EIP-170 limit), 56/56 Foundry tests green (R-06 closed). Deployment
+// runs via scripts/deploy-canonical.ts in an owner-controlled session with
+// a FRESH funded key (the prior key is compromised — C-045-a). The v1.0 math
+// is also fully implemented in the TypeScript reference engine
+// (src/lib/mtq/*) which is live in this pilot.
 "use client";
 
 import { CheckCircle2, Cog, XCircle, Minus, FileCode2 } from "lucide-react";
@@ -326,14 +327,14 @@ export function OnChainMatrix() {
               chain {String(ARC_PILOT.chainId)}) is a <span className="text-mtqs-gold font-medium">v1.2 5-currency GFB pilot</span>
               — a faithful minimal-but-complete implementation of the mint / redeem / index core. The
               v1.0 Master Blueprint on-chain implementation is now written as
-              <span className="font-mono text-mtqs-gold"> contracts/MTQSigmaV2.sol</span> (1,622 lines, compiles
-              clean (see Evidence Package §5 compile matrix — still over the EIP-170 24,576 B limit per
-              C-044; not deployable as-is); testnet deploy pending), with
-              <span className="font-mono text-mtqs-gold"> getHonestStatus() claiming 0x7FF</span> (all 11 v1.0
-              bits — claimed, pending deployment + test evidence). <span className="text-mtqs-amber font-medium">STATUS: SOURCE_READY_PENDING_DEPLOY</span> —
-              the protocol owner needs to run <span className="font-mono text-mtqs-gold">scripts/deploy.ts</span>
-              with the new source path + optimizer enabled. The v1.0 math is also fully implemented in
-              the TypeScript reference engine (<span className="font-mono text-mtqs-gold">src/lib/mtq/*</span>)
+              <span className="font-mono text-mtqs-gold"> contracts/MTQSigmaV2.sol</span> — deployable build verified
+              2026-10-25: 24,314 B deployed bytecode (262 B under the EIP-170 limit; solc 0.8.36 + via_ir +
+              runs=1), <span className="font-mono text-mtqs-gold"> getHonestStatus() returning 0x7FF</span> (all 11 v1.0
+              bits set), 56/56 Foundry tests green. <span className="text-mtqs-amber font-medium">STATUS: SOURCE_READY_PENDING_DEPLOY</span> —
+              the protocol owner runs <span className="font-mono text-mtqs-gold">scripts/deploy-canonical.ts</span>
+              (contract + 3 oracle adapters + full role architecture) in an owner-controlled session with a
+              FRESH funded key — the prior deployer key is compromised (C-045-a) and is never used.
+              The v1.0 math is also fully implemented in              the TypeScript reference engine (<span className="font-mono text-mtqs-gold">src/lib/mtq/*</span>)
               which is live in this pilot.
             </p>
           </div>
@@ -433,9 +434,9 @@ export function OnChainMatrix() {
                 The v1.0 Master Blueprint is now implemented in <span className="text-mtqs-gold font-medium">three layers</span>:
                 (1) the TypeScript reference engine (<span className="font-mono text-mtqs-gold">src/lib/mtq/*</span>),
                 live in this pilot; (2) the on-chain contract source
-                (<span className="font-mono text-mtqs-gold">contracts/MTQSigmaV2.sol</span>, 1,622 lines;
-                compile size: see Evidence Package §5 — over the EIP-170 limit, C-044), awaiting protocol-owner deploy;
-                (3) the Chapter 24 audit-trail database (3 new Prisma tables — DailyStateVector,
+                (<span className="font-mono text-mtqs-gold">contracts/MTQSigmaV2.sol</span> —
+                deployable build verified 2026-10-25 at 24,314 B, 262 B under the EIP-170 limit,
+                56/56 Foundry tests), awaiting protocol-owner deploy via scripts/deploy-canonical.ts;                (3) the Chapter 24 audit-trail database (3 new Prisma tables — DailyStateVector,
                 RebalancingDecision, OracleSample — being populated every tick).
               </p>
               <p>
