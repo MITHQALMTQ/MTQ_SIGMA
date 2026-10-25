@@ -115,7 +115,7 @@ jobs:
           fi
           echo "forge-std present: $(ls lib/forge-std/src/*.sol | wc -l) .sol files"
 
-      - name: Compile (deployable profile: solc 0.8.36 + via_ir + runs=1)
+      - name: "Compile (deployable profile: solc 0.8.36 + via_ir + runs=1)"
         working-directory: contracts
         run: |
           forge build --force
