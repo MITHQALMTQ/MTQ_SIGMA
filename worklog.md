@@ -9523,3 +9523,26 @@ Task 26 — post-verification addendum (stale-CSS incident + clean restart + ful
 - E2E BATTERY ON THE FRESH SERVER (all green): body computed bg #FAFCFA + ink #0E1F1B on desktop AND 390px mobile (light theme live); GET / 200; /api/metrics carries the new no-store+nosniff headers (merged security fix live locally); health healthy after lazy engine boot-warm (engine:true, db:true); Pilot Command Center opens (sidebar present, single-route as designed), footer sticky-at-bottom; mobile scrollWidth 390=390 (no overflow); ZERO page errors, ZERO console errors. Evidence: audit-work/task26-local-landing-light.png, task26-local-mobile-light.png, task26-local-terminal-light.png.
 - PRODUCTION AT f930bbf VERIFIED: deploy went live ~100s after push; /api/health healthy (engine:true, db:true, commitSha f930bbf45ab…); /api/metrics serving no-store+nosniff on production; CI workflow SUCCESS on f930bbf (Foundry failure = documented pre-existing R-06, zero Solidity touched by this push); Inngest resync correctly NOT triggered (function definitions untouched).
 - Git-state final: local main == origin/main == production (f930bbf + this addendum), tag no-rollback-anchor-2026-10-25 published; branch protection live on GitHub main (force-push + deletion blocked, admin-inclusive).
+
+---
+Task ID: 27
+Agent: Orchestrator (main session)
+Task: Fix the owner finding "PAXG and XAUT show identical values, while in real live they have different rates" — make the Pilot Command Center display each token's own real live market rate.
+
+Work Log:
+- Located the root cause: HomeSection.tsx PAXG + XAUT cards both printed the same "Marked at live XAU/USD · $X/oz" line (both tokens were marked at the identical XAU/USD reference price), and the sleeves showed equal USD values without explaining the deliberate §5.6 50/50 issuer split.
+- Measured the real divergence (2026-10-25): gold-api XAU spot $3,996.90; Yahoo PAXG-USD $3,995.15; Yahoo XAUT-USD $3,985.45 — ~$10 apart. Confirmed gold-api.com does NOT carry PAXG/XAUT symbols ("Symbol not found"), so Yahoo chart endpoints are the live source for per-token rates.
+- fx.ts: new fetchTokenMarketPriceUsd() (Yahoo PAXG-USD / XAUT-USD, query1/query2 mirror + User-Agent, 6s timeout), sanity-bounded ±3% of the live XAU spot + absolute (100, 100k); out-of-range observations REJECTED. FxSnapshot gained paxgMarketUsd / xautMarketUsd / livePaxgMarket / liveXautMarket (fetched in parallel — snapshot latency unchanged). Source string gains "Yahoo PAXG/XAUT market" when live. LEDGER MATH UNCHANGED — gold still marked at the §4.1 XAU/USD reference (conservative of reference vs executable); the new fields are a display family only.
+- HomeSection.tsx: new TokenMarketRate component — each card shows its OWN live market rate + % premium/discount vs the XAU reference, plus a separate "Ledger mark (§4.1) · XAU/USD" line so market vs ledger never blend. Sleeve eyebrow now states "50/50 issuer split (§5.6)". Honest fallback: "feed unavailable" (never fabricates a token rate).
+- ReserveVault.tsx: Per-Asset Net Values panel footnote — "1 PAXG ≈ $3,994 · 1 XAUT ≈ $3,985 (Yahoo live) … equal sleeve values are the deliberate §5.6 50/50 split; ledger marks gold at the §4.1 XAU/USD reference".
+- oracle-feeds.ts: XAU/USD pair registers the two new "wired-live" display families (PAXG-USD / XAUT-USD market price, Task-27) with explicit NOT-a-board-leg / NOT-the-ledger-mark roles; honestDetermination updated.
+- lint + tsc green. Clean dev restart performed — NOTE: the sandbox reaped the whole process tree (dev watchdog + retired-check mini-services) mid-task; single-fork setsid launches died twice; the documented double-fork-orphan watchdog relaunch (Task-26 technique) survived across tool calls (PPID 1). Both mini-services remain deliberately RETIRED-LOCALLY (Task 16 decision) and were NOT restarted.
+- API verified: /api/metrics now returns paxgMarketUsd 3994.71 / xautMarketUsd 3985.01 (distinct, $9.70 apart); source string carries the new family.
+- E2E (agent-browser, desktop + 390px mobile): Home PAXG card "Live market rate · $3994.71/PAXG (+0.44% vs XAU ref)" vs XAUT card "$3984.78/XAUT (+0.19%)" — DIFFERENT rates; Portfolio/Dashboard vault footnote live with both rates; mobile scrollWidth 390=390 (no overflow); footer present and bottom-stuck; ZERO page errors, ZERO console errors. Evidence: audit-work/task27-desktop-paxg-xaut.png, audit-work/task27-mobile-paxg-xaut.png.
+- Git: fetch-first verified FF-safe (origin/main ancestor of local main), committed 2573129, pushed 657e8b9..2573129 (carried the previously-unpushed 89710c6 + this fix; forward-only, no rollback). Secret-scan pre-commit PASS.
+
+Stage Summary:
+- PAXG and XAUT now display their own REAL live market rates (Yahoo PAXG-USD / XAUT-USD, sanity-bounded to ±3% of spot) with premium/discount vs the XAU reference — no longer identical values.
+- The identical-looking sleeve values are now explicitly labeled as the deliberate §5.6 50/50 issuer split, and the ledger keeps the blueprint §4.1 XAU/USD reference mark (engine math untouched).
+- Honest-disclosure chain maintained: oracle-feeds registry entries + in-UI "feed unavailable" fallbacks; nothing fabricated.
+- Dev watchdog must be relaunched via DOUBLE-FORK orphaning (single-fork setsid is reaped by the sandbox between tool calls) — recorded for all future sessions.
