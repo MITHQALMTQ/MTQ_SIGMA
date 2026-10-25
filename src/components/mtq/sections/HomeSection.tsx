@@ -63,6 +63,46 @@ function ClientOnly({ children }: { children: React.ReactNode }) {
   return <>{children}</>;
 }
 
+/* ---------- TASK-27 — live per-token market-rate lines (PAXG/XAUT) ----------
+ * PAXG and XAUT are SEPARATE market instruments: each is a claim on 1 fine
+ * troy oz, but they trade at their own market prices (real issuer
+ * premium/discount vs XAU spot — e.g. 2026-10-25: PAXG $3,995.15 vs XAUT
+ * $3,985.45). Previously both cards printed the identical XAU/USD reference
+ * price, which misrepresented the two tokens as one price. Now each card shows
+ * its OWN live market rate (Yahoo PAXG-USD / XAUT-USD, sanity-bounded in fx.ts)
+ * with the % premium/discount vs the XAU reference, while the LEDGER keeps
+ * marking at the §4.1 XAU/USD reference (the conservative of reference vs
+ * executable) — displayed as its own line so the two numbers never blend. */
+function TokenMarketRate({ snapshot, token }: { snapshot: MetricsSnapshot | null; token: "PAXG" | "XAUT" }) {
+  const market = token === "PAXG" ? snapshot?.fx.paxgMarketUsd : snapshot?.fx.xautMarketUsd;
+  const mark = snapshot?.reserve.goldPrice;
+  const premium = market != null && mark ? (market / mark - 1) * 100 : null;
+  return (
+    <>
+      <div className="text-[0.7rem] text-mtqs-gold/60 mt-1">
+        {market != null ? (
+          <>
+            {"Live market rate · "}
+            <span className="font-semibold text-mtqs-gold">${fmtFixed(market, 2)}</span>
+            {"/" + token}
+            {premium != null && (
+              <span className={premium >= 0 ? "text-mtqs-emerald" : "text-rose-500"}>
+                {" "}({premium >= 0 ? "+" : ""}
+                {premium.toFixed(2)}% vs XAU ref)
+              </span>
+            )}
+          </>
+        ) : (
+          "Live market rate · feed unavailable"
+        )}
+      </div>
+      <div className="text-[0.7rem] text-mtqs-gold/60 mt-1">
+        Ledger mark (§4.1) · XAU/USD · {mark ? `$${fmtFixed(mark, 0)}` : "—"}/oz
+      </div>
+    </>
+  );
+}
+
 /* ---------- What is MTQΣ? — 3 cards ---------- */
 const WHAT_IS = [
   {
@@ -367,7 +407,7 @@ export function HomeSection({
                   </span>
                 </div>
                 <div className="text-[0.6rem] uppercase tracking-[0.18em] text-[#7A8C86]">
-                  Pilot-ledger sleeve · net of 1.0% haircut
+                  Pilot-ledger sleeve · 50/50 issuer split (§5.6) · net of 1.0% haircut
                 </div>
                 <div className="text-2xl font-mono mtqs-gold-text">
                   {snapshot ? fmtUsdCompact(snapshot.perIssuer?.paxgUsd ?? (snapshot.reserve.goldNet / 2)) : "—"}
@@ -376,9 +416,7 @@ export function HomeSection({
                   1 PAXG = 1 troy oz gold · {snapshot?.holdings ? `${fmtNum(snapshot.holdings.paxgOz, 3)} oz held` : "—"}
                   {snapshot?.holdings?.goldOz ? ` · ${((snapshot.holdings.paxgOz / snapshot.holdings.goldOz) * 100).toFixed(1)}% of ledger gold` : ""}
                 </div>
-                <div className="text-[0.7rem] text-mtqs-gold/60 mt-1">
-                  Marked at live XAU/USD · {snapshot ? `$${fmtFixed(snapshot.reserve.goldPrice, 0)}` : "—"}/oz
-                </div>
+                <TokenMarketRate snapshot={snapshot} token="PAXG" />
                 <div className="mt-2 text-[0.7rem] text-mtqs-gold/50">
                   Haircut: 1.0% (§14.1.1) · Issuer: Paxos (NYDFS-regulated)
                 </div>
@@ -400,7 +438,7 @@ export function HomeSection({
                   </span>
                 </div>
                 <div className="text-[0.6rem] uppercase tracking-[0.18em] text-[#7A8C86]">
-                  Pilot-ledger sleeve · net of 1.0% haircut
+                  Pilot-ledger sleeve · 50/50 issuer split (§5.6) · net of 1.0% haircut
                 </div>
                 <div className="text-2xl font-mono mtqs-gold-text">
                   {snapshot ? fmtUsdCompact(snapshot.perIssuer?.xautUsd ?? (snapshot.reserve.goldNet / 2)) : "—"}
@@ -409,9 +447,7 @@ export function HomeSection({
                   1 XAUT = 1 troy oz gold · {snapshot?.holdings ? `${fmtNum(snapshot.holdings.xautOz, 3)} oz held` : "—"}
                   {snapshot?.holdings?.goldOz ? ` · ${((snapshot.holdings.xautOz / snapshot.holdings.goldOz) * 100).toFixed(1)}% of ledger gold` : ""}
                 </div>
-                <div className="text-[0.7rem] text-mtqs-gold/60 mt-1">
-                  Marked at live XAU/USD · {snapshot ? `$${fmtFixed(snapshot.reserve.goldPrice, 0)}` : "—"}/oz
-                </div>
+                <TokenMarketRate snapshot={snapshot} token="XAUT" />
                 <div className="mt-2 text-[0.7rem] text-mtqs-gold/50">
                   Haircut: 1.0% (§14.1.1) · Issuer: Tether
                 </div>

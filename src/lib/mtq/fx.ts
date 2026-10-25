@@ -68,6 +68,21 @@ export interface FxSnapshot {
   // the VIX/DXY values are from Yahoo Finance and must NOT be stepped.
   liveVix?: boolean;
   liveDxy?: boolean;
+  // TASK-27 (PAXG/XAUT identical-rates finding): live per-token MARKET rates
+  // from Yahoo Finance (PAXG-USD / XAUT-USD chart endpoints). Both tokens are
+  // claims on 1 fine troy oz of gold, but they trade at DIFFERENT market prices
+  // (real issuer premium/discount vs XAU spot — measured 2026-10-25: PAXG
+  // $3,995.15 vs XAUT $3,985.45 vs XAU spot $3,996.90). These fields are a
+  // DISPLAY family only — the ledger keeps marking gold at the §4.1 XAU/USD
+  // reference (the more conservative of reference vs executable), so NAV/RR
+  // math is intentionally unchanged. Undefined = live feed unavailable; the UI
+  // then honestly shows only the XAU/USD reference mark (never fabricates a
+  // separate token rate). Sanity-bounded to ±3% of the live XAU spot in the
+  // fetcher — out-of-range observations are rejected, not displayed.
+  paxgMarketUsd?: number;
+  xautMarketUsd?: number;
+  livePaxgMarket?: boolean;
+  liveXautMarket?: boolean;
 }
 
 const DEFAULTS: Omit<FxSnapshot, "fetchedAt" | "source" | "degraded" | "liveCount"> = {
@@ -405,6 +420,54 @@ async function fetchPaxg24hVolumeUsd(): Promise<number | undefined> {
   return undefined;
 }
 
+// TASK-27: live per-token MARKET rates for the two admitted gold issuers
+// (PAXG/Paxos, XAUT/Tether). Yahoo Finance chart endpoint for <SYMBOL>-USD —
+// same query1/query2 mirror + User-Agent pattern as fetchLiveVix. Each token
+// is a claim on 1 fine troy oz, but the market prices them SEPARATELY (PAXG
+// typically trades at a premium to XAUT; both hover within ~±1% of spot).
+// Sanity bounds, both must hold:
+//   - absolute: price ∈ (100, 100_000) — the historical tokenized-gold range;
+//   - relative (when xauSpot is known): |price/spot − 1| ≤ 3% — anything wider
+//     is treated as a feed/parse error and REJECTED (never displayed as a
+//     token rate). This keeps a bad Yahoo payload from inventing a fake rate.
+// Returns undefined per token on failure — the UI then honestly shows only the
+// §4.1 XAU/USD reference mark for that token (no fabricated divergence).
+async function fetchTokenMarketPriceUsd(
+  symbol: "PAXG" | "XAUT",
+  xauSpot?: number,
+): Promise<number | undefined> {
+  const urls = [
+    `https://query1.finance.yahoo.com/v8/finance/chart/${symbol}-USD?interval=1d&range=1d`,
+    `https://query2.finance.yahoo.com/v8/finance/chart/${symbol}-USD?interval=1d&range=1d`,
+  ];
+  for (const url of urls) {
+    try {
+      const ctrl = new AbortController();
+      const t = setTimeout(() => ctrl.abort(), 6000);
+      const res = await fetch(url, {
+        signal: ctrl.signal,
+        headers: { "User-Agent": "Mozilla/5.0 (MTQ-Pilot/1.0)" },
+      });
+      clearTimeout(t);
+      if (!res.ok) continue;
+      const data = await res.json();
+      const meta = data?.chart?.result?.[0]?.meta;
+      if (!meta) continue;
+      // Prefer regularMarketPrice; fall back to chartPreviousClose.
+      const price =
+        typeof meta.regularMarketPrice === "number" ? meta.regularMarketPrice :
+        typeof meta.chartPreviousClose === "number" ? meta.chartPreviousClose :
+        undefined;
+      if (price === undefined || price <= 100 || price >= 100_000) continue;
+      if (xauSpot !== undefined && xauSpot > 0 && Math.abs(price / xauSpot - 1) > 0.03) continue;
+      return price;
+    } catch {
+      // try next mirror
+    }
+  }
+  return undefined;
+}
+
 export async function fetchFxSnapshot(force = false): Promise<FxSnapshot> {
   const now = Date.now();
   if (cache && !force && now - cacheTime < CACHE_TTL_MS) {
@@ -413,6 +476,12 @@ export async function fetchFxSnapshot(force = false): Promise<FxSnapshot> {
 
   const { fx, raw } = await fetchFrankfurter();
   const gold = await fetchGold();
+  // TASK-27: live PAXG/XAUT market rates (display family; parallel to keep the
+  // snapshot latency unchanged). Each token trades at its own market price.
+  const [paxgMarket, xautMarket] = await Promise.all([
+    fetchTokenMarketPriceUsd("PAXG", gold),
+    fetchTokenMarketPriceUsd("XAUT", gold),
+  ]);
   // AUDIT-FIX P1-4 (EQ-093): live 24h PAXG volume → pool-depth feed for the
   // §11.4 thin-liquidity deferral (replaces the silent $4M hard-code; the
   // labeled fallback is used only when this feed is unavailable).
@@ -461,6 +530,9 @@ export async function fetchFxSnapshot(force = false): Promise<FxSnapshot> {
     if (liveVix) liveBits.push("Yahoo ^VIX");
     if (liveDxy) liveBits.push("Yahoo DX-Y.NYB (or Frankfurter self-calc)");
   }
+  // TASK-27: tokenized-gold market-rate feed shows in the source string only
+  // when at least one token rate is live (both rejected → no claim made).
+  if (paxgMarket || xautMarket) liveBits.push("Yahoo PAXG/XAUT market");
   const simBits: string[] = [];
   if (!liveVix) simBits.push("VIX");
   if (!liveDxy) simBits.push("DXY");
@@ -489,6 +561,10 @@ export async function fetchFxSnapshot(force = false): Promise<FxSnapshot> {
     liveDxy: !!liveDxy,
     // AUDIT-FIX EQ-093 — §11.4 feed-driven pool depth (undefined → labeled fallback).
     ...(poolDepth !== undefined ? { xauPoolDepth24hUsd: poolDepth, livePoolDepth: true } : {}),
+    // TASK-27 — live per-token market rates (display family; undefined → honest
+    // fallback to the §4.1 XAU/USD reference mark in the UI).
+    ...(paxgMarket !== undefined ? { paxgMarketUsd: paxgMarket, livePaxgMarket: true } : {}),
+    ...(xautMarket !== undefined ? { xautMarketUsd: xautMarket, liveXautMarket: true } : {}),
   };
 
   cache = snapshot;

@@ -347,6 +347,23 @@ export function ReserveVault({ snapshot }: { snapshot: MetricsSnapshot | null })
                 </div>
               ))}
             </div>
+            {/* TASK-27 — PAXG and XAUT are separate live-market instruments.
+                The two sleeve values are equal ONLY because the ledger
+                deliberately splits gold 50/50 across issuers (§5.6); in the
+                real market each token trades at its OWN rate. Honest footnote
+                with both live rates + the §4.1 ledger reference mark. */}
+            <div className="mt-3 border-t border-[#E3EAE6] pt-2 text-[0.62rem] text-[#7A8C86] leading-relaxed">
+              PAXG and XAUT are distinct live-market instruments — 1 PAXG ≈{" "}
+              <span className="font-mono">
+                {snapshot.fx.paxgMarketUsd != null ? `$${fmtFixed(snapshot.fx.paxgMarketUsd, 2)}` : "— (feed unavailable)"}
+              </span>{" "}
+              · 1 XAUT ≈{" "}
+              <span className="font-mono">
+                {snapshot.fx.xautMarketUsd != null ? `$${fmtFixed(snapshot.fx.xautMarketUsd, 2)}` : "— (feed unavailable)"}
+              </span>{" "}
+              (Yahoo live). The equal sleeve values above are the deliberate §5.6 50/50 issuer split; the ledger marks
+              gold at the §4.1 XAU/USD reference <span className="font-mono">${fmtFixed(r.goldPrice, 0)}</span>/oz.
+            </div>
           </Panel>
         </Reveal>
 

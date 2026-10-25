@@ -405,10 +405,22 @@ export const FEED_PAIRS: PerPairFeedConfig[] = [
         role: "auxiliary §11.4 pool-depth feed only (EQ-093) — NOT a price family for this pair. Task-16 finding 16b-011: the upstream's regularMarketVolume unit is UNVERIFIABLE for this instrument (measured 180.2M × ~$4,001/oz ≈ $721B 24h notional — impossible vs total tokenized-gold market cap ≪ $1B), so the fx.ts sanity bound (>$10k, <$10B on volume×price) rejects every observation and the LABELED $4M fallback constant (POOL_DEPTH_FALLBACK_USD) is what actually feeds §11.4. Conservative by design: rejection never fabricates depth.",
         status: "wired-unverified-rejected-by-sanity-bound",
       },
+      {
+        family: "Yahoo Finance — PAXG-USD market price (Task-27 display family)",
+        upstream: "https://query1/query2.finance.yahoo.com/v8/finance/chart/PAXG-USD",
+        role: "informational per-token MARKET-RATE display family (Task 27, owner finding: PAXG and XAUT showed identical rates while the live market prices them differently — measured 2026-10-25: PAXG $3,995.15 vs XAUT $3,985.45). Displayed on the Home tokenized-gold card with the % premium/discount vs the XAU reference. NOT a consensus-board leg and NOT the ledger mark — the ledger keeps §4.1 (more conservative of reference vs executable). Sanity-bounded in fx.ts to ±3% of the live gold-api XAU spot (plus an absolute (100, 100k) bound); out-of-range observations are rejected and the UI honestly falls back to the XAU/USD reference mark only.",
+        status: "wired-live",
+      },
+      {
+        family: "Yahoo Finance — XAUT-USD market price (Task-27 display family)",
+        upstream: "https://query1/query2.finance.yahoo.com/v8/finance/chart/XAUT-USD",
+        role: "informational per-token MARKET-RATE display family (Task 27) — the XAUT card's own live market rate with % premium/discount vs the XAU reference, distinct from PAXG's. Same bounds and the same NOT-a-board-leg / NOT-the-ledger-mark disclaimers as the PAXG-USD display family above.",
+        status: "wired-live",
+      },
     ],
     onChainAdapterFamilies: compiledAdapterFamilies(),
     feedStatus: "off-chain-family-only",
-    honestDetermination: `PILOT (Gate 2 shadow, Ext-3 A.4-accepted): one live off-chain price family (gold-api.com XAU spot; Yahoo PAXG volume feeds pool depth only) + synthetic-witness consensus in oracle.ts; ${OFF_CHAIN_DETERMINATION_TAIL}`,
+    honestDetermination: `PILOT (Gate 2 shadow, Ext-3 A.4-accepted): one live off-chain price family (gold-api.com XAU spot) feeds the consensus board (Yahoo PAXG volume feeds pool depth only; the Task-27 Yahoo PAXG-USD / XAUT-USD market prices are DISPLAY-ONLY families showing each token's own live market rate — never the board leg or the §4.1 ledger mark) + synthetic-witness consensus in oracle.ts; ${OFF_CHAIN_DETERMINATION_TAIL}`,
   },
   {
     pairId: "VIX",
