@@ -65,10 +65,11 @@ export async function GET(req: Request) {
       },
     });
   } catch (e) {
-    return NextResponse.json(
-      { error: "Engine not ready", detail: String(e) },
-      { status: 503 },
-    );
+    // [P2-class fix] no exception detail in public responses.
+    console.error("[api/succession] engine not ready", {
+      errorType: e instanceof Error ? e.name : typeof e,
+    });
+    return NextResponse.json({ error: "Engine not ready" }, { status: 503 });
   }
 }
 
@@ -145,9 +146,10 @@ export async function POST(req: Request) {
       liveBasis: snap.holdings?.basis ?? null,
     });
   } catch (e) {
-    return NextResponse.json(
-      { error: "Simulation failed", detail: String(e) },
-      { status: 500 },
-    );
+    // [P2-class fix] no exception detail in public responses.
+    console.error("[api/succession] simulation failed", {
+      errorType: e instanceof Error ? e.name : typeof e,
+    });
+    return NextResponse.json({ error: "Simulation failed" }, { status: 500 });
   }
 }

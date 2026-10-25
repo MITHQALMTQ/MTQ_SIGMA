@@ -58,8 +58,12 @@ export async function POST(req: Request) {
       headers: { "X-RateLimit-Remaining": String(rl.remaining) },
     });
   } catch (e) {
+    // [P2-class fix] no exception detail in public responses.
+    console.error("[api/ai/qa] unavailable", {
+      errorType: e instanceof Error ? e.name : typeof e,
+    });
     return NextResponse.json(
-      { error: String(e), model: "error" },
+      { error: "AI QA service unavailable", model: "error" },
       {
         status: 500,
         headers: { "X-RateLimit-Remaining": String(rl.remaining) },

@@ -115,8 +115,12 @@ export async function GET() {
       { headers: NO_STORE_HEADERS },
     );
   } catch (e) {
+    // [P2-class fix] no exception detail in public responses.
+    console.error("[api/constituency] snapshot failed", {
+      errorType: e instanceof Error ? e.name : typeof e,
+    });
     return NextResponse.json(
-      { error: "Constituency machinery snapshot failed", detail: String(e) },
+      { error: "Constituency machinery snapshot failed" },
       { status: 500, headers: NO_STORE_HEADERS },
     );
   }

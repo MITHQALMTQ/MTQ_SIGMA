@@ -97,12 +97,16 @@ export async function GET(req: Request) {
       },
     );
   } catch (e) {
+    // [P2-class fix] no exception detail in public responses.
+    console.error("[api/honest-status] unavailable", {
+      errorType: e instanceof Error ? e.name : typeof e,
+    });
     return NextResponse.json(
       {
         protocol: "MTQΣ",
         module: "honest-status",
         status: "error",
-        error: e instanceof Error ? e.message : "Honest status unavailable",
+        error: "Honest status unavailable",
         computedAt: new Date().toISOString(),
       },
       { status: 503, headers: { "Cache-Control": "no-store, max-age=0" } },

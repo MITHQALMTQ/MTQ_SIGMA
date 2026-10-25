@@ -324,10 +324,15 @@ async function eventsPayload() {
       dbError: null as string | null,
     };
   } catch (e) {
+    // [P2-class fix] the fail-soft disclosure stays, but without internal
+    // exception details (SQL/provider text) in the public payload.
+    console.error("[api/issuance] events DB read failed", {
+      errorType: e instanceof Error ? e.name : typeof e,
+    });
     return {
       rows: [],
       totalPersisted: 0,
-      dbError: e instanceof Error ? e.message : String(e),
+      dbError: "persistence layer read failed",
     };
   }
 }
@@ -354,8 +359,12 @@ export async function GET() {
       { headers: NO_STORE_HEADERS },
     );
   } catch (e) {
+    // [P2-class fix] no exception detail in public responses.
+    console.error("[api/issuance] snapshot failed", {
+      errorType: e instanceof Error ? e.name : typeof e,
+    });
     return NextResponse.json(
-      { error: "Issuance snapshot failed", detail: String(e) },
+      { error: "Issuance snapshot failed" },
       { status: 500, headers: NO_STORE_HEADERS },
     );
   }

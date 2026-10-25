@@ -49,8 +49,12 @@ export async function GET(req: Request) {
       headers: { "X-RateLimit-Remaining": String(rl.remaining) },
     });
   } catch (e) {
+    // [P2-class fix] no exception detail in public responses.
+    console.error("[api/ai/briefing] unavailable", {
+      errorType: e instanceof Error ? e.name : typeof e,
+    });
     return NextResponse.json(
-      { error: String(e), model: "error" },
+      { error: "AI briefing service unavailable", model: "error" },
       {
         status: 500,
         headers: { "X-RateLimit-Remaining": String(rl.remaining) },

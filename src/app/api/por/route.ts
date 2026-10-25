@@ -90,12 +90,17 @@ export async function GET(req: Request) {
       },
     );
   } catch (e) {
+    // Keep operational details server-side; never return exception
+    // messages to public callers. [P2-class fix, follows metrics-route pattern]
+    console.error("[api/por] snapshot unavailable", {
+      errorType: e instanceof Error ? e.name : typeof e,
+    });
     return NextResponse.json(
       {
         protocol: "MTQΣ",
         module: "proof-of-reserve",
         status: "error",
-        error: e instanceof Error ? e.message : "PoR status unavailable",
+        error: "PoR status unavailable",
         computedAt: new Date().toISOString(),
       },
       { status: 503, headers: { "Cache-Control": "no-store, max-age=0" } },

@@ -252,8 +252,12 @@ export async function GET(req: Request) {
       },
     });
   } catch (e: unknown) {
+    // [P2-class fix] no exception detail in public responses.
+    console.error("[api/mandate] ledger unavailable", {
+      errorType: e instanceof Error ? e.name : typeof e,
+    });
     return NextResponse.json(
-      { error: String(e instanceof Error ? e.message : e) },
+      { error: "Mandate ledger unavailable" },
       { status: 503 },
     );
   }
