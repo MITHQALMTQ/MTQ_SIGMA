@@ -250,10 +250,10 @@ function MetricRow({
       ? "text-mtqs-amber"
       : "text-mtqs-gold";
   return (
-    <div className="flex items-baseline justify-between gap-3 py-2 border-b border-white/[0.06] last:border-0">
+    <div className="flex items-baseline justify-between gap-3 py-2 border-b border-[#E3EAE6] last:border-0">
       <div className="min-w-0">
-        <div className="text-[0.65rem] uppercase tracking-[0.16em] text-white/55">{label}</div>
-        {sub ? <div className="text-[0.62rem] text-white/80 mt-0.5">{sub}</div> : null}
+        <div className="text-[0.65rem] uppercase tracking-[0.16em] text-[#5B6E68]">{label}</div>
+        {sub ? <div className="text-[0.62rem] text-[#0E1F1B] mt-0.5">{sub}</div> : null}
       </div>
       <div className={`font-mono tabular-nums text-sm ${toneClass} text-right shrink-0`}>
         {value}
@@ -311,13 +311,13 @@ export function WeightChangeDrawer({
     <Panel className="p-5">
       <div className="mb-3 flex flex-wrap items-start justify-between gap-3">
         <div>
-          <div className="text-[0.625rem] uppercase tracking-[0.25em] text-white/55">
+          <div className="text-[0.625rem] uppercase tracking-[0.25em] text-[#5B6E68]">
             §14 · Weight Change Explainer
           </div>
-          <div className="text-sm font-semibold text-white/90 mt-1">
+          <div className="text-sm font-semibold text-[#0E1F1B] mt-1">
             Why did the weight change? · Click any component to drill in
           </div>
-          <p className="mt-1 text-[0.72rem] text-white/55 leading-relaxed max-w-2xl">
+          <p className="mt-1 text-[0.72rem] text-[#5B6E68] leading-relaxed max-w-2xl">
             Each component&apos;s weight moves through four states (W<sup>Prior</sup> → W<sup>Target</sup> →
             W<sup>Smooth</sup> → W<sup>Execution</sup>) under the MASE ensemble (§6/§7), per-component
             admissibility envelopes (§8.1), EMA smoothing (§8.4), and MARP execution (§10). Click a row
@@ -331,12 +331,12 @@ export function WeightChangeDrawer({
       </div>
 
       {/* Inline basket table — clickable rows */}
-      <div className="overflow-x-auto rounded-md border border-white/[0.06]">
+      <div className="overflow-x-auto rounded-md border border-[#E3EAE6]">
         <table className="w-full text-[0.74rem]">
           <caption className="sr-only">
             Basket component table — click a row to open the weight-change drawer
           </caption>
-          <thead className="bg-white/[0.03] text-white/55">
+          <thead className="bg-[#F7FAF8] text-[#5B6E68]">
             <tr>
               <th className="text-left px-3 py-2 font-medium">Component</th>
               <th className="text-right px-3 py-2 font-medium">W<sup>Prior</sup></th>
@@ -373,12 +373,12 @@ export function WeightChangeDrawer({
                     tabIndex={0}
                     role="button"
                     aria-label={`Open weight-change drawer for ${c}`}
-                    className={`border-b border-white/[0.06] cursor-pointer hover:bg-white/[0.04] focus-visible:bg-white/[0.04] focus-visible:outline-none transition-colors ${
-                      i % 2 ? "bg-white/[0.02]" : ""
+                    className={`border-b border-[#E3EAE6] cursor-pointer hover:bg-[#F0F7F4] focus-visible:bg-[#F0F7F4] focus-visible:outline-none transition-colors ${
+                      i % 2 ? "bg-[#FAFCFA]" : ""
                     }`}
                   >
                     <td className="px-3 py-2 font-mono font-semibold text-mtqs-gold">{c}</td>
-                    <td className="px-3 py-2 text-right font-mono tabular-nums text-white/55">
+                    <td className="px-3 py-2 text-right font-mono tabular-nums text-[#5B6E68]">
                       {(prior * 100).toFixed(2)}%
                     </td>
                     <td className="px-3 py-2 text-right font-mono tabular-nums text-mtqs-gold">
@@ -387,10 +387,10 @@ export function WeightChangeDrawer({
                     <td className="px-3 py-2 text-right font-mono tabular-nums text-mtqs-emerald">
                       {(smoothed * 100).toFixed(2)}%
                     </td>
-                    <td className="px-3 py-2 text-right font-mono tabular-nums text-rose-200">
+                    <td className="px-3 py-2 text-right font-mono tabular-nums text-rose-600">
                       {(execution * 100).toFixed(2)}%
                     </td>
-                    <td className="px-3 py-2 text-right font-mono tabular-nums text-white">
+                    <td className="px-3 py-2 text-right font-mono tabular-nums text-[#0E1F1B]">
                       {(live * 100).toFixed(2)}%
                     </td>
                     <td className="px-3 py-2">
@@ -402,7 +402,7 @@ export function WeightChangeDrawer({
                           {marpD.direction === "buy" ? "▲" : "▼"} {fmtUsdCompact(marpD.tradeUsd)}
                         </span>
                       ) : (
-                        <span className="text-white/70 inline-flex items-center gap-1">
+                        <span className="text-[#5B6E68] inline-flex items-center gap-1">
                           <X className="h-3 w-3" aria-hidden="true" />
                           hold
                         </span>
@@ -414,7 +414,7 @@ export function WeightChangeDrawer({
               })
             ) : (
               <tr>
-                <td colSpan={8} className="px-3 py-6 text-center text-[0.75rem] text-white/55">
+                <td colSpan={8} className="px-3 py-6 text-center text-[0.75rem] text-[#5B6E68]">
                   Weight states not computed yet — snapshot loading.
                 </td>
               </tr>
@@ -436,21 +436,21 @@ export function WeightChangeDrawer({
       <Sheet open={open} onOpenChange={setOpen}>
         <SheetContent
           side="right"
-          className="bg-[#080a0c]/95 backdrop-blur-xl border-l border-mtqs-gold/25 w-full sm:max-w-md md:max-w-lg overflow-y-auto"
+          className="bg-white border-l border-mtqs-gold/25 w-full sm:max-w-md md:max-w-lg overflow-y-auto"
           aria-describedby="weight-change-drawer-desc"
         >
-          <SheetHeader className="pb-2 border-b border-white/[0.06]">
+          <SheetHeader className="pb-2 border-b border-[#E3EAE6]">
             <SheetTitle className="font-mono text-mtqs-gold flex items-center gap-2">
               <SheetIcon className="h-4 w-4" aria-hidden="true" />
               {active ? `Weight Change · ${active}` : "Weight Change"}
             </SheetTitle>
-            <SheetDescription id="weight-change-drawer-desc" className="text-white/55 text-[0.72rem]">
+            <SheetDescription id="weight-change-drawer-desc" className="text-[#5B6E68] text-[0.72rem]">
               §14 attribution · MASE + Envelopes + Smoothing + MARP
             </SheetDescription>
           </SheetHeader>
 
           {!snapshot || !explanation || !active ? (
-            <div className="p-4 text-center text-[0.78rem] text-white/55">
+            <div className="p-4 text-center text-[0.78rem] text-[#5B6E68]">
               Snapshot not loaded — close and try again.
             </div>
           ) : (
@@ -460,27 +460,27 @@ export function WeightChangeDrawer({
                 <div className="text-[0.62rem] uppercase tracking-[0.18em] text-mtqs-gold/80 mb-1">
                   Human-readable summary
                 </div>
-                <p className="text-[0.78rem] text-white/85 leading-relaxed">{explanation.summary}</p>
+                <p className="text-[0.78rem] text-[#0E1F1B] leading-relaxed">{explanation.summary}</p>
               </div>
 
               {/* Weight ladder */}
               <div>
-                <div className="text-[0.65rem] uppercase tracking-[0.18em] text-white/55 mb-2">
+                <div className="text-[0.65rem] uppercase tracking-[0.18em] text-[#5B6E68] mb-2">
                   Four-State Weight Ladder
                 </div>
                 <div className="grid grid-cols-5 gap-2 text-center">
                   {[
-                    { label: "Prior", value: explanation.weights.prior, color: "#c9c4ba" },
-                    { label: "Target", value: explanation.weights.target, color: "#EFC268" },
-                    { label: "Smoothed", value: explanation.weights.smoothed, color: "#00C4DB" },
-                    { label: "Execution", value: explanation.weights.execution, color: "#ff8ea3" },
-                    { label: "Live", value: explanation.weights.live, color: "#ffffff" },
+                    { label: "Prior", value: explanation.weights.prior, color: "#7A8C86" },
+                    { label: "Target", value: explanation.weights.target, color: "#0D9488" },
+                    { label: "Smoothed", value: explanation.weights.smoothed, color: "#14B8A6" },
+                    { label: "Execution", value: explanation.weights.execution, color: "#E11D48" },
+                    { label: "Live", value: explanation.weights.live, color: "#0E1F1B" },
                   ].map((w) => (
                     <div
                       key={w.label}
-                      className="rounded-md border border-white/[0.06] bg-white/[0.03] p-2"
+                      className="rounded-md border border-[#E3EAE6] bg-[#F7FAF8] p-2"
                     >
-                      <div className="text-[0.6rem] uppercase tracking-[0.14em] text-white/55">
+                      <div className="text-[0.6rem] uppercase tracking-[0.14em] text-[#5B6E68]">
                         {w.label}
                       </div>
                       <div
@@ -496,7 +496,7 @@ export function WeightChangeDrawer({
 
               {/* Attribution metrics */}
               <div>
-                <div className="text-[0.65rem] uppercase tracking-[0.18em] text-white/55 mb-1">
+                <div className="text-[0.65rem] uppercase tracking-[0.18em] text-[#5B6E68] mb-1">
                   Attribution
                 </div>
                 <MetricRow
@@ -553,10 +553,10 @@ export function WeightChangeDrawer({
 
               {/* MARP decision block */}
               <div>
-                <div className="text-[0.65rem] uppercase tracking-[0.18em] text-white/55 mb-2">
+                <div className="text-[0.65rem] uppercase tracking-[0.18em] text-[#5B6E68] mb-2">
                   MARP Decision (§10)
                 </div>
-                <div className="rounded-md border border-white/[0.06] bg-white/[0.03] p-3">
+                <div className="rounded-md border border-[#E3EAE6] bg-[#F7FAF8] p-3">
                   <div className="flex items-center justify-between gap-2 mb-2">
                     <div className="inline-flex items-center gap-2">
                       {explanation.direction === "buy" ? (
@@ -566,7 +566,7 @@ export function WeightChangeDrawer({
                       ) : (
                         <GlowDot color="gold" size="h-1.5 w-1.5" />
                       )}
-                      <span className="font-mono uppercase tracking-wider text-[0.7rem] text-white">
+                      <span className="font-mono uppercase tracking-wider text-[0.7rem] text-[#0E1F1B]">
                         {explanation.direction}
                       </span>
                     </div>
@@ -574,26 +574,26 @@ export function WeightChangeDrawer({
                       {explanation.tradeUsd > 0 ? fmtUsdCompact(explanation.tradeUsd) : "—"}
                     </span>
                   </div>
-                  <div className="text-[0.7rem] text-white/75 leading-relaxed">
+                  <div className="text-[0.7rem] text-[#33544C] leading-relaxed">
                     {explanation.reason}
                   </div>
-                  <div className="mt-2 flex items-center justify-between gap-2 text-[0.66rem] text-white/55">
+                  <div className="mt-2 flex items-center justify-between gap-2 text-[0.66rem] text-[#5B6E68]">
                     <span>Urgency</span>
                     <span className="font-mono tabular-nums">
                       {(explanation.urgency * 100).toFixed(1)}%
                     </span>
                   </div>
-                  <div className="mt-1 h-1.5 rounded-full bg-white/[0.06] overflow-hidden">
+                  <div className="mt-1 h-1.5 rounded-full bg-[#E3EAE6] overflow-hidden">
                     <div
                       className="h-full rounded-full"
                       style={{
                         width: `${explanation.urgency * 100}%`,
                         backgroundColor:
                           explanation.urgency >= 0.5
-                            ? "#ff5d73"
+                            ? "#E11D48"
                             : explanation.urgency >= 0.2
-                            ? "#ffb84d"
-                            : "#00C4DB",
+                            ? "#D97706"
+                            : "#14B8A6",
                       }}
                     />
                   </div>
@@ -604,9 +604,9 @@ export function WeightChangeDrawer({
                   the UI (deterministic trace), NOT an engine audit artifact.
                   The former gold "audit" pill implied an audit record that does
                   not exist; it is relabeled honestly below. */}
-              <div className="rounded-md border border-white/[0.06] bg-white/[0.03] p-3 flex items-center justify-between gap-2">
+              <div className="rounded-md border border-[#E3EAE6] bg-[#F7FAF8] p-3 flex items-center justify-between gap-2">
                 <div>
-                  <div className="text-[0.62rem] uppercase tracking-[0.18em] text-white/55">
+                  <div className="text-[0.62rem] uppercase tracking-[0.18em] text-[#5B6E68]">
                     Decision Reference (UI-generated)
                   </div>
                   <div className="font-mono text-mtqs-gold text-[0.78rem] mt-0.5 break-all">
@@ -619,7 +619,7 @@ export function WeightChangeDrawer({
               {/* Chain-Link Divisor (§9.3 · COO-17) — per-update publication */}
               <div>
                 <div className="flex flex-wrap items-center justify-between gap-2 mb-1">
-                  <div className="text-[0.65rem] uppercase tracking-[0.18em] text-white/55">
+                  <div className="text-[0.65rem] uppercase tracking-[0.18em] text-[#5B6E68]">
                     Chain-Link Divisor (§9.3 · COO-17)
                   </div>
                   <Pill tone="gold">
@@ -657,7 +657,7 @@ export function WeightChangeDrawer({
                     sub="no weight change committed in this process lifetime — a record is published on every accepted change only"
                   />
                 )}
-                <p className="text-[0.62rem] text-white/45 leading-relaxed mt-2">
+                <p className="text-[0.62rem] text-[#7A8C86] leading-relaxed mt-2">
                   D_t is recorded-not-applied: the weight change contributes ZERO artificial return
                   — the published level moves only with the §9.2 recursion. B<sup>±</sup> are valued
                   BASE-RELATIVE, Σ W × (P<sub>i,t</sub>/P<sub>i,0</sub>) against the immutable genesis
@@ -670,12 +670,12 @@ export function WeightChangeDrawer({
               </div>
 
               {/* Technical details */}
-              <details className="rounded-md border border-white/[0.06] bg-white/[0.02] p-3">
+              <details className="rounded-md border border-[#E3EAE6] bg-[#F7FAF8] p-3">
                 <summary className="cursor-pointer text-[0.7rem] text-mtqs-gold/80 hover:text-mtqs-gold transition list-none flex items-center gap-1.5">
                   <span aria-hidden="true">▸</span>
                   Technical details (chain index lineage)
                 </summary>
-                <div className="mt-2 space-y-1 text-[0.66rem] text-white/55 leading-relaxed font-mono">
+                <div className="mt-2 space-y-1 text-[0.66rem] text-[#5B6E68] leading-relaxed font-mono">
                   <div>
                     <span className="text-mtqs-gold/80">I_t</span> = {snapshot.chainIndex.I_t.toFixed(6)} ·{" "}
                     <span className="text-mtqs-gold/80">G_t</span> = {snapshot.chainIndex.G_t.toFixed(6)}

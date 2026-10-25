@@ -281,13 +281,13 @@ export function RiskTimeline({ snapshot, limit = 10 }: RiskTimelineProps) {
     <Panel className="p-5">
       <div className="mb-4 flex flex-wrap items-start justify-between gap-3">
         <div>
-          <div className="text-[0.625rem] uppercase tracking-[0.25em] text-white/55">
+          <div className="text-[0.625rem] uppercase tracking-[0.25em] text-[#5B6E68]">
             §23 · Risk Timeline
           </div>
-          <div className="text-sm font-semibold text-white/90 mt-1">
+          <div className="text-sm font-semibold text-[#0E1F1B] mt-1">
             Risk-State Transition History
           </div>
-          <p className="mt-1 text-[0.72rem] text-white/55 leading-relaxed max-w-2xl">
+          <p className="mt-1 text-[0.72rem] text-[#5B6E68] leading-relaxed max-w-2xl">
             The 6-state protocol posture (§14.1) over time. Each row is a state transition with its
             trigger, the policy action applied, and the supporting evidence. Click any row to expand
             the cause attribution. Pilot data is synthetic (deterministic per state episode);
@@ -307,7 +307,7 @@ export function RiskTimeline({ snapshot, limit = 10 }: RiskTimelineProps) {
       </div>
 
       {/* Legend */}
-      <div className="mb-3 flex flex-wrap items-center gap-x-3 gap-y-1 text-[0.66rem] text-white/55">
+      <div className="mb-3 flex flex-wrap items-center gap-x-3 gap-y-1 text-[0.66rem] text-[#5B6E68]">
         {(["NORMAL", "CAUTION", "STRESS", "DEFENSIVE", "EMERGENCY", "RECOVERY"] as const).map((s) => (
           <span key={s} className="inline-flex items-center gap-1.5">
             <span
@@ -320,12 +320,12 @@ export function RiskTimeline({ snapshot, limit = 10 }: RiskTimelineProps) {
       </div>
 
       {/* Table */}
-      <div className="overflow-x-auto rounded-md border border-white/[0.06]">
+      <div className="overflow-x-auto rounded-md border border-[#E3EAE6]">
         <table className="w-full text-[0.72rem]">
           <caption className="sr-only">
             Risk-state transition history — click any row to expand the cause attribution
           </caption>
-          <thead className="bg-white/[0.03] text-white/55">
+          <thead className="bg-[#F7FAF8] text-[#5B6E68]">
             <tr>
               <th className="text-left px-3 py-2 font-medium w-10"></th>
               <th className="text-left px-3 py-2 font-medium">Date</th>
@@ -340,7 +340,7 @@ export function RiskTimeline({ snapshot, limit = 10 }: RiskTimelineProps) {
           <tbody>
             {history.length === 0 ? (
               <tr>
-                <td colSpan={8} className="px-3 py-8 text-center text-[0.78rem] text-white/55">
+                <td colSpan={8} className="px-3 py-8 text-center text-[0.78rem] text-[#5B6E68]">
                   Snapshot not loaded — risk history unavailable.
                 </td>
               </tr>
@@ -366,7 +366,7 @@ export function RiskTimeline({ snapshot, limit = 10 }: RiskTimelineProps) {
         </table>
       </div>
 
-      <div className="mt-3 text-[0.66rem] text-white/70 italic">
+      <div className="mt-3 text-[0.66rem] text-[#5B6E68] italic">
         Synthetic pilot history · deterministic per (current state, enteredAt hour). Production will
         replace this with rows from the RebalancingDecision + DailyStateVector audit-trail DB tables
         (Chapter 24).
@@ -404,11 +404,11 @@ function FragmentRow({
         role="button"
         aria-expanded={isOpen}
         aria-label={`Expand risk transition to ${t.toState} on ${new Date(t.date).toLocaleString()}`}
-        className={`border-b border-white/[0.06] cursor-pointer hover:bg-white/[0.04] focus-visible:bg-white/[0.04] focus-visible:outline-none transition-colors ${
+        className={`border-b border-[#E3EAE6] cursor-pointer hover:bg-[#F0F7F4] focus-visible:bg-[#F0F7F4] focus-visible:outline-none transition-colors ${
           isCurrent ? "bg-mtqs-gold/[0.04]" : ""
         }`}
       >
-        <td className="px-3 py-2 text-white/55">
+        <td className="px-3 py-2 text-[#5B6E68]">
           <motion.span
             animate={{ rotate: isOpen ? 90 : 0 }}
             transition={{ duration: 0.15 }}
@@ -418,7 +418,7 @@ function FragmentRow({
             ▸
           </motion.span>
         </td>
-        <td className="px-3 py-2 font-mono tabular-nums text-white whitespace-nowrap">
+        <td className="px-3 py-2 font-mono tabular-nums text-[#0E1F1B] whitespace-nowrap">
           {new Date(t.date).toLocaleString("en-US", {
             month: "short",
             day: "2-digit",
@@ -446,23 +446,23 @@ function FragmentRow({
             />
             {t.toState}
             {t.fromState !== t.toState && (
-              <span className="text-white/70 font-normal normal-case tracking-normal">
+              <span className="text-[#5B6E68] font-normal normal-case tracking-normal">
                 ← {t.fromState}
               </span>
             )}
           </span>
         </td>
-        <td className="px-3 py-2 text-right font-mono tabular-nums text-white">
+        <td className="px-3 py-2 text-right font-mono tabular-nums text-[#0E1F1B]">
           {fmtRatio(t.rr)}
         </td>
-        <td className="px-3 py-2 text-right font-mono tabular-nums text-white">
+        <td className="px-3 py-2 text-right font-mono tabular-nums text-[#0E1F1B]">
           {Number.isFinite(t.lcr) ? t.lcr.toFixed(3) : "∞"}
         </td>
-        <td className="px-3 py-2 text-white/75">{t.trigger}</td>
-        <td className="px-3 py-2 text-white/55 text-[0.66rem] max-w-[20rem] truncate" title={t.action}>
+        <td className="px-3 py-2 text-[#33544C]">{t.trigger}</td>
+        <td className="px-3 py-2 text-[#5B6E68] text-[0.66rem] max-w-[20rem] truncate" title={t.action}>
           {t.action}
         </td>
-        <td className="px-3 py-2 text-white/55 text-[0.66rem] max-w-[22rem] truncate" title={t.evidence}>
+        <td className="px-3 py-2 text-[#5B6E68] text-[0.66rem] max-w-[22rem] truncate" title={t.evidence}>
           {t.evidence}
         </td>
       </tr>
@@ -473,22 +473,22 @@ function FragmentRow({
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
             transition={{ duration: 0.18 }}
-            className="bg-white/[0.02]"
+            className="bg-[#F7FAF8]"
           >
             <td colSpan={8} className="px-4 pb-4 pt-1">
-              <div className="ml-6 rounded-md border border-white/[0.06] bg-[#080a0c]/60 p-3 space-y-3">
+              <div className="ml-6 rounded-md border border-[#E3EAE6] bg-white p-3 space-y-3">
                 <div>
                   <div className="text-[0.62rem] uppercase tracking-[0.18em] text-mtqs-gold/80 mb-1">
                     Cause Attribution
                   </div>
-                  <div className="text-[0.74rem] text-white/85 leading-relaxed">
+                  <div className="text-[0.74rem] text-[#0E1F1B] leading-relaxed">
                     {t.evidence}
                   </div>
                 </div>
 
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 text-[0.7rem]">
-                  <div className="rounded-md border border-white/[0.06] bg-white/[0.02] p-2.5">
-                    <div className="text-[0.6rem] uppercase tracking-[0.18em] text-white/55 mb-1">
+                  <div className="rounded-md border border-[#E3EAE6] bg-[#F7FAF8] p-2.5">
+                    <div className="text-[0.6rem] uppercase tracking-[0.18em] text-[#5B6E68] mb-1">
                       Worse Condition Binds (§14.1)
                     </div>
                     <div className="font-mono text-mtqs-gold">
@@ -497,11 +497,11 @@ function FragmentRow({
                         : t.detail.worseCondition}
                     </div>
                   </div>
-                  <div className="rounded-md border border-white/[0.06] bg-white/[0.02] p-2.5">
-                    <div className="text-[0.6rem] uppercase tracking-[0.18em] text-white/55 mb-1">
+                  <div className="rounded-md border border-[#E3EAE6] bg-[#F7FAF8] p-2.5">
+                    <div className="text-[0.6rem] uppercase tracking-[0.18em] text-[#5B6E68] mb-1">
                       Threshold Crossed
                     </div>
-                    <div className="font-mono text-white/85 text-[0.66rem] leading-snug">
+                    <div className="font-mono text-[#0E1F1B] text-[0.66rem] leading-snug">
                       {t.detail.thresholdCrossed}
                     </div>
                   </div>
@@ -512,20 +512,20 @@ function FragmentRow({
                     <span className="text-mtqs-emerald font-mono uppercase tracking-wider">
                       Confirmation period
                     </span>
-                    <span className="text-white/55"> · {t.detail.confirmationPeriod} hysteresis window (RECOVERY only)</span>
+                    <span className="text-[#5B6E68]"> · {t.detail.confirmationPeriod} hysteresis window (RECOVERY only)</span>
                   </div>
                 )}
 
                 <div>
-                  <div className="text-[0.62rem] uppercase tracking-[0.18em] text-white/55 mb-1">
+                  <div className="text-[0.62rem] uppercase tracking-[0.18em] text-[#5B6E68] mb-1">
                     Policy Changes Applied
                   </div>
                   {t.detail.policyChanges.length === 0 ? (
-                    <div className="text-[0.72rem] text-white/55 italic">
+                    <div className="text-[0.72rem] text-[#5B6E68] italic">
                       No policy changes (transition was to the same state, or the prior state was already at this posture).
                     </div>
                   ) : (
-                    <ul className="space-y-1 text-[0.72rem] text-white/85">
+                    <ul className="space-y-1 text-[0.72rem] text-[#0E1F1B]">
                       {t.detail.policyChanges.map((p, i) => (
                         <li key={i} className="flex items-start gap-1.5">
                           <span className="text-mtqs-gold mt-0.5" aria-hidden="true">•</span>
@@ -536,11 +536,11 @@ function FragmentRow({
                   )}
                 </div>
 
-                <div className="rounded-md border border-white/[0.06] bg-white/[0.02] p-2.5">
-                  <div className="text-[0.62rem] uppercase tracking-[0.18em] text-white/55 mb-1">
+                <div className="rounded-md border border-[#E3EAE6] bg-[#F7FAF8] p-2.5">
+                  <div className="text-[0.62rem] uppercase tracking-[0.18em] text-[#5B6E68] mb-1">
                     Action (§14.1 policy row)
                   </div>
-                  <div className="text-[0.72rem] text-white/85 leading-relaxed font-mono">
+                  <div className="text-[0.72rem] text-[#0E1F1B] leading-relaxed font-mono">
                     {t.action}
                   </div>
                 </div>

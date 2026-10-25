@@ -85,8 +85,8 @@ export function SimulationSection({
       {/* Amber truth banner (shared component) */}
       <Reveal>
         <TruthBanner>
-          <p className="text-[0.75rem] text-amber-100/90 leading-relaxed">
-            Every lab on this page runs the <strong className="text-amber-100">simulated pilot
+          <p className="text-[0.75rem] text-amber-700/90 leading-relaxed">
+            Every lab on this page runs the <strong className="text-amber-800">simulated pilot
             engine</strong> on a state-clone — no on-chain broadcast, no real value, no mutation of
             pilot state. The labs exercise real blueprint mechanics (§3.3, §9.2, §21.5) against live
             pilot data; they are not the Chapter 23 validation program and they pass no §25.5 gate.
@@ -135,18 +135,18 @@ export function SimulationSection({
       >
         <Reveal>
           <Panel className="p-4 sm:p-5">
-            <p className="text-[0.75rem] text-white/55 leading-relaxed">
+            <p className="text-[0.75rem] text-[#5B6E68] leading-relaxed">
               The full §23 stress matrix — scenarios <span className="font-mono text-mtqs-gold-light">S1–S11</span>:
               Monte Carlo runs (S1–S4, 2,000 paths per scenario), reserve stress episodes (S5–S10) and
               the parameter perturbation study (S11), all measured through the reserve stress equation —
-              runs on the <strong className="text-white/85">Validation</strong> tab, backed by the
+              runs on the <strong className="text-[#0E1F1B]">Validation</strong> tab, backed by the
               audit-stress engine and its dedicated API. This lab page keeps the two §21.5 drills; the
               research-grade suites belong with the validation evidence they feed.
             </p>
             <button
               type="button"
               onClick={() => onNavigate("validation")}
-              className="mt-3 inline-flex items-center gap-1.5 rounded-lg border border-white/10 px-3 py-1.5 text-[0.75rem] font-medium text-white/80 hover:bg-white/5 hover:text-white transition"
+              className="mt-3 inline-flex items-center gap-1.5 rounded-lg border border-[#E3EAE6] px-3 py-1.5 text-[0.75rem] font-medium text-[#0E1F1B] hover:bg-[#F0F7F4] hover:text-[#0E1F1B] transition"
             >
               Open Validation &amp; Research
               <ArrowRight className="h-3.5 w-3.5" aria-hidden="true" />
@@ -168,12 +168,12 @@ export function SimulationSection({
             <Panel className="p-4 sm:p-5 h-full">
               <div className="flex items-center gap-2 mb-3">
                 <CheckCircle2 className="h-4 w-4 text-mtqs-emerald" aria-hidden="true" />
-                <span className="text-[0.82rem] font-semibold text-white/90">What they prove</span>
+                <span className="text-[0.82rem] font-semibold text-[#0E1F1B]">What they prove</span>
                 <Pill tone="emerald" className="ml-auto">about the labs</Pill>
               </div>
               <ul className="space-y-2.5 max-h-96 overflow-y-auto mtqs-scroll pr-1">
                 {LABS_PROVE.map((item) => (
-                  <li key={item} className="flex gap-2 text-[0.72rem] text-white/60 leading-relaxed">
+                  <li key={item} className="flex gap-2 text-[0.72rem] text-[#5B6E68] leading-relaxed">
                     <CheckCircle2 className="h-3.5 w-3.5 text-mtqs-emerald/70 shrink-0 mt-0.5" aria-hidden="true" />
                     <span>{item}</span>
                   </li>
@@ -185,12 +185,12 @@ export function SimulationSection({
             <Panel className="p-4 sm:p-5 h-full">
               <div className="flex items-center gap-2 mb-3">
                 <XCircle className="h-4 w-4 text-mtqs-rose" aria-hidden="true" />
-                <span className="text-[0.82rem] font-semibold text-white/90">What they do NOT</span>
+                <span className="text-[0.82rem] font-semibold text-[#0E1F1B]">What they do NOT</span>
                 <Pill tone="rose" className="ml-auto">scope limits</Pill>
               </div>
               <ul className="space-y-2.5 max-h-96 overflow-y-auto mtqs-scroll pr-1">
                 {LABS_DO_NOT.map((item) => (
-                  <li key={item} className="flex gap-2 text-[0.72rem] text-white/60 leading-relaxed">
+                  <li key={item} className="flex gap-2 text-[0.72rem] text-[#5B6E68] leading-relaxed">
                     <XCircle className="h-3.5 w-3.5 text-mtqs-rose/70 shrink-0 mt-0.5" aria-hidden="true" />
                     <span>{item}</span>
                   </li>
@@ -200,7 +200,7 @@ export function SimulationSection({
                 <code className="font-mono text-[0.7rem] text-mtqs-amber">
                   {"Perf(old architecture) not⇒ Perf(MTQΣ)   — §23.1"}
                 </code>
-                <p className="mt-1.5 text-[0.65rem] text-amber-100/75 leading-relaxed">
+                <p className="mt-1.5 text-[0.65rem] text-amber-700 leading-relaxed">
                   The negative rule that opens the validation methodology: historical figures produced
                   under the prior architecture must not be presented as evidence for MTQΣ — and neither
                   may anything this lab page displays.

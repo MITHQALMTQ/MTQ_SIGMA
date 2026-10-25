@@ -180,8 +180,8 @@ export function MintSection({
           that would override the amber border/background utilities. */}
       <Reveal>
         <TruthBanner>
-          <p className="text-[0.75rem] text-amber-100/90 leading-relaxed">
-            This mint page runs the <strong className="text-amber-100">simulated pilot engine</strong> —
+          <p className="text-[0.75rem] text-amber-700/90 leading-relaxed">
+            This mint page runs the <strong className="text-amber-800">simulated pilot engine</strong> —
             no on-chain broadcast, no real value. The simulator posts to the pilot&apos;s
             /api/simulate/mint endpoint, which applies the §19.2 quote and the §19.7 guards against
             the live snapshot and records the run in the trial ledger. Nothing here mints a real token.
@@ -252,7 +252,7 @@ export function MintSection({
               setWallet={setWallet}
               onAfterTrial={onAfterTrial}
             />
-            <p className="mt-3 text-[0.65rem] text-white/45 leading-relaxed">
+            <p className="mt-3 text-[0.65rem] text-[#7A8C86] leading-relaxed">
               Every run is recorded in the pilot trial ledger (SQLite). No wallet signature is ever
               requested — the pilot engine does not broadcast transactions. Oracle pause (§9.3) or an
               elevated risk state (§21.3) suspends the mint path exactly as the contract would.
@@ -272,7 +272,7 @@ export function MintSection({
           <Panel className="p-4 sm:p-5 space-y-4">
             {/* 16f-008: the §19.2 walkthrough documents the legacy v1/v2
                 reserve-funded engine path as implemented in the pilot. */}
-            <div className="rounded-md border border-mtqs-amber/25 bg-amber-400/[0.04] px-3 py-2 text-[0.68rem] leading-relaxed text-white/60">
+            <div className="rounded-md border border-mtqs-amber/25 bg-amber-50 px-3 py-2 text-[0.68rem] leading-relaxed text-[#5B6E68]">
               <span className="font-semibold text-mtqs-amber">Legacy v1/v2 pilot-ledger path.</span>{" "}
               The steps below document the reserve-funded engine path as implemented; the v3.0
               no-conventional-reserve objective (payment-funded issuance) supersedes it — Gate B
@@ -285,12 +285,12 @@ export function MintSection({
               </div>
               <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
                 {MINT_INPUTS.map((input) => (
-                  <div key={input.param} className="rounded-md border border-white/[0.06] bg-white/[0.03] p-3">
+                  <div key={input.param} className="rounded-md border border-[#E3EAE6] bg-[#F7FAF8] p-3">
                     <div className="flex items-baseline justify-between gap-2">
-                      <span className="text-[0.72rem] font-medium text-white/90">{input.param}</span>
+                      <span className="text-[0.72rem] font-medium text-[#0E1F1B]">{input.param}</span>
                       <code className="font-mono text-[0.68rem] text-mtqs-gold-light">{input.symbol}</code>
                     </div>
-                    <p className="mt-1.5 text-[0.68rem] text-white/55 leading-relaxed">{input.desc}</p>
+                    <p className="mt-1.5 text-[0.68rem] text-[#5B6E68] leading-relaxed">{input.desc}</p>
                   </div>
                 ))}
               </div>
@@ -308,10 +308,10 @@ export function MintSection({
                       {i + 1}
                     </span>
                     <div className="min-w-0">
-                      <div className="text-[0.8rem] font-medium text-white/90">{step.title}</div>
-                      <p className="text-[0.72rem] text-white/55 leading-relaxed">{step.body}</p>
+                      <div className="text-[0.8rem] font-medium text-[#0E1F1B]">{step.title}</div>
+                      <p className="text-[0.72rem] text-[#5B6E68] leading-relaxed">{step.body}</p>
                       {step.formula ? (
-                        <code className="mt-1.5 inline-block rounded bg-white/[0.04] px-1.5 py-0.5 font-mono text-[0.68rem] text-mtqs-gold-light">
+                        <code className="mt-1.5 inline-block rounded bg-[#F7FAF8] px-1.5 py-0.5 font-mono text-[0.68rem] text-mtqs-gold-light">
                           {step.formula}
                         </code>
                       ) : null}
@@ -319,7 +319,7 @@ export function MintSection({
                   </li>
                 ))}
               </ol>
-              <p className="mt-3 text-[0.68rem] text-white/45 leading-relaxed">
+              <p className="mt-3 text-[0.68rem] text-[#7A8C86] leading-relaxed">
                 On success the operation emits <code className="font-mono text-[0.65rem] text-mtqs-gold-light">Minted(user, tokenIn, amountIn, mtqMinted, mtqPrice)</code>,
                 and <code className="font-mono text-[0.65rem] text-mtqs-gold-light">SlippageWarning</code> whenever
                 a guard binds — both events feed the transparency and audit layer (§24.4). Reference
@@ -340,32 +340,32 @@ export function MintSection({
         <Reveal>
           <Panel className="p-4 sm:p-5 space-y-4">
             <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-              <div className="rounded-md border border-white/[0.06] bg-white/[0.03] px-3 py-2.5">
-                <div className="text-[0.6rem] uppercase tracking-[0.22em] text-white/45 mb-1.5">
+              <div className="rounded-md border border-[#E3EAE6] bg-[#F7FAF8] px-3 py-2.5">
+                <div className="text-[0.6rem] uppercase tracking-[0.22em] text-[#7A8C86] mb-1.5">
                   revert condition
                 </div>
                 <code className="font-mono text-[0.78rem] text-mtqs-gold-light">
                   {"revert if MTQ_minted < minMTQOut"}
                 </code>
-                <p className="mt-2 text-[0.68rem] text-white/55 leading-relaxed">
+                <p className="mt-2 text-[0.68rem] text-[#5B6E68] leading-relaxed">
                   The user sets minMTQOut — the minimum number of MTQ tokens they are willing to accept.
                   If the actual minted amount would be less, the whole transaction reverts.
                 </p>
               </div>
-              <div className="rounded-md border border-white/[0.06] bg-white/[0.03] px-3 py-2.5">
-                <div className="text-[0.6rem] uppercase tracking-[0.22em] text-white/45 mb-1.5">
+              <div className="rounded-md border border-[#E3EAE6] bg-[#F7FAF8] px-3 py-2.5">
+                <div className="text-[0.6rem] uppercase tracking-[0.22em] text-[#7A8C86] mb-1.5">
                   default guard from the quote
                 </div>
                 <code className="font-mono text-[0.78rem] text-mtqs-gold-light">
                   {"minMTQOut_default = (X_net / P_MTQ,t) × (1 − τ_user)"}
                 </code>
-                <p className="mt-2 text-[0.68rem] text-white/55 leading-relaxed">
+                <p className="mt-2 text-[0.68rem] text-[#5B6E68] leading-relaxed">
                   When the user does not supply an explicit value, the contract and front-ends derive it
                   from the current quote and the declared tolerance.
                 </p>
               </div>
             </div>
-            <ul className="space-y-2 text-[0.72rem] text-white/55 leading-relaxed">
+            <ul className="space-y-2 text-[0.72rem] text-[#5B6E68] leading-relaxed">
               <li className="flex gap-2">
                 <span className="text-mtqs-gold shrink-0" aria-hidden="true">·</span>
                 <span>
@@ -408,10 +408,10 @@ export function MintSection({
             {MINT_NOTES.map((note) => (
               <Panel key={note.ref} className="p-4 h-full">
                 <div className="flex items-center justify-between gap-2 mb-2">
-                  <div className="text-[0.8rem] font-semibold text-white/90">{note.title}</div>
+                  <div className="text-[0.8rem] font-semibold text-[#0E1F1B]">{note.title}</div>
                   <Pill tone="gold">{note.ref}</Pill>
                 </div>
-                <p className="text-[0.72rem] text-white/55 leading-relaxed">{note.body}</p>
+                <p className="text-[0.72rem] text-[#5B6E68] leading-relaxed">{note.body}</p>
               </Panel>
             ))}
           </div>
@@ -459,7 +459,7 @@ export function MintSection({
                 sub="chain-linked reference index · §9.8 + Ch 17 aggregator"
               />
             </div>
-            <p className="mt-4 text-[0.68rem] text-white/45 leading-relaxed">
+            <p className="mt-4 text-[0.68rem] text-[#7A8C86] leading-relaxed">
               F_mint is state-independent — 0.10% in every risk state (§19.7); Chapter 21 governs
               whether minting is allowed, throttled or paused, and the parameter itself is tunable
               only through the governance process of §19.7 (parameter registry §22.3 is the

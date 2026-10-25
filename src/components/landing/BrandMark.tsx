@@ -1,21 +1,22 @@
-// MTQΣ landing — brand mark.
-// Reference-accurate logo: a circular coin-badge — dark glass disc inside a
-// neon gradient ring (cyan → blue → violet) — containing a sharp FACETED M
-// built from two overlapping gradient chevrons (mountain form) with four
-// crystalline facets: cyan → blue → indigo → violet.
+// MTQΣ landing — brand mark (fresh light redesign).
+// The neon cyan→blue→violet gradient ring and glow shadows were retired
+// with the dark theme. The mark keeps its shape — a dark disc containing
+// the faceted M (double chevron) — now in the fresh spring-teal family
+// with a simple hairline ring. Flat, crisp, readable on white.
 export function BrandMark({
   size = 20,
   className = "",
-  glow = true,
+  glow = false,
   bare = false,
 }: {
   size?: number;
   className?: string;
+  /** Legacy prop — glows are retired; accepted for API compatibility. */
   glow?: boolean;
   /** Render only the faceted M — no disc, no ring (globe emblem mode). */
   bare?: boolean;
 }) {
-  const uid = `bm${glow ? "g" : "n"}${bare ? "b" : ""}${size}`;
+  const uid = `bm${bare ? "b" : ""}${size}`;
   return (
     <svg
       width={size}
@@ -23,41 +24,30 @@ export function BrandMark({
       viewBox="0 0 48 48"
       className={className}
       aria-hidden
-      style={
-        glow
-          ? {
-              filter: `drop-shadow(0 0 ${size * 0.12}px rgba(34,211,238,0.34)) drop-shadow(0 0 ${size * 0.32}px rgba(139,92,246,0.30))`,
-            }
-          : undefined
-      }
     >
       <defs>
-        <linearGradient id={`${uid}-ring`} x1="6" y1="6" x2="42" y2="42" gradientUnits="userSpaceOnUse">
-          <stop offset="0" stopColor="#22d3ee" />
-          <stop offset="0.5" stopColor="#3b82f6" />
-          <stop offset="1" stopColor="#a855f7" />
-        </linearGradient>
+        {/* disc — deep ink */}
         <radialGradient id={`${uid}-disc`} cx="42%" cy="32%" r="78%">
-          <stop offset="0" stopColor="#15335c" />
-          <stop offset="0.55" stopColor="#0a1e3f" />
-          <stop offset="1" stopColor="#04101f" />
+          <stop offset="0" stopColor="#17382F" />
+          <stop offset="0.55" stopColor="#122822" />
+          <stop offset="1" stopColor="#0E1F1B" />
         </radialGradient>
-        {/* four crystalline facets of the double-chevron M */}
+        {/* four crystalline facets of the double-chevron M — fresh teal ramp */}
         <linearGradient id={`${uid}-f1`} x1="8" y1="9" x2="29" y2="40" gradientUnits="userSpaceOnUse">
-          <stop offset="0" stopColor="#48eefb" />
-          <stop offset="1" stopColor="#0fb0e8" />
+          <stop offset="0" stopColor="#5EEAD4" />
+          <stop offset="1" stopColor="#14B8A6" />
         </linearGradient>
         <linearGradient id={`${uid}-f2`} x1="18" y1="9" x2="40" y2="40" gradientUnits="userSpaceOnUse">
-          <stop offset="0" stopColor="#3ec4f9" />
-          <stop offset="1" stopColor="#2563eb" />
+          <stop offset="0" stopColor="#2DD4BF" />
+          <stop offset="1" stopColor="#0D9488" />
         </linearGradient>
         <linearGradient id={`${uid}-f3`} x1="18" y1="9" x2="40" y2="40" gradientUnits="userSpaceOnUse">
-          <stop offset="0" stopColor="#6d6ef5" />
-          <stop offset="1" stopColor="#9257f8" />
+          <stop offset="0" stopColor="#14B8A6" />
+          <stop offset="1" stopColor="#0F766E" />
         </linearGradient>
         <linearGradient id={`${uid}-f4`} x1="29" y1="9" x2="41" y2="40" gradientUnits="userSpaceOnUse">
-          <stop offset="0" stopColor="#b465f8" />
-          <stop offset="1" stopColor="#8b34f0" />
+          <stop offset="0" stopColor="#0D9488" />
+          <stop offset="1" stopColor="#115E59" />
         </linearGradient>
       </defs>
 
@@ -65,18 +55,18 @@ export function BrandMark({
       {!bare && (
         <>
           <circle cx="24" cy="24" r="21.4" fill={`url(#${uid}-disc)`} />
-          <ellipse cx="19.5" cy="15.5" rx="13" ry="8" fill="rgba(148,197,255,0.10)" />
+          <ellipse cx="19.5" cy="15.5" rx="13" ry="8" fill="rgba(94,234,212,0.10)" />
         </>
       )}
 
-      {/* faceted M — two overlapping chevrons (cyan-left / violet-right). */}
+      {/* faceted M — two overlapping teal chevrons */}
       <g>
         {!bare && (
           <g transform="translate(0 2.6)" opacity="0.9">
-            <path d="M7.5 37.5 L18.5 9 L18.5 15 L7.5 40 Z" fill="#06182f" />
-            <path d="M18.5 9 L29.5 37.5 L29.5 40 L18.5 15 Z" fill="#0a1f3c" />
-            <path d="M18.5 37.5 L29.5 9 L29.5 15 L18.5 40 Z" fill="#0c1c3d" />
-            <path d="M29.5 9 L40.5 37.5 L40.5 40 L29.5 15 Z" fill="#180f38" />
+            <path d="M7.5 37.5 L18.5 9 L18.5 15 L7.5 40 Z" fill="#0B1B16" />
+            <path d="M18.5 9 L29.5 37.5 L29.5 40 L18.5 15 Z" fill="#0F241E" />
+            <path d="M18.5 37.5 L29.5 9 L29.5 15 L18.5 40 Z" fill="#122B24" />
+            <path d="M29.5 9 L40.5 37.5 L40.5 40 L29.5 15 Z" fill="#1B0F2E" />
           </g>
         )}
         <path d="M7.5 37.5 L18.5 9 L18.5 15 L7.5 40 Z" fill={`url(#${uid}-f1)`} />
@@ -85,12 +75,11 @@ export function BrandMark({
         <path d="M29.5 9 L40.5 37.5 L40.5 40 L29.5 15 Z" fill={`url(#${uid}-f4)`} />
       </g>
 
-      {/* neon gradient ring — skipped in bare mode */}
+      {/* simple teal ring — skipped in bare mode */}
       {!bare && (
         <>
-          <circle cx="24" cy="24" r="22.2" fill="none" stroke={`url(#${uid}-ring)`} strokeWidth="2.3" />
-          <circle cx="24" cy="24" r="20" fill="none" stroke="rgba(255,255,255,0.12)" strokeWidth="0.9" />
-          <circle cx="24" cy="24" r="23.3" fill="none" stroke="rgba(255,255,255,0.07)" strokeWidth="0.8" />
+          <circle cx="24" cy="24" r="22.2" fill="none" stroke="#0D9488" strokeWidth="2.3" />
+          <circle cx="24" cy="24" r="20" fill="none" stroke="rgba(255,255,255,0.10)" strokeWidth="0.9" />
         </>
       )}
     </svg>

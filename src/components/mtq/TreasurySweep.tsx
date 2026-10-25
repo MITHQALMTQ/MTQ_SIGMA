@@ -12,7 +12,7 @@ import type { MetricsSnapshot } from "@/lib/mtq/engine";
 
 export function TreasurySweep({ snapshot }: { snapshot: MetricsSnapshot | null }) {
   if (!snapshot) {
-    return <div className="h-44 animate-pulse rounded-lg bg-white/[0.03]" />;
+    return <div className="h-44 animate-pulse rounded-lg bg-[#F7FAF8]" />;
   }
   const t = snapshot.treasury;
   const fillPct = Math.min(1, t.hotWalletUsd / TREASURY_SWEEP_THRESHOLD_USD);
@@ -23,8 +23,8 @@ export function TreasurySweep({ snapshot }: { snapshot: MetricsSnapshot | null }
     <Panel className="p-5">
       <div className="mb-3 flex items-center justify-between">
         <div>
-          <div className="text-sm font-semibold text-white/90">Treasury Sweep (§13.2)</div>
-          <div className="text-[0.7rem] text-white/55">hot-wallet surplus → 4/7 Multi-Sig Cold Treasury (design target — not yet instantiated; the pilot Safe is 1/1 deployer-controlled)</div>
+          <div className="text-sm font-semibold text-[#0E1F1B]">Treasury Sweep (§13.2)</div>
+          <div className="text-[0.7rem] text-[#5B6E68]">hot-wallet surplus → 4/7 Multi-Sig Cold Treasury (design target — not yet instantiated; the pilot Safe is 1/1 deployer-controlled)</div>
         </div>
         <Pill tone={overThreshold ? "rose" : nearThreshold ? "amber" : "emerald"}>
           <GlowDot color={overThreshold ? "rose" : nearThreshold ? "amber" : "emerald"} size="h-1.5 w-1.5" />
@@ -35,21 +35,21 @@ export function TreasurySweep({ snapshot }: { snapshot: MetricsSnapshot | null }
       {/* Hot wallet fill visual */}
       <div className="mb-4">
         <div className="flex items-baseline justify-between mb-1.5">
-          <span className="text-[0.65rem] uppercase tracking-[0.2em] text-white/55">Hot Wallet</span>
+          <span className="text-[0.65rem] uppercase tracking-[0.2em] text-[#5B6E68]">Hot Wallet</span>
           <TickNumber value={t.hotWalletUsd} format={fmtUsd} className={`font-mono text-sm font-semibold ${overThreshold ? "text-mtqs-rose" : nearThreshold ? "text-mtqs-gold" : "text-mtqs-emerald"}`} />
         </div>
-        <div className="relative h-4 rounded-md border border-white/[0.06] bg-white/[0.02] overflow-hidden">
+        <div className="relative h-4 rounded-md border border-[#E3EAE6] bg-[#F7FAF8] overflow-hidden">
           <motion.div
-            className={`absolute inset-y-0 left-0 ${overThreshold ? "bg-rose-400" : nearThreshold ? "bg-amber-400" : "bg-emerald-400"}`}
+            className={`absolute inset-y-0 left-0 ${overThreshold ? "bg-rose-500" : nearThreshold ? "bg-amber-500" : "bg-emerald-500"}`}
             initial={{ width: 0 }}
             animate={{ width: `${fillPct * 100}%` }}
             transition={{ duration: 0.5 }}
           />
           {/* Threshold tick */}
-          <div className="absolute inset-y-0 w-px bg-rose-400/60" style={{ left: "100%", transform: "translateX(-1px)" }} />
-          <div className="absolute inset-y-0 w-px bg-amber-400/50" style={{ left: "70%" }} />
+          <div className="absolute inset-y-0 w-px bg-rose-500/60" style={{ left: "100%", transform: "translateX(-1px)" }} />
+          <div className="absolute inset-y-0 w-px bg-amber-500/50" style={{ left: "70%" }} />
         </div>
-        <div className="mt-1 flex justify-between text-[0.6rem] font-mono text-white/60">
+        <div className="mt-1 flex justify-between text-[0.6rem] font-mono text-[#5B6E68]">
           <span>$0</span>
           <span>70% ({fmtUsdCompact(TREASURY_SWEEP_THRESHOLD_USD * 0.7)})</span>
           <span>${(TREASURY_SWEEP_THRESHOLD_USD / 1000).toFixed(0)}K threshold</span>
@@ -58,29 +58,29 @@ export function TreasurySweep({ snapshot }: { snapshot: MetricsSnapshot | null }
 
       {/* Cold treasury + sweep history */}
       <div className="grid grid-cols-2 sm:grid-cols-3 gap-2 text-[0.75rem]">
-        <div className="rounded-md border border-white/[0.06] bg-white/[0.02] p-2.5">
-          <div className="text-white/55 text-[0.65rem] uppercase tracking-[0.18em]">Cold Treasury</div>
+        <div className="rounded-md border border-[#E3EAE6] bg-[#F7FAF8] p-2.5">
+          <div className="text-[#5B6E68] text-[0.65rem] uppercase tracking-[0.18em]">Cold Treasury</div>
           <div className="font-mono text-mtqs-gold text-sm font-semibold">{fmtUsd(t.coldTreasuryUsd)}</div>
         </div>
-        <div className="rounded-md border border-white/[0.06] bg-white/[0.02] p-2.5">
-          <div className="text-white/55 text-[0.65rem] uppercase tracking-[0.18em]">Last Sweep</div>
+        <div className="rounded-md border border-[#E3EAE6] bg-[#F7FAF8] p-2.5">
+          <div className="text-[#5B6E68] text-[0.65rem] uppercase tracking-[0.18em]">Last Sweep</div>
           <div className="font-mono text-mtqs-gold text-sm">
             {t.lastSweepAt > 0 ? (
               <>
                 {fmtUsdCompact(t.lastSweepAmount)} · {fmtAgo(t.lastSweepAt)}
               </>
             ) : (
-              <span className="text-white/60">no sweep yet</span>
+              <span className="text-[#5B6E68]">no sweep yet</span>
             )}
           </div>
         </div>
-        <div className="rounded-md border border-white/[0.06] bg-white/[0.02] p-2.5">
-          <div className="text-white/55 text-[0.65rem] uppercase tracking-[0.18em]">Total Swept</div>
+        <div className="rounded-md border border-[#E3EAE6] bg-[#F7FAF8] p-2.5">
+          <div className="text-[#5B6E68] text-[0.65rem] uppercase tracking-[0.18em]">Total Swept</div>
           <div className="font-mono text-mtqs-gold text-sm font-semibold">{fmtUsd(t.totalSwept)}</div>
         </div>
       </div>
 
-      <p className="mt-3 text-[0.72rem] text-white/55 leading-relaxed">
+      <p className="mt-3 text-[0.72rem] text-[#5B6E68] leading-relaxed">
         Authority: <span className="font-mono text-mtqs-gold">{TREASURY_SWEEP_AUTHORITY}</span> (design target — not yet instantiated; the pilot Safe is 1/1 deployer-controlled). When the hot-wallet surplus stablecoins exceed <span className="font-mono text-mtqs-gold">{fmtUsd(TREASURY_SWEEP_THRESHOLD_USD)}</span>, the excess above $10,000 is swept to the cold treasury, keeping the $10,000 threshold as the operating balance (§20.3).
       </p>
     </Panel>

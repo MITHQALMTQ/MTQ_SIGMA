@@ -280,14 +280,14 @@ function StateChip({ state, highlight }: { state: string; highlight?: boolean })
     tone === "emerald"
       ? "border-mtqs-emerald/40 bg-mtqs-emerald/10 text-mtqs-emerald"
       : tone === "rose"
-        ? "border-rose-400/40 bg-rose-400/10 text-rose-300"
+        ? "border-rose-200 bg-rose-50 text-rose-600"
         : tone === "amber"
           ? "border-mtqs-amber/40 bg-mtqs-amber/10 text-mtqs-amber"
-          : "border-white/[0.08] bg-white/[0.03] text-white/60";
+          : "border-[#E3EAE6] bg-[#F7FAF8] text-[#5B6E68]";
   return (
     <span
       className={`inline-flex items-center rounded-md border px-1.5 py-0.5 font-mono text-[0.62rem] font-medium tracking-tight ${base} ${
-        highlight ? "ring-1 ring-mtqs-gold/60 ring-offset-1 ring-offset-[#0a0d18]" : ""
+        highlight ? "ring-1 ring-mtqs-gold/60 ring-offset-1 ring-offset-white" : ""
       }`}
     >
       {state}
@@ -296,11 +296,11 @@ function StateChip({ state, highlight }: { state: string; highlight?: boolean })
 }
 
 function CheckMark({ ok }: { ok: boolean | null }) {
-  if (ok === null) return <span className="text-white/30" aria-label="not applicable">—</span>;
+  if (ok === null) return <span className="text-[#7A8C86]" aria-label="not applicable">—</span>;
   return ok ? (
     <CheckCircle2 className="h-3.5 w-3.5 text-mtqs-emerald" aria-label="matches expected" />
   ) : (
-    <XCircle className="h-3.5 w-3.5 text-rose-400" aria-label="does not match expected" />
+    <XCircle className="h-3.5 w-3.5 text-rose-600" aria-label="does not match expected" />
   );
 }
 
@@ -416,13 +416,13 @@ export function IssuanceSection({
           <div className="flex items-start gap-3 mb-4">
             <Coins className="h-5 w-5 text-mtqs-gold/80 mt-0.5 shrink-0" aria-hidden="true" />
             <div className="min-w-0">
-              <h3 className="text-sm font-semibold text-white/90 mb-1">
+              <h3 className="text-sm font-semibold text-[#0E1F1B] mb-1">
                 Payment-Funded Primary Issuance — Pilot (spec §14.4 12-step workflow / §14.6 8-stage controlled process)
               </h3>
-              <p className="text-[0.78rem] text-white/55 leading-relaxed">
+              <p className="text-[0.78rem] text-[#5B6E68] leading-relaxed">
                 A payment funds a primary issuance only through the full controlled workflow: request → quote →
                 payment → authenticity → settlement finality → instrument re-check → fees → net value → ALT-4
-                authorization → supply caps → <span className="text-white/85">ISSUED (ledger record)</span> →
+                authorization → supply caps → <span className="text-[#0E1F1B]">ISSUED (ledger record)</span> →
                 three-book reconciliation. <span className="text-mtqs-amber">A payment event ALONE never mints — INV-A, unconditional.</span>
               </p>
             </div>
@@ -436,7 +436,7 @@ export function IssuanceSection({
           >
             <div className="flex items-start gap-2.5">
               <ShieldAlert className="h-4 w-4 text-mtqs-amber mt-0.5 shrink-0" aria-hidden="true" />
-              <p className="text-[0.74rem] font-semibold text-amber-100/90 tracking-wide leading-relaxed">
+              <p className="text-[0.74rem] font-semibold text-amber-700 tracking-wide leading-relaxed">
                 {snapLoading && !snap ? "…" : (snap?.banner ?? "TESTNET ONLY · SHADOW MODE ENFORCED · LEDGER RECORDS ONLY — NEVER ON-CHAIN · ECONOMIC VALUES UNAPPROVED / ILLUSTRATIVE · NOT ACCEPTED")}
               </p>
             </div>
@@ -457,12 +457,12 @@ export function IssuanceSection({
           </div>
 
           {/* Machine label */}
-          <p className="mt-4 text-[0.68rem] text-white/40 leading-relaxed">
+          <p className="mt-4 text-[0.68rem] text-[#7A8C86] leading-relaxed">
             {snap?.labels.machineLabel ??
               "PAYMENT-FUNDED PRIMARY ISSUANCE STATE MACHINE — TEST LEDGER ONLY · NEVER ON-CHAIN · ISSUED = LEDGER RECORD ONLY."}
           </p>
           {snap?.labels.d1327Status ? (
-            <p className="mt-2 text-[0.66rem] text-white/35 leading-relaxed">
+            <p className="mt-2 text-[0.66rem] text-[#7A8C86] leading-relaxed">
               D-13.27 — {snap.labels.d1327Status}
             </p>
           ) : null}
@@ -484,24 +484,24 @@ export function IssuanceSection({
         />
         <Reveal>
           <Panel className="p-5">
-            <h3 id="issuance-registry-h" className="text-sm font-semibold text-white/90 mb-1">
+            <h3 id="issuance-registry-h" className="text-sm font-semibold text-[#0E1F1B] mb-1">
               BORN EMPTY · FAIL-CLOSED ADMISSION
             </h3>
-            <p className="text-[0.74rem] text-white/55 leading-relaxed mb-4">
+            <p className="text-[0.74rem] text-[#5B6E68] leading-relaxed mb-4">
               {snap?.registry.bornEmptyNote ??
                 "BORN EMPTY — the production registry is born empty and admission is FAIL-CLOSED; the rows below are TEST-ONLY synthetic fixtures."}
             </p>
 
             {snapError ? (
-              <div className="p-4 rounded-lg border border-rose-400/30 bg-rose-400/[0.06]">
+              <div className="p-4 rounded-lg border border-rose-200 bg-rose-50">
                 <div className="flex items-center gap-2 mb-1">
-                  <ShieldAlert className="h-4 w-4 text-rose-300" aria-hidden="true" />
-                  <span className="text-[0.8rem] font-semibold text-rose-100">Registry snapshot unavailable</span>
+                  <ShieldAlert className="h-4 w-4 text-rose-600" aria-hidden="true" />
+                  <span className="text-[0.8rem] font-semibold text-rose-700">Registry snapshot unavailable</span>
                 </div>
-                <p className="text-[0.72rem] text-rose-100/70 mb-2">/api/issuance did not respond ({snapError}).</p>
+                <p className="text-[0.72rem] text-rose-600 mb-2">/api/issuance did not respond ({snapError}).</p>
                 <button
                   onClick={loadSnapshot}
-                  className="mt-1 inline-flex items-center gap-1.5 rounded-md border border-white/[0.1] bg-white/[0.04] px-2.5 py-1.5 text-[0.72rem] text-white/75 hover:bg-white/[0.08] transition-colors"
+                  className="mt-1 inline-flex items-center gap-1.5 rounded-md border border-[#E3EAE6] bg-white px-2.5 py-1.5 text-[0.72rem] text-[#33544C] hover:bg-[#F0F7F4] transition-colors"
                   aria-label="Retry registry snapshot"
                 >
                   <RefreshCw className="h-3 w-3" aria-hidden="true" /> Retry
@@ -517,11 +517,11 @@ export function IssuanceSection({
               <div className="space-y-3">
                 {/* Stablecoin-pathway rows */}
                 {stableRows.map((r) => (
-                  <div key={r.instrumentId} className="rounded-xl border border-white/[0.06] bg-white/[0.02] p-4">
+                  <div key={r.instrumentId} className="rounded-xl border border-[#E3EAE6] bg-[#F7FAF8] p-4">
                     <div className="flex flex-wrap items-start justify-between gap-2 mb-2">
                       <div className="flex items-center gap-2 flex-wrap">
                         <span className="font-mono text-sm font-semibold text-mtqs-gold">{r.code}</span>
-                        <span className="text-[0.68rem] text-white/50">@ {r.network}</span>
+                        <span className="text-[0.68rem] text-[#5B6E68]">@ {r.network}</span>
                         <Pill tone={r.state === "ACTIVE" ? "emerald" : r.state === "RETIRED" ? "rose" : "amber"}>
                           {r.state}
                         </Pill>
@@ -530,28 +530,28 @@ export function IssuanceSection({
                           TEST-ONLY
                         </Pill>
                       </div>
-                      <span className="text-[0.62rem] font-mono text-white/40">{r.instrumentId}</span>
+                      <span className="text-[0.62rem] font-mono text-[#7A8C86]">{r.instrumentId}</span>
                     </div>
                     <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-x-4 gap-y-2 text-[0.68rem]">
                       <div>
-                        <span className="text-white/40">issuer: </span>
-                        <span className="text-white/75">{r.issuer.legalName}</span>
+                        <span className="text-[#7A8C86]">issuer: </span>
+                        <span className="text-[#33544C]">{r.issuer.legalName}</span>
                       </div>
                       <div>
-                        <span className="text-white/40">jurisdiction: </span>
-                        <span className="text-white/75">{r.issuer.jurisdiction}</span>
+                        <span className="text-[#7A8C86]">jurisdiction: </span>
+                        <span className="text-[#33544C]">{r.issuer.jurisdiction}</span>
                       </div>
                       <div>
-                        <span className="text-white/40">finality: </span>
-                        <span className="text-white/75">{r.confirmation.kind}</span>
+                        <span className="text-[#7A8C86]">finality: </span>
+                        <span className="text-[#33544C]">{r.confirmation.kind}</span>
                       </div>
                       <div>
-                        <span className="text-white/40">conversion: </span>
-                        <span className="font-mono text-white/75">{r.valuation.pricePerUnit}</span>
-                        <span className="text-white/40"> TU/unit</span>
+                        <span className="text-[#7A8C86]">conversion: </span>
+                        <span className="font-mono text-[#33544C]">{r.valuation.pricePerUnit}</span>
+                        <span className="text-[#7A8C86]"> TU/unit</span>
                       </div>
                     </div>
-                    <p className="mt-2 text-[0.64rem] text-white/45 leading-relaxed">{r.statusLabel}</p>
+                    <p className="mt-2 text-[0.64rem] text-[#7A8C86] leading-relaxed">{r.statusLabel}</p>
                   </div>
                 ))}
 
@@ -563,24 +563,24 @@ export function IssuanceSection({
                       SIMULATED / NOT CONNECTED
                     </Pill>
                   </div>
-                  <h4 className="text-[0.78rem] font-semibold text-white/85 mb-2 pr-44 sm:pr-52">
+                  <h4 className="text-[0.78rem] font-semibold text-[#0E1F1B] mb-2 pr-44 sm:pr-52">
                     CBDC rows — born NOT_CONNECTED (spec §4/§5.3)
                   </h4>
                   <div className="space-y-2">
                     {cbdcRows.map((r) => (
                       <div
                         key={r.instrumentId}
-                        className="rounded-lg border border-white/[0.06] bg-white/[0.02] px-3 py-2.5 flex flex-wrap items-center gap-x-3 gap-y-1"
+                        className="rounded-lg border border-[#E3EAE6] bg-[#F7FAF8] px-3 py-2.5 flex flex-wrap items-center gap-x-3 gap-y-1"
                       >
                         <span className="font-mono text-[0.78rem] font-semibold text-mtqs-gold">{r.code}</span>
-                        <span className="text-[0.64rem] text-white/50">@ {r.network}</span>
+                        <span className="text-[0.64rem] text-[#5B6E68]">@ {r.network}</span>
                         <Pill tone="muted">{r.state}</Pill>
                         <Pill tone="amber">{r.honestyState}</Pill>
-                        <span className="text-[0.6rem] text-white/40 font-mono">{r.instrumentId}</span>
+                        <span className="text-[0.6rem] text-[#7A8C86] font-mono">{r.instrumentId}</span>
                       </div>
                     ))}
                   </div>
-                  <p className="mt-3 text-[0.66rem] text-amber-100/70 leading-relaxed">
+                  <p className="mt-3 text-[0.66rem] text-amber-600 leading-relaxed">
                     A CBDC row may leave NOT_CONNECTED only via (i) a verified authorized interface and (ii) a
                     recorded end-to-end test — <span className="font-medium text-mtqs-amber">NEITHER EXISTS</span>.
                     The cbdc-simulated scenario below runs in labeled SIMULATION MODE only: the registry row stays
@@ -589,10 +589,10 @@ export function IssuanceSection({
                 </div>
 
                 {/* SEP separation strip */}
-                <div className="rounded-xl border border-white/[0.06] bg-white/[0.02] p-4">
+                <div className="rounded-xl border border-[#E3EAE6] bg-[#F7FAF8] p-4">
                   <div className="flex flex-wrap items-center gap-2 mb-2">
                     <Scale className="h-4 w-4 text-mtqs-gold/70" aria-hidden="true" />
-                    <h4 className="text-[0.76rem] font-semibold text-white/85">
+                    <h4 className="text-[0.76rem] font-semibold text-[#0E1F1B]">
                       Separation invariant (spec §2) — payment volume never changes weights
                     </h4>
                     {snap?.separation.byteStable ? (
@@ -607,14 +607,14 @@ export function IssuanceSection({
                       {Object.entries(snap.separation.weightsPct).map(([k, v]) => (
                         <span
                           key={k}
-                          className="rounded-md border border-white/[0.07] bg-white/[0.02] px-1.5 py-0.5 font-mono text-[0.62rem] text-white/65"
+                          className="rounded-md border border-[#E3EAE6] bg-white px-1.5 py-0.5 font-mono text-[0.62rem] text-[#5B6E68]"
                         >
                           {k} {v.toFixed(1)}%
                         </span>
                       ))}
                     </div>
                   ) : null}
-                  <p className="text-[0.64rem] text-white/45 leading-relaxed">
+                  <p className="text-[0.64rem] text-[#7A8C86] leading-relaxed">
                     {snap?.separation.label ??
                       "SEPARATION INVARIANT CHECK — canonical basket/constituency snapshot captured READ-ONLY."}{" "}
                     Every scenario run below re-captures this snapshot before and after and proves byte-identity.
@@ -641,10 +641,10 @@ export function IssuanceSection({
         />
         <Reveal>
           <Panel className="p-5">
-            <h3 id="issuance-runner-h" className="text-sm font-semibold text-white/90 mb-1">
+            <h3 id="issuance-runner-h" className="text-sm font-semibold text-[#0E1F1B] mb-1">
               Eight deterministic demo scenarios (synthetic fixtures · fixed clock)
             </h3>
-            <p className="text-[0.72rem] text-white/50 leading-relaxed mb-4">
+            <p className="text-[0.72rem] text-[#5B6E68] leading-relaxed mb-4">
               Each run builds a FRESH machine on TEST-ONLY fixtures with a fixed deterministic clock
               (1,800,000,000,000 ms) — the same scenario always produces the identical event sequence. Runs are
               demos of the §14.4 workflow, not production issuance; every event is persisted to the audit trail below.
@@ -666,30 +666,30 @@ export function IssuanceSection({
                         ? "border-mtqs-gold/50 bg-mtqs-gold/10"
                         : isLast
                           ? "border-mtqs-emerald/40 bg-mtqs-emerald/[0.07]"
-                          : "border-white/[0.08] bg-white/[0.02] hover:bg-white/[0.05] hover:border-white/[0.16]"
+                          : "border-[#E3EAE6] bg-white hover:bg-[#F0F7F4] hover:border-[#BEE3DD]"
                     } ${running !== null && !isRunning ? "opacity-50 cursor-not-allowed" : ""}`}
                   >
                     <div className="flex items-center justify-between gap-2 mb-1">
-                      <span className="text-[0.76rem] font-semibold text-white/85">{s.label}</span>
+                      <span className="text-[0.76rem] font-semibold text-[#0E1F1B]">{s.label}</span>
                       {isRunning ? (
                         <Loader2 className="h-3.5 w-3.5 animate-spin text-mtqs-gold" aria-label="running" />
                       ) : (
-                        <Play className="h-3 w-3 text-white/35" aria-hidden="true" />
+                        <Play className="h-3 w-3 text-[#7A8C86]" aria-hidden="true" />
                       )}
                     </div>
-                    <p className="text-[0.62rem] text-white/50 leading-relaxed">{s.blurb}</p>
+                    <p className="text-[0.62rem] text-[#5B6E68] leading-relaxed">{s.blurb}</p>
                   </button>
                 );
               })}
             </div>
 
             {runError ? (
-              <div className="mb-4 p-3 rounded-lg border border-rose-400/30 bg-rose-400/[0.06]">
+              <div className="mb-4 p-3 rounded-lg border border-rose-200 bg-rose-50">
                 <div className="flex items-center gap-2">
-                  <AlertTriangle className="h-4 w-4 text-rose-300" aria-hidden="true" />
-                  <span className="text-[0.76rem] font-semibold text-rose-100">Scenario run failed</span>
+                  <AlertTriangle className="h-4 w-4 text-rose-600" aria-hidden="true" />
+                  <span className="text-[0.76rem] font-semibold text-rose-700">Scenario run failed</span>
                 </div>
-                <p className="text-[0.68rem] text-rose-100/70 mt-1">{runError}</p>
+                <p className="text-[0.68rem] text-rose-600 mt-1">{runError}</p>
               </div>
             ) : null}
 
@@ -697,7 +697,7 @@ export function IssuanceSection({
             {running && !run ? (
               <div className="flex items-center justify-center gap-2 py-10">
                 <Loader2 className="h-4 w-4 animate-spin text-mtqs-gold" aria-hidden="true" />
-                <span className="text-[0.76rem] text-white/55">Running the deterministic scenario…</span>
+                <span className="text-[0.76rem] text-[#5B6E68]">Running the deterministic scenario…</span>
               </div>
             ) : null}
 
@@ -706,13 +706,13 @@ export function IssuanceSection({
                 {/* final-state callout */}
                 <div
                   className={`rounded-xl border p-4 ${
-                    finalIsGood ? "border-mtqs-emerald/40 bg-mtqs-emerald/[0.06]" : "border-rose-400/40 bg-rose-400/[0.06]"
+                    finalIsGood ? "border-mtqs-emerald/40 bg-mtqs-emerald/[0.06]" : "border-rose-200 bg-rose-50"
                   }`}
                   role="status"
                   aria-label="Final state callout"
                 >
                   <div className="flex flex-wrap items-center gap-2 mb-1.5">
-                    <span className="text-[0.6rem] uppercase tracking-[0.22em] text-white/50">final state</span>
+                    <span className="text-[0.6rem] uppercase tracking-[0.22em] text-[#5B6E68]">final state</span>
                     <StateChip state={run.run.finalState} />
                     {finalIsGood ? (
                       <Pill tone="emerald">LEDGER RECORD ONLY — NEVER ON-CHAIN</Pill>
@@ -729,26 +729,26 @@ export function IssuanceSection({
                       <Pill tone="amber">SIMULATION MODE — NOT CONNECTED</Pill>
                     ) : null}
                   </div>
-                  <p className="text-[0.72rem] text-white/60 leading-relaxed">
+                  <p className="text-[0.72rem] text-[#5B6E68] leading-relaxed">
                     {run.run.scenarioDescription}
                   </p>
                   {run.run.terminalReasonCode ? (
-                    <p className="mt-1 text-[0.68rem] font-mono text-white/50">
+                    <p className="mt-1 text-[0.68rem] font-mono text-[#5B6E68]">
                       reason: {run.run.terminalReasonCode}
                       {run.run.terminalTaxonomyClass ? ` · taxonomy: ${run.run.terminalTaxonomyClass}` : ""}
                     </p>
                   ) : null}
                   {run.run.suspensionReasons.length > 0 ? (
-                    <p className="mt-1 text-[0.66rem] text-rose-200/70">
+                    <p className="mt-1 text-[0.66rem] text-rose-600">
                       suspension reasons: {run.run.suspensionReasons.join(" · ")}
                     </p>
                   ) : null}
                 </div>
 
                 {/* exact numbers row */}
-                <div className="rounded-xl border border-white/[0.06] bg-white/[0.02] p-4">
+                <div className="rounded-xl border border-[#E3EAE6] bg-[#F7FAF8] p-4">
                   <div className="flex flex-wrap items-center gap-2 mb-3">
-                    <span className="text-[0.6rem] uppercase tracking-[0.22em] text-white/50">
+                    <span className="text-[0.6rem] uppercase tracking-[0.22em] text-[#5B6E68]">
                       exact numbers (6-decimal fixed point)
                     </span>
                     <Pill tone={run.run.expectedNumbers.met ? "emerald" : "rose"}>
@@ -772,7 +772,7 @@ export function IssuanceSection({
                     <Stat label="issued (tokens)" value={observed?.issued ?? "—"} sub={<CheckMark ok={checks?.issued ?? null} />} />
                     <Stat label="supply after" value={observed?.supplyAfter ?? "—"} sub={<CheckMark ok={checks?.supplyAfter ?? null} />} />
                   </div>
-                  <p className="mt-3 text-[0.62rem] text-white/40 leading-relaxed">
+                  <p className="mt-3 text-[0.62rem] text-[#7A8C86] leading-relaxed">
                     Expected happy-path chain: gross 10,000.000000 TEST-USDC-X → fee 10.000000 (0.10% ILLUSTRATIVE,
                     D-13.8 OPEN) → net 9,990.000000 → issued 4,995.000000 at 2.000000 TU/token (§14.5 FORM adopted,
                     derivation OPEN). Checks marked “—” are not applicable to this scenario (the flow ended before
@@ -784,7 +784,7 @@ export function IssuanceSection({
                 <div className="rounded-xl border border-mtqs-emerald/25 bg-mtqs-emerald/[0.04] p-4">
                   <div className="flex flex-wrap items-center gap-2 mb-1">
                     <Scale className="h-4 w-4 text-mtqs-emerald/80" aria-hidden="true" />
-                    <span className="text-[0.72rem] font-semibold text-emerald-100/90">
+                    <span className="text-[0.72rem] font-semibold text-emerald-700">
                       SEP separation proof — spec §2 invariant
                     </span>
                     <Pill tone={run.run.separation.byteIdenticalBeforeAfter ? "emerald" : "rose"}>
@@ -799,10 +799,10 @@ export function IssuanceSection({
                       )}
                     </Pill>
                   </div>
-                  <p className="text-[0.68rem] text-white/55 leading-relaxed">
+                  <p className="text-[0.68rem] text-[#5B6E68] leading-relaxed">
                     basket/constituency snapshot ({run.run.separation.snapshotBytesLength.toLocaleString("en-US")}{" "}
                     bytes, 7 components at strategic-prior weights) byte-identical before → after —{" "}
-                    <span className="text-white/80">payment volume never changes weights.</span>
+                    <span className="text-[#0E1F1B]">payment volume never changes weights.</span>
                   </p>
                 </div>
 
@@ -812,9 +812,9 @@ export function IssuanceSection({
                     <div className="rounded-xl border border-mtqs-emerald/30 bg-mtqs-emerald/[0.05] p-4">
                       <div className="flex items-center gap-2 mb-2">
                         <Landmark className="h-4 w-4 text-mtqs-emerald/80" aria-hidden="true" />
-                        <span className="text-[0.74rem] font-semibold text-white/85">Mint record (LEDGER ONLY)</span>
+                        <span className="text-[0.74rem] font-semibold text-[#0E1F1B]">Mint record (LEDGER ONLY)</span>
                       </div>
-                      <div className="text-[0.68rem] font-mono text-white/65 space-y-1">
+                      <div className="text-[0.68rem] font-mono text-[#5B6E68] space-y-1">
                         <div>mint: {run.run.mintRecord.mintId} · nonce {run.run.mintRecord.nonce}</div>
                         <div>
                           amount: <span className="text-mtqs-emerald">{run.run.mintRecord.amount}</span> tokens →{" "}
@@ -827,34 +827,34 @@ export function IssuanceSection({
                       </p>
                     </div>
                   ) : (
-                    <div className="rounded-xl border border-white/[0.06] bg-white/[0.02] p-4">
+                    <div className="rounded-xl border border-[#E3EAE6] bg-[#F7FAF8] p-4">
                       <div className="flex items-center gap-2 mb-2">
-                        <Ban className="h-4 w-4 text-white/40" aria-hidden="true" />
-                        <span className="text-[0.74rem] font-semibold text-white/70">No mint record</span>
+                        <Ban className="h-4 w-4 text-[#7A8C86]" aria-hidden="true" />
+                        <span className="text-[0.74rem] font-semibold text-[#5B6E68]">No mint record</span>
                       </div>
-                      <p className="text-[0.66rem] text-white/45 leading-relaxed">
+                      <p className="text-[0.66rem] text-[#7A8C86] leading-relaxed">
                         This scenario never reaches step 10 — no ledger mint record exists for it. Issuance requires
                         settlement finality AND an applicable unrevoked ALT-4 authorization program (INV-A).
                       </p>
                     </div>
                   )}
 
-                  <div className="rounded-xl border border-white/[0.06] bg-white/[0.02] p-4">
+                  <div className="rounded-xl border border-[#E3EAE6] bg-[#F7FAF8] p-4">
                     <div className="flex items-center gap-2 mb-2">
                       <AlertTriangle className="h-4 w-4 text-mtqs-amber/80" aria-hidden="true" />
-                      <span className="text-[0.74rem] font-semibold text-white/85">
+                      <span className="text-[0.74rem] font-semibold text-[#0E1F1B]">
                         Exceptions ({run.run.exceptions.length}) · Refunds ({run.run.refundQueue.length})
                       </span>
                     </div>
                     {run.run.exceptions.length === 0 && run.run.refundQueue.length === 0 ? (
-                      <p className="text-[0.66rem] text-white/45">
+                      <p className="text-[0.66rem] text-[#7A8C86]">
                         None — the run completed with no open exception and no queued refund.
                       </p>
                     ) : (
-                      <ul className="text-[0.66rem] text-white/60 space-y-1.5 max-h-40 overflow-y-auto mtqs-scroll pr-1">
+                      <ul className="text-[0.66rem] text-[#5B6E68] space-y-1.5 max-h-40 overflow-y-auto mtqs-scroll pr-1">
                         {run.run.exceptions.map((e) => (
                           <li key={e.exceptionId} className="font-mono leading-relaxed">
-                            <span className={e.status === "OPEN" ? "text-rose-300" : "text-mtqs-emerald"}>
+                            <span className={e.status === "OPEN" ? "text-rose-600" : "text-mtqs-emerald"}>
                               {e.exceptionId} [{e.status}]
                             </span>{" "}
                             {e.taxonomyClass} — {e.reasonCode}
@@ -873,26 +873,26 @@ export function IssuanceSection({
 
                 {/* reconciliation checks */}
                 {run.run.ledgerView.mints.length > 0 ? (
-                  <div className="rounded-xl border border-white/[0.06] bg-white/[0.02] p-4">
+                  <div className="rounded-xl border border-[#E3EAE6] bg-[#F7FAF8] p-4">
                     <div className="flex items-center gap-2 mb-2">
                       <ListOrdered className="h-4 w-4 text-mtqs-gold/70" aria-hidden="true" />
-                      <span className="text-[0.74rem] font-semibold text-white/85">
+                      <span className="text-[0.74rem] font-semibold text-[#0E1F1B]">
                         Three-book reconciliation (spec §6.5 — C1–C4)
                       </span>
                       <Pill tone={run.run.ledgerView.reconciliation.balanced ? "emerald" : "rose"}>
                         {run.run.ledgerView.reconciliation.balanced ? "BALANCED" : "BREAK"}
                       </Pill>
                     </div>
-                    <ul className="text-[0.66rem] font-mono text-white/60 space-y-1">
+                    <ul className="text-[0.66rem] font-mono text-[#5B6E68] space-y-1">
                       {run.run.ledgerView.reconciliation.checks.map((c) => (
                         <li key={c.check} className="flex items-start gap-1.5">
                           {c.passed ? (
                             <CheckCircle2 className="h-3 w-3 mt-0.5 text-mtqs-emerald shrink-0" aria-hidden="true" />
                           ) : (
-                            <XCircle className="h-3 w-3 mt-0.5 text-rose-400 shrink-0" aria-hidden="true" />
+                            <XCircle className="h-3 w-3 mt-0.5 text-rose-600 shrink-0" aria-hidden="true" />
                           )}
                           <span>
-                            {c.check} — <span className="text-white/45">{c.detail}</span>
+                            {c.check} — <span className="text-[#7A8C86]">{c.detail}</span>
                           </span>
                         </li>
                       ))}
@@ -901,19 +901,19 @@ export function IssuanceSection({
                 ) : null}
 
                 {/* step trace timeline */}
-                <div className="rounded-xl border border-white/[0.06] bg-white/[0.02] p-4">
+                <div className="rounded-xl border border-[#E3EAE6] bg-[#F7FAF8] p-4">
                   <div className="flex flex-wrap items-center justify-between gap-2 mb-3">
                     <div className="flex items-center gap-2">
                       <ListOrdered className="h-4 w-4 text-mtqs-gold/70" aria-hidden="true" />
-                      <span className="text-[0.74rem] font-semibold text-white/85">
+                      <span className="text-[0.74rem] font-semibold text-[#0E1F1B]">
                         Step trace — {run.run.events.length} events (§14.4 step mapping)
                       </span>
                     </div>
-                    <span className="text-[0.6rem] font-mono text-white/35">
+                    <span className="text-[0.6rem] font-mono text-[#7A8C86]">
                       machine {run.run.machineId} · request {run.run.finalRequestId}
                     </span>
                   </div>
-                  <ol className="relative border-l border-white/[0.08] ml-2 space-y-3 max-h-[28rem] overflow-y-auto mtqs-scroll pl-4" aria-label="Issuance event trace">
+                  <ol className="relative border-l border-[#E3EAE6] ml-2 space-y-3 max-h-[28rem] overflow-y-auto mtqs-scroll pl-4" aria-label="Issuance event trace">
                     {run.run.events.map((e) => {
                       const toTone = e.to ? stateTone(e.to) : null;
                       return (
@@ -923,47 +923,47 @@ export function IssuanceSection({
                               toTone === "emerald"
                                 ? "bg-mtqs-emerald"
                                 : toTone === "rose"
-                                  ? "bg-rose-400"
+                                  ? "bg-rose-500"
                                   : toTone === "amber"
                                     ? "bg-mtqs-amber"
-                                    : "bg-white/30"
+                                    : "bg-[#9AA9A3]"
                             }`}
                             aria-hidden="true"
                           />
                           <div className="flex flex-wrap items-center gap-1.5 mb-0.5">
-                            <span className="font-mono text-[0.58rem] text-white/35">
+                            <span className="font-mono text-[0.58rem] text-[#7A8C86]">
                               #{String(e.seq).padStart(2, "0")} · {fmtClock(e.atMs)}
                             </span>
                             {e.from ? <StateChip state={e.from} /> : null}
                             {e.from || e.to ? (
-                              <span className="text-white/30 text-[0.6rem]" aria-hidden="true">
+                              <span className="text-[#7A8C86] text-[0.6rem]" aria-hidden="true">
                                 →
                               </span>
                             ) : null}
                             {e.to ? <StateChip state={e.to} /> : <Pill tone="muted">machine-level</Pill>}
                           </div>
                           <div className="font-mono text-[0.66rem] text-mtqs-gold-light/90">{e.reasonCode}</div>
-                          <p className="text-[0.66rem] text-white/50 leading-relaxed mt-0.5">{e.detail}</p>
-                          <p className="text-[0.58rem] text-white/30 mt-0.5">{e.stepRef}</p>
+                          <p className="text-[0.66rem] text-[#5B6E68] leading-relaxed mt-0.5">{e.detail}</p>
+                          <p className="text-[0.58rem] text-[#7A8C86] mt-0.5">{e.stepRef}</p>
                           {(e.econ.grossAmount || e.econ.feeAmount || e.econ.netAmount || e.econ.issuedAmount) && (
                             <div className="flex flex-wrap gap-1.5 mt-1">
                               {e.econ.grossAmount ? (
-                                <span className="rounded border border-white/[0.07] bg-white/[0.02] px-1.5 py-0.5 font-mono text-[0.58rem] text-white/55">
+                                <span className="rounded border border-[#E3EAE6] bg-white px-1.5 py-0.5 font-mono text-[0.58rem] text-[#5B6E68]">
                                   gross {e.econ.grossAmount}
                                 </span>
                               ) : null}
                               {e.econ.feeAmount ? (
-                                <span className="rounded border border-white/[0.07] bg-white/[0.02] px-1.5 py-0.5 font-mono text-[0.58rem] text-white/55">
+                                <span className="rounded border border-[#E3EAE6] bg-white px-1.5 py-0.5 font-mono text-[0.58rem] text-[#5B6E68]">
                                   fee {e.econ.feeAmount}
                                 </span>
                               ) : null}
                               {e.econ.netAmount ? (
-                                <span className="rounded border border-white/[0.07] bg-white/[0.02] px-1.5 py-0.5 font-mono text-[0.58rem] text-white/55">
+                                <span className="rounded border border-[#E3EAE6] bg-white px-1.5 py-0.5 font-mono text-[0.58rem] text-[#5B6E68]">
                                   net {e.econ.netAmount}
                                 </span>
                               ) : null}
                               {e.econ.quote ? (
-                                <span className="rounded border border-white/[0.07] bg-white/[0.02] px-1.5 py-0.5 font-mono text-[0.58rem] text-white/55">
+                                <span className="rounded border border-[#E3EAE6] bg-white px-1.5 py-0.5 font-mono text-[0.58rem] text-[#5B6E68]">
                                   quote {e.econ.quote}
                                 </span>
                               ) : null}
@@ -973,7 +973,7 @@ export function IssuanceSection({
                                 </span>
                               ) : null}
                               {e.econ.supplyAfter ? (
-                                <span className="rounded border border-white/[0.07] bg-white/[0.02] px-1.5 py-0.5 font-mono text-[0.58rem] text-white/55">
+                                <span className="rounded border border-[#E3EAE6] bg-white px-1.5 py-0.5 font-mono text-[0.58rem] text-[#5B6E68]">
                                   supply {e.econ.supplyAfter}
                                 </span>
                               ) : null}
@@ -987,11 +987,11 @@ export function IssuanceSection({
 
                 {/* demo disclaimer + persistence disclosure */}
                 <div className="rounded-lg border border-mtqs-amber/25 bg-mtqs-amber/[0.05] px-4 py-3">
-                  <p className="text-[0.66rem] text-amber-100/80 leading-relaxed">{run.demoDisclaimer}</p>
-                  <p className="text-[0.62rem] text-white/45 mt-1.5 leading-relaxed">
+                  <p className="text-[0.66rem] text-amber-700 leading-relaxed">{run.demoDisclaimer}</p>
+                  <p className="text-[0.62rem] text-[#7A8C86] mt-1.5 leading-relaxed">
                     Persistence: {run.run.persistence.disclosed}
                     {run.run.persistence.error ? (
-                      <span className="text-rose-300"> (error: {run.run.persistence.error})</span>
+                      <span className="text-rose-600"> (error: {run.run.persistence.error})</span>
                     ) : null}
                   </p>
                 </div>
@@ -1021,33 +1021,33 @@ export function IssuanceSection({
             </h3>
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
               {/* fee */}
-              <div className="rounded-xl border border-white/[0.06] bg-white/[0.02] p-4">
+              <div className="rounded-xl border border-[#E3EAE6] bg-[#F7FAF8] p-4">
                 <div className="flex items-center justify-between gap-2 mb-2">
-                  <span className="text-[0.72rem] font-semibold text-white/85">Fee schedule</span>
+                  <span className="text-[0.72rem] font-semibold text-[#0E1F1B]">Fee schedule</span>
                   <Pill tone="rose">UNAPPROVED · D-13.8 OPEN</Pill>
                 </div>
                 <div className="font-mono text-xl text-mtqs-gold mb-1">
                   {/* Live from the API payload (economics.fee.rateBps, bps → %)
                       with the same fallback string the sibling panels use. */}
                   {snap ? `${(Number(snap.economics.fee.rateBps) / 100).toFixed(2)}%` : "0.10%"}
-                  <span className="text-sm text-white/40"> flat</span>
+                  <span className="text-sm text-[#7A8C86]"> flat</span>
                 </div>
-                <p className="text-[0.62rem] text-white/45 leading-relaxed">
+                <p className="text-[0.62rem] text-[#7A8C86] leading-relaxed">
                   {snap?.economics.fee.label ??
                     "ILLUSTRATIVE — D-13.8 OPEN: 0.10% flat named default. FORM adopted (delegated) 2026-10-23 pending owner ratification."}
                 </p>
               </div>
               {/* quote */}
-              <div className="rounded-xl border border-white/[0.06] bg-white/[0.02] p-4">
+              <div className="rounded-xl border border-[#E3EAE6] bg-[#F7FAF8] p-4">
                 <div className="flex items-center justify-between gap-2 mb-2">
-                  <span className="text-[0.72rem] font-semibold text-white/85">Issuance quote</span>
+                  <span className="text-[0.72rem] font-semibold text-[#0E1F1B]">Issuance quote</span>
                   <Pill tone="rose">ILLUSTRATIVE · derivation OPEN</Pill>
                 </div>
                 <div className="font-mono text-xl text-mtqs-gold mb-1">
                   {snap?.economics.quote.tuPerToken ?? "2.000000"}
-                  <span className="text-sm text-white/40"> TU/token</span>
+                  <span className="text-sm text-[#7A8C86]"> TU/token</span>
                 </div>
-                <p className="text-[0.62rem] text-white/45 leading-relaxed">
+                <p className="text-[0.62rem] text-[#7A8C86] leading-relaxed">
                   §14.5 FORM adopted (issued = net accepted payment value ÷ issuance quote); the quote-derivation
                   policy publication remains OPEN. Validity window{" "}
                   {snap?.economics.quote.validityWindowMinutes ?? 15} min (ILLUSTRATIVE, D-13.19). An index-derived
@@ -1055,32 +1055,32 @@ export function IssuanceSection({
                 </p>
               </div>
               {/* supply caps */}
-              <div className="rounded-xl border border-white/[0.06] bg-white/[0.02] p-4">
+              <div className="rounded-xl border border-[#E3EAE6] bg-[#F7FAF8] p-4">
                 <div className="flex items-center justify-between gap-2 mb-2">
-                  <span className="text-[0.72rem] font-semibold text-white/85">Supply caps</span>
+                  <span className="text-[0.72rem] font-semibold text-[#0E1F1B]">Supply caps</span>
                   <Pill tone="rose">ILLUSTRATIVE · D-13.6 deferred</Pill>
                 </div>
                 <div className="space-y-1.5 mb-2">
                   <div className="flex justify-between text-[0.68rem]">
-                    <span className="text-white/50">per-transaction</span>
-                    <span className="font-mono text-white/80">{snap?.economics.supply.perTxCap ?? "500000.000000"}</span>
+                    <span className="text-[#5B6E68]">per-transaction</span>
+                    <span className="font-mono text-[#0E1F1B]">{snap?.economics.supply.perTxCap ?? "500000.000000"}</span>
                   </div>
                   <div className="flex justify-between text-[0.68rem]">
-                    <span className="text-white/50">tranche ({snap?.economics.supply.trancheId ?? "TRANCHE-TEST-001"})</span>
-                    <span className="font-mono text-white/80">{snap?.economics.supply.trancheCap ?? "1000000.000000"}</span>
+                    <span className="text-[#5B6E68]">tranche ({snap?.economics.supply.trancheId ?? "TRANCHE-TEST-001"})</span>
+                    <span className="font-mono text-[#0E1F1B]">{snap?.economics.supply.trancheCap ?? "1000000.000000"}</span>
                   </div>
                   <div className="flex justify-between text-[0.68rem]">
-                    <span className="text-white/50">global max supply</span>
-                    <span className="font-mono text-white/80">{snap?.economics.supply.globalMax ?? "10000000.000000"}</span>
+                    <span className="text-[#5B6E68]">global max supply</span>
+                    <span className="font-mono text-[#0E1F1B]">{snap?.economics.supply.globalMax ?? "10000000.000000"}</span>
                   </div>
                 </div>
-                <p className="text-[0.62rem] text-white/45 leading-relaxed">
+                <p className="text-[0.62rem] text-[#7A8C86] leading-relaxed">
                   D-13.6 supply-cap numbers are deferred to owner approval; every cap check is fail-closed (an
                   issuance that would exceed any cap is rejected and never minted).
                 </p>
               </div>
             </div>
-            <p className="mt-4 text-[0.62rem] text-white/40 leading-relaxed">
+            <p className="mt-4 text-[0.62rem] text-[#7A8C86] leading-relaxed">
               Rounding: {snap?.economics.roundingRule ?? "ROUND_HALF_TO_EVEN @ 6 decimals (PROPOSED — UNAPPROVED)"}.
               Money math is exact 6-decimal fixed point on BigInt — no floating point anywhere in the pipeline.
             </p>
@@ -1104,7 +1104,7 @@ export function IssuanceSection({
         />
         <Reveal>
           <Panel className="p-5">
-            <h3 id="issuance-states-h" className="text-sm font-semibold text-white/90 mb-3">
+            <h3 id="issuance-states-h" className="text-sm font-semibold text-[#0E1F1B] mb-3">
               Happy-path chain (§14.4 steps 1–11) — 12 flow states
             </h3>
             <div className="flex flex-wrap items-center gap-1.5 mb-5">
@@ -1112,7 +1112,7 @@ export function IssuanceSection({
                 <span key={s} className="flex items-center gap-1.5">
                   <StateChip state={s} highlight={visitedStates.has(s)} />
                   {i < (snap?.states.happyPath.length ?? 0) - 1 ? (
-                    <span className="text-white/25 text-[0.6rem]" aria-hidden="true">
+                    <span className="text-[#9AA9A3] text-[0.6rem]" aria-hidden="true">
                       →
                     </span>
                   ) : null}
@@ -1120,7 +1120,7 @@ export function IssuanceSection({
               ))}
             </div>
 
-            <h4 className="text-sm font-semibold text-white/90 mb-3">
+            <h4 className="text-sm font-semibold text-[#0E1F1B] mb-3">
               Terminal failure states (spec §6.6 taxonomy) — 9
             </h4>
             <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-1.5">
@@ -1129,7 +1129,7 @@ export function IssuanceSection({
               ))}
             </div>
 
-            <p className="mt-4 text-[0.64rem] text-white/45 leading-relaxed">
+            <p className="mt-4 text-[0.64rem] text-[#7A8C86] leading-relaxed">
               The transition table is EXPLICIT (no skipping): the machine enforces INV-A as a hard guard inside the
               ISSUED transition — settlement finality AND an applicable unrevoked ALT-4 authorization record AND
               SUPPLY_CHECKED AND a non-suspended pipeline are ALL required. Gold-highlighted chips mark the states
@@ -1162,7 +1162,7 @@ export function IssuanceSection({
               <button
                 onClick={loadSnapshot}
                 disabled={snapLoading}
-                className="inline-flex items-center gap-1.5 rounded-md border border-white/[0.1] bg-white/[0.04] px-2.5 py-1.5 text-[0.72rem] text-white/75 hover:bg-white/[0.08] transition-colors min-h-[36px] disabled:opacity-50"
+                className="inline-flex items-center gap-1.5 rounded-md border border-[#E3EAE6] bg-white px-2.5 py-1.5 text-[0.72rem] text-[#33544C] hover:bg-[#F0F7F4] transition-colors min-h-[36px] disabled:opacity-50"
                 aria-label="Refresh the issuance audit trail"
               >
                 <RefreshCw className={`h-3 w-3 ${snapLoading ? "animate-spin" : ""}`} aria-hidden="true" />
@@ -1176,10 +1176,10 @@ export function IssuanceSection({
             <div className="flex items-start gap-3 mb-3">
               <History className="h-4 w-4 text-mtqs-gold/70 mt-0.5 shrink-0" aria-hidden="true" />
               <div>
-                <h3 id="issuance-audit-h" className="text-sm font-semibold text-white/90 mb-1">
+                <h3 id="issuance-audit-h" className="text-sm font-semibold text-[#0E1F1B] mb-1">
                   Last 50 IssuanceEvent rows (Prisma durability mirror)
                 </h3>
-                <p className="text-[0.68rem] text-white/50 leading-relaxed">
+                <p className="text-[0.68rem] text-[#5B6E68] leading-relaxed">
                   {snap?.auditNote ??
                     "The DB is the durability mirror (fail-soft-disclosed); the machine's in-memory event log is authoritative."}
                 </p>
@@ -1187,8 +1187,8 @@ export function IssuanceSection({
             </div>
 
             {snap?.events.dbError ? (
-              <div className="p-3 rounded-lg border border-rose-400/30 bg-rose-400/[0.06] mb-3">
-                <p className="text-[0.7rem] text-rose-100/80">
+              <div className="p-3 rounded-lg border border-rose-200 bg-rose-50 mb-3">
+                <p className="text-[0.7rem] text-rose-700">
                   DB read failed (fail-soft-disclosed): {snap.events.dbError}. The in-memory log of each run remains
                   authoritative and fully shown in the scenario runner above.
                 </p>
@@ -1202,23 +1202,23 @@ export function IssuanceSection({
                 ))}
               </div>
             ) : (snap?.events.rows.length ?? 0) === 0 ? (
-              <div className="rounded-lg border border-white/[0.06] bg-white/[0.02] px-4 py-8 text-center">
-                <Database className="h-5 w-5 text-white/30 mx-auto mb-2" aria-hidden="true" />
-                <p className="text-[0.74rem] text-white/55">
+              <div className="rounded-lg border border-[#E3EAE6] bg-[#F7FAF8] px-4 py-8 text-center">
+                <Database className="h-5 w-5 text-[#7A8C86] mx-auto mb-2" aria-hidden="true" />
+                <p className="text-[0.74rem] text-[#5B6E68]">
                   No issuance events persisted yet — run a scenario above and the audit trail will fill in.
                 </p>
-                <p className="text-[0.62rem] text-white/35 mt-1">
+                <p className="text-[0.62rem] text-[#7A8C86] mt-1">
                   Every scenario run persists its full event log here (fail-soft-disclosed).
                 </p>
               </div>
             ) : (
-              <div className="overflow-hidden rounded-md border border-white/[0.06]">
+              <div className="overflow-hidden rounded-md border border-[#E3EAE6]">
                 <div className="max-h-96 overflow-y-auto mtqs-scroll">
                   <table className="w-full text-[0.68rem]">
                     <caption className="sr-only">
                       Persisted issuance audit events — newest first
                     </caption>
-                    <thead className="bg-white/[0.02] text-white/55 sticky top-0">
+                    <thead className="bg-[#F7FAF8] text-[#5B6E68] sticky top-0">
                       <tr>
                         <th scope="col" className="text-left px-2.5 py-2 font-medium">time (UTC)</th>
                         <th scope="col" className="text-left px-2.5 py-2 font-medium">request</th>
@@ -1233,24 +1233,24 @@ export function IssuanceSection({
                     </thead>
                     <tbody>
                       {(snap?.events.rows ?? []).map((r, i) => (
-                        <tr key={r.id} className={`border-t border-white/[0.06] ${i % 2 ? "bg-white/[0.01]" : ""}`}>
-                          <td className="px-2.5 py-1.5 font-mono text-white/45 whitespace-nowrap">
+                        <tr key={r.id} className={`border-t border-[#E3EAE6] ${i % 2 ? "bg-[#F7FAF8]" : ""}`}>
+                          <td className="px-2.5 py-1.5 font-mono text-[#7A8C86] whitespace-nowrap">
                             {new Date(r.createdAt).toISOString().slice(11, 19)}
                           </td>
-                          <td className="px-2.5 py-1.5 font-mono text-white/60">{r.requestId || "—"}</td>
+                          <td className="px-2.5 py-1.5 font-mono text-[#5B6E68]">{r.requestId || "—"}</td>
                           <td className="px-2.5 py-1.5">
-                            <span className="rounded border border-white/[0.08] bg-white/[0.02] px-1 py-0.5 font-mono text-[0.6rem] text-mtqs-gold-light/80">
+                            <span className="rounded border border-[#E3EAE6] bg-[#F7FAF8] px-1 py-0.5 font-mono text-[0.6rem] text-mtqs-gold-light/80">
                               {r.kind}
                             </span>
                           </td>
                           <td className="px-2.5 py-1.5">
-                            {r.state ? <StateChip state={r.state} /> : <span className="text-white/30">—</span>}
+                            {r.state ? <StateChip state={r.state} /> : <span className="text-[#7A8C86]">—</span>}
                           </td>
-                          <td className="px-2.5 py-1.5 text-right font-mono text-white/55">{r.grossAmount || "—"}</td>
-                          <td className="px-2.5 py-1.5 text-right font-mono text-white/55">{r.feeAmount || "—"}</td>
-                          <td className="px-2.5 py-1.5 text-right font-mono text-white/55">{r.netAmount || "—"}</td>
+                          <td className="px-2.5 py-1.5 text-right font-mono text-[#5B6E68]">{r.grossAmount || "—"}</td>
+                          <td className="px-2.5 py-1.5 text-right font-mono text-[#5B6E68]">{r.feeAmount || "—"}</td>
+                          <td className="px-2.5 py-1.5 text-right font-mono text-[#5B6E68]">{r.netAmount || "—"}</td>
                           <td className="px-2.5 py-1.5 text-right font-mono text-mtqs-emerald/90">{r.issuedAmount || "—"}</td>
-                          <td className="px-2.5 py-1.5 text-right font-mono text-white/55">{r.supplyAfter || "—"}</td>
+                          <td className="px-2.5 py-1.5 text-right font-mono text-[#5B6E68]">{r.supplyAfter || "—"}</td>
                         </tr>
                       ))}
                     </tbody>
@@ -1258,7 +1258,7 @@ export function IssuanceSection({
                 </div>
               </div>
             )}
-            <p className="mt-3 text-[0.6rem] text-white/35 leading-relaxed">
+            <p className="mt-3 text-[0.6rem] text-[#7A8C86] leading-relaxed">
               Rows are the flat IssuanceEvent persistence docs (requestId · kind · state · instrument · exact
               6-decimal amounts · supply-after · JSON payload). The machine&apos;s synchronous in-memory event log —
               shown per-run in the Scenario Runner — is the AUTHORITATIVE record; this table is the durability mirror.

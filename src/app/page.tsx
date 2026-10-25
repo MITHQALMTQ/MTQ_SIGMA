@@ -77,23 +77,23 @@ const SECTION_KEY = "mtqs.section";
 function CommandCenterBoot() {
   return (
     <div
-      className="flex min-h-screen flex-col items-center justify-center gap-4 bg-[#020D1F]"
+      className="flex min-h-screen flex-col items-center justify-center gap-4 bg-[#FAFCFA]"
       role="status"
       aria-live="polite"
     >
       <span
-        className="text-xl font-extrabold tracking-[0.34em] text-cyan-100/90"
+        className="text-xl font-extrabold tracking-[0.34em] text-[#0E1F1B]"
         style={{ fontFamily: "var(--font-mtqs-display), Montserrat, sans-serif" }}
       >
         MTQΣ
       </span>
-      <span className="text-[0.68rem] uppercase tracking-[0.24em] text-white/40">
+      <span className="text-[0.68rem] uppercase tracking-[0.24em] text-[#5B6E68]">
         Loading Pilot Command Center…
       </span>
-      <span className="mt-2 h-1 w-40 overflow-hidden rounded-full bg-white/10">
-        <span className="block h-full w-1/3 animate-pulse rounded-full bg-gradient-to-r from-cyan-400 to-violet-400" />
+      <span className="mt-2 h-1 w-40 overflow-hidden rounded-full bg-[#E3EAE6]">
+        <span className="block h-full w-1/3 animate-pulse rounded-full bg-[#0D9488]" />
       </span>
-      <span className="text-[0.6rem] text-white/30">
+      <span className="text-[0.6rem] text-[#7A8C86]">
         TESTNET ONLY · SHADOW MODE ENFORCED · RESERVE TRADING NOT AUTHORIZED
       </span>
     </div>
@@ -166,7 +166,7 @@ export default function Page() {
       {/* keyboard users can skip the nav */}
       <a
         href="#home"
-        className="sr-only focus:not-sr-only focus:fixed focus:left-4 focus:top-4 focus:z-[100] focus:rounded-lg focus:bg-cyan-400 focus:px-4 focus:py-2 focus:text-sm focus:font-semibold focus:text-[#03101d]"
+        className="sr-only focus:not-sr-only focus:fixed focus:left-4 focus:top-4 focus:z-[100] focus:rounded-lg focus:bg-[#0D9488] focus:px-4 focus:py-2 focus:text-sm focus:font-semibold focus:text-white"
       >
         Skip to content
       </a>

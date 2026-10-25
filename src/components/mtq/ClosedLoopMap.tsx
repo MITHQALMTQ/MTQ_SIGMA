@@ -19,11 +19,11 @@ type Node = {
 };
 
 const NODES: Record<string, Node> = {
-  gfb:   { id: "gfb",   label: "Reference Index",     x: 80,  y: 200, accent: "#EFC268", glyph: "G" },
-  price: { id: "price", label: "Reference Value",     x: 320, y: 80,  accent: "#00C4DB", glyph: "P" },
+  gfb:   { id: "gfb",   label: "Reference Index",     x: 80,  y: 200, accent: "#0D9488", glyph: "G" },
+  price: { id: "price", label: "Reference Value",     x: 320, y: 80,  accent: "#14B8A6", glyph: "P" },
   liab:  { id: "liab",  label: "Liability",      x: 620, y: 200, accent: "#9fb0a3", glyph: "L" },
-  nav:   { id: "nav",   label: "Reserve NAV",    x: 320, y: 320, accent: "#f5d27a", glyph: "V" },
-  mint:  { id: "mint",  label: "Mint / Redeem",   x: 460, y: 200, accent: "#ff9f43", glyph: "↻" },
+  nav:   { id: "nav",   label: "Reserve NAV",    x: 320, y: 320, accent: "#F59E0B", glyph: "V" },
+  mint:  { id: "mint",  label: "Mint / Redeem",   x: 460, y: 200, accent: "#D97706", glyph: "↻" },
 };
 
 const EDGES: Array<{ from: string; to: string; label: string; dash?: "fast" | "slow"; reverse?: boolean }> = [
@@ -72,8 +72,8 @@ export function ClosedLoopMap({ snapshot }: { snapshot: MetricsSnapshot | null }
       >
         <defs>
           <radialGradient id="mtqs-loop-bg" cx="50%" cy="50%" r="60%">
-            <stop offset="0%" stopColor="rgba(43,171,251,0.06)" />
-            <stop offset="100%" stopColor="rgba(43,171,251,0)" />
+            <stop offset="0%" stopColor="rgba(13,148,136,0.06)" />
+            <stop offset="100%" stopColor="rgba(13,148,136,0)" />
           </radialGradient>
           <filter id="mtqs-loop-glow" x="-30%" y="-30%" width="160%" height="160%">
             <feGaussianBlur stdDeviation="2.5" result="blur" />
@@ -99,7 +99,7 @@ export function ClosedLoopMap({ snapshot }: { snapshot: MetricsSnapshot | null }
               <path
                 d={path}
                 fill="none"
-                stroke="rgba(255,255,255,0.07)"
+                stroke="rgba(14,31,27,0.08)"
                 strokeWidth="1"
               />
               <motion.path
@@ -112,7 +112,6 @@ export function ClosedLoopMap({ snapshot }: { snapshot: MetricsSnapshot | null }
                 initial={{ pathLength: 0, opacity: 0 }}
                 animate={{ pathLength: 1, opacity: 0.7 }}
                 transition={{ duration: 0.8, delay: i * 0.1 }}
-                filter="url(#mtqs-loop-glow)"
               />
               {/* Edge label */}
               <g>
@@ -122,8 +121,8 @@ export function ClosedLoopMap({ snapshot }: { snapshot: MetricsSnapshot | null }
                   width="92"
                   height="22"
                   rx="11"
-                  fill="rgba(8, 10, 12, 0.92)"
-                  stroke="rgba(43, 171, 251, 0.18)"
+                  fill="rgba(255,255,255,0.95)"
+                  stroke="rgba(13,148,136,0.25)"
                 />
                 <text
                   x={midX}
@@ -141,7 +140,7 @@ export function ClosedLoopMap({ snapshot }: { snapshot: MetricsSnapshot | null }
                   y={midY + 11}
                   textAnchor="middle"
                   fontSize="6"
-                  fill="rgba(255,255,255,0.45)"
+                  fill="#7A8C86"
                   fontFamily="var(--font-geist-sans), sans-serif"
                   letterSpacing="1.2"
                 >
@@ -159,10 +158,9 @@ export function ClosedLoopMap({ snapshot }: { snapshot: MetricsSnapshot | null }
               cx={n.x}
               cy={n.y}
               r="34"
-              fill="rgba(8, 10, 12, 0.95)"
+              fill="#FFFFFF"
               stroke={n.accent}
               strokeWidth="1.5"
-              filter="url(#mtqs-loop-glow)"
             />
             <circle cx={n.x} cy={n.y} r="28" fill="none" stroke={n.accent} strokeWidth="0.7" opacity="0.4" />
             <text
@@ -181,7 +179,7 @@ export function ClosedLoopMap({ snapshot }: { snapshot: MetricsSnapshot | null }
               y={n.y + 50}
               textAnchor="middle"
               fontSize="9"
-              fill="rgba(255,255,255,0.7)"
+              fill="#5B6E68"
               fontFamily="var(--font-geist-sans), sans-serif"
               letterSpacing="2"
             >

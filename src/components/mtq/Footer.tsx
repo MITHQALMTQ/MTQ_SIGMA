@@ -21,31 +21,13 @@ export function Footer() {
 
   return (
     <footer
-      className="relative mt-auto border-t border-white/[0.06] bg-[#020D1F]/80 backdrop-blur-xl"
+      className="relative mt-auto border-t border-[#E3EAE6] bg-white"
       role="contentinfo"
     >
-      {/* Gold gradient top border */}
-      <div
-        className="absolute inset-x-0 top-0 h-px"
-        style={{
-          background:
-            "linear-gradient(90deg, transparent 0%, rgba(43,171,251,0.45) 18%, rgba(141,211,255,0.8) 50%, rgba(43,171,251,0.45) 82%, transparent 100%)",
-        }}
-        aria-hidden="true"
-      />
-      {/* Inner halo below the border */}
-      <div
-        className="absolute inset-x-0 top-px h-12 pointer-events-none"
-        style={{
-          background:
-            "linear-gradient(180deg, rgba(43,171,251,0.06), transparent)",
-        }}
-        aria-hidden="true"
-      />
 
       <div className="mx-auto max-w-[1400px] px-4 sm:px-6 lg:px-8 py-8">
         {/* Brand lockup row */}
-        <div className="flex flex-col sm:flex-row sm:items-center gap-4 pb-6 border-b border-white/[0.06]">
+        <div className="flex flex-col sm:flex-row sm:items-center gap-4 pb-6 border-b border-[#E3EAE6]">
           <div className="flex items-center gap-3">
             <span className="shrink-0" role="img" aria-label="MTQΣ logo mark">
               <BrandMark size={44} />
@@ -57,7 +39,7 @@ export function Footer() {
               >
                 MTQΣ
               </div>
-              <div className="mt-1 text-[0.7rem] text-white/55 leading-relaxed">
+              <div className="mt-1 text-[0.7rem] text-[#5B6E68] leading-relaxed">
                 {BRAND_VOICE.tagline}
               </div>
             </div>
@@ -74,18 +56,18 @@ export function Footer() {
             <div className="text-[0.62rem] uppercase tracking-[0.22em] text-mtqs-gold/70 font-semibold">
               Protocol
             </div>
-            <ul className="space-y-1.5 text-[0.78rem] text-white/65">
+            <ul className="space-y-1.5 text-[0.78rem] text-[#33544C]">
               <li>
-                <span className="text-white/55">Σ-v1.2 · </span>
-                <span className="text-white/85">Closed-Loop Monetary Architecture</span>
+                <span className="text-[#5B6E68]">Σ-v1.2 · </span>
+                <span className="text-[#0E1F1B]">Closed-Loop Monetary Architecture</span>
               </li>
               <li>
-                <span className="text-white/55">Design: </span>
+                <span className="text-[#5B6E68]">Design: </span>
                 <span className="text-mtqs-emerald/85">{BRAND_VOICE.designConstraint}</span>
               </li>
               <li>
-                <span className="text-white/55">Objective: </span>
-                <span className="text-white/85">{BRAND_VOICE.coreObjective}</span>
+                <span className="text-[#5B6E68]">Objective: </span>
+                <span className="text-[#0E1F1B]">{BRAND_VOICE.coreObjective}</span>
               </li>
             </ul>
           </div>
@@ -95,7 +77,7 @@ export function Footer() {
             <div className="text-[0.62rem] uppercase tracking-[0.22em] text-mtqs-gold/70 font-semibold">
               Resources
             </div>
-            <div className="text-[0.7rem] text-white/55 uppercase tracking-[0.18em] mb-1.5">
+            <div className="text-[0.7rem] text-[#5B6E68] uppercase tracking-[0.18em] mb-1.5">
               Network explorers
             </div>
             <div className="flex flex-wrap gap-2">
@@ -105,18 +87,18 @@ export function Footer() {
                   href={c.explorer}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="inline-flex items-center gap-1.5 rounded-md border border-white/[0.08] bg-white/[0.03] px-2.5 py-1 text-[0.7rem] text-mtqs-gold hover:border-mtqs-gold/40 hover:bg-mtqs-gold/5 transition"
+                  className="inline-flex items-center gap-1.5 rounded-md border border-[#DCE5E0] bg-white px-2.5 py-1 text-[0.7rem] text-mtqs-gold hover:border-[#0D9488] hover:bg-[#E7F4F1] transition"
                 >
                   {c.label} ↗
                 </a>
               ))}
             </div>
-            <div className="mt-2 text-[0.62rem] text-white/40">
+            <div className="mt-2 text-[0.62rem] text-[#7A8C86]">
               3 testnets live (Monad · Arc · Solana devnet) — TESTNET-ONLY pilot; mainnet
               deployment not authorized. (Robinhood Chain + Base/Arbitrum placeholders removed
               from the registry 2026-10-24 per the owner's directive.)
             </div>
-            <div className="mt-2 text-[0.7rem] text-white/55">
+            <div className="mt-2 text-[0.7rem] text-[#5B6E68]">
               Deployer wallet:{" "}
               <span className="font-mono text-mtqs-gold/85">
                 {shortAddr(DEPLOYER_WALLET, 8, 6)}
@@ -131,7 +113,7 @@ export function Footer() {
             </div>
             <div className="flex items-start gap-2">
               <GlowDot color="amber" size="h-2 w-2 mt-1" />
-              <div className="text-[0.78rem] text-white/65 leading-relaxed">
+              <div className="text-[0.78rem] text-[#33544C] leading-relaxed">
                 {statusDecl}
               </div>
             </div>
@@ -145,7 +127,7 @@ export function Footer() {
                 candidate · testnet
               </GlowBadge>
             </div>
-            <div className="text-[0.66rem] text-white/45 leading-relaxed pt-1">
+            <div className="text-[0.66rem] text-[#7A8C86] leading-relaxed pt-1">
               Core metrics are computed live by the reference engine and reconciled against
               the blueprint; illustrative and synthetic panels are labeled as such.
             </div>
@@ -154,14 +136,14 @@ export function Footer() {
 
         {/* Bottom bar — copyright + version + honest status */}
         <div
-          className="mt-2 pt-4 border-t border-white/[0.06] flex flex-col sm:flex-row items-center justify-between gap-2 text-[0.66rem] text-white/50"
+          className="mt-2 pt-4 border-t border-[#E3EAE6] flex flex-col sm:flex-row items-center justify-between gap-2 text-[0.66rem] text-[#5B6E68]"
         >
           <div className="flex items-center gap-2">
             <span>© {year} MTQΣ Protocol</span>
-            <span className="text-white/30">·</span>
+            <span className="text-[#9AA9A3]">·</span>
             <span>Global Digital Asset</span>
           </div>
-          <div className="font-mono text-white/45">
+          <div className="font-mono text-[#7A8C86]">
             Built on Next.js 16 · Real-time engine in-process · 4s poll
           </div>
         </div>

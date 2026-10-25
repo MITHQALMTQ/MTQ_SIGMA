@@ -31,7 +31,7 @@ function SectionHeader({ icon: Icon, eyebrow, title, right }: { icon: ComponentT
       <Icon className="h-5 w-5 text-mtqs-gold/80 mt-0.5 shrink-0" aria-hidden="true" />
       <div className="flex-1 min-w-0">
         <div className="text-[0.6rem] uppercase tracking-[0.22em] text-mtqs-gold/75">{eyebrow}</div>
-        <h3 className="mt-1 text-base font-semibold text-white">{title}</h3>
+        <h3 className="mt-1 text-base font-semibold text-[#0E1F1B]">{title}</h3>
       </div>
       {right ? <div className="shrink-0">{right}</div> : null}
     </div>
@@ -42,10 +42,10 @@ const PassPill = ({ ok, label }: { ok: boolean; label?: string }) => ok
   : <Pill tone="amber"><AlertTriangle className="h-3 w-3" />{label ?? "BLOCKED"}</Pill>;
 
 function StatBox({ label, value, tone = "default" }: { label: string; value: ReactNode; tone?: "default" | "gold" | "rose" | "emerald" | "amber" }) {
-  const cls = tone === "gold" ? "text-mtqs-gold" : tone === "rose" ? "text-mtqs-rose" : tone === "emerald" ? "text-mtqs-emerald" : tone === "amber" ? "text-mtqs-amber" : "text-white";
+  const cls = tone === "gold" ? "text-mtqs-gold" : tone === "rose" ? "text-mtqs-rose" : tone === "emerald" ? "text-mtqs-emerald" : tone === "amber" ? "text-mtqs-amber" : "text-[#0E1F1B]";
   return (
-    <div className="rounded-md border border-white/[0.06] p-3">
-      <div className="text-[0.6rem] uppercase tracking-[0.18em] text-white/55">{label}</div>
+    <div className="rounded-md border border-[#E3EAE6] p-3">
+      <div className="text-[0.6rem] uppercase tracking-[0.18em] text-[#5B6E68]">{label}</div>
       <div className={`font-mono text-lg mt-1 ${cls}`}>{value}</div>
     </div>
   );
@@ -54,7 +54,7 @@ function ErrorPanel({ message }: { message: string }) {
   return (
     <div className="rounded-md border border-mtqs-rose/30 bg-mtqs-rose/5 p-4 flex items-start gap-2.5">
       <AlertCircle className="h-4 w-4 text-mtqs-rose shrink-0 mt-0.5" aria-hidden="true" />
-      <div className="text-[0.75rem] text-white/75 leading-relaxed"><span className="text-mtqs-rose font-medium">Failed to load: </span>{message}</div>
+      <div className="text-[0.75rem] text-[#33544C] leading-relaxed"><span className="text-mtqs-rose font-medium">Failed to load: </span>{message}</div>
     </div>
   );
 }
@@ -63,8 +63,8 @@ const LoadingRows = () => (
 );
 function ScrollList({ rows }: { rows: ReactNode[] }) {
   return (
-    <div className="max-h-72 overflow-y-auto mtqs-scroll rounded-md border border-white/[0.06]">
-      {rows.map((r, i) => <div key={i} className={`px-3 py-2 ${i % 2 ? "bg-white/[0.01]" : ""} border-t border-white/[0.06] first:border-t-0`}>{r}</div>)}
+    <div className="max-h-72 overflow-y-auto mtqs-scroll rounded-md border border-[#E3EAE6]">
+      {rows.map((r, i) => <div key={i} className={`px-3 py-2 ${i % 2 ? "bg-[#F7FAF8]" : ""} border-t border-[#E3EAE6] first:border-t-0`}>{r}</div>)}
     </div>
   );
 }
@@ -105,21 +105,21 @@ function SectionA() {
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
           <div>
             <div className="flex items-baseline justify-between mb-1.5">
-              <span className="text-[0.7rem] uppercase tracking-[0.18em] text-white/55">Acceptance criteria</span>
-              <span className="font-mono text-sm text-white">{ac.met}/{ac.total} ({fmtPct(ac.acceptanceRate, 0)})</span>
+              <span className="text-[0.7rem] uppercase tracking-[0.18em] text-[#5B6E68]">Acceptance criteria</span>
+              <span className="font-mono text-sm text-[#0E1F1B]">{ac.met}/{ac.total} ({fmtPct(ac.acceptanceRate, 0)})</span>
             </div>
             <MiniBar value={ac.met} max={ac.total} colorClass="bg-mtqs-gold" />
           </div>
           <div>
             <div className="flex items-baseline justify-between mb-1.5">
-              <span className="text-[0.7rem] uppercase tracking-[0.18em] text-white/55">Institutional gates</span>
-              <span className="font-mono text-sm text-white">{gs.passed}/{gs.total} ({fmtPct(gs.passed / gs.total, 0)})</span>
+              <span className="text-[0.7rem] uppercase tracking-[0.18em] text-[#5B6E68]">Institutional gates</span>
+              <span className="font-mono text-sm text-[#0E1F1B]">{gs.passed}/{gs.total} ({fmtPct(gs.passed / gs.total, 0)})</span>
             </div>
             <MiniBar value={gs.passed} max={gs.total} colorClass="bg-mtqs-rose" />
           </div>
         </div>
-        <p className="mt-3 text-[0.72rem] text-white/55 leading-relaxed">{r.finalStatus}</p>
-        <p className="mt-2 text-[0.68rem] text-white/45 leading-relaxed">
+        <p className="mt-3 text-[0.72rem] text-[#5B6E68] leading-relaxed">{r.finalStatus}</p>
+        <p className="mt-2 text-[0.68rem] text-[#7A8C86] leading-relaxed">
           Register note: the §87 institutional gates (G01–G13, this tab) are the
           implementation-status register — a different register from the §25.5
           validation gates (0/11) shown in the status bar and Tab B.
@@ -128,11 +128,11 @@ function SectionA() {
       <Panel className="p-5">
         {/* 24-e-2: passed count is derived from the same institutionalGatesSummary the
             bar above renders — previously a hardcoded "(0 passed)". */}
-        <div className="mb-2 flex items-center gap-2"><GlowDot color="gold" size="h-2 w-2" /><h4 className="text-sm font-semibold text-white/90">All {r.institutionalGates.length} gates ({gs.passed} passed)</h4></div>
+        <div className="mb-2 flex items-center gap-2"><GlowDot color="gold" size="h-2 w-2" /><h4 className="text-sm font-semibold text-[#0E1F1B]">All {r.institutionalGates.length} gates ({gs.passed} passed)</h4></div>
         <ScrollList rows={r.institutionalGates.map((g) => (
           <div key={g.id} className="grid grid-cols-[auto_minmax(0,2fr)_minmax(0,3fr)] gap-2 items-center">
             <span className="font-mono text-[0.65rem] text-mtqs-gold/75">{g.id}</span>
-            <div><div className="text-[0.78rem] font-medium text-white leading-snug">{g.gate}</div><div className="text-[0.68rem] text-white/55">{g.evidence}</div></div>
+            <div><div className="text-[0.78rem] font-medium text-[#0E1F1B] leading-snug">{g.gate}</div><div className="text-[0.68rem] text-[#5B6E68]">{g.evidence}</div></div>
             <span className="justify-self-end"><Pill tone="muted"><Lock className="h-3 w-3" />{g.status}</Pill></span>
           </div>
         ))} />
@@ -162,14 +162,14 @@ function SectionB() {
         </div>
       </Panel>
       <Panel className="p-5">
-        <div className="mb-2 flex items-center gap-2"><GlowDot color="amber" size="h-2 w-2" /><h4 className="text-sm font-semibold text-white/90">All 11 §25.5 validation gates</h4></div>
+        <div className="mb-2 flex items-center gap-2"><GlowDot color="amber" size="h-2 w-2" /><h4 className="text-sm font-semibold text-[#0E1F1B]">All 11 §25.5 validation gates</h4></div>
         <ScrollList rows={data.validationGates.map((g) => (
           <div key={g.id} className="flex items-start justify-between gap-2">
             <div className="min-w-0">
               <div className="flex items-center gap-2"><span className="font-mono text-[0.65rem] text-mtqs-gold/75">{g.id}</span>
-                <span className="text-[0.8rem] font-medium text-white">{g.name}</span></div>
-              <p className="text-[0.7rem] text-white/55 leading-relaxed mt-0.5">{g.description}</p>
-              <p className="text-[0.68rem] text-white/55 mt-0.5"><span className="text-mtqs-gold/70">evidence: </span>{g.evidence}</p>
+                <span className="text-[0.8rem] font-medium text-[#0E1F1B]">{g.name}</span></div>
+              <p className="text-[0.7rem] text-[#5B6E68] leading-relaxed mt-0.5">{g.description}</p>
+              <p className="text-[0.68rem] text-[#5B6E68] mt-0.5"><span className="text-mtqs-gold/70">evidence: </span>{g.evidence}</p>
             </div>
             <PassPill ok={g.passed} label={g.passed ? "PASS" : "FAIL"} />
           </div>
@@ -200,20 +200,20 @@ function SectionC() {
           right={<Pill tone={r.honestState.threeBookOperational ? "emerald" : "amber"}><Lock className="h-3 w-3" />{r.honestState.threeBookOperational ? "OPERATIONAL" : "NOT OPERATIONAL"}</Pill>} />
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
           {books.map((b) => (
-            <div key={b.k} className="rounded-md border border-white/[0.06] bg-white/[0.02] p-3"><div className="font-mono text-mtqs-gold text-sm">{b.k}</div><p className="text-[0.72rem] text-white/55 leading-relaxed mt-1">{b.d}</p></div>
+            <div key={b.k} className="rounded-md border border-[#E3EAE6] bg-[#F7FAF8] p-3"><div className="font-mono text-mtqs-gold text-sm">{b.k}</div><p className="text-[0.72rem] text-[#5B6E68] leading-relaxed mt-1">{b.d}</p></div>
           ))}
         </div>
       </Panel>
       <Panel className="p-5">
-        <div className="mb-2 flex items-center gap-2"><GlowDot color="rose" size="h-2 w-2" /><h4 className="text-sm font-semibold text-white/90">{r.antiComminglingResults.length} anti-commingling tests ({r.antiComminglingResults.filter((x) => x.blocked).length}/{r.antiComminglingResults.length} BLOCKED)</h4></div>
+        <div className="mb-2 flex items-center gap-2"><GlowDot color="rose" size="h-2 w-2" /><h4 className="text-sm font-semibold text-[#0E1F1B]">{r.antiComminglingResults.length} anti-commingling tests ({r.antiComminglingResults.filter((x) => x.blocked).length}/{r.antiComminglingResults.length} BLOCKED)</h4></div>
         <div className="space-y-2">
           {r.antiComminglingTests.map((t, i) => {
             const res = r.antiComminglingResults[i];
             return (
               <div key={t.id} className="rounded-md border border-mtqs-emerald/25 bg-mtqs-emerald/[0.04] p-3">
                 <div className="flex items-start justify-between gap-2 mb-1"><span className="font-mono text-[0.65rem] text-mtqs-emerald/80">{t.id}</span><PassPill ok={!!res?.blocked} label="BLOCKED" /></div>
-                <p className="text-[0.74rem] text-white leading-snug">{t.description}</p>
-                <p className="text-[0.68rem] text-white/55 mt-1 leading-relaxed">{t.reason}</p>
+                <p className="text-[0.74rem] text-[#0E1F1B] leading-snug">{t.description}</p>
+                <p className="text-[0.68rem] text-[#5B6E68] mt-1 leading-relaxed">{t.reason}</p>
               </div>
             );
           })}
@@ -244,10 +244,10 @@ function SectionD() {
         </div>
       </Panel>
       <Panel className="p-5">
-        <div className="mb-2 flex items-center gap-2"><GlowDot color="gold" size="h-2 w-2" /><h4 className="text-sm font-semibold text-white/90">4 SIMULATED reference cells</h4></div>
+        <div className="mb-2 flex items-center gap-2"><GlowDot color="gold" size="h-2 w-2" /><h4 className="text-sm font-semibold text-[#0E1F1B]">4 SIMULATED reference cells</h4></div>
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
           {data.referenceCells.map((c) => (
-            <div key={c.backingId} className="rounded-md border border-white/[0.06] bg-white/[0.02] p-3"><div className="flex items-center justify-between"><span className="font-mono text-[0.7rem] text-mtqs-gold/85">{c.backingId}</span><Pill tone="amber">SIMULATED</Pill></div><div className="text-[0.7rem] text-white/55 mt-1">{c.institutionId} · {c.assetClass}</div><div className="font-mono text-sm text-white mt-1">{fmtUsd(c.amount)}</div></div>
+            <div key={c.backingId} className="rounded-md border border-[#E3EAE6] bg-[#F7FAF8] p-3"><div className="flex items-center justify-between"><span className="font-mono text-[0.7rem] text-mtqs-gold/85">{c.backingId}</span><Pill tone="amber">SIMULATED</Pill></div><div className="text-[0.7rem] text-[#5B6E68] mt-1">{c.institutionId} · {c.assetClass}</div><div className="font-mono text-sm text-[#0E1F1B] mt-1">{fmtUsd(c.amount)}</div></div>
           ))}
         </div>
       </Panel>
@@ -275,11 +275,11 @@ function SectionE() {
         </div>
       </Panel>
       <Panel className="p-5">
-        <div className="mb-2 flex items-center gap-2"><GlowDot color="rose" size="h-2 w-2" /><h4 className="text-sm font-semibold text-white/90">13 dimensions · preferred vs hard limits</h4></div>
+        <div className="mb-2 flex items-center gap-2"><GlowDot color="rose" size="h-2 w-2" /><h4 className="text-sm font-semibold text-[#0E1F1B]">13 dimensions · preferred vs hard limits</h4></div>
         <ScrollList rows={r.dimensions.map((d, i) => (
           <div key={d} className="flex items-center justify-between">
-            <span className="font-mono text-[0.72rem] text-white/85">{d}</span>
-            <span className="font-mono text-[0.65rem] text-white/55">#{i + 1}</span>
+            <span className="font-mono text-[0.72rem] text-[#0E1F1B]">{d}</span>
+            <span className="font-mono text-[0.65rem] text-[#5B6E68]">#{i + 1}</span>
           </div>
         ))} />
       </Panel>
@@ -307,10 +307,10 @@ function SectionF() {
         </div>
       </Panel>
       <Panel className="p-5">
-        <div className="mb-2 flex items-center gap-2"><GlowDot color="amber" size="h-2 w-2" /><h4 className="text-sm font-semibold text-white/90">8 jurisdictions (ALL PENDING)</h4></div>
+        <div className="mb-2 flex items-center gap-2"><GlowDot color="amber" size="h-2 w-2" /><h4 className="text-sm font-semibold text-[#0E1F1B]">8 jurisdictions (ALL PENDING)</h4></div>
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-2">
           {jurs.map((j) => (
-            <div key={j.code} className="rounded-md border border-mtqs-amber/25 bg-mtqs-amber/[0.04] p-3"><div className="font-mono text-mtqs-gold text-sm">{j.code}</div><div className="text-[0.7rem] text-white/85 leading-snug mt-0.5">{j.name}</div><Pill tone="amber"><Lock className="h-3 w-3" />{j.classification}</Pill></div>
+            <div key={j.code} className="rounded-md border border-mtqs-amber/25 bg-mtqs-amber/[0.04] p-3"><div className="font-mono text-mtqs-gold text-sm">{j.code}</div><div className="text-[0.7rem] text-[#0E1F1B] leading-snug mt-0.5">{j.name}</div><Pill tone="amber"><Lock className="h-3 w-3" />{j.classification}</Pill></div>
           ))}
         </div>
       </Panel>
@@ -339,18 +339,18 @@ function SectionG() {
           <StatBox label="unresolved" tone="emerald" value={r.unresolvedContradictions} />
           <StatBox label="scan type" tone="gold" value="static" />
         </div>
-        <p className="mt-3 text-[0.72rem] text-white/55 leading-relaxed">{r.finalStatus}</p>
+        <p className="mt-3 text-[0.72rem] text-[#5B6E68] leading-relaxed">{r.finalStatus}</p>
       </Panel>
       <Panel className="p-5">
-        <div className="mb-2 flex items-center gap-2"><GlowDot color={r.unresolvedContradictions === 0 ? "emerald" : "rose"} size="h-2 w-2" /><h4 className="text-sm font-semibold text-white/90">{r.patternsScanned} contradiction patterns ({r.unresolvedContradictions === 0 ? "all resolved" : `${r.unresolvedContradictions} unresolved`})</h4></div>
+        <div className="mb-2 flex items-center gap-2"><GlowDot color={r.unresolvedContradictions === 0 ? "emerald" : "rose"} size="h-2 w-2" /><h4 className="text-sm font-semibold text-[#0E1F1B]">{r.patternsScanned} contradiction patterns ({r.unresolvedContradictions === 0 ? "all resolved" : `${r.unresolvedContradictions} unresolved`})</h4></div>
         <ScrollList rows={r.perPatternResults.map((p) => (
           <div key={p.pattern.id}>
             <div className="flex items-center justify-between gap-2">
               <span className="font-mono text-[0.65rem] text-mtqs-gold/75">{p.pattern.id}</span>
               <PassPill ok={p.status === "CLEAN"} label={p.status} />
             </div>
-            <div className="text-[0.78rem] font-medium text-white mt-0.5">{p.pattern.pattern}</div>
-            <p className="text-[0.68rem] text-white/55 mt-0.5 leading-relaxed">{p.pattern.description}</p>
+            <div className="text-[0.78rem] font-medium text-[#0E1F1B] mt-0.5">{p.pattern.pattern}</div>
+            <p className="text-[0.68rem] text-[#5B6E68] mt-0.5 leading-relaxed">{p.pattern.description}</p>
           </div>
         ))} />
       </Panel>
@@ -373,24 +373,24 @@ function SectionH() {
           right={<Pill tone="amber"><Lock className="h-3 w-3" />NOT CONTRACTED</Pill>} />
         <div className="rounded-md border border-mtqs-gold/25 bg-mtqs-gold/[0.04] p-3 mb-3">
           <div className="text-[0.6rem] uppercase tracking-[0.18em] text-mtqs-gold/80 mb-1">Invariant #3 — MITHQAL is NOT guarantor</div>
-          <p className="text-[0.78rem] text-white leading-snug">{r.principle}</p>
+          <p className="text-[0.78rem] text-[#0E1F1B] leading-snug">{r.principle}</p>
         </div>
         <div className="flex flex-wrap gap-1.5">
           {r.lifecycleStates.map((s, i) => (
             <div key={s} className="flex items-center gap-1.5">
-              <span className="rounded-md border border-white/[0.06] bg-white/[0.02] px-2 py-1 font-mono text-[0.7rem] text-white/85"><span className="text-mtqs-gold/75 mr-1">{i + 1}.</span>{s}</span>
-              {i < r.lifecycleStates.length - 1 && <span className="text-white/30 text-xs">→</span>}
+              <span className="rounded-md border border-[#E3EAE6] bg-[#F7FAF8] px-2 py-1 font-mono text-[0.7rem] text-[#0E1F1B]"><span className="text-mtqs-gold/75 mr-1">{i + 1}.</span>{s}</span>
+              {i < r.lifecycleStates.length - 1 && <span className="text-[#7A8C86] text-xs">→</span>}
             </div>
           ))}
         </div>
-        <p className="mt-3 text-[0.72rem] text-white/55 leading-relaxed">{r.finalStatus}</p>
+        <p className="mt-3 text-[0.72rem] text-[#5B6E68] leading-relaxed">{r.finalStatus}</p>
       </Panel>
       <Panel className="p-5">
-        <div className="mb-2 flex items-center gap-2"><GlowDot color="gold" size="h-2 w-2" /><h4 className="text-sm font-semibold text-white/90">Resolution waterfall ({r.resolutionWaterfall.length} steps)</h4></div>
+        <div className="mb-2 flex items-center gap-2"><GlowDot color="gold" size="h-2 w-2" /><h4 className="text-sm font-semibold text-[#0E1F1B]">Resolution waterfall ({r.resolutionWaterfall.length} steps)</h4></div>
         <ScrollList rows={r.resolutionWaterfall.map((w, i) => (
           <div key={i}>
             <div className="font-mono text-[0.65rem] text-mtqs-gold/75">{w.step}</div>
-            <div className="text-[0.78rem] text-white leading-snug mt-0.5">{w.action}</div>
+            <div className="text-[0.78rem] text-[#0E1F1B] leading-snug mt-0.5">{w.action}</div>
           </div>
         ))} />
       </Panel>
@@ -433,11 +433,11 @@ function SectionI() {
         )}
       </Panel>
       <Panel className="p-5">
-        <div className="mb-2 flex items-center gap-2"><GlowDot color="emerald" size="h-2 w-2" /><h4 className="text-sm font-semibold text-white/90">{data.inngestFunctions.length} Inngest scheduled functions</h4></div>
+        <div className="mb-2 flex items-center gap-2"><GlowDot color="emerald" size="h-2 w-2" /><h4 className="text-sm font-semibold text-[#0E1F1B]">{data.inngestFunctions.length} Inngest scheduled functions</h4></div>
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
           {data.inngestFunctions.map((f) => (
-            <div key={f.id} className="rounded-md border border-white/[0.06] bg-white/[0.02] p-3 flex items-center justify-between">
-              <div><div className="font-mono text-[0.72rem] text-mtqs-gold/85">{f.id}</div><div className="text-[0.65rem] text-white/55 mt-0.5">schedule: <span className="font-mono text-white/75">{f.schedule}</span></div></div>
+            <div key={f.id} className="rounded-md border border-[#E3EAE6] bg-[#F7FAF8] p-3 flex items-center justify-between">
+              <div><div className="font-mono text-[0.72rem] text-mtqs-gold/85">{f.id}</div><div className="text-[0.65rem] text-[#5B6E68] mt-0.5">schedule: <span className="font-mono text-[#33544C]">{f.schedule}</span></div></div>
               <Pill tone="emerald"><CheckCircle2 className="h-3 w-3" />{f.status}</Pill>
             </div>
           ))}
@@ -462,13 +462,13 @@ function SectionJ() {
             : <Pill tone="amber"><AlertTriangle className="h-3 w-3" />{data.totalConfigured}/{data.totalProviders} CONFIGURED · RULES FALLBACK</Pill>} />
         <div className="space-y-2">
           {data.fallbackChain.map((p) => (
-            <div key={p.priority} className="rounded-md border border-white/[0.06] bg-white/[0.02] p-3 flex items-center justify-between"><div className="flex items-center gap-3"><span className="font-mono text-[0.65rem] text-mtqs-gold/75">#{p.priority}</span><div><div className="font-mono text-[0.78rem] text-white">{p.provider}</div><div className="text-[0.65rem] text-white/55 mt-0.5 font-mono">{p.model}</div></div></div><PassPill ok={p.configured} label={p.configured ? "READY" : "NO KEY"} /></div>
+            <div key={p.priority} className="rounded-md border border-[#E3EAE6] bg-[#F7FAF8] p-3 flex items-center justify-between"><div className="flex items-center gap-3"><span className="font-mono text-[0.65rem] text-mtqs-gold/75">#{p.priority}</span><div><div className="font-mono text-[0.78rem] text-[#0E1F1B]">{p.provider}</div><div className="text-[0.65rem] text-[#5B6E68] mt-0.5 font-mono">{p.model}</div></div></div><PassPill ok={p.configured} label={p.configured ? "READY" : "NO KEY"} /></div>
           ))}
         </div>
       </Panel>
       <Panel className="p-5">
-        <div className="mb-2 flex items-center gap-2"><GlowDot color="gold" size="h-2 w-2" /><h4 className="text-sm font-semibold text-white/90">Fallback behavior</h4></div>
-        <p className="text-[0.72rem] text-white/55 leading-relaxed">
+        <div className="mb-2 flex items-center gap-2"><GlowDot color="gold" size="h-2 w-2" /><h4 className="text-sm font-semibold text-[#0E1F1B]">Fallback behavior</h4></div>
+        <p className="text-[0.72rem] text-[#5B6E68] leading-relaxed">
           When a provider fails (geo-block, rate limit, network error, model deprecated), the system automatically tries
           the next provider in the chain. If all {data.totalProviders} providers fail, deterministic fallback-rules are used.
           No single AI provider is a hard dependency — the protocol&apos;s monetary logic continues regardless of AI availability.
@@ -516,16 +516,16 @@ function SectionK() {
           <StatBox label="liability" value={fmtUsd(data.liabilityUsd)} />
           <StatBox label="total backing" tone="gold" value={fmtUsd(att.totalBackingUsd)} />
         </div>
-        <p className="mt-3 text-[0.72rem] text-white/55 leading-relaxed">{data.summary}</p>
+        <p className="mt-3 text-[0.72rem] text-[#5B6E68] leading-relaxed">{data.summary}</p>
       </Panel>
       <Panel className="p-5">
-        <div className="mb-2 flex items-center gap-2"><GlowDot color="gold" size="h-2 w-2" /><h4 className="text-sm font-semibold text-white/90">Reserve composition vs targets</h4></div>
+        <div className="mb-2 flex items-center gap-2"><GlowDot color="gold" size="h-2 w-2" /><h4 className="text-sm font-semibold text-[#0E1F1B]">Reserve composition vs targets</h4></div>
         <div className="space-y-3">
           {comps.map((c) => (
             <div key={c.k}>
               <div className="flex items-baseline justify-between mb-1.5">
-                <span className="text-[0.7rem] uppercase tracking-[0.18em] text-white/55">{c.k}</span>
-                <span className="font-mono text-xs text-white">{(c.v * 100).toFixed(1)}% <span className="text-white/45">/ target {(c.t * 100).toFixed(1)}%</span></span>
+                <span className="text-[0.7rem] uppercase tracking-[0.18em] text-[#5B6E68]">{c.k}</span>
+                <span className="font-mono text-xs text-[#0E1F1B]">{(c.v * 100).toFixed(1)}% <span className="text-[#7A8C86]">/ target {(c.t * 100).toFixed(1)}%</span></span>
               </div>
               <MiniBar value={c.v * 100} max={100} colorClass={c.c} />
             </div>
@@ -533,35 +533,35 @@ function SectionK() {
         </div>
       </Panel>
       <Panel className="p-5">
-        <div className="mb-2 flex items-center gap-2"><GlowDot color="emerald" size="h-2 w-2" /><h4 className="text-sm font-semibold text-white/90">Attestation + targets</h4></div>
+        <div className="mb-2 flex items-center gap-2"><GlowDot color="emerald" size="h-2 w-2" /><h4 className="text-sm font-semibold text-[#0E1F1B]">Attestation + targets</h4></div>
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-          <div className="rounded-md border border-white/[0.06] bg-white/[0.02] p-3">
-            <div className="text-[0.6rem] uppercase tracking-[0.18em] text-white/55 mb-1">Attestation</div>
+          <div className="rounded-md border border-[#E3EAE6] bg-[#F7FAF8] p-3">
+            <div className="text-[0.6rem] uppercase tracking-[0.18em] text-[#5B6E68] mb-1">Attestation</div>
             <div className="font-mono text-[0.7rem] text-mtqs-gold/85 break-all">{att.attestationId}</div>
-            <div className="text-[0.7rem] text-white/75 mt-1.5">Custodian: <span className="text-white">{att.custodian}</span></div>
-            <div className="font-mono text-[0.65rem] text-white/55 mt-0.5 break-all">{att.custodianAddress}</div>
-            <div className="text-[0.65rem] text-white/55 mt-1">Signature: {att.hasSignature ? "present" : "missing"} · Expires: {new Date(att.expiry * 1000).toISOString().slice(0, 19)}Z</div>
+            <div className="text-[0.7rem] text-[#33544C] mt-1.5">Custodian: <span className="text-[#0E1F1B]">{att.custodian}</span></div>
+            <div className="font-mono text-[0.65rem] text-[#5B6E68] mt-0.5 break-all">{att.custodianAddress}</div>
+            <div className="text-[0.65rem] text-[#5B6E68] mt-1">Signature: {att.hasSignature ? "present" : "missing"} · Expires: {new Date(att.expiry * 1000).toISOString().slice(0, 19)}Z</div>
           </div>
-          <div className="rounded-md border border-white/[0.06] bg-white/[0.02] p-3">
-            <div className="text-[0.6rem] uppercase tracking-[0.18em] text-white/55 mb-1">Targets</div>
+          <div className="rounded-md border border-[#E3EAE6] bg-[#F7FAF8] p-3">
+            <div className="text-[0.6rem] uppercase tracking-[0.18em] text-[#5B6E68] mb-1">Targets</div>
             <div className="grid grid-cols-2 gap-y-1.5 text-[0.7rem] mt-1">
-              <span className="text-white/55">RR hard floor</span><span className="font-mono text-white justify-self-end">{tgt.rrHardFloor.toFixed(2)}</span>
-              <span className="text-white/55">RR prod target</span><span className="font-mono text-mtqs-gold justify-self-end">{tgt.rrProductionTarget.toFixed(2)}</span>
-              <span className="text-white/55">Fiat target</span><span className="font-mono text-white justify-self-end">{(tgt.fiatTarget * 100).toFixed(0)}%</span>
-              <span className="text-white/55">Gold target</span><span className="font-mono text-white justify-self-end">{(tgt.goldTarget * 100).toFixed(0)}%</span>
-              <span className="text-white/55">Digital target</span><span className="font-mono text-white justify-self-end">{(tgt.digitalTarget * 100).toFixed(0)}%</span>
+              <span className="text-[#5B6E68]">RR hard floor</span><span className="font-mono text-[#0E1F1B] justify-self-end">{tgt.rrHardFloor.toFixed(2)}</span>
+              <span className="text-[#5B6E68]">RR prod target</span><span className="font-mono text-mtqs-gold justify-self-end">{tgt.rrProductionTarget.toFixed(2)}</span>
+              <span className="text-[#5B6E68]">Fiat target</span><span className="font-mono text-[#0E1F1B] justify-self-end">{(tgt.fiatTarget * 100).toFixed(0)}%</span>
+              <span className="text-[#5B6E68]">Gold target</span><span className="font-mono text-[#0E1F1B] justify-self-end">{(tgt.goldTarget * 100).toFixed(0)}%</span>
+              <span className="text-[#5B6E68]">Digital target</span><span className="font-mono text-[#0E1F1B] justify-self-end">{(tgt.digitalTarget * 100).toFixed(0)}%</span>
             </div>
             {/* 16f-012: the 1.30 / 80-18-2 figures come from the candidate
                 v25.3 final-reserve spec (CANDIDATE_MODEL_VALIDATION_PENDING) —
                 label them so they cannot be read as the platform-wide 110%
                 §4.2 legacy pilot target. */}
-            <div className="mt-2 text-[0.6rem] leading-relaxed text-white/45">
+            <div className="mt-2 text-[0.6rem] leading-relaxed text-[#7A8C86]">
               Candidate-spec v25.3 targets — proposed, unapproved (validation pending); the legacy
               pilot RR target shown elsewhere is 110% (§4.2).
             </div>
           </div>
         </div>
-        <p className="mt-3 text-[0.65rem] text-white/45 leading-relaxed">{data.disclaimer}</p>
+        <p className="mt-3 text-[0.65rem] text-[#7A8C86] leading-relaxed">{data.disclaimer}</p>
       </Panel>
     </div>
   );
@@ -590,14 +590,14 @@ function SectionL() {
         </div>
       </Panel>
       <Panel className="p-5">
-        <div className="mb-2 flex items-center gap-2"><GlowDot color="amber" size="h-2 w-2" /><h4 className="text-sm font-semibold text-white/90">Pool health vs protocol liability</h4></div>
+        <div className="mb-2 flex items-center gap-2"><GlowDot color="amber" size="h-2 w-2" /><h4 className="text-sm font-semibold text-[#0E1F1B]">Pool health vs protocol liability</h4></div>
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
-          <div className="rounded-md border border-white/[0.06] bg-white/[0.02] p-3">
-            <div className="text-[0.6rem] uppercase tracking-[0.18em] text-white/55">Liability</div>
-            <div className="font-mono text-base text-white mt-1">{fmtUsd(h.liabilityUsd)}</div>
+          <div className="rounded-md border border-[#E3EAE6] bg-[#F7FAF8] p-3">
+            <div className="text-[0.6rem] uppercase tracking-[0.18em] text-[#5B6E68]">Liability</div>
+            <div className="font-mono text-base text-[#0E1F1B] mt-1">{fmtUsd(h.liabilityUsd)}</div>
           </div>
-          <div className="rounded-md border border-white/[0.06] bg-white/[0.02] p-3">
-            <div className="text-[0.6rem] uppercase tracking-[0.18em] text-white/55">NAV</div>
+          <div className="rounded-md border border-[#E3EAE6] bg-[#F7FAF8] p-3">
+            <div className="text-[0.6rem] uppercase tracking-[0.18em] text-[#5B6E68]">NAV</div>
             <div className="font-mono text-base text-mtqs-gold mt-1">{fmtUsd(h.navUsd)}</div>
           </div>
           <div className="rounded-md border border-mtqs-rose/30 bg-mtqs-rose/[0.04] p-3">
@@ -605,14 +605,14 @@ function SectionL() {
             <div className="font-mono text-base text-mtqs-rose mt-1">{fmtUsd(h.currentDeficitUsd)}</div>
           </div>
         </div>
-        <div className="mt-3 flex items-center justify-between rounded-md border border-white/[0.06] bg-white/[0.02] p-3">
+        <div className="mt-3 flex items-center justify-between rounded-md border border-[#E3EAE6] bg-[#F7FAF8] p-3">
           <div>
-            <div className="text-[0.6rem] uppercase tracking-[0.18em] text-white/55">Reward rate</div>
-            <div className="font-mono text-xs text-white mt-1">{p.rewardRate}</div>
+            <div className="text-[0.6rem] uppercase tracking-[0.18em] text-[#5B6E68]">Reward rate</div>
+            <div className="font-mono text-xs text-[#0E1F1B] mt-1">{p.rewardRate}</div>
           </div>
           <Pill tone={data.status === "NORMAL" ? "emerald" : "rose"}>status: {data.status}</Pill>
         </div>
-        <p className="mt-3 text-[0.7rem] text-white/55 leading-relaxed">{data.note}</p>
+        <p className="mt-3 text-[0.7rem] text-[#5B6E68] leading-relaxed">{data.note}</p>
       </Panel>
     </div>
   );
@@ -645,7 +645,7 @@ function SectionM() {
         {/* 16f-006: the registry rows are hardcoded pilot placeholders (a
             published dev key); no council is constituted (OD-3 open), so no
             on-chain authorization exists anywhere. */}
-        <div className="mt-3 rounded-md border border-mtqs-amber/25 bg-amber-400/[0.04] px-3 py-2 text-[0.68rem] leading-relaxed text-white/60">
+        <div className="mt-3 rounded-md border border-mtqs-amber/25 bg-amber-50 px-3 py-2 text-[0.68rem] leading-relaxed text-[#5B6E68]">
           <span className="font-semibold text-mtqs-amber">Registry entries — authorization not yet granted.</span>{" "}
           These rows are hardcoded pilot placeholders (a published dev-key address); OD-3 is open — no
           council is constituted, so no bank authorization exists on-chain. The API note below carries
@@ -653,9 +653,9 @@ function SectionM() {
         </div>
       </Panel>
       <Panel className="p-5">
-        <div className="mb-2 flex items-center gap-2"><GlowDot color="gold" size="h-2 w-2" /><h4 className="text-sm font-semibold text-white/90">Registry entries ({data.banks.length})</h4></div>
+        <div className="mb-2 flex items-center gap-2"><GlowDot color="gold" size="h-2 w-2" /><h4 className="text-sm font-semibold text-[#0E1F1B]">Registry entries ({data.banks.length})</h4></div>
         {data.banks.length === 0 ? (
-          <div className="rounded-md border border-mtqs-rose/30 bg-mtqs-rose/5 p-4 text-[0.75rem] text-white/75">
+          <div className="rounded-md border border-mtqs-rose/30 bg-mtqs-rose/5 p-4 text-[0.75rem] text-[#33544C]">
             <AlertCircle className="h-4 w-4 text-mtqs-rose inline mr-2" />No authorized banks. The 7/7 Constitutional Council must authorize banks on-chain via MTQSigmaV3.authorizeBank(...).
           </div>
         ) : (
@@ -663,30 +663,30 @@ function SectionM() {
             <div key={b.address} className="grid grid-cols-1 sm:grid-cols-[minmax(0,2fr)_auto_auto_auto] gap-2 sm:gap-3 items-center">
               <div className="min-w-0">
                 <div className="flex items-center gap-2">
-                  <span className="text-[0.8rem] font-medium text-white">{b.name}</span>
+                  <span className="text-[0.8rem] font-medium text-[#0E1F1B]">{b.name}</span>
                   <Pill tone="muted">{b.jurisdiction}</Pill>
                 </div>
                 <div className="font-mono text-[0.65rem] text-mtqs-gold/70 mt-0.5 break-all">{b.address}</div>
                 {/* 16f-006: authorizedAt is boot-time from the hardcoded registry —
                     never render it as an on-chain authorization fact. */}
-                <div className="text-[0.6rem] text-white/45 mt-0.5">placeholder entry · no council authorization (OD-3 open)</div>
+                <div className="text-[0.6rem] text-[#7A8C86] mt-0.5">placeholder entry · no council authorization (OD-3 open)</div>
               </div>
               <div className="text-left sm:text-right">
-                <div className="text-[0.6rem] uppercase tracking-[0.18em] text-white/55">cap</div>
-                <div className="font-mono text-xs text-white">{fmtUsd(b.dailyMintCapUsd)}</div>
+                <div className="text-[0.6rem] uppercase tracking-[0.18em] text-[#5B6E68]">cap</div>
+                <div className="font-mono text-xs text-[#0E1F1B]">{fmtUsd(b.dailyMintCapUsd)}</div>
               </div>
               <div className="text-left sm:text-right">
-                <div className="text-[0.6rem] uppercase tracking-[0.18em] text-white/55">used</div>
+                <div className="text-[0.6rem] uppercase tracking-[0.18em] text-[#5B6E68]">used</div>
                 <div className="font-mono text-xs text-mtqs-rose">{fmtUsd(b.dailyMintUsedUsd)}</div>
               </div>
               <div className="text-left sm:text-right">
-                <div className="text-[0.6rem] uppercase tracking-[0.18em] text-white/55">remaining</div>
+                <div className="text-[0.6rem] uppercase tracking-[0.18em] text-[#5B6E68]">remaining</div>
                 <div className="font-mono text-xs text-mtqs-emerald">{fmtUsd(b.dailyMintRemainingUsd)}</div>
               </div>
             </div>
           ))} />
         )}
-        <p className="mt-3 text-[0.7rem] text-white/55 leading-relaxed">{data.note}</p>
+        <p className="mt-3 text-[0.7rem] text-[#5B6E68] leading-relaxed">{data.note}</p>
       </Panel>
     </div>
   );
@@ -744,74 +744,74 @@ function SectionN() {
         {c.address && <div className="mt-2 font-mono text-[0.65rem] text-mtqs-gold/70 break-all">addr: {c.address}</div>}
       </Panel>
       <Panel className="p-5">
-        <div className="mb-2 flex items-center gap-2"><GlowDot color="gold" size="h-2 w-2" /><h4 className="text-sm font-semibold text-white/90">Architecture — 16-step workflow + 7-layer finality</h4></div>
+        <div className="mb-2 flex items-center gap-2"><GlowDot color="gold" size="h-2 w-2" /><h4 className="text-sm font-semibold text-[#0E1F1B]">Architecture — 16-step workflow + 7-layer finality</h4></div>
         <div className="rounded-md border border-mtqs-gold/25 bg-mtqs-gold/[0.04] p-3 mb-2">
           <div className="text-[0.6rem] uppercase tracking-[0.18em] text-mtqs-gold/80 mb-1">Mint flow</div>
-          <div className="text-[0.78rem] text-white leading-snug">{a.mintFlow}</div>
+          <div className="text-[0.78rem] text-[#0E1F1B] leading-snug">{a.mintFlow}</div>
         </div>
         <div className="rounded-md border border-mtqs-gold/25 bg-mtqs-gold/[0.04] p-3 mb-2">
           <div className="text-[0.6rem] uppercase tracking-[0.18em] text-mtqs-gold/80 mb-1">Settlement finality</div>
-          <div className="text-[0.78rem] text-white leading-snug">{a.finality}</div>
+          <div className="text-[0.78rem] text-[#0E1F1B] leading-snug">{a.finality}</div>
         </div>
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 mt-2">
-          <div className="rounded-md border border-white/[0.06] bg-white/[0.02] p-3">
-            <div className="text-[0.6rem] uppercase tracking-[0.18em] text-white/55">Custody</div>
-            <div className="text-[0.74rem] text-white mt-0.5 leading-snug">{a.custody}</div>
+          <div className="rounded-md border border-[#E3EAE6] bg-[#F7FAF8] p-3">
+            <div className="text-[0.6rem] uppercase tracking-[0.18em] text-[#5B6E68]">Custody</div>
+            <div className="text-[0.74rem] text-[#0E1F1B] mt-0.5 leading-snug">{a.custody}</div>
           </div>
-          <div className="rounded-md border border-white/[0.06] bg-white/[0.02] p-3">
-            <div className="text-[0.6rem] uppercase tracking-[0.18em] text-white/55">KYC</div>
-            <div className="text-[0.74rem] text-white mt-0.5 leading-snug">{a.kyc}</div>
+          <div className="rounded-md border border-[#E3EAE6] bg-[#F7FAF8] p-3">
+            <div className="text-[0.6rem] uppercase tracking-[0.18em] text-[#5B6E68]">KYC</div>
+            <div className="text-[0.74rem] text-[#0E1F1B] mt-0.5 leading-snug">{a.kyc}</div>
           </div>
-          <div className="rounded-md border border-white/[0.06] bg-white/[0.02] p-3">
-            <div className="text-[0.6rem] uppercase tracking-[0.18em] text-white/55">RR target</div>
+          <div className="rounded-md border border-[#E3EAE6] bg-[#F7FAF8] p-3">
+            <div className="text-[0.6rem] uppercase tracking-[0.18em] text-[#5B6E68]">RR target</div>
             <div className="font-mono text-sm text-mtqs-gold mt-0.5">{a.reserveRatioTarget}</div>
           </div>
-          <div className="rounded-md border border-white/[0.06] bg-white/[0.02] p-3">
-            <div className="text-[0.6rem] uppercase tracking-[0.18em] text-white/55">Composition</div>
-            <div className="text-[0.74rem] text-white mt-0.5">{a.reserveComposition}</div>
+          <div className="rounded-md border border-[#E3EAE6] bg-[#F7FAF8] p-3">
+            <div className="text-[0.6rem] uppercase tracking-[0.18em] text-[#5B6E68]">Composition</div>
+            <div className="text-[0.74rem] text-[#0E1F1B] mt-0.5">{a.reserveComposition}</div>
           </div>
         </div>
       </Panel>
       <Panel className="p-5">
-        <div className="mb-2 flex items-center gap-2"><GlowDot color="emerald" size="h-2 w-2" /><h4 className="text-sm font-semibold text-white/90">Features + oracle adapters</h4></div>
+        <div className="mb-2 flex items-center gap-2"><GlowDot color="emerald" size="h-2 w-2" /><h4 className="text-sm font-semibold text-[#0E1F1B]">Features + oracle adapters</h4></div>
         <div className="grid grid-cols-2 sm:grid-cols-3 gap-2 mb-3">
           {featList.map((ft) => (
-            <div key={ft.k} className="rounded-md border border-white/[0.06] bg-white/[0.02] p-2 flex items-center justify-between gap-2">
-              <span className="font-mono text-[0.65rem] text-white/85">{ft.k}</span>
+            <div key={ft.k} className="rounded-md border border-[#E3EAE6] bg-[#F7FAF8] p-2 flex items-center justify-between gap-2">
+              <span className="font-mono text-[0.65rem] text-[#0E1F1B]">{ft.k}</span>
               <PassPill ok={ft.v} label={ft.v ? "ON" : "OFF"} />
             </div>
           ))}
         </div>
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-2 mb-3">
-          <div className="rounded-md border border-white/[0.06] bg-white/[0.02] p-2">
-            <div className="text-[0.6rem] uppercase tracking-[0.18em] text-white/55">Chainlink</div>
-            <div className="text-[0.65rem] text-white/75 mt-0.5">{f.oracleAdapters.chainlink}</div>
+          <div className="rounded-md border border-[#E3EAE6] bg-[#F7FAF8] p-2">
+            <div className="text-[0.6rem] uppercase tracking-[0.18em] text-[#5B6E68]">Chainlink</div>
+            <div className="text-[0.65rem] text-[#33544C] mt-0.5">{f.oracleAdapters.chainlink}</div>
           </div>
-          <div className="rounded-md border border-white/[0.06] bg-white/[0.02] p-2">
-            <div className="text-[0.6rem] uppercase tracking-[0.18em] text-white/55">Pyth</div>
-            <div className="text-[0.65rem] text-white/75 mt-0.5">{f.oracleAdapters.pyth}</div>
+          <div className="rounded-md border border-[#E3EAE6] bg-[#F7FAF8] p-2">
+            <div className="text-[0.6rem] uppercase tracking-[0.18em] text-[#5B6E68]">Pyth</div>
+            <div className="text-[0.65rem] text-[#33544C] mt-0.5">{f.oracleAdapters.pyth}</div>
           </div>
-          <div className="rounded-md border border-white/[0.06] bg-white/[0.02] p-2">
-            <div className="text-[0.6rem] uppercase tracking-[0.18em] text-white/55">Chronicle</div>
-            <div className="text-[0.65rem] text-white/75 mt-0.5">{f.oracleAdapters.chronicle}</div>
+          <div className="rounded-md border border-[#E3EAE6] bg-[#F7FAF8] p-2">
+            <div className="text-[0.6rem] uppercase tracking-[0.18em] text-[#5B6E68]">Chronicle</div>
+            <div className="text-[0.65rem] text-[#33544C] mt-0.5">{f.oracleAdapters.chronicle}</div>
           </div>
         </div>
         <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
-          <div className="rounded-md border border-white/[0.06] bg-white/[0.02] p-2">
-            <div className="text-[0.6rem] uppercase tracking-[0.18em] text-white/55">per-tx cap</div>
+          <div className="rounded-md border border-[#E3EAE6] bg-[#F7FAF8] p-2">
+            <div className="text-[0.6rem] uppercase tracking-[0.18em] text-[#5B6E68]">per-tx cap</div>
             <div className="font-mono text-xs text-mtqs-gold mt-0.5">{f.perTxCap}</div>
           </div>
-          <div className="rounded-md border border-white/[0.06] bg-white/[0.02] p-2">
-            <div className="text-[0.6rem] uppercase tracking-[0.18em] text-white/55">daily redeem cap</div>
+          <div className="rounded-md border border-[#E3EAE6] bg-[#F7FAF8] p-2">
+            <div className="text-[0.6rem] uppercase tracking-[0.18em] text-[#5B6E68]">daily redeem cap</div>
             <div className="font-mono text-xs text-mtqs-gold mt-0.5">{f.dailyRedeemCap}</div>
           </div>
-          <div className="rounded-md border border-white/[0.06] bg-white/[0.02] p-2">
-            <div className="text-[0.6rem] uppercase tracking-[0.18em] text-white/55">PoR</div>
-            <div className="font-mono text-[0.65rem] text-white/75 mt-0.5">{f.proofOfReserve}</div>
+          <div className="rounded-md border border-[#E3EAE6] bg-[#F7FAF8] p-2">
+            <div className="text-[0.6rem] uppercase tracking-[0.18em] text-[#5B6E68]">PoR</div>
+            <div className="font-mono text-[0.65rem] text-[#33544C] mt-0.5">{f.proofOfReserve}</div>
           </div>
-          <div className="rounded-md border border-white/[0.06] bg-white/[0.02] p-2">
-            <div className="text-[0.6rem] uppercase tracking-[0.18em] text-white/55">MBG gateway</div>
-            <div className="font-mono text-[0.65rem] text-white/75 mt-0.5">{f.mbgGateway}</div>
+          <div className="rounded-md border border-[#E3EAE6] bg-[#F7FAF8] p-2">
+            <div className="text-[0.6rem] uppercase tracking-[0.18em] text-[#5B6E68]">MBG gateway</div>
+            <div className="font-mono text-[0.65rem] text-[#33544C] mt-0.5">{f.mbgGateway}</div>
           </div>
         </div>
         <div className="mt-3 rounded-md border border-mtqs-rose/25 bg-mtqs-rose/[0.04] p-3">
@@ -819,8 +819,8 @@ function SectionN() {
             <XCircle className="h-3 w-3 text-mtqs-rose" />
             <span className="text-[0.6rem] uppercase tracking-[0.18em] text-mtqs-rose/80">Honest status</span>
           </div>
-          <div className="text-[0.72rem] text-white/75 leading-relaxed">{data.note}</div>
-          <div className="font-mono text-[0.65rem] text-white/55 mt-2">
+          <div className="text-[0.72rem] text-[#33544C] leading-relaxed">{data.note}</div>
+          <div className="font-mono text-[0.65rem] text-[#5B6E68] mt-2">
             implementedMask: <span className="text-mtqs-gold">{hs.implementedMask}</span> · authorizedMask: <span className="text-mtqs-rose">{hs.authorizedMask}</span> · status: {hs.status}
           </div>
         </div>
@@ -855,7 +855,7 @@ export function InstitutionalDashboard({ className = "" }: { className?: string 
           title={<span className="mtqs-gold-text">MTQΣ Institutional Dashboard</span>}
           right={<Pill tone="amber"><AlertTriangle className="h-3 w-3" />NOT PRODUCTION-AUTHORIZED</Pill>} />
         <Tabs value={tab} onValueChange={setTab} className="w-full">
-          <TabsList className="bg-white/[0.03] border border-white/[0.06] h-auto p-1 flex flex-wrap gap-1">
+          <TabsList className="bg-[#F7FAF8] border border-[#E3EAE6] h-auto p-1 flex flex-wrap gap-1">
             {TABS.map((t) => (
               <TabsTrigger key={t.id} value={t.id} className="data-[state=active]:bg-mtqs-gold/15 data-[state=active]:text-mtqs-gold text-[0.7rem] font-mono">
                 <t.icon className="h-3 w-3" />{t.label}
@@ -868,7 +868,7 @@ export function InstitutionalDashboard({ className = "" }: { className?: string 
             </TabsContent>
           ))}
         </Tabs>
-        <div className="mt-4 flex items-center gap-2 text-[0.65rem] text-white/55">
+        <div className="mt-4 flex items-center gap-2 text-[0.65rem] text-[#5B6E68]">
           <Database className="h-3 w-3" /><span>All 14 sections fetched live from their respective API routes. Status: testnet candidate — not production-authorized.</span>
         </div>
       </Panel>

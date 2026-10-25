@@ -119,7 +119,7 @@ function MarpLevelBadge({ level, shouldTrade, hierarchy }: { level: number; shou
         {level === 8 && !shouldTrade ? "L8 · direction-lock hold" : labels[level] ?? `L${level}`}
       </Pill>
       {hierarchy ? (
-        <span className="text-[0.58rem] uppercase tracking-wider text-white/40">{hierarchy}</span>
+        <span className="text-[0.58rem] uppercase tracking-wider text-[#7A8C86]">{hierarchy}</span>
       ) : null}
     </span>
   );
@@ -150,7 +150,7 @@ export function RebalanceEngine({ snapshot }: { snapshot: MetricsSnapshot | null
   const setTab = (next: RebalanceTab) => setTabState({ picked: true, tab: next });
 
   if (!snapshot) {
-    return <div className="h-64 animate-pulse rounded-lg bg-white/[0.03]" />;
+    return <div className="h-64 animate-pulse rounded-lg bg-[#F7FAF8]" />;
   }
 
   const d: RebalanceDecision = snapshot.rebalance;
@@ -177,13 +177,13 @@ export function RebalanceEngine({ snapshot }: { snapshot: MetricsSnapshot | null
         <Panel className="p-5">
           <div className="mb-4 flex items-start justify-between gap-3 flex-wrap">
             <div>
-              <div className="text-[0.625rem] uppercase tracking-[0.25em] text-white/55">
+              <div className="text-[0.625rem] uppercase tracking-[0.25em] text-[#5B6E68]">
                 §7 + §10/§11 · Rebalance Execution · A/B dual view
               </div>
-              <div className="text-sm font-semibold text-white/90 mt-1">
+              <div className="text-sm font-semibold text-[#0E1F1B] mt-1">
                 Legacy §7 single-direction vs MARP §10/§11 per-component
               </div>
-              <div className="text-[0.7rem] text-white/55 mt-1">
+              <div className="text-[0.7rem] text-[#5B6E68] mt-1">
                 Both paths compute live every tick; only one mutates the simulated pilot ledger (per the feature flag).
               </div>
             </div>
@@ -198,7 +198,7 @@ export function RebalanceEngine({ snapshot }: { snapshot: MetricsSnapshot | null
                   Gold target: {targetSource === "mase-envelope" ? `MASE envelope ${(goldEnv.lower * 100).toFixed(0)}–${(goldEnv.upper * 100).toFixed(0)}%` : "legacy buffer (§8)"}
                 </Pill>
               </div>
-              <span className="text-right text-[0.6rem] leading-snug text-white/45">
+              <span className="text-right text-[0.6rem] leading-snug text-[#7A8C86]">
                 Legacy profitability gate: NetBenefit &gt; ε = ${MIN_PROFITABILITY_USD} — HISTORICAL candidate (Appendix F.5:
                 the $10 minimum vs the legacy 1% margin CONFLICT under OD-2, which is OPEN; normal-mode economic
                 execution stays DISABLED until the Committee approves the threshold policy. The controlling
@@ -208,14 +208,14 @@ export function RebalanceEngine({ snapshot }: { snapshot: MetricsSnapshot | null
           </div>
 
           {/* Tab toggle */}
-          <div className="inline-flex rounded-md border border-white/[0.06] bg-white/[0.02] p-1 mb-1">
+          <div className="inline-flex rounded-md border border-[#E3EAE6] bg-[#F7FAF8] p-1 mb-1">
             <button
               type="button"
               onClick={() => setTab("legacy")}
               className={`px-3 py-1.5 text-[0.72rem] font-medium rounded-[5px] transition-colors ${
                 tab === "legacy"
                   ? "bg-mtqs-emerald/15 text-mtqs-emerald border border-mtqs-emerald/30"
-                  : "text-white/55 hover:text-white/90 border border-transparent"
+                  : "text-[#5B6E68] hover:text-[#0E1F1B] border border-transparent"
               }`}
               aria-pressed={tab === "legacy"}
             >
@@ -227,7 +227,7 @@ export function RebalanceEngine({ snapshot }: { snapshot: MetricsSnapshot | null
               className={`px-3 py-1.5 text-[0.72rem] font-medium rounded-[5px] transition-colors ${
                 tab === "marp"
                   ? "bg-mtqs-gold/15 text-mtqs-gold border border-mtqs-gold/30"
-                  : "text-white/55 hover:text-white/90 border border-transparent"
+                  : "text-[#5B6E68] hover:text-[#0E1F1B] border border-transparent"
               }`}
               aria-pressed={tab === "marp"}
             >
@@ -238,11 +238,11 @@ export function RebalanceEngine({ snapshot }: { snapshot: MetricsSnapshot | null
           {/* Honest note */}
           <div className="mt-3 flex items-start gap-2 rounded-md border border-mtqs-gold/20 bg-mtqs-gold/5 p-3">
             <Info className="h-3.5 w-3.5 mt-0.5 text-mtqs-gold shrink-0" aria-hidden="true" />
-            <p className="text-[0.7rem] text-white/55 leading-relaxed">
-              <span className="text-white/80">MARP (§10/§11) is the ACTIVE execution path</span> —{" "}
+            <p className="text-[0.7rem] text-[#5B6E68] leading-relaxed">
+              <span className="text-[#0E1F1B]">MARP (§10/§11) is the ACTIVE execution path</span> —{" "}
               <span className="font-mono text-mtqs-gold">USE_MARP_EXECUTION=true</span> (audit P1-4),
               rebalancePath = <span className="font-mono text-mtqs-gold">marp</span>. The legacy §7 view
-              is <span className="text-white/80">advisory only</span> — it no longer mutates the reserve.
+              is <span className="text-[#0E1F1B]">advisory only</span> — it no longer mutates the reserve.
               The execution target source is{" "}
               <span className="font-mono text-mtqs-gold">{targetSource}</span>
               {targetSource === "mase-envelope"
@@ -265,8 +265,8 @@ export function RebalanceEngine({ snapshot }: { snapshot: MetricsSnapshot | null
             <Panel className="p-5">
               <div className="mb-3 flex items-center justify-between">
                 <div>
-                  <div className="text-sm font-semibold text-white/90">Rebalance Decision (§7.5 — legacy{activePath === "marp" ? ", advisory only" : ""})</div>
-                  <div className="text-[0.7rem] text-white/55">{d.reason}</div>
+                  <div className="text-sm font-semibold text-[#0E1F1B]">Rebalance Decision (§7.5 — legacy{activePath === "marp" ? ", advisory only" : ""})</div>
+                  <div className="text-[0.7rem] text-[#5B6E68]">{d.reason}</div>
                 </div>
                 <div className="flex items-center gap-2">
                   {activePath === "marp" && (
@@ -280,35 +280,35 @@ export function RebalanceEngine({ snapshot }: { snapshot: MetricsSnapshot | null
               </div>
 
               <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
-                <div className="rounded-md border border-white/[0.06] bg-white/[0.02] p-3">
-                  <div className="text-[0.65rem] uppercase tracking-[0.2em] text-white/55">Observed W</div>
+                <div className="rounded-md border border-[#E3EAE6] bg-[#F7FAF8] p-3">
+                  <div className="text-[0.65rem] uppercase tracking-[0.2em] text-[#5B6E68]">Observed W</div>
                   <TickNumber value={d.observedGoldWeight} format={(n) => `${(n * 100).toFixed(2)}%`} className="text-lg font-semibold text-mtqs-gold" />
                 </div>
-                <div className="rounded-md border border-white/[0.06] bg-white/[0.02] p-3">
-                  <div className="text-[0.65rem] uppercase tracking-[0.2em] text-white/55">Target W</div>
+                <div className="rounded-md border border-[#E3EAE6] bg-[#F7FAF8] p-3">
+                  <div className="text-[0.65rem] uppercase tracking-[0.2em] text-[#5B6E68]">Target W</div>
                   <TickNumber value={d.targetGoldWeight} format={(n) => `${(n * 100).toFixed(2)}%`} className="text-lg font-semibold text-mtqs-emerald" />
                 </div>
-                <div className="rounded-md border border-white/[0.06] bg-white/[0.02] p-3">
-                  <div className="text-[0.65rem] uppercase tracking-[0.2em] text-white/55">Deviation</div>
+                <div className="rounded-md border border-[#E3EAE6] bg-[#F7FAF8] p-3">
+                  <div className="text-[0.65rem] uppercase tracking-[0.2em] text-[#5B6E68]">Deviation</div>
                   <TickNumber
                     value={d.deviation}
                     format={(n) => `${n > 0 ? "+" : ""}${(n * 100).toFixed(2)}%`}
-                    className={`text-lg font-semibold ${Math.abs(d.deviation) >= 0.005 ? (d.deviation > 0 ? "text-mtqs-rose" : "text-mtqs-emerald") : "text-white/55"}`}
+                    className={`text-lg font-semibold ${Math.abs(d.deviation) >= 0.005 ? (d.deviation > 0 ? "text-mtqs-rose" : "text-mtqs-emerald") : "text-[#5B6E68]"}`}
                   />
                 </div>
-                <div className="rounded-md border border-white/[0.06] bg-white/[0.02] p-3">
-                  <div className="text-[0.65rem] uppercase tracking-[0.2em] text-white/55">Trade USD</div>
+                <div className="rounded-md border border-[#E3EAE6] bg-[#F7FAF8] p-3">
+                  <div className="text-[0.65rem] uppercase tracking-[0.2em] text-[#5B6E68]">Trade USD</div>
                   <TickNumber value={d.shouldRebalance ? d.tradeUsd : 0} format={fmtUsdCompact} className="text-lg font-semibold text-mtqs-gold" />
                 </div>
               </div>
 
               <div className="mt-3 flex flex-wrap gap-2 text-[0.7rem]">
-                <span className="text-white/55">decision:</span>
+                <span className="text-[#5B6E68]">decision:</span>
                 {d.shouldRebalance
                   ? <Pill tone="emerald">WOULD EXECUTE (advisory)</Pill>
                   : <Pill tone="muted">no trade</Pill>}
-                <span className="text-white/55">·</span>
-                <span className="text-white/55">direction:</span>
+                <span className="text-[#5B6E68]">·</span>
+                <span className="text-[#5B6E68]">direction:</span>
                 <span className="font-mono text-mtqs-gold">{d.direction === 0 ? "0 (hold)" : d.direction === 1 ? "+1 buy Au" : "−1 sell Au"}</span>
                 {activePath !== "legacy" && (
                   <Pill tone="muted">
@@ -323,28 +323,28 @@ export function RebalanceEngine({ snapshot }: { snapshot: MetricsSnapshot | null
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
             <Reveal>
               <Panel className="p-5">
-                <div className="mb-3 text-[0.625rem] uppercase tracking-[0.25em] text-white/55">
+                <div className="mb-3 text-[0.625rem] uppercase tracking-[0.25em] text-[#5B6E68]">
                   §10.9 Legacy Objective Coefficients — NON-OPERATIVE (Appendix F)
                 </div>
                 <div className="grid grid-cols-2 gap-2 text-[0.75rem]">
-                  <div className="rounded-md border border-white/[0.06] bg-white/[0.02] p-2.5">
-                    <div className="text-white/55">λ₁ · Deviation</div>
+                  <div className="rounded-md border border-[#E3EAE6] bg-[#F7FAF8] p-2.5">
+                    <div className="text-[#5B6E68]">λ₁ · Deviation</div>
                     <div className="font-mono text-mtqs-gold text-lg">{LAMBDA_1.toFixed(2)}</div>
                   </div>
-                  <div className="rounded-md border border-white/[0.06] bg-white/[0.02] p-2.5">
-                    <div className="text-white/55">λ₂ · Cost</div>
+                  <div className="rounded-md border border-[#E3EAE6] bg-[#F7FAF8] p-2.5">
+                    <div className="text-[#5B6E68]">λ₂ · Cost</div>
                     <div className="font-mono text-mtqs-gold text-lg">{LAMBDA_2.toFixed(2)}</div>
                   </div>
-                  <div className="rounded-md border border-white/[0.06] bg-white/[0.02] p-2.5">
-                    <div className="text-white/55">λ₃ · Urgency</div>
+                  <div className="rounded-md border border-[#E3EAE6] bg-[#F7FAF8] p-2.5">
+                    <div className="text-[#5B6E68]">λ₃ · Urgency</div>
                     <div className="font-mono text-mtqs-gold text-lg">{LAMBDA_3.toFixed(2)}</div>
                   </div>
-                  <div className="rounded-md border border-white/[0.06] bg-white/[0.02] p-2.5">
-                    <div className="text-white/55">λ₄ · Turnover</div>
+                  <div className="rounded-md border border-[#E3EAE6] bg-[#F7FAF8] p-2.5">
+                    <div className="text-[#5B6E68]">λ₄ · Turnover</div>
                     <div className="font-mono text-mtqs-gold text-lg">{LAMBDA_4.toFixed(2)}</div>
                   </div>
                 </div>
-                <p className="mt-3 text-[0.7rem] text-white/55 leading-relaxed">
+                <p className="mt-3 text-[0.7rem] text-[#5B6E68] leading-relaxed">
                   LEGACY J(ΔW) = λ₁·|dev| − λ₂·cost + λ₃·urgency − λ₄·turnover — v2.0 §10.9/App. F.18 declare this
                   mixed-unit form HISTORICAL and NON-NORMATIVE; the 0.40/0.30/0.20/0.10 vector is UNAPPROVED and
                   “must not gate trades”. The controlling candidate is the Appendix-F protected gate
@@ -356,30 +356,30 @@ export function RebalanceEngine({ snapshot }: { snapshot: MetricsSnapshot | null
 
             <Reveal delay={0.05}>
               <Panel className="p-5">
-                <div className="mb-3 text-[0.625rem] uppercase tracking-[0.25em] text-white/55">
+                <div className="mb-3 text-[0.625rem] uppercase tracking-[0.25em] text-[#5B6E68]">
                   §7.4 + §7.6 Execution Constraints
                 </div>
                 <div className="grid grid-cols-2 gap-2 text-[0.75rem]">
-                  <div className="rounded-md border border-white/[0.06] bg-white/[0.02] p-2.5">
-                    <div className="text-white/55">Slippage τ (§12.3.3 per class)</div>
+                  <div className="rounded-md border border-[#E3EAE6] bg-[#F7FAF8] p-2.5">
+                    <div className="text-[#5B6E68]">Slippage τ (§12.3.3 per class)</div>
                     <div className="font-mono text-mtqs-gold text-[0.72rem] leading-snug">
                       stable {(SLIPPAGE_TOLERANCES.STABLECOIN * 100).toFixed(1)}% · gold {(SLIPPAGE_TOLERANCES.GOLD * 100).toFixed(1)}% · minor-FX {(SLIPPAGE_TOLERANCES.MINOR_FX * 100).toFixed(1)}%
                     </div>
                   </div>
-                  <div className="rounded-md border border-white/[0.06] bg-white/[0.02] p-2.5">
-                    <div className="text-white/55">Max daily turnover</div>
+                  <div className="rounded-md border border-[#E3EAE6] bg-[#F7FAF8] p-2.5">
+                    <div className="text-[#5B6E68]">Max daily turnover</div>
                     <div className="font-mono text-mtqs-gold">{(MAX_DAILY_TURNOVER * 100).toFixed(0)}% NAV</div>
                   </div>
-                  <div className="rounded-md border border-white/[0.06] bg-white/[0.02] p-2.5">
-                    <div className="text-white/55">Max pool fraction</div>
+                  <div className="rounded-md border border-[#E3EAE6] bg-[#F7FAF8] p-2.5">
+                    <div className="text-[#5B6E68]">Max pool fraction</div>
                     <div className="font-mono text-mtqs-gold">{(MAX_POOL_FRACTION * 100).toFixed(0)}% 24h depth</div>
                   </div>
-                  <div className="rounded-md border border-white/[0.06] bg-white/[0.02] p-2.5">
-                    <div className="text-white/55">Direction lock</div>
+                  <div className="rounded-md border border-[#E3EAE6] bg-[#F7FAF8] p-2.5">
+                    <div className="text-[#5B6E68]">Direction lock</div>
                     <div className="font-mono text-mtqs-gold">{DIRECTION_LOCK_HOURS}h</div>
                   </div>
                 </div>
-                <p className="mt-3 text-[0.7rem] text-white/55 leading-relaxed">
+                <p className="mt-3 text-[0.7rem] text-[#5B6E68] leading-relaxed">
                   §10.1 Quote-based execution: fetch route quote from <span className="font-mono text-mtqs-gold">{AGGREGATOR_QUOTE_PROVIDERS.join(" / ")}</span> with two-sided bounds at <span className="font-mono text-mtqs-gold">oracle ± τ_class</span> per §12.3.1/§12.3.2 (τ per §12.3.3 asset class — stablecoin 0.5%, gold 1.0%, minor FX 1.5%); the trade executes only within the bound, and a quote ≥ τ/2 inside the bound emits the §11.7 SlippageWarning record (engine-internal, shadow mode).
                 </p>
               </Panel>
@@ -398,10 +398,10 @@ export function RebalanceEngine({ snapshot }: { snapshot: MetricsSnapshot | null
             <Panel className="p-5">
               <div className="mb-3 flex items-start justify-between gap-3 flex-wrap">
                 <div>
-                  <div className="text-[0.625rem] uppercase tracking-[0.25em] text-white/55">
+                  <div className="text-[0.625rem] uppercase tracking-[0.25em] text-[#5B6E68]">
                     §14.1 + §10 · MARP · Per-component execution (ACTIVE path — audit P1-4)
                   </div>
-                  <div className="text-sm font-semibold text-white/90 mt-1">
+                  <div className="text-sm font-semibold text-[#0E1F1B] mt-1">
                     7 components · daily calculation vs actual trade
                   </div>
                 </div>
@@ -434,25 +434,25 @@ export function RebalanceEngine({ snapshot }: { snapshot: MetricsSnapshot | null
                 <div className="rounded-md border border-mtqs-gold/20 bg-mtqs-gold/5 p-2.5">
                   <div className="text-[0.65rem] uppercase tracking-[0.18em] text-mtqs-gold/80">Index gold (locked)</div>
                   <TickNumber value={indexGoldNet} format={fmtUsdCompact} className="text-base font-semibold text-mtqs-gold" />
-                  <div className="text-[0.62rem] text-white/60 mt-0.5">backs 26% Strategic Prior Gold weight</div>
+                  <div className="text-[0.62rem] text-[#5B6E68] mt-0.5">backs 26% Strategic Prior Gold weight</div>
                 </div>
                 <div className="rounded-md border border-mtqs-emerald/20 bg-mtqs-emerald/5 p-2.5">
                   <div className="text-[0.65rem] uppercase tracking-[0.18em] text-mtqs-emerald/80">Reserve gold (MARP buffer)</div>
                   <TickNumber value={reserveGoldNet} format={fmtUsdCompact} className="text-base font-semibold text-mtqs-emerald" />
-                  <div className="text-[0.62rem] text-white/60 mt-0.5">rebalanced by MARP per-component</div>
+                  <div className="text-[0.62rem] text-[#5B6E68] mt-0.5">rebalanced by MARP per-component</div>
                 </div>
-                <div className="rounded-md border border-white/[0.06] bg-white/[0.02] p-2.5">
-                  <div className="text-[0.65rem] uppercase tracking-[0.18em] text-white/55">Total gold</div>
+                <div className="rounded-md border border-[#E3EAE6] bg-[#F7FAF8] p-2.5">
+                  <div className="text-[0.65rem] uppercase tracking-[0.18em] text-[#5B6E68]">Total gold</div>
                   <TickNumber value={snapshot.reserve.goldNet} format={fmtUsdCompact} className="text-base font-semibold text-mtqs-gold" />
-                  <div className="text-[0.62rem] text-white/60 mt-0.5">index + reserve (= observed Gold weight)</div>
+                  <div className="text-[0.62rem] text-[#5B6E68] mt-0.5">index + reserve (= observed Gold weight)</div>
                 </div>
               </div>
 
               {marp ? (
-                <div className="overflow-x-auto max-h-96 mtqs-scroll rounded-md border border-white/[0.06]">
+                <div className="overflow-x-auto max-h-96 mtqs-scroll rounded-md border border-[#E3EAE6]">
                   <table className="w-full text-[0.72rem]">
-                    <thead className="sticky top-0 bg-transparent/95 backdrop-blur z-10">
-                      <tr className="text-white/55 border-b border-white/[0.06]">
+                    <thead className="sticky top-0 bg-white z-10">
+                      <tr className="text-[#5B6E68] border-b border-[#E3EAE6]">
                         <th className="text-left px-2 py-2 font-medium">Component</th>
                         <th className="text-left px-2 py-2 font-medium">Direction</th>
                         <th className="text-right px-2 py-2 font-medium">Trade USD</th>
@@ -464,14 +464,14 @@ export function RebalanceEngine({ snapshot }: { snapshot: MetricsSnapshot | null
                     </thead>
                     <tbody>
                       {marp.decisions.map((d) => (
-                        <tr key={d.component} className={`border-b border-white/[0.06] ${d.shouldTrade ? "bg-amber-500/[0.03]" : ""}`}>
+                        <tr key={d.component} className={`border-b border-[#E3EAE6] ${d.shouldTrade ? "bg-amber-50" : ""}`}>
                           <td className="px-2 py-2 font-mono font-semibold text-mtqs-gold">{d.component}</td>
                           <td className="px-2 py-2"><MarpDirectionBadge direction={d.direction} shouldTrade={d.shouldTrade} /></td>
                           <td className="px-2 py-2 text-right font-mono tabular-nums">
                             {d.shouldTrade ? (
                               <span className="text-mtqs-gold font-medium">{fmtUsdCompact(d.tradeUsd)}</span>
                             ) : (
-                              <span className="text-white/60">—</span>
+                              <span className="text-[#5B6E68]">—</span>
                             )}
                           </td>
                           <td className="px-2 py-2">
@@ -483,7 +483,7 @@ export function RebalanceEngine({ snapshot }: { snapshot: MetricsSnapshot | null
                                 height="h-1.5"
                                 className="w-16"
                               />
-                              <span className="text-[0.66rem] font-mono text-white/55">{(d.urgency * 100).toFixed(1)}%</span>
+                              <span className="text-[0.66rem] font-mono text-[#5B6E68]">{(d.urgency * 100).toFixed(1)}%</span>
                             </div>
                           </td>
                           <td className="px-2 py-2"><MarpLevelBadge level={d.level} shouldTrade={d.shouldTrade} hierarchy={(d as { hierarchy?: string }).hierarchy} /></td>
@@ -492,11 +492,11 @@ export function RebalanceEngine({ snapshot }: { snapshot: MetricsSnapshot | null
                               const c = canonicalForDecision(d.level, d.shouldTrade);
                               return (
                                 <span className="flex flex-col gap-0.5">
-                                  <span className={`font-mono text-[0.62rem] ${d.shouldTrade ? "text-mtqs-emerald" : "text-white/55"}`}>
+                                  <span className={`font-mono text-[0.62rem] ${d.shouldTrade ? "text-mtqs-emerald" : "text-[#5B6E68]"}`}>
                                     {c.event}
                                   </span>
                                   {!d.shouldTrade && c.reason !== "—" && (
-                                    <span className="text-[0.6rem] text-white/70" title="§11.7 canonical machine-readable skip reason">
+                                    <span className="text-[0.6rem] text-[#5B6E68]" title="§11.7 canonical machine-readable skip reason">
                                       “{c.reason}”
                                     </span>
                                   )}
@@ -504,7 +504,7 @@ export function RebalanceEngine({ snapshot }: { snapshot: MetricsSnapshot | null
                               );
                             })()}
                           </td>
-                          <td className="px-2 py-2 text-white/55 text-[0.7rem]">{d.reason}</td>
+                          <td className="px-2 py-2 text-[#5B6E68] text-[0.7rem]">{d.reason}</td>
                         </tr>
                       ))}
                       {marpExec && (
@@ -512,7 +512,7 @@ export function RebalanceEngine({ snapshot }: { snapshot: MetricsSnapshot | null
                           <td className="px-2 py-2 font-mono font-semibold text-mtqs-gold" colSpan={2}>Σ MARP execution summary</td>
                           <td className="px-2 py-2 text-right font-mono font-semibold text-mtqs-gold">{fmtUsdCompact(marpExec.totalTradeUsd)}</td>
                           <td className="px-2 py-2" colSpan={4}>
-                            <span className="text-[0.66rem] text-white/55">
+                            <span className="text-[0.66rem] text-[#5B6E68]">
                               {marpExec.appliedCount} applied · {marpExec.skippedCount} skipped · path = {marpExec.path}
                             </span>
                           </td>
@@ -522,7 +522,7 @@ export function RebalanceEngine({ snapshot }: { snapshot: MetricsSnapshot | null
                   </table>
                 </div>
               ) : (
-                <div className="rounded-md border border-white/[0.06] bg-white/[0.02] p-4 text-center text-[0.75rem] text-white/55">
+                <div className="rounded-md border border-[#E3EAE6] bg-[#F7FAF8] p-4 text-center text-[0.75rem] text-[#5B6E68]">
                   MARP decisions not computed yet.
                 </div>
               )}
@@ -539,18 +539,18 @@ export function RebalanceEngine({ snapshot }: { snapshot: MetricsSnapshot | null
                   { level: 7, label: "L7 · Turnover cap", desc: "≤ 5% NAV/day (§7.3)" },
                   { level: 8, label: "L8 · Execute", desc: "direction lock passed (§11.5.3)" },
                 ].map((l) => (
-                  <div key={l.level} className="rounded-md border border-white/[0.06] bg-white/[0.02] p-2">
+                  <div key={l.level} className="rounded-md border border-[#E3EAE6] bg-[#F7FAF8] p-2">
                     <div className="text-[0.66rem] font-medium text-mtqs-gold">{l.label}</div>
-                    <div className="text-[0.62rem] text-white/60 mt-0.5">{l.desc}</div>
+                    <div className="text-[0.62rem] text-[#5B6E68] mt-0.5">{l.desc}</div>
                   </div>
                 ))}
               </div>
-              <p className="mt-3 text-[0.66rem] text-white/60 leading-relaxed">
+              <p className="mt-3 text-[0.66rem] text-[#5B6E68] leading-relaxed">
                 §10.3 doctrine overlay: every decision also carries the six-level intervention taxonomy —
                 Monitor / Natural flow / Drift / Risk / Structural / Emergency — shown next to each badge.
                 Direction lock (§11.5.3): 24h SAME-DIRECTION guard (v2.0 fix — reversals remain eligible; RR &lt; 1.05 override).
               </p>
-              <p className="mt-3 text-[0.66rem] text-white/60 leading-relaxed">
+              <p className="mt-3 text-[0.66rem] text-[#5B6E68] leading-relaxed">
                 Max daily turnover = 5% of NAV ≈ {fmtUsdCompact(snapshot.nav * 0.05)}. 24h direction lock prevents whipsaw.
                 Index gold (PAXG + XAUT locked to back the 26% Strategic Prior Gold weight) is NEVER touched by MARP —
                 only the reserve buffer gold is rebalanced.
@@ -559,9 +559,9 @@ export function RebalanceEngine({ snapshot }: { snapshot: MetricsSnapshot | null
               {/* ===== Task 8-b: §13.4.3 LCR floor + §11.6/§14.5 crisis set ===== */}
               <div className="mt-4 grid grid-cols-1 lg:grid-cols-2 gap-3">
                 {/* §13.4.3 — LCR constitutional floor & liquid repair */}
-                <div className={`rounded-md border p-3 ${lcrBreach ? "border-rose-400/40 bg-rose-500/[0.07]" : "border-white/[0.06] bg-white/[0.02]"}`}>
+                <div className={`rounded-md border p-3 ${lcrBreach ? "border-rose-200 bg-rose-50" : "border-[#E3EAE6] bg-[#F7FAF8]"}`}>
                   <div className="mb-2 flex items-center justify-between gap-2">
-                    <div className="text-[0.65rem] uppercase tracking-[0.18em] text-white/55">§13.4.3 — LCR floor &amp; liquid repair</div>
+                    <div className="text-[0.65rem] uppercase tracking-[0.18em] text-[#5B6E68]">§13.4.3 — LCR floor &amp; liquid repair</div>
                     <Pill tone={lcrBreach ? "rose" : "emerald"}>
                       <GlowDot color={lcrBreach ? "rose" : "emerald"} size="h-1.5 w-1.5" />
                       {lcrBreach ? "breach — repair active" : "floor held"}
@@ -569,21 +569,21 @@ export function RebalanceEngine({ snapshot }: { snapshot: MetricsSnapshot | null
                   </div>
                   <div className="grid grid-cols-3 gap-2 text-[0.72rem]">
                     <div>
-                      <div className="text-white/55">LCR (stablecoin-only §13.4.1)</div>
-                      <div className={`font-mono font-semibold ${lcrBreach ? "text-rose-200" : "text-mtqs-emerald"}`}>
+                      <div className="text-[#5B6E68]">LCR (stablecoin-only §13.4.1)</div>
+                      <div className={`font-mono font-semibold ${lcrBreach ? "text-rose-600" : "text-mtqs-emerald"}`}>
                         {Number.isFinite(lcr) ? `${lcr.toFixed(3)}` : "∞ — no liability"}
                       </div>
                     </div>
                     <div>
-                      <div className="text-white/55">Constitutional floor</div>
+                      <div className="text-[#5B6E68]">Constitutional floor</div>
                       <div className="font-mono font-semibold text-mtqs-gold">{LCR_TARGET.toFixed(2)}</div>
                     </div>
                     <div>
-                      <div className="text-white/55">Canonical state (§21.2)</div>
-                      <div className="font-mono font-semibold text-white/80">{snapshot.status}</div>
+                      <div className="text-[#5B6E68]">Canonical state (§21.2)</div>
+                      <div className="font-mono font-semibold text-[#0E1F1B]">{snapshot.status}</div>
                     </div>
                   </div>
-                  <p className="mt-2 text-[0.64rem] text-white/55 leading-relaxed">
+                  <p className="mt-2 text-[0.64rem] text-[#5B6E68] leading-relaxed">
                     On LCR &lt; {LCR_TARGET.toFixed(2)} the execution layer re-routes: an obligation-driven repair
                     (sell RESERVE gold → stablecoins, sized to the shortfall vs the 25%/30-day stress demand) executes
                     FIRST under the Chapter-12 constraints, and stablecoin-outflow trades are held
@@ -595,9 +595,9 @@ export function RebalanceEngine({ snapshot }: { snapshot: MetricsSnapshot | null
                 </div>
 
                 {/* §11.6 + §14.5 — crisis-mode execution set */}
-                <div className={`rounded-md border p-3 ${crisisActive ? "border-mtqs-amber/40 bg-amber-500/[0.06]" : "border-white/[0.06] bg-white/[0.02]"}`}>
+                <div className={`rounded-md border p-3 ${crisisActive ? "border-mtqs-amber/40 bg-amber-50" : "border-[#E3EAE6] bg-[#F7FAF8]"}`}>
                   <div className="mb-2 flex items-center justify-between gap-2">
-                    <div className="text-[0.65rem] uppercase tracking-[0.18em] text-white/55">§11.6 + §14.5 — crisis-mode execution set</div>
+                    <div className="text-[0.65rem] uppercase tracking-[0.18em] text-[#5B6E68]">§11.6 + §14.5 — crisis-mode execution set</div>
                     <Pill tone={crisisActive ? "amber" : "emerald"}>
                       <GlowDot color={crisisActive ? "amber" : "emerald"} size="h-1.5 w-1.5" />
                       {crisisActive ? "CRISIS POSTURE" : "normal mode"}
@@ -605,13 +605,13 @@ export function RebalanceEngine({ snapshot }: { snapshot: MetricsSnapshot | null
                   </div>
                   <table className="w-full text-[0.64rem]">
                     <thead>
-                      <tr className="text-white/45 border-b border-white/[0.06]">
+                      <tr className="text-[#7A8C86] border-b border-[#E3EAE6]">
                         <th className="text-left py-1 font-medium">Parameter</th>
                         <th className="text-left py-1 font-medium">Normal</th>
                         <th className="text-left py-1 font-medium">Crisis</th>
                       </tr>
                     </thead>
-                    <tbody className="text-white/70">
+                    <tbody className="text-[#5B6E68]">
                       {[
                         ["No-trade band θ (§10.5/§11.6)", "0.75% base + κ-terms", "×2 widened (1.5%)"],
                         ["Trade size (§11.6)", "β-sized, liquidity-capped", "shrunk ×0.5, staged"],
@@ -619,15 +619,15 @@ export function RebalanceEngine({ snapshot }: { snapshot: MetricsSnapshot | null
                         ["Direction lock (§11.5.3)", "24h same-dir guard", "RR < 1.05 override"],
                         ["Objective priority (§14.5)", "balanced J terms", "reserve preservation"],
                       ].map(([p, n, c]) => (
-                        <tr key={p} className={`border-b border-white/[0.04] ${crisisActive ? "bg-amber-500/[0.03]" : ""}`}>
-                          <td className="py-1 pr-2 text-white/55">{p}</td>
+                        <tr key={p} className={`border-b border-[#E3EAE6] ${crisisActive ? "bg-amber-50" : ""}`}>
+                          <td className="py-1 pr-2 text-[#5B6E68]">{p}</td>
                           <td className="py-1 pr-2 font-mono">{n}</td>
                           <td className="py-1 font-mono">{c}</td>
                         </tr>
                       ))}
                     </tbody>
                   </table>
-                  <p className="mt-2 text-[0.62rem] text-white/70 leading-relaxed">
+                  <p className="mt-2 text-[0.62rem] text-[#5B6E68] leading-relaxed">
                     Pilot mapping: the §5.5 CrisisScore is symbolic — the crisis posture engages on the canonical risk
                     state (STRESS/DEFENSIVE/EMERGENCY), the same mechanical trigger that doubles the band. The ×0.5
                     size-shrink and pool-cap factors are labeled pilot instantiations of the §11.6/§14.5 “may” clauses
@@ -638,60 +638,60 @@ export function RebalanceEngine({ snapshot }: { snapshot: MetricsSnapshot | null
 
               {/* ===== Task 8-b: §12.3.3 tolerances + §12.7 cost model ===== */}
               <div className="mt-3 grid grid-cols-1 lg:grid-cols-2 gap-3">
-                <div className="rounded-md border border-white/[0.06] bg-white/[0.02] p-3">
-                  <div className="mb-2 text-[0.65rem] uppercase tracking-[0.18em] text-white/55">
+                <div className="rounded-md border border-[#E3EAE6] bg-[#F7FAF8] p-3">
+                  <div className="mb-2 text-[0.65rem] uppercase tracking-[0.18em] text-[#5B6E68]">
                     §12.3.3 — per-asset-class slippage tolerances (wired)
                   </div>
                   <table className="w-full text-[0.64rem]">
-                    <tbody className="text-white/70">
-                      <tr className="border-b border-white/[0.04]">
-                        <td className="py-1 text-white/55">Stablecoins (USDC, EURC)</td>
+                    <tbody className="text-[#5B6E68]">
+                      <tr className="border-b border-[#E3EAE6]">
+                        <td className="py-1 text-[#5B6E68]">Stablecoins (USDC, EURC)</td>
                         <td className="py-1 font-mono text-mtqs-gold">τ_sell = τ_buy = {(SLIPPAGE_TOLERANCES.STABLECOIN * 100).toFixed(1)}%</td>
                       </tr>
-                      <tr className="border-b border-white/[0.04]">
-                        <td className="py-1 text-white/55">Tokenized gold (PAXG/XAUT)</td>
+                      <tr className="border-b border-[#E3EAE6]">
+                        <td className="py-1 text-[#5B6E68]">Tokenized gold (PAXG/XAUT)</td>
                         <td className="py-1 font-mono text-mtqs-gold">τ_sell = τ_buy = {(SLIPPAGE_TOLERANCES.GOLD * 100).toFixed(1)}%</td>
                       </tr>
-                      <tr className="border-b border-white/[0.04]">
-                        <td className="py-1 text-white/55">Minor FX (JPY, CNY)</td>
+                      <tr className="border-b border-[#E3EAE6]">
+                        <td className="py-1 text-[#5B6E68]">Minor FX (JPY, CNY)</td>
                         <td className="py-1 font-mono text-mtqs-gold">τ_sell = τ_buy = {(SLIPPAGE_TOLERANCES.MINOR_FX * 100).toFixed(1)}%</td>
                       </tr>
                       <tr>
-                        <td className="py-1 text-white/55">GBP / CHF (not enumerated)</td>
+                        <td className="py-1 text-[#5B6E68]">GBP / CHF (not enumerated)</td>
                         <td className="py-1 font-mono text-mtqs-gold">conservative minor-FX class, pending classification</td>
                       </tr>
                     </tbody>
                   </table>
-                  <p className="mt-2 text-[0.62rem] text-white/70 leading-relaxed">
+                  <p className="mt-2 text-[0.62rem] text-[#5B6E68] leading-relaxed">
                     Two-sided corridor per §12.3.1/§12.3.2 (sell ≥ oracle×(1−τ), buy ≤ oracle×(1+τ)); Risk Council 4/7
                     with 24h timelock (§11.10). In crisis the tolerances do not widen — sizes shrink and liquidity
                     requirements rise (§12.3.3).
                   </p>
                 </div>
 
-                <div className="rounded-md border border-white/[0.06] bg-white/[0.02] p-3">
-                  <div className="mb-2 text-[0.65rem] uppercase tracking-[0.18em] text-white/55">
+                <div className="rounded-md border border-[#E3EAE6] bg-[#F7FAF8] p-3">
+                  <div className="mb-2 text-[0.65rem] uppercase tracking-[0.18em] text-[#5B6E68]">
                     §12.7 — exact cost model (operative on every gate)
                   </div>
-                  <div className="space-y-1 text-[0.66rem] text-white/70">
+                  <div className="space-y-1 text-[0.66rem] text-[#5B6E68]">
                     <div className="flex items-center justify-between gap-2">
-                      <span className="text-white/55">Gas = (oracleGasPrice × 1.2) × (est. gas × 1.1)</span>
+                      <span className="text-[#5B6E68]">Gas = (oracleGasPrice × 1.2) × (est. gas × 1.1)</span>
                       <span className="font-mono text-mtqs-gold">$17.82/trade*</span>
                     </div>
                     <div className="flex items-center justify-between gap-2">
-                      <span className="text-white/55">Slippage = tradeValue × (τ_class / 2)</span>
+                      <span className="text-[#5B6E68]">Slippage = tradeValue × (τ_class / 2)</span>
                       <span className="font-mono text-mtqs-gold">half-τ, per class</span>
                     </div>
                     <div className="flex items-center justify-between gap-2">
-                      <span className="text-white/55">Router fee = tradeValue × 0.001</span>
+                      <span className="text-[#5B6E68]">Router fee = tradeValue × 0.001</span>
                       <span className="font-mono text-mtqs-gold">0.10%</span>
                     </div>
                     <div className="flex items-center justify-between gap-2">
-                      <span className="text-white/55">Protocol fee (§20.4, §10.8 Fees_i)</span>
+                      <span className="text-[#5B6E68]">Protocol fee (§20.4, §10.8 Fees_i)</span>
                       <span className="font-mono text-mtqs-gold">{(REBALANCE_FEE_BPS / 100).toFixed(2)}%</span>
                     </div>
                   </div>
-                  <p className="mt-2 text-[0.62rem] text-white/70 leading-relaxed">
+                  <p className="mt-2 text-[0.62rem] text-[#5B6E68] leading-relaxed">
                     *Recorded accounting-cost estimate (Appendix-F P0-3): no live gas oracle in the shadow pilot;
                     basis 150,000 gas × 30 gwei × $3,000/native = $13.50 buffered ×1.32. GAS_FALLBACK $50 is
                     DISABLED — “a monetary-cost illustration, not a gas price … must never be returned by a function
@@ -704,8 +704,8 @@ export function RebalanceEngine({ snapshot }: { snapshot: MetricsSnapshot | null
               </div>
 
               {/* ===== Task 8-b: §11.7/§12.9/§15.7 canonical event taxonomy ===== */}
-              <div className="mt-3 rounded-md border border-white/[0.06] bg-white/[0.02] p-3">
-                <div className="mb-2 text-[0.65rem] uppercase tracking-[0.18em] text-white/55">
+              <div className="mt-3 rounded-md border border-[#E3EAE6] bg-[#F7FAF8] p-3">
+                <div className="mb-2 text-[0.65rem] uppercase tracking-[0.18em] text-[#5B6E68]">
                   §11.7 + §12.9 + §15.7 — canonical event set (engine-internal shadow records)
                 </div>
                 <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-1.5 text-[0.62rem]">
@@ -719,14 +719,14 @@ export function RebalanceEngine({ snapshot }: { snapshot: MetricsSnapshot | null
                     { name: "AssetAdded", payload: "currency, token, name", src: "§15.7 registry (genesis replay)" },
                     { name: "AssetStateChanged / Removed / Updated", payload: "currency, field/state", src: "§15.7 registry module" },
                   ].map((e) => (
-                    <div key={e.name} className="rounded border border-white/[0.05] bg-white/[0.02] px-2 py-1.5">
+                    <div key={e.name} className="rounded border border-[#E3EAE6] bg-[#F7FAF8] px-2 py-1.5">
                       <div className="font-mono text-mtqs-gold">{e.name}</div>
-                      <div className="text-white/45 mt-0.5">{e.payload}</div>
-                      <div className="text-white/35 mt-0.5">{e.src}</div>
+                      <div className="text-[#7A8C86] mt-0.5">{e.payload}</div>
+                      <div className="text-[#7A8C86] mt-0.5">{e.src}</div>
                     </div>
                   ))}
                 </div>
-                <p className="mt-2 text-[0.62rem] text-white/70 leading-relaxed">
+                <p className="mt-2 text-[0.62rem] text-[#5B6E68] leading-relaxed">
                   Every MARP decision — executed or declined — emits a canonical record with a machine-readable skip
                   reason (“No-trade zone” §10.4 · “Direction lock” §11.5.3 · “Net benefit not positive” §10.8 ·
                   turnover/liquidity truncations §11.5.2/§11.4 · §15.6.1 “Concentration cap” · §13.4.3 “LCR repair

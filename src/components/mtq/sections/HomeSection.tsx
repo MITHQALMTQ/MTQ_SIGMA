@@ -175,7 +175,7 @@ function LiveStatsBand({ snapshot }: { snapshot: MetricsSnapshot | null }) {
   const stats = [
     { label: "Reference Index", value: snapshot ? fmtFixed(snapshot.gfbIndex, 4) : null, tone: "text-mtqs-gold-light" },
     { label: "Reference Value", value: snapshot ? fmtFixed(snapshot.mtqPrice, 4) : null, tone: snapshot?.priceInBand ? "text-mtqs-emerald" : "text-mtqs-rose" },
-    { label: "Pilot Ledger NAV", value: snapshot ? fmtUsdCompact(snapshot.nav) : null, tone: "text-white" },
+    { label: "Pilot Ledger NAV", value: snapshot ? fmtUsdCompact(snapshot.nav) : null, tone: "text-[#0E1F1B]" },
     { label: "Reserve Ratio (legacy)", value: snapshot ? rrTxt : null, tone: rrTone },
   ];
 
@@ -190,7 +190,7 @@ function LiveStatsBand({ snapshot }: { snapshot: MetricsSnapshot | null }) {
         <Panel key={s.label} className="p-4 sm:p-5">
           <div className="flex items-center gap-1.5 mb-2">
             <GlowDot color="gold" size="h-1.5 w-1.5" />
-            <span className="text-[0.6rem] uppercase tracking-[0.22em] text-white/55">
+            <span className="text-[0.6rem] uppercase tracking-[0.22em] text-[#5B6E68]">
               {s.label}
             </span>
           </div>
@@ -218,7 +218,7 @@ function TestnetCards() {
         <PremiumCard key={id} className="p-4 flex flex-col gap-2">
           <div className="flex items-start justify-between gap-2">
             <div className="min-w-0">
-              <div className="text-[0.6rem] uppercase tracking-[0.22em] text-white/55">
+              <div className="text-[0.6rem] uppercase tracking-[0.22em] text-[#5B6E68]">
                 {info.chain}
               </div>
               <div className="mtqs-display mtqs-gold-gradient-text text-base font-semibold leading-none mt-1">
@@ -333,8 +333,8 @@ export function HomeSection({
                         {c.eyebrow}
                       </span>
                     </div>
-                    <h3 className="mtqs-display text-xl font-semibold text-white">{c.title}</h3>
-                    <p className="text-[0.78rem] text-white/55 leading-relaxed">{c.body}</p>
+                    <h3 className="mtqs-display text-xl font-semibold text-[#0E1F1B]">{c.title}</h3>
+                    <p className="text-[0.78rem] text-[#5B6E68] leading-relaxed">{c.body}</p>
                   </PremiumCard>
                 </Reveal>
               );
@@ -353,20 +353,20 @@ export function HomeSection({
                 — a sibling mismatch; both cards carry warm-gold 🥇 icons, and the
                 adjacent gauge bar is amber, so the row reads coherently gold) */}
             <Reveal delay={0}>
-              <div className="p-5 rounded-[20px] h-full" style={{ background: 'rgba(245,210,122,0.20)', border: '1px solid rgba(245,210,122,0.35)', boxShadow: '0 0 20px rgba(245,210,122,0.10)' }}>
+              <div className="p-5 rounded-[20px] h-full" style={{ background: 'rgba(245,210,122,0.20)', border: '1px solid rgba(245,210,122,0.35)' }}>
                 <div className="flex items-center gap-2 mb-3">
-                  <div className="w-10 h-10 rounded-full flex items-center justify-center shrink-0" style={{ background: 'linear-gradient(135deg, #f5d27a, #EFC268)', boxShadow: '0 0 12px rgba(245,210,122,0.3)' }}>
+                  <div className="w-10 h-10 rounded-full flex items-center justify-center shrink-0" style={{ background: 'linear-gradient(135deg, #f5d27a, #EFC268)' }}>
                     <span className="text-lg">🥇</span>
                   </div>
                   <div>
-                    <div className="text-sm font-bold text-amber-100">PAXG</div>
+                    <div className="text-sm font-bold text-amber-700">PAXG</div>
                     <div className="text-[0.65rem] text-mtqs-gold/60">Paxos Gold</div>
                   </div>
                   <span className="ml-auto rounded-full border border-mtqs-gold/30 bg-mtqs-gold/10 px-2 py-0.5 text-[0.55rem] uppercase tracking-[0.14em] text-mtqs-gold/80">
                     Index · §3.2
                   </span>
                 </div>
-                <div className="text-[0.6rem] uppercase tracking-[0.18em] text-white/45">
+                <div className="text-[0.6rem] uppercase tracking-[0.18em] text-[#7A8C86]">
                   Pilot-ledger sleeve · net of 1.0% haircut
                 </div>
                 <div className="text-2xl font-mono mtqs-gold-text">
@@ -386,20 +386,20 @@ export function HomeSection({
             </Reveal>
             {/* XAUT card — GOLD TINTED */}
             <Reveal delay={0.05}>
-              <div className="p-5 rounded-[20px] h-full" style={{ background: 'rgba(208,160,79,0.35)', border: '1px solid rgba(208,160,79,0.35)', boxShadow: '0 0 20px rgba(208,160,79,0.08)' }}>
+              <div className="p-5 rounded-[20px] h-full" style={{ background: 'rgba(208,160,79,0.35)', border: '1px solid rgba(208,160,79,0.35)' }}>
                 <div className="flex items-center gap-2 mb-3">
-                  <div className="w-10 h-10 rounded-full flex items-center justify-center shrink-0" style={{ background: 'linear-gradient(135deg, #e0c068, #d4a44f)', boxShadow: '0 0 12px rgba(208,160,79,0.3)' }}>
+                  <div className="w-10 h-10 rounded-full flex items-center justify-center shrink-0" style={{ background: 'linear-gradient(135deg, #e0c068, #d4a44f)' }}>
                     <span className="text-lg">🥇</span>
                   </div>
                   <div>
-                    <div className="text-sm font-bold text-amber-100">XAUT</div>
+                    <div className="text-sm font-bold text-amber-700">XAUT</div>
                     <div className="text-[0.65rem] text-mtqs-gold/60">Tether Gold</div>
                   </div>
                   <span className="ml-auto rounded-full border border-mtqs-gold/30 bg-mtqs-gold/10 px-2 py-0.5 text-[0.55rem] uppercase tracking-[0.14em] text-mtqs-gold/80">
                     Index · §3.2
                   </span>
                 </div>
-                <div className="text-[0.6rem] uppercase tracking-[0.18em] text-white/45">
+                <div className="text-[0.6rem] uppercase tracking-[0.18em] text-[#7A8C86]">
                   Pilot-ledger sleeve · net of 1.0% haircut
                 </div>
                 <div className="text-2xl font-mono mtqs-gold-text">
@@ -423,31 +423,31 @@ export function HomeSection({
                 clearly-labeled secondary row (pilot engine output). */}
             <Reveal delay={0.1}>
               <Panel variant="emerald" className="p-5 h-full">
-                <div className="text-[0.625rem] uppercase tracking-[0.25em] text-white/55 mb-3">Gold Index Weight (§8.1 envelope · live MASE)</div>
+                <div className="text-[0.625rem] uppercase tracking-[0.25em] text-[#5B6E68] mb-3">Gold Index Weight (§8.1 envelope · live MASE)</div>
                 <div className="grid grid-cols-2 gap-2">
                   <div>
-                    <div className="text-[0.65rem] text-white/55">Strategic Prior</div>
+                    <div className="text-[0.65rem] text-[#5B6E68]">Strategic Prior</div>
                     <div className="text-xl font-mono text-mtqs-gold">{snapshot ? `${((snapshot.weightStates?.prior?.Gold ?? 0.26) * 100).toFixed(2)}%` : "—"}</div>
                   </div>
                   <div>
-                    <div className="text-[0.65rem] text-white/55">MASE Target (§8-constrained)</div>
+                    <div className="text-[0.65rem] text-[#5B6E68]">MASE Target (§8-constrained)</div>
                     <div className="text-xl font-mono text-mtqs-emerald">{snapshot?.weightStates?.target?.Gold != null ? `${(snapshot.weightStates.target.Gold * 100).toFixed(2)}%` : "—"}</div>
                   </div>
                   <div>
-                    <div className="text-[0.65rem] text-white/55">Smoothed (next period)</div>
+                    <div className="text-[0.65rem] text-[#5B6E68]">Smoothed (next period)</div>
                     <div className="text-sm font-mono text-mtqs-emerald/90">{snapshot?.weightStates?.smoothed?.Gold != null ? `${(snapshot.weightStates.smoothed.Gold * 100).toFixed(2)}%` : "—"}</div>
                   </div>
                   <div>
-                    <div className="text-[0.65rem] text-white/55">Admissibility Envelope</div>
-                    <div className="text-sm font-mono text-white/70">20% – 32%</div>
+                    <div className="text-[0.65rem] text-[#5B6E68]">Admissibility Envelope</div>
+                    <div className="text-sm font-mono text-[#5B6E68]">20% – 32%</div>
                   </div>
                 </div>
-                <div className="mt-3 h-2 rounded-full bg-white/[0.05] overflow-hidden">
+                <div className="mt-3 h-2 rounded-full bg-[#E3EAE6] overflow-hidden">
                   {/* Bar plots the INDEX target weight in the 20–32% envelope domain
                       (§8.1) — the envelope constrains the INDEX component, not the
                       pilot ledger share. Fallback: legacy §6.5 target. */}
                   <div
-                    className="h-full bg-gradient-to-r from-amber-500/60 to-amber-300/80"
+                    className="h-full bg-amber-400"
                     style={{
                       width: `${Math.max(
                         0,
@@ -460,12 +460,12 @@ export function HomeSection({
                       )}%` }}
                   />
                 </div>
-                <div className="flex justify-between text-[0.6rem] text-white/55 mt-1">
+                <div className="flex justify-between text-[0.6rem] text-[#5B6E68] mt-1">
                   <span>20% envelope floor</span>
                   <span>32% envelope ceiling</span>
                 </div>
-                <div className="mt-3 rounded-md border border-white/10 bg-white/[0.03] px-2.5 py-2 text-[0.62rem] leading-relaxed text-white/55">
-                  <span className="uppercase tracking-[0.14em] text-white/45">Legacy pilot buffer path (v1/v2):</span>{" "}
+                <div className="mt-3 rounded-md border border-[#E3EAE6] bg-[#F7FAF8] px-2.5 py-2 text-[0.62rem] leading-relaxed text-[#5B6E68]">
+                  <span className="uppercase tracking-[0.14em] text-[#7A8C86]">Legacy pilot buffer path (v1/v2):</span>{" "}
                   Observed ledger share{" "}
                   <span className="font-mono text-mtqs-gold">{snapshot ? `${(snapshot.observedGoldWeight * 100).toFixed(2)}%` : "—"}</span>{" "}
                   · Target{" "}
@@ -473,14 +473,14 @@ export function HomeSection({
                   · Buffer <span className="font-mono text-mtqs-gold">{snapshot?.bufferState ?? "—"}</span>{" "}
                   · Au <span className="font-mono text-mtqs-gold">{snapshot ? `${(snapshot.bufferGoldRatio * 100).toFixed(1)}%` : "—"}</span>
                 </div>
-                <div className="mt-2 text-[0.65rem] text-white/55">
+                <div className="mt-2 text-[0.65rem] text-[#5B6E68]">
                   Pilot-ledger total gold (net): <span className="font-mono text-mtqs-gold">{snapshot ? fmtUsdCompact(snapshot.reserve.goldNet) : "—"}</span>
                 </div>
               </Panel>
             </Reveal>
           </div>
           {/* Why the two sleeves print identical values — by design, not a stale copy */}
-          <div className="mt-3 rounded-lg border border-mtqs-amber/25 bg-amber-400/[0.04] px-4 py-3 text-[0.7rem] leading-relaxed text-white/60">
+          <div className="mt-3 rounded-lg border border-mtqs-amber/25 bg-amber-50 px-4 py-3 text-[0.7rem] leading-relaxed text-[#5B6E68]">
             <span className="font-semibold text-mtqs-amber">Why PAXG and XAUT show identical values — by design.</span>{" "}
             The §5.6 issuer-concentration rule water-fills gold 50/50 across two independent custodial
             issuers (Paxos / Tether) so neither approaches the 25% issuer checkpoint; both tokens are
@@ -490,7 +490,7 @@ export function HomeSection({
             duplicated: any governance differentiation of the haircut, or a non-50/50 routing, breaks the
             tie automatically.
           </div>
-          <p className="mt-3 text-[0.7rem] text-white/55 max-w-3xl">
+          <p className="mt-3 text-[0.7rem] text-[#5B6E68] max-w-3xl">
             Gold is a <span className="text-mtqs-gold font-medium">first-class component of the Adaptive
             Reference Basket</span> (26% Strategic Prior; 20–32% admissibility envelope per §8.1) — it
             defines part of what one MTQΣ references. Under the v3.0 no-conventional-reserve objective
@@ -516,7 +516,7 @@ export function HomeSection({
           />
           <Reveal>
             <PremiumCard className="p-5 sm:p-6">
-              <p className="mb-4 text-[0.78rem] text-white/55 leading-relaxed max-w-2xl">
+              <p className="mb-4 text-[0.78rem] text-[#5B6E68] leading-relaxed max-w-2xl">
                 Legacy §1.1 exhibit (v1/v2 constitution, kept labeled): the Adaptive Reference Basket defines
                 what one MTQΣ represents, and the reserve portfolio existed to collateralize that obligation —
                 constitutionally separate, so the reserve could not dilute the index and the index could not be
@@ -529,7 +529,7 @@ export function HomeSection({
                 <ConstitutionalSeparation snapshot={snapshot} />
               </ClientOnly>
               <noscript>
-                <p className="text-[0.72rem] text-white/55">
+                <p className="text-[0.72rem] text-[#5B6E68]">
                   The Constitutional Separation diagram requires JavaScript to render.
                 </p>
               </noscript>
@@ -620,11 +620,11 @@ export function HomeSection({
             <PremiumCard className="p-6 sm:p-8 text-center">
               <div className="flex items-center justify-center gap-2 mb-3">
                 <Layers className="h-5 w-5 text-mtqs-emerald" aria-hidden="true" />
-                <h3 className="mtqs-display text-2xl font-semibold text-white">
+                <h3 className="mtqs-display text-2xl font-semibold text-[#0E1F1B]">
                   Explore the closed-loop architecture
                 </h3>
               </div>
-              <p className="text-[0.82rem] text-white/55 leading-relaxed max-w-2xl mx-auto mb-5">
+              <p className="text-[0.82rem] text-[#5B6E68] leading-relaxed max-w-2xl mx-auto mb-5">
                 {BRAND_VOICE.designConstraint}. {BRAND_VOICE.statusDeclaration}. Core monetary metrics
                 (NAV, RR, LCR, prices, oracle, risk state) are computed live by the reference engine on a
                 4-second poll; illustrative panels — chart history, risk timeline, explorer scenarios — are
@@ -640,7 +640,7 @@ export function HomeSection({
                   <button
                     key={c.id}
                     onClick={() => onNavigate(c.id)}
-                    className="inline-flex items-center gap-1.5 rounded-full border border-white/[0.1] bg-white/[0.03] px-4 py-2 text-[0.78rem] font-medium text-white hover:border-mtqs-gold/30 hover:text-white transition"
+                    className="inline-flex items-center gap-1.5 rounded-full border border-[#E3EAE6] bg-white px-4 py-2 text-[0.78rem] font-medium text-[#0E1F1B] hover:border-mtqs-gold/30 hover:text-[#0E1F1B] transition"
                   >
                     {c.label}
                     <ArrowRight className="h-3.5 w-3.5" aria-hidden="true" />

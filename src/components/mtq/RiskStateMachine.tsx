@@ -54,8 +54,8 @@ export function RiskStateMachine({ snapshot }: { snapshot: MetricsSnapshot | nul
         <Panel className="p-5">
           <div className="mb-4 flex items-center justify-between">
             <div>
-              <div className="text-sm font-semibold text-white/90">Risk State Machine (§14.1)</div>
-              <div className="text-[0.7rem] text-white/55">6-state protocol posture · current: {current}</div>
+              <div className="text-sm font-semibold text-[#0E1F1B]">Risk State Machine (§14.1)</div>
+              <div className="text-[0.7rem] text-[#5B6E68]">6-state protocol posture · current: {current}</div>
             </div>
             <Pill tone={STATUS_TONES[current]}>
               <GlowDot color={STATUS_TONES[current] === "emerald" ? "emerald" : STATUS_TONES[current] === "rose" ? "rose" : "amber"} size="h-1.5 w-1.5" />
@@ -86,8 +86,8 @@ export function RiskStateMachine({ snapshot }: { snapshot: MetricsSnapshot | nul
                       }`}
                       style={{
                         borderColor: hex,
-                        background: active ? `${hex}22` : "rgba(8,10,12,0.9)",
-                        boxShadow: active ? `0 0 24px ${hex}55` : "none",
+                        background: active ? `${hex}22` : "#FFFFFF",
+                        boxShadow: active ? `0 0 0 4px ${hex}22` : "none",
                       }}
                     >
                       {active && (
@@ -107,7 +107,7 @@ export function RiskStateMachine({ snapshot }: { snapshot: MetricsSnapshot | nul
                     </div>
                     <div
                       className="mt-1.5 text-[0.62rem] font-medium tracking-wide"
-                      style={{ color: active ? hex : "rgba(255,255,255,0.55)" }}
+                      style={{ color: active ? hex : "#5B6E68" }}
                     >
                       {s.status}
                     </div>
@@ -122,13 +122,13 @@ export function RiskStateMachine({ snapshot }: { snapshot: MetricsSnapshot | nul
       {/* Policy table */}
       <Reveal>
         <Panel className="p-5">
-          <div className="mb-2 text-[0.625rem] uppercase tracking-[0.25em] text-white/55">
+          <div className="mb-2 text-[0.625rem] uppercase tracking-[0.25em] text-[#5B6E68]">
             §14.1 Policy Matrix
           </div>
           <div className="overflow-x-auto mtqs-scroll">
             <table className="w-full text-[0.72rem] min-w-[640px]">
-              <thead className="text-white/55">
-                <tr className="border-b border-white/[0.06]">
+              <thead className="text-[#5B6E68]">
+                <tr className="border-b border-[#E3EAE6]">
                   <th className="text-left py-2 pr-4 font-medium">Status</th>
                   <th className="text-left py-2 px-3 font-medium">Minting</th>
                   <th className="text-left py-2 px-3 font-medium">Redemption</th>
@@ -143,7 +143,7 @@ export function RiskStateMachine({ snapshot }: { snapshot: MetricsSnapshot | nul
                   return (
                     <tr
                       key={p.status}
-                      className={`border-b border-white/[0.06] ${active ? "bg-mtqs-gold/5" : ""}`}
+                      className={`border-b border-[#E3EAE6] ${active ? "bg-mtqs-gold/5" : ""}`}
                     >
                       <td className="py-2.5 pr-4">
                         <div className="flex items-center gap-2">
@@ -152,9 +152,9 @@ export function RiskStateMachine({ snapshot }: { snapshot: MetricsSnapshot | nul
                           {active && <Pill tone="gold">current</Pill>}
                         </div>
                       </td>
-                      <td className="py-2.5 px-3 text-white">{p.minting}</td>
-                      <td className="py-2.5 px-3 text-white">{p.redemption}</td>
-                      <td className="py-2.5 px-3 text-white">{p.rebalancing}</td>
+                      <td className="py-2.5 px-3 text-[#0E1F1B]">{p.minting}</td>
+                      <td className="py-2.5 px-3 text-[#0E1F1B]">{p.redemption}</td>
+                      <td className="py-2.5 px-3 text-[#0E1F1B]">{p.rebalancing}</td>
                       <td className="py-2.5 pl-3 text-right font-mono text-mtqs-gold">{fmtRatio(p.rrTarget)}</td>
                     </tr>
                   );
@@ -170,8 +170,8 @@ export function RiskStateMachine({ snapshot }: { snapshot: MetricsSnapshot | nul
         <Panel className="p-5">
           <div className="mb-3 flex items-center justify-between">
             <div>
-              <div className="text-sm font-semibold text-white/90">Governance Hierarchy (§14.2)</div>
-              <div className="text-[0.7rem] text-white/55">4-tier authority structure · crest glyphs below</div>
+              <div className="text-sm font-semibold text-[#0E1F1B]">Governance Hierarchy (§14.2)</div>
+              <div className="text-[0.7rem] text-[#5B6E68]">4-tier authority structure · crest glyphs below</div>
             </div>
           </div>
 
@@ -211,23 +211,23 @@ export function RiskStateMachine({ snapshot }: { snapshot: MetricsSnapshot | nul
                     className="h-5 w-5 mb-2"
                     style={{ color: tier.color }}
                   />
-                  <div className="text-xs font-semibold text-white">{g.scope}</div>
-                  <div className="mt-1.5 text-[0.7rem] text-white/55">authority</div>
+                  <div className="text-xs font-semibold text-[#0E1F1B]">{g.scope}</div>
+                  <div className="mt-1.5 text-[0.7rem] text-[#5B6E68]">authority</div>
                   <div className="font-mono text-[0.78rem]" style={{ color: tier.color }}>
                     {g.authority}
                   </div>
-                  <div className="mt-1.5 text-[0.7rem] text-white/55">timelock</div>
+                  <div className="mt-1.5 text-[0.7rem] text-[#5B6E68]">timelock</div>
                   <div className="font-mono text-[0.78rem]" style={{ color: tier.color }}>
                     {g.timelock}
                   </div>
-                  <div className="mt-2 text-[0.6rem] uppercase tracking-[0.18em] text-white/55">
+                  <div className="mt-2 text-[0.6rem] uppercase tracking-[0.18em] text-[#5B6E68]">
                     {tier.label}
                   </div>
                 </motion.div>
               );
             })}
           </div>
-          <p className="mt-3 text-[0.62rem] text-white/45">
+          <p className="mt-3 text-[0.62rem] text-[#7A8C86]">
             Design-target governance bodies — not yet instantiated; the pilot is deployer-EOA-controlled
             with a 1/1 Safe (OD-35).
           </p>

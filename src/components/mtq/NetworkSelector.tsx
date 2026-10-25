@@ -124,33 +124,33 @@ export function NetworkSelector({
           <button
             type="button"
             aria-label={`Select network — current ${selected.label}`}
-            className="mtqs-focus group inline-flex items-center gap-2 rounded-md border border-white/[0.08] bg-white/[0.04] px-2.5 sm:px-3 py-1.5 text-xs hover:border-mtqs-gold/40 hover:bg-white/[0.06] transition"
+            className="mtqs-focus group inline-flex items-center gap-2 rounded-md border border-[#E3EAE6] bg-white px-2.5 sm:px-3 py-1.5 text-xs hover:border-mtqs-gold/40 hover:bg-[#F0F7F4] transition"
           >
             <GlowDot
               color={selectedTone.dot}
               size="h-2 w-2"
               className="shrink-0"
             />
-            <span className="font-medium text-white/85 whitespace-nowrap">
+            <span className="font-medium text-[#0E1F1B] whitespace-nowrap">
               {selected.label}
             </span>
-            <span className="hidden sm:inline-flex items-center rounded-full border border-white/[0.08] bg-black/40 px-1.5 py-0.5 font-mono tabular-nums text-[0.6rem] text-white/55">
+            <span className="hidden sm:inline-flex items-center rounded-full border border-[#E3EAE6] bg-[#F7FAF8] px-1.5 py-0.5 font-mono tabular-nums text-[0.6rem] text-[#5B6E68]">
               {String(selected.chainId)}
             </span>
-            <ChevronDown className="h-3 w-3 text-white/55 group-data-[state=open]:rotate-180 transition-transform" />
+            <ChevronDown className="h-3 w-3 text-[#5B6E68] group-data-[state=open]:rotate-180 transition-transform" />
           </button>
         </DropdownMenuTrigger>
         <DropdownMenuContent
           align="end"
-          className="min-w-[280px] sm:min-w-[320px] border-mtqs-gold/25 bg-[#080a0c]/95 backdrop-blur-xl p-0"
+          className="min-w-[280px] sm:min-w-[320px] border-mtqs-gold/25 bg-white shadow-lg p-0"
         >
-          <DropdownMenuLabel className="flex items-center justify-between gap-2 px-3 py-2 text-[0.65rem] uppercase tracking-[0.2em] text-white/55">
+          <DropdownMenuLabel className="flex items-center justify-between gap-2 px-3 py-2 text-[0.65rem] uppercase tracking-[0.2em] text-[#5B6E68]">
             <span>Select Network</span>
             <span className="font-mono tabular-nums text-mtqs-gold/80">
               {ALL_CHAINS.length} chains
             </span>
           </DropdownMenuLabel>
-          <DropdownMenuSeparator className="bg-white/[0.06]" />
+          <DropdownMenuSeparator className="bg-[#E3EAE6]" />
           <div className="max-h-80 overflow-y-auto mtqs-scroll py-1">
             {ALL_CHAINS.map((chain) => {
               const st = networkStatus(chain);
@@ -163,7 +163,7 @@ export function NetworkSelector({
                     e.preventDefault();
                     handleChange(chain);
                   }}
-                  className="group flex items-center gap-3 px-3 py-2 text-xs cursor-pointer focus:bg-mtqs-gold/10 focus:text-white outline-none"
+                  className="group flex items-center gap-3 px-3 py-2 text-xs cursor-pointer focus:bg-mtqs-gold/10 focus:text-[#0E1F1B] outline-none"
                   aria-selected={isSel}
                 >
                   <GlowDot
@@ -173,7 +173,7 @@ export function NetworkSelector({
                   />
                   <div className="flex-1 min-w-0">
                     <div className="flex items-center gap-2">
-                      <span className="font-medium text-white/85 truncate">
+                      <span className="font-medium text-[#0E1F1B] truncate">
                         {chain.label}
                       </span>
                       {isSel && (
@@ -181,15 +181,15 @@ export function NetworkSelector({
                       )}
                     </div>
                     <div className="flex items-center gap-2 mt-0.5 text-[0.65rem]">
-                      <span className="font-mono tabular-nums text-white/55">
+                      <span className="font-mono tabular-nums text-[#5B6E68]">
                         Chain {String(chain.chainId)}
                       </span>
-                      <span className="text-white/30">·</span>
+                      <span className="text-[#7A8C86]">·</span>
                       <span className={tone.tone === "emerald" ? "text-mtqs-emerald" : tone.tone === "amber" ? "text-mtqs-amber" : "text-mtqs-gold"}>
                         {tone.label}
                       </span>
-                      <span className="text-white/30">·</span>
-                      <span className="text-white/55">
+                      <span className="text-[#7A8C86]">·</span>
+                      <span className="text-[#5B6E68]">
                         {chain.isEvm ? "EVM" : "non-EVM"}
                       </span>
                     </div>
@@ -206,8 +206,8 @@ export function NetworkSelector({
 
       {/* Contract address row (hidden in compact mode) */}
       {!compact && canonicalAddr && (
-        <div className="flex items-center gap-2 rounded-md border border-white/[0.06] bg-white/[0.02] px-2.5 py-1.5 text-[0.65rem]">
-          <span className="uppercase tracking-[0.18em] text-white/55 whitespace-nowrap">
+        <div className="flex items-center gap-2 rounded-md border border-[#E3EAE6] bg-[#F7FAF8] px-2.5 py-1.5 text-[0.65rem]">
+          <span className="uppercase tracking-[0.18em] text-[#5B6E68] whitespace-nowrap">
             MTQΣ
           </span>
           <span className="font-mono text-mtqs-gold truncate">

@@ -220,7 +220,7 @@ cast call --rpc-url "$RPC" "$SAFE" "getGuard()(address)"`;
                 <GlowDot color="amber" size="h-1.5 w-1.5" />
                 TESTNET ONLY
               </Pill>
-              <p className="text-[0.68rem] leading-relaxed text-white/55">
+              <p className="text-[0.68rem] leading-relaxed text-[#5B6E68]">
                 Every endpoint below was verified against the routes that exist under
                 src/app/api. Rate-limit marks reflect the route files&rsquo; own
                 rateLimit/getClientIP usage. Simulated outputs are not executable market
@@ -248,7 +248,7 @@ cast call --rpc-url "$RPC" "$SAFE" "getGuard()(address)"`;
           <Panel className="p-0 overflow-hidden">
             <div className="max-h-96 overflow-y-auto mtqs-scroll">
               <table className="w-full text-[0.68rem]">
-                <thead className="bg-white/[0.03] text-white/55 sticky top-0 backdrop-blur">
+                <thead className="bg-[#F7FAF8] text-[#5B6E68] sticky top-0">
                   <tr>
                     <th className="text-left px-3 py-2 font-medium w-14">Method</th>
                     <th className="text-left px-3 py-2 font-medium">Path</th>
@@ -260,7 +260,7 @@ cast call --rpc-url "$RPC" "$SAFE" "getGuard()(address)"`;
                 <tbody>
                   {API_GROUPS.map((g) => (
                     <Fragment key={g.group}>
-                      <tr className="border-t border-white/[0.06] bg-white/[0.03]">
+                      <tr className="border-t border-[#E3EAE6] bg-[#F7FAF8]">
                         <td colSpan={3} className="px-3 py-1.5">
                           <span className="text-[0.6rem] uppercase tracking-[0.2em] text-mtqs-gold/80">
                             {g.group}
@@ -268,7 +268,7 @@ cast call --rpc-url "$RPC" "$SAFE" "getGuard()(address)"`;
                         </td>
                       </tr>
                       {g.rows.map((r) => (
-                        <tr key={r.method + r.path} className="border-t border-white/[0.05]">
+                        <tr key={r.method + r.path} className="border-t border-[#E3EAE6]">
                           <td className="px-3 py-2">
                             <span
                               className={`inline-block rounded border px-1.5 py-0.5 font-mono text-[0.6rem] ${
@@ -281,7 +281,7 @@ cast call --rpc-url "$RPC" "$SAFE" "getGuard()(address)"`;
                             </span>
                           </td>
                           <td className="px-3 py-2">
-                            <span className="font-mono text-[0.66rem] text-white/90 break-all">
+                            <span className="font-mono text-[0.66rem] text-[#0E1F1B] break-all">
                               {r.path}
                             </span>
                             {r.rateLimited ? (
@@ -292,11 +292,11 @@ cast call --rpc-url "$RPC" "$SAFE" "getGuard()(address)"`;
                                 ● rate-limited
                               </span>
                             ) : null}
-                            <span className="block sm:hidden text-[0.62rem] text-white/55 mt-0.5">
+                            <span className="block sm:hidden text-[0.62rem] text-[#5B6E68] mt-0.5">
                               {r.desc}
                             </span>
                           </td>
-                          <td className="px-3 py-2 text-white/55 hidden sm:table-cell">
+                          <td className="px-3 py-2 text-[#5B6E68] hidden sm:table-cell">
                             {r.desc}
                           </td>
                         </tr>
@@ -329,9 +329,9 @@ cast call --rpc-url "$RPC" "$SAFE" "getGuard()(address)"`;
               {[monadMpq, arcMpq].map((c) => (
                 <div
                   key={c.chain}
-                  className="rounded-md border border-white/[0.07] bg-white/[0.02] p-2.5"
+                  className="rounded-md border border-[#E3EAE6] bg-[#F7FAF8] p-2.5"
                 >
-                  <div className="text-[0.6rem] uppercase tracking-[0.16em] text-white/55">
+                  <div className="text-[0.6rem] uppercase tracking-[0.16em] text-[#5B6E68]">
                     {c.chain} · chainId {String(c.chainId)} · MTQ rehearsal target
                   </div>
                   <div className="mt-0.5 flex items-center gap-1 min-w-0 flex-wrap">
@@ -340,22 +340,22 @@ cast call --rpc-url "$RPC" "$SAFE" "getGuard()(address)"`;
                     </span>
                     <CopyButton value={c.address} label={`${c.chain} MTQ address`} />
                   </div>
-                  <div className="mt-0.5 font-mono text-[0.6rem] text-white/55">
+                  <div className="mt-0.5 font-mono text-[0.6rem] text-[#5B6E68]">
                     name {c.name} · symbol {c.symbol} · decimals {c.decimals}
                   </div>
                 </div>
               ))}
             </div>
 
-            <pre className="mtqs-scroll overflow-x-auto rounded-lg border border-white/[0.08] bg-black/40 p-3.5 font-mono text-[0.64rem] leading-relaxed text-white/80">
+            <pre className="mtqs-scroll overflow-x-auto rounded-lg border border-[#E3EAE6] bg-[#F7FAF8] p-3.5 font-mono text-[0.64rem] leading-relaxed text-[#0E1F1B]">
 {verifyScript}
             </pre>
-            <p className="mt-1.5 text-[0.6rem] text-white/55">
+            <p className="mt-1.5 text-[0.6rem] text-[#5B6E68]">
               Appendix B.6 Phase 5 sequence (MTQ_CONTRACT / GENESIS_RESERVE_ADDRESS /
               COLD_TREASURY / RPC environment). All cast calls are read-only.
             </p>
 
-            <pre className="mtqs-scroll overflow-x-auto rounded-lg border border-white/[0.08] bg-black/40 p-3.5 font-mono text-[0.64rem] leading-relaxed text-white/80">
+            <pre className="mtqs-scroll overflow-x-auto rounded-lg border border-[#E3EAE6] bg-[#F7FAF8] p-3.5 font-mono text-[0.64rem] leading-relaxed text-[#0E1F1B]">
 {safeReads}
             </pre>
 
@@ -364,7 +364,7 @@ cast call --rpc-url "$RPC" "$SAFE" "getGuard()(address)"`;
                 <ShieldAlert className="h-3.5 w-3.5" aria-hidden="true" />
                 OD-35 critical finding (2026-10-19 on-chain reads)
               </div>
-              <p className="mt-1 text-[0.66rem] leading-relaxed text-white/70">
+              <p className="mt-1 text-[0.66rem] leading-relaxed text-[#5B6E68]">
                 The actual reads returned <span className="font-mono">getThreshold() = 1</span> and{" "}
                 <span className="font-mono">getOwners() = [deployer EOA]</span> — a 1/1
                 deployer-controlled Safe, NOT the mandated 4/7. Rotation is BLOCKED until
@@ -396,12 +396,12 @@ cast call --rpc-url "$RPC" "$SAFE" "getGuard()(address)"`;
               {REPO_ARTIFACTS.map((a) => (
                 <div
                   key={a.name}
-                  className="flex flex-col sm:flex-row sm:items-start gap-1 sm:gap-3 rounded-md border border-white/[0.06] bg-white/[0.02] px-3 py-2"
+                  className="flex flex-col sm:flex-row sm:items-start gap-1 sm:gap-3 rounded-md border border-[#E3EAE6] bg-[#F7FAF8] px-3 py-2"
                 >
                   <span className="font-mono text-[0.66rem] text-mtqs-gold sm:w-56 shrink-0 break-all">
                     {a.name}
                   </span>
-                  <span className="text-[0.66rem] leading-relaxed text-white/55">{a.purpose}</span>
+                  <span className="text-[0.66rem] leading-relaxed text-[#5B6E68]">{a.purpose}</span>
                 </div>
               ))}
             </div>
@@ -434,16 +434,16 @@ cast call --rpc-url "$RPC" "$SAFE" "getGuard()(address)"`;
               ].map((n) => (
                 <li key={n} className="flex items-start gap-2.5">
                   <GlowDot color="gold" size="h-1.5 w-1.5" className="mt-[7px] shrink-0" />
-                  <span className="text-[0.72rem] leading-relaxed text-white/55">{n}</span>
+                  <span className="text-[0.72rem] leading-relaxed text-[#5B6E68]">{n}</span>
                 </li>
               ))}
             </ul>
-            <div className="mt-4 rounded-md border border-white/[0.07] bg-white/[0.02] p-3 inline-block">
-              <div className="text-[0.6rem] uppercase tracking-[0.16em] text-white/55">
+            <div className="mt-4 rounded-md border border-[#E3EAE6] bg-[#F7FAF8] p-3 inline-block">
+              <div className="text-[0.6rem] uppercase tracking-[0.16em] text-[#5B6E68]">
                 Deployer wallet (contracts.ts)
               </div>
               <div className="mt-0.5 flex items-center gap-1.5 flex-wrap">
-                <span className="font-mono text-[0.68rem] text-amber-100 break-all">
+                <span className="font-mono text-[0.68rem] text-amber-700 break-all">
                   {DEPLOYER_WALLET}
                 </span>
                 <CopyButton value={DEPLOYER_WALLET} label="deployer wallet" />
@@ -459,14 +459,14 @@ cast call --rpc-url "$RPC" "$SAFE" "getGuard()(address)"`;
           <div className="flex flex-wrap items-center gap-2">
             <button
               onClick={() => onNavigate("contracts")}
-              className="mtqs-focus rounded-lg border border-white/10 px-3 py-1.5 text-[0.75rem] text-white/85 hover:bg-white/5 transition inline-flex items-center gap-1.5"
+              className="mtqs-focus rounded-lg border border-[#E3EAE6] px-3 py-1.5 text-[0.75rem] text-[#0E1F1B] hover:bg-[#F0F7F4] transition inline-flex items-center gap-1.5"
             >
               Contract registry
               <ArrowRight className="h-3.5 w-3.5" aria-hidden="true" />
             </button>
             <button
               onClick={() => onNavigate("evidence")}
-              className="mtqs-focus rounded-lg border border-white/10 px-3 py-1.5 text-[0.75rem] text-white/85 hover:bg-white/5 transition inline-flex items-center gap-1.5"
+              className="mtqs-focus rounded-lg border border-[#E3EAE6] px-3 py-1.5 text-[0.75rem] text-[#0E1F1B] hover:bg-[#F0F7F4] transition inline-flex items-center gap-1.5"
             >
               Evidence package
               <ArrowRight className="h-3.5 w-3.5" aria-hidden="true" />

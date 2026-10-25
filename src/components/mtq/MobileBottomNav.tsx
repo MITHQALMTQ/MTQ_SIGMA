@@ -23,7 +23,7 @@ export function MobileBottomNav({
 }) {
   return (
     <nav
-      className="md:hidden fixed bottom-0 inset-x-0 z-50 border-t border-white/[0.06] mtqs-glass backdrop-blur"
+      className="md:hidden fixed bottom-0 inset-x-0 z-50 border-t border-[#E3EAE6] mtqs-glass"
       style={{ paddingBottom: "env(safe-area-inset-bottom)" }}
       aria-label="Mobile section navigation"
     >
@@ -40,12 +40,12 @@ export function MobileBottomNav({
               aria-current={isActive ? "page" : undefined}
             >
               <Icon
-                className={`h-5 w-5 ${isActive ? "text-mtqs-gold" : "text-white/55"}`}
+                className={`h-5 w-5 ${isActive ? "text-mtqs-gold" : "text-[#5B6E68]"}`}
                 aria-hidden
               />
               <span
                 className={`text-[0.6rem] font-medium tracking-wide ${
-                  isActive ? "text-mtqs-gold" : "text-white/55"
+                  isActive ? "text-mtqs-gold" : "text-[#5B6E68]"
                 }`}
               >
                 {item.label}

@@ -138,10 +138,10 @@ export class ChunkRecoveryBoundary extends Component<
     return (
       <div
         role="alert"
-        className="flex min-h-screen flex-col items-center justify-center gap-5 bg-[#020D1F] px-6 text-center"
+        className="flex min-h-screen flex-col items-center justify-center gap-5 bg-[#FAFCFA] px-6 text-center"
       >
         <span
-          className="text-xl font-extrabold tracking-[0.34em] text-cyan-100/90"
+          className="text-xl font-extrabold tracking-[0.34em] text-[#0E1F1B]"
           style={{
             fontFamily: "var(--font-mtqs-display), Montserrat, sans-serif",
           }}
@@ -149,17 +149,17 @@ export class ChunkRecoveryBoundary extends Component<
           MTQΣ
         </span>
         <div className="max-w-xl space-y-2">
-          <h1 className="text-lg font-bold text-white/90">
+          <h1 className="text-lg font-bold text-[#0E1F1B]">
             {chunkError
               ? "Terminal update detected — recovering"
               : "The terminal hit an unexpected error"}
           </h1>
-          <p className="text-sm leading-relaxed text-white/50">
+          <p className="text-sm leading-relaxed text-[#5B6E68]">
             {chunkError
               ? "This page was loaded against an earlier development build whose assets have since been replaced. A fresh reload restores the current build and returns you to where you were."
               : "The error has been contained to this view. You can retry the view or reload the terminal; the audit trail and persisted state are unaffected."}
           </p>
-          <p className="font-mono text-[0.62rem] leading-relaxed text-white/30">
+          <p className="font-mono text-[0.62rem] leading-relaxed text-[#7A8C86]">
             {error.name || "Error"}: {error.message || "unknown"}
           </p>
         </div>
@@ -168,7 +168,7 @@ export class ChunkRecoveryBoundary extends Component<
             <button
               type="button"
               onClick={this.manualReload}
-              className="rounded-lg bg-cyan-400 px-5 py-2.5 text-sm font-semibold text-[#03101d] transition hover:bg-cyan-300 focus-visible:outline focus-visible:outline-2 focus-visible:outline-cyan-300"
+              className="rounded-lg bg-[#0D9488] px-5 py-2.5 text-sm font-semibold text-white transition hover:bg-[#0F766E] focus-visible:outline focus-visible:outline-2 focus-visible:outline-[#0D9488]"
             >
               Reload terminal
             </button>
@@ -177,21 +177,21 @@ export class ChunkRecoveryBoundary extends Component<
               <button
                 type="button"
                 onClick={this.reset}
-                className="rounded-lg bg-cyan-400 px-5 py-2.5 text-sm font-semibold text-[#03101d] transition hover:bg-cyan-300 focus-visible:outline focus-visible:outline-2 focus-visible:outline-cyan-300"
+                className="rounded-lg bg-[#0D9488] px-5 py-2.5 text-sm font-semibold text-white transition hover:bg-[#0F766E] focus-visible:outline focus-visible:outline-2 focus-visible:outline-[#0D9488]"
               >
                 Retry view
               </button>
               <button
                 type="button"
                 onClick={this.manualReload}
-                className="rounded-lg border border-white/15 px-5 py-2.5 text-sm font-semibold text-white/70 transition hover:border-white/30 hover:text-white focus-visible:outline focus-visible:outline-2 focus-visible:outline-cyan-300"
+                className="rounded-lg border border-[#DCE5E0] px-5 py-2.5 text-sm font-semibold text-[#33544C] transition hover:border-[#0D9488] hover:text-[#0F766E] focus-visible:outline focus-visible:outline-2 focus-visible:outline-[#0D9488]"
               >
                 Reload terminal
               </button>
             </>
           )}
         </div>
-        <span className="text-[0.6rem] text-white/30">
+        <span className="text-[0.6rem] text-[#7A8C86]">
           TESTNET ONLY · SHADOW MODE ENFORCED · RESERVE TRADING NOT AUTHORIZED
         </span>
       </div>

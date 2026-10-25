@@ -143,9 +143,9 @@ function statusTone(s: string | undefined): "emerald" | "amber" | "rose" {
 }
 
 function statusDotHex(tone: "emerald" | "amber" | "rose"): string {
-  if (tone === "emerald") return "#00C4DB";
-  if (tone === "amber") return "#ffb84d";
-  return "#ff5d73";
+  if (tone === "emerald") return "#10B981";
+  if (tone === "amber") return "#D97706";
+  return "#E11D48";
 }
 
 export function Sidebar({ active, onChange, snapshot, error, onExit }: SidebarProps) {
@@ -259,7 +259,7 @@ export function Sidebar({ active, onChange, snapshot, error, onExit }: SidebarPr
                 Σ-v1.2
               </span>
             </div>
-            <span className="text-[0.58rem] tracking-[0.18em] uppercase text-white/55 truncate">
+            <span className="text-[0.58rem] tracking-[0.18em] uppercase text-[#7A8C86] truncate">
               {BRAND_VOICE.tagline}
             </span>
           </div>
@@ -268,7 +268,7 @@ export function Sidebar({ active, onChange, snapshot, error, onExit }: SidebarPr
           <button
             type="button"
             onClick={() => setDrawerOpen(false)}
-            className="md:hidden ml-auto p-1.5 rounded-md text-white/55 hover:text-white hover:bg-white/5 transition-colors"
+            className="md:hidden ml-auto p-1.5 rounded-md text-[#7A8C86] hover:text-[#0E1F1B] hover:bg-[#F0F7F4] transition-colors"
             aria-label="Close sidebar"
           >
             <X className="h-4 w-4" aria-hidden="true" />
@@ -288,7 +288,6 @@ export function Sidebar({ active, onChange, snapshot, error, onExit }: SidebarPr
               className="inline-flex h-2 w-2 rounded-full"
               style={{
                 backgroundColor: dotHex,
-                boxShadow: `0 0 8px ${dotHex}`,
               }}
               aria-hidden="true"
             />
@@ -298,12 +297,12 @@ export function Sidebar({ active, onChange, snapshot, error, onExit }: SidebarPr
             >
               {error ? "FEED ERR" : sc.label}
             </span>
-            <span className="text-white/30">·</span>
-            <span className="text-white/70">RR</span>
-            <span className="text-white/95">{rrTxt}</span>
-            <span className="text-white/30">·</span>
-            <span className="text-white/70">NAV</span>
-            <span className="text-mtqs-gold/95">{navTxt}</span>
+            <span className="text-[#9AA9A3]">·</span>
+            <span className="text-[#5B6E68]">RR</span>
+            <span className="text-[#0E1F1B]">{rrTxt}</span>
+            <span className="text-[#9AA9A3]">·</span>
+            <span className="text-[#5B6E68]">NAV</span>
+            <span className="text-[#0F766E]">{navTxt}</span>
           </div>
         </div>
 
@@ -385,7 +384,6 @@ export function Sidebar({ active, onChange, snapshot, error, onExit }: SidebarPr
           >
             <span
               className="inline-flex h-1.5 w-1.5 rounded-full bg-mtqs-rose"
-              style={{ boxShadow: "0 0 6px #ff4d6d" }}
               aria-hidden="true"
             />
             Not Production-Authorized

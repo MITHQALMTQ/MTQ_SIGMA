@@ -124,8 +124,8 @@ export function EvidencePackageSection() {
 
   if (error) {
     return (
-      <Panel className="p-6 border-rose-400/30">
-        <div className="flex items-center gap-3 text-rose-200">
+      <Panel className="p-6 border-rose-200">
+        <div className="flex items-center gap-3 text-rose-600">
           <ShieldAlert className="h-5 w-5" />
           <span>Evidence package unavailable: {error}</span>
         </div>
@@ -152,19 +152,19 @@ export function EvidencePackageSection() {
     <div className="space-y-8">
       {/* ── 0. Posture banner ─────────────────────────────────────────── */}
       <Reveal>
-        <Panel className="p-5 sm:p-6 border-rose-400/40" >
+        <Panel className="p-5 sm:p-6 border-rose-200" >
           <div className="flex flex-col gap-4">
             <div className="flex flex-wrap items-center gap-3">
-              <ShieldBan className="h-6 w-6 text-rose-300 shrink-0" aria-hidden />
-              <span className="text-base sm:text-lg font-semibold tracking-wide text-rose-100">
+              <ShieldBan className="h-6 w-6 text-rose-600 shrink-0" aria-hidden />
+              <span className="text-base sm:text-lg font-semibold tracking-wide text-rose-700">
                 {m.status} — Controlled Verification Phase
               </span>
               <Pill tone="rose">NO GATE ADVANCED</Pill>
               <Pill tone="rose">NO ON-CHAIN ACTION</Pill>
               <Pill tone="amber">SHADOW POSTURE PRESERVED</Pill>
             </div>
-            <p className="text-xs sm:text-sm leading-relaxed text-slate-300/90">{m.statusDetail}</p>
-            <p className="text-[11px] text-slate-400/80">
+            <p className="text-xs sm:text-sm leading-relaxed text-[#33544C]">{m.statusDetail}</p>
+            <p className="text-[11px] text-[#5B6E68]">
               Directive: <em>{m.directive}</em> · Review-only surface — nothing here authorizes or executes anything.
             </p>
           </div>
@@ -174,16 +174,16 @@ export function EvidencePackageSection() {
       {/* ── 0.b Meta strip ────────────────────────────────────────────── */}
       <Reveal>
         <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
-          <Stat label="Baseline commit (verified at)" value={short(m.baselineCommit)} valueClass="font-mono text-amber-200" />
-          <Stat label="Runtime HEAD (request time)" value={m.runtimeHead ? short(m.runtimeHead) : "n/a"} valueClass="font-mono text-amber-200" />
-          <Stat label="Fresh read anchors (M/A)" value={`${m.freshAnchors.monadBlocks.length}× Monad · ${m.freshAnchors.arcBlocks.length}× Arc`} valueClass="text-amber-200" />
-          <Stat label="Git remote" value={m.remote || "NONE"} valueClass={m.remote ? "text-amber-200" : "text-rose-300"} />
+          <Stat label="Baseline commit (verified at)" value={short(m.baselineCommit)} valueClass="font-mono text-amber-600" />
+          <Stat label="Runtime HEAD (request time)" value={m.runtimeHead ? short(m.runtimeHead) : "n/a"} valueClass="font-mono text-amber-600" />
+          <Stat label="Fresh read anchors (M/A)" value={`${m.freshAnchors.monadBlocks.length}× Monad · ${m.freshAnchors.arcBlocks.length}× Arc`} valueClass="text-amber-600" />
+          <Stat label="Git remote" value={m.remote || "NONE"} valueClass={m.remote ? "text-amber-600" : "text-rose-600"} />
         </div>
         <Panel className="p-4 mt-3">
-          <div className="grid gap-2 text-[11px] font-mono text-slate-400 break-all">
+          <div className="grid gap-2 text-[11px] font-mono text-[#5B6E68] break-all">
             <div>mandate SSOT sha256: {m.mandateSha256}</div>
             <div>Monad blocks: {m.freshAnchors.monadBlocks.join(" · ")} — Arc blocks: {m.freshAnchors.arcBlocks.join(" · ")} — {m.freshAnchors.dateUtc}</div>
-            <div className="text-slate-500">{m.baselineNote}</div>
+            <div className="text-[#7A8C86]">{m.baselineNote}</div>
           </div>
         </Panel>
       </Reveal>
@@ -191,12 +191,12 @@ export function EvidencePackageSection() {
       {/* ── 1. Absolute restrictions ─────────────────────────────────── */}
       <Reveal>
         <div className="flex items-center justify-between gap-3 flex-wrap">
-          <h2 className="flex items-center gap-2 text-lg font-semibold text-slate-100">
-            <Lock className="h-5 w-5 text-amber-300" aria-hidden /> §1 Absolute Restrictions — all enforced
+          <h2 className="flex items-center gap-2 text-lg font-semibold text-[#0E1F1B]">
+            <Lock className="h-5 w-5 text-amber-600" aria-hidden /> §1 Absolute Restrictions — all enforced
           </h2>
-          <div className="flex items-center gap-2 text-[11px] text-slate-500">
+          <div className="flex items-center gap-2 text-[11px] text-[#7A8C86]">
             {fetchedAt ? <span>fetched {fetchedAt}</span> : null}
-            <button onClick={() => void load()} className="inline-flex items-center gap-1 rounded-md border border-white/10 px-2 py-1 hover:border-amber-300/40 hover:text-amber-200 transition" aria-label="Refresh evidence package">
+            <button onClick={() => void load()} className="inline-flex items-center gap-1 rounded-md border border-[#E3EAE6] px-2 py-1 hover:border-amber-400 hover:text-amber-600 transition" aria-label="Refresh evidence package">
               <RefreshCw className="h-3 w-3" /> Refresh
             </button>
           </div>
@@ -204,11 +204,11 @@ export function EvidencePackageSection() {
         <Panel className="p-4 mt-3">
           <ul className="grid md:grid-cols-2 gap-3">
             {data.restrictions.map((r) => (
-              <li key={r.id} className="flex gap-3 rounded-lg border border-white/[0.05] bg-white/[0.02] p-3">
-                <CheckCircle2 className="h-4 w-4 text-emerald-300 mt-0.5 shrink-0" aria-hidden />
+              <li key={r.id} className="flex gap-3 rounded-lg border border-[#E3EAE6] bg-[#F7FAF8] p-3">
+                <CheckCircle2 className="h-4 w-4 text-emerald-600 mt-0.5 shrink-0" aria-hidden />
                 <div className="min-w-0">
-                  <div className="text-xs font-medium text-slate-200"><span className="font-mono text-amber-200">{r.id}</span> — {r.rule}</div>
-                  <div className="text-[11px] text-slate-400 mt-0.5">{r.enforced}</div>
+                  <div className="text-xs font-medium text-[#0E1F1B]"><span className="font-mono text-amber-600">{r.id}</span> — {r.rule}</div>
+                  <div className="text-[11px] text-[#5B6E68] mt-0.5">{r.enforced}</div>
                 </div>
               </li>
             ))}
@@ -218,23 +218,23 @@ export function EvidencePackageSection() {
 
       {/* ── 2. Deliverables ───────────────────────────────────────────── */}
       <Reveal>
-        <h2 className="flex items-center gap-2 text-lg font-semibold text-slate-100">
-          <ClipboardCheck className="h-5 w-5 text-amber-300" aria-hidden /> §7 Deliverables — D-1 … D-6 (review only)
+        <h2 className="flex items-center gap-2 text-lg font-semibold text-[#0E1F1B]">
+          <ClipboardCheck className="h-5 w-5 text-amber-600" aria-hidden /> §7 Deliverables — D-1 … D-6 (review only)
         </h2>
         <div className="grid md:grid-cols-2 gap-3 mt-3">
           {data.deliverables.map((d) => (
             <Panel key={d.id} className="p-4">
               <div className="flex items-center gap-2 flex-wrap">
                 <Pill tone="gold">{d.id}</Pill>
-                <span className="text-sm font-semibold text-slate-100">{d.title}</span>
+                <span className="text-sm font-semibold text-[#0E1F1B]">{d.title}</span>
               </div>
-              <p className="text-xs text-slate-300/90 mt-2 leading-relaxed">{d.summary}</p>
+              <p className="text-xs text-[#33544C] mt-2 leading-relaxed">{d.summary}</p>
               <ul className="mt-2 space-y-1.5">
                 {d.keyPoints.map((k, i) => (
-                  <li key={i} className="text-[11px] text-slate-400 flex gap-2"><GlowDot className="mt-1" />{k}</li>
+                  <li key={i} className="text-[11px] text-[#5B6E68] flex gap-2"><GlowDot className="mt-1" />{k}</li>
                 ))}
               </ul>
-              <div className="mt-3 flex items-center gap-1.5 text-[10px] font-mono text-amber-200/70 break-all">
+              <div className="mt-3 flex items-center gap-1.5 text-[10px] font-mono text-amber-600/70 break-all">
                 <ExternalLink className="h-3 w-3 shrink-0" aria-hidden /> {d.file}
               </div>
             </Panel>
@@ -244,13 +244,13 @@ export function EvidencePackageSection() {
 
       {/* ── 3. Findings register ──────────────────────────────────────── */}
       <Reveal>
-        <h2 className="flex items-center gap-2 text-lg font-semibold text-slate-100">
-          <FileWarning className="h-5 w-5 text-rose-300" aria-hidden /> Findings register — severities preserved (C-040 … C-049)
+        <h2 className="flex items-center gap-2 text-lg font-semibold text-[#0E1F1B]">
+          <FileWarning className="h-5 w-5 text-rose-600" aria-hidden /> Findings register — severities preserved (C-040 … C-049)
         </h2>
         <Panel className="p-0 mt-3 overflow-hidden">
           <div className="max-h-96 overflow-y-auto mtqs-scroll">
             <table className="w-full text-left text-xs">
-              <thead className="sticky top-0 bg-[#0A1124] text-[10px] uppercase tracking-wider text-slate-400">
+              <thead className="sticky top-0 bg-[#F7FAF8] text-[10px] uppercase tracking-wider text-[#5B6E68]">
                 <tr>
                   <th className="px-3 py-2.5">ID</th>
                   <th className="px-3 py-2.5">Severity</th>
@@ -258,16 +258,16 @@ export function EvidencePackageSection() {
                   <th className="px-3 py-2.5 hidden sm:table-cell">Refs</th>
                 </tr>
               </thead>
-              <tbody className="divide-y divide-white/[0.04]">
+              <tbody className="divide-y divide-[#E3EAE6]">
                 {data.findings.map((f) => (
-                  <tr key={f.id} className="hover:bg-white/[0.02]">
-                    <td className="px-3 py-2.5 font-mono text-amber-200 whitespace-nowrap">{f.id}</td>
+                  <tr key={f.id} className="hover:bg-[#F0F7F4]">
+                    <td className="px-3 py-2.5 font-mono text-amber-600 whitespace-nowrap">{f.id}</td>
                     <td className="px-3 py-2.5"><Pill tone={sevTone(f.severity)}>{f.severity}</Pill></td>
                     <td className="px-3 py-2.5 min-w-0">
-                      <div className="font-medium text-slate-200">{f.title}</div>
-                      <div className="text-[11px] text-slate-400 mt-0.5">{f.detail}</div>
+                      <div className="font-medium text-[#0E1F1B]">{f.title}</div>
+                      <div className="text-[11px] text-[#5B6E68] mt-0.5">{f.detail}</div>
                     </td>
-                    <td className="px-3 py-2.5 hidden sm:table-cell font-mono text-[10px] text-slate-500 whitespace-nowrap">{f.refs}</td>
+                    <td className="px-3 py-2.5 hidden sm:table-cell font-mono text-[10px] text-[#7A8C86] whitespace-nowrap">{f.refs}</td>
                   </tr>
                 ))}
               </tbody>
@@ -278,13 +278,13 @@ export function EvidencePackageSection() {
 
       {/* ── 4. Suite re-runs at HEAD ─────────────────────────────────── */}
       <Reveal>
-        <h2 className="flex items-center gap-2 text-lg font-semibold text-slate-100">
-          <ListChecks className="h-5 w-5 text-emerald-300" aria-hidden /> §2 Re-runs at HEAD {short(m.baselineCommit)} — complete logs committed
+        <h2 className="flex items-center gap-2 text-lg font-semibold text-[#0E1F1B]">
+          <ListChecks className="h-5 w-5 text-emerald-600" aria-hidden /> §2 Re-runs at HEAD {short(m.baselineCommit)} — complete logs committed
         </h2>
         <Panel className="p-0 mt-3 overflow-hidden">
           <div className="max-h-80 overflow-y-auto mtqs-scroll">
             <table className="w-full text-left text-xs">
-              <thead className="sticky top-0 bg-[#0A1124] text-[10px] uppercase tracking-wider text-slate-400">
+              <thead className="sticky top-0 bg-[#F7FAF8] text-[10px] uppercase tracking-wider text-[#5B6E68]">
                 <tr>
                   <th className="px-3 py-2.5">Suite</th>
                   <th className="px-3 py-2.5">Result</th>
@@ -292,13 +292,13 @@ export function EvidencePackageSection() {
                   <th className="px-3 py-2.5">Note</th>
                 </tr>
               </thead>
-              <tbody className="divide-y divide-white/[0.04]">
+              <tbody className="divide-y divide-[#E3EAE6]">
                 {data.rerunResults.map((s) => (
-                  <tr key={s.suite} className="hover:bg-white/[0.02]">
-                    <td className="px-3 py-2.5 text-slate-200 whitespace-nowrap">{s.suite}</td>
-                    <td className={`px-3 py-2.5 font-mono whitespace-nowrap ${s.result.includes("CRITICAL") ? "text-rose-300" : "text-emerald-300"}`}>{s.result}</td>
-                    <td className="px-3 py-2.5 hidden lg:table-cell font-mono text-[10px] text-slate-500 break-all">{s.command}</td>
-                    <td className="px-3 py-2.5 text-[11px] text-amber-200/80">{s.note ?? "—"}</td>
+                  <tr key={s.suite} className="hover:bg-[#F0F7F4]">
+                    <td className="px-3 py-2.5 text-[#0E1F1B] whitespace-nowrap">{s.suite}</td>
+                    <td className={`px-3 py-2.5 font-mono whitespace-nowrap ${s.result.includes("CRITICAL") ? "text-rose-600" : "text-emerald-600"}`}>{s.result}</td>
+                    <td className="px-3 py-2.5 hidden lg:table-cell font-mono text-[10px] text-[#7A8C86] break-all">{s.command}</td>
+                    <td className="px-3 py-2.5 text-[11px] text-amber-600/80">{s.note ?? "—"}</td>
                   </tr>
                 ))}
               </tbody>
@@ -309,13 +309,13 @@ export function EvidencePackageSection() {
 
       {/* ── 5. Compile matrix (EIP-170 adjudication) ─────────────────── */}
       <Reveal>
-        <h2 className="flex items-center gap-2 text-lg font-semibold text-slate-100">
-          <Boxes className="h-5 w-5 text-amber-300" aria-hidden /> §5 Compile matrix — EIP-170 adjudication (limit 24,576 B)
+        <h2 className="flex items-center gap-2 text-lg font-semibold text-[#0E1F1B]">
+          <Boxes className="h-5 w-5 text-amber-600" aria-hidden /> §5 Compile matrix — EIP-170 adjudication (limit 24,576 B)
         </h2>
         <Panel className="p-0 mt-3 overflow-hidden">
           <div className="max-h-80 overflow-y-auto mtqs-scroll">
             <table className="w-full text-left text-xs">
-              <thead className="sticky top-0 bg-[#0A1124] text-[10px] uppercase tracking-wider text-slate-400">
+              <thead className="sticky top-0 bg-[#F7FAF8] text-[10px] uppercase tracking-wider text-[#5B6E68]">
                 <tr>
                   <th className="px-3 py-2.5">Source</th>
                   <th className="px-3 py-2.5">evm / runs / viaIR</th>
@@ -324,20 +324,20 @@ export function EvidencePackageSection() {
                   <th className="px-3 py-2.5 hidden md:table-cell">keccak(runtime)</th>
                 </tr>
               </thead>
-              <tbody className="divide-y divide-white/[0.04]">
+              <tbody className="divide-y divide-[#E3EAE6]">
                 {data.compileMatrix.map((c, i) => (
-                  <tr key={i} className="hover:bg-white/[0.02]">
-                    <td className="px-3 py-2.5 text-slate-200">{c.source}{c.note ? <span className="block text-[10px] text-amber-200/70">{c.note}</span> : null}</td>
-                    <td className="px-3 py-2.5 font-mono text-[10px] text-slate-400 whitespace-nowrap">{c.evm} / {c.runs} / {c.viaIr ? "IR" : "no-IR"}</td>
-                    <td className="px-3 py-2.5 text-right font-mono text-slate-200">{c.runtime.toLocaleString()}</td>
-                    <td className={`px-3 py-2.5 text-right font-mono ${c.over > 0 ? "text-rose-300" : "text-emerald-300"}`}>{c.over > 0 ? `+${c.over.toLocaleString()}` : "within"}</td>
-                    <td className="px-3 py-2.5 hidden md:table-cell font-mono text-[10px] text-slate-500">{c.keccak}</td>
+                  <tr key={i} className="hover:bg-[#F0F7F4]">
+                    <td className="px-3 py-2.5 text-[#0E1F1B]">{c.source}{c.note ? <span className="block text-[10px] text-amber-600/70">{c.note}</span> : null}</td>
+                    <td className="px-3 py-2.5 font-mono text-[10px] text-[#5B6E68] whitespace-nowrap">{c.evm} / {c.runs} / {c.viaIr ? "IR" : "no-IR"}</td>
+                    <td className="px-3 py-2.5 text-right font-mono text-[#0E1F1B]">{c.runtime.toLocaleString()}</td>
+                    <td className={`px-3 py-2.5 text-right font-mono ${c.over > 0 ? "text-rose-600" : "text-emerald-600"}`}>{c.over > 0 ? `+${c.over.toLocaleString()}` : "within"}</td>
+                    <td className="px-3 py-2.5 hidden md:table-cell font-mono text-[10px] text-[#7A8C86]">{c.keccak}</td>
                   </tr>
                 ))}
               </tbody>
             </table>
           </div>
-          <div className="border-t border-white/[0.05] px-3 py-2 text-[11px] text-rose-200/90 flex items-center gap-2">
+          <div className="border-t border-[#E3EAE6] px-3 py-2 text-[11px] text-rose-600/90 flex items-center gap-2">
             <Ban className="h-3.5 w-3.5 shrink-0" aria-hidden /> C-044: at the package baseline, the repository contained ZERO deployable-within-limit token source (best case +142 B over) — see the compile-matrix revision anchors.
           </div>
         </Panel>
@@ -345,13 +345,13 @@ export function EvidencePackageSection() {
 
       {/* ── 6. Custody reconciliation ─────────────────────────────────── */}
       <Reveal>
-        <h2 className="flex items-center gap-2 text-lg font-semibold text-slate-100">
-          <Landmark className="h-5 w-5 text-amber-300" aria-hidden /> §3 Custody reconciliation — raw-wei precision, both chains
+        <h2 className="flex items-center gap-2 text-lg font-semibold text-[#0E1F1B]">
+          <Landmark className="h-5 w-5 text-amber-600" aria-hidden /> §3 Custody reconciliation — raw-wei precision, both chains
         </h2>
         <Panel className="p-0 mt-3 overflow-hidden">
           <div className="max-h-96 overflow-y-auto mtqs-scroll">
             <table className="w-full text-left text-xs">
-              <thead className="sticky top-0 bg-[#0A1124] text-[10px] uppercase tracking-wider text-slate-400">
+              <thead className="sticky top-0 bg-[#F7FAF8] text-[10px] uppercase tracking-wider text-[#5B6E68]">
                 <tr>
                   <th className="px-3 py-2.5">Chain</th>
                   <th className="px-3 py-2.5">Asset</th>
@@ -361,21 +361,21 @@ export function EvidencePackageSection() {
                   <th className="px-3 py-2.5 hidden md:table-cell">Note</th>
                 </tr>
               </thead>
-              <tbody className="divide-y divide-white/[0.04]">
+              <tbody className="divide-y divide-[#E3EAE6]">
                 {data.custody.map((c, i) => (
-                  <tr key={i} className="hover:bg-white/[0.02]">
-                    <td className="px-3 py-2.5 font-mono text-[10px] text-slate-400 whitespace-nowrap">{c.chain}</td>
-                    <td className="px-3 py-2.5 text-slate-200 font-mono text-[10px]">{c.asset}</td>
-                    <td className="px-3 py-2.5 text-right font-mono text-slate-300">{c.supply}</td>
-                    <td className="px-3 py-2.5 text-right font-mono text-rose-300">{c.deployerShare}</td>
-                    <td className="px-3 py-2.5 text-right font-mono text-slate-400">{c.safeShare}</td>
-                    <td className="px-3 py-2.5 hidden md:table-cell text-[11px] text-amber-200/80">{c.note}</td>
+                  <tr key={i} className="hover:bg-[#F0F7F4]">
+                    <td className="px-3 py-2.5 font-mono text-[10px] text-[#5B6E68] whitespace-nowrap">{c.chain}</td>
+                    <td className="px-3 py-2.5 text-[#0E1F1B] font-mono text-[10px]">{c.asset}</td>
+                    <td className="px-3 py-2.5 text-right font-mono text-[#33544C]">{c.supply}</td>
+                    <td className="px-3 py-2.5 text-right font-mono text-rose-600">{c.deployerShare}</td>
+                    <td className="px-3 py-2.5 text-right font-mono text-[#5B6E68]">{c.safeShare}</td>
+                    <td className="px-3 py-2.5 hidden md:table-cell text-[11px] text-amber-600/80">{c.note}</td>
                   </tr>
                 ))}
               </tbody>
             </table>
           </div>
-          <div className="border-t border-white/[0.05] px-3 py-2 text-[11px] text-rose-200/90">
+          <div className="border-t border-[#E3EAE6] px-3 py-2 text-[11px] text-rose-600/90">
             100% of genesis assets on both chains sit under ONE exposed key (C-045): 1.1M USDC × 2 chains + candidate-B supply + candidate-C control. The mandated 4/7 Safe holds zero and has never executed (nonce 0).
           </div>
         </Panel>
@@ -383,25 +383,25 @@ export function EvidencePackageSection() {
 
       {/* ── 7. Gates ──────────────────────────────────────────────────── */}
       <Reveal>
-        <h2 className="flex items-center gap-2 text-lg font-semibold text-slate-100">
-          <Scale className="h-5 w-5 text-amber-300" aria-hidden /> Gate-by-gate status — nothing advanced
+        <h2 className="flex items-center gap-2 text-lg font-semibold text-[#0E1F1B]">
+          <Scale className="h-5 w-5 text-amber-600" aria-hidden /> Gate-by-gate status — nothing advanced
         </h2>
         <Panel className="p-0 mt-3 overflow-hidden">
           <div className="max-h-80 overflow-y-auto mtqs-scroll">
             <table className="w-full text-left text-xs">
-              <thead className="sticky top-0 bg-[#0A1124] text-[10px] uppercase tracking-wider text-slate-400">
+              <thead className="sticky top-0 bg-[#F7FAF8] text-[10px] uppercase tracking-wider text-[#5B6E68]">
                 <tr>
                   <th className="px-3 py-2.5">Gate</th>
                   <th className="px-3 py-2.5">Status</th>
                   <th className="px-3 py-2.5">Blockers</th>
                 </tr>
               </thead>
-              <tbody className="divide-y divide-white/[0.04]">
+              <tbody className="divide-y divide-[#E3EAE6]">
                 {data.gates.map((g) => (
-                  <tr key={g.gate} className="hover:bg-white/[0.02]">
-                    <td className="px-3 py-2.5 text-slate-200 whitespace-nowrap">{g.gate}</td>
-                    <td className={`px-3 py-2.5 font-mono text-[10px] whitespace-nowrap ${g.status.includes("BLOCKED") || g.status.includes("NOT") ? "text-rose-300" : "text-amber-200"}`}>{g.status}</td>
-                    <td className="px-3 py-2.5 text-[11px] text-slate-400">{g.blockers}</td>
+                  <tr key={g.gate} className="hover:bg-[#F0F7F4]">
+                    <td className="px-3 py-2.5 text-[#0E1F1B] whitespace-nowrap">{g.gate}</td>
+                    <td className={`px-3 py-2.5 font-mono text-[10px] whitespace-nowrap ${g.status.includes("BLOCKED") || g.status.includes("NOT") ? "text-rose-600" : "text-amber-600"}`}>{g.status}</td>
+                    <td className="px-3 py-2.5 text-[11px] text-[#5B6E68]">{g.blockers}</td>
                   </tr>
                 ))}
               </tbody>
@@ -412,13 +412,13 @@ export function EvidencePackageSection() {
 
       {/* ── 8. OD decision matrix ─────────────────────────────────────── */}
       <Reveal>
-        <h2 className="flex items-center gap-2 text-lg font-semibold text-slate-100">
-          <AlertTriangle className="h-5 w-5 text-amber-300" aria-hidden /> §6 Decision matrix — implemented ≠ verified ≠ approved ≠ authorized
+        <h2 className="flex items-center gap-2 text-lg font-semibold text-[#0E1F1B]">
+          <AlertTriangle className="h-5 w-5 text-amber-600" aria-hidden /> §6 Decision matrix — implemented ≠ verified ≠ approved ≠ authorized
         </h2>
         <Panel className="p-0 mt-3 overflow-hidden">
           <div className="max-h-96 overflow-y-auto mtqs-scroll">
             <table className="w-full text-left text-xs">
-              <thead className="sticky top-0 bg-[#0A1124] text-[10px] uppercase tracking-wider text-slate-400">
+              <thead className="sticky top-0 bg-[#F7FAF8] text-[10px] uppercase tracking-wider text-[#5B6E68]">
                 <tr>
                   <th className="px-3 py-2.5">ID</th>
                   <th className="px-3 py-2.5 hidden lg:table-cell">Implemented</th>
@@ -427,23 +427,23 @@ export function EvidencePackageSection() {
                   <th className="px-3 py-2.5">Authorized</th>
                 </tr>
               </thead>
-              <tbody className="divide-y divide-white/[0.04]">
+              <tbody className="divide-y divide-[#E3EAE6]">
                 {data.decisionMatrix.map((d) => (
-                  <tr key={d.id} className="hover:bg-white/[0.02]">
+                  <tr key={d.id} className="hover:bg-[#F0F7F4]">
                     <td className="px-3 py-2.5">
-                      <div className="font-mono text-amber-200 whitespace-nowrap">{d.id}</div>
-                      <div className="text-[11px] text-slate-400">{d.decision}</div>
+                      <div className="font-mono text-amber-600 whitespace-nowrap">{d.id}</div>
+                      <div className="text-[11px] text-[#5B6E68]">{d.decision}</div>
                     </td>
-                    <td className="px-3 py-2.5 hidden lg:table-cell text-[11px] text-slate-400">{d.implemented}</td>
-                    <td className="px-3 py-2.5 hidden lg:table-cell text-[11px] text-slate-400">{d.verified}</td>
-                    <td className={`px-3 py-2.5 text-[11px] ${d.approved.includes("OPEN") || d.approved.includes("pending") ? "text-amber-200" : "text-slate-400"}`}>{d.approved}</td>
-                    <td className="px-3 py-2.5 text-[11px] text-rose-300 whitespace-nowrap">{d.authorized}</td>
+                    <td className="px-3 py-2.5 hidden lg:table-cell text-[11px] text-[#5B6E68]">{d.implemented}</td>
+                    <td className="px-3 py-2.5 hidden lg:table-cell text-[11px] text-[#5B6E68]">{d.verified}</td>
+                    <td className={`px-3 py-2.5 text-[11px] ${d.approved.includes("OPEN") || d.approved.includes("pending") ? "text-amber-600" : "text-[#5B6E68]"}`}>{d.approved}</td>
+                    <td className="px-3 py-2.5 text-[11px] text-rose-600 whitespace-nowrap">{d.authorized}</td>
                   </tr>
                 ))}
               </tbody>
             </table>
           </div>
-          <div className="border-t border-white/[0.05] px-3 py-2 text-[11px] text-slate-400">
+          <div className="border-t border-[#E3EAE6] px-3 py-2 text-[11px] text-[#5B6E68]">
             {rollups ? (
               <>
                 Register rollups (live /api/mandate): {odOpenCount ?? 0} OPEN ·{" "}
@@ -453,7 +453,7 @@ export function EvidencePackageSection() {
                 anywhere.
               </>
             ) : rollupsError ? (
-              <span className="text-rose-300/90">
+              <span className="text-rose-600/90">
                 Register rollups unavailable — live /api/mandate fetch failed ({rollupsError});
                 counts are withheld rather than fabricated.
               </span>
@@ -466,41 +466,41 @@ export function EvidencePackageSection() {
 
       {/* ── 9. Stop conditions + remediation ──────────────────────────── */}
       <Reveal>
-        <h2 className="flex items-center gap-2 text-lg font-semibold text-slate-100">
-          <ShieldAlert className="h-5 w-5 text-rose-300" aria-hidden /> §7 Stop conditions — {triggeredCount}/{stopTotal} triggered, all reported
+        <h2 className="flex items-center gap-2 text-lg font-semibold text-[#0E1F1B]">
+          <ShieldAlert className="h-5 w-5 text-rose-600" aria-hidden /> §7 Stop conditions — {triggeredCount}/{stopTotal} triggered, all reported
         </h2>
         <div className="grid md:grid-cols-2 gap-3 mt-3">
           <Panel className="p-4">
             <ul className="space-y-3">
               {data.stopConditions.map((s) => (
                 <li key={s.condition} className="flex gap-3">
-                  <Ban className="h-4 w-4 text-rose-300 mt-0.5 shrink-0" aria-hidden />
+                  <Ban className="h-4 w-4 text-rose-600 mt-0.5 shrink-0" aria-hidden />
                   <div>
-                    <div className="text-xs font-medium text-slate-200">{s.condition}</div>
-                    <div className="text-[11px] text-slate-400 mt-0.5">{s.disposition}</div>
+                    <div className="text-xs font-medium text-[#0E1F1B]">{s.condition}</div>
+                    <div className="text-[11px] text-[#5B6E68] mt-0.5">{s.disposition}</div>
                   </div>
                 </li>
               ))}
             </ul>
           </Panel>
           <Panel className="p-4">
-            <div className="text-xs font-semibold text-amber-200 mb-3">Remediation sequence (D-5 — every on-chain step needs an approved transaction plan)</div>
+            <div className="text-xs font-semibold text-amber-600 mb-3">Remediation sequence (D-5 — every on-chain step needs an approved transaction plan)</div>
             <ul className="space-y-3">
               {data.remediationTop.map((r) => (
                 <li key={r.id} className="flex gap-3">
-                  <span className={`font-mono text-[11px] mt-0.5 shrink-0 ${r.onChain ? "text-rose-300" : "text-emerald-300"}`}>{r.id}</span>
-                  <div className="text-[11px] text-slate-300">{r.text}{r.onChain ? <span className="text-rose-300/80"> — ON-CHAIN (plan first)</span> : null}</div>
+                  <span className={`font-mono text-[11px] mt-0.5 shrink-0 ${r.onChain ? "text-rose-600" : "text-emerald-600"}`}>{r.id}</span>
+                  <div className="text-[11px] text-[#33544C]">{r.text}{r.onChain ? <span className="text-rose-600/80"> — ON-CHAIN (plan first)</span> : null}</div>
                 </li>
               ))}
             </ul>
             <div className="mt-4 grid grid-cols-3 gap-2">
-              <Stat label="Unresolved claims (D-6)" value={String(data.claimCounts.total)} valueClass="text-rose-300" />
-              <Stat label="Critical" value={String(data.claimCounts.critical)} valueClass="text-rose-300" />
-              <Stat label="Resolved this round" value={String(data.claimCounts.resolvedThisRound)} valueClass="text-emerald-300" />
+              <Stat label="Unresolved claims (D-6)" value={String(data.claimCounts.total)} valueClass="text-rose-600" />
+              <Stat label="Critical" value={String(data.claimCounts.critical)} valueClass="text-rose-600" />
+              <Stat label="Resolved this round" value={String(data.claimCounts.resolvedThisRound)} valueClass="text-emerald-600" />
             </div>
           </Panel>
         </div>
-        <p className="mt-4 text-[11px] text-slate-500 leading-relaxed">
+        <p className="mt-4 text-[11px] text-[#7A8C86] leading-relaxed">
           Full documents: <span className="font-mono">{m.docsDir}</span> (D-1…D-6, BASELINE-MANIFEST.txt, machine JSONs, complete logs).
           All on-chain interactions in this package were read-only view calls. Production reserve trading remains NOT AUTHORIZED.
         </p>

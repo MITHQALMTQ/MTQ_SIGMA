@@ -72,7 +72,7 @@ function ChainTab({ chain, active, onClick }: { chain: ChainInfo; active: boolea
     <button
       onClick={onClick}
       className={`mtqs-focus relative px-4 py-2.5 text-sm font-medium transition ${
-        active ? "text-mtqs-gold" : "text-white/55 hover:text-white/55"
+        active ? "text-mtqs-gold" : "text-[#5B6E68] hover:text-[#5B6E68]"
       }`}
       aria-pressed={active}
     >
@@ -85,7 +85,7 @@ function ChainTab({ chain, active, onClick }: { chain: ChainInfo; active: boolea
       {active && (
         <motion.div
           layoutId="mtqs-contracts-tab-underline"
-          className="absolute inset-x-2 -bottom-px h-px bg-gradient-to-r from-transparent via-amber-400 to-transparent"
+          className="absolute inset-x-2 -bottom-px h-px bg-mtqs-gold"
         />
       )}
     </button>
@@ -110,20 +110,20 @@ function CanonicalCard({ chainId }: { chainId: string }) {
         <Pill tone="gold" className="font-mono">cid {String(info.chainId)}</Pill>
       </div>
       <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 text-[0.72rem]">
-        <div className="rounded-md border border-white/[0.06] bg-white/[0.02] p-2.5">
-          <div className="text-white/55">Name</div>
+        <div className="rounded-md border border-[#E3EAE6] bg-[#F7FAF8] p-2.5">
+          <div className="text-[#5B6E68]">Name</div>
           <div className="font-mono text-mtqs-gold">{info.name}</div>
         </div>
-        <div className="rounded-md border border-white/[0.06] bg-white/[0.02] p-2.5">
-          <div className="text-white/55">Symbol</div>
+        <div className="rounded-md border border-[#E3EAE6] bg-[#F7FAF8] p-2.5">
+          <div className="text-[#5B6E68]">Symbol</div>
           <div className="font-mono text-mtqs-gold">{info.symbol}</div>
         </div>
-        <div className="rounded-md border border-white/[0.06] bg-white/[0.02] p-2.5">
-          <div className="text-white/55">Decimals</div>
+        <div className="rounded-md border border-[#E3EAE6] bg-[#F7FAF8] p-2.5">
+          <div className="text-[#5B6E68]">Decimals</div>
           <div className="font-mono text-mtqs-gold">{info.decimals}</div>
         </div>
-        <div className="rounded-md border border-white/[0.06] bg-white/[0.02] p-2.5">
-          <div className="text-white/55">Chain ID</div>
+        <div className="rounded-md border border-[#E3EAE6] bg-[#F7FAF8] p-2.5">
+          <div className="text-[#5B6E68]">Chain ID</div>
           <div className="font-mono text-mtqs-gold">{String(info.chainId)}</div>
         </div>
       </div>
@@ -132,7 +132,7 @@ function CanonicalCard({ chainId }: { chainId: string }) {
           Contract address
         </div>
         <div className="flex items-center justify-between gap-3 flex-wrap">
-          <span className="font-mono text-sm text-amber-100 break-all">{info.address}</span>
+          <span className="font-mono text-sm text-amber-700 break-all">{info.address}</span>
           <div className="flex items-center gap-2 shrink-0">
             <CopyButton value={info.address} label="MTQΣ address" />
             <a
@@ -164,10 +164,10 @@ function EcosystemTable({ chain, query }: { chain: ChainInfo; query: string }) {
   }, [chain, q]);
 
   return (
-    <div className="overflow-hidden rounded-md border border-white/[0.06]">
+    <div className="overflow-hidden rounded-md border border-[#E3EAE6]">
       <div className="max-h-96 overflow-y-auto mtqs-scroll">
         <table className="w-full text-[0.72rem]">
-          <thead className="bg-white/[0.02] text-white/55 sticky top-0 backdrop-blur">
+          <thead className="bg-[#F7FAF8] text-[#5B6E68] sticky top-0">
             <tr>
               <th className="text-left px-3 py-2 font-medium">Contract</th>
               <th className="text-left px-3 py-2 font-medium hidden sm:table-cell">Symbol</th>
@@ -178,7 +178,7 @@ function EcosystemTable({ chain, query }: { chain: ChainInfo; query: string }) {
           <tbody>
             {rows.length === 0 ? (
               <tr>
-                <td colSpan={4} className="px-3 py-6 text-center text-white/60">
+                <td colSpan={4} className="px-3 py-6 text-center text-[#5B6E68]">
                   No contracts match &ldquo;{query}&rdquo;.
                 </td>
               </tr>
@@ -188,12 +188,12 @@ function EcosystemTable({ chain, query }: { chain: ChainInfo; query: string }) {
                 return (
                   <tr
                     key={c.address}
-                    className={`border-t border-white/[0.06] ${i % 2 ? "bg-white/[0.01]" : ""}`}
+                    className={`border-t border-[#E3EAE6] ${i % 2 ? "bg-[#F7FAF8]" : ""}`}
                   >
                     <td className="px-3 py-2.5">
-                      <div className="text-white/90">{c.name}</div>
+                      <div className="text-[#0E1F1B]">{c.name}</div>
                       {c.note && (
-                        <div className="text-[0.62rem] text-white/60 mt-0.5">{c.note}</div>
+                        <div className="text-[0.62rem] text-[#5B6E68] mt-0.5">{c.note}</div>
                       )}
                     </td>
                     <td className="px-3 py-2.5 font-mono text-mtqs-gold/80 hidden sm:table-cell">
@@ -244,7 +244,7 @@ function VerdictCell({ v }: { v: RoleVerdict | undefined }) {
       </span>
     );
   if (v === "false")
-    return <span className="font-mono text-white/45">false</span>;
+    return <span className="font-mono text-[#7A8C86]">false</span>;
   if (v === "REVERT")
     return (
       <span className="inline-flex items-center gap-1 text-mtqs-amber font-mono" title="eth_call reverted — this contract/role query is not answered by the deployed bytecode; anomaly preserved">
@@ -252,7 +252,7 @@ function VerdictCell({ v }: { v: RoleVerdict | undefined }) {
       </span>
     );
   return (
-    <span className="inline-flex items-center gap-1 text-white/45 font-mono" title="RPC unreachable — live value UNVERIFIED">
+    <span className="inline-flex items-center gap-1 text-[#7A8C86] font-mono" title="RPC unreachable — live value UNVERIFIED">
       <XCircle className="h-3 w-3" aria-hidden="true" /> UNVERIFIED
     </span>
   );
@@ -305,8 +305,8 @@ function RoleMatrixPanel() {
           <div className="text-[0.6rem] uppercase tracking-[0.22em] text-mtqs-gold/75 flex items-center gap-1.5">
             <ShieldCheck className="h-3 w-3" aria-hidden="true" /> AccessControl · Role Matrix
           </div>
-          <h3 className="mtqs-display text-lg font-semibold text-white mt-1">Live Role Verification</h3>
-          <p className="text-[0.68rem] text-white/55 mt-1 max-w-xl leading-relaxed">
+          <h3 className="mtqs-display text-lg font-semibold text-[#0E1F1B] mt-1">Live Role Verification</h3>
+          <p className="text-[0.68rem] text-[#5B6E68] mt-1 max-w-xl leading-relaxed">
             READ-ONLY <code className="font-mono">hasRole()</code> / <code className="font-mono">paused()</code> view calls
             (§1 VERIFICATION-ONLY — no transactions, no state changes). TESTNET ONLY · SHADOW MODE ENFORCED ·
             RESERVE TRADING NOT AUTHORIZED.
@@ -322,7 +322,7 @@ function RoleMatrixPanel() {
           <button
             onClick={() => void load()}
             disabled={loading}
-            className="mtqs-focus inline-flex items-center gap-1.5 rounded-md border border-white/10 px-2.5 py-1.5 text-[0.7rem] text-white/75 hover:text-white hover:border-mtqs-gold/40 transition disabled:opacity-50"
+            className="mtqs-focus inline-flex items-center gap-1.5 rounded-md border border-[#E3EAE6] px-2.5 py-1.5 text-[0.7rem] text-[#33544C] hover:text-[#0E1F1B] hover:border-mtqs-gold/40 transition disabled:opacity-50"
             aria-label="Re-verify roles live"
           >
             <RefreshCw className={`h-3 w-3 ${loading ? "animate-spin" : ""}`} aria-hidden="true" />
@@ -347,18 +347,18 @@ function RoleMatrixPanel() {
           {ownerChecks.map((c) => (
             <div key={c.role} className="flex flex-wrap items-center justify-between gap-2 text-[0.7rem]">
               <div className="flex items-center gap-2 min-w-0">
-                <span className="font-mono text-white/80 shrink-0">{c.role}</span>
-                <span className="font-mono text-white/40 truncate text-[0.62rem]">{shortAddr(MTQ_ROLE_HASHES[c.role], 10, 8)}</span>
+                <span className="font-mono text-[#0E1F1B] shrink-0">{c.role}</span>
+                <span className="font-mono text-[#7A8C86] truncate text-[0.62rem]">{shortAddr(MTQ_ROLE_HASHES[c.role], 10, 8)}</span>
                 <CopyButton value={MTQ_ROLE_HASHES[c.role]} label={`${c.role} hash`} />
               </div>
-              <span className={`font-mono shrink-0 ${c.matches ? "text-mtqs-emerald" : "text-white/45"}`}>
+              <span className={`font-mono shrink-0 ${c.matches ? "text-mtqs-emerald" : "text-[#7A8C86]"}`}>
                 {c.matches ? "✓ TRUE — matches owner reference" : c.live === "false" || c.evidence === "false" ? "✗ FALSE — MISMATCH, investigate" : "live value UNVERIFIED"}
               </span>
             </div>
           ))}
         </div>
         {activeChain && (
-          <div className="mt-2 text-[0.62rem] text-white/45 font-mono">
+          <div className="mt-2 text-[0.62rem] text-[#7A8C86] font-mono">
             verified {activeChain.verifiedAt ?? activeChain.probedAt} · {activeChain.name} block {activeChain.block}
           </div>
         )}
@@ -373,7 +373,7 @@ function RoleMatrixPanel() {
             aria-selected={c.id === chainId}
             onClick={() => setChainId(c.id as "monad" | "arc")}
             className={`mtqs-focus rounded-md px-3 py-1.5 text-[0.72rem] transition ${
-              c.id === chainId ? "bg-mtqs-gold/15 text-mtqs-gold" : "text-white/55 hover:text-white/75"
+              c.id === chainId ? "bg-mtqs-gold/15 text-mtqs-gold" : "text-[#5B6E68] hover:text-[#0E1F1B]"
             }`}
           >
             {c.name}
@@ -383,10 +383,10 @@ function RoleMatrixPanel() {
 
       {/* Matrix table */}
       {activeChain && (
-        <div className="overflow-hidden rounded-md border border-white/[0.06]">
+        <div className="overflow-hidden rounded-md border border-[#E3EAE6]">
           <div className="max-h-96 overflow-y-auto mtqs-scroll">
             <table className="w-full text-[0.7rem]">
-              <thead className="bg-white/[0.03] text-white/55 sticky top-0 backdrop-blur">
+              <thead className="bg-[#F7FAF8] text-[#5B6E68] sticky top-0">
                 <tr>
                   <th className="text-left px-3 py-2 font-medium">Contract</th>
                   <th className="text-left px-3 py-2 font-medium">Account</th>
@@ -411,14 +411,14 @@ function RoleMatrixPanel() {
         {ROLE_FINDINGS.map((f, i) => (
           <div key={i} className="flex items-start gap-2 text-[0.66rem] leading-relaxed">
             <GlowDot color={f.level === "verified" ? "emerald" : f.level === "anomaly" ? "amber" : "gold"} size="h-1.5 w-1.5" className="mt-1.5" />
-            <p className={f.level === "verified" ? "text-white/65" : f.level === "anomaly" ? "text-mtqs-amber/80" : "text-mtqs-gold/85"}>{f.text}</p>
+            <p className={f.level === "verified" ? "text-[#5B6E68]" : f.level === "anomaly" ? "text-mtqs-amber/80" : "text-mtqs-gold/85"}>{f.text}</p>
           </div>
         ))}
       </div>
 
       {/* Owner cast reference — SHADOW MODE, display only */}
-      <div className="mt-4 rounded-md border border-white/[0.06] bg-white/[0.02] p-3">
-        <div className="text-[0.6rem] uppercase tracking-[0.22em] text-white/45 mb-2">
+      <div className="mt-4 rounded-md border border-[#E3EAE6] bg-[#F7FAF8] p-3">
+        <div className="text-[0.6rem] uppercase tracking-[0.22em] text-[#7A8C86] mb-2">
           Owner operations reference — cast commands
         </div>
         <div className="text-[0.62rem] text-mtqs-amber/85 mb-2">
@@ -429,9 +429,9 @@ function RoleMatrixPanel() {
           {OWNER_CAST_REFERENCE.map((c) => (
             <div key={c.op} className="flex items-start justify-between gap-2">
               <div className="min-w-0">
-                <div className="text-[0.68rem] text-white/80">{c.op}</div>
-                <code className="font-mono text-[0.6rem] text-white/50 break-all">{c.command}</code>
-                {c.note && <div className="text-[0.58rem] text-white/35">{c.note}</div>}
+                <div className="text-[0.68rem] text-[#0E1F1B]">{c.op}</div>
+                <code className="font-mono text-[0.6rem] text-[#5B6E68] break-all">{c.command}</code>
+                {c.note && <div className="text-[0.58rem] text-[#9AA9A3]">{c.note}</div>}
               </div>
               <CopyButton value={c.command} label={`${c.op} command`} />
             </div>
@@ -450,13 +450,13 @@ function RoleMatrixRow({ row, zebra }: { row: RoleRowEvidence; zebra: boolean })
     paused?: RoleVerdict,
     indent = false,
   ) => (
-    <tr key={key} className={`border-t border-white/[0.06] ${zebra ? "bg-white/[0.02]" : ""}`}>
-      <td className={`px-3 py-2 ${indent ? "pl-6 text-white/55" : "text-white/90"}`}>{label}</td>
-      <td className="px-3 py-2 text-white/55">{indent ? "→ holder" : "deployer"}</td>
+    <tr key={key} className={`border-t border-[#E3EAE6] ${zebra ? "bg-[#F7FAF8]" : ""}`}>
+      <td className={`px-3 py-2 ${indent ? "pl-6 text-[#5B6E68]" : "text-[#0E1F1B]"}`}>{label}</td>
+      <td className="px-3 py-2 text-[#5B6E68]">{indent ? "→ holder" : "deployer"}</td>
       <td className="px-3 py-2"><VerdictCell v={verdicts.DEFAULT_ADMIN_ROLE} /></td>
       <td className="px-3 py-2"><VerdictCell v={verdicts.MINTER_ROLE} /></td>
       <td className="px-3 py-2"><VerdictCell v={verdicts.PAUSER_ROLE} /></td>
-      <td className="px-3 py-2">{paused !== undefined ? <VerdictCell v={paused} /> : <span className="text-white/25">—</span>}</td>
+      <td className="px-3 py-2">{paused !== undefined ? <VerdictCell v={paused} /> : <span className="text-[#9AA9A3]">—</span>}</td>
     </tr>
   );
   return (
@@ -489,7 +489,7 @@ export function ContractsSection({ onNavigate: _onNavigate }: { onNavigate: (id:
         <div className="flex items-end justify-between gap-4 mb-5">
           <div className="space-y-1.5 min-w-0">
             <span className="mtqs-eyebrow">Deployments · 3 testnets (Monad · Arc · Solana devnet)</span>
-            <h2 className="text-lg sm:text-xl font-medium tracking-tight text-white">
+            <h2 className="text-lg sm:text-xl font-medium tracking-tight text-[#0E1F1B]">
               Contract Registry &amp; Canonical MTQΣ
             </h2>
           </div>
@@ -510,13 +510,13 @@ export function ContractsSection({ onNavigate: _onNavigate }: { onNavigate: (id:
             <div className="text-[0.6rem] uppercase tracking-[0.22em] text-mtqs-amber/75">
               Source of Truth · {active.label}
             </div>
-            <h3 className="mtqs-display text-xl font-semibold text-white mt-1">
+            <h3 className="mtqs-display text-xl font-semibold text-[#0E1F1B] mt-1">
               No canonical MTQΣ deployed on this chain
             </h3>
-            <p className="mt-2 text-[0.75rem] text-white/55 leading-relaxed">
+            <p className="mt-2 text-[0.75rem] text-[#5B6E68] leading-relaxed">
               <span className="text-mtqs-amber font-medium">MAINNET · PENDING DEPLOY</span> — {active.label} is a
               mainnet placeholder in the registry carrying a zero address. The MTQΣ pilot is{" "}
-              <span className="text-white/80">TESTNET-ONLY · NOT ACCEPTED</span>; no canonical contract exists on
+              <span className="text-[#0E1F1B]">TESTNET-ONLY · NOT ACCEPTED</span>; no canonical contract exists on
               this chain and none may be deployed while the §25.5 gates remain unpassed.
             </p>
           </Panel>
@@ -526,7 +526,7 @@ export function ContractsSection({ onNavigate: _onNavigate }: { onNavigate: (id:
       {/* Chain tabs */}
       <Reveal delay={0.05}>
         <Panel className="p-1">
-          <div className="relative flex border-b border-white/[0.06] overflow-x-auto mtqs-no-scrollbar">
+          <div className="relative flex border-b border-[#E3EAE6] overflow-x-auto mtqs-no-scrollbar">
             {ALL_CHAINS.map((c) => (
               <ChainTab
                 key={c.id}
@@ -552,38 +552,38 @@ export function ContractsSection({ onNavigate: _onNavigate }: { onNavigate: (id:
                 className="space-y-4"
               >
                 <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-2 text-[0.72rem]">
-                  <div className="rounded-md border border-white/[0.06] bg-white/[0.02] p-2.5">
-                    <div className="text-white/55">Chain ID</div>
+                  <div className="rounded-md border border-[#E3EAE6] bg-[#F7FAF8] p-2.5">
+                    <div className="text-[#5B6E68]">Chain ID</div>
                     <div className="font-mono text-mtqs-gold">{String(active.chainId)}</div>
                   </div>
-                  <div className="rounded-md border border-white/[0.06] bg-white/[0.02] p-2.5">
-                    <div className="text-white/55">Native Currency</div>
+                  <div className="rounded-md border border-[#E3EAE6] bg-[#F7FAF8] p-2.5">
+                    <div className="text-[#5B6E68]">Native Currency</div>
                     <div className="font-mono text-mtqs-gold">{active.nativeCurrency}</div>
                   </div>
-                  <div className="rounded-md border border-white/[0.06] bg-white/[0.02] p-2.5 sm:col-span-2">
-                    <div className="text-white/55">RPC URL</div>
+                  <div className="rounded-md border border-[#E3EAE6] bg-[#F7FAF8] p-2.5 sm:col-span-2">
+                    <div className="text-[#5B6E68]">RPC URL</div>
                     <div className="font-mono text-mtqs-gold truncate text-[0.7rem]">{active.rpcUrl}</div>
                   </div>
-                  <div className="rounded-md border border-white/[0.06] bg-white/[0.02] p-2.5">
-                    <div className="text-white/55">Deployer Wallet</div>
+                  <div className="rounded-md border border-[#E3EAE6] bg-[#F7FAF8] p-2.5">
+                    <div className="text-[#5B6E68]">Deployer Wallet</div>
                     <div className="font-mono text-mtqs-gold flex items-center gap-1.5">
                       {shortAddr(active.wallet, 6, 4)}
                       <CopyButton value={active.wallet} label="deployer wallet" />
                     </div>
                   </div>
-                  <div className="rounded-md border border-white/[0.06] bg-white/[0.02] p-2.5">
-                    <div className="text-white/55">Explorer</div>
+                  <div className="rounded-md border border-[#E3EAE6] bg-[#F7FAF8] p-2.5">
+                    <div className="text-[#5B6E68]">Explorer</div>
                     <a
                       href={active.explorer}
                       target="_blank"
                       rel="noopener noreferrer"
-                      className="text-mtqs-gold hover:text-amber-100 underline-offset-4 hover:underline"
+                      className="text-mtqs-gold hover:text-amber-700 underline-offset-4 hover:underline"
                     >
                       open ↗
                     </a>
                   </div>
-                  <div className="rounded-md border border-white/[0.06] bg-white/[0.02] p-2.5 sm:col-span-2">
-                    <div className="text-white/55">Network</div>
+                  <div className="rounded-md border border-[#E3EAE6] bg-[#F7FAF8] p-2.5 sm:col-span-2">
+                    <div className="text-[#5B6E68]">Network</div>
                     <div className="text-mtqs-gold">{active.network}</div>
                   </div>
                 </div>
@@ -599,7 +599,7 @@ export function ContractsSection({ onNavigate: _onNavigate }: { onNavigate: (id:
                 {/* Search input */}
                 <div className="relative">
                   <Search
-                    className="absolute left-3 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-white/60"
+                    className="absolute left-3 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-[#5B6E68]"
                     aria-hidden="true"
                   />
                   <input
@@ -607,7 +607,7 @@ export function ContractsSection({ onNavigate: _onNavigate }: { onNavigate: (id:
                     value={query}
                     onChange={(e) => setQuery(e.target.value)}
                     placeholder={`Filter ${active.contracts.length} ecosystem contracts by name, symbol, or address…`}
-                    className="w-full rounded-md border border-white/[0.06] bg-white/[0.02] pl-9 pr-3 py-2 text-[0.78rem] text-white placeholder:text-white/50 focus:outline-none focus:border-mtqs-gold/40 focus:bg-white/[0.04] transition"
+                    className="w-full rounded-md border border-[#E3EAE6] bg-[#F7FAF8] pl-9 pr-3 py-2 text-[0.78rem] text-[#0E1F1B] placeholder:text-[#7A8C86] focus:outline-none focus:border-mtqs-gold/40 focus:bg-white transition"
                     aria-label="Filter contracts"
                   />
                 </div>
@@ -628,7 +628,7 @@ export function ContractsSection({ onNavigate: _onNavigate }: { onNavigate: (id:
       {/* Honest note */}
       <Reveal delay={0.1}>
         <Panel className="p-4">
-          <div className="flex items-start gap-2 text-[0.7rem] text-white/55">
+          <div className="flex items-start gap-2 text-[0.7rem] text-[#5B6E68]">
             <GlowDot color="gold" size="h-1.5 w-1.5" className="mt-1.5" />
             <p className="leading-relaxed">
               The canonical MTQΣ address per chain is the source-of-truth token contract.

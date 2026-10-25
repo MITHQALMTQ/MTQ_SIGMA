@@ -239,7 +239,7 @@ export function ReferenceChart({
   }, [hoverIdx]);
 
   const markerColor = (type: Marker["type"]) =>
-    type === "weight" ? "#EFC268" : type === "risk" ? "#ff5d73" : "#00C4DB";
+    type === "weight" ? "#EFC268" : type === "risk" ? "#E11D48" : "#0D9488";
 
   const hover = hoverIdx != null ? data[hoverIdx] : null;
   const hoverMarkers =
@@ -252,7 +252,7 @@ export function ReferenceChart({
     <div
       role="tablist"
       aria-label="Reference chart time range"
-      className="inline-flex items-center gap-0.5 rounded-full border border-white/[0.06] bg-white/[0.03] p-0.5"
+      className="inline-flex items-center gap-0.5 rounded-full border border-[#E3EAE6] bg-[#F7FAF8] p-0.5"
     >
       {RANGES.map((r) => {
         const active = r.label === range;
@@ -266,7 +266,7 @@ export function ReferenceChart({
             className={`px-2.5 sm:px-3 py-1 text-[0.7rem] font-mono tabular-nums rounded-full transition-colors mtqs-focus ${
               active
                 ? "bg-mtqs-gold/20 text-mtqs-gold border border-mtqs-gold/30"
-                : "text-white/55 hover:text-white border border-transparent"
+                : "text-[#5B6E68] hover:text-[#0E1F1B] border border-transparent"
             }`}
           >
             {r.label}
@@ -281,7 +281,7 @@ export function ReferenceChart({
       <Panel className="p-5">
         <div className="flex items-center justify-between mb-3">{RangeBar}</div>
         <div
-          className="w-full animate-pulse rounded-md bg-white/[0.04]"
+          className="w-full animate-pulse rounded-md bg-[#F7FAF8]"
           style={{ height: `${h}px` }}
           aria-hidden="true"
         />
@@ -298,7 +298,7 @@ export function ReferenceChart({
     <Panel className="p-5">
       <div className="flex flex-wrap items-start justify-between gap-3 mb-3">
         <div>
-          <div className="text-[0.625rem] uppercase tracking-[0.25em] text-white/55">
+          <div className="text-[0.625rem] uppercase tracking-[0.25em] text-[#5B6E68]">
             §15 · Reference Index · chain-linked I_t
           </div>
           <div className="mt-1 flex items-baseline gap-3">
@@ -333,9 +333,9 @@ export function ReferenceChart({
           <defs>
             <linearGradient id="mtqs-ref-aurora" x1="0" y1="0" x2="1" y2="0">
               <stop offset="0%" stopColor="#EFC268" stopOpacity="0.55" />
-              <stop offset="40%" stopColor="#00C4DB" stopOpacity="0.8" />
+              <stop offset="40%" stopColor="#14B8A6" stopOpacity="0.8" />
               <stop offset="80%" stopColor="#EFC268" stopOpacity="0.9" />
-              <stop offset="100%" stopColor="#ff5d73" stopOpacity="1" />
+              <stop offset="100%" stopColor="#E11D48" stopOpacity="1" />
             </linearGradient>
             <linearGradient id="mtqs-ref-area" x1="0" y1="0" x2="0" y2="1">
               <stop offset="0%" stopColor="#EFC268" stopOpacity="0.18" />
@@ -358,7 +358,7 @@ export function ReferenceChart({
               y1={padTop + plotH * p}
               x2={width}
               y2={padTop + plotH * p}
-              stroke="rgba(255,255,255,0.04)"
+              stroke="rgba(14,31,27,0.08)"
               strokeWidth="0.1"
             />
           ))}
@@ -441,7 +441,7 @@ export function ReferenceChart({
                 y1={padTop}
                 x2={xFor(hover.t)}
                 y2={padTop + plotH}
-                stroke="rgba(43,171,251,0.45)"
+                stroke="rgba(13,148,136,0.45)"
                 strokeWidth="0.15"
                 strokeDasharray="0.6 0.6"
               />
@@ -465,14 +465,14 @@ export function ReferenceChart({
               animate={{ opacity: 1, y: 0 }}
               exit={{ opacity: 0, y: -4 }}
               transition={{ duration: 0.12 }}
-              className="pointer-events-none absolute top-2 z-10 max-w-[15rem] rounded-lg border border-mtqs-gold/25 bg-[#0b0f0e]/95 backdrop-blur-md p-3 text-[0.7rem] shadow-xl"
+              className="pointer-events-none absolute top-2 z-10 max-w-[15rem] rounded-lg border border-mtqs-gold/25 bg-white p-3 text-[0.7rem] shadow-xl"
               style={{
                 left: `${hover.t * 100}%`,
                 transform: `translateX(${hover.t > 0.7 ? "calc(-100% - 8px)" : "8px"})`,
               }}
               role="tooltip"
             >
-              <div className="font-mono text-[0.62rem] text-white/55 uppercase tracking-[0.18em]">
+              <div className="font-mono text-[0.62rem] text-[#5B6E68] uppercase tracking-[0.18em]">
                 {new Date(hover.ts).toLocaleString("en-US", {
                   month: "short",
                   day: "2-digit",
@@ -488,13 +488,13 @@ export function ReferenceChart({
                   + per-component §9.4 contributions. Replaces the synthetic
                   breakdown; the historical line shape remains synthetic. */}
               {attribution ? (
-                <div className="mt-2 pt-2 border-t border-white/[0.06]">
-                  <div className="text-[0.6rem] uppercase tracking-[0.18em] text-white/55">
+                <div className="mt-2 pt-2 border-t border-[#E3EAE6]">
+                  <div className="text-[0.6rem] uppercase tracking-[0.18em] text-[#5B6E68]">
                     Live attribution · last index step (§9.4–§9.5)
                   </div>
                   <div className="mt-1.5 grid grid-cols-3 gap-2 text-[0.66rem]">
                     <div>
-                      <div className="text-white/55 uppercase tracking-wider">Price</div>
+                      <div className="text-[#5B6E68] uppercase tracking-wider">Price</div>
                       <div
                         className={`font-mono tabular-nums ${
                           attribution.movementEffectPct >= 0 ? "text-mtqs-emerald" : "text-mtqs-rose"
@@ -505,7 +505,7 @@ export function ReferenceChart({
                       </div>
                     </div>
                     <div>
-                      <div className="text-white/55 uppercase tracking-wider">Alloc.</div>
+                      <div className="text-[#5B6E68] uppercase tracking-wider">Alloc.</div>
                       <div
                         className={`font-mono tabular-nums ${
                           attribution.allocationEffectPct >= 0 ? "text-mtqs-emerald" : "text-mtqs-rose"
@@ -516,14 +516,14 @@ export function ReferenceChart({
                       </div>
                     </div>
                     <div>
-                      <div className="text-white/55 uppercase tracking-wider">Rebal.</div>
-                      <div className="font-mono tabular-nums text-white/55">
+                      <div className="text-[#5B6E68] uppercase tracking-wider">Rebal.</div>
+                      <div className="font-mono tabular-nums text-[#5B6E68]">
                         0.000pp
-                        <span className="text-white/45"> · §9.3</span>
+                        <span className="text-[#7A8C86]"> · §9.3</span>
                       </div>
                     </div>
                   </div>
-                  <div className="mt-1.5 flex items-center justify-between text-[0.62rem] text-white/55">
+                  <div className="mt-1.5 flex items-center justify-between text-[0.62rem] text-[#5B6E68]">
                     <span>
                       Σ index return{" "}
                       <span
@@ -545,10 +545,10 @@ export function ReferenceChart({
                   <div className="mt-1.5 grid grid-cols-2 gap-x-3 gap-y-0.5 text-[0.62rem]">
                     {attribution.contributions.map((c) => (
                       <div key={c.component} className="flex items-baseline justify-between gap-1">
-                        <span className="text-white/55">{c.component}</span>
+                        <span className="text-[#5B6E68]">{c.component}</span>
                         <span
                           className={`font-mono tabular-nums ${
-                            c.value > 0 ? "text-mtqs-emerald" : c.value < 0 ? "text-mtqs-rose" : "text-white/55"
+                            c.value > 0 ? "text-mtqs-emerald" : c.value < 0 ? "text-mtqs-rose" : "text-[#5B6E68]"
                           }`}
                         >
                           {c.value >= 0 ? "+" : "−"}
@@ -557,27 +557,27 @@ export function ReferenceChart({
                       </div>
                     ))}
                   </div>
-                  <div className="mt-1.5 text-[0.6rem] text-white/45 leading-snug">
+                  <div className="mt-1.5 text-[0.6rem] text-[#7A8C86] leading-snug">
                     Price = Σ component moves (§9.4) · Alloc. = weight-vs-prior effect (§9.5) · Rebal. = 0
                     (divisor-neutralized, §9.3).
                   </div>
                 </div>
               ) : (
-                <div className="mt-2 pt-2 border-t border-white/[0.06] text-[0.62rem] italic text-white/45">
+                <div className="mt-2 pt-2 border-t border-[#E3EAE6] text-[0.62rem] italic text-[#7A8C86]">
                   attribution pending first index step
                 </div>
               )}
               {hoverMarkers.length > 0 && (
-                <div className="mt-2 pt-2 border-t border-white/[0.06] space-y-1">
+                <div className="mt-2 pt-2 border-t border-[#E3EAE6] space-y-1">
                   {hoverMarkers.slice(0, 3).map((m, i) => (
                     <div key={i} className="flex items-start gap-1.5">
                       <span
                         className="mt-0.5 inline-block h-1.5 w-1.5 rounded-full shrink-0"
                         style={{ backgroundColor: markerColor(m.type) }}
                       />
-                      <span className="text-[0.64rem] text-white/75 leading-snug">
-                        <span className="font-semibold text-white">{m.label}</span>
-                        <span className="text-white/55"> — {m.detail}</span>
+                      <span className="text-[0.64rem] text-[#33544C] leading-snug">
+                        <span className="font-semibold text-[#0E1F1B]">{m.label}</span>
+                        <span className="text-[#5B6E68]"> — {m.detail}</span>
                       </span>
                     </div>
                   ))}
@@ -589,7 +589,7 @@ export function ReferenceChart({
 
         {/* Current value tag */}
         <div className="absolute top-1.5 right-1.5 flex flex-col items-end pointer-events-none">
-          <div className="text-[0.6rem] text-white/55 uppercase tracking-wider">Live</div>
+          <div className="text-[0.6rem] text-[#5B6E68] uppercase tracking-wider">Live</div>
           <div className="font-mono tabular-nums text-sm font-semibold mtqs-gold-text">
             {gfb.toFixed(4)}
           </div>
@@ -605,26 +605,26 @@ export function ReferenceChart({
       </div>
 
       {/* Marker legend */}
-      <div className="mt-3 flex flex-wrap items-center gap-x-4 gap-y-1 text-[0.66rem] text-white/55">
+      <div className="mt-3 flex flex-wrap items-center gap-x-4 gap-y-1 text-[0.66rem] text-[#5B6E68]">
         <span className="inline-flex items-center gap-1.5">
           <span className="inline-block h-1.5 w-1.5 rounded-full" style={{ backgroundColor: "#EFC268" }} />
           Weight recompute (MASE target)
         </span>
         <span className="inline-flex items-center gap-1.5">
-          <span className="inline-block h-1.5 w-1.5 rounded-full" style={{ backgroundColor: "#ff5d73" }} />
+          <span className="inline-block h-1.5 w-1.5 rounded-full" style={{ backgroundColor: "#E11D48" }} />
           Risk-state transition (§14.1)
         </span>
         <span className="inline-flex items-center gap-1.5">
-          <span className="inline-block h-1.5 w-1.5 rounded-full" style={{ backgroundColor: "#00C4DB" }} />
+          <span className="inline-block h-1.5 w-1.5 rounded-full" style={{ backgroundColor: "#0D9488" }} />
           MARP rebalance event (§10)
         </span>
-        <span className="text-white/60 hidden sm:inline">
+        <span className="text-[#5B6E68] hidden sm:inline">
           Synthetic pilot history · live endpoint tracks the engine&apos;s chain-linked I_t.
         </span>
       </div>
 
       {/* AUDIT-FIX F-1 — honest attribution footnote */}
-      <div className="mt-1.5 text-[0.62rem] text-white/45">
+      <div className="mt-1.5 text-[0.62rem] text-[#7A8C86]">
         Live attribution: §9.4 contributions from the chain index (synthetic history shape).{" "}
         {attribution
           ? `Last step sampled ${new Date(attribution.sampledAt).toLocaleTimeString("en-US", {
@@ -639,14 +639,14 @@ export function ReferenceChart({
         <div
           className="mt-2 inline-flex items-center gap-1.5 rounded-full px-2 py-0.5 text-[0.62rem]"
           style={{
-            backgroundColor: STATUS_COLORS[snapshot.status]?.bg ?? "rgba(255,255,255,0.04)",
-            color: STATUS_COLORS[snapshot.status]?.color ?? "#fff",
+            backgroundColor: STATUS_COLORS[snapshot.status]?.bg ?? "#F7FAF8",
+            color: STATUS_COLORS[snapshot.status]?.color ?? "#0E1F1B",
           }}
           aria-label={`Current risk state ${snapshot.status}`}
         >
           <span
             className="inline-block h-1.5 w-1.5 rounded-full"
-            style={{ backgroundColor: STATUS_COLORS[snapshot.status]?.color ?? "#fff" }}
+            style={{ backgroundColor: STATUS_COLORS[snapshot.status]?.color ?? "#0E1F1B" }}
           />
           <span className="font-mono uppercase tracking-wider">{snapshot.status}</span>
         </div>
@@ -667,8 +667,8 @@ function Stat({
   const toneClass =
     tone === "emerald" ? "text-mtqs-emerald" : tone === "rose" ? "text-mtqs-rose" : "text-mtqs-gold";
   return (
-    <div className="rounded-md border border-white/[0.06] bg-white/[0.03] p-2.5">
-      <div className="text-[0.6rem] uppercase tracking-[0.18em] text-white/55">{label}</div>
+    <div className="rounded-md border border-[#E3EAE6] bg-[#F7FAF8] p-2.5">
+      <div className="text-[0.6rem] uppercase tracking-[0.18em] text-[#5B6E68]">{label}</div>
       <div className={`mt-1 font-mono tabular-nums text-sm font-semibold ${toneClass}`}>
         {value}
       </div>

@@ -218,12 +218,12 @@ export function AuditFindings() {
               <div className="text-[0.6rem] uppercase tracking-[0.22em] text-mtqs-rose/75">
                 Honest · Top-Tier Audit Findings
               </div>
-              <h3 className="mt-1 text-base font-semibold text-white">
+              <h3 className="mt-1 text-base font-semibold text-[#0E1F1B]">
                 v1.0 Master Blueprint — Multi-Disciplinary Audit (historical V3 record · live §23 verdict below)
               </h3>
             </div>
           </div>
-          <p className="text-[0.78rem] text-white/55 leading-relaxed pl-8">
+          <p className="text-[0.78rem] text-[#5B6E68] leading-relaxed pl-8">
             The audit was conducted in 4 parallel streams (static code, smart contract, stress tests, tokenomics) —
             3,111 lines across 5 reports. After the Master Reconciliation Prompt (39 sections), all 4 P0 findings were
             fixed in the reference engine and the V3 contract (compiled, <span className="text-mtqs-amber/90 font-medium">NOT DEPLOYED</span>):
@@ -264,7 +264,7 @@ export function AuditFindings() {
         <div className="mb-5">
           <div className="mb-2 flex items-center gap-2">
             <FileWarning className="h-4 w-4 text-mtqs-rose/80" aria-hidden="true" />
-            <h4 className="text-sm font-semibold text-white/90">P0 findings — must fix before mainnet</h4>
+            <h4 className="text-sm font-semibold text-[#0E1F1B]">P0 findings — must fix before mainnet</h4>
           </div>
           <div className="space-y-2.5">
             {P0_FINDINGS.map((f, i) => (
@@ -280,7 +280,7 @@ export function AuditFindings() {
                     <span className="font-mono text-xs text-mtqs-emerald/90 font-semibold shrink-0 mt-0.5">
                       {f.id}
                     </span>
-                    <div className="text-[0.82rem] font-semibold text-white leading-snug">
+                    <div className="text-[0.82rem] font-semibold text-[#0E1F1B] leading-snug">
                       {f.title}
                     </div>
                   </div>
@@ -288,10 +288,10 @@ export function AuditFindings() {
                     fixed (V3)
                   </Pill>
                 </div>
-                <p className="text-[0.72rem] text-white/55 leading-relaxed mb-1.5">
+                <p className="text-[0.72rem] text-[#5B6E68] leading-relaxed mb-1.5">
                   {f.detail}
                 </p>
-                <div className="flex flex-wrap gap-x-4 gap-y-1 text-[0.65rem] text-white/55 font-mono">
+                <div className="flex flex-wrap gap-x-4 gap-y-1 text-[0.65rem] text-[#5B6E68] font-mono">
                   <span>
                     <span className="text-mtqs-gold/80">owner:</span> {f.owner}
                   </span>
@@ -308,16 +308,16 @@ export function AuditFindings() {
         <div className="mb-5">
           <div className="mb-2 flex items-center gap-2">
             <GlowDot color="rose" size="h-2 w-2" />
-            <h4 className="text-sm font-semibold text-white/90">
+            <h4 className="text-sm font-semibold text-[#0E1F1B]">
               0x7FF honest mask — bit-by-bit audit verdict
             </h4>
           </div>
-          <p className="text-[0.72rem] text-white/55 mb-2 leading-relaxed">
+          <p className="text-[0.72rem] text-[#5B6E68] mb-2 leading-relaxed">
             V3 contract code claims <span className="font-mono text-mtqs-gold">{CLAIMED_MASK}</span> (all 11 bits). After the Master Reconciliation implementation, the V3 code{" "}
             <span className="text-mtqs-emerald/90 font-medium">TRUTHFULLY EARNS</span> <span className="font-mono text-mtqs-emerald/90">{HONEST_MASK}</span> ({honestCount} of 11 bits verified) — in the contract source. Caveat: the V3 contract is compiled but <span className="text-mtqs-amber/90 font-medium">NOT DEPLOYED</span>; the live pilot reports implementedMask <span className="font-mono">0xFFF</span> with authorizedMask <span className="font-mono">0x0</span> and 0 of 11 §25.5 gates passed (live Honest Status panel below). Status: <span className="text-mtqs-gold font-medium">VALIDATED IN CODE, NOT PRODUCTION_AUTHORIZED</span> (per §25.4).
           </p>
-          <div className="overflow-hidden rounded-md border border-white/[0.06]">
-            <div className="hidden sm:grid grid-cols-[44px_minmax(0,1.5fr)_minmax(0,2fr)_80px] gap-2 px-3 py-2 bg-white/[0.03] text-[0.6rem] uppercase tracking-[0.18em] text-white/55">
+          <div className="overflow-hidden rounded-md border border-[#E3EAE6]">
+            <div className="hidden sm:grid grid-cols-[44px_minmax(0,1.5fr)_minmax(0,2fr)_80px] gap-2 px-3 py-2 bg-[#F7FAF8] text-[0.6rem] uppercase tracking-[0.18em] text-[#5B6E68]">
               <div>Bit</div>
               <div>Name</div>
               <div>Audit Note</div>
@@ -327,16 +327,16 @@ export function AuditFindings() {
               {BIT_VERDICTS.map((b, i) => (
                 <div
                   key={b.bit}
-                  className={`border-t border-white/[0.06] px-3 py-2 ${i % 2 ? "bg-white/[0.01]" : ""} ${
+                  className={`border-t border-[#E3EAE6] px-3 py-2 ${i % 2 ? "bg-[#F7FAF8]" : ""} ${
                     b.honest
                       ? "border-l-2 border-l-mtqs-emerald/40"
                       : "border-l-2 border-l-mtqs-rose/50"
                   }`}
                 >
                   <div className="hidden sm:grid grid-cols-[44px_minmax(0,1.5fr)_minmax(0,2fr)_80px] gap-2 items-center">
-                    <div className="font-mono text-[0.7rem] text-white/55">{b.bit}</div>
-                    <div className="font-mono text-[0.72rem] text-white/90">{b.name}</div>
-                    <div className="text-[0.68rem] text-white/55 leading-snug">{b.note}</div>
+                    <div className="font-mono text-[0.7rem] text-[#5B6E68]">{b.bit}</div>
+                    <div className="font-mono text-[0.72rem] text-[#0E1F1B]">{b.name}</div>
+                    <div className="text-[0.68rem] text-[#5B6E68] leading-snug">{b.note}</div>
                     <div>
                       {b.honest ? (
                         <Pill tone="emerald" className="text-[0.55rem]">honest</Pill>
@@ -348,15 +348,15 @@ export function AuditFindings() {
                   {/* Mobile */}
                   <div className="sm:hidden space-y-1.5">
                     <div className="flex items-center gap-2">
-                      <span className="font-mono text-[0.65rem] text-white/60">bit {b.bit}</span>
-                      <span className="font-mono text-[0.72rem] text-white/90">{b.name}</span>
+                      <span className="font-mono text-[0.65rem] text-[#5B6E68]">bit {b.bit}</span>
+                      <span className="font-mono text-[0.72rem] text-[#0E1F1B]">{b.name}</span>
                       {b.honest ? (
                         <Pill tone="emerald" className="text-[0.5rem] ml-auto">honest</Pill>
                       ) : (
                         <Pill tone="rose" className="text-[0.5rem] ml-auto">overstated</Pill>
                       )}
                     </div>
-                    <div className="text-[0.68rem] text-white/55 leading-snug">{b.note}</div>
+                    <div className="text-[0.68rem] text-[#5B6E68] leading-snug">{b.note}</div>
                   </div>
                 </div>
               ))}
@@ -368,26 +368,26 @@ export function AuditFindings() {
         <div className="mb-5">
           <div className="mb-2 flex items-center gap-2">
             <GlowDot color="amber" size="h-2 w-2" />
-            <h4 className="text-sm font-semibold text-white/90">
+            <h4 className="text-sm font-semibold text-[#0E1F1B]">
               Stress tests — §23 validation program (live from /api/validation
               {validation ? ` · ${validation.results.length} scenarios${liveTotalRuns != null ? ` · ${liveTotalRuns.toLocaleString()} runs` : ""}` : ""})
             </h4>
           </div>
           {validationError ? (
-            <div className="p-4 rounded-lg border border-rose-400/30 bg-rose-400/[0.06]">
+            <div className="p-4 rounded-lg border border-rose-200 bg-rose-50">
               <div className="flex items-center gap-2 mb-1">
-                <ShieldAlert className="h-4 w-4 text-rose-300" aria-hidden="true" />
-                <span className="text-[0.8rem] font-semibold text-rose-100">
+                <ShieldAlert className="h-4 w-4 text-rose-600" aria-hidden="true" />
+                <span className="text-[0.8rem] font-semibold text-rose-700">
                   §23 stress matrix unavailable
                 </span>
               </div>
-              <p className="text-[0.72rem] text-rose-100/70 mb-3">
+              <p className="text-[0.72rem] text-rose-600 mb-3">
                 /api/validation did not respond ({validationError}). No stress data is fabricated here —
                 the live matrix renders in the Validation section once the endpoint is available.
               </p>
               <button
                 onClick={() => setRetry((r) => r + 1)}
-                className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-white/[0.1] bg-white/[0.03] text-[0.7rem] text-white/70 hover:bg-white/[0.06] transition-colors"
+                className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-[#E3EAE6] bg-[#F7FAF8] text-[0.7rem] text-[#5B6E68] hover:bg-[#F0F7F4] transition-colors"
               >
                 <RefreshCw className="h-3.5 w-3.5" aria-hidden="true" />
                 Retry
@@ -395,7 +395,7 @@ export function AuditFindings() {
             </div>
           ) : !validation ? (
             <div className="space-y-2">
-              <div className="flex items-center gap-2 text-[0.68rem] text-white/40 mb-1">
+              <div className="flex items-center gap-2 text-[0.68rem] text-[#7A8C86] mb-1">
                 <Skeleton className="h-3 w-3 rounded-full" />
                 Loading the live §23 scenario battery…
               </div>
@@ -405,8 +405,8 @@ export function AuditFindings() {
             </div>
           ) : (
             <>
-              <div className="overflow-hidden rounded-md border border-white/[0.06]">
-                <div className="hidden sm:grid grid-cols-[44px_minmax(0,2fr)_minmax(0,1fr)_minmax(0,1fr)_minmax(0,1fr)] gap-2 px-3 py-2 bg-white/[0.03] text-[0.6rem] uppercase tracking-[0.18em] text-white/55">
+              <div className="overflow-hidden rounded-md border border-[#E3EAE6]">
+                <div className="hidden sm:grid grid-cols-[44px_minmax(0,2fr)_minmax(0,1fr)_minmax(0,1fr)_minmax(0,1fr)] gap-2 px-3 py-2 bg-[#F7FAF8] text-[0.6rem] uppercase tracking-[0.18em] text-[#5B6E68]">
                   <div>#</div>
                   <div>Scenario</div>
                   <div>Survival</div>
@@ -423,7 +423,7 @@ export function AuditFindings() {
                     return (
                       <div
                         key={`${r.scenario}-${i}`}
-                        className={`border-t border-white/[0.06] px-3 py-2 ${i % 2 ? "bg-white/[0.01]" : ""} ${
+                        className={`border-t border-[#E3EAE6] px-3 py-2 ${i % 2 ? "bg-[#F7FAF8]" : ""} ${
                           tone === "emerald"
                             ? "border-l-2 border-l-mtqs-emerald/40"
                             : tone === "amber"
@@ -432,19 +432,19 @@ export function AuditFindings() {
                         }`}
                       >
                         <div className="hidden sm:grid grid-cols-[44px_minmax(0,2fr)_minmax(0,1fr)_minmax(0,1fr)_minmax(0,1fr)] gap-2 items-center">
-                          <div className="font-mono text-[0.7rem] text-white/55">{id}</div>
-                          <div className="text-[0.74rem] text-white/90 leading-snug">
+                          <div className="font-mono text-[0.7rem] text-[#5B6E68]">{id}</div>
+                          <div className="text-[0.74rem] text-[#0E1F1B] leading-snug">
                             {name}
                             {r.breachCount > 0 && (
-                              <div className="text-[0.58rem] font-mono text-rose-200/80 mt-0.5">
+                              <div className="text-[0.58rem] font-mono text-rose-600/80 mt-0.5">
                                 {r.breachCount} breach run{r.breachCount === 1 ? "" : "s"} · worst state {r.worstStatus}
                               </div>
                             )}
                           </div>
-                          <div className="font-mono text-[0.74rem] tabular-nums text-white/90">
+                          <div className="font-mono text-[0.74rem] tabular-nums text-[#0E1F1B]">
                             {(r.survivalRate * 100).toFixed(1)}%
                           </div>
-                          <div className="font-mono text-[0.72rem] tabular-nums text-white/55">
+                          <div className="font-mono text-[0.72rem] tabular-nums text-[#5B6E68]">
                             {targetFor(r)}
                           </div>
                           <div>
@@ -456,13 +456,13 @@ export function AuditFindings() {
                         {/* Mobile */}
                         <div className="sm:hidden space-y-1">
                           <div className="flex items-center gap-2">
-                            <span className="font-mono text-[0.65rem] text-white/60">{id}</span>
-                            <span className="text-[0.74rem] text-white/90 leading-snug flex-1">{name}</span>
+                            <span className="font-mono text-[0.65rem] text-[#5B6E68]">{id}</span>
+                            <span className="text-[0.74rem] text-[#0E1F1B] leading-snug flex-1">{name}</span>
                             <Pill tone={tone} className="text-[0.5rem]">
                               {severity || "—"}
                             </Pill>
                           </div>
-                          <div className="font-mono text-[0.7rem] tabular-nums text-white/55">
+                          <div className="font-mono text-[0.7rem] tabular-nums text-[#5B6E68]">
                             survival {(r.survivalRate * 100).toFixed(1)}% · target {targetFor(r)}
                           </div>
                         </div>
@@ -471,7 +471,7 @@ export function AuditFindings() {
                   })}
                 </div>
               </div>
-              <p className="text-[0.6rem] text-white/35 mt-2">
+              <p className="text-[0.6rem] text-[#7A8C86] mt-2">
                 Live reference-engine results (deterministic seeds, synthetic paths — reproducible, not live
                 market data). Verdict thresholds: PASS ≥ 99% survival · WARN ≥ 90% · FAIL &lt; 90%. Failing
                 scenarios are honestly shown — the §23 program is a production precondition, not a marketing
@@ -485,7 +485,7 @@ export function AuditFindings() {
         <div className="rounded-md border border-mtqs-gold/25 bg-mtqs-gold/5 p-3.5">
           <div className="flex items-start gap-2.5">
             <FileText className="h-4 w-4 text-mtqs-gold/80 mt-0.5 shrink-0" aria-hidden="true" />
-            <div className="text-[0.74rem] text-white/90 leading-relaxed space-y-1">
+            <div className="text-[0.74rem] text-[#0E1F1B] leading-relaxed space-y-1">
               <p>
                 <span className="text-mtqs-gold/90 font-medium">Full audit report</span> — 5 documents, 3,111 lines:
               </p>

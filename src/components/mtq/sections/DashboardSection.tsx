@@ -96,7 +96,7 @@ function BootSkeleton() {
         ))}
       </div>
       <div className="space-y-2">
-        <div className="text-[0.7rem] uppercase tracking-[0.25em] text-white/60">
+        <div className="text-[0.7rem] uppercase tracking-[0.25em] text-[#5B6E68]">
           Initialising Global Digital Asset…
         </div>
         <div className="h-px bg-gradient-to-r from-transparent via-mtqs-gold/40 to-transparent" />
@@ -237,10 +237,10 @@ export function DashboardSection({
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-10 items-center">
           <Reveal>
             <Panel className="p-5 sm:p-6 h-full">
-              <h3 className="mtqs-display text-2xl font-semibold text-white mb-3">
+              <h3 className="mtqs-display text-2xl font-semibold text-[#0E1F1B] mb-3">
                 The Global Digital Asset
               </h3>
-              <p className="text-[0.82rem] text-white/55 leading-relaxed mb-4">
+              <p className="text-[0.82rem] text-[#5B6E68] leading-relaxed mb-4">
                 {/* 16f-003: the Home twin of this intro was reframed in Task 15 — this
                     Portfolio copy now carries the same legacy v1/v2 qualifier. */}
                 Legacy §1.1 exhibit (v1/v2, kept labeled): the Adaptive Reference Basket defines
@@ -250,7 +250,7 @@ export function DashboardSection({
                 measuring service, not a backing pool; payment-funded issuance replaces reserve
                 collateralization (Gate B, D-13.3–D-13.7 open).
               </p>
-              <div className="rounded-md border border-white/[0.06] bg-white/[0.02] p-3 text-[0.72rem] text-white/55">
+              <div className="rounded-md border border-[#E3EAE6] bg-[#F7FAF8] p-3 text-[0.72rem] text-[#5B6E68]">
                 <div className="font-mono text-mtqs-gold-light mb-1">§1.1 · Core Objective</div>
                 Status: {snapshot?.status ?? "NORMAL"} · RR{" "}
                 {snapshot && Number.isFinite(snapshot.reserveRatio) ? fmtRatio(snapshot.reserveRatio) : "∞ — no liability"} ·
@@ -298,7 +298,7 @@ export function DashboardSection({
         <Reveal>
           <Panel className="p-4 sm:p-5">
             <div className="mb-3 flex items-start justify-between gap-3 flex-wrap">
-              <p className="text-[0.78rem] text-white/55 leading-relaxed max-w-2xl">
+              <p className="text-[0.78rem] text-[#5B6E68] leading-relaxed max-w-2xl">
                 {/* 16f-003: same legacy v1/v2 qualifier as the intro above. */}
                 Legacy v1/v2 closed-loop exhibit (kept labeled): the Adaptive Reference Basket feeds
                 the Reference Value; the value multiplied by circulating supply gives the protocol
@@ -393,13 +393,13 @@ export function DashboardSection({
           <Reveal>
             <Panel className="p-5 h-full flex flex-col gap-3">
               <div className="flex items-center justify-between gap-2">
-                <h3 className="text-sm font-semibold text-white flex items-center gap-2">
+                <h3 className="text-sm font-semibold text-[#0E1F1B] flex items-center gap-2">
                   <GlowDot color="emerald" size="h-2 w-2" />
                   Mint Simulator
                 </h3>
                 <Pill tone="amber">testnet · simulated</Pill>
               </div>
-              <p className="text-[0.78rem] text-white/55 leading-relaxed">
+              <p className="text-[0.78rem] text-[#5B6E68] leading-relaxed">
                 Mint MTQΣ against the live pilot engine with real state changes — fees, reference rate,
                 and reserve ratio update on every trial.
               </p>
@@ -412,20 +412,20 @@ export function DashboardSection({
                   Open Mint simulator →
                 </button>
               ) : (
-                <span className="mt-auto text-[0.72rem] text-white/40">Terminal → Operations → Mint Simulator</span>
+                <span className="mt-auto text-[0.72rem] text-[#7A8C86]">Terminal → Operations → Mint Simulator</span>
               )}
             </Panel>
           </Reveal>
           <Reveal delay={0.05}>
             <Panel className="p-5 h-full flex flex-col gap-3">
               <div className="flex items-center justify-between gap-2">
-                <h3 className="text-sm font-semibold text-white flex items-center gap-2">
+                <h3 className="text-sm font-semibold text-[#0E1F1B] flex items-center gap-2">
                   <GlowDot color="emerald" size="h-2 w-2" />
                   Redeem Simulator
                 </h3>
                 <Pill tone="amber">testnet · simulated</Pill>
               </div>
-              <p className="text-[0.78rem] text-white/55 leading-relaxed">
+              <p className="text-[0.78rem] text-[#5B6E68] leading-relaxed">
                 Redeem MTQΣ at NAV settlement against the live pilot engine — fee policy follows the
                 §14.1 risk-state row.
               </p>
@@ -438,7 +438,7 @@ export function DashboardSection({
                   Open Redeem simulator →
                 </button>
               ) : (
-                <span className="mt-auto text-[0.72rem] text-white/40">Terminal → Operations → Redeem Simulator</span>
+                <span className="mt-auto text-[0.72rem] text-[#7A8C86]">Terminal → Operations → Redeem Simulator</span>
               )}
             </Panel>
           </Reveal>
@@ -475,13 +475,13 @@ export function DashboardSection({
           <Panel className="p-5">
             <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
               <div className="min-w-0">
-                <div className="text-[0.85rem] text-white/90">
+                <div className="text-[0.85rem] text-[#0E1F1B]">
                   {ALL_CHAINS.length} networks ·{" "}
                   {ALL_CHAINS.reduce((a, c) => a + c.contracts.length, 0)} registry entries ·
                   3 testnets live (Monad · Arc · Solana devnet) — registry contains only the
                   owner-declared current deployments
                 </div>
-                <p className="mt-1.5 text-[0.7rem] text-white/55 leading-relaxed max-w-2xl">
+                <p className="mt-1.5 text-[0.7rem] text-[#5B6E68] leading-relaxed max-w-2xl">
                   Compact pointer — canonical MTQΣ addresses, per-chain ecosystem contracts, explorer
                   links and the LIVE AccessControl role matrix render in the dedicated Contracts
                   section. Pilot note: the monetary engine runs in-process; on-chain state is read for
@@ -497,7 +497,7 @@ export function DashboardSection({
                   <span aria-hidden="true">→</span>
                 </button>
               ) : (
-                <span className="shrink-0 text-[0.7rem] text-white/45">
+                <span className="shrink-0 text-[0.7rem] text-[#7A8C86]">
                   Full registry: Contracts section
                 </span>
               )}

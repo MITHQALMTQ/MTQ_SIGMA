@@ -82,15 +82,15 @@ const NAV_MENUS: NavMenu[] = [
 ];
 
 const TONE_DOT: Record<string, string> = {
-  cyan: "bg-cyan-300 shadow-[0_0_10px_rgba(34,211,238,0.9)]",
-  amber: "bg-amber-300 shadow-[0_0_10px_rgba(251,191,36,0.9)]",
-  rose: "bg-rose-300 shadow-[0_0_10px_rgba(251,113,133,0.9)]",
+  cyan: "bg-teal-500",
+  amber: "bg-amber-500",
+  rose: "bg-rose-500",
 };
 
 /* Shared link styling (nav + mobile sheet). */
 const linkCls = (isActive: boolean) =>
   `rounded-lg px-3 py-2 text-[0.9rem] font-medium transition ${
-    isActive ? "bg-white/[0.07] text-white" : "text-slate-300 hover:bg-white/[0.05] hover:text-white"
+    isActive ? "bg-[#E7F4F1] text-[#0F766E]" : "text-[#4A5C56] hover:bg-[#F0F7F4] hover:text-[#0E1F1B]"
   }`;
 
 /* The three live testnets (verbatim registry facts — read-only verified; the
@@ -183,7 +183,7 @@ export function LandingNav({
         <a href="#home" className="flex shrink-0 items-center gap-2.5" aria-label="MTQΣ — back to top">
           <BrandMark size={34} className="shrink-0" />
           <span
-            className="text-[1.12rem] font-extrabold tracking-[0.04em] text-white"
+            className="text-[1.12rem] font-extrabold tracking-[0.04em] text-[#0E1F1B]"
             style={{ fontFamily: "var(--font-mtqs-display), Montserrat, sans-serif" }}
           >
             MTQΣ
@@ -229,11 +229,11 @@ export function LandingNav({
                         onClick={() => pickLaunch(item.section)}
                       >
                         <span className="min-w-0">
-                          <span className="flex items-center gap-1.5 text-[0.8rem] font-semibold text-slate-100">
+                          <span className="flex items-center gap-1.5 text-[0.8rem] font-semibold text-[#0E1F1B]">
                             {item.label}
-                            <ArrowUpRight className="size-3 shrink-0 text-cyan-300" aria-hidden />
+                            <ArrowUpRight className="size-3 shrink-0 text-[#0D9488]" aria-hidden />
                           </span>
-                          <span className="mt-0.5 block truncate text-[0.66rem] text-slate-400">
+                          <span className="mt-0.5 block truncate text-[0.66rem] text-[#5B6E68]">
                             {item.hint}
                           </span>
                         </span>
@@ -250,11 +250,11 @@ export function LandingNav({
                         }}
                       >
                         <span className="min-w-0">
-                          <span className="flex items-center gap-1.5 text-[0.8rem] font-semibold text-slate-100">
-                            <ClipboardCheck className="size-3.5 shrink-0 text-cyan-300" aria-hidden />
+                          <span className="flex items-center gap-1.5 text-[0.8rem] font-semibold text-[#0E1F1B]">
+                            <ClipboardCheck className="size-3.5 shrink-0 text-[#0D9488]" aria-hidden />
                             {item.label}
                           </span>
-                          <span className="mt-0.5 block truncate text-[0.66rem] text-slate-400">
+                          <span className="mt-0.5 block truncate text-[0.66rem] text-[#5B6E68]">
                             {item.hint}
                           </span>
                         </span>
@@ -307,24 +307,24 @@ export function LandingNav({
                 3 Testnets Live
               </span>
               <ChevronDown
-                className={`size-3.5 text-slate-400 transition-transform ${chainOpen ? "rotate-180" : ""}`}
+                className={`size-3.5 text-[#5B6E68] transition-transform ${chainOpen ? "rotate-180" : ""}`}
                 aria-hidden
               />
             </button>
             {chainOpen && (
               <div className="lp-nav-menu" role="menu" aria-label="Pilot environments">
-                <p className="px-3.5 pt-3 text-[0.62rem] font-bold uppercase tracking-[0.16em] text-slate-500">
+                <p className="px-3.5 pt-3 text-[0.62rem] font-bold uppercase tracking-[0.16em] text-[#7A8C86]">
                   Live pilot testnets · read-only verified
                 </p>
                 {TESTNETS.map((t) => (
                   <div key={t.label} className="lp-nav-menu-item cursor-default">
                     <span className="min-w-0">
-                      <span className="flex items-center gap-2 text-[0.8rem] font-semibold text-slate-100">
-                        <span className="size-1.5 rounded-full bg-cyan-300 shadow-[0_0_8px_rgba(34,211,238,0.9)]" aria-hidden />
+                      <span className="flex items-center gap-2 text-[0.8rem] font-semibold text-[#0E1F1B]">
+                        <span className="size-1.5 rounded-full bg-teal-500" aria-hidden />
                         {t.label}
-                        <span className="font-mono text-[0.62rem] text-cyan-300/80">cid {t.chainId}</span>
+                        <span className="font-mono text-[0.62rem] text-[#0F766E]">cid {t.chainId}</span>
                       </span>
-                      <span className="mt-0.5 block truncate text-[0.66rem] text-slate-400">{t.note}</span>
+                      <span className="mt-0.5 block truncate text-[0.66rem] text-[#5B6E68]">{t.note}</span>
                     </span>
                   </div>
                 ))}
@@ -336,11 +336,11 @@ export function LandingNav({
                     onClick={() => pickLaunch("networks")}
                   >
                     <span className="min-w-0">
-                      <span className="flex items-center gap-1.5 text-[0.8rem] font-semibold text-slate-100">
+                      <span className="flex items-center gap-1.5 text-[0.8rem] font-semibold text-[#0E1F1B]">
                         Open Networks in the terminal
-                        <ArrowUpRight className="size-3 shrink-0 text-cyan-300" aria-hidden />
+                        <ArrowUpRight className="size-3 shrink-0 text-[#0D9488]" aria-hidden />
                       </span>
-                      <span className="mt-0.5 block truncate text-[0.66rem] text-slate-400">
+                      <span className="mt-0.5 block truncate text-[0.66rem] text-[#5B6E68]">
                         Full registry: 3 testnets (Monad · Arc · Solana devnet)
                       </span>
                     </span>
@@ -367,14 +367,14 @@ export function LandingNav({
           {/* mobile drawer trigger */}
           <Sheet open={open} onOpenChange={setOpen}>
             <SheetTrigger
-              className="grid size-10 place-items-center rounded-lg border border-white/15 bg-white/[0.04] text-slate-200 lg:hidden"
+              className="grid size-10 place-items-center rounded-lg border border-[#DCE5E0] bg-white text-[#33544C] shadow-sm lg:hidden"
               aria-label="Open navigation menu"
             >
               <Menu className="size-5" aria-hidden />
             </SheetTrigger>
             <SheetContent
               side="right"
-              className="w-[320px] overflow-y-auto border-white/10 bg-[#030c1ef5] text-slate-100 backdrop-blur-xl"
+              className="w-[320px] overflow-y-auto border-[#E3EAE6] bg-white text-[#0E1F1B]"
             >
               <SheetHeader>
                 <SheetTitle className="flex items-center gap-2.5 text-left">
@@ -412,7 +412,7 @@ export function LandingNav({
                   />
                 ))}
 
-                <div className="mt-4 border-t border-white/10 pt-4">
+                <div className="mt-4 border-t border-[#E3EAE6] pt-4">
                   {onLaunch ? (
                     <button
                       type="button"
@@ -426,12 +426,12 @@ export function LandingNav({
                       Launch Pilot Command Center
                     </button>
                   ) : null}
-                  <p className="mb-2 px-3 text-[0.62rem] font-bold uppercase tracking-[0.18em] text-slate-500">
+                  <p className="mb-2 px-3 text-[0.62rem] font-bold uppercase tracking-[0.18em] text-[#7A8C86]">
                     Operational status
                   </p>
                   <ul className="flex flex-col gap-2 px-3">
                     {OPERATIONAL_STATUS.map((s) => (
-                      <li key={s.id} className="flex items-center gap-2 text-[0.68rem] font-semibold text-slate-300">
+                      <li key={s.id} className="flex items-center gap-2 text-[0.68rem] font-semibold text-[#33544C]">
                         <span className={`size-1.5 rounded-full ${TONE_DOT[s.tone]}`} aria-hidden />
                         {s.title}
                       </li>
@@ -489,33 +489,33 @@ function MobileMenuGroup({
         </span>
       </button>
       {expanded && (
-        <div className="mt-1 ml-3 flex flex-col gap-1 border-l border-white/10 pl-3">
+        <div className="mt-1 ml-3 flex flex-col gap-1 border-l border-[#E3EAE6] pl-3">
           {menu.items.map((item) =>
             item.kind === "launch" ? (
               <button
                 key={item.label}
                 type="button"
-                className="rounded-lg px-3 py-2 text-left text-[0.82rem] font-medium text-slate-300 transition hover:bg-white/[0.05] hover:text-white"
+                className="rounded-lg px-3 py-2 text-left text-[0.82rem] font-medium text-[#33544C] transition hover:bg-[#F0F7F4] hover:text-[#0E1F1B]"
                 onClick={() => onLaunchTo?.(item.section)}
               >
                 <span className="flex items-center gap-1.5">
                   {item.label}
-                  <ArrowUpRight className="size-3 shrink-0 text-cyan-300" aria-hidden />
+                  <ArrowUpRight className="size-3 shrink-0 text-[#0D9488]" aria-hidden />
                 </span>
-                <span className="mt-0.5 block text-[0.64rem] text-slate-500">{item.hint}</span>
+                <span className="mt-0.5 block text-[0.64rem] text-[#7A8C86]">{item.hint}</span>
               </button>
             ) : (
               <button
                 key={item.label}
                 type="button"
-                className="rounded-lg px-3 py-2 text-left text-[0.82rem] font-medium text-slate-300 transition hover:bg-white/[0.05] hover:text-white"
+                className="rounded-lg px-3 py-2 text-left text-[0.82rem] font-medium text-[#33544C] transition hover:bg-[#F0F7F4] hover:text-[#0E1F1B]"
                 onClick={() => onOpenDialog(item.which)}
               >
                 <span className="flex items-center gap-1.5">
-                  <ClipboardCheck className="size-3.5 shrink-0 text-cyan-300" aria-hidden />
+                  <ClipboardCheck className="size-3.5 shrink-0 text-[#0D9488]" aria-hidden />
                   {item.label}
                 </span>
-                <span className="mt-0.5 block text-[0.64rem] text-slate-500">{item.hint}</span>
+                <span className="mt-0.5 block text-[0.64rem] text-[#7A8C86]">{item.hint}</span>
               </button>
             ),
           )}

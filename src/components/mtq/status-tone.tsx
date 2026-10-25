@@ -60,12 +60,12 @@ export function Block({
           <span className="h-7 w-7 rounded-full border border-mtqs-gold/30 bg-mtqs-gold/5 flex items-center justify-center">
             <Icon className="h-3.5 w-3.5 text-mtqs-gold-light" aria-hidden="true" />
           </span>
-          <h3 id={`${id}-h`} className="text-base font-semibold text-white">
+          <h3 id={`${id}-h`} className="text-base font-semibold text-[#0E1F1B]">
             {title}
           </h3>
         </div>
         {sub ? (
-          <p className="mt-1.5 ml-9 text-[0.72rem] text-white/55 leading-relaxed">{sub}</p>
+          <p className="mt-1.5 ml-9 text-[0.72rem] text-[#5B6E68] leading-relaxed">{sub}</p>
         ) : null}
       </div>
       {children}

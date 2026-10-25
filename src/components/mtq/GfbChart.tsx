@@ -63,14 +63,14 @@ export function GfbChart({ snapshot, height = 200 }: GfbChartProps) {
       <svg viewBox={`0 0 ${width} ${h}`} preserveAspectRatio="none" className="w-full h-full">
         <defs>
           <linearGradient id="gfb-aurora" x1="0" y1="0" x2="1" y2="0">
-            <stop offset="0%" stopColor="#8B5CF6" stopOpacity="0.6" />
-            <stop offset="33%" stopColor="#3882F6" stopOpacity="0.8" />
-            <stop offset="66%" stopColor="#00E5FF" stopOpacity="0.9" />
-            <stop offset="100%" stopColor="#2BABFB" stopOpacity="1" />
+            <stop offset="0%" stopColor="#0F766E" stopOpacity="0.6" />
+            <stop offset="33%" stopColor="#0D9488" stopOpacity="0.8" />
+            <stop offset="66%" stopColor="#14B8A6" stopOpacity="0.9" />
+            <stop offset="100%" stopColor="#2DD4BF" stopOpacity="1" />
           </linearGradient>
           <linearGradient id="gfb-area" x1="0" y1="0" x2="0" y2="1">
-            <stop offset="0%" stopColor="#2BABFB" stopOpacity="0.15" />
-            <stop offset="100%" stopColor="#2BABFB" stopOpacity="0" />
+            <stop offset="0%" stopColor="#0D9488" stopOpacity="0.15" />
+            <stop offset="100%" stopColor="#0D9488" stopOpacity="0" />
           </linearGradient>
           <filter id="gfb-glow">
             <feGaussianBlur stdDeviation="0.5" />
@@ -83,7 +83,7 @@ export function GfbChart({ snapshot, height = 200 }: GfbChartProps) {
         
         {/* Grid lines */}
         {[0.25, 0.5, 0.75].map((p) => (
-          <line key={p} x1="0" y1={h * p} x2={width} y2={h * p} stroke="rgba(255,255,255,0.04)" strokeWidth="0.1" />
+          <line key={p} x1="0" y1={h * p} x2={width} y2={h * p} stroke="rgba(14,31,27,0.08)" strokeWidth="0.1" />
         ))}
         
         {/* Area fill */}
@@ -103,7 +103,6 @@ export function GfbChart({ snapshot, height = 200 }: GfbChartProps) {
           strokeWidth="0.6"
           strokeLinecap="round"
           strokeLinejoin="round"
-          filter="url(#gfb-glow)"
           initial={{ pathLength: 0, opacity: 0 }}
           animate={{ pathLength: 1, opacity: 1 }}
           transition={{ duration: 1.5, ease: [0.16, 1, 0.3, 1] }}
@@ -114,8 +113,7 @@ export function GfbChart({ snapshot, height = 200 }: GfbChartProps) {
           cx={lastX}
           cy={lastY}
           r="0.8"
-          fill="#2BABFB"
-          filter="url(#gfb-glow)"
+          fill="#0D9488"
           initial={{ scale: 0 }}
           animate={{ scale: [1, 1.5, 1] }}
           transition={{ duration: 2, repeat: Infinity, delay: 1.5 }}
@@ -124,14 +122,14 @@ export function GfbChart({ snapshot, height = 200 }: GfbChartProps) {
       
       {/* Current value label */}
       <div className="absolute top-2 right-2 flex flex-col items-end">
-        <div className="text-[0.6rem] text-white/55 uppercase tracking-wider">Reference Index</div>
+        <div className="text-[0.6rem] text-[#5B6E68] uppercase tracking-wider">Reference Index</div>
         <div className="font-mono text-lg font-bold mtqs-gold-text tabular-nums">{gfb.toFixed(4)}</div>
       </div>
 
       {/* 16f-007: the trajectory is a synthetic illustration — only the endpoint
           is the live value. Unconditional label (sibling ReferenceChart got the
           same treatment in Task 14). */}
-      <div className="absolute bottom-1 left-2 text-[0.55rem] uppercase tracking-[0.16em] text-white/40 pointer-events-none">
+      <div className="absolute bottom-1 left-2 text-[0.55rem] uppercase tracking-[0.16em] text-[#7A8C86] pointer-events-none">
         Illustrative — synthetic trajectory · endpoint live
       </div>
     </div>

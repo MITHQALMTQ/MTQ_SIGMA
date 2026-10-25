@@ -37,10 +37,10 @@ const PARAMS: ParamRow[] = [
 ];
 
 const LAYER_COLORS: Record<string, string> = {
-  Constitutional: "#2BABFB",
-  Monetary: "#00E5FF",
-  Risk: "#FF8C42",
-  Emergency: "#FF4D6D",
+  Constitutional: "#0D9488",
+  Monetary: "#14B8A6",
+  Risk: "#EA580C",
+  Emergency: "#E11D48",
 };
 
 export function ParameterRegistry() {
@@ -51,21 +51,21 @@ export function ParameterRegistry() {
           <Settings className="h-5 w-5 text-mtqs-gold mt-0.5" />
           <div>
             <div className="mtqs-eyebrow">§22.4 · §37</div>
-            <h3 className="text-base font-semibold text-white/90 mt-1">Parameter Registry</h3>
-            <p className="text-xs text-white/55 mt-1">Every protocol parameter with its governance layer, authority, and timelock</p>
+            <h3 className="text-base font-semibold text-[#0E1F1B] mt-1">Parameter Registry</h3>
+            <p className="text-xs text-[#5B6E68] mt-1">Every protocol parameter with its governance layer, authority, and timelock</p>
           </div>
         </div>
 
         <div className="overflow-x-auto mtqs-scroll">
           <table className="w-full text-xs">
             <thead>
-              <tr className="border-b border-white/[0.06]">
-                <th className="text-left py-2 px-3 font-semibold text-white/55 uppercase tracking-wider">Parameter</th>
-                <th className="text-right py-2 px-3 font-semibold text-white/55 uppercase tracking-wider">Value</th>
-                <th className="text-left py-2 px-3 font-semibold text-white/55 uppercase tracking-wider hidden sm:table-cell">Layer</th>
-                <th className="text-left py-2 px-3 font-semibold text-white/55 uppercase tracking-wider hidden md:table-cell">Authority</th>
-                <th className="text-left py-2 px-3 font-semibold text-white/55 uppercase tracking-wider hidden lg:table-cell">Timelock</th>
-                <th className="text-center py-2 px-3 font-semibold text-white/55 uppercase tracking-wider">Status</th>
+              <tr className="border-b border-[#E3EAE6]">
+                <th className="text-left py-2 px-3 font-semibold text-[#5B6E68] uppercase tracking-wider">Parameter</th>
+                <th className="text-right py-2 px-3 font-semibold text-[#5B6E68] uppercase tracking-wider">Value</th>
+                <th className="text-left py-2 px-3 font-semibold text-[#5B6E68] uppercase tracking-wider hidden sm:table-cell">Layer</th>
+                <th className="text-left py-2 px-3 font-semibold text-[#5B6E68] uppercase tracking-wider hidden md:table-cell">Authority</th>
+                <th className="text-left py-2 px-3 font-semibold text-[#5B6E68] uppercase tracking-wider hidden lg:table-cell">Timelock</th>
+                <th className="text-center py-2 px-3 font-semibold text-[#5B6E68] uppercase tracking-wider">Status</th>
               </tr>
             </thead>
             <tbody>
@@ -75,15 +75,15 @@ export function ParameterRegistry() {
                   initial={{ opacity: 0, y: 4 }}
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ duration: 0.2, delay: i * 0.03 }}
-                  className="border-b border-white/[0.04] hover:bg-white/[0.02] transition-colors"
+                  className="border-b border-[#E3EAE6] hover:bg-[#F0F7F4] transition-colors"
                 >
-                  <td className="py-2.5 px-3 font-mono text-white/90 font-medium">{p.name}</td>
+                  <td className="py-2.5 px-3 font-mono text-[#0E1F1B] font-medium">{p.name}</td>
                   <td className="py-2.5 px-3 text-right font-mono tabular-nums" style={{ color: LAYER_COLORS[p.layer] }}>{p.value}</td>
                   <td className="py-2.5 px-3 hidden sm:table-cell">
                     <span className="text-xs" style={{ color: LAYER_COLORS[p.layer] }}>{p.layer}</span>
                   </td>
-                  <td className="py-2.5 px-3 text-white/55 hidden md:table-cell font-mono">{p.authority}</td>
-                  <td className="py-2.5 px-3 text-white/55 hidden lg:table-cell font-mono">{p.timelock}</td>
+                  <td className="py-2.5 px-3 text-[#5B6E68] hidden md:table-cell font-mono">{p.authority}</td>
+                  <td className="py-2.5 px-3 text-[#5B6E68] hidden lg:table-cell font-mono">{p.timelock}</td>
                   <td className="py-2.5 px-3 text-center">
                     {p.status === "IMMUTABLE" ? (
                       <Pill tone="gold" className="text-[0.55rem]"><Lock className="h-2.5 w-2.5" />IMMUTABLE</Pill>
@@ -97,7 +97,7 @@ export function ParameterRegistry() {
           </table>
         </div>
 
-        <p className="mt-3 text-[0.7rem] text-white/40">
+        <p className="mt-3 text-[0.7rem] text-[#7A8C86]">
           Immutable parameters require 7/7 Constitutional Multi-Sig + 90-day timelock. Governed parameters follow their respective layer's authority and timelock.
         </p>
       </Panel>

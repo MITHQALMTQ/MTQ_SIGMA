@@ -86,15 +86,15 @@ export function MintSimulator({
     <Panel className="p-5 flex flex-col gap-4">
       <div className="flex items-center justify-between">
         <div>
-          <div className="text-sm font-semibold text-white/90">Mint Simulator</div>
-          <div className="text-[0.7rem] text-white/55">deposit USDC → mint MTQΣ</div>
+          <div className="text-sm font-semibold text-[#0E1F1B]">Mint Simulator</div>
+          <div className="text-[0.7rem] text-[#5B6E68]">deposit USDC → mint MTQΣ</div>
         </div>
         <Pill tone="gold">§12.1 · fee {(feeBps / 100).toFixed(2)}%</Pill>
       </div>
 
       {oraclePaused && (
         <div className="rounded-md border border-mtqs-rose/30 bg-mtqs-rose/5 px-3 py-2.5">
-          <div className="flex items-center gap-2 text-rose-200">
+          <div className="flex items-center gap-2 text-rose-600">
             <GlowDot color="rose" size="h-2 w-2" />
             <span className="text-sm font-medium">Minting suspended — oracle consensus paused (§9.3)</span>
           </div>
@@ -103,11 +103,11 @@ export function MintSimulator({
 
       <div className="space-y-3">
         <label className="block">
-          <span className="text-[0.625rem] uppercase tracking-[0.22em] text-white/55">
+          <span className="text-[0.625rem] uppercase tracking-[0.22em] text-[#5B6E68]">
             Input · USDC
-            <span className="ml-2 normal-case tracking-normal text-white/40">min {MIN_MINT_MTQ} MTQΣ · τ {(DEFAULT_USER_SLIPPAGE * 100).toFixed(1)}% · deadline {TRADE_DEADLINE_MINUTES}m (§19.7)</span>
+            <span className="ml-2 normal-case tracking-normal text-[#7A8C86]">min {MIN_MINT_MTQ} MTQΣ · τ {(DEFAULT_USER_SLIPPAGE * 100).toFixed(1)}% · deadline {TRADE_DEADLINE_MINUTES}m (§19.7)</span>
           </span>
-          <div className="mt-1 flex items-center rounded-md border border-white/[0.06] bg-white/[0.02] focus-within:border-mtqs-amber/40 transition">
+          <div className="mt-1 flex items-center rounded-md border border-[#E3EAE6] bg-[#F7FAF8] focus-within:border-mtqs-amber/40 transition">
             <span className="pl-3 text-mtqs-gold font-mono text-sm">$</span>
             <input
               type="number"
@@ -116,21 +116,21 @@ export function MintSimulator({
               min={0}
               onChange={(e) => setAmount(e.target.value)}
               disabled={pending || oraclePaused}
-              className="flex-1 bg-transparent px-2 py-2.5 font-mono text-lg text-white outline-none disabled:opacity-50"
+              className="flex-1 bg-transparent px-2 py-2.5 font-mono text-lg text-[#0E1F1B] outline-none disabled:opacity-50"
               aria-label="USDC amount to mint"
             />
-            <span className="pr-3 text-white/55 text-xs font-mono">USDC</span>
+            <span className="pr-3 text-[#5B6E68] text-xs font-mono">USDC</span>
           </div>
         </label>
 
         <div className="grid grid-cols-2 gap-2">
           <label className="block">
-            <span className="text-[0.625rem] uppercase tracking-[0.22em] text-white/55">Chain</span>
+            <span className="text-[0.625rem] uppercase tracking-[0.22em] text-[#5B6E68]">Chain</span>
             <select
               value={chain}
               onChange={(e) => setChain(e.target.value)}
               disabled={pending}
-              className="mt-1 w-full rounded-md border border-white/[0.06] bg-white/[0.02] px-2.5 py-2 text-sm text-white outline-none focus:border-mtqs-amber/40 disabled:opacity-50"
+              className="mt-1 w-full rounded-md border border-[#E3EAE6] bg-[#F7FAF8] px-2.5 py-2 text-sm text-[#0E1F1B] outline-none focus:border-mtqs-amber/40 disabled:opacity-50"
               aria-label="Chain"
             >
               {ALL_CHAINS.map((c) => (
@@ -141,14 +141,14 @@ export function MintSimulator({
             </select>
           </label>
           <label className="block">
-            <span className="text-[0.625rem] uppercase tracking-[0.22em] text-white/55">Wallet (optional)</span>
+            <span className="text-[0.625rem] uppercase tracking-[0.22em] text-[#5B6E68]">Wallet (optional)</span>
             <input
               type="text"
               value={wallet}
               onChange={(e) => setWallet(e.target.value)}
               disabled={pending}
               placeholder="0x…"
-              className="mt-1 w-full rounded-md border border-white/[0.06] bg-white/[0.02] px-2.5 py-2 text-xs font-mono text-white outline-none focus:border-mtqs-amber/40 placeholder:text-white/40 disabled:opacity-50"
+              className="mt-1 w-full rounded-md border border-[#E3EAE6] bg-[#F7FAF8] px-2.5 py-2 text-xs font-mono text-[#0E1F1B] outline-none focus:border-mtqs-amber/40 placeholder:text-[#7A8C86] disabled:opacity-50"
               aria-label="Optional pilot wallet address"
             />
           </label>
@@ -172,15 +172,15 @@ export function MintSimulator({
             exit={{ opacity: 0, height: 0 }}
             className="overflow-hidden"
           >
-            <div className={`rounded-lg border p-4 ${result.ok ? "border-mtqs-emerald/30 bg-mtqs-emerald/5" : "border-rose-400/30 bg-mtqs-rose/5"}`}>
+            <div className={`rounded-lg border p-4 ${result.ok ? "border-mtqs-emerald/30 bg-mtqs-emerald/5" : "border-rose-200 bg-mtqs-rose/5"}`}>
               <div className="mb-2 flex items-center justify-between">
-                <div className="text-[0.7rem] uppercase tracking-[0.22em] text-white/55">
+                <div className="text-[0.7rem] uppercase tracking-[0.22em] text-[#5B6E68]">
                   {result.ok ? "Mint executed" : "Mint rejected"}
                 </div>
                 {result.ok ? <Pill tone="emerald"><GlowDot color="emerald" size="h-1.5 w-1.5" /> ok</Pill> : <Pill tone="rose"><GlowDot color="rose" size="h-1.5 w-1.5" /> rejected</Pill>}
               </div>
               {result.reason && (
-                <div className="mb-2 text-[0.75rem] text-rose-200/90">{result.reason}</div>
+                <div className="mb-2 text-[0.75rem] text-rose-600/90">{result.reason}</div>
               )}
               <div className="grid grid-cols-2 gap-2.5 text-[0.75rem]">
                 <Row label="Input" value={fmtUsd(result.inputUsd)} />
@@ -197,8 +197,8 @@ export function MintSimulator({
                   format={(n) => fmtNum(n, 4)}
                   className="text-2xl font-bold mtqs-gold-text"
                 />
-                <span className="ml-1 text-sm text-white/55 font-mono">MTQ</span>
-                <div className="mt-1 text-[0.7rem] text-white/55">
+                <span className="ml-1 text-sm text-[#5B6E68] font-mono">MTQ</span>
+                <div className="mt-1 text-[0.7rem] text-[#5B6E68]">
                   New circulating supply: <span className="font-mono text-mtqs-gold">{fmtNum(result.newCirculatingSupply, 2)}</span> MTQ
                 </div>
               </div>
@@ -211,10 +211,10 @@ export function MintSimulator({
 }
 
 function Row({ label, value, tone = "default" }: { label: string; value: string; tone?: "default" | "rose" | "gold" | "emerald" }) {
-  const color = tone === "rose" ? "text-mtqs-rose" : tone === "gold" ? "text-mtqs-gold" : tone === "emerald" ? "text-mtqs-emerald" : "text-white";
+  const color = tone === "rose" ? "text-mtqs-rose" : tone === "gold" ? "text-mtqs-gold" : tone === "emerald" ? "text-mtqs-emerald" : "text-[#0E1F1B]";
   return (
     <div>
-      <div className="text-white/55 text-[0.65rem] uppercase tracking-[0.18em]">{label}</div>
+      <div className="text-[#5B6E68] text-[0.65rem] uppercase tracking-[0.18em]">{label}</div>
       <div className={`font-mono ${color}`}>{value}</div>
     </div>
   );

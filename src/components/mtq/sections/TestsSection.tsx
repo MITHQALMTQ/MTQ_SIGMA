@@ -177,7 +177,7 @@ export function TestsSection({ onNavigate: _onNavigate }: { onNavigate: (id: Sec
         <Panel className="p-5">
           <div className="flex items-start gap-3 mb-3">
             <TestTube className="h-5 w-5 text-mtqs-gold/80 mt-0.5 shrink-0" aria-hidden="true" />
-            <p className="text-[0.82rem] text-white/55 leading-relaxed">
+            <p className="text-[0.82rem] text-[#5B6E68] leading-relaxed">
               The Monte Carlo audit runs {totalRuns > 0 ? `${totalRuns.toLocaleString()} ` : ""}survival
               simulations across {suites.length > 0 ? `${suites.length} ` : ""}stress suites. Each
               stress suite seeds the protocol with realistic shocks (depeg cascade, oracle failure,
@@ -187,7 +187,7 @@ export function TestsSection({ onNavigate: _onNavigate }: { onNavigate: (id: Sec
               breaches the hard floor (RR ≥ 1.00). The audit verdict aggregates all suites.
             </p>
           </div>
-          <div className="rounded-md border border-white/[0.06] bg-white/[0.02] p-3 text-[0.7rem] text-white/55 leading-relaxed">
+          <div className="rounded-md border border-[#E3EAE6] bg-[#F7FAF8] p-3 text-[0.7rem] text-[#5B6E68] leading-relaxed">
             <div className="text-[0.6rem] uppercase tracking-[0.22em] text-mtqs-gold/75 mb-1">
               Methodology disclosure
             </div>
@@ -224,7 +224,7 @@ export function TestsSection({ onNavigate: _onNavigate }: { onNavigate: (id: Sec
           <Panel className="p-6">
             <div className="flex items-center gap-3 mb-4">
               <RefreshCw className="h-4 w-4 text-mtqs-gold animate-spin" aria-hidden="true" />
-              <span className="text-[0.78rem] text-white/55">Loading audit results…</span>
+              <span className="text-[0.78rem] text-[#5B6E68]">Loading audit results…</span>
             </div>
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
               {[...Array(8)].map((_, i) => (
@@ -239,7 +239,7 @@ export function TestsSection({ onNavigate: _onNavigate }: { onNavigate: (id: Sec
             <div className="flex items-start gap-3">
               <XCircle className="h-5 w-5 text-mtqs-rose mt-0.5 shrink-0" aria-hidden="true" />
               <div>
-                <div className="text-sm font-semibold text-white/90 mb-1">
+                <div className="text-sm font-semibold text-[#0E1F1B] mb-1">
                   Failed to load tests
                 </div>
                 <div className="font-mono text-[0.72rem] text-mtqs-rose/80">{data.error}</div>
@@ -271,7 +271,7 @@ export function TestsSection({ onNavigate: _onNavigate }: { onNavigate: (id: Sec
                     <XCircle className="h-7 w-7 text-mtqs-rose mt-0.5 shrink-0" aria-hidden="true" />
                   )}
                   <div>
-                    <div className="text-[0.6rem] uppercase tracking-[0.22em] text-white/75 mb-1">
+                    <div className="text-[0.6rem] uppercase tracking-[0.22em] text-[#33544C] mb-1">
                       Overall verdict
                     </div>
                     <div
@@ -281,7 +281,7 @@ export function TestsSection({ onNavigate: _onNavigate }: { onNavigate: (id: Sec
                     >
                       {isPass ? "PASS" : "FAIL"}
                     </div>
-                    <p className="mt-1 text-[0.78rem] text-white/55 leading-relaxed max-w-2xl">
+                    <p className="mt-1 text-[0.78rem] text-[#5B6E68] leading-relaxed max-w-2xl">
                       {verdict ?? "No verdict available."}
                     </p>
                   </div>
@@ -298,8 +298,8 @@ export function TestsSection({ onNavigate: _onNavigate }: { onNavigate: (id: Sec
                 </div>
               </div>
               {/* Re-run button */}
-              <div className="mt-4 pt-4 border-t border-white/[0.06] flex items-center justify-between gap-2">
-                <div className="text-[0.68rem] text-white/55">
+              <div className="mt-4 pt-4 border-t border-[#E3EAE6] flex items-center justify-between gap-2">
+                <div className="text-[0.68rem] text-[#5B6E68]">
                   {forceNote ? (
                     // 16c-001 — honest note when the backend declined the force re-run
                     <span className="text-mtqs-amber/90">{forceNote}</span>
@@ -327,7 +327,7 @@ export function TestsSection({ onNavigate: _onNavigate }: { onNavigate: (id: Sec
             <div className="flex items-end justify-between gap-4 mb-4">
               <div>
                 <div className="text-[0.6rem] uppercase tracking-[0.22em] text-mtqs-gold/75">suites</div>
-                <h3 className="mt-2 text-base font-semibold text-white">Stress Suite Results</h3>
+                <h3 className="mt-2 text-base font-semibold text-[#0E1F1B]">Stress Suite Results</h3>
               </div>
               <Pill tone="muted">{suites.length} suites</Pill>
             </div>
@@ -347,10 +347,10 @@ export function TestsSection({ onNavigate: _onNavigate }: { onNavigate: (id: Sec
                     <Panel className="p-4 h-full flex flex-col gap-2">
                       <div className="flex items-start justify-between gap-2">
                         <div className="min-w-0">
-                          <div className="text-[0.6rem] uppercase tracking-[0.18em] text-white/75">
+                          <div className="text-[0.6rem] uppercase tracking-[0.18em] text-[#33544C]">
                             {s.id}
                           </div>
-                          <div className="text-sm font-semibold text-white/90 truncate">
+                          <div className="text-sm font-semibold text-[#0E1F1B] truncate">
                             {s.name}
                           </div>
                         </div>
@@ -360,12 +360,12 @@ export function TestsSection({ onNavigate: _onNavigate }: { onNavigate: (id: Sec
                           <XCircle className="h-4 w-4 text-mtqs-rose shrink-0" aria-hidden="true" />
                         )}
                       </div>
-                      <div className="text-[0.68rem] text-white/55 leading-relaxed">
+                      <div className="text-[0.68rem] text-[#5B6E68] leading-relaxed">
                         {s.description}
                       </div>
                       <div className="mt-1 grid grid-cols-2 gap-2 text-[0.7rem]">
-                        <div className="rounded-md border border-white/[0.06] bg-white/[0.02] p-2">
-                          <div className="text-[0.55rem] uppercase tracking-[0.18em] text-white/55">
+                        <div className="rounded-md border border-[#E3EAE6] bg-[#F7FAF8] p-2">
+                          <div className="text-[0.55rem] uppercase tracking-[0.18em] text-[#5B6E68]">
                             Survival
                           </div>
                           <div
@@ -380,8 +380,8 @@ export function TestsSection({ onNavigate: _onNavigate }: { onNavigate: (id: Sec
                             {(sr * 100).toFixed(1)}%
                           </div>
                         </div>
-                        <div className="rounded-md border border-white/[0.06] bg-white/[0.02] p-2">
-                          <div className="text-[0.55rem] uppercase tracking-[0.18em] text-white/55">
+                        <div className="rounded-md border border-[#E3EAE6] bg-[#F7FAF8] p-2">
+                          <div className="text-[0.55rem] uppercase tracking-[0.18em] text-[#5B6E68]">
                             Worst min RR
                           </div>
                           <div
@@ -397,7 +397,7 @@ export function TestsSection({ onNavigate: _onNavigate }: { onNavigate: (id: Sec
                           </div>
                         </div>
                       </div>
-                      <div className="mt-auto flex items-center justify-between text-[0.6rem] text-white/65 font-mono">
+                      <div className="mt-auto flex items-center justify-between text-[0.6rem] text-[#5B6E68] font-mono">
                         <span>{s.runs.toLocaleString()} runs</span>
                         <span>peg {((s.summary?.pegStabilityPct ?? 0) * 100).toFixed(0)}%</span>
                       </div>
@@ -413,7 +413,7 @@ export function TestsSection({ onNavigate: _onNavigate }: { onNavigate: (id: Sec
             <div className="flex items-end justify-between gap-4 mb-4">
               <div>
                 <div className="text-[0.6rem] uppercase tracking-[0.22em] text-mtqs-gold/75">invariants</div>
-                <h3 className="mt-2 text-base font-semibold text-white">Invariants Tested</h3>
+                <h3 className="mt-2 text-base font-semibold text-[#0E1F1B]">Invariants Tested</h3>
               </div>
               <Pill tone="emerald">
                 <ShieldCheck className="h-3 w-3" aria-hidden="true" />
@@ -423,7 +423,7 @@ export function TestsSection({ onNavigate: _onNavigate }: { onNavigate: (id: Sec
             <Reveal>
               <Panel className="p-5">
                 {invariants.length === 0 ? (
-                  <div className="text-center text-[0.75rem] text-white/55 py-4">
+                  <div className="text-center text-[0.75rem] text-[#5B6E68] py-4">
                     No invariants loaded.
                   </div>
                 ) : (
@@ -451,7 +451,7 @@ export function TestsSection({ onNavigate: _onNavigate }: { onNavigate: (id: Sec
             <div className="flex items-end justify-between gap-4 mb-4">
               <div>
                 <div className="text-[0.6rem] uppercase tracking-[0.22em] text-mtqs-gold/75">findings</div>
-                <h3 className="mt-2 text-base font-semibold text-white">Audit Findings</h3>
+                <h3 className="mt-2 text-base font-semibold text-[#0E1F1B]">Audit Findings</h3>
               </div>
               <Pill tone="emerald">
                 <Activity className="h-3 w-3" aria-hidden="true" />
@@ -461,14 +461,14 @@ export function TestsSection({ onNavigate: _onNavigate }: { onNavigate: (id: Sec
             <Reveal>
               <Panel className="p-5">
                 {findings.length === 0 ? (
-                  <div className="text-center text-[0.75rem] text-white/55 py-4">
+                  <div className="text-center text-[0.75rem] text-[#5B6E68] py-4">
                     No findings loaded (the audit response may not include <code>audit.findings</code>).
                   </div>
                 ) : (
-                  <div className="overflow-hidden rounded-md border border-white/[0.06]">
+                  <div className="overflow-hidden rounded-md border border-[#E3EAE6]">
                     <div className="max-h-80 overflow-y-auto mtqs-scroll">
                       <table className="w-full text-[0.72rem]">
-                        <thead className="bg-white/[0.02] text-white/55 sticky top-0">
+                        <thead className="bg-[#F7FAF8] text-[#5B6E68] sticky top-0">
                           <tr>
                             <th className="text-left px-3 py-2 font-medium">Finding</th>
                             <th className="text-left px-3 py-2 font-medium hidden sm:table-cell">Detail</th>
@@ -481,10 +481,10 @@ export function TestsSection({ onNavigate: _onNavigate }: { onNavigate: (id: Sec
                             return (
                               <tr
                                 key={f.title + i}
-                                className={`border-t border-white/[0.06] ${i % 2 ? "bg-white/[0.01]" : ""}`}
+                                className={`border-t border-[#E3EAE6] ${i % 2 ? "bg-[#F7FAF8]" : ""}`}
                               >
-                                <td className="px-3 py-2.5 text-white/90">{f.title}</td>
-                                <td className="px-3 py-2.5 text-white/75 font-mono hidden sm:table-cell">
+                                <td className="px-3 py-2.5 text-[#0E1F1B]">{f.title}</td>
+                                <td className="px-3 py-2.5 text-[#33544C] font-mono hidden sm:table-cell">
                                   {f.detail}
                                 </td>
                                 <td className="px-3 py-2.5 text-right">
@@ -512,7 +512,7 @@ export function TestsSection({ onNavigate: _onNavigate }: { onNavigate: (id: Sec
           {/* Closing */}
           <Reveal>
             <Panel className="p-5 sm:p-6 text-center">
-              <p className="text-[0.82rem] text-white/55 leading-relaxed max-w-2xl mx-auto mb-4">
+              <p className="text-[0.82rem] text-[#5B6E68] leading-relaxed max-w-2xl mx-auto mb-4">
                 Audit complete. For the honest disclosure of what these results mean (and don&apos;t
                 mean), read the Security section. For the live protocol state driving the engine,
                 open the Dashboard.
@@ -520,14 +520,14 @@ export function TestsSection({ onNavigate: _onNavigate }: { onNavigate: (id: Sec
               <div className="flex flex-wrap items-center justify-center gap-2">
                 <button
                   onClick={() => _onNavigate("security")}
-                  className="inline-flex items-center gap-1.5 rounded-full border border-white/[0.1] bg-white/[0.03] px-4 py-2 text-[0.78rem] font-medium text-white hover:border-mtqs-gold/30 hover:text-white transition"
+                  className="inline-flex items-center gap-1.5 rounded-full border border-[#E3EAE6] bg-white px-4 py-2 text-[0.78rem] font-medium text-[#0E1F1B] hover:border-mtqs-gold/30 hover:text-[#0E1F1B] transition"
                 >
                   Security Posture
                   <ArrowRight className="h-3.5 w-3.5" aria-hidden="true" />
                 </button>
                 <button
                   onClick={() => _onNavigate("portfolio")}
-                  className="inline-flex items-center gap-1.5 rounded-full border border-white/[0.1] bg-white/[0.03] px-4 py-2 text-[0.78rem] font-medium text-white hover:border-mtqs-gold/30 hover:text-white transition"
+                  className="inline-flex items-center gap-1.5 rounded-full border border-[#E3EAE6] bg-white px-4 py-2 text-[0.78rem] font-medium text-[#0E1F1B] hover:border-mtqs-gold/30 hover:text-[#0E1F1B] transition"
                 >
                   Live Dashboard
                   <ArrowRight className="h-3.5 w-3.5" aria-hidden="true" />

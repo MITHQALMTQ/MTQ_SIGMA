@@ -127,7 +127,7 @@ export function AIPolicyBriefing({ className = "" }: { className?: string }) {
         <div className="text-sm font-medium text-mtqs-gold">
           AI briefing disabled by feature flag
         </div>
-        <p className="mt-1 text-[0.72rem] text-white/55 leading-relaxed">
+        <p className="mt-1 text-[0.72rem] text-[#5B6E68] leading-relaxed">
           The <span className="font-mono text-mtqs-gold">AI_BRIEFING_ENABLED</span> flag is off.
           Enable it on the server to render the live COO-voice monetary policy briefing.
         </p>
@@ -144,14 +144,14 @@ export function AIPolicyBriefing({ className = "" }: { className?: string }) {
           <div className="text-sm font-medium text-mtqs-rose">
             Briefing unavailable
           </div>
-          <p className="mt-1 text-[0.72rem] text-white/55 leading-relaxed break-words">
+          <p className="mt-1 text-[0.72rem] text-[#5B6E68] leading-relaxed break-words">
             {error ?? "Unknown error"}
           </p>
         </div>
         <button
           onClick={fetchBriefing}
           disabled={loading}
-          className="shrink-0 inline-flex items-center gap-1.5 rounded-md border border-mtqs-rose/30 bg-mtqs-rose/5 px-2.5 py-1.5 text-[0.7rem] font-medium text-rose-200 hover:bg-mtqs-rose/[0.12] transition disabled:opacity-50"
+          className="shrink-0 inline-flex items-center gap-1.5 rounded-md border border-mtqs-rose/30 bg-mtqs-rose/5 px-2.5 py-1.5 text-[0.7rem] font-medium text-rose-600 hover:bg-mtqs-rose/[0.12] transition disabled:opacity-50"
         >
           <RefreshCw className={`h-3 w-3 ${loading ? "animate-spin" : ""}`} aria-hidden="true" />
           Retry
@@ -181,10 +181,10 @@ export function AIPolicyBriefing({ className = "" }: { className?: string }) {
                 AI · COO Briefing
               </span>
             </div>
-            <h3 className="text-base font-semibold text-white">
+            <h3 className="text-base font-semibold text-[#0E1F1B]">
               Monetary Policy Briefing
             </h3>
-            <p className="text-[0.72rem] text-white/75 leading-relaxed">
+            <p className="text-[0.72rem] text-[#33544C] leading-relaxed">
               Generated from the live snapshot by the configured model (fallback: deterministic rules).
               Informational only — not financial advice.
             </p>
@@ -203,7 +203,7 @@ export function AIPolicyBriefing({ className = "" }: { className?: string }) {
               onClick={fetchBriefing}
               disabled={loading}
               aria-label="Refresh briefing"
-              className="inline-flex items-center justify-center rounded-md border border-white/[0.06] bg-white/[0.03] h-8 w-8 text-white/55 hover:text-white hover:bg-white/[0.06] transition disabled:opacity-50"
+              className="inline-flex items-center justify-center rounded-md border border-[#E3EAE6] bg-[#F7FAF8] h-8 w-8 text-[#5B6E68] hover:text-[#0E1F1B] hover:bg-[#F0F7F4] transition disabled:opacity-50"
             >
               <RefreshCw className={`h-3.5 w-3.5 ${loading ? "animate-spin" : ""}`} aria-hidden="true" />
             </button>
@@ -229,14 +229,14 @@ export function AIPolicyBriefing({ className = "" }: { className?: string }) {
                 className="space-y-3"
               >
                 {paragraphs.length === 0 ? (
-                  <p className="text-[0.82rem] text-white/55 italic leading-relaxed">
+                  <p className="text-[0.82rem] text-[#5B6E68] italic leading-relaxed">
                     No briefing text returned.
                   </p>
                 ) : (
                   paragraphs.map((p, i) => (
                     <p
                       key={i}
-                      className="whitespace-pre-wrap leading-relaxed text-[0.85rem] text-white/90"
+                      className="whitespace-pre-wrap leading-relaxed text-[0.85rem] text-[#0E1F1B]"
                     >
                       {p}
                     </p>
@@ -249,15 +249,15 @@ export function AIPolicyBriefing({ className = "" }: { className?: string }) {
 
         {/* ---------- Footer: generated-at · sources · disclaimer ---------- */}
         {data && !error && data.model !== "disabled" && (
-          <div className="mt-4 pt-3 border-t border-white/[0.06] space-y-1">
-            <div className="flex flex-wrap items-center gap-x-2 gap-y-1 text-[0.68rem] font-mono tabular-nums text-white/75">
+          <div className="mt-4 pt-3 border-t border-[#E3EAE6] space-y-1">
+            <div className="flex flex-wrap items-center gap-x-2 gap-y-1 text-[0.68rem] font-mono tabular-nums text-[#33544C]">
               <GlowDot color="gold" size="h-1.5 w-1.5" />
               <span>
                 Generated {fmtAgo(data.generatedAt)}
               </span>
               {data.sources && data.sources.length > 0 && (
                 <>
-                  <span className="text-white/40">·</span>
+                  <span className="text-[#7A8C86]">·</span>
                   <span>
                     Sources: {data.sources.join(", ")}
                   </span>
@@ -265,7 +265,7 @@ export function AIPolicyBriefing({ className = "" }: { className?: string }) {
               )}
             </div>
             {data.disclaimer && (
-              <p className="text-[0.62rem] text-white/55 leading-relaxed">
+              <p className="text-[0.62rem] text-[#5B6E68] leading-relaxed">
                 {data.disclaimer}
               </p>
             )}

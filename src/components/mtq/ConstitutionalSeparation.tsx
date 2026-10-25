@@ -37,19 +37,19 @@ export function ConstitutionalSeparation({
       >
         <defs>
           <radialGradient id="mtqs-aurora" cx="50%" cy="50%" r="50%">
-            <stop offset="0%" stopColor="rgba(43, 171, 251, 0.10)" />
-            <stop offset="55%" stopColor="rgba(43, 171, 251, 0.02)" />
-            <stop offset="100%" stopColor="rgba(43, 171, 251, 0)" />
+            <stop offset="0%" stopColor="rgba(13, 148, 136, 0.10)" />
+            <stop offset="55%" stopColor="rgba(13, 148, 136, 0.02)" />
+            <stop offset="100%" stopColor="rgba(13, 148, 136, 0)" />
           </radialGradient>
           <linearGradient id="mtqs-gold-ring" x1="0" y1="0" x2="1" y2="1">
-            <stop offset="0%" stopColor="#f5d27a" />
-            <stop offset="50%" stopColor="#EFC268" />
-            <stop offset="100%" stopColor="#b8860b" />
+            <stop offset="0%" stopColor="#F59E0B" />
+            <stop offset="50%" stopColor="#D97706" />
+            <stop offset="100%" stopColor="#B45309" />
           </linearGradient>
           <linearGradient id="mtqs-emerald-ring" x1="0" y1="0" x2="1" y2="1">
-            <stop offset="0%" stopColor="#6effc0" />
-            <stop offset="50%" stopColor="#00C4DB" />
-            <stop offset="100%" stopColor="#16a97a" />
+            <stop offset="0%" stopColor="#5EEAD4" />
+            <stop offset="50%" stopColor="#14B8A6" />
+            <stop offset="100%" stopColor="#0F766E" />
           </linearGradient>
           <linearGradient id="mtqs-reserve-ring" x1="0" y1="0" x2="1" y2="1">
             <stop offset="0%" stopColor="#9fb0a3" />
@@ -85,7 +85,7 @@ export function ConstitutionalSeparation({
                 y1={y1}
                 x2={x2}
                 y2={y2}
-                stroke={i % 5 === 0 ? "rgba(43, 171, 251, 0.45)" : "rgba(43, 171, 251, 0.15)"}
+                stroke={i % 5 === 0 ? "rgba(13, 148, 136, 0.45)" : "rgba(13, 148, 136, 0.15)"}
                 strokeWidth={i % 5 === 0 ? 1.4 : 0.7}
               />
             );
@@ -112,7 +112,6 @@ export function ConstitutionalSeparation({
             stroke="url(#mtqs-gold-ring)"
             strokeWidth="2.4"
             opacity="0.85"
-            filter="url(#mtqs-glow-filter)"
           />
           {/* Active arc — pulses */}
           <motion.circle
@@ -120,12 +119,11 @@ export function ConstitutionalSeparation({
             cy="260"
             r="210"
             fill="none"
-            stroke="#f5d27a"
+            stroke="#F59E0B"
             strokeWidth="3"
             strokeLinecap="round"
             strokeDasharray="60 1257"
             strokeDashoffset={0}
-            filter="url(#mtqs-glow-filter)"
             animate={{ opacity: [0.4, 1, 0.4], rotate: 360 }}
             transition={{
               opacity: { duration: 2.4, repeat: Infinity, ease: "easeInOut" },
@@ -155,14 +153,13 @@ export function ConstitutionalSeparation({
             stroke="url(#mtqs-emerald-ring)"
             strokeWidth="2"
             opacity="0.8"
-            filter="url(#mtqs-glow-filter)"
           />
           <motion.circle
             cx="260"
             cy="260"
             r="155"
             fill="none"
-            stroke="#6effc0"
+            stroke="#5EEAD4"
             strokeWidth="2.5"
             strokeLinecap="round"
             strokeDasharray="40 935"
@@ -193,7 +190,6 @@ export function ConstitutionalSeparation({
             strokeWidth="2.4"
             strokeLinecap="round"
             strokeDasharray="30 598"
-            filter="url(#mtqs-glow-filter)"
             animate={{
               opacity: status === "NORMAL" ? [0.6, 0.95, 0.6] : [0.4, 1, 0.4],
               rotate: 360,
@@ -208,7 +204,7 @@ export function ConstitutionalSeparation({
 
         {/* Center sigil */}
         <g>
-          <circle cx="260" cy="260" r="44" fill="rgba(43, 171, 251, 0.04)" stroke="rgba(43, 171, 251, 0.25)" />
+          <circle cx="260" cy="260" r="44" fill="rgba(13, 148, 136, 0.04)" stroke="rgba(13, 148, 136, 0.25)" />
           <text
             x="260"
             y="270"
@@ -216,7 +212,6 @@ export function ConstitutionalSeparation({
             fontSize="42"
             fontFamily="var(--font-geist-mono), monospace"
             fill="url(#mtqs-gold-ring)"
-            filter="url(#mtqs-glow-filter)"
           >
             Σ
           </text>
@@ -225,25 +220,25 @@ export function ConstitutionalSeparation({
         {/* Ring labels with leader dots */}
         {/* A — GFB Index */}
         <g>
-          <circle cx="260" cy="50" r="4" fill="#f5d27a" />
-          <text x="260" y="32" textAnchor="middle" fontSize="11" fill="#f5d27a" fontFamily="var(--font-geist-sans), sans-serif" letterSpacing="3">
+          <circle cx="260" cy="50" r="4" fill="#F59E0B" />
+          <text x="260" y="32" textAnchor="middle" fontSize="11" fill="#B45309" fontFamily="var(--font-geist-sans), sans-serif" letterSpacing="3">
             A · REFERENCE INDEX
           </text>
-          <text x="260" y="70" textAnchor="middle" fontSize="14" fill="#EFC268" fontFamily="var(--font-geist-mono), monospace" fontWeight="600">
+          <text x="260" y="70" textAnchor="middle" fontSize="14" fill="#D97706" fontFamily="var(--font-geist-mono), monospace" fontWeight="600">
             {snapshot ? fmtFixed(snapshot.gfbIndex, 4) : "—"}
           </text>
         </g>
 
         {/* B — MTQΣ Token (left side) */}
         <g>
-          <circle cx="50" cy="260" r="4" fill="#6effc0" />
-          <text x="36" y="248" textAnchor="middle" fontSize="11" fill="#6effc0" fontFamily="var(--font-geist-sans), sans-serif" letterSpacing="3">
+          <circle cx="50" cy="260" r="4" fill="#14B8A6" />
+          <text x="36" y="248" textAnchor="middle" fontSize="11" fill="#0D9488" fontFamily="var(--font-geist-sans), sans-serif" letterSpacing="3">
             B
           </text>
-          <text x="36" y="266" textAnchor="middle" fontSize="10" fill="#00C4DB" fontFamily="var(--font-geist-sans), sans-serif" letterSpacing="2">
+          <text x="36" y="266" textAnchor="middle" fontSize="10" fill="#14B8A6" fontFamily="var(--font-geist-sans), sans-serif" letterSpacing="2">
             MTQΣ
           </text>
-          <text x="36" y="282" textAnchor="middle" fontSize="11" fill="#00C4DB" fontFamily="var(--font-geist-mono), monospace" fontWeight="600">
+          <text x="36" y="282" textAnchor="middle" fontSize="11" fill="#14B8A6" fontFamily="var(--font-geist-mono), monospace" fontWeight="600">
             {snapshot ? fmtFixed(snapshot.mtqPrice, 4) : "—"}
           </text>
         </g>
@@ -264,7 +259,7 @@ export function ConstitutionalSeparation({
 
         {/* Bottom — RR readout */}
         <g>
-          <text x="260" y="488" textAnchor="middle" fontSize="10" fill="rgba(255,255,255,0.5)" fontFamily="var(--font-geist-sans), sans-serif" letterSpacing="3">
+          <text x="260" y="488" textAnchor="middle" fontSize="10" fill="#7A8C86" fontFamily="var(--font-geist-sans), sans-serif" letterSpacing="3">
             RESERVE RATIO
           </text>
           <text
@@ -287,7 +282,7 @@ export function ConstitutionalSeparation({
 
       {/* Side readout card overlay (desktop) */}
       <div className="hidden md:block absolute top-1/2 -translate-y-1/2 -left-2 -translate-x-full pr-4 text-right">
-        <div className="text-[0.6rem] uppercase tracking-[0.25em] text-white/55 mb-1">Active Ring</div>
+        <div className="text-[0.6rem] uppercase tracking-[0.25em] text-[#5B6E68] mb-1">Active Ring</div>
         <div className="font-mono text-sm" style={{ color: reserveTone }}>
           {status === "NORMAL" ? "C · steady" : `${status} · ${status === "EMERGENCY" ? "C · drain" : "C · elevated"}`}
         </div>

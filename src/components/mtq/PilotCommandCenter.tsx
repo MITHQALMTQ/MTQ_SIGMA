@@ -178,14 +178,14 @@ function ReferenceSection() {
             </Panel>
             <Panel className="p-5">
               <Stat label="P_MTQ (USD)" value={
-                <span className="text-2xl font-mono tabular-nums text-white">
+                <span className="text-2xl font-mono tabular-nums text-[#0E1F1B]">
                   {gfb ? `$${gfb.mtqPrice.toFixed(4)}` : loading ? <Skeleton className="h-7 w-24 inline-block" /> : "—"}
                 </span>
               } sub="1 MTQ = basket PAR" />
             </Panel>
             <Panel className="p-5">
               <Stat label="Methodology" value={
-                <span className="text-[0.72rem] text-white/75 leading-snug block">
+                <span className="text-[0.72rem] text-[#33544C] leading-snug block">
                   {gfb?.methodology ?? "Chain-linked recursive (§9.2 COO-16)"}
                 </span>
               } sub="public good · not financial advice" />
@@ -196,7 +196,7 @@ function ReferenceSection() {
           <Panel className="p-5">
             <div className="flex items-center gap-2 mb-4">
               <BookOpen className="h-4 w-4 text-mtqs-gold/80" aria-hidden="true" />
-              <h3 className="text-sm font-semibold text-white">7-Component Basket · Strategic Prior (§3.2)</h3>
+              <h3 className="text-sm font-semibold text-[#0E1F1B]">7-Component Basket · Strategic Prior (§3.2)</h3>
             </div>
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-7 gap-3">
               {GFB_COMPONENTS.map((c) => {
@@ -217,11 +217,11 @@ function ReferenceSection() {
                     : null;
                 const delta = liveW != null ? liveW - c.weight : null;
                 return (
-                  <div key={c.key} className="rounded-lg border border-white/[0.06] bg-white/[0.02] p-3">
+                  <div key={c.key} className="rounded-lg border border-[#E3EAE6] bg-[#F7FAF8] p-3">
                     <div className="flex items-center justify-between">
                       <span className="font-mono text-[0.78rem] text-mtqs-gold">{c.key}</span>
                       <span
-                        className="text-[0.6rem] text-white/55 font-mono"
+                        className="text-[0.6rem] text-[#5B6E68] font-mono"
                         aria-label={`${c.key} strategic prior weight ${(c.weight * 100).toFixed(1)} percent`}
                       >
                         P {(c.weight * 100).toFixed(1)}%
@@ -232,10 +232,10 @@ function ReferenceSection() {
                       {liveW != null ? (
                         <MiniBar value={liveW} max={0.30} colorClass="bg-mtqs-emerald" className="mb-1" />
                       ) : (
-                        <div className="mb-1 text-[0.6rem] font-mono text-white/40">live —</div>
+                        <div className="mb-1 text-[0.6rem] font-mono text-[#7A8C86]">live —</div>
                       )}
                     </div>
-                    <div className="font-mono text-[0.68rem] text-white/75">
+                    <div className="font-mono text-[0.68rem] text-[#33544C]">
                       {liveW != null ? (
                         <>
                           <span className="text-mtqs-emerald">L {(liveW * 100).toFixed(1)}%</span>
@@ -246,20 +246,20 @@ function ReferenceSection() {
                           )}
                         </>
                       ) : (
-                        <span className="text-white/40">live W^Smooth —</span>
+                        <span className="text-[#7A8C86]">live W^Smooth —</span>
                       )}
                     </div>
-                    <div className="mt-1 font-mono text-[0.72rem] text-white/75">
+                    <div className="mt-1 font-mono text-[0.72rem] text-[#33544C]">
                       {price != null ? `$${price.toFixed(price < 2 ? 4 : 2)}` : "—"}
                     </div>
                   </div>
                 );
               })}
             </div>
-            <div className="mt-4 text-[0.65rem] text-white/55 leading-relaxed">
+            <div className="mt-4 text-[0.65rem] text-[#5B6E68] leading-relaxed">
               <span className="text-mtqs-gold/80">P</span> = W<sup>Prior</sup> · the genesis soft-anchor (§3.2) — deviation is
               penalized, never enforced. <span className="text-mtqs-emerald/90">L</span> = live W<sup>Smooth</sup> · the MASE
-              ensemble output (§7). Methodology is fixed; weights are <span className="text-white/75">ADAPTIVE</span> (Invariant I3).
+              ensemble output (§7). Methodology is fixed; weights are <span className="text-[#33544C]">ADAPTIVE</span> (Invariant I3).
               Live weights are published in the 4-state table (MASE section) and via /api/gfb. Sum of prior weights = 100%
               (USD 27 · EUR 20 · Gold 26 · JPY 9 · GBP 8 · CNY 5 · CHF 5). Prices on this board are recorded from the
               canonical oracle board at section open (one-shot read — the live 4s stream renders in the Dashboard).
@@ -287,7 +287,7 @@ function ReferenceSection() {
               <div className="overflow-x-auto">
                 <table className="w-full text-[0.78rem]">
                   <thead>
-                    <tr className="text-[0.62rem] uppercase tracking-widest text-white/55 border-b border-white/[0.06]">
+                    <tr className="text-[0.62rem] uppercase tracking-widest text-[#5B6E68] border-b border-[#E3EAE6]">
                       <th className="text-left font-medium py-2 pr-4">Pair</th>
                       <th className="text-right font-medium py-2 px-3">Final Price</th>
                       <th className="text-right font-medium py-2 px-3">Valid</th>
@@ -298,14 +298,14 @@ function ReferenceSection() {
                   </thead>
                   <tbody className="font-mono tabular-nums">
                     {oracle.pairs.map((p) => (
-                      <tr key={p.pair} className="border-b border-white/[0.04] last:border-b-0">
+                      <tr key={p.pair} className="border-b border-[#EDF2EF] last:border-b-0">
                         <td className="py-2 pr-4 text-mtqs-gold">{p.pair}</td>
-                        <td className="py-2 px-3 text-right text-white">
+                        <td className="py-2 px-3 text-right text-[#0E1F1B]">
                           {p.finalPrice > 0 ? `$${p.finalPrice.toFixed(p.finalPrice < 2 ? 4 : 2)}` : "—"}
                         </td>
-                        <td className="py-2 px-3 text-right text-white/75">{p.validCount}/3</td>
-                        <td className="py-2 px-3 text-white/65">{p.method}</td>
-                        <td className="py-2 px-3 text-right text-white/75">{p.spreadBps.toFixed(1)}</td>
+                        <td className="py-2 px-3 text-right text-[#33544C]">{p.validCount}/3</td>
+                        <td className="py-2 px-3 text-[#33544C]">{p.method}</td>
+                        <td className="py-2 px-3 text-right text-[#33544C]">{p.spreadBps.toFixed(1)}</td>
                         <td className="py-2 pl-3">
                           {p.paused ? (
                             <Pill tone="rose"><XCircle className="h-3 w-3" />paused</Pill>
@@ -321,9 +321,9 @@ function ReferenceSection() {
                 </table>
               </div>
             ) : (
-              <div className="text-[0.78rem] text-white/55">Oracle board unavailable.</div>
+              <div className="text-[0.78rem] text-[#5B6E68]">Oracle board unavailable.</div>
             )}
-            <div className="mt-3 text-[0.65rem] text-white/55 leading-relaxed">
+            <div className="mt-3 text-[0.65rem] text-[#5B6E68] leading-relaxed">
               v2.0 §17.2 quorum (Invariant I9, consolidated): ≥ 2 valid feeds from ≥ 2 distinct source
               families. 3 valid → outlier-filtered mean with the median as validity anchor (§17.5, method
               “filtered-mean”); 2 valid → DEGRADED — mint + rebalance paused, redemption AVAILABLE (§17.7);
@@ -369,7 +369,7 @@ function ReserveSection({ snapshot }: { snapshot: MetricsSnapshot | null }) {
           {/* 16f-005: legacy v1/v2 qualifier strip (Task-15 style) — the §4 vault
               below is the pilot ledger's legacy reserve accounting, retained
               labeled under the v3.0 no-conventional-reserve objective. */}
-          <div className="mb-6 rounded-lg border border-mtqs-amber/25 bg-amber-400/[0.04] px-4 py-3 text-[0.7rem] leading-relaxed text-white/60">
+          <div className="mb-6 rounded-lg border border-amber-200 bg-amber-50 px-4 py-3 text-[0.7rem] leading-relaxed text-[#5B6E68]">
             <span className="font-semibold text-mtqs-amber">Legacy v1/v2 pilot-ledger path.</span>{" "}
             The §4 vault below is the pilot ledger&apos;s legacy reserve accounting, retained labeled —
             under the v3.0 no-conventional-reserve objective (Gate B, D-13.3–D-13.7 open) there is
@@ -386,21 +386,21 @@ function ReserveSection({ snapshot }: { snapshot: MetricsSnapshot | null }) {
             </Panel>
             <Panel className="p-5">
               <Stat label="Reserve Ratio (RR)" value={
-                <span className={`text-2xl font-mono tabular-nums ${snapshot && snapshot.reserveRatio < 1.05 ? "text-mtqs-rose" : "text-emerald-300"}`}>
+                <span className={`text-2xl font-mono tabular-nums ${snapshot && snapshot.reserveRatio < 1.05 ? "text-mtqs-rose" : "text-emerald-600"}`}>
                   {snapshot ? fmtRatio(snapshot.reserveRatio) : <Skeleton className="h-7 w-20 inline-block" />}
                 </span>
               } sub={`target ≥ ${(1.10 * 100).toFixed(0)}% · hard floor ${(1.00 * 100).toFixed(0)}%`} />
             </Panel>
             <Panel className="p-5">
               <Stat label="LCR (liquidity coverage)" value={
-                <span className={`text-2xl font-mono tabular-nums ${snapshot && snapshot.lcr < 1.0 ? "text-mtqs-rose" : "text-emerald-300"}`}>
+                <span className={`text-2xl font-mono tabular-nums ${snapshot && snapshot.lcr < 1.0 ? "text-mtqs-rose" : "text-emerald-600"}`}>
                   {snapshot ? fmtRatio(snapshot.lcr) : <Skeleton className="h-7 w-20 inline-block" />}
                 </span>
               } sub={`target ≥ ${(1.00 * 100).toFixed(0)}%`} />
             </Panel>
             <Panel className="p-5">
               <Stat label="Liability (MTQ supply × P)" value={
-                <span className="text-2xl font-mono tabular-nums text-white">
+                <span className="text-2xl font-mono tabular-nums text-[#0E1F1B]">
                   {snapshot ? fmtUsd(snapshot.liability) : <Skeleton className="h-7 w-20 inline-block" />}
                 </span>
               } sub={`circulating: ${snapshot ? snapshot.circulatingSupply.toLocaleString("en-US", { maximumFractionDigits: 2 }) : "—"} MTQ`} />
@@ -411,7 +411,7 @@ function ReserveSection({ snapshot }: { snapshot: MetricsSnapshot | null }) {
           <Panel className="p-5">
             <div className="flex items-center gap-2 mb-4">
               <VaultIcon className="h-4 w-4 text-mtqs-gold/80" aria-hidden="true" />
-              <h3 className="text-sm font-semibold text-white">Reserve Breakdown · 7 Asset Classes</h3>
+              <h3 className="text-sm font-semibold text-[#0E1F1B]">Reserve Breakdown · 7 Asset Classes</h3>
             </div>
             {!r ? (
               <div className="space-y-2">{Array.from({ length: 7 }).map((_, i) => <Skeleton key={i} className="h-9 w-full" />)}</div>
@@ -421,29 +421,29 @@ function ReserveSection({ snapshot }: { snapshot: MetricsSnapshot | null }) {
                   <div key={b.key} className="grid grid-cols-[3rem_1fr_5rem] items-center gap-3">
                     <span className="font-mono text-[0.75rem] text-mtqs-gold">{b.key}</span>
                     <MiniBar value={Math.max(0, b.value)} max={total} colorClass={b.color} height="h-2.5" />
-                    <span className="font-mono text-[0.72rem] text-white/75 text-right">
+                    <span className="font-mono text-[0.72rem] text-[#33544C] text-right">
                       {fmtUsd(b.value)}
                     </span>
                   </div>
                 ))}
               </div>
             )}
-            <div className="mt-4 grid grid-cols-2 gap-3 text-[0.65rem] text-white/55">
-              <div className="rounded-md border border-white/[0.06] bg-white/[0.02] px-3 py-2">
-                <span className="text-white/45">Fiat net:</span>{" "}
-                <span className="font-mono text-white/75">{r ? fmtUsd(r.fiatNet) : "—"}</span>
+            <div className="mt-4 grid grid-cols-2 gap-3 text-[0.65rem] text-[#5B6E68]">
+              <div className="rounded-md border border-[#E3EAE6] bg-[#F7FAF8] px-3 py-2">
+                <span className="text-[#7A8C86]">Fiat net:</span>{" "}
+                <span className="font-mono text-[#33544C]">{r ? fmtUsd(r.fiatNet) : "—"}</span>
               </div>
-              <div className="rounded-md border border-white/[0.06] bg-white/[0.02] px-3 py-2">
-                <span className="text-white/45">Gold price (XAU):</span>{" "}
-                <span className="font-mono text-white/75">{r ? `$${r.goldPrice.toFixed(2)}` : "—"}</span>
+              <div className="rounded-md border border-[#E3EAE6] bg-[#F7FAF8] px-3 py-2">
+                <span className="text-[#7A8C86]">Gold price (XAU):</span>{" "}
+                <span className="font-mono text-[#33544C]">{r ? `$${r.goldPrice.toFixed(2)}` : "—"}</span>
               </div>
-              <div className="rounded-md border border-white/[0.06] bg-white/[0.02] px-3 py-2">
-                <span className="text-white/45">Index gold (locked):</span>{" "}
-                <span className="font-mono text-white/75">{r ? fmtUsd(r.indexGoldNet) : "—"}</span>
+              <div className="rounded-md border border-[#E3EAE6] bg-[#F7FAF8] px-3 py-2">
+                <span className="text-[#7A8C86]">Index gold (locked):</span>{" "}
+                <span className="font-mono text-[#33544C]">{r ? fmtUsd(r.indexGoldNet) : "—"}</span>
               </div>
-              <div className="rounded-md border border-white/[0.06] bg-white/[0.02] px-3 py-2">
-                <span className="text-white/45">Reserve gold (MARP):</span>{" "}
-                <span className="font-mono text-white/75">{r ? fmtUsd(r.reserveGoldNet) : "—"}</span>
+              <div className="rounded-md border border-[#E3EAE6] bg-[#F7FAF8] px-3 py-2">
+                <span className="text-[#7A8C86]">Reserve gold (MARP):</span>{" "}
+                <span className="font-mono text-[#33544C]">{r ? fmtUsd(r.reserveGoldNet) : "—"}</span>
               </div>
             </div>
           </Panel>
@@ -499,28 +499,28 @@ function RiskSection({ snapshot }: { snapshot: MetricsSnapshot | null }) {
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
             <Panel className="p-5">
               <Stat label="Current State" value={
-                <span className={`text-2xl font-mono tabular-nums ${tone === "emerald" ? "text-emerald-300" : tone === "amber" ? "text-mtqs-amber" : "text-mtqs-rose"}`}>
+                <span className={`text-2xl font-mono tabular-nums ${tone === "emerald" ? "text-emerald-600" : tone === "amber" ? "text-mtqs-amber" : "text-mtqs-rose"}`}>
                   {state}
                 </span>
               } sub={snapshot ? `entered: ${new Date(snapshot.riskStateEnteredAt).toLocaleTimeString()}` : "—"} />
             </Panel>
             <Panel className="p-5">
               <Stat label="VIX (volatility)" value={
-                <span className="text-2xl font-mono tabular-nums text-white">
+                <span className="text-2xl font-mono tabular-nums text-[#0E1F1B]">
                   {m ? m.vix.toFixed(2) : <Skeleton className="h-7 w-20 inline-block" />}
                 </span>
               } sub={`z-score: ${m ? m.zVix.toFixed(2) : "—"}`} />
             </Panel>
             <Panel className="p-5">
               <Stat label="DXY (dollar index)" value={
-                <span className="text-2xl font-mono tabular-nums text-white">
+                <span className="text-2xl font-mono tabular-nums text-[#0E1F1B]">
                   {m ? m.dxy.toFixed(2) : <Skeleton className="h-7 w-20 inline-block" />}
                 </span>
               } sub={`z-score: ${m ? m.zDxy.toFixed(2) : "—"}`} />
             </Panel>
             <Panel className="p-5">
               <Stat label="Worse Condition Binding" value={
-                <span className="text-base font-mono text-white/85 uppercase">
+                <span className="text-base font-mono text-[#33544C] uppercase">
                   {snapshot ? snapshot.riskStateWorseCondition : "—"}
                 </span>
               } sub="rr vs lcr · worse binds" />
@@ -531,7 +531,7 @@ function RiskSection({ snapshot }: { snapshot: MetricsSnapshot | null }) {
           <Panel className="p-5">
             <div className="flex items-center gap-2 mb-4">
               <ShieldIcon className="h-4 w-4 text-mtqs-gold/80" aria-hidden="true" />
-              <h3 className="text-sm font-semibold text-white">State Ladder · RR &amp; LCR Bands</h3>
+              <h3 className="text-sm font-semibold text-[#0E1F1B]">State Ladder · RR &amp; LCR Bands</h3>
             </div>
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-2.5">
               {RISK_BANDS.map((b) => {
@@ -547,18 +547,18 @@ function RiskSection({ snapshot }: { snapshot: MetricsSnapshot | null }) {
                           : t === "amber"
                           ? "border-mtqs-amber/40 bg-mtqs-amber/8"
                           : "border-mtqs-rose/40 bg-mtqs-rose/8"
-                        : "border-white/[0.06] bg-white/[0.02]"
+                        : "border-[#E3EAE6] bg-[#F7FAF8]"
                     }`}
                   >
                     <div className="flex items-center justify-between mb-1.5">
-                      <span className={`font-mono text-[0.82rem] font-semibold ${isActive ? (t === "emerald" ? "text-emerald-300" : t === "amber" ? "text-mtqs-amber" : "text-mtqs-rose") : "text-white/75"}`}>
+                      <span className={`font-mono text-[0.82rem] font-semibold ${isActive ? (t === "emerald" ? "text-emerald-600" : t === "amber" ? "text-mtqs-amber" : "text-mtqs-rose") : "text-[#33544C]"}`}>
                         {b.state}
                       </span>
                       {isActive && <GlowDot color={t} size="h-1.5 w-1.5" />}
                     </div>
-                    <div className="text-[0.68rem] text-white/55 font-mono space-y-0.5">
-                      <div>RR: <span className="text-white/75">{b.rr}</span></div>
-                      <div>LCR: <span className="text-white/75">{b.lcr}</span></div>
+                    <div className="text-[0.68rem] text-[#5B6E68] font-mono space-y-0.5">
+                      <div>RR: <span className="text-[#33544C]">{b.rr}</span></div>
+                      <div>LCR: <span className="text-[#33544C]">{b.lcr}</span></div>
                     </div>
                   </div>
                 );
@@ -570,37 +570,37 @@ function RiskSection({ snapshot }: { snapshot: MetricsSnapshot | null }) {
           <Panel className="p-5">
             <div className="flex items-center gap-2 mb-4">
               <AlertTriangle className="h-4 w-4 text-mtqs-gold/80" aria-hidden="true" />
-              <h3 className="text-sm font-semibold text-white">Active Policy Diagnostics</h3>
+              <h3 className="text-sm font-semibold text-[#0E1F1B]">Active Policy Diagnostics</h3>
             </div>
             <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3 text-[0.7rem]">
-              <div className="rounded-md border border-white/[0.06] bg-white/[0.02] p-3">
-                <div className="text-[0.6rem] uppercase tracking-widest text-white/55">Mint Capacity</div>
-                <div className="font-mono text-white mt-1">{snapshot ? fmtPct(snapshot.mintThrottle) : "—"}</div>
-                <div className="text-[0.55rem] text-white/40 mt-0.5">100% = unthrottled · 0% = paused</div>
+              <div className="rounded-md border border-[#E3EAE6] bg-[#F7FAF8] p-3">
+                <div className="text-[0.6rem] uppercase tracking-widest text-[#5B6E68]">Mint Capacity</div>
+                <div className="font-mono text-[#0E1F1B] mt-1">{snapshot ? fmtPct(snapshot.mintThrottle) : "—"}</div>
+                <div className="text-[0.55rem] text-[#7A8C86] mt-0.5">100% = unthrottled · 0% = paused</div>
               </div>
-              <div className="rounded-md border border-white/[0.06] bg-white/[0.02] p-3">
-                <div className="text-[0.6rem] uppercase tracking-widest text-white/55">Redeem Fee</div>
-                <div className="font-mono text-white mt-1">{snapshot ? fmtPct(snapshot.redeemFeePct, 3) : "—"}</div>
+              <div className="rounded-md border border-[#E3EAE6] bg-[#F7FAF8] p-3">
+                <div className="text-[0.6rem] uppercase tracking-widest text-[#5B6E68]">Redeem Fee</div>
+                <div className="font-mono text-[#0E1F1B] mt-1">{snapshot ? fmtPct(snapshot.redeemFeePct, 3) : "—"}</div>
               </div>
-              <div className="rounded-md border border-white/[0.06] bg-white/[0.02] p-3">
-                <div className="text-[0.6rem] uppercase tracking-widest text-white/55">Rebalance Urgency</div>
-                <div className="font-mono text-white mt-1">{snapshot ? snapshot.rebalanceUrgency.toFixed(2) : "—"}</div>
+              <div className="rounded-md border border-[#E3EAE6] bg-[#F7FAF8] p-3">
+                <div className="text-[0.6rem] uppercase tracking-widest text-[#5B6E68]">Rebalance Urgency</div>
+                <div className="font-mono text-[#0E1F1B] mt-1">{snapshot ? snapshot.rebalanceUrgency.toFixed(2) : "—"}</div>
               </div>
-              <div className="rounded-md border border-white/[0.06] bg-white/[0.02] p-3">
-                <div className="text-[0.6rem] uppercase tracking-widest text-white/55">Minting</div>
-                <div className={`font-mono mt-1 ${snapshot?.mintingAllowed ? "text-emerald-300" : "text-mtqs-rose"}`}>
+              <div className="rounded-md border border-[#E3EAE6] bg-[#F7FAF8] p-3">
+                <div className="text-[0.6rem] uppercase tracking-widest text-[#5B6E68]">Minting</div>
+                <div className={`font-mono mt-1 ${snapshot?.mintingAllowed ? "text-emerald-600" : "text-mtqs-rose"}`}>
                   {snapshot ? (snapshot.mintingAllowed ? "ALLOWED" : "HALTED") : "—"}
                 </div>
               </div>
-              <div className="rounded-md border border-white/[0.06] bg-white/[0.02] p-3">
-                <div className="text-[0.6rem] uppercase tracking-widest text-white/55">Redemption</div>
-                <div className={`font-mono mt-1 ${snapshot?.redemptionAllowed ? "text-emerald-300" : "text-mtqs-rose"}`}>
+              <div className="rounded-md border border-[#E3EAE6] bg-[#F7FAF8] p-3">
+                <div className="text-[0.6rem] uppercase tracking-widest text-[#5B6E68]">Redemption</div>
+                <div className={`font-mono mt-1 ${snapshot?.redemptionAllowed ? "text-emerald-600" : "text-mtqs-rose"}`}>
                   {snapshot ? (snapshot.redemptionAllowed ? "ALLOWED" : "HALTED") : "—"}
                 </div>
               </div>
-              <div className="rounded-md border border-white/[0.06] bg-white/[0.02] p-3">
-                <div className="text-[0.6rem] uppercase tracking-widest text-white/55">Confirmation Ends</div>
-                <div className="font-mono text-white mt-1">
+              <div className="rounded-md border border-[#E3EAE6] bg-[#F7FAF8] p-3">
+                <div className="text-[0.6rem] uppercase tracking-widest text-[#5B6E68]">Confirmation Ends</div>
+                <div className="font-mono text-[#0E1F1B] mt-1">
                   {snapshot?.riskStateConfirmationEnds ? new Date(snapshot.riskStateConfirmationEnds).toLocaleString() : "—"}
                 </div>
               </div>
@@ -638,7 +638,7 @@ function RebalancingSection({ snapshot }: { snapshot: MetricsSnapshot | null }) 
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
             <Panel className="p-5">
               <Stat label="Direction" value={
-                <span className={`text-xl font-mono ${d?.direction === 1 ? "text-emerald-300" : d?.direction === -1 ? "text-mtqs-rose" : "text-white/65"}`}>
+                <span className={`text-xl font-mono ${d?.direction === 1 ? "text-emerald-600" : d?.direction === -1 ? "text-mtqs-rose" : "text-[#33544C]"}`}>
                   {dirLabel}
                 </span>
               } sub={d?.shouldRebalance ? "should execute" : "no-trade zone"} />
@@ -652,14 +652,14 @@ function RebalancingSection({ snapshot }: { snapshot: MetricsSnapshot | null }) 
             </Panel>
             <Panel className="p-5">
               <Stat label="Observed Gold Wt" value={
-                <span className="text-2xl font-mono tabular-nums text-white">
+                <span className="text-2xl font-mono tabular-nums text-[#0E1F1B]">
                   {d ? fmtPct(d.observedGoldWeight) : <Skeleton className="h-7 w-20 inline-block" />}
                 </span>
               } sub="reserve + index gold / NAV · legacy §6.5/§8 buffer path (v1/v2)" />
             </Panel>
             <Panel className="p-5">
               <Stat label="Target Gold Wt" value={
-                <span className="text-2xl font-mono tabular-nums text-white">
+                <span className="text-2xl font-mono tabular-nums text-[#0E1F1B]">
                   {d ? fmtPct(d.targetGoldWeight) : <Skeleton className="h-7 w-20 inline-block" />}
                 </span>
               } sub={`deviation: ${d ? fmtPct(Math.abs(d.deviation)) : "—"}`} />
@@ -670,21 +670,21 @@ function RebalancingSection({ snapshot }: { snapshot: MetricsSnapshot | null }) 
           <Panel className="p-5">
             <div className="flex items-center gap-2 mb-3">
               <RefreshCw className="h-4 w-4 text-mtqs-gold/80" aria-hidden="true" />
-              <h3 className="text-sm font-semibold text-white">Decision Reason</h3>
+              <h3 className="text-sm font-semibold text-[#0E1F1B]">Decision Reason</h3>
             </div>
-            <div className="rounded-md border border-white/[0.06] bg-white/[0.02] p-4 font-mono text-[0.78rem] text-white/85 leading-relaxed">
+            <div className="rounded-md border border-[#E3EAE6] bg-[#F7FAF8] p-4 font-mono text-[0.78rem] text-[#33544C] leading-relaxed">
               {d ? d.reason : "Awaiting first snapshot…"}
             </div>
-            <div className="mt-3 flex flex-wrap items-center gap-3 text-[0.65rem] text-white/55">
+            <div className="mt-3 flex flex-wrap items-center gap-3 text-[0.65rem] text-[#5B6E68]">
               <span>Execution path:</span>
               <Pill tone={snapshot?.rebalancePath === "marp" ? "emerald" : "amber"}>
                 {snapshot?.rebalancePath === "marp" ? "MARP active" : "Legacy §7 active"}
               </Pill>
               {snapshot?.marpExecution && (
                 <span>
-                  applied: <span className="font-mono text-white/75">{snapshot.marpExecution.appliedCount}</span>
-                  {" · "}skipped: <span className="font-mono text-white/75">{snapshot.marpExecution.skippedCount}</span>
-                  {" · "}Σ trade: <span className="font-mono text-white/75">{fmtUsd(snapshot.marpExecution.totalTradeUsd)}</span>
+                  applied: <span className="font-mono text-[#33544C]">{snapshot.marpExecution.appliedCount}</span>
+                  {" · "}skipped: <span className="font-mono text-[#33544C]">{snapshot.marpExecution.skippedCount}</span>
+                  {" · "}Σ trade: <span className="font-mono text-[#33544C]">{fmtUsd(snapshot.marpExecution.totalTradeUsd)}</span>
                 </span>
               )}
             </div>
@@ -695,12 +695,12 @@ function RebalancingSection({ snapshot }: { snapshot: MetricsSnapshot | null }) 
             <Panel className="p-5">
               <div className="flex items-center gap-2 mb-3">
                 <CircuitBoard className="h-4 w-4 text-mtqs-gold/80" aria-hidden="true" />
-                <h3 className="text-sm font-semibold text-white">MARP Per-Component Projection (§10)</h3>
+                <h3 className="text-sm font-semibold text-[#0E1F1B]">MARP Per-Component Projection (§10)</h3>
               </div>
               <div className="overflow-x-auto">
                 <table className="w-full text-[0.75rem]">
                   <thead>
-                    <tr className="text-[0.6rem] uppercase tracking-widest text-white/55 border-b border-white/[0.06]">
+                    <tr className="text-[0.6rem] uppercase tracking-widest text-[#5B6E68] border-b border-[#E3EAE6]">
                       <th className="text-left font-medium py-2 pr-3">Component</th>
                       <th className="text-left font-medium py-2 px-3">Direction</th>
                       <th className="text-right font-medium py-2 px-3">Trade USD</th>
@@ -711,21 +711,21 @@ function RebalancingSection({ snapshot }: { snapshot: MetricsSnapshot | null }) 
                   </thead>
                   <tbody className="font-mono tabular-nums">
                     {marp.decisions.map((dec) => (
-                      <tr key={dec.component} className="border-b border-white/[0.04] last:border-b-0">
+                      <tr key={dec.component} className="border-b border-[#EDF2EF] last:border-b-0">
                         <td className="py-2 pr-3 text-mtqs-gold">{dec.component}</td>
-                        <td className="py-2 px-3 text-white/75">{dec.direction}</td>
-                        <td className="py-2 px-3 text-right text-white/85">{fmtUsd(dec.tradeUsd)}</td>
-                        <td className="py-2 px-3 text-right text-white/75">{dec.urgency.toFixed(2)}</td>
-                        <td className="py-2 px-3 text-white/65">L{dec.level}</td>
-                        <td className="py-2 pl-3 text-white/65 text-[0.7rem]">{dec.reason}</td>
+                        <td className="py-2 px-3 text-[#33544C]">{dec.direction}</td>
+                        <td className="py-2 px-3 text-right text-[#33544C]">{fmtUsd(dec.tradeUsd)}</td>
+                        <td className="py-2 px-3 text-right text-[#33544C]">{dec.urgency.toFixed(2)}</td>
+                        <td className="py-2 px-3 text-[#33544C]">L{dec.level}</td>
+                        <td className="py-2 pl-3 text-[#33544C] text-[0.7rem]">{dec.reason}</td>
                       </tr>
                     ))}
                   </tbody>
                 </table>
               </div>
-              <div className="mt-3 text-[0.65rem] text-white/55">
-                Σ MARP trade: <span className="font-mono text-white/75">{fmtUsd(marp.totalTradeUsd)}</span>
-                {" · "}MARP is the <span className="text-white/75">ACTIVE execution path</span> in the simulated pilot
+              <div className="mt-3 text-[0.65rem] text-[#5B6E68]">
+                Σ MARP trade: <span className="font-mono text-[#33544C]">{fmtUsd(marp.totalTradeUsd)}</span>
+                {" · "}MARP is the <span className="text-[#33544C]">ACTIVE execution path</span> in the simulated pilot
                 (<code className="font-mono text-mtqs-gold">USE_MARP_EXECUTION=true</code> · testnet shadow mode) —
                 applied decisions mutate the pilot ledger; no on-chain settlement occurs.
               </div>
@@ -803,26 +803,26 @@ function GovernanceSection() {
                 "border-mtqs-rose/30 bg-mtqs-rose/[0.05]";
               const iconCls =
                 c.tone === "gold" ? "text-mtqs-gold" :
-                c.tone === "emerald" ? "text-emerald-300" :
+                c.tone === "emerald" ? "text-emerald-600" :
                 c.tone === "amber" ? "text-mtqs-amber" :
                 "text-mtqs-rose";
               return (
                 <Panel key={c.name} className={`p-5 ${toneCls}`}>
                   <div className="flex items-start gap-3">
-                    <span className={`inline-flex items-center justify-center rounded-md border border-white/[0.08] bg-white/[0.04] p-2 ${iconCls}`}>
+                    <span className={`inline-flex items-center justify-center rounded-md border border-[#E3EAE6] bg-[#F0F7F4] p-2 ${iconCls}`}>
                       <Icon className="h-4 w-4" aria-hidden="true" />
                     </span>
                     <div className="flex-1 min-w-0">
                       <div className="flex items-center justify-between gap-2">
-                        <h3 className="text-base font-semibold text-white">{c.name}</h3>
+                        <h3 className="text-base font-semibold text-[#0E1F1B]">{c.name}</h3>
                         <Pill tone={c.tone === "gold" ? "gold" : c.tone === "emerald" ? "emerald" : c.tone === "amber" ? "amber" : "rose"}>
                           {c.authority}
                         </Pill>
                       </div>
-                      <div className="mt-1 text-[0.68rem] uppercase tracking-widest text-white/55">
-                        Timelock: <span className="font-mono text-white/75">{c.timelock}</span>
+                      <div className="mt-1 text-[0.68rem] uppercase tracking-widest text-[#5B6E68]">
+                        Timelock: <span className="font-mono text-[#33544C]">{c.timelock}</span>
                       </div>
-                      <p className="mt-2 text-[0.75rem] text-white/70 leading-relaxed">{c.scope}</p>
+                      <p className="mt-2 text-[0.75rem] text-[#33544C] leading-relaxed">{c.scope}</p>
                     </div>
                   </div>
                 </Panel>
@@ -831,7 +831,7 @@ function GovernanceSection() {
           </div>
           {/* 16f-011: same OD-3 qualifier EventExplorer's governance rows carry —
               the 4 councils are SPECIFIED, none is constituted. */}
-          <div className="mt-3 rounded-lg border border-mtqs-amber/25 bg-amber-400/[0.04] px-4 py-3 text-[0.7rem] leading-relaxed text-white/60">
+          <div className="mt-3 rounded-lg border border-amber-200 bg-amber-50 px-4 py-3 text-[0.7rem] leading-relaxed text-[#5B6E68]">
             <span className="font-semibold text-mtqs-amber">SPECIFIED — NOT OPERATIONAL (OD-3 open).</span>{" "}
             These four layers are the blueprint&apos;s governance specification. No council is constituted
             and no signer is live (G9 NOT CONDUCTED) — no governance action has ever been executed.
@@ -841,9 +841,9 @@ function GovernanceSection() {
           <Panel className="p-5">
             <div className="flex items-center gap-2 mb-3">
               <Users className="h-4 w-4 text-mtqs-gold/80" aria-hidden="true" />
-              <h3 className="text-sm font-semibold text-white">Authority Hierarchy</h3>
+              <h3 className="text-sm font-semibold text-[#0E1F1B]">Authority Hierarchy</h3>
             </div>
-            <div className="text-[0.72rem] text-white/70 leading-relaxed">
+            <div className="text-[0.72rem] text-[#33544C] leading-relaxed">
               Each parameter is owned by exactly one governance layer (§22.4 parameter registry).
               Constitutional parameters are <span className="text-mtqs-gold">immutable</span> (cannot be changed post-genesis) —
               including <code className="font-mono text-mtqs-gold">RR_TARGET = 1.10</code> and the RR hard floor
@@ -877,56 +877,56 @@ function GovernanceSection() {
             ) : honest ? (
               <div className="space-y-4">
                 <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
-                  <div className="rounded-md border border-white/[0.06] bg-white/[0.02] p-3">
-                    <div className="text-[0.6rem] uppercase tracking-widest text-white/55">Production Ready</div>
-                    <div className={`font-mono text-base mt-1 ${honest.isProductionAuthorized ? "text-emerald-300" : "text-mtqs-rose"}`}>
+                  <div className="rounded-md border border-[#E3EAE6] bg-[#F7FAF8] p-3">
+                    <div className="text-[0.6rem] uppercase tracking-widest text-[#5B6E68]">Production Ready</div>
+                    <div className={`font-mono text-base mt-1 ${honest.isProductionAuthorized ? "text-emerald-600" : "text-mtqs-rose"}`}>
                       {honest.isProductionAuthorized ? "YES" : "NO"}
                     </div>
                   </div>
-                  <div className="rounded-md border border-white/[0.06] bg-white/[0.02] p-3">
-                    <div className="text-[0.6rem] uppercase tracking-widest text-white/55">Gates Passed</div>
-                    <div className="font-mono text-base mt-1 text-white">
+                  <div className="rounded-md border border-[#E3EAE6] bg-[#F7FAF8] p-3">
+                    <div className="text-[0.6rem] uppercase tracking-widest text-[#5B6E68]">Gates Passed</div>
+                    <div className="font-mono text-base mt-1 text-[#0E1F1B]">
                       {honest.gateSummary ? `${honest.gateSummary.passed}/${honest.gateSummary.total}` : "—"}
                     </div>
                   </div>
-                  <div className="rounded-md border border-white/[0.06] bg-white/[0.02] p-3">
-                    <div className="text-[0.6rem] uppercase tracking-widest text-white/55">Implemented Mask</div>
+                  <div className="rounded-md border border-[#E3EAE6] bg-[#F7FAF8] p-3">
+                    <div className="text-[0.6rem] uppercase tracking-widest text-[#5B6E68]">Implemented Mask</div>
                     <div className="font-mono text-base mt-1 text-mtqs-gold">0x{honest.implementedMask.toString(16).toUpperCase()}</div>
                   </div>
-                  <div className="rounded-md border border-white/[0.06] bg-white/[0.02] p-3">
-                    <div className="text-[0.6rem] uppercase tracking-widest text-white/55">Authorized Mask</div>
+                  <div className="rounded-md border border-[#E3EAE6] bg-[#F7FAF8] p-3">
+                    <div className="text-[0.6rem] uppercase tracking-widest text-[#5B6E68]">Authorized Mask</div>
                     <div className="font-mono text-base mt-1 text-mtqs-rose">0x{honest.authorizedMask.toString(16).toUpperCase()}</div>
                   </div>
                 </div>
                 {honest.validationGates && honest.validationGates.length > 0 && (
-                  <div className="rounded-md border border-white/[0.06] bg-white/[0.02] overflow-hidden">
+                  <div className="rounded-md border border-[#E3EAE6] bg-[#F7FAF8] overflow-hidden">
                     <div className="max-h-72 overflow-y-auto mtqs-scroll">
                       {honest.validationGates.map((g, i) => (
-                        <div key={g.id} className={`flex items-start gap-3 px-3 py-2.5 ${i % 2 ? "bg-white/[0.01]" : ""} border-t border-white/[0.06] first:border-t-0`}>
-                          {g.passed ? <CheckCircle2 className="h-4 w-4 text-emerald-300 shrink-0 mt-0.5" /> : <XCircle className="h-4 w-4 text-mtqs-rose shrink-0 mt-0.5" />}
+                        <div key={g.id} className={`flex items-start gap-3 px-3 py-2.5 ${i % 2 ? "bg-[#FAFCFA]" : ""} border-t border-[#E3EAE6] first:border-t-0`}>
+                          {g.passed ? <CheckCircle2 className="h-4 w-4 text-emerald-600 shrink-0 mt-0.5" /> : <XCircle className="h-4 w-4 text-mtqs-rose shrink-0 mt-0.5" />}
                           <div className="flex-1 min-w-0">
                             <div className="flex items-center gap-2">
                               <span className="font-mono text-[0.7rem] text-mtqs-gold/85">{g.id}</span>
-                              <span className="text-[0.78rem] text-white font-medium">{g.name}</span>
+                              <span className="text-[0.78rem] text-[#0E1F1B] font-medium">{g.name}</span>
                             </div>
-                            <div className="text-[0.7rem] text-white/55 mt-0.5">{g.description}</div>
-                            {g.evidence && <div className="text-[0.65rem] text-white/45 mt-1 font-mono">{g.evidence}</div>}
+                            <div className="text-[0.7rem] text-[#5B6E68] mt-0.5">{g.description}</div>
+                            {g.evidence && <div className="text-[0.65rem] text-[#7A8C86] mt-1 font-mono">{g.evidence}</div>}
                           </div>
                         </div>
                       ))}
                     </div>
                   </div>
                 )}
-                <div className="rounded-md border border-mtqs-amber/25 bg-mtqs-amber/[0.04] p-3 text-[0.7rem] text-white/70 leading-relaxed">
+                <div className="rounded-md border border-amber-200 bg-amber-50 p-3 text-[0.7rem] text-[#33544C] leading-relaxed">
                   <span className="text-mtqs-amber font-medium">Disclaimer: </span>
                   {honest.disclaimer ?? "MTQΣ testnet honest status — NOT PRODUCTION-AUTHORIZED."}
                 </div>
-                <div className="text-[0.62rem] text-white/45 font-mono">
+                <div className="text-[0.62rem] text-[#7A8C86] font-mono">
                   version: {honest.version} · computed: {honest.computedAt}
                 </div>
               </div>
             ) : (
-              <div className="text-[0.78rem] text-white/55">Honest status unavailable.</div>
+              <div className="text-[0.78rem] text-[#5B6E68]">Honest status unavailable.</div>
             )}
           </Panel>
         </Reveal>
@@ -1164,12 +1164,12 @@ export function PilotCommandCenter({ onExit }: { onExit?: () => void }) {
                           </Reveal>
                           <Reveal delay={0.05}>
                             <div className="space-y-4">
-                              <div className="rounded-xl border border-mtqs-amber/25 bg-mtqs-amber/[0.04] p-5">
+                              <div className="rounded-xl border border-amber-200 bg-amber-50 p-5">
                                 <h3 className="text-sm font-semibold text-mtqs-amber mb-2 flex items-center gap-2">
                                   <GlowDot color="amber" size="h-2 w-2" />
                                   What this faucet does
                                 </h3>
-                                <ul className="text-[0.78rem] text-white/70 space-y-2 leading-relaxed list-disc list-inside">
+                                <ul className="text-[0.78rem] text-[#33544C] space-y-2 leading-relaxed list-disc list-inside">
                                   <li>Picks a testnet network + test asset + wallet address + claim amount. The asset selection is <span className="text-mtqs-amber">cosmetic</span> — every claim is processed as a USD-equivalent test value through the USDC mint path (the trial log records it as USDC).</li>
                                   <li>Calls <code className="font-mono text-mtqs-gold">/api/simulate/mint</code> which mints MTQ against the live pilot engine — fees, RR, and circulating supply are real state changes.</li>
                                   <li>Generates a deterministic simulated tx hash + block number so the UI feels like a real faucet. No on-chain broadcast.</li>
@@ -1177,28 +1177,28 @@ export function PilotCommandCenter({ onExit }: { onExit?: () => void }) {
                                   <li>All assets are simulated. <span className="text-mtqs-rose font-medium">No real value.</span></li>
                                 </ul>
                               </div>
-                              <div className="rounded-xl border border-white/[0.06] bg-white/[0.02] p-5">
-                                <h3 className="text-sm font-semibold text-white mb-2">Available test assets</h3>
+                              <div className="rounded-xl border border-[#E3EAE6] bg-[#F7FAF8] p-5">
+                                <h3 className="text-sm font-semibold text-[#0E1F1B] mb-2">Available test assets</h3>
                                 <div className="grid grid-cols-2 gap-2 text-[0.72rem]">
-                                  <div className="rounded-md border border-white/[0.06] px-2 py-1.5">
+                                  <div className="rounded-md border border-[#E3EAE6] px-2 py-1.5">
                                     <div className="font-mono text-mtqs-gold">MON</div>
-                                    <div className="text-white/55">Monad testnet</div>
+                                    <div className="text-[#5B6E68]">Monad testnet</div>
                                   </div>
-                                  <div className="rounded-md border border-white/[0.06] px-2 py-1.5">
+                                  <div className="rounded-md border border-[#E3EAE6] px-2 py-1.5">
                                     <div className="font-mono text-mtqs-gold">MockUSDC</div>
-                                    <div className="text-white/55">pilot collateral</div>
+                                    <div className="text-[#5B6E68]">pilot collateral</div>
                                   </div>
-                                  <div className="rounded-md border border-white/[0.06] px-2 py-1.5">
+                                  <div className="rounded-md border border-[#E3EAE6] px-2 py-1.5">
                                     <div className="font-mono text-mtqs-gold">SOL</div>
-                                    <div className="text-white/55">Solana devnet</div>
+                                    <div className="text-[#5B6E68]">Solana devnet</div>
                                   </div>
-                                  <div className="rounded-md border border-white/[0.06] px-2 py-1.5">
+                                  <div className="rounded-md border border-[#E3EAE6] px-2 py-1.5">
                                     <div className="font-mono text-mtqs-gold">MTQ</div>
-                                    <div className="text-white/55">protocol claim</div>
+                                    <div className="text-[#5B6E68]">protocol claim</div>
                                   </div>
-                                  <div className="rounded-md border border-white/[0.06] px-2 py-1.5">
+                                  <div className="rounded-md border border-[#E3EAE6] px-2 py-1.5">
                                     <div className="font-mono text-mtqs-gold">USDC</div>
-                                    <div className="text-white/55">Arc testnet</div>
+                                    <div className="text-[#5B6E68]">Arc testnet</div>
                                   </div>
                                 </div>
                               </div>

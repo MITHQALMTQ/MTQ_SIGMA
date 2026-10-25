@@ -180,10 +180,10 @@ export function RedeemSection({
       {/* Amber truth banner (shared component) */}
       <Reveal>
         <TruthBanner>
-          <p className="text-[0.75rem] text-amber-100/90 leading-relaxed">
-            This redeem page runs the <strong className="text-amber-100">simulated pilot engine</strong> —
+          <p className="text-[0.75rem] text-amber-700/90 leading-relaxed">
+            This redeem page runs the <strong className="text-amber-800">simulated pilot engine</strong> —
             no on-chain broadcast, no real value. And the exit side carries its own doctrine:
-            redemption is priced against NAV and releases the <strong className="text-amber-100">full
+            redemption is priced against NAV and releases the <strong className="text-amber-800">full
             proportional basket</strong> (§19.6.2) — it is never a USD redemption promise.
           </p>
         </TruthBanner>
@@ -260,7 +260,7 @@ export function RedeemSection({
               setWallet={setWallet}
               onAfterTrial={onAfterTrial}
             />
-            <p className="mt-3 text-[0.65rem] text-white/45 leading-relaxed">
+            <p className="mt-3 text-[0.65rem] text-[#7A8C86] leading-relaxed">
               The pilot settles at NAV (§12.2 / §19.3.2 Step 2 — P0-FIX-2): burn MTQΣ, release the
               proportional basket at book value; the legacy §3.4.2 index quote is the audit-only
               comparison (see the audit sub-panel on every run). Every run is recorded in the pilot
@@ -281,7 +281,7 @@ export function RedeemSection({
           <Panel className="p-4 sm:p-5 space-y-4">
             {/* 16f-008: the §19.3 walkthrough documents the legacy v1/v2
                 reserve-funded engine path as implemented in the pilot. */}
-            <div className="rounded-md border border-mtqs-amber/25 bg-amber-400/[0.04] px-3 py-2 text-[0.68rem] leading-relaxed text-white/60">
+            <div className="rounded-md border border-mtqs-amber/25 bg-amber-50 px-3 py-2 text-[0.68rem] leading-relaxed text-[#5B6E68]">
               <span className="font-semibold text-mtqs-amber">Legacy v1/v2 pilot-ledger path.</span>{" "}
               The steps below document the reserve-funded engine path as implemented; the v3.0
               no-conventional-reserve objective (payment-funded issuance) supersedes it — Gate B
@@ -294,12 +294,12 @@ export function RedeemSection({
               </div>
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-3">
                 {REDEEM_INPUTS.map((input) => (
-                  <div key={input.param} className="rounded-md border border-white/[0.06] bg-white/[0.03] p-3">
+                  <div key={input.param} className="rounded-md border border-[#E3EAE6] bg-[#F7FAF8] p-3">
                     <div className="flex items-baseline justify-between gap-2">
-                      <span className="text-[0.72rem] font-medium text-white/90">{input.param}</span>
+                      <span className="text-[0.72rem] font-medium text-[#0E1F1B]">{input.param}</span>
                       <code className="font-mono text-[0.68rem] text-mtqs-gold-light">{input.symbol}</code>
                     </div>
-                    <p className="mt-1.5 text-[0.68rem] text-white/55 leading-relaxed">{input.desc}</p>
+                    <p className="mt-1.5 text-[0.68rem] text-[#5B6E68] leading-relaxed">{input.desc}</p>
                   </div>
                 ))}
               </div>
@@ -317,10 +317,10 @@ export function RedeemSection({
                       {i + 1}
                     </span>
                     <div className="min-w-0">
-                      <div className="text-[0.8rem] font-medium text-white/90">{step.title}</div>
-                      <p className="text-[0.72rem] text-white/55 leading-relaxed">{step.body}</p>
+                      <div className="text-[0.8rem] font-medium text-[#0E1F1B]">{step.title}</div>
+                      <p className="text-[0.72rem] text-[#5B6E68] leading-relaxed">{step.body}</p>
                       {step.formula ? (
-                        <code className="mt-1.5 inline-block rounded bg-white/[0.04] px-1.5 py-0.5 font-mono text-[0.68rem] text-mtqs-gold-light">
+                        <code className="mt-1.5 inline-block rounded bg-[#F7FAF8] px-1.5 py-0.5 font-mono text-[0.68rem] text-mtqs-gold-light">
                           {step.formula}
                         </code>
                       ) : null}
@@ -328,7 +328,7 @@ export function RedeemSection({
                   </li>
                 ))}
               </ol>
-              <p className="mt-3 text-[0.68rem] text-white/45 leading-relaxed">
+              <p className="mt-3 text-[0.68rem] text-[#7A8C86] leading-relaxed">
                 The full-basket branch emits <code className="font-mono text-[0.65rem] text-mtqs-gold-light">Redeemed(user, mtqBurned, valueOut, assetAmounts)</code>;
                 the router branch emits <code className="font-mono text-[0.65rem] text-mtqs-gold-light">RedeemedSingle(user, mtqBurned, valueOut, outputAsset)</code> —
                 both feed the transparency layer (§24.4). The full-basket release doctrine is §19.6.2 (below).
@@ -347,28 +347,28 @@ export function RedeemSection({
       >
         <Reveal>
           <Panel className="p-4 sm:p-5 space-y-4">
-            <div className="rounded-md border border-white/[0.06] bg-white/[0.03] px-3 py-2.5">
-              <div className="text-[0.6rem] uppercase tracking-[0.22em] text-white/45 mb-1.5">
+            <div className="rounded-md border border-[#E3EAE6] bg-[#F7FAF8] px-3 py-2.5">
+              <div className="text-[0.6rem] uppercase tracking-[0.22em] text-[#7A8C86] mb-1.5">
                 router revert condition
               </div>
               <code className="font-mono text-[0.78rem] text-mtqs-gold-light">
                 {"revert if ExecPrice < OraclePrice × (1 − τ_user)"}
               </code>
             </div>
-            <ul className="space-y-2 text-[0.72rem] text-white/55 leading-relaxed">
+            <ul className="space-y-2 text-[0.72rem] text-[#5B6E68] leading-relaxed">
               <li className="flex gap-2">
                 <span className="text-mtqs-gold shrink-0" aria-hidden="true">·</span>
                 <span>
-                  <strong className="text-white/80">ExecPrice</strong> is the effective price actually
+                  <strong className="text-[#0E1F1B]">ExecPrice</strong> is the effective price actually
                   realized by the router swap (value out divided by value in);{" "}
-                  <strong className="text-white/80">OraclePrice</strong> is the canonical price for the
+                  <strong className="text-[#0E1F1B]">OraclePrice</strong> is the canonical price for the
                   same conversion implied by the aggregator of Ch 17. τ_user again defaults to 0.005 (0.5%).
                 </span>
               </li>
               <li className="flex gap-2">
                 <span className="text-mtqs-gold shrink-0" aria-hidden="true">·</span>
                 <span>
-                  For <strong className="text-white/80">full-basket</strong> redemption no conversion
+                  For <strong className="text-[#0E1F1B]">full-basket</strong> redemption no conversion
                   occurs, so the guard takes the simpler minAssetOut form of §19.3.2: the transaction
                   reverts if the net redemption value — or the aggregate value of the released basket at
                   canonical prices — falls below the user&apos;s declared minimum.
@@ -398,7 +398,7 @@ export function RedeemSection({
             <div className="overflow-x-auto">
               <table className="w-full text-left border-collapse">
                 <thead>
-                  <tr className="text-[0.6rem] uppercase tracking-[0.22em] text-white/45">
+                  <tr className="text-[0.6rem] uppercase tracking-[0.22em] text-[#7A8C86]">
                     <th className="py-2 pr-4 font-normal">State</th>
                     <th className="py-2 pr-4 font-normal">Redemption</th>
                     <th className="py-2 pr-4 font-normal">Fee</th>
@@ -418,12 +418,12 @@ export function RedeemSection({
                             ? "border-mtqs-amber/40 bg-mtqs-amber/5"
                             : isEmergency
                             ? "border-mtqs-rose/20 bg-mtqs-rose/5"
-                            : "border-white/[0.06]"
+                            : "border-[#E3EAE6]"
                         }`}
                       >
                         <td className="py-2.5 pr-4 whitespace-nowrap">
                           <span className="font-mono text-mtqs-gold-light">{row.slot}</span>{" "}
-                          <span className="text-white/90">{row.state}</span>
+                          <span className="text-[#0E1F1B]">{row.state}</span>
                           {isCurrent ? (
                             <Pill tone="amber" className="ml-2">
                               <GlowDot color="amber" size="h-1.5 w-1.5" />
@@ -435,13 +435,13 @@ export function RedeemSection({
                           {row.action === "PAUSED" ? (
                             <span className="text-mtqs-rose">PAUSED</span>
                           ) : (
-                            <span className="text-white/80">{row.action}</span>
+                            <span className="text-[#0E1F1B]">{row.action}</span>
                           )}
                         </td>
                         <td className="py-2.5 pr-4 font-mono tabular-nums text-mtqs-gold-light">
                           {fee === null ? "—" : `${(fee * 100).toFixed(2)}%`}
                         </td>
-                        <td className="py-2.5 text-white/55">
+                        <td className="py-2.5 text-[#5B6E68]">
                           {isEmergency
                             ? "Redemption paused; REDEEM_FEE_EMERGENCY is retained only as the legacy Listing-13 constant and is never charged."
                             : row.state === "STRESS" || row.state === "DEFENSIVE"
@@ -456,7 +456,7 @@ export function RedeemSection({
                 </tbody>
               </table>
             </div>
-            <p className="mt-3 text-[0.68rem] text-white/45 leading-relaxed">
+            <p className="mt-3 text-[0.68rem] text-[#7A8C86] leading-relaxed">
               Fee values are imported from the pilot constants module (REDEEM_FEE_NORMAL / _STRESS / _DEFENSIVE / _RECOVERY) —
               nothing in the table is hand-typed. The effective rate is applied by the minting and
               redemption contracts (Ch 19); the matrix itself is §21.4.
@@ -477,8 +477,8 @@ export function RedeemSection({
             <div className="flex items-start gap-3">
               <AlertTriangle className="h-5 w-5 text-mtqs-amber shrink-0 mt-0.5" aria-hidden="true" />
               <div className="space-y-2">
-                <p className="text-[0.78rem] text-amber-100/90 leading-relaxed">
-                  <strong className="text-amber-100">
+                <p className="text-[0.78rem] text-amber-700/90 leading-relaxed">
+                  <strong className="text-amber-800">
                     Redemption releases the FULL proportional basket — never a USD redemption promise.
                   </strong>{" "}
                   The default redemption gives the user all fiat exposures plus gold, in proportion to
@@ -486,7 +486,7 @@ export function RedeemSection({
                   the unit represented while held. A single-currency settlement would silently re-impose
                   USD (or any other currency) risk at the exit door.
                 </p>
-                <p className="text-[0.72rem] text-amber-100/75 leading-relaxed">
+                <p className="text-[0.72rem] text-amber-700 leading-relaxed">
                   The single-asset router is a user convenience that adds a market conversion on top of
                   this default; the conversion cost and the router slippage guard are borne by the
                   requesting user — never by the reserve.

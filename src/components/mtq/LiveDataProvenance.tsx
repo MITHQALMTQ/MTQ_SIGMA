@@ -258,19 +258,19 @@ export function LiveDataProvenance() {
           <div className="mb-4 flex flex-wrap items-center justify-between gap-3">
             <div className="flex items-center gap-2">
               <Radio className="h-4 w-4 text-mtqs-gold/80" aria-hidden="true" />
-              <span className="text-[0.7rem] uppercase tracking-[0.22em] text-white/55">
+              <span className="text-[0.7rem] uppercase tracking-[0.22em] text-[#5B6E68]">
                 Independent verification of the 8/8 live claim
               </span>
             </div>
             <div className="flex items-center gap-3">
-              <div className="text-[0.7rem] text-white/55 font-mono tabular-nums">
+              <div className="text-[0.7rem] text-[#5B6E68] font-mono tabular-nums">
                 fetched {fmtAgo(fetchedAgoSec ?? NaN)}
               </div>
               <button
                 type="button"
                 onClick={() => fetchFx(true)}
                 disabled={refreshing}
-                className="inline-flex items-center gap-1.5 rounded-md border border-white/[0.06] bg-white/[0.03] px-2.5 py-1.5 text-[0.7rem] text-white transition hover:bg-white/[0.06] hover:border-mtqs-gold/40 disabled:opacity-50 disabled:cursor-not-allowed focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-mtqs-gold/40"
+                className="inline-flex items-center gap-1.5 rounded-md border border-[#E3EAE6] bg-[#F7FAF8] px-2.5 py-1.5 text-[0.7rem] text-[#0E1F1B] transition hover:bg-[#F0F7F4] hover:border-mtqs-gold/40 disabled:opacity-50 disabled:cursor-not-allowed focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-mtqs-gold/40"
                 aria-label="Force refresh the live FX snapshot"
               >
                 <RefreshCw
@@ -290,13 +290,13 @@ export function LiveDataProvenance() {
               ))}
             </div>
           ) : error ? (
-            <div className="rounded-md border border-mtqs-rose/30 bg-mtqs-rose/10 p-4 text-[0.78rem] text-rose-200">
+            <div className="rounded-md border border-mtqs-rose/30 bg-mtqs-rose/10 p-4 text-[0.78rem] text-rose-600">
               <p className="font-medium">Unable to fetch /api/fx</p>
-              <p className="mt-1 text-rose-200/80 font-mono">{error}</p>
+              <p className="mt-1 text-rose-600/80 font-mono">{error}</p>
               <button
                 type="button"
                 onClick={() => fetchFx(true)}
-                className="mt-3 inline-flex items-center gap-1.5 rounded-md border border-mtqs-rose/40 bg-mtqs-rose/10 px-2.5 py-1.5 text-[0.7rem] text-rose-100 transition hover:bg-mtqs-rose/20"
+                className="mt-3 inline-flex items-center gap-1.5 rounded-md border border-mtqs-rose/40 bg-mtqs-rose/10 px-2.5 py-1.5 text-[0.7rem] text-rose-700 transition hover:bg-mtqs-rose/20"
               >
                 <RefreshCw className="h-3.5 w-3.5" aria-hidden="true" />
                 Retry
@@ -308,7 +308,7 @@ export function LiveDataProvenance() {
               <div className="overflow-x-auto">
                 <table className="w-full min-w-[640px] border-collapse text-[0.78rem]">
                   <thead>
-                    <tr className="text-left text-[0.62rem] uppercase tracking-[0.2em] text-white/55">
+                    <tr className="text-left text-[0.62rem] uppercase tracking-[0.2em] text-[#5B6E68]">
                       <th scope="col" className="py-2 pr-3 font-medium">Signal</th>
                       <th scope="col" className="py-2 px-3 font-medium">Value</th>
                       <th scope="col" className="py-2 px-3 font-medium">Source</th>
@@ -324,15 +324,15 @@ export function LiveDataProvenance() {
                       return (
                         <tr
                           key={row.key}
-                          className="border-t border-white/[0.06] transition-colors hover:bg-white/[0.02]"
+                          className="border-t border-[#E3EAE6] transition-colors hover:bg-[#F0F7F4]"
                         >
-                          <th scope="row" className="py-2.5 pr-3 font-medium text-white">
+                          <th scope="row" className="py-2.5 pr-3 font-medium text-[#0E1F1B]">
                             {row.label}
                           </th>
                           <td className="py-2.5 px-3 font-mono tabular-nums text-mtqs-gold">
                             {fmtValue(row, fx)}
                           </td>
-                          <td className="py-2.5 px-3 text-white/55">
+                          <td className="py-2.5 px-3 text-[#5B6E68]">
                             <span className="inline-flex items-center gap-1.5">
                               <Database className="h-3 w-3 text-mtqs-gold/70" aria-hidden="true" />
                               {source}
@@ -344,7 +344,7 @@ export function LiveDataProvenance() {
                               {live ? "LIVE" : "SIM/FALLBACK"}
                             </Pill>
                           </td>
-                          <td className="py-2.5 pl-3 text-right font-mono tabular-nums text-white/75">
+                          <td className="py-2.5 pl-3 text-right font-mono tabular-nums text-[#33544C]">
                             {fmtAgo(agoSec)}
                           </td>
                         </tr>
@@ -356,30 +356,30 @@ export function LiveDataProvenance() {
 
               {/* Source string + fetchedAt timestamp */}
               <div className="mt-4 grid grid-cols-1 sm:grid-cols-2 gap-3">
-                <div className="rounded-md border border-white/[0.06] bg-white/[0.02] p-3">
-                  <div className="text-[0.6rem] uppercase tracking-[0.22em] text-white/55 mb-1">
+                <div className="rounded-md border border-[#E3EAE6] bg-[#F7FAF8] p-3">
+                  <div className="text-[0.6rem] uppercase tracking-[0.22em] text-[#5B6E68] mb-1">
                     source string (snapshot)
                   </div>
                   <div className="font-mono text-[0.72rem] text-mtqs-gold-light break-words leading-relaxed">
                     {fx.source}
                   </div>
                 </div>
-                <div className="rounded-md border border-white/[0.06] bg-white/[0.02] p-3">
-                  <div className="text-[0.6rem] uppercase tracking-[0.22em] text-white/55 mb-1">
+                <div className="rounded-md border border-[#E3EAE6] bg-[#F7FAF8] p-3">
+                  <div className="text-[0.6rem] uppercase tracking-[0.22em] text-[#5B6E68] mb-1">
                     fetchedAt (ISO UTC)
                   </div>
-                  <div className="font-mono text-[0.72rem] text-white/90 break-words">
+                  <div className="font-mono text-[0.72rem] text-[#0E1F1B] break-words">
                     {fmtTimestamp(fx.fetchedAt)}
                   </div>
                 </div>
               </div>
 
               {/* Honest note */}
-              <div className="mt-4 rounded-md border border-white/[0.06] bg-white/[0.02] p-3 text-[0.72rem] text-white/55 leading-relaxed">
+              <div className="mt-4 rounded-md border border-[#E3EAE6] bg-[#F7FAF8] p-3 text-[0.72rem] text-[#5B6E68] leading-relaxed">
                 <p className="flex items-start gap-2">
                   <ShieldCheck className="h-4 w-4 text-mtqs-emerald/80 mt-0.5 shrink-0" aria-hidden="true" />
                   <span>
-                    <span className="text-white/90">Honest note.</span>{" "}
+                    <span className="text-[#0E1F1B]">Honest note.</span>{" "}
                     VIX from Yahoo Finance <span className="font-mono text-mtqs-gold-light">^VIX</span> (CBOE).
                     DXY from Yahoo Finance <span className="font-mono text-mtqs-gold-light">DX-Y.NYB</span> (ICE US Dollar Index).
                     Fallback: Frankfurter self-calc using the official geometric weighted formula, then

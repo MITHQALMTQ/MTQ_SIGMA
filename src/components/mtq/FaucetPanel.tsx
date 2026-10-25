@@ -283,7 +283,7 @@ export function FaucetPanel() {
           <div className="flex items-center justify-between gap-3 flex-wrap">
             <div className="flex items-center gap-2.5">
               <Droplets className="h-5 w-5 text-mtqs-gold" />
-              <h3 className="text-base font-semibold text-white">
+              <h3 className="text-base font-semibold text-[#0E1F1B]">
                 Testnet Faucet
               </h3>
               <Pill tone="gold" className="font-mono tabular-nums">§41</Pill>
@@ -320,7 +320,7 @@ export function FaucetPanel() {
                 is a button group. Group labeling via aria-labelledby instead. */}
             <span
               id="faucet-network"
-              className="text-[0.65rem] uppercase tracking-[0.22em] text-white/55"
+              className="text-[0.65rem] uppercase tracking-[0.22em] text-[#5B6E68]"
             >
               Network
             </span>
@@ -336,12 +336,12 @@ export function FaucetPanel() {
                     className={`mtqs-focus inline-flex items-center gap-1.5 rounded-md border px-2.5 py-1.5 text-[0.72rem] font-medium transition ${
                       active
                         ? "border-mtqs-gold/40 bg-mtqs-gold/10 text-mtqs-gold"
-                        : "border-white/[0.08] bg-white/[0.02] text-white/70 hover:border-mtqs-gold/25 hover:text-white"
+                        : "border-[#E3EAE6] bg-white text-[#5B6E68] hover:border-mtqs-gold/25 hover:text-[#0E1F1B]"
                     }`}
                   >
                     <GlowDot color={active ? "gold" : "emerald"} size="h-1.5 w-1.5" />
                     <span className="whitespace-nowrap">{c.label}</span>
-                    <span className="font-mono tabular-nums text-[0.62rem] text-white/55">
+                    <span className="font-mono tabular-nums text-[0.62rem] text-[#5B6E68]">
                       {String(c.chainId)}
                     </span>
                   </button>
@@ -349,7 +349,7 @@ export function FaucetPanel() {
               })}
             </div>
             {/* Chain meta row */}
-            <div className="text-[0.65rem] text-white/55 mt-1 flex items-center gap-2 flex-wrap">
+            <div className="text-[0.65rem] text-[#5B6E68] mt-1 flex items-center gap-2 flex-wrap">
               <span className="font-mono text-mtqs-gold/70">
                 RPC {chain.rpcUrl.replace(/^https?:\/\//, "")}
               </span>
@@ -366,7 +366,7 @@ export function FaucetPanel() {
             {/* 16c-007: same fix as the Network group above. */}
             <span
               id="faucet-asset"
-              className="text-[0.65rem] uppercase tracking-[0.22em] text-white/55"
+              className="text-[0.65rem] uppercase tracking-[0.22em] text-[#5B6E68]"
             >
               Test Asset
             </span>
@@ -382,7 +382,7 @@ export function FaucetPanel() {
                     className={`mtqs-focus inline-flex items-center gap-1.5 rounded-md border px-2.5 py-1.5 text-[0.72rem] font-medium transition ${
                       active
                         ? "border-mtqs-emerald/40 bg-mtqs-emerald/10 text-mtqs-emerald"
-                        : "border-white/[0.08] bg-white/[0.02] text-white/70 hover:border-mtqs-emerald/25 hover:text-white"
+                        : "border-[#E3EAE6] bg-white text-[#5B6E68] hover:border-mtqs-emerald/25 hover:text-[#0E1F1B]"
                     }`}
                   >
                     <Coins className="h-3 w-3" />
@@ -392,7 +392,7 @@ export function FaucetPanel() {
               })}
             </div>
             {asset && (
-              <div className="text-[0.65rem] text-white/55 mt-1">
+              <div className="text-[0.65rem] text-[#5B6E68] mt-1">
                 {asset.name} · {asset.description}
               </div>
             )}
@@ -408,12 +408,12 @@ export function FaucetPanel() {
           <div className="space-y-1.5 md:col-span-2">
             <label
               htmlFor="faucet-wallet"
-              className="text-[0.65rem] uppercase tracking-[0.22em] text-white/55"
+              className="text-[0.65rem] uppercase tracking-[0.22em] text-[#5B6E68]"
             >
               Wallet Address
             </label>
             <div className="relative">
-              <Wallet className="absolute left-3 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-white/45" />
+              <Wallet className="absolute left-3 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-[#7A8C86]" />
               <input
                 id="faucet-wallet"
                 type="text"
@@ -427,9 +427,9 @@ export function FaucetPanel() {
                 spellCheck={false}
                 autoComplete="off"
                 aria-invalid={wallet.length > 0 && !walletValid}
-                className={`mtqs-focus w-full rounded-md border bg-white/[0.02] pl-9 pr-3 py-2 font-mono text-xs text-white placeholder:text-white/30 transition ${
+                className={`mtqs-focus w-full rounded-md border bg-white pl-9 pr-3 py-2 font-mono text-xs text-[#0E1F1B] placeholder:text-[#7A8C86] transition ${
                   wallet.length === 0
-                    ? "border-white/[0.08]"
+                    ? "border-[#E3EAE6]"
                     : walletValid
                     ? "border-mtqs-emerald/40"
                     : "border-mtqs-rose/50"
@@ -447,7 +447,7 @@ export function FaucetPanel() {
           <div className="space-y-1.5 md:col-span-2">
             <label
               htmlFor="faucet-amount"
-              className="text-[0.65rem] uppercase tracking-[0.22em] text-white/55"
+              className="text-[0.65rem] uppercase tracking-[0.22em] text-[#5B6E68]"
             >
               Claim Amount ({asset?.symbol ?? ""})
             </label>
@@ -460,8 +460,8 @@ export function FaucetPanel() {
                 max={MAX_CLAIM_AMOUNT}
                 step={1}
                 onChange={(e) => setAmount(Number(e.target.value))}
-                className={`mtqs-focus w-full rounded-md border bg-white/[0.02] px-3 py-2 font-mono tabular-nums text-xs text-white transition ${
-                  amountValid ? "border-white/[0.08]" : "border-mtqs-rose/50"
+                className={`mtqs-focus w-full rounded-md border bg-white px-3 py-2 font-mono tabular-nums text-xs text-[#0E1F1B] transition ${
+                  amountValid ? "border-[#E3EAE6]" : "border-mtqs-rose/50"
                 } focus:outline-none focus:border-mtqs-gold/50`}
               />
               {/* Quick-pick chips */}
@@ -471,14 +471,14 @@ export function FaucetPanel() {
                     key={v}
                     type="button"
                     onClick={() => setAmount(v)}
-                    className="mtqs-focus rounded-md border border-white/[0.08] bg-white/[0.02] px-2 py-1.5 font-mono tabular-nums text-[0.65rem] text-white/70 hover:border-mtqs-gold/30 hover:text-mtqs-gold transition"
+                    className="mtqs-focus rounded-md border border-[#E3EAE6] bg-white px-2 py-1.5 font-mono tabular-nums text-[0.65rem] text-[#5B6E68] hover:border-mtqs-gold/30 hover:text-mtqs-gold transition"
                   >
                     {v.toLocaleString()}
                   </button>
                 ))}
               </div>
             </div>
-            <div className="text-[0.62rem] text-white/45">
+            <div className="text-[0.62rem] text-[#7A8C86]">
               Max {MAX_CLAIM_AMOUNT.toLocaleString()} {asset?.symbol ?? ""} per claim ·
               cooldown {COOLDOWN_SECONDS}s after each successful claim
             </div>
@@ -495,7 +495,7 @@ export function FaucetPanel() {
             className={`mtqs-focus inline-flex items-center justify-center gap-2 rounded-md border px-5 py-2.5 text-sm font-semibold transition w-full sm:w-auto ${
               canClaim
                 ? "border-mtqs-gold/40 bg-mtqs-gold/10 text-mtqs-gold hover:bg-mtqs-gold/20 hover:border-mtqs-gold/60"
-                : "border-white/[0.08] bg-white/[0.02] text-white/40 cursor-not-allowed"
+                : "border-[#E3EAE6] bg-[#F7FAF8] text-[#7A8C86] cursor-not-allowed"
             }`}
           >
             {pending ? (
@@ -515,7 +515,7 @@ export function FaucetPanel() {
               </>
             )}
           </button>
-          <div className="text-[0.7rem] text-white/55">
+          <div className="text-[0.7rem] text-[#5B6E68]">
             {pending
               ? "Submitting to pilot engine…"
               : cooldownRemaining > 0
@@ -554,7 +554,7 @@ export function FaucetPanel() {
                   <span className={`text-sm font-semibold ${lastTx.ok ? "text-mtqs-emerald" : "text-mtqs-rose"}`}>
                     {lastTx.ok ? "Claim simulated" : "Claim rejected"}
                   </span>
-                  <span className="text-[0.62rem] uppercase tracking-wider text-white/55 ml-auto">
+                  <span className="text-[0.62rem] uppercase tracking-wider text-[#5B6E68] ml-auto">
                     {new Date(lastTx.timestamp).toLocaleTimeString("en-US")}
                   </span>
                 </div>
@@ -563,7 +563,7 @@ export function FaucetPanel() {
                   <>
                     {/* Tx hash row */}
                     <div className="flex items-center gap-2 mb-2 text-[0.72rem]">
-                      <span className="uppercase tracking-[0.18em] text-white/55 shrink-0">
+                      <span className="uppercase tracking-[0.18em] text-[#5B6E68] shrink-0">
                         Tx Hash
                       </span>
                       <span className="font-mono text-mtqs-gold truncate">
@@ -593,21 +593,21 @@ export function FaucetPanel() {
                             previously lived only in the aria-label. */}
                         <span className="hidden sm:inline">explorer (sim — will not resolve)</span>
                       </a>
-                      <span className="ml-auto font-mono tabular-nums text-white/55 shrink-0">
+                      <span className="ml-auto font-mono tabular-nums text-[#5B6E68] shrink-0">
                         block #{lastTx.block.toLocaleString()}
                       </span>
                     </div>
                     {/* Engine response row */}
                     <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 mt-3 text-[0.7rem]">
                       <div>
-                        <div className="uppercase tracking-[0.18em] text-white/45">Asset</div>
-                        <div className="font-mono tabular-nums text-white">
+                        <div className="uppercase tracking-[0.18em] text-[#7A8C86]">Asset</div>
+                        <div className="font-mono tabular-nums text-[#0E1F1B]">
                           {fmtNum(lastTx.amount, 2)} {lastTx.assetSymbol}
                         </div>
                       </div>
                       {Number.isFinite(lastTx.mtqMinted) && (
                         <div>
-                          <div className="uppercase tracking-[0.18em] text-white/45">MTQ Minted</div>
+                          <div className="uppercase tracking-[0.18em] text-[#7A8C86]">MTQ Minted</div>
                           <div className="font-mono tabular-nums text-mtqs-gold">
                             {fmtNum(lastTx.mtqMinted, 4)}
                           </div>
@@ -615,7 +615,7 @@ export function FaucetPanel() {
                       )}
                       {Number.isFinite(lastTx.mtqPrice) && (
                         <div>
-                          <div className="uppercase tracking-[0.18em] text-white/45">MTQ Price</div>
+                          <div className="uppercase tracking-[0.18em] text-[#7A8C86]">MTQ Price</div>
                           <div className="font-mono tabular-nums text-mtqs-gold/80">
                             {fmtFixed(lastTx.mtqPrice, 4)}
                           </div>
@@ -625,7 +625,7 @@ export function FaucetPanel() {
                         const rr = lastTx.reserveRatio ?? 0;
                         return (
                           <div>
-                            <div className="uppercase tracking-[0.18em] text-white/45">RR post</div>
+                            <div className="uppercase tracking-[0.18em] text-[#7A8C86]">RR post</div>
                             <div className={`font-mono tabular-nums ${rr >= 1.05 ? "text-mtqs-emerald" : "text-mtqs-amber"}`}>
                               {(rr * 100).toFixed(2)}%
                             </div>
@@ -633,7 +633,7 @@ export function FaucetPanel() {
                         );
                       })()}
                     </div>
-                    <div className="mt-3 text-[0.62rem] text-white/45 italic">
+                    <div className="mt-3 text-[0.62rem] text-[#7A8C86] italic">
                       Simulated transaction · hash is deterministic per claim · no
                       on-chain broadcast. The mint path through the engine is real —
                       the asset picker is display-only (claims are USD-equivalent test

@@ -103,7 +103,7 @@ export function CommandLauncher({ onNavigate }: { onNavigate: (id: SectionId) =>
           className="fixed inset-0 z-[9999] flex items-start justify-center pt-[15vh] px-4"
           onClick={() => setOpen(false)}
         >
-          <div className="absolute inset-0 bg-black/60 backdrop-blur-sm" aria-hidden="true" />
+          <div className="absolute inset-0 bg-[#0E1F1B]/40" aria-hidden="true" />
           <motion.div
             initial={{ scale: 0.95, y: -10 }}
             animate={{ scale: 1, y: 0 }}
@@ -115,24 +115,24 @@ export function CommandLauncher({ onNavigate }: { onNavigate: (id: SectionId) =>
             aria-label="Command palette"
           >
             {/* Search input */}
-            <div className="flex items-center gap-3 px-4 py-3 border-b border-white/[0.06]">
-              <Search className="h-4 w-4 text-white/40" />
+            <div className="flex items-center gap-3 px-4 py-3 border-b border-[#E3EAE6]">
+              <Search className="h-4 w-4 text-[#7A8C86]" />
               <input
                 type="text"
                 value={query}
                 onChange={(e) => setQuery(e.target.value)}
                 onKeyDown={handleKeyDown}
                 placeholder="Search commands..."
-                className="flex-1 bg-transparent text-sm text-white/90 placeholder-white/30 outline-none"
+                className="flex-1 bg-transparent text-sm text-[#0E1F1B] placeholder-[#7A8C86] outline-none"
                 autoFocus
               />
-              <kbd className="text-[0.6rem] text-white/30 font-mono px-1.5 py-0.5 rounded border border-white/10">ESC</kbd>
+              <kbd className="text-[0.6rem] text-[#7A8C86] font-mono px-1.5 py-0.5 rounded border border-[#E3EAE6]">ESC</kbd>
             </div>
 
             {/* Results */}
             <div className="max-h-[50vh] overflow-y-auto mtqs-scroll">
               {filtered.length === 0 ? (
-                <div className="px-4 py-8 text-center text-sm text-white/30">No commands found</div>
+                <div className="px-4 py-8 text-center text-sm text-[#7A8C86]">No commands found</div>
               ) : (
                 filtered.map((cmd, i) => (
                   <button
@@ -140,11 +140,11 @@ export function CommandLauncher({ onNavigate }: { onNavigate: (id: SectionId) =>
                     onClick={() => { cmd.action(); setOpen(false); }}
                     onMouseEnter={() => setSelectedIndex(i)}
                     className={`w-full flex items-center gap-3 px-4 py-2.5 text-left transition-colors ${
-                      i === selectedIndex ? "bg-mtqs-gold/10" : "hover:bg-white/[0.02]"
+                      i === selectedIndex ? "bg-mtqs-gold/10" : "hover:bg-[#F0F7F4]"
                     }`}
                   >
-                    <span className={`text-[0.6rem] uppercase tracking-wider ${i === selectedIndex ? "text-mtqs-gold" : "text-white/30"} w-20`}>{cmd.category}</span>
-                    <span className={`flex-1 text-sm ${i === selectedIndex ? "text-mtqs-gold" : "text-white/70"}`}>{cmd.label}</span>
+                    <span className={`text-[0.6rem] uppercase tracking-wider ${i === selectedIndex ? "text-mtqs-gold" : "text-[#7A8C86]"} w-20`}>{cmd.category}</span>
+                    <span className={`flex-1 text-sm ${i === selectedIndex ? "text-mtqs-gold" : "text-[#5B6E68]"}`}>{cmd.label}</span>
                     {i === selectedIndex && <ArrowRight className="h-3 w-3 text-mtqs-gold" />}
                   </button>
                 ))

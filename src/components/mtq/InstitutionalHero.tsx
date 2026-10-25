@@ -57,21 +57,21 @@ function TerminalStrip({ snapshot }: { snapshot: MetricsSnapshot | null }) {
 
   return (
     <div
-      className="flex flex-wrap items-center gap-x-3 gap-y-1 text-[0.62rem] font-mono uppercase tracking-[0.18em] text-white/55 border-b border-white/[0.06] pb-2.5"
+      className="flex flex-wrap items-center gap-x-3 gap-y-1 text-[0.62rem] font-mono uppercase tracking-[0.18em] text-[#5B6E68] border-b border-[#E3EAE6] pb-2.5"
       aria-label="Terminal status"
     >
       <span className="inline-flex items-center gap-1.5">
         <GlowDot color={oracleOk ? "emerald" : "rose"} size="h-1.5 w-1.5" />
-        <span className="text-white/80">testnet · live</span>
+        <span className="text-[#0E1F1B]">testnet · live</span>
       </span>
-      <span className="text-white/20">·</span>
+      <span className="text-[#9AA9A3]">·</span>
       <span className="inline-flex items-center gap-1.5">
         <GlowDot color={oracleOk ? "emerald" : "rose"} size="h-1.5 w-1.5" />
         <span>
           oracle {oracleValidCount != null && oracleTotal != null ? `${oracleValidCount}/${oracleTotal}` : oracleOk ? "ok" : "paused"}
         </span>
       </span>
-      <span className="text-white/20">·</span>
+      <span className="text-[#9AA9A3]">·</span>
       <span className="inline-flex items-center gap-1.5" style={{ color: sb.color }}>
         <span
           className="h-1.5 w-1.5 rounded-full"
@@ -80,7 +80,7 @@ function TerminalStrip({ snapshot }: { snapshot: MetricsSnapshot | null }) {
         />
         <span>{sb.label}</span>
       </span>
-      <span className="text-white/20 ml-auto hidden sm:inline">·</span>
+      <span className="text-[#9AA9A3] ml-auto hidden sm:inline">·</span>
       <span className="ml-auto sm:ml-0 inline-flex items-center gap-1.5 tabular-nums">
         <Clock className="h-3 w-3" aria-hidden="true" />
         <span>{now != null ? fmtTime(now) : "—"}</span>
@@ -108,9 +108,9 @@ function LivePill({
       ? "text-mtqs-rose border-mtqs-rose/30 bg-mtqs-rose/[0.08]"
       : tone === "amber"
       ? "text-mtqs-amber border-mtqs-amber/30 bg-mtqs-amber/[0.08]"
-      : "text-white/80 border-white/15 bg-white/[0.04]";
+      : "text-[#0E1F1B] border-[#E3EAE6] bg-[#F7FAF8]";
   const dotColor =
-    tone === "gold" ? "#2BABFB" : tone === "emerald" ? "#00E5FF" : tone === "rose" ? "#FF4D6D" : tone === "amber" ? "#FFB84D" : "#FFFFFF";
+    tone === "gold" ? "#0D9488" : tone === "emerald" ? "#14B8A6" : tone === "rose" ? "#E11D48" : tone === "amber" ? "#D97706" : "#5B6E68";
   return (
     <span
       className={`inline-flex items-center gap-1.5 rounded-full border px-3 py-1 text-[0.7rem] font-mono tabular-nums ${toneCls}`}
@@ -120,7 +120,7 @@ function LivePill({
         style={{ backgroundColor: dotColor, color: dotColor }}
         aria-hidden="true"
       />
-      <span className="uppercase tracking-[0.18em] text-white/55">{label}</span>
+      <span className="uppercase tracking-[0.18em] text-[#5B6E68]">{label}</span>
       <span className="font-semibold">{value}</span>
     </span>
   );
@@ -192,7 +192,7 @@ export function InstitutionalHero({
           className="pointer-events-none absolute left-1/2 top-[42%] -translate-x-1/2 -translate-y-1/2 h-[420px] w-[420px] rounded-full"
           style={{
             background:
-              "radial-gradient(circle, rgba(43,171,251,0.18) 0%, rgba(43,171,251,0.06) 35%, transparent 70%)",
+              "radial-gradient(circle, rgba(13,148,136,0.14) 0%, rgba(13,148,136,0.05) 35%, transparent 70%)",
             filter: "blur(8px)",
           }}
           aria-hidden="true"
@@ -237,7 +237,7 @@ export function InstitutionalHero({
             initial={{ opacity: 0, y: 8 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.5, delay: 0.3 }}
-            className="mt-3 sm:mt-4 mtqs-display text-lg sm:text-2xl lg:text-3xl text-amber-100/85 tracking-[0.08em] uppercase"
+            className="mt-3 sm:mt-4 mtqs-display text-lg sm:text-2xl lg:text-3xl text-amber-700 tracking-[0.08em] uppercase"
           >
             The Global Digital Asset
           </motion.p>
@@ -246,7 +246,7 @@ export function InstitutionalHero({
             initial={{ opacity: 0, y: 8 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.5, delay: 0.35 }}
-            className="mt-2 text-[0.72rem] sm:text-[0.8rem] text-white/45 tracking-[0.22em] uppercase"
+            className="mt-2 text-[0.72rem] sm:text-[0.8rem] text-[#7A8C86] tracking-[0.22em] uppercase"
           >
             Asset-Referencing Basket · No-Conventional-Reserve Design · Transparent Methodology
           </motion.p>
@@ -255,7 +255,7 @@ export function InstitutionalHero({
             initial={{ opacity: 0, y: 8 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.5, delay: 0.4 }}
-            className="mt-3 text-[0.82rem] sm:text-[0.9rem] text-white/55 leading-relaxed max-w-2xl"
+            className="mt-3 text-[0.82rem] sm:text-[0.9rem] text-[#5B6E68] leading-relaxed max-w-2xl"
           >
             A neutral, adaptive global purchasing-power reference unit — defined by
             a transparent methodology spanning eligible currencies and gold, an
@@ -307,7 +307,7 @@ export function InstitutionalHero({
         </div>
 
         {/* Footer disclaimer — institutional tone */}
-        <div className="relative px-5 sm:px-7 lg:px-8 pb-5 sm:pb-6 flex flex-wrap items-center justify-between gap-2 border-t border-white/[0.06] pt-3 text-[0.66rem] text-white/45">
+        <div className="relative px-5 sm:px-7 lg:px-8 pb-5 sm:pb-6 flex flex-wrap items-center justify-between gap-2 border-t border-[#E3EAE6] pt-3 text-[0.66rem] text-[#7A8C86]">
           <span className="inline-flex items-center gap-1.5">
             <Activity className="h-3 w-3 text-mtqs-gold/70" aria-hidden="true" />
             {BRAND_VOICE.statusDeclaration}
@@ -326,7 +326,7 @@ export function InstitutionalHero({
         className="mt-4 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-3"
       >
         {/* Gold Anchor — the constitutional anchor quote (grams per MTQΣ) */}
-        <PremiumCard className="p-4" style={{ borderColor: "rgba(43,171,251,0.25)" }}>
+        <PremiumCard className="p-4" style={{ borderColor: "rgba(13,148,136,0.25)" }}>
           <div className="flex items-center gap-1.5 mb-2">
             <span aria-hidden="true" className="text-sm">🥇</span>
             <span className="text-[0.62rem] uppercase tracking-[0.22em] text-mtqs-gold/80">
@@ -342,7 +342,7 @@ export function InstitutionalHero({
           ) : (
             <Skeleton className="h-7 w-24" />
           )}
-          <div className="mt-1 text-[0.7rem] text-white/55">of gold / MTQΣ · pilot-ledger reference (simulated · legacy v1/v2)</div>
+          <div className="mt-1 text-[0.7rem] text-[#5B6E68]">of gold / MTQΣ · pilot-ledger reference (simulated · legacy v1/v2)</div>
         </PremiumCard>
 
         {/* Reference Index */}
@@ -360,7 +360,7 @@ export function InstitutionalHero({
           ) : (
             <Skeleton className="h-7 w-24" />
           )}
-          <div className="mt-1 text-[0.7rem] text-white/55">Chain-linked I<sub>t</sub> · 4s poll</div>
+          <div className="mt-1 text-[0.7rem] text-[#5B6E68]">Chain-linked I<sub>t</sub> · 4s poll</div>
         </PremiumCard>
 
         {/* Reference Value */}
@@ -382,7 +382,7 @@ export function InstitutionalHero({
           ) : (
             <Skeleton className="h-7 w-24" />
           )}
-          <div className="mt-1 text-[0.7rem] text-white/55">
+          <div className="mt-1 text-[0.7rem] text-[#5B6E68]">
             {snapshot?.priceInBand ? "in safety band" : "outside band"}
           </div>
         </PremiumCard>
@@ -396,13 +396,13 @@ export function InstitutionalHero({
             </span>
           </div>
           {snapshot ? (
-            <div className="font-mono tabular-nums text-2xl font-semibold text-white">
+            <div className="font-mono tabular-nums text-2xl font-semibold text-[#0E1F1B]">
               {fmtNum(snapshot.nav, 0)}
             </div>
           ) : (
             <Skeleton className="h-7 w-24" />
           )}
-          <div className="mt-1 text-[0.7rem] text-white/55">legacy v1/v2 reserve-path accounting</div>
+          <div className="mt-1 text-[0.7rem] text-[#5B6E68]">legacy v1/v2 reserve-path accounting</div>
         </PremiumCard>
 
         {/* Par */}
@@ -417,9 +417,9 @@ export function InstitutionalHero({
             <span className="font-mono tabular-nums text-2xl font-semibold text-mtqs-emerald">
               {fmtFixed(PAR, 2)}
             </span>
-            <span className="text-[0.7rem] text-white/55 font-mono">basket-unit</span>
+            <span className="text-[0.7rem] text-[#5B6E68] font-mono">basket-unit</span>
           </div>
-          <div className="mt-1 text-[0.7rem] text-white/55">Immutable · §18.1</div>
+          <div className="mt-1 text-[0.7rem] text-[#5B6E68]">Immutable · §18.1</div>
         </PremiumCard>
       </motion.div>
 

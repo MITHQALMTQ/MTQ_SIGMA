@@ -55,8 +55,8 @@ export function ReproducibilityPanel({ snapshot }: { snapshot: MetricsSnapshot |
           <FileText className="h-5 w-5 text-mtqs-gold mt-0.5" />
           <div>
             <div className="mtqs-eyebrow">§24 · §34</div>
-            <h3 className="text-base font-semibold text-white/90 mt-1">Deterministic Reproducibility</h3>
-            <p className="text-xs text-white/55 mt-1">Re-run the calculation from the same inputs and verify the output matches</p>
+            <h3 className="text-base font-semibold text-[#0E1F1B] mt-1">Deterministic Reproducibility</h3>
+            <p className="text-xs text-[#5B6E68] mt-1">Re-run the calculation from the same inputs and verify the output matches</p>
           </div>
         </div>
 
@@ -65,27 +65,27 @@ export function ReproducibilityPanel({ snapshot }: { snapshot: MetricsSnapshot |
             aggregate state). The old hardcoded "v1.0-2026 / MASE-v1 / 3-Source-§9"
             strings contradicted the live values rendered beside this panel. */}
         <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 mb-4">
-          <div className="p-2.5 rounded-lg border border-white/[0.06] bg-white/[0.02]">
-            <div className="text-[0.55rem] uppercase tracking-wider text-white/40">Data Version</div>
-            <div className="font-mono text-[0.66rem] text-white/70 mt-1 break-words" title={snapshot?.source ?? undefined}>
+          <div className="p-2.5 rounded-lg border border-[#E3EAE6] bg-[#F7FAF8]">
+            <div className="text-[0.55rem] uppercase tracking-wider text-[#7A8C86]">Data Version</div>
+            <div className="font-mono text-[0.66rem] text-[#5B6E68] mt-1 break-words" title={snapshot?.source ?? undefined}>
               {snapshot?.source ?? "—"}
             </div>
           </div>
-          <div className="p-2.5 rounded-lg border border-white/[0.06] bg-white/[0.02]">
-            <div className="text-[0.55rem] uppercase tracking-wider text-white/40">Model Version</div>
-            <div className="font-mono text-[0.66rem] text-white/70 mt-1 break-words">
+          <div className="p-2.5 rounded-lg border border-[#E3EAE6] bg-[#F7FAF8]">
+            <div className="text-[0.55rem] uppercase tracking-wider text-[#7A8C86]">Model Version</div>
+            <div className="font-mono text-[0.66rem] text-[#5B6E68] mt-1 break-words">
               {snapshot?.mase?.objectiveVersion ?? "—"}
             </div>
           </div>
-          <div className="p-2.5 rounded-lg border border-white/[0.06] bg-white/[0.02]">
-            <div className="text-[0.55rem] uppercase tracking-wider text-white/40">Param Version</div>
-            <div className="font-mono text-[0.66rem] text-white/70 mt-1 break-words">
+          <div className="p-2.5 rounded-lg border border-[#E3EAE6] bg-[#F7FAF8]">
+            <div className="text-[0.55rem] uppercase tracking-wider text-[#7A8C86]">Param Version</div>
+            <div className="font-mono text-[0.66rem] text-[#5B6E68] mt-1 break-words">
               BLUEPRINT-v2.0 · §22.4 registry (pilot)
             </div>
           </div>
-          <div className="p-2.5 rounded-lg border border-white/[0.06] bg-white/[0.02]">
-            <div className="text-[0.55rem] uppercase tracking-wider text-white/40">Oracle Version</div>
-            <div className="font-mono text-[0.66rem] text-white/70 mt-1 break-words">
+          <div className="p-2.5 rounded-lg border border-[#E3EAE6] bg-[#F7FAF8]">
+            <div className="text-[0.55rem] uppercase tracking-wider text-[#7A8C86]">Oracle Version</div>
+            <div className="font-mono text-[0.66rem] text-[#5B6E68] mt-1 break-words">
               {snapshot?.oracle ? `3-source board · aggregate ${snapshot.oracle.aggregateState}` : "—"}
             </div>
           </div>
@@ -104,22 +104,22 @@ export function ReproducibilityPanel({ snapshot }: { snapshot: MetricsSnapshot |
 
         {/* Result */}
         {reproError && (
-          <div className="mt-3 rounded-md border border-mtqs-amber/25 bg-amber-400/[0.04] px-3 py-2 text-[0.7rem] leading-relaxed text-mtqs-amber/90">
+          <div className="mt-3 rounded-md border border-mtqs-amber/25 bg-amber-50 px-3 py-2 text-[0.7rem] leading-relaxed text-mtqs-amber/90">
             {reproError}
           </div>
         )}
         {result && (
           <div className="mt-4 space-y-2">
-            <div className="flex items-center justify-between p-3 rounded-lg border border-white/[0.06] bg-white/[0.02]">
-              <span className="text-xs text-white/55">Published Output (Reference Index)</span>
-              <span className="font-mono tabular-nums text-sm text-white/90">{result.published.toFixed(6)}</span>
+            <div className="flex items-center justify-between p-3 rounded-lg border border-[#E3EAE6] bg-[#F7FAF8]">
+              <span className="text-xs text-[#5B6E68]">Published Output (Reference Index)</span>
+              <span className="font-mono tabular-nums text-sm text-[#0E1F1B]">{result.published.toFixed(6)}</span>
             </div>
-            <div className="flex items-center justify-between p-3 rounded-lg border border-white/[0.06] bg-white/[0.02]">
-              <span className="text-xs text-white/55">Recomputed Output</span>
-              <span className="font-mono tabular-nums text-sm text-white/90">{result.recomputed.toFixed(6)}</span>
+            <div className="flex items-center justify-between p-3 rounded-lg border border-[#E3EAE6] bg-[#F7FAF8]">
+              <span className="text-xs text-[#5B6E68]">Recomputed Output</span>
+              <span className="font-mono tabular-nums text-sm text-[#0E1F1B]">{result.recomputed.toFixed(6)}</span>
             </div>
             <div className={`flex items-center justify-between p-3 rounded-lg border ${result.match ? "border-mtqs-emerald/30 bg-mtqs-emerald/5" : "border-mtqs-rose/30 bg-mtqs-rose/5"}`}>
-              <span className="text-xs text-white/55">Match Status</span>
+              <span className="text-xs text-[#5B6E68]">Match Status</span>
               {result.match ? (
                 <span className="flex items-center gap-1.5 text-mtqs-emerald text-sm font-semibold"><Check className="h-4 w-4" /> MATCH</span>
               ) : (
@@ -129,7 +129,7 @@ export function ReproducibilityPanel({ snapshot }: { snapshot: MetricsSnapshot |
           </div>
         )}
 
-        <p className="mt-3 text-[0.7rem] text-white/40">
+        <p className="mt-3 text-[0.7rem] text-[#7A8C86]">
           {/* 24-e-2: the Param Version row above is a hardcoded static register —
               only Data/Model/Oracle are live snapshot fields. */}
           Data/Model/Oracle versions are live; the param register is the static pilot §22.4 registry

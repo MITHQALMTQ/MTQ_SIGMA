@@ -28,10 +28,10 @@ import type { MetricsSnapshot } from "@/lib/mtq/engine";
 
 function CardTopStripe({ color = "gold" }: { color?: "gold" | "emerald" | "rose" | "amber" }) {
   const c = {
-    gold: "rgba(43, 171, 251, 0.55)",
-    emerald: "rgba(0, 229, 255, 0.55)",
-    rose: "rgba(255, 93, 115, 0.55)",
-    amber: "rgba(255, 184, 77, 0.55)",
+    gold: "rgba(13, 148, 136, 0.55)",
+    emerald: "rgba(20, 184, 166, 0.55)",
+    rose: "rgba(225, 29, 72, 0.55)",
+    amber: "rgba(217, 119, 6, 0.55)",
   }[color];
   return (
     <div
@@ -56,7 +56,7 @@ function MetricTile({
     <Panel className={`relative p-5 ${className}`}>
       <CardTopStripe color={stripe} />
       <div className="mb-3 flex items-center justify-between">
-        <span className="text-[0.625rem] uppercase tracking-[0.25em] text-white/55">
+        <span className="text-[0.625rem] uppercase tracking-[0.25em] text-[#5B6E68]">
           {eyebrow}
         </span>
       </div>
@@ -70,7 +70,7 @@ export function LiveMonetaryState({ snapshot }: { snapshot: MetricsSnapshot | nu
     return (
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
         {[...Array(8)].map((_, i) => (
-          <div key={i} className="h-32 animate-pulse rounded-xl bg-white/[0.03] border border-white/[0.06]" />
+          <div key={i} className="h-32 animate-pulse rounded-xl bg-[#F7FAF8] border border-[#E3EAE6]" />
         ))}
       </div>
     );
@@ -95,12 +95,12 @@ export function LiveMonetaryState({ snapshot }: { snapshot: MetricsSnapshot | nu
                 format={(n) => fmtFixed(n, 4)}
                 className="text-3xl font-semibold mtqs-gold-text"
               />
-              <span className="text-xs text-white/55 font-mono" title="USD is used here only as an external reporting/valuation numeraire. It does not define the MTQΣ monetary unit; no fixed USD parity is implied or guaranteed.">·USD reporting</span>
+              <span className="text-xs text-[#5B6E68] font-mono" title="USD is used here only as an external reporting/valuation numeraire. It does not define the MTQΣ monetary unit; no fixed USD parity is implied or guaranteed.">·USD reporting</span>
             </div>
-            <p className="mt-2 text-[0.7rem] text-white/55">
+            <p className="mt-2 text-[0.7rem] text-[#5B6E68]">
               normalised = 1.00 at 2026-01-01 00:00 UTC
             </p>
-            <div className="mt-3 flex items-center gap-2 text-[0.65rem] text-white/55">
+            <div className="mt-3 flex items-center gap-2 text-[0.65rem] text-[#5B6E68]">
               <span className="font-mono">7-component prior / GFB_base = ${GFB_BASE_DENOMINATOR.toFixed(2)}</span>
             </div>
           </MetricTile>
@@ -120,7 +120,7 @@ export function LiveMonetaryState({ snapshot }: { snapshot: MetricsSnapshot | nu
                 <Pill tone="rose">CIRCUIT BREAKER</Pill>
               )}
             </div>
-            <p className="mt-2 text-[0.7rem] text-white/55">
+            <p className="mt-2 text-[0.7rem] text-[#5B6E68]">
               Safety band {PRICE_SAFETY_LOWER.toFixed(2)}–{PRICE_SAFETY_UPPER.toFixed(2)} (USD reporting)
             </p>
             <div className="mt-3">
@@ -131,7 +131,7 @@ export function LiveMonetaryState({ snapshot }: { snapshot: MetricsSnapshot | nu
                 colorClass={snapshot.priceInBand ? "bg-emerald-400" : "bg-rose-400"}
                 height="h-1.5"
               />
-              <div className="mt-1 flex justify-between text-[0.6rem] text-white/60 font-mono">
+              <div className="mt-1 flex justify-between text-[0.6rem] text-[#5B6E68] font-mono">
                 <span>{PRICE_SAFETY_LOWER.toFixed(2)}</span>
                 <span>{PRICE_SAFETY_UPPER.toFixed(2)}</span>
               </div>
@@ -147,15 +147,15 @@ export function LiveMonetaryState({ snapshot }: { snapshot: MetricsSnapshot | nu
               className="text-3xl font-semibold mtqs-gold-text"
             />
             <div className="mt-3 space-y-1.5">
-              <div className="flex justify-between text-[0.7rem] text-white/55">
+              <div className="flex justify-between text-[0.7rem] text-[#5B6E68]">
                 <span>fiat net</span>
                 <span className="font-mono">{fmtUsdCompact(snapshot.reserve.fiatNet)}</span>
               </div>
-              <div className="flex justify-between text-[0.7rem] text-white/55">
+              <div className="flex justify-between text-[0.7rem] text-[#5B6E68]">
                 <span>gold net (PAXG + XAUT)</span>
                 <span className="font-mono">{fmtUsdCompact(snapshot.reserve.goldNet)}</span>
               </div>
-              <div className="flex justify-between text-[0.7rem] text-white/55">
+              <div className="flex justify-between text-[0.7rem] text-[#5B6E68]">
                 <span>gold price</span>
                 <span className="font-mono">{fmtUsdCompact(snapshot.reserve.goldPrice)}/oz</span>
               </div>
@@ -178,7 +178,7 @@ export function LiveMonetaryState({ snapshot }: { snapshot: MetricsSnapshot | nu
               <Pill tone={rrFin && rr >= RR_STRESS && rr < RR_TARGET ? "amber" : "muted"}>STR {(RR_STRESS * 100).toFixed(0)}%</Pill>
               <Pill tone={rrFin && rr >= RR_HARD && rr < RR_STRESS ? "rose" : "muted"}>HRD {(RR_HARD * 100).toFixed(0)}%</Pill>
             </div>
-            <p className="mt-3 text-[0.7rem] text-white/55">
+            <p className="mt-3 text-[0.7rem] text-[#5B6E68]">
               {policy.rrTarget >= 1 ? `target ${fmtRatio(policy.rrTarget)} (§14.1)` : "no target"}
             </p>
           </MetricTile>
@@ -197,10 +197,10 @@ export function LiveMonetaryState({ snapshot }: { snapshot: MetricsSnapshot | nu
               />
               {!lcrFin && <span className="text-base text-mtqs-emerald/80">∞ — no liability</span>}
             </div>
-            <p className="mt-2 text-[0.7rem] text-white/55">
+            <p className="mt-2 text-[0.7rem] text-[#5B6E68]">
               LCR = liquid-fiat / (S · P_MTQ · 25%) · target ≥ 100%
             </p>
-            <p className="mt-2 text-[0.7rem] text-white/55">
+            <p className="mt-2 text-[0.7rem] text-[#5B6E68]">
               STRESS_REDEMPTION_RATE 25% / 30 days
             </p>
           </MetricTile>
@@ -241,7 +241,7 @@ export function LiveMonetaryState({ snapshot }: { snapshot: MetricsSnapshot | nu
                 {Math.abs(snapshot.indexNavDivergence.divergencePct).toFixed(2)}%
               </span>
             </div>
-            <p className="mt-2 text-[0.7rem] text-white/55">
+            <p className="mt-2 text-[0.7rem] text-[#5B6E68]">
               book value per token (§19.3) — distinct from P<sub>MTQ</sub> (index)
             </p>
             <div className="mt-3 flex flex-wrap gap-1.5">
@@ -260,7 +260,7 @@ export function LiveMonetaryState({ snapshot }: { snapshot: MetricsSnapshot | nu
                 divergence {snapshot.indexNavDivergence.status}
               </Pill>
             </div>
-            <p className="mt-3 text-[0.7rem] text-white/55">
+            <p className="mt-3 text-[0.7rem] text-[#5B6E68]">
               NAV/MTQ = V<sub>net</sub> / S<sub>circ</sub> · redemption pays NAV (I6)
             </p>
           </MetricTile>
@@ -286,14 +286,14 @@ export function LiveMonetaryState({ snapshot }: { snapshot: MetricsSnapshot | nu
                 {snapshot.status}
               </span>
             </div>
-            <div className="grid grid-cols-2 gap-x-3 gap-y-1 text-[0.7rem] text-white/90">
-              <span className="text-white/55">minting</span>
+            <div className="grid grid-cols-2 gap-x-3 gap-y-1 text-[0.7rem] text-[#0E1F1B]">
+              <span className="text-[#5B6E68]">minting</span>
               <span className="text-right">{policy.minting}</span>
-              <span className="text-white/55">redemption</span>
+              <span className="text-[#5B6E68]">redemption</span>
               <span className="text-right">{policy.redemption}</span>
-              <span className="text-white/55">rebalancing</span>
+              <span className="text-[#5B6E68]">rebalancing</span>
               <span className="text-right">{policy.rebalancing}</span>
-              <span className="text-white/55">RR target</span>
+              <span className="text-[#5B6E68]">RR target</span>
               <span className="text-right font-mono">{fmtRatio(policy.rrTarget)}</span>
             </div>
           </MetricTile>
@@ -303,25 +303,25 @@ export function LiveMonetaryState({ snapshot }: { snapshot: MetricsSnapshot | nu
           <MetricTile eyebrow="Supply (§13.1)" stripe="gold">
             <div className="space-y-2.5">
               <div>
-                <div className="text-[0.65rem] uppercase tracking-[0.18em] text-white/55">Circulating</div>
+                <div className="text-[0.65rem] uppercase tracking-[0.18em] text-[#5B6E68]">Circulating</div>
                 <TickNumber
                   value={snapshot.circulatingSupply}
                   format={(n) => fmtNum(n, 2)}
                   className="text-2xl font-semibold text-mtqs-gold"
                 />
-                <span className="ml-1 text-xs text-white/55 font-mono">MTQ</span>
+                <span className="ml-1 text-xs text-[#5B6E68] font-mono">MTQ</span>
               </div>
-              <div className="grid grid-cols-2 gap-2 text-[0.7rem] text-white/55">
+              <div className="grid grid-cols-2 gap-2 text-[0.7rem] text-[#5B6E68]">
                 <div>
-                  <div className="text-white/60">Total</div>
-                  <div className="font-mono text-white">{fmtNum(snapshot.totalSupply, 0)} MTQ</div>
+                  <div className="text-[#5B6E68]">Total</div>
+                  <div className="font-mono text-[#0E1F1B]">{fmtNum(snapshot.totalSupply, 0)} MTQ</div>
                 </div>
                 <div>
-                  <div className="text-white/60">Genesis Reserve</div>
-                  <div className="font-mono text-white">{fmtNum(snapshot.genesisReserve, 0)} MTQ</div>
+                  <div className="text-[#5B6E68]">Genesis Reserve</div>
+                  <div className="font-mono text-[#0E1F1B]">{fmtNum(snapshot.genesisReserve, 0)} MTQ</div>
                 </div>
               </div>
-              <p className="text-[0.62rem] text-white/45">
+              <p className="text-[0.62rem] text-[#7A8C86]">
                 engine ledger (simulated) — on-chain supplies: see Contracts
               </p>
             </div>
@@ -333,11 +333,11 @@ export function LiveMonetaryState({ snapshot }: { snapshot: MetricsSnapshot | nu
       <Reveal delay={0}>
         <Panel className="p-5">
           <div className="mb-3 flex items-center justify-between">
-            <span className="text-[0.625rem] uppercase tracking-[0.25em] text-white/55">
+            <span className="text-[0.625rem] uppercase tracking-[0.25em] text-[#5B6E68]">
               Live FX & Macro Signals (§6.2)
             </span>
             <div className="flex items-center gap-2">
-              <span className="text-[0.65rem] text-white/55 font-mono">{snapshot.fx.source}</span>
+              <span className="text-[0.65rem] text-[#5B6E68] font-mono">{snapshot.fx.source}</span>
               {snapshot.fx.degraded ? <Pill tone="amber">degraded</Pill> : <Pill tone="emerald">live</Pill>}
             </div>
           </div>
@@ -350,8 +350,8 @@ export function LiveMonetaryState({ snapshot }: { snapshot: MetricsSnapshot | nu
               { k: "CHF/USD", v: snapshot.fx.CHF_USD, digits: 4 },
               { k: "XAU/USD", v: snapshot.fx.XAU_USD, digits: 2, isUsd: true },
             ].map((r) => (
-              <div key={r.k} className="rounded-md border border-white/[0.06] bg-white/[0.02] p-2.5">
-                <div className="text-[0.6rem] uppercase tracking-[0.2em] text-white/55">{r.k}</div>
+              <div key={r.k} className="rounded-md border border-[#E3EAE6] bg-[#F7FAF8] p-2.5">
+                <div className="text-[0.6rem] uppercase tracking-[0.2em] text-[#5B6E68]">{r.k}</div>
                 <div className="font-mono tabular-nums text-sm text-mtqs-gold">
                   {r.isUsd ? `$${r.v.toFixed(r.digits)}` : r.v.toFixed(r.digits)}
                 </div>
@@ -408,7 +408,7 @@ export function LiveMonetaryState({ snapshot }: { snapshot: MetricsSnapshot | nu
               </div>
             </div>
           </div>
-          <p className="mt-3 text-[0.7rem] text-white/55">
+          <p className="mt-3 text-[0.7rem] text-[#5B6E68]">
             {snapshot.fx.liveVix && snapshot.fx.liveDxy ? (
               <>
                 VIX &amp; DXY are <span className="text-mtqs-emerald/90">live from Yahoo Finance</span> (CBOE ^VIX + ICE

@@ -89,9 +89,9 @@ function severityConfig(sev: SignalSeverity): {
     icon: Info,
     pillTone: "muted",
     dotColor: "gold",
-    iconClass: "text-white/55",
-    borderClass: "border-l-white/[0.12]",
-    bgClass: "bg-white/[0.02]",
+    iconClass: "text-[#5B6E68]",
+    borderClass: "border-l-[#E3EAE6]",
+    bgClass: "bg-[#F7FAF8]",
   };
 }
 
@@ -174,14 +174,14 @@ export function RiskSignals({ className = "" }: { className?: string }) {
           <div className="text-sm font-medium text-mtqs-rose">
             Risk monitor unavailable
           </div>
-          <p className="mt-1 text-[0.72rem] text-white/55 leading-relaxed break-words">
+          <p className="mt-1 text-[0.72rem] text-[#5B6E68] leading-relaxed break-words">
             {error ?? "Unknown error"}
           </p>
         </div>
         <button
           onClick={fetchSignals}
           disabled={loading}
-          className="shrink-0 inline-flex items-center gap-1.5 rounded-md border border-mtqs-rose/30 bg-mtqs-rose/5 px-2.5 py-1.5 text-[0.7rem] font-medium text-rose-200 hover:bg-mtqs-rose/[0.12] transition disabled:opacity-50"
+          className="shrink-0 inline-flex items-center gap-1.5 rounded-md border border-mtqs-rose/30 bg-mtqs-rose/5 px-2.5 py-1.5 text-[0.7rem] font-medium text-rose-600 hover:bg-mtqs-rose/[0.12] transition disabled:opacity-50"
         >
           <RefreshCw className={`h-3 w-3 ${loading ? "animate-spin" : ""}`} aria-hidden="true" />
           Retry
@@ -196,7 +196,7 @@ export function RiskSignals({ className = "" }: { className?: string }) {
       {[0, 1].map((i) => (
         <div
           key={i}
-          className="rounded-md border border-white/[0.06] bg-white/[0.02] p-3 space-y-2"
+          className="rounded-md border border-[#E3EAE6] bg-[#F7FAF8] p-3 space-y-2"
         >
           <Skeleton className="h-3 w-1/3" />
           <Skeleton className="h-2.5 w-[80%]" />
@@ -217,7 +217,7 @@ export function RiskSignals({ className = "" }: { className?: string }) {
         animate={{ opacity: 1, y: 0 }}
         exit={{ opacity: 0, y: 6 }}
         transition={{ duration: 0.25, delay: idx * 0.04 }}
-        className={`rounded-md border border-white/[0.06] ${cfg.bgClass} ${cfg.borderClass} border-l-2 p-3`}
+        className={`rounded-md border border-[#E3EAE6] ${cfg.bgClass} ${cfg.borderClass} border-l-2 p-3`}
       >
         <div className="flex items-start gap-3">
           {/* Severity icon */}
@@ -225,7 +225,7 @@ export function RiskSignals({ className = "" }: { className?: string }) {
           {/* Body */}
           <div className="flex-1 min-w-0">
             <div className="flex flex-wrap items-center gap-2 mb-1">
-              <span className="text-[0.82rem] font-semibold text-white leading-snug">
+              <span className="text-[0.82rem] font-semibold text-[#0E1F1B] leading-snug">
                 {sig.title}
               </span>
               <Pill tone={cfg.pillTone} className="font-mono text-[0.6rem]">
@@ -233,13 +233,13 @@ export function RiskSignals({ className = "" }: { className?: string }) {
                 {severityLabel(sig.severity)}
               </Pill>
             </div>
-            <p className="text-[0.72rem] text-white/55 leading-relaxed">
+            <p className="text-[0.72rem] text-[#5B6E68] leading-relaxed">
               {sig.detail}
             </p>
           </div>
           {/* Source — small mono, right-aligned */}
           {sig.source && (
-            <span className="shrink-0 text-[0.62rem] font-mono text-white/55 uppercase tracking-wider self-start mt-0.5">
+            <span className="shrink-0 text-[0.62rem] font-mono text-[#5B6E68] uppercase tracking-wider self-start mt-0.5">
               {sig.source}
             </span>
           )}
@@ -260,10 +260,10 @@ export function RiskSignals({ className = "" }: { className?: string }) {
                 AI · Risk Signals
               </span>
             </div>
-            <h3 className="text-base font-semibold text-white">
+            <h3 className="text-base font-semibold text-[#0E1F1B]">
               Live Risk Monitor
             </h3>
-            <p className="text-[0.72rem] text-white/75 leading-relaxed">
+            <p className="text-[0.72rem] text-[#33544C] leading-relaxed">
               {attribution}
             </p>
           </div>
@@ -281,7 +281,7 @@ export function RiskSignals({ className = "" }: { className?: string }) {
               onClick={fetchSignals}
               disabled={loading}
               aria-label="Refresh risk signals"
-              className="inline-flex items-center justify-center rounded-md border border-white/[0.06] bg-white/[0.03] h-8 w-8 text-white/55 hover:text-white hover:bg-white/[0.06] transition disabled:opacity-50"
+              className="inline-flex items-center justify-center rounded-md border border-[#E3EAE6] bg-white h-8 w-8 text-[#5B6E68] hover:text-[#0E1F1B] hover:bg-[#F0F7F4] transition disabled:opacity-50"
             >
               <RefreshCw className={`h-3.5 w-3.5 ${loading ? "animate-spin" : ""}`} aria-hidden="true" />
             </button>
@@ -303,10 +303,10 @@ export function RiskSignals({ className = "" }: { className?: string }) {
                     initial={{ opacity: 0 }}
                     animate={{ opacity: 1 }}
                     exit={{ opacity: 0 }}
-                    className="rounded-md border border-white/[0.06] bg-white/[0.02] p-4 text-center"
+                    className="rounded-md border border-[#E3EAE6] bg-[#F7FAF8] p-4 text-center"
                   >
                     <GlowDot color="gold" size="h-1.5 w-1.5" className="inline-flex mr-2" />
-                    <span className="text-[0.78rem] text-white/75">
+                    <span className="text-[0.78rem] text-[#33544C]">
                       No signals emitted
                     </span>
                   </motion.div>
@@ -320,16 +320,16 @@ export function RiskSignals({ className = "" }: { className?: string }) {
 
         {/* ---------- Footer ---------- */}
         {data && !error && (
-          <div className="mt-4 pt-3 border-t border-white/[0.06] space-y-1">
-            <div className="flex flex-wrap items-center gap-x-2 gap-y-1 text-[0.68rem] font-mono tabular-nums text-white/75">
+          <div className="mt-4 pt-3 border-t border-[#E3EAE6] space-y-1">
+            <div className="flex flex-wrap items-center gap-x-2 gap-y-1 text-[0.68rem] font-mono tabular-nums text-[#33544C]">
               <GlowDot color="gold" size="h-1.5 w-1.5" />
               <span>
                 Generated {fmtAgo(data.generatedAt)}
               </span>
-              <span className="text-white/40">·</span>
+              <span className="text-[#7A8C86]">·</span>
               <span>{signals.length} signals</span>
             </div>
-            <p className="text-[0.62rem] text-white/55 leading-relaxed">
+            <p className="text-[0.62rem] text-[#5B6E68] leading-relaxed">
               {/* 24-e-2: the generator may be the deterministic fallback — attribute
                   to the model shown above instead of claiming "AI-generated". */}
               Generated by the model shown above. The engine math (src/lib/mtq/engine.ts) is the source of truth.

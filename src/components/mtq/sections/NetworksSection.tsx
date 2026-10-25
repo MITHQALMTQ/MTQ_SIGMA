@@ -54,9 +54,9 @@ function CopyButton({ value, label }: { value: string; label: string }) {
 /* ---------- Small key/value cell ---------- */
 function Cell({ label, children }: { label: string; children: React.ReactNode }) {
   return (
-    <div className="rounded-md border border-white/[0.06] bg-white/[0.02] p-2.5 min-w-0">
-      <div className="text-[0.6rem] uppercase tracking-[0.16em] text-white/55">{label}</div>
-      <div className="mt-0.5 text-[0.7rem] text-white/85 break-words">{children}</div>
+    <div className="rounded-md border border-[#E3EAE6] bg-[#F7FAF8] p-2.5 min-w-0">
+      <div className="text-[0.6rem] uppercase tracking-[0.16em] text-[#5B6E68]">{label}</div>
+      <div className="mt-0.5 text-[0.7rem] text-[#0E1F1B] break-words">{children}</div>
     </div>
   );
 }
@@ -76,8 +76,8 @@ function ChainCard({ chain }: { chain: ChainInfo }) {
     <Panel className="p-4 sm:p-5">
       <div className="mb-3 flex items-start justify-between gap-3 flex-wrap">
         <div>
-          <h3 className="text-[0.92rem] font-semibold text-white">{chain.label}</h3>
-          <div className="text-[0.66rem] text-white/55">
+          <h3 className="text-[0.92rem] font-semibold text-[#0E1F1B]">{chain.label}</h3>
+          <div className="text-[0.66rem] text-[#5B6E68]">
             {chain.network} · {chain.isEvm ? "EVM" : "SPL / non-EVM"}
           </div>
         </div>
@@ -104,7 +104,7 @@ function ChainCard({ chain }: { chain: ChainInfo }) {
         <Cell label="Deployed contracts">
           <span className="font-mono text-mtqs-gold">{chain.contracts.length}</span>
           {isPendingOnly ? (
-            <span className="ml-1 text-[0.6rem] text-white/55">(pending)</span>
+            <span className="ml-1 text-[0.6rem] text-[#5B6E68]">(pending)</span>
           ) : null}
         </Cell>
         <Cell label="Deployer wallet">
@@ -116,8 +116,8 @@ function ChainCard({ chain }: { chain: ChainInfo }) {
       </div>
 
       <div className="mt-2 space-y-2">
-        <div className="rounded-md border border-white/[0.06] bg-white/[0.02] p-2.5">
-          <div className="flex items-center gap-1.5 text-[0.6rem] uppercase tracking-[0.16em] text-white/55">
+        <div className="rounded-md border border-[#E3EAE6] bg-[#F7FAF8] p-2.5">
+          <div className="flex items-center gap-1.5 text-[0.6rem] uppercase tracking-[0.16em] text-[#5B6E68]">
             <Server className="h-3 w-3" aria-hidden="true" />
             RPC URL
           </div>
@@ -127,8 +127,8 @@ function ChainCard({ chain }: { chain: ChainInfo }) {
           </div>
         </div>
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
-          <div className="rounded-md border border-white/[0.06] bg-white/[0.02] p-2.5 min-w-0">
-            <div className="flex items-center gap-1.5 text-[0.6rem] uppercase tracking-[0.16em] text-white/55">
+          <div className="rounded-md border border-[#E3EAE6] bg-[#F7FAF8] p-2.5 min-w-0">
+            <div className="flex items-center gap-1.5 text-[0.6rem] uppercase tracking-[0.16em] text-[#5B6E68]">
               <ExternalLink className="h-3 w-3" aria-hidden="true" />
               Explorer
             </div>
@@ -141,8 +141,8 @@ function ChainCard({ chain }: { chain: ChainInfo }) {
               {chain.explorer} ↗
             </a>
           </div>
-          <div className="rounded-md border border-white/[0.06] bg-white/[0.02] p-2.5 min-w-0">
-            <div className="text-[0.6rem] uppercase tracking-[0.16em] text-white/55">
+          <div className="rounded-md border border-[#E3EAE6] bg-[#F7FAF8] p-2.5 min-w-0">
+            <div className="text-[0.6rem] uppercase tracking-[0.16em] text-[#5B6E68]">
               Canonical MTQΣ
             </div>
             {canonical ? (
@@ -167,14 +167,14 @@ function ChainCard({ chain }: { chain: ChainInfo }) {
                 </a>
               </div>
             ) : (
-              <div className="mt-0.5 font-mono text-[0.66rem] text-white/55">— (none recorded)</div>
+              <div className="mt-0.5 font-mono text-[0.66rem] text-[#5B6E68]">— (none recorded)</div>
             )}
           </div>
         </div>
         {note ? (
-          <div className="rounded-md border border-white/[0.06] bg-white/[0.015] p-2.5">
-            <div className="text-[0.6rem] uppercase tracking-[0.16em] text-white/55">Note</div>
-            <p className="mt-0.5 text-[0.64rem] leading-relaxed text-white/55">{note}</p>
+          <div className="rounded-md border border-[#E3EAE6] bg-[#F7FAF8] p-2.5">
+            <div className="text-[0.6rem] uppercase tracking-[0.16em] text-[#5B6E68]">Note</div>
+            <p className="mt-0.5 text-[0.64rem] leading-relaxed text-[#5B6E68]">{note}</p>
           </div>
         ) : null}
       </div>
@@ -214,7 +214,7 @@ export function NetworksSection({
         />
         <Reveal>
           <TruthBanner lines={["TESTNET ONLY", "RESERVE TRADING NOT AUTHORIZED"]}>
-            <p className="text-[0.68rem] leading-relaxed text-white/55">
+            <p className="text-[0.68rem] leading-relaxed text-[#5B6E68]">
               Appendix D.1: the v2.0 testnet edition targets Arc, Monad and Solana Devnet —
               the registry contains exactly these three owner-declared deployments (the former
               Base/Arbitrum mainnet placeholders were removed 2026-10-24). The pilot operates
@@ -288,12 +288,12 @@ export function NetworksSection({
               {CHAIN_ORACLE_DEPLOYMENTS.map((dep) => (
                 <div
                   key={dep.id}
-                  className="rounded-lg border border-white/[0.07] bg-white/[0.02] p-3.5"
+                  className="rounded-lg border border-[#E3EAE6] bg-[#F7FAF8] p-3.5"
                 >
                   <div className="flex items-center justify-between gap-2 flex-wrap">
                     <div className="flex items-center gap-2">
-                      <span className="text-[0.8rem] font-semibold text-white">{dep.label}</span>
-                      <span className="font-mono text-[0.62rem] text-white/55">
+                      <span className="text-[0.8rem] font-semibold text-[#0E1F1B]">{dep.label}</span>
+                      <span className="font-mono text-[0.62rem] text-[#5B6E68]">
                         chainId {String(dep.chainId)}
                       </span>
                     </div>
@@ -320,8 +320,8 @@ export function NetworksSection({
                   </div>
 
                   <div className="mt-2.5 grid grid-cols-1 sm:grid-cols-2 gap-2">
-                    <div className="rounded-md border border-white/[0.06] bg-white/[0.02] p-2.5 min-w-0">
-                      <div className="text-[0.6rem] uppercase tracking-[0.16em] text-white/55">
+                    <div className="rounded-md border border-[#E3EAE6] bg-[#F7FAF8] p-2.5 min-w-0">
+                      <div className="text-[0.6rem] uppercase tracking-[0.16em] text-[#5B6E68]">
                         Protocol-owner Oracle.sol
                       </div>
                       {dep.onChainOracle ? (
@@ -335,23 +335,23 @@ export function NetworksSection({
                           <CopyButton value={dep.onChainOracle} label={`${dep.label} Oracle.sol`} />
                         </div>
                       ) : (
-                        <div className="mt-0.5 font-mono text-[0.66rem] text-white/55">
+                        <div className="mt-0.5 font-mono text-[0.66rem] text-[#5B6E68]">
                           none — Gate 7 external feeds
                         </div>
                       )}
-                      <div className="mt-1 text-[0.6rem] text-white/55">
+                      <div className="mt-1 text-[0.6rem] text-[#5B6E68]">
                         {dep.oracleContract ?? "no protocol-owner on-chain oracle"} · ABI status:{" "}
-                        <span className="text-amber-100/85">{dep.abiStatus}</span>
+                        <span className="text-amber-700/85">{dep.abiStatus}</span>
                       </div>
                     </div>
-                    <div className="rounded-md border border-white/[0.06] bg-white/[0.02] p-2.5 min-w-0">
-                      <div className="text-[0.6rem] uppercase tracking-[0.16em] text-white/55">
+                    <div className="rounded-md border border-[#E3EAE6] bg-[#F7FAF8] p-2.5 min-w-0">
+                      <div className="text-[0.6rem] uppercase tracking-[0.16em] text-[#5B6E68]">
                         providerFeedAddress
                       </div>
-                      <div className="mt-0.5 font-mono text-[0.66rem] text-amber-100">
+                      <div className="mt-0.5 font-mono text-[0.66rem] text-amber-700">
                         null — pending OD-34 confirmation
                       </div>
-                      <div className="mt-1 text-[0.6rem] leading-relaxed text-white/55">
+                      <div className="mt-1 text-[0.6rem] leading-relaxed text-[#5B6E68]">
                         No adapter instance exists at any address on any chain; every
                         providerFeedAddress in the registry is null.
                       </div>
@@ -362,7 +362,7 @@ export function NetworksSection({
                     <div className="text-[0.6rem] uppercase tracking-[0.16em] text-mtqs-amber/80">
                       Honest feed determination (Ext-3 A.4)
                     </div>
-                    <p className="mt-0.5 text-[0.66rem] leading-relaxed text-white/70">
+                    <p className="mt-0.5 text-[0.66rem] leading-relaxed text-[#5B6E68]">
                       {dep.feedDetermination}
                     </p>
                   </div>
@@ -372,7 +372,7 @@ export function NetworksSection({
 
             {/* Registry limitations — verbatim from getOracleFeedSummary() */}
             <div className="mt-4">
-              <div className="mb-2 flex items-center gap-2 text-[0.72rem] font-semibold text-white">
+              <div className="mb-2 flex items-center gap-2 text-[0.72rem] font-semibold text-[#0E1F1B]">
                 <ShieldAlert className="h-3.5 w-3.5 text-mtqs-amber/80" aria-hidden="true" />
                 Registry limitations (getOracleFeedSummary · OD-34)
               </div>
@@ -380,7 +380,7 @@ export function NetworksSection({
                 {oracleSummary.limitations.map((l, i) => (
                   <li
                     key={i}
-                    className="flex items-start gap-2 text-[0.66rem] leading-relaxed text-white/55"
+                    className="flex items-start gap-2 text-[0.66rem] leading-relaxed text-[#5B6E68]"
                   >
                     <span className="mt-px w-4 shrink-0 text-right font-mono text-[0.6rem] text-mtqs-amber/70">
                       {i + 1}.
@@ -411,23 +411,23 @@ export function NetworksSection({
               {CHAIN_ORACLE_DEPLOYMENTS.filter((d) => d.onChainOracle !== null).map((dep) => (
                 <div
                   key={dep.id}
-                  className="rounded-lg border border-white/[0.07] bg-white/[0.02] p-3.5"
+                  className="rounded-lg border border-[#E3EAE6] bg-[#F7FAF8] p-3.5"
                 >
                   <div className="mb-1.5 flex items-center gap-2">
                     <GlowDot color="gold" size="h-1.5 w-1.5" />
-                    <span className="text-[0.78rem] font-semibold text-white">{dep.label}</span>
+                    <span className="text-[0.78rem] font-semibold text-[#0E1F1B]">{dep.label}</span>
                   </div>
-                  <p className="text-[0.66rem] leading-relaxed text-white/55">{dep.note}</p>
+                  <p className="text-[0.66rem] leading-relaxed text-[#5B6E68]">{dep.note}</p>
                 </div>
               ))}
-              <div className="rounded-lg border border-white/[0.07] bg-white/[0.02] p-3.5">
+              <div className="rounded-lg border border-[#E3EAE6] bg-[#F7FAF8] p-3.5">
                 <div className="mb-1.5 flex items-center gap-2">
                   <GlowDot color="gold" size="h-1.5 w-1.5" />
-                  <span className="text-[0.78rem] font-semibold text-white">
+                  <span className="text-[0.78rem] font-semibold text-[#0E1F1B]">
                     Solana Devnet — deferred to Gate 7
                   </span>
                 </div>
-                <p className="text-[0.66rem] leading-relaxed text-white/55">
+                <p className="text-[0.66rem] leading-relaxed text-[#5B6E68]">
                   {CHAIN_ORACLE_DEPLOYMENTS.find((d) => d.id === "solana")?.note ??
                     "deferred-G7"}
                 </p>
@@ -436,11 +436,11 @@ export function NetworksSection({
                     (f) => (
                       <li
                         key={f.family}
-                        className="flex items-center gap-2 text-[0.64rem] text-white/55"
+                        className="flex items-center gap-2 text-[0.64rem] text-[#5B6E68]"
                       >
                         <Pill tone="muted">{f.status}</Pill>
-                        <span className="text-white/85">{f.family}</span>
-                        <span className="text-white/55">— {f.role}</span>
+                        <span className="text-[#0E1F1B]">{f.family}</span>
+                        <span className="text-[#5B6E68]">— {f.role}</span>
                       </li>
                     ),
                   )}
@@ -448,11 +448,11 @@ export function NetworksSection({
               </div>
             </div>
             {constructNote ? (
-              <div className="mt-3 rounded-md border border-white/[0.07] bg-white/[0.015] p-3">
+              <div className="mt-3 rounded-md border border-[#E3EAE6] bg-[#F7FAF8] p-3">
                 <div className="text-[0.6rem] uppercase tracking-[0.16em] text-mtqs-gold/75">
                   USDC/USD — construct pair
                 </div>
-                <p className="mt-0.5 text-[0.66rem] leading-relaxed text-white/55">
+                <p className="mt-0.5 text-[0.66rem] leading-relaxed text-[#5B6E68]">
                   {constructNote}
                 </p>
               </div>
@@ -470,11 +470,11 @@ export function NetworksSection({
                 <div className="text-[0.6rem] uppercase tracking-[0.22em] text-mtqs-amber/80">
                   §1.7 · independent verification required
                 </div>
-                <p className="mt-1 text-[0.72rem] leading-relaxed text-white/70">
+                <p className="mt-1 text-[0.72rem] leading-relaxed text-[#5B6E68]">
                   Reported addresses are user-reported testnet deployments. Per §1.7, reported
                   chain deployments, addresses, token decimals, Safe settings, and role
                   assignments{" "}
-                  <span className="font-semibold text-amber-100">
+                  <span className="font-semibold text-amber-700">
                     must be verified independently
                   </span>{" "}
                   — a written specification, a successful compile, or a testnet transaction does
@@ -488,7 +488,7 @@ export function NetworksSection({
                   Deployer wallet (contracts.ts)
                 </div>
                 <div className="mt-1 flex items-center gap-1.5 flex-wrap">
-                  <span className="font-mono text-[0.68rem] text-amber-100 break-all">
+                  <span className="font-mono text-[0.68rem] text-amber-700 break-all">
                     {DEPLOYER_WALLET}
                   </span>
                   <CopyButton value={DEPLOYER_WALLET} label="deployer wallet" />

@@ -8,11 +8,11 @@ import { ArrowRight, Check, ChevronDown, ArrowDownUp, Send, ShieldCheck, Vote, L
 import { ECOSYSTEM, DASHBOARD_MOCK, SIMULATED_PREVIEW_TAG, SIMULATION_NOTE } from "@/lib/mtq/landing-status";
 import { BrandMark } from "./BrandMark";
 
-/* tiny token glyphs — simple geometric marks, no third-party logos */
+/* tiny token glyphs — simple flat geometric marks, no third-party logos */
 function TokenGlyph({ kind }: { kind: "m" | "usdc" | "eth" | "sol" }) {
   if (kind === "m")
     return (
-      <span className="grid size-7 place-items-center rounded-full bg-gradient-to-br from-[#22b8fb] to-[#7c5cfa] text-[0.62rem] font-extrabold text-white shadow-[0_0_10px_rgba(56,148,251,0.5)]">
+      <span className="grid size-7 place-items-center rounded-full bg-[#0D9488] text-[0.62rem] font-extrabold text-white">
         M
       </span>
     );
@@ -24,7 +24,7 @@ function TokenGlyph({ kind }: { kind: "m" | "usdc" | "eth" | "sol" }) {
     );
   if (kind === "eth")
     return (
-      <span className="grid size-7 place-items-center rounded-full bg-gradient-to-br from-[#627eea] to-[#8b5cf6]">
+      <span className="grid size-7 place-items-center rounded-full bg-[#627EEA]">
         <svg viewBox="0 0 24 24" className="size-3.5 fill-white" aria-hidden>
           <path d="M12 2 L19 12 L12 16 L5 12 Z" opacity="0.95" />
           <path d="M12 17.5 L19 13.5 L12 22 L5 13.5 Z" opacity="0.7" />
@@ -32,9 +32,9 @@ function TokenGlyph({ kind }: { kind: "m" | "usdc" | "eth" | "sol" }) {
       </span>
     );
   return (
-    <span className="grid size-7 place-items-center rounded-full bg-gradient-to-br from-[#34e0e0] via-[#3b82f6] to-[#e4a1ff]">
+    <span className="grid size-7 place-items-center rounded-full bg-[#0F766E]">
       <svg viewBox="0 0 24 24" className="size-3.5" aria-hidden>
-        <path d="M5 8h9l-1.6 2.4H5zM7 11.8h9l-1.6 2.4H7z" fill="#0b1020" />
+        <path d="M5 8h9l-1.6 2.4H5zM7 11.8h9l-1.6 2.4H7z" fill="#EAF7F2" />
       </svg>
     </span>
   );
@@ -62,25 +62,25 @@ function PortfolioChart() {
       <svg viewBox={`0 0 ${W} ${H + 18}`} className="h-[96px] w-full" aria-hidden>
         <defs>
           <linearGradient id="lp-chart-fill" x1="0" y1="0" x2="0" y2="1">
-            <stop offset="0%" stopColor="#22d3ee" stopOpacity="0.4" />
-            <stop offset="100%" stopColor="#7c5cfa" stopOpacity="0.03" />
+            <stop offset="0%" stopColor="#0D9488" stopOpacity="0.22" />
+            <stop offset="100%" stopColor="#0D9488" stopOpacity="0.02" />
           </linearGradient>
           <linearGradient id="lp-chart-line" x1="0" y1="0" x2="1" y2="0">
-            <stop offset="0%" stopColor="#22d3ee" />
-            <stop offset="100%" stopColor="#a78bfa" />
+            <stop offset="0%" stopColor="#14B8A6" />
+            <stop offset="100%" stopColor="#0F766E" />
           </linearGradient>
         </defs>
         {[0.25, 0.5, 0.75].map((f) => (
-          <line key={f} x1="0" y1={H * f} x2={W} y2={H * f} stroke="rgba(148,197,255,0.09)" strokeWidth="1" />
+          <line key={f} x1="0" y1={H * f} x2={W} y2={H * f} stroke="rgba(14,31,27,0.07)" strokeWidth="1" />
         ))}
         <path d={`${line} L ${W},${H} L 0,${H} Z`} fill="url(#lp-chart-fill)" />
         <path d={line} fill="none" stroke="url(#lp-chart-line)" strokeWidth="2.4" strokeLinecap="round" />
         {/* data-point markers */}
         {pts.map((p, i) => (
-          <circle key={i} cx={i * step} cy={y(p)} r={i === pts.length - 1 ? 3.4 : 2} fill={i === pts.length - 1 ? "#ffffff" : "#7ce7fb"} stroke="rgba(2,12,32,0.4)" strokeWidth="1" />
+          <circle key={i} cx={i * step} cy={y(p)} r={i === pts.length - 1 ? 3.4 : 2} fill={i === pts.length - 1 ? "#0F766E" : "#5EEAD4"} stroke="rgba(255,255,255,0.7)" strokeWidth="1" />
         ))}
       </svg>
-      <div className="mt-1 flex justify-between px-0.5 text-[0.54rem] font-medium text-slate-500">
+      <div className="flex justify-between px-0.5 text-[0.54rem] font-medium text-[#7A8C86]">
         {DASHBOARD_MOCK.welcome.chartX.map((m) => (
           <span key={m}>{m}</span>
         ))}
@@ -98,11 +98,11 @@ function DashboardPreview() {
   return (
     <div className="lp-dash-window" role="img" aria-label="Simulated product interface preview — illustrative only">
       {/* top bar */}
-      <div className="flex items-center justify-between gap-2 border-b border-white/[0.07] bg-white/[0.025] px-4 py-3">
+      <div className="flex items-center justify-between gap-2 border-b border-[#EDF2EF] bg-[#FAFCFA] px-4 py-3">
         <div className="flex items-center gap-2">
           <BrandMark size={20} glow={false} />
           <span
-            className="text-[0.78rem] font-bold text-white"
+            className="text-[0.78rem] font-bold text-[#0E1F1B]"
             style={{ fontFamily: "var(--font-mtqs-display), Montserrat, sans-serif" }}
           >
             MTQΣ
@@ -112,11 +112,11 @@ function DashboardPreview() {
           <span className="lp-sim-tag" title={SIMULATION_NOTE}>
             {SIMULATED_PREVIEW_TAG}
           </span>
-          <span className="inline-flex items-center gap-1 rounded-full border border-white/10 bg-white/[0.04] px-2 py-1 text-[0.6rem] font-medium text-slate-300">
+          <span className="inline-flex items-center gap-1 rounded-full border border-[#E3EAE6] bg-white px-2 py-1 text-[0.6rem] font-medium text-[#5B6E68]">
             {m.address}
-            <ChevronDown className="size-3 text-slate-500" aria-hidden />
+            <ChevronDown className="size-3 text-[#7A8C86]" aria-hidden />
           </span>
-          <span className="grid size-6 place-items-center rounded-full bg-gradient-to-br from-[#7c5cfa] to-[#c084fc] text-[0.55rem] font-bold text-white">
+          <span className="grid size-6 place-items-center rounded-full bg-[#0D9488] text-[0.55rem] font-bold text-white">
             A
           </span>
         </div>
@@ -125,7 +125,7 @@ function DashboardPreview() {
       {/* body — left sidebar + content grid */}
       <div className="grid grid-cols-[minmax(0,88px)_minmax(0,1fr)] sm:grid-cols-[minmax(0,120px)_minmax(0,1fr)]">
         {/* sidebar */}
-        <div className="flex flex-col gap-1 border-r border-white/[0.06] bg-white/[0.015] p-2.5">
+        <div className="flex flex-col gap-1 border-r border-[#EDF2EF] bg-[#F7FAF8] p-2.5">
           {m.tabs.map((t, i) => {
             const Icon = SIDEBAR_ICONS[i];
             return (
@@ -133,8 +133,8 @@ function DashboardPreview() {
                 key={t}
                                className={`flex items-center gap-2 rounded-lg px-2.5 py-2 text-[0.62rem] font-semibold ${
                   i === 0
-                    ? "bg-gradient-to-r from-[#22b8fb] to-[#7c5cfa] text-white shadow-[0_0_12px_rgba(56,148,251,0.4)]"
-                    : "text-slate-400"
+                    ? "bg-[#0D9488] text-white"
+                    : "text-[#5B6E68]"
                 }`}
               >
                 <Icon className="size-3.5 shrink-0" aria-hidden />
@@ -151,8 +151,8 @@ function DashboardPreview() {
         <div className="lp-dash-panel p-4">
           <div className="flex items-start justify-between gap-3">
             <div>
-              <p className="text-[0.92rem] font-bold text-white">{m.welcome.title}</p>
-              <p className="text-[0.66rem] text-slate-400">{m.welcome.subtitle}</p>
+              <p className="text-[0.92rem] font-bold text-[#0E1F1B]">{m.welcome.title}</p>
+              <p className="text-[0.66rem] text-[#5B6E68]">{m.welcome.subtitle}</p>
             </div>
             <div className="flex gap-1.5">
               {m.welcome.actions.map((a, i) => {
@@ -167,9 +167,9 @@ function DashboardPreview() {
             </div>
           </div>
           <div className="mt-4 flex items-end justify-between gap-3">
-            <p className="text-[1.55rem] font-extrabold leading-none text-white">
+            <p className="text-[1.55rem] font-extrabold leading-none text-[#0E1F1B]">
               {m.welcome.value}
-              <span className="ml-2 align-middle text-[0.62rem] font-bold text-emerald-400">
+              <span className="ml-2 align-middle text-[0.62rem] font-bold text-emerald-600">
                 ▲ {m.welcome.change}
               </span>
             </p>
@@ -177,10 +177,10 @@ function DashboardPreview() {
               {m.welcome.tokens.map((t) => (
                 <span
                   key={t.symbol}
-                  className="inline-flex items-center gap-1.5 rounded-full border border-white/10 bg-white/[0.04] px-2 py-0.5 text-[0.58rem] text-slate-300"
+                  className="inline-flex items-center gap-1.5 rounded-full border border-[#E3EAE6] bg-white px-2 py-0.5 text-[0.58rem] text-[#5B6E68]"
                 >
                   <TokenGlyph kind={t.symbol.toLowerCase() as "eth" | "sol"} />
-                  <b className="text-white">{t.amount}</b>
+                  <b className="text-[#0E1F1B]">{t.amount}</b>
                   {t.value}
                 </span>
               ))}
@@ -191,20 +191,20 @@ function DashboardPreview() {
 
         {/* your assets */}
         <div className="lp-dash-panel p-4">
-          <p className="text-[0.72rem] font-bold text-white">Your Assets</p>
+          <p className="text-[0.72rem] font-bold text-[#0E1F1B]">Your Assets</p>
           <ul className="mt-2.5 flex flex-col gap-2">
             {m.assets.map((a) => (
-              <li key={a.symbol} className="flex items-center justify-between gap-2 rounded-lg px-1.5 py-1.5 transition hover:bg-white/[0.03]">
+              <li key={a.symbol} className="flex items-center justify-between gap-2 rounded-lg px-1.5 py-1.5 transition hover:bg-[#F0F7F4]">
                 <span className="flex items-center gap-2">
                   <TokenGlyph kind={a.icon} />
                   <span>
-                    <b className="block text-[0.7rem] font-bold leading-tight text-white">{a.symbol}</b>
-                    <span className="block text-[0.56rem] leading-tight text-slate-500">{a.tag}</span>
+                    <b className="block text-[0.7rem] font-bold leading-tight text-[#0E1F1B]">{a.symbol}</b>
+                    <span className="block text-[0.56rem] leading-tight text-[#7A8C86]">{a.tag}</span>
                   </span>
                 </span>
                 <span className="text-right">
-                  <b className="block text-[0.7rem] font-bold leading-tight text-white">{a.amount}</b>
-                  <span className="block text-[0.56rem] leading-tight text-slate-500">{a.value}</span>
+                  <b className="block text-[0.7rem] font-bold leading-tight text-[#0E1F1B]">{a.amount}</b>
+                  <span className="block text-[0.56rem] leading-tight text-[#7A8C86]">{a.value}</span>
                 </span>
               </li>
             ))}
@@ -213,27 +213,27 @@ function DashboardPreview() {
 
         {/* recent activity */}
         <div className="lp-dash-panel p-4 md:col-span-1">
-          <p className="text-[0.72rem] font-bold text-white">{m.activity.title}</p>
+          <p className="text-[0.72rem] font-bold text-[#0E1F1B]">{m.activity.title}</p>
           <ul className="mt-2.5 flex flex-col gap-2.5">
             {m.activity.rows.map((r) => (
               <li key={r.id} className="flex items-start justify-between gap-2">
                 <span className="flex items-start gap-2">
-                  <span className="grid size-6 shrink-0 place-items-center rounded-full bg-gradient-to-br from-[#7c5cfa] to-[#3b82f6]">
+                  <span className="grid size-6 shrink-0 place-items-center rounded-full bg-[#E7F4F1]">
                     {r.icon === "vote" ? (
-                      <Vote className="size-3 text-white" aria-hidden />
+                      <Vote className="size-3 text-[#0F766E]" aria-hidden />
                     ) : r.icon === "swap" ? (
-                      <ArrowDownUp className="size-3 text-white" aria-hidden />
+                      <ArrowDownUp className="size-3 text-[#0F766E]" aria-hidden />
                     ) : (
-                      <span className="text-[0.5rem] font-extrabold text-white">M</span>
+                      <span className="text-[0.5rem] font-extrabold text-[#0F766E]">M</span>
                     )}
                   </span>
                   <span>
-                    <b className="block text-[0.68rem] font-semibold leading-tight text-white">{r.title}</b>
-                    {r.detail && <span className="block text-[0.56rem] leading-tight text-emerald-400">{r.detail}</span>}
+                    <b className="block text-[0.68rem] font-semibold leading-tight text-[#0E1F1B]">{r.title}</b>
+                    {r.detail && <span className="block text-[0.56rem] leading-tight text-emerald-600">{r.detail}</span>}
                     {r.value && (
-                      <span className="block text-[0.62rem] font-bold leading-tight text-emerald-400">{r.value}</span>
+                      <span className="block text-[0.62rem] font-bold leading-tight text-emerald-600">{r.value}</span>
                     )}
-                    <span className="block text-[0.55rem] leading-tight text-slate-500">{r.when}</span>
+                    <span className="block text-[0.55rem] leading-tight text-[#7A8C86]">{r.when}</span>
                   </span>
                 </span>
               </li>
@@ -243,16 +243,16 @@ function DashboardPreview() {
 
         {/* network status */}
         <div className="lp-dash-panel p-4">
-          <p className="text-[0.72rem] font-bold text-white">{m.network.title}</p>
+          <p className="text-[0.72rem] font-bold text-[#0E1F1B]">{m.network.title}</p>
           <ul className="mt-2.5 flex flex-col gap-2">
             {m.network.rows.map((n) => (
               <li key={n.id} className="flex items-center justify-between gap-2">
                 <span className="flex items-center gap-2">
-                  <span className="size-4 rounded-full" style={{ background: n.color, boxShadow: `0 0 8px ${n.color}66` }} aria-hidden />
-                  <b className="text-[0.68rem] font-semibold text-white">{n.name}</b>
+                  <span className="size-4 rounded-full" style={{ background: n.color }} aria-hidden />
+                  <b className="text-[0.68rem] font-semibold text-[#0E1F1B]">{n.name}</b>
                 </span>
-                <span className="flex items-center gap-1.5 text-[0.62rem] font-semibold text-emerald-400">
-                  <span className="size-1.5 rounded-full bg-emerald-400 shadow-[0_0_6px_rgba(52,211,153,0.9)]" aria-hidden />
+                <span className="flex items-center gap-1.5 text-[0.62rem] font-semibold text-emerald-600">
+                  <span className="size-1.5 rounded-full bg-emerald-500" aria-hidden />
                   {n.status}
                 </span>
               </li>
@@ -274,7 +274,7 @@ export function EcosystemSection({ onLaunch }: { onLaunch?: () => void }) {
           <span className="lp-eco-pill">
             <span className="grid size-4 place-items-center">
               <span
-                className="text-[0.7rem] font-extrabold text-cyan-300"
+                className="text-[0.7rem] font-extrabold text-[#0D9488]"
                 style={{ fontFamily: "var(--font-mtqs-display), Montserrat, sans-serif" }}
                 aria-hidden
               >
@@ -287,7 +287,7 @@ export function EcosystemSection({ onLaunch }: { onLaunch?: () => void }) {
             <span className="block">{ECOSYSTEM.headlineLines[0].text}</span>
             <span className="lp-h2-grad block">{ECOSYSTEM.headlineLines[1].text}</span>
           </h2>
-          <p className="mt-4 text-[0.92rem] leading-relaxed text-slate-400">{ECOSYSTEM.paragraph}</p>
+          <p className="mt-4 text-[0.92rem] leading-relaxed text-[#4A5C56]">{ECOSYSTEM.paragraph}</p>
           <ul className="mt-6 flex flex-col gap-3">
             {ECOSYSTEM.checklist.map((item) => (
               <li key={item} className="lp-check-item">
@@ -313,9 +313,9 @@ export function EcosystemSection({ onLaunch }: { onLaunch?: () => void }) {
 
         {/* right column — simulated dashboard preview */}
         <div className="lp-rise relative" style={{ animationDelay: "0.12s" }}>
-          <div className="pointer-events-none absolute -inset-10 -z-10 bg-[radial-gradient(50%_50%_at_50%_50%,rgba(37,99,235,0.16),transparent_75%)]" aria-hidden />
+          <div className="pointer-events-none absolute -inset-10 -z-10 bg-[radial-gradient(50%_50%_at_50%_50%,rgba(13,148,136,0.08),transparent_75%)]" aria-hidden />
           <DashboardPreview />
-          <p className="mt-2.5 flex items-center justify-center gap-1.5 text-center text-[0.6rem] text-slate-500">
+          <p className="mt-2.5 flex items-center justify-center gap-1.5 text-center text-[0.6rem] text-[#7A8C86]">
             <ShieldCheck className="size-3 shrink-0" aria-hidden />
             {SIMULATION_NOTE}
           </p>

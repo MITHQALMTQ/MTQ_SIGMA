@@ -111,7 +111,7 @@ function BlockHead({
         <div className="text-[0.6rem] uppercase tracking-[0.22em] text-mtqs-gold/75">
           {n} · {eyebrow}
         </div>
-        <h3 id={id} className="mt-2 text-base font-semibold text-white">
+        <h3 id={id} className="mt-2 text-base font-semibold text-[#0E1F1B]">
           {title}
         </h3>
       </div>
@@ -227,17 +227,17 @@ export function AuthorizationAuditSection() {
               {TASK9_META.banner}
             </span>
           </div>
-          <p className="mt-2.5 font-mono text-[0.66rem] leading-relaxed text-white/65">
+          <p className="mt-2.5 font-mono text-[0.66rem] leading-relaxed text-[#5B6E68]">
             Probed {TASK9_META.probedAt} · Monad block {TASK9_META.monadBlock} · Arc block{" "}
             {TASK9_META.arcBlock} · transactions sent: {TASK9_META.transactionCount}
           </p>
-          <p className="mt-1.5 text-[0.66rem] leading-relaxed text-white/50">
+          <p className="mt-1.5 text-[0.66rem] leading-relaxed text-[#5B6E68]">
             Methods: {TASK9_META.methods}. Evidence: <span className="font-mono">{TASK9_META.evidencePath}</span>
           </p>
-          <p className="mt-1.5 font-mono text-[0.66rem] leading-relaxed text-white/65">
+          <p className="mt-1.5 font-mono text-[0.66rem] leading-relaxed text-[#5B6E68]">
             Task 10 re-probe {TASK10_META.probedAt} · Monad block {TASK10_META.monadBlock} · Arc block{" "}
             {TASK10_META.arcBlock} · Robinhood block {TASK10_META.robinhoodBlock.split(" ")[0]}{" "}
-            <span className="text-white/40">
+            <span className="text-[#7A8C86]">
               (network removed from the estate 2026-10-24 — historical probe record only)
             </span>{" "}
             · transactions sent:{" "}
@@ -273,38 +273,38 @@ export function AuthorizationAuditSection() {
                 C-045 CONFIRMED: TWO live-privileged key literals exist in this repository and its git history
               </span>
             </div>
-            <p className="mt-2 text-[0.7rem] leading-relaxed text-white/65">
+            <p className="mt-2 text-[0.7rem] leading-relaxed text-[#5B6E68]">
               Both derive to privileged accounts (verified by local derivation — never by executing anything). No
               literal, fragment beyond a redacted fingerprint, or key value is displayed anywhere in this app or
               the Task 10 deliverables. Posture: treat both as compromised; containment K-1/K-2 is the blocking P0.
             </p>
             <div className="mt-4 grid gap-3 md:grid-cols-2">
               {TASK10_KEY_INCIDENT.map((k) => (
-                <div key={k.id} className="rounded-lg border border-mtqs-rose/30 bg-white/[0.02] p-3.5">
+                <div key={k.id} className="rounded-lg border border-mtqs-rose/30 bg-white p-3.5">
                   <div className="flex flex-wrap items-center gap-2">
                     <Pill tone="rose">{k.id}</Pill>
-                    <span className="text-[0.7rem] font-medium text-white/85">{k.kind}</span>
+                    <span className="text-[0.7rem] font-medium text-[#0E1F1B]">{k.kind}</span>
                   </div>
                   <dl className="mt-2.5 space-y-1.5 text-[0.66rem] leading-relaxed">
                     <div className="flex gap-2">
-                      <dt className="w-20 shrink-0 text-white/40">fingerprint</dt>
+                      <dt className="w-20 shrink-0 text-[#7A8C86]">fingerprint</dt>
                       <dd className="font-mono text-mtqs-gold/85">{k.fingerprint}</dd>
                     </div>
                     <div className="flex gap-2">
-                      <dt className="w-20 shrink-0 text-white/40">derives to</dt>
-                      <dd className="min-w-0 font-mono break-all text-white/80">{k.derivesTo}</dd>
+                      <dt className="w-20 shrink-0 text-[#7A8C86]">derives to</dt>
+                      <dd className="min-w-0 font-mono break-all text-[#0E1F1B]">{k.derivesTo}</dd>
                     </div>
                     <div className="flex gap-2">
-                      <dt className="w-20 shrink-0 text-white/40">controls</dt>
-                      <dd className="min-w-0 text-white/70">{k.controls}</dd>
+                      <dt className="w-20 shrink-0 text-[#7A8C86]">controls</dt>
+                      <dd className="min-w-0 text-[#5B6E68]">{k.controls}</dd>
                     </div>
                     <div className="flex gap-2">
-                      <dt className="w-20 shrink-0 text-white/40">copies</dt>
-                      <dd className="min-w-0 text-white/70">{k.copies}</dd>
+                      <dt className="w-20 shrink-0 text-[#7A8C86]">copies</dt>
+                      <dd className="min-w-0 text-[#5B6E68]">{k.copies}</dd>
                     </div>
                     <div className="flex gap-2">
-                      <dt className="w-20 shrink-0 text-white/40">window</dt>
-                      <dd className="min-w-0 text-white/70">{k.window}</dd>
+                      <dt className="w-20 shrink-0 text-[#7A8C86]">window</dt>
+                      <dd className="min-w-0 text-[#5B6E68]">{k.window}</dd>
                     </div>
                   </dl>
                   <p className="mt-2.5 rounded-md border border-mtqs-rose/40 bg-mtqs-rose/10 px-2.5 py-1.5 font-mono text-[0.62rem] text-mtqs-rose">
@@ -319,19 +319,19 @@ export function AuthorizationAuditSection() {
         {/* exposure census */}
         <Reveal>
           <Panel className="mt-4 p-0 overflow-hidden">
-            <div className="border-b border-white/[0.06] px-4 py-3">
+            <div className="border-b border-[#E3EAE6] px-4 py-3">
               <div className="flex items-center gap-2">
                 <FileSearch className="h-4 w-4 text-mtqs-gold/80" aria-hidden="true" />
-                <span className="text-[0.78rem] font-medium text-white/90">
+                <span className="text-[0.78rem] font-medium text-[#0E1F1B]">
                   Exposure census — where the material exists (and does not)
                 </span>
               </div>
             </div>
-            <ul className="max-h-72 overflow-y-auto mtqs-scroll divide-y divide-white/[0.05]">
+            <ul className="max-h-72 overflow-y-auto mtqs-scroll divide-y divide-[#E3EAE6]">
               {TASK10_KEY_CENSUS.map((c) => (
                 <li key={c.surface} className="px-4 py-2.5">
-                  <p className="text-[0.68rem] font-medium text-white/75">{c.surface}</p>
-                  <p className="mt-0.5 text-[0.66rem] leading-relaxed text-white/55">{c.result}</p>
+                  <p className="text-[0.68rem] font-medium text-[#33544C]">{c.surface}</p>
+                  <p className="mt-0.5 text-[0.66rem] leading-relaxed text-[#5B6E68]">{c.result}</p>
                 </li>
               ))}
             </ul>
@@ -343,20 +343,20 @@ export function AuthorizationAuditSection() {
           <Panel className="mt-4 p-4 sm:p-5">
             <div className="flex items-center gap-2">
               <History className="h-4 w-4 text-mtqs-gold/80" aria-hidden="true" />
-              <span className="text-[0.78rem] font-medium text-white/90">
+              <span className="text-[0.78rem] font-medium text-[#0E1F1B]">
                 Corrections register — evidence-preserving (prior claim → verified truth → action)
               </span>
             </div>
             <ul className="mt-3 space-y-2.5">
               {TASK10_CORRECTIONS.map((c) => (
-                <li key={c.id} className="rounded-md border border-white/[0.06] bg-white/[0.02] p-3">
+                <li key={c.id} className="rounded-md border border-[#E3EAE6] bg-[#F7FAF8] p-3">
                   <div className="flex flex-wrap items-center gap-2">
                     <Pill tone="gold">{c.id}</Pill>
-                    <span className="font-mono text-[0.64rem] text-white/45 line-through decoration-mtqs-rose/60">
+                    <span className="font-mono text-[0.64rem] text-[#7A8C86] line-through decoration-mtqs-rose/60">
                       {c.prior}
                     </span>
                   </div>
-                  <p className="mt-1.5 text-[0.68rem] leading-relaxed text-white/70">{c.truth}</p>
+                  <p className="mt-1.5 text-[0.68rem] leading-relaxed text-[#5B6E68]">{c.truth}</p>
                   <p className="mt-1 text-[0.64rem] leading-relaxed text-mtqs-gold/75">Action: {c.action}</p>
                 </li>
               ))}
@@ -367,10 +367,10 @@ export function AuthorizationAuditSection() {
         {/* fresh anchors + supply reconciliation tables */}
         <Reveal>
           <Panel className="mt-4 p-0 overflow-hidden">
-            <div className="border-b border-white/[0.06] px-4 py-3">
+            <div className="border-b border-[#E3EAE6] px-4 py-3">
               <div className="flex items-center gap-2">
                 <Network className="h-4 w-4 text-mtqs-gold/80" aria-hidden="true" />
-                <span className="text-[0.78rem] font-medium text-white/90">
+                <span className="text-[0.78rem] font-medium text-[#0E1F1B]">
                   State stability — Task 9 (2026-10-21) vs Task 10 (2026-10-22) fresh anchors
                 </span>
               </div>
@@ -380,7 +380,7 @@ export function AuthorizationAuditSection() {
                 <caption className="sr-only">
                   Task 10 re-verification of Task 9 live-state anchors — read-only re-probe, zero transactions.
                 </caption>
-                <thead className="bg-white/[0.03] text-white/55">
+                <thead className="bg-[#F7FAF8] text-[#5B6E68]">
                   <tr>
                     <th scope="col" className="text-left px-3 py-2 font-medium">Item</th>
                     <th scope="col" className="text-left px-3 py-2 font-medium">Task 9</th>
@@ -389,9 +389,9 @@ export function AuthorizationAuditSection() {
                 </thead>
                 <tbody>
                   {TASK10_FRESH_ANCHORS.map((a) => (
-                    <tr key={a.item} className="border-t border-white/[0.06]">
-                      <td className="px-3 py-2.5 font-mono text-white/85">{a.item}</td>
-                      <td className="px-3 py-2.5 text-white/55">{a.task9}</td>
+                    <tr key={a.item} className="border-t border-[#E3EAE6]">
+                      <td className="px-3 py-2.5 font-mono text-[#0E1F1B]">{a.item}</td>
+                      <td className="px-3 py-2.5 text-[#5B6E68]">{a.task9}</td>
                       <td className="px-3 py-2.5 text-mtqs-emerald">{a.task10}</td>
                     </tr>
                   ))}
@@ -403,10 +403,10 @@ export function AuthorizationAuditSection() {
 
         <Reveal>
           <Panel className="mt-4 p-0 overflow-hidden">
-            <div className="border-b border-white/[0.06] px-4 py-3">
+            <div className="border-b border-[#E3EAE6] px-4 py-3">
               <div className="flex items-center gap-2">
                 <Vault className="h-4 w-4 text-mtqs-gold/80" aria-hidden="true" />
-                <span className="text-[0.78rem] font-medium text-white/90">
+                <span className="text-[0.78rem] font-medium text-[#0E1F1B]">
                   Supply & genesis reconciliation — mandate §20.1 vs live estate
                 </span>
               </div>
@@ -416,7 +416,7 @@ export function AuthorizationAuditSection() {
                 <caption className="sr-only">
                   Intended supply and genesis per the authoritative mandate, reconciled against live supplies, custody and holders.
                 </caption>
-                <thead className="bg-white/[0.03] text-white/55">
+                <thead className="bg-[#F7FAF8] text-[#5B6E68]">
                   <tr>
                     <th scope="col" className="text-left px-3 py-2 font-medium">Chain</th>
                     <th scope="col" className="text-left px-3 py-2 font-medium">Intended (mandate)</th>
@@ -426,17 +426,17 @@ export function AuthorizationAuditSection() {
                 </thead>
                 <tbody>
                   {TASK10_SUPPLY_RECONCILIATION.map((r) => (
-                    <tr key={r.chain} className="border-t border-white/[0.06]">
-                      <td className="px-3 py-2.5 font-mono text-white/85">{r.chain}</td>
-                      <td className="px-3 py-2.5 text-white/55">{r.intended}</td>
-                      <td className="px-3 py-2.5 text-white/70">{r.actual}</td>
+                    <tr key={r.chain} className="border-t border-[#E3EAE6]">
+                      <td className="px-3 py-2.5 font-mono text-[#0E1F1B]">{r.chain}</td>
+                      <td className="px-3 py-2.5 text-[#5B6E68]">{r.intended}</td>
+                      <td className="px-3 py-2.5 text-[#5B6E68]">{r.actual}</td>
                       <td className="px-3 py-2.5 text-mtqs-amber">{r.gap}</td>
                     </tr>
                   ))}
                 </tbody>
               </table>
             </div>
-            <p className="border-t border-white/[0.06] px-4 py-2.5 text-[0.64rem] leading-relaxed text-white/45">
+            <p className="border-t border-[#E3EAE6] px-4 py-2.5 text-[0.64rem] leading-relaxed text-[#7A8C86]">
               Custody is NOT declared closed because balances happen to sum to supply: every balance sits either in
               the deployer EOA, a self-custodying token contract (gen-A/C), or a single-key Solana wallet — none in
               the mandated 4/7 Genesis Safe. C-041/C-043/C-046/C-047 remain OPEN.
@@ -447,26 +447,26 @@ export function AuthorizationAuditSection() {
         {/* containment plan — all steps await human approval */}
         <Reveal>
           <Panel className="mt-4 p-0 overflow-hidden">
-            <div className="border-b border-white/[0.06] px-4 py-3">
+            <div className="border-b border-[#E3EAE6] px-4 py-3">
               <div className="flex items-center gap-2">
                 <Wrench className="h-4 w-4 text-mtqs-gold/80" aria-hidden="true" />
-                <span className="text-[0.78rem] font-medium text-white/90">
+                <span className="text-[0.78rem] font-medium text-[#0E1F1B]">
                   Transaction-free containment plan — dependencies, risks, required approvals
                 </span>
               </div>
               <TransactionPlanOnlyBadge />
             </div>
-            <ul className="max-h-96 overflow-y-auto mtqs-scroll divide-y divide-white/[0.05]">
+            <ul className="max-h-96 overflow-y-auto mtqs-scroll divide-y divide-[#E3EAE6]">
               {TASK10_CONTAINMENT_PLAN.map((s) => (
                 <li key={s.id} className="px-4 py-3">
                   <div className="flex flex-wrap items-center gap-2">
                     <Pill tone={s.kind === "ON-CHAIN (PLAN ONLY)" ? "rose" : s.kind === "REPO" ? "gold" : "muted"}>
                       {s.id}
                     </Pill>
-                    <span className="font-mono text-[0.62rem] text-white/45">{s.kind}</span>
+                    <span className="font-mono text-[0.62rem] text-[#7A8C86]">{s.kind}</span>
                   </div>
-                  <p className="mt-1 text-[0.7rem] leading-relaxed text-white/80">{s.step}</p>
-                  <p className="mt-1 text-[0.62rem] leading-relaxed text-white/50">Risk: {s.risk}</p>
+                  <p className="mt-1 text-[0.7rem] leading-relaxed text-[#0E1F1B]">{s.step}</p>
+                  <p className="mt-1 text-[0.62rem] leading-relaxed text-[#5B6E68]">Risk: {s.risk}</p>
                   <p className="text-[0.62rem] leading-relaxed text-mtqs-gold/75">Approval authority: {s.approval}</p>
                 </li>
               ))}
@@ -479,7 +479,7 @@ export function AuthorizationAuditSection() {
           <Panel className="mt-4 p-4 sm:p-5">
             <div className="mb-3 flex flex-wrap items-center gap-2">
               <ClipboardCheck className="h-4 w-4 text-mtqs-gold/80" aria-hidden="true" />
-              <span className="text-[0.78rem] font-medium text-white/90">
+              <span className="text-[0.78rem] font-medium text-[#0E1F1B]">
                 Task 10 release-gate re-verification — statuses unchanged
               </span>
               <Pill tone="rose">{TASK10_FINAL.overall}</Pill>
@@ -487,11 +487,11 @@ export function AuthorizationAuditSection() {
             <ul className="space-y-1.5">
               {TASK10_RELEASE_GATES.map((g) => (
                 <li key={g.n} className="flex flex-wrap items-center gap-2 text-[0.7rem]">
-                  <span className="w-6 shrink-0 font-mono text-white/35">{String(g.n).padStart(2, "0")}</span>
-                  <span className="text-white/80">{g.name}</span>
+                  <span className="w-6 shrink-0 font-mono text-[#7A8C86]">{String(g.n).padStart(2, "0")}</span>
+                  <span className="text-[#0E1F1B]">{g.name}</span>
                   <GatePill status={g.status} kind={g.n === 1 ? "warn" : "fail"} />
                   {"note" in g && g.note ? (
-                    <span className="text-[0.62rem] text-white/50">— {g.note}</span>
+                    <span className="text-[0.62rem] text-[#5B6E68]">— {g.note}</span>
                   ) : null}
                 </li>
               ))}
@@ -522,7 +522,7 @@ export function AuthorizationAuditSection() {
                 {TASK9_META.recommendation}
               </span>
             </div>
-            <p className="mt-3 text-[0.74rem] sm:text-[0.8rem] leading-relaxed text-white/70">
+            <p className="mt-3 text-[0.74rem] sm:text-[0.8rem] leading-relaxed text-[#5B6E68]">
               {TASK9_META.recommendationNote}
             </p>
           </div>
@@ -548,20 +548,20 @@ export function AuthorizationAuditSection() {
               {TASK9_RELEASE_GATES.map((g) => (
                 <li
                   key={g.n}
-                  className="flex flex-col gap-1.5 rounded-md border border-white/[0.06] bg-white/[0.02] p-3 sm:flex-row sm:items-start sm:gap-3"
+                  className="flex flex-col gap-1.5 rounded-md border border-[#E3EAE6] bg-[#F7FAF8] p-3 sm:flex-row sm:items-start sm:gap-3"
                 >
                   <span
-                    className="shrink-0 font-mono text-[0.65rem] text-white/40 sm:pt-1"
+                    className="shrink-0 font-mono text-[0.65rem] text-[#7A8C86] sm:pt-1"
                     aria-hidden="true"
                   >
                     {String(g.n).padStart(2, "0")}
                   </span>
                   <div className="min-w-0 flex-1">
                     <div className="flex flex-wrap items-center gap-2">
-                      <span className="text-[0.78rem] font-medium text-white/90">{g.name}</span>
+                      <span className="text-[0.78rem] font-medium text-[#0E1F1B]">{g.name}</span>
                       <GatePill status={g.status} kind={g.statusKind} />
                     </div>
-                    <p className="mt-1 text-[0.66rem] leading-relaxed text-white/55">{g.evidence}</p>
+                    <p className="mt-1 text-[0.66rem] leading-relaxed text-[#5B6E68]">{g.evidence}</p>
                   </div>
                 </li>
               ))}
@@ -587,7 +587,7 @@ export function AuthorizationAuditSection() {
                   Owner reference check — AccessControl role hashes probed read-only against
                   MTQ.sol for the deployer account on both chains.
                 </caption>
-                <thead className="bg-white/[0.03] text-white/55">
+                <thead className="bg-[#F7FAF8] text-[#5B6E68]">
                   <tr>
                     <th scope="col" className="text-left px-3 py-2 font-medium">Role</th>
                     <th scope="col" className="text-left px-3 py-2 font-medium">Role hash</th>
@@ -598,8 +598,8 @@ export function AuthorizationAuditSection() {
                 </thead>
                 <tbody>
                   {TASK9_OWNER_REFERENCE.map((r) => (
-                    <tr key={r.role} className="border-t border-white/[0.06]">
-                      <td className="px-3 py-2.5 font-mono text-white/85">{r.role}</td>
+                    <tr key={r.role} className="border-t border-[#E3EAE6]">
+                      <td className="px-3 py-2.5 font-mono text-[#0E1F1B]">{r.role}</td>
                       <td className="px-3 py-2.5 font-mono text-mtqs-gold/80">{r.hash}</td>
                       <td className="px-3 py-2.5 font-mono text-mtqs-emerald">{r.monad}</td>
                       <td className="px-3 py-2.5 font-mono text-mtqs-emerald">{r.arc}</td>
@@ -620,7 +620,7 @@ export function AuthorizationAuditSection() {
             </div>
             <div
               role="note"
-              className="border-t border-white/[0.06] px-3 py-2.5 text-[0.66rem] leading-relaxed text-white/55"
+              className="border-t border-[#E3EAE6] px-3 py-2.5 text-[0.66rem] leading-relaxed text-[#5B6E68]"
             >
               {TASK9_ROLE_FINDINGS[0].detail}
             </div>
@@ -656,7 +656,7 @@ export function AuthorizationAuditSection() {
               className={`mtqs-focus rounded-md px-3 py-1.5 text-[0.72rem] transition ${
                 chainFilter === "all"
                   ? "bg-mtqs-gold/15 text-mtqs-gold"
-                  : "text-white/55 hover:text-white/75"
+                  : "text-[#5B6E68] hover:text-[#0E1F1B]"
               }`}
             >
               All chains ({TASK9_INVENTORY.length})
@@ -671,14 +671,14 @@ export function AuthorizationAuditSection() {
                 className={`mtqs-focus rounded-md px-3 py-1.5 text-[0.72rem] transition ${
                   chainFilter === c
                     ? "bg-mtqs-gold/15 text-mtqs-gold"
-                    : "text-white/55 hover:text-white/75"
+                    : "text-[#5B6E68] hover:text-[#0E1F1B]"
                 }`}
               >
                 {c} ({TASK9_INVENTORY.filter((r) => r.chain === c).length})
               </button>
             ))}
           </div>
-          <div className="overflow-hidden rounded-md border border-white/[0.06]">
+          <div className="overflow-hidden rounded-md border border-[#E3EAE6]">
             <div className="max-h-96 overflow-auto mtqs-scroll">
               <table className="w-full text-[0.7rem] min-w-[840px]">
                 <caption className="sr-only">
@@ -686,7 +686,7 @@ export function AuthorizationAuditSection() {
                   Testnet, Arc Testnet and Solana Devnet with code size, runtime keccak,
                   deployment info, creator and verdict.
                 </caption>
-                <thead className="bg-white/[0.03] text-white/55 sticky top-0 backdrop-blur">
+                <thead className="bg-[#F7FAF8] text-[#5B6E68] sticky top-0">
                   <tr>
                     <th scope="col" className="text-left px-3 py-2 font-medium">Chain</th>
                     <th scope="col" className="text-left px-3 py-2 font-medium">Contract</th>
@@ -702,15 +702,15 @@ export function AuthorizationAuditSection() {
                   {inventoryRows.map((r, i) => (
                     <tr
                       key={`${r.chain}-${r.name}-${r.address}`}
-                      className={`border-t border-white/[0.06] ${i % 2 ? "bg-white/[0.02]" : ""}`}
+                      className={`border-t border-[#E3EAE6] ${i % 2 ? "bg-[#F7FAF8]" : ""}`}
                     >
                       <td className="whitespace-nowrap px-3 py-2.5">
                         <Pill tone="default">{chainShort(r.chain)}</Pill>
                       </td>
                       <td className="min-w-0 px-3 py-2.5">
-                        <div className="font-medium text-white/90">{r.name}</div>
+                        <div className="font-medium text-[#0E1F1B]">{r.name}</div>
                         {r.note ? (
-                          <div className="mt-0.5 max-w-[22rem] text-[0.62rem] leading-snug text-white/50">
+                          <div className="mt-0.5 max-w-[22rem] text-[0.62rem] leading-snug text-[#5B6E68]">
                             {r.note}
                           </div>
                         ) : null}
@@ -721,16 +721,16 @@ export function AuthorizationAuditSection() {
                         </span>
                         <CopyBtn value={r.address} label={`${r.name} address`} />
                       </td>
-                      <td className="whitespace-nowrap px-3 py-2.5 font-mono text-white/75">
+                      <td className="whitespace-nowrap px-3 py-2.5 font-mono text-[#33544C]">
                         {r.size}
                       </td>
-                      <td className="px-3 py-2.5 font-mono text-[0.62rem] text-white/50">
+                      <td className="px-3 py-2.5 font-mono text-[0.62rem] text-[#5B6E68]">
                         {r.keccak}
                       </td>
-                      <td className="max-w-[16rem] px-3 py-2.5 text-[0.64rem] text-white/60">
+                      <td className="max-w-[16rem] px-3 py-2.5 text-[0.64rem] text-[#5B6E68]">
                         {r.deploy}
                       </td>
-                      <td className="max-w-[14rem] px-3 py-2.5 text-[0.64rem] text-white/60">
+                      <td className="max-w-[14rem] px-3 py-2.5 text-[0.64rem] text-[#5B6E68]">
                         {r.creator}
                       </td>
                       <td className="whitespace-nowrap px-3 py-2.5">
@@ -760,14 +760,14 @@ export function AuthorizationAuditSection() {
           }
         />
         <Reveal>
-          <div className="overflow-hidden rounded-md border border-white/[0.06]">
+          <div className="overflow-hidden rounded-md border border-[#E3EAE6]">
             <div className="overflow-x-auto mtqs-scroll">
               <table className="w-full text-[0.7rem] min-w-[760px]">
                 <caption className="sr-only">
                   Authority graph — sensitive actions, what enforces them, who can perform
                   them today per the captured evidence, and the blueprint mandate.
                 </caption>
-                <thead className="bg-white/[0.03] text-white/55">
+                <thead className="bg-[#F7FAF8] text-[#5B6E68]">
                   <tr>
                     <th scope="col" className="text-left px-3 py-2 font-medium">Action</th>
                     <th scope="col" className="text-left px-3 py-2 font-medium">Enforced by</th>
@@ -784,18 +784,18 @@ export function AuthorizationAuditSection() {
                   {TASK9_AUTHORITY_GRAPH.map((r) => (
                     <tr
                       key={r.action}
-                      className={`border-t border-white/[0.06] ${r.ok ? "" : "bg-mtqs-rose/[0.04]"}`}
+                      className={`border-t border-[#E3EAE6] ${r.ok ? "" : "bg-mtqs-rose/[0.04]"}`}
                     >
                       <td
-                        className={`px-3 py-2.5 font-medium text-white/90 ${
+                        className={`px-3 py-2.5 font-medium text-[#0E1F1B] ${
                           r.ok ? "" : "border-l-2 border-l-mtqs-rose/70"
                         }`}
                       >
                         {r.action}
                       </td>
-                      <td className="px-3 py-2.5 text-white/60">{r.enforcedBy}</td>
-                      <td className="max-w-[18rem] px-3 py-2.5 text-white/75">{r.today}</td>
-                      <td className="max-w-[18rem] px-3 py-2.5 text-white/55">{r.mandated}</td>
+                      <td className="px-3 py-2.5 text-[#5B6E68]">{r.enforcedBy}</td>
+                      <td className="max-w-[18rem] px-3 py-2.5 text-[#33544C]">{r.today}</td>
+                      <td className="max-w-[18rem] px-3 py-2.5 text-[#5B6E68]">{r.mandated}</td>
                       <td className="px-3 py-2.5">
                         {r.ok ? (
                           <Pill tone="gold">no proxies — no in-place upgrade</Pill>
@@ -835,11 +835,11 @@ export function AuthorizationAuditSection() {
               {TASK9_ROLE_FINDINGS.map((f) => (
                 <li
                   key={f.finding}
-                  className="flex flex-col justify-between gap-2 rounded-md border border-white/[0.06] bg-white/[0.02] px-3 py-2.5 sm:flex-row sm:items-start"
+                  className="flex flex-col justify-between gap-2 rounded-md border border-[#E3EAE6] bg-[#F7FAF8] px-3 py-2.5 sm:flex-row sm:items-start"
                 >
                   <div className="min-w-0">
-                    <div className="text-[0.74rem] font-medium text-white/85">{f.finding}</div>
-                    <div className="mt-0.5 text-[0.66rem] leading-relaxed text-white/55">
+                    <div className="text-[0.74rem] font-medium text-[#0E1F1B]">{f.finding}</div>
+                    <div className="mt-0.5 text-[0.66rem] leading-relaxed text-[#5B6E68]">
                       {f.detail}
                     </div>
                   </div>
@@ -868,14 +868,14 @@ export function AuthorizationAuditSection() {
           }
         />
         <Reveal>
-          <div className="overflow-hidden rounded-md border border-white/[0.06]">
+          <div className="overflow-hidden rounded-md border border-[#E3EAE6]">
             <div className="max-h-96 overflow-auto mtqs-scroll">
               <table className="w-full text-[0.7rem] min-w-[640px]">
                 <caption className="sr-only">
                   Genesis Safe dossier — read-only probe results on both chains with verdicts;
                   CRITICAL rows are single-key control evidence (OD-35 preserved).
                 </caption>
-                <thead className="bg-white/[0.03] text-white/55 sticky top-0 backdrop-blur">
+                <thead className="bg-[#F7FAF8] text-[#5B6E68] sticky top-0">
                   <tr>
                     <th scope="col" className="text-left px-3 py-2 font-medium">Probe</th>
                     <th scope="col" className="text-left px-3 py-2 font-medium">Monad</th>
@@ -888,23 +888,23 @@ export function AuthorizationAuditSection() {
                   {TASK9_SAFE_DOSSIER.map((r) => (
                     <tr
                       key={r.probe}
-                      className={`border-t border-white/[0.06] ${
+                      className={`border-t border-[#E3EAE6] ${
                         r.verdict === "CRITICAL" ? "bg-mtqs-rose/[0.05]" : ""
                       }`}
                     >
                       <td
-                        className={`px-3 py-2.5 font-mono text-[0.66rem] text-white/80 ${
+                        className={`px-3 py-2.5 font-mono text-[0.66rem] text-[#0E1F1B] ${
                           r.verdict === "CRITICAL" ? "border-l-2 border-l-mtqs-rose/70" : ""
                         }`}
                       >
                         {r.probe}
                       </td>
-                      <td className="px-3 py-2.5 font-mono text-white/75">{r.monad}</td>
-                      <td className="px-3 py-2.5 font-mono text-white/75">{r.arc}</td>
+                      <td className="px-3 py-2.5 font-mono text-[#33544C]">{r.monad}</td>
+                      <td className="px-3 py-2.5 font-mono text-[#33544C]">{r.arc}</td>
                       <td className="whitespace-nowrap px-3 py-2.5">
                         <SafeVerdictPill v={r.verdict} />
                       </td>
-                      <td className="max-w-[20rem] px-3 py-2.5 text-[0.66rem] text-white/55">
+                      <td className="max-w-[20rem] px-3 py-2.5 text-[0.66rem] text-[#5B6E68]">
                         {r.note}
                       </td>
                     </tr>
@@ -926,14 +926,14 @@ export function AuthorizationAuditSection() {
           right={<Pill tone="emerald">supplies reconcile exactly</Pill>}
         />
         <Reveal>
-          <div className="overflow-hidden rounded-md border border-white/[0.06]">
+          <div className="overflow-hidden rounded-md border border-[#E3EAE6]">
             <div className="overflow-x-auto mtqs-scroll">
               <table className="w-full text-[0.7rem] min-w-[720px]">
                 <caption className="sr-only">
                   Custody reconciliation — total supply against holders on each chain, plus the
                   Safe-holdings and reserve-funding confirmations.
                 </caption>
-                <thead className="bg-white/[0.03] text-white/55">
+                <thead className="bg-[#F7FAF8] text-[#5B6E68]">
                   <tr>
                     <th scope="col" className="text-left px-3 py-2 font-medium">Chain</th>
                     <th scope="col" className="text-left px-3 py-2 font-medium">Supply</th>
@@ -946,15 +946,15 @@ export function AuthorizationAuditSection() {
                   {TASK9_CUSTODY.map((r, i) => (
                     <tr
                       key={`${r.chain}-${r.holders}`}
-                      className={`border-t border-white/[0.06] ${i % 2 ? "bg-white/[0.02]" : ""}`}
+                      className={`border-t border-[#E3EAE6] ${i % 2 ? "bg-[#F7FAF8]" : ""}`}
                     >
-                      <td className="whitespace-nowrap px-3 py-2.5 font-mono text-white/80">
+                      <td className="whitespace-nowrap px-3 py-2.5 font-mono text-[#0E1F1B]">
                         {r.chain}
                       </td>
-                      <td className="whitespace-nowrap px-3 py-2.5 font-mono text-white/75">
+                      <td className="whitespace-nowrap px-3 py-2.5 font-mono text-[#33544C]">
                         {r.supply}
                       </td>
-                      <td className="max-w-[20rem] px-3 py-2.5 text-[0.66rem] text-white/65">
+                      <td className="max-w-[20rem] px-3 py-2.5 text-[0.66rem] text-[#5B6E68]">
                         {r.holders}
                       </td>
                       <td className="whitespace-nowrap px-3 py-2.5">
@@ -967,7 +967,7 @@ export function AuthorizationAuditSection() {
                           <Pill tone="rose">does not close</Pill>
                         )}
                       </td>
-                      <td className="max-w-[22rem] px-3 py-2.5 text-[0.64rem] text-white/55">
+                      <td className="max-w-[22rem] px-3 py-2.5 text-[0.64rem] text-[#5B6E68]">
                         {r.note}
                       </td>
                     </tr>
@@ -989,14 +989,14 @@ export function AuthorizationAuditSection() {
           right={<Pill tone="amber">3 live generations per chain</Pill>}
         />
         <Reveal>
-          <div className="overflow-hidden rounded-md border border-white/[0.06]">
+          <div className="overflow-hidden rounded-md border border-[#E3EAE6]">
             <div className="overflow-x-auto mtqs-scroll">
               <table className="w-full text-[0.7rem] min-w-[640px]">
                 <caption className="sr-only">
                   Duplicate token generations — current, generation-A and generation-B MTQ
                   tokens per chain, probed live in the Task 9 session (2026-10-21).
                 </caption>
-                <thead className="bg-white/[0.03] text-white/55">
+                <thead className="bg-[#F7FAF8] text-[#5B6E68]">
                   <tr>
                     <th scope="col" className="text-left px-3 py-2 font-medium">Chain</th>
                     <th scope="col" className="text-left px-3 py-2 font-medium">Generation</th>
@@ -1008,12 +1008,12 @@ export function AuthorizationAuditSection() {
                   {TASK9_DUPLICATES.map((r) => (
                     <tr
                       key={`${r.chain}-${r.label}`}
-                      className="border-t border-white/[0.06]"
+                      className="border-t border-[#E3EAE6]"
                     >
-                      <td className="whitespace-nowrap px-3 py-2.5 font-mono text-white/80">
+                      <td className="whitespace-nowrap px-3 py-2.5 font-mono text-[#0E1F1B]">
                         {r.chain}
                       </td>
-                      <td className="px-3 py-2.5 text-white/75">{r.label}</td>
+                      <td className="px-3 py-2.5 text-[#33544C]">{r.label}</td>
                       <td className="whitespace-nowrap px-3 py-2.5 font-mono text-mtqs-gold">
                         <span className="inline-flex items-center gap-1">
                           {r.address}
@@ -1024,7 +1024,7 @@ export function AuthorizationAuditSection() {
                           <span className="sr-only">address recorded in evidence</span>
                         </span>
                       </td>
-                      <td className="max-w-[24rem] px-3 py-2.5 text-[0.64rem] text-white/55">
+                      <td className="max-w-[24rem] px-3 py-2.5 text-[0.64rem] text-[#5B6E68]">
                         {r.status}
                       </td>
                     </tr>
@@ -1051,14 +1051,14 @@ export function AuthorizationAuditSection() {
           }
         />
         <Reveal>
-          <div className="overflow-hidden rounded-md border border-white/[0.06]">
+          <div className="overflow-hidden rounded-md border border-[#E3EAE6]">
             <div className="max-h-96 overflow-auto mtqs-scroll">
               <table className="w-full text-[0.7rem] min-w-[720px]">
                 <caption className="sr-only">
                   Requirement register — explicitly addressed outstanding items with location
                   and honest status; no unresolved item is marked complete.
                 </caption>
-                <thead className="bg-white/[0.03] text-white/55 sticky top-0 backdrop-blur">
+                <thead className="bg-[#F7FAF8] text-[#5B6E68] sticky top-0">
                   <tr>
                     <th scope="col" className="text-left px-3 py-2 font-medium">Requirement</th>
                     <th scope="col" className="text-left px-3 py-2 font-medium">Where</th>
@@ -1068,15 +1068,15 @@ export function AuthorizationAuditSection() {
                 </thead>
                 <tbody>
                   {TASK9_REQUIREMENTS.map((r) => (
-                    <tr key={r.req} className="border-t border-white/[0.06]">
-                      <td className="max-w-[16rem] px-3 py-2.5 text-white/85">{r.req}</td>
-                      <td className="whitespace-nowrap px-3 py-2.5 font-mono text-[0.64rem] text-white/55">
+                    <tr key={r.req} className="border-t border-[#E3EAE6]">
+                      <td className="max-w-[16rem] px-3 py-2.5 text-[#0E1F1B]">{r.req}</td>
+                      <td className="whitespace-nowrap px-3 py-2.5 font-mono text-[0.64rem] text-[#5B6E68]">
                         {r.where}
                       </td>
                       <td className="whitespace-nowrap px-3 py-2.5">
                         <ReqStatusPill status={r.status} />
                       </td>
-                      <td className="max-w-[24rem] px-3 py-2.5 text-[0.64rem] leading-snug text-white/55">
+                      <td className="max-w-[24rem] px-3 py-2.5 text-[0.64rem] leading-snug text-[#5B6E68]">
                         {r.note}
                       </td>
                     </tr>
@@ -1096,7 +1096,7 @@ export function AuthorizationAuditSection() {
               </Panel>
             ))}
           </div>
-          <p className="mt-2 text-[0.62rem] text-white/45">
+          <p className="mt-2 text-[0.62rem] text-[#7A8C86]">
             App-layer status strip — software status only; no software result advances a release
             gate.
           </p>
@@ -1123,12 +1123,12 @@ export function AuthorizationAuditSection() {
               {TASK9_REPRODUCIBILITY.map((r) => (
                 <div
                   key={r.item}
-                  className="grid gap-1.5 rounded-md border border-white/[0.06] bg-white/[0.02] px-3 py-2.5 sm:grid-cols-[150px_1fr] sm:gap-4"
+                  className="grid gap-1.5 rounded-md border border-[#E3EAE6] bg-[#F7FAF8] px-3 py-2.5 sm:grid-cols-[150px_1fr] sm:gap-4"
                 >
                   <dt className="pt-0.5 text-[0.6rem] uppercase tracking-[0.18em] text-mtqs-gold/75">
                     {r.item}
                   </dt>
-                  <dd className="text-[0.68rem] leading-relaxed text-white/65">{r.detail}</dd>
+                  <dd className="text-[0.68rem] leading-relaxed text-[#5B6E68]">{r.detail}</dd>
                 </div>
               ))}
             </dl>
@@ -1151,14 +1151,14 @@ export function AuthorizationAuditSection() {
           }
         />
         <Reveal>
-          <div className="overflow-hidden rounded-md border border-white/[0.06]">
+          <div className="overflow-hidden rounded-md border border-[#E3EAE6]">
             <div className="max-h-96 overflow-auto mtqs-scroll">
               <table className="w-full text-[0.7rem] min-w-[760px]">
                 <caption className="sr-only">
                   Remediation register — prioritized items with dependencies and acceptance
                   criteria; on-chain rows are transaction plans only, none executed.
                 </caption>
-                <thead className="bg-white/[0.03] text-white/55 sticky top-0 backdrop-blur">
+                <thead className="bg-[#F7FAF8] text-[#5B6E68] sticky top-0">
                   <tr>
                     <th scope="col" className="text-left px-3 py-2 font-medium">ID</th>
                     <th scope="col" className="text-left px-3 py-2 font-medium">Item</th>
@@ -1169,21 +1169,21 @@ export function AuthorizationAuditSection() {
                 </thead>
                 <tbody>
                   {TASK9_REMEDIATION.map((r) => (
-                    <tr key={r.id} className="border-t border-white/[0.06] align-top">
-                      <td className="whitespace-nowrap px-3 py-2.5 font-mono text-white/85">
+                    <tr key={r.id} className="border-t border-[#E3EAE6] align-top">
+                      <td className="whitespace-nowrap px-3 py-2.5 font-mono text-[#0E1F1B]">
                         {r.id}
                       </td>
                       <td className="min-w-0 max-w-[26rem] px-3 py-2.5">
-                        <div className="leading-snug text-white/80">{r.item}</div>
+                        <div className="leading-snug text-[#0E1F1B]">{r.item}</div>
                         {r.onChain ? <TransactionPlanOnlyBadge /> : null}
                       </td>
                       <td className="whitespace-nowrap px-3 py-2.5">
                         <PriorityPill p={r.priority} />
                       </td>
-                      <td className="whitespace-nowrap px-3 py-2.5 font-mono text-[0.64rem] text-white/55">
+                      <td className="whitespace-nowrap px-3 py-2.5 font-mono text-[0.64rem] text-[#5B6E68]">
                         {r.depends}
                       </td>
-                      <td className="max-w-[16rem] px-3 py-2.5 text-[0.64rem] leading-snug text-white/55">
+                      <td className="max-w-[16rem] px-3 py-2.5 text-[0.64rem] leading-snug text-[#5B6E68]">
                         {r.acceptance}
                       </td>
                     </tr>
@@ -1204,11 +1204,11 @@ export function AuthorizationAuditSection() {
         <Panel className="p-4 sm:p-6">
           <div className="flex items-start gap-3">
             <ClipboardCheck className="mt-0.5 h-5 w-5 shrink-0 text-mtqs-gold/80" aria-hidden="true" />
-            <div className="space-y-1.5 text-[0.72rem] leading-relaxed text-white/60">
+            <div className="space-y-1.5 text-[0.72rem] leading-relaxed text-[#5B6E68]">
               <p>
                 Preserved findings{" "}
-                <span className="font-mono text-white/80">C-041…C-047</span> and{" "}
-                <span className="font-mono text-white/80">OD-35</span> are re-asserted — none
+                <span className="font-mono text-[#0E1F1B]">C-041…C-047</span> and{" "}
+                <span className="font-mono text-[#0E1F1B]">OD-35</span> are re-asserted — none
                 re-labeled, none downgraded.
               </p>
               <p>
@@ -1216,7 +1216,7 @@ export function AuthorizationAuditSection() {
                 transactions were sent; no role was granted or revoked; no contract was deployed
                 or upgraded; no key material is exposed on this surface.
               </p>
-              <p className="break-all font-mono text-[0.65rem] text-white/45">
+              <p className="break-all font-mono text-[0.65rem] text-[#7A8C86]">
                 Evidence: {TASK9_META.evidencePath} — raw request/response log, per-chain
                 inventory JSONs, creation receipts, scan states. This surface is a verification
                 artifact: no address, role, supply, or configuration was altered.

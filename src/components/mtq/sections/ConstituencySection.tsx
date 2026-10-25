@@ -214,10 +214,10 @@ function BorderedTable({
   rows: React.ReactNode[][];
 }) {
   return (
-    <div className="overflow-hidden rounded-md border border-white/[0.06]">
+    <div className="overflow-hidden rounded-md border border-[#E3EAE6]">
       <div className="max-h-96 overflow-y-auto mtqs-scroll">
         <table className="w-full text-[0.74rem]">
-          <thead className="bg-white/[0.02] text-white/55 sticky top-0">
+          <thead className="bg-[#F7FAF8] text-[#5B6E68] sticky top-0">
             <tr>
               {headers.map((h, i) => (
                 <th key={i} className="text-left px-3 py-2 font-medium">
@@ -230,7 +230,7 @@ function BorderedTable({
             {rows.map((row, ri) => (
               <tr
                 key={ri}
-                className={`border-t border-white/[0.06] ${ri % 2 ? "bg-white/[0.01]" : ""}`}
+                className={`border-t border-[#E3EAE6] ${ri % 2 ? "bg-[#F7FAF8]" : ""}`}
               >
                 {row.map((cell, ci) => (
                   <td key={ci} className="px-3 py-2.5 align-top">
@@ -249,7 +249,7 @@ function BorderedTable({
 /* ---------- Formula line styling ---------- */
 function Formula({ children }: { children: React.ReactNode }) {
   return (
-    <code className="block font-mono text-[0.78rem] sm:text-[0.85rem] text-mtqs-gold-light bg-white/[0.03] border border-white/[0.06] rounded-md px-4 py-3 overflow-x-auto whitespace-nowrap">
+    <code className="block font-mono text-[0.78rem] sm:text-[0.85rem] text-mtqs-gold-light bg-[#F7FAF8] border border-[#E3EAE6] rounded-md px-4 py-3 overflow-x-auto whitespace-nowrap">
       {children}
     </code>
   );
@@ -338,9 +338,9 @@ export function ConstituencySection({
         <Panel className="p-5">
           <div className="flex items-start gap-3">
             <Landmark className="h-5 w-5 text-mtqs-gold/80 mt-0.5 shrink-0" aria-hidden="true" />
-            <p className="text-[0.82rem] text-white/55 leading-relaxed">
+            <p className="text-[0.82rem] text-[#5B6E68] leading-relaxed">
               The Constituency Engine is Layer 1 of the three-layer architecture (§2.2). MTQΣ
-              maintains an eligible universe and <span className="text-white/85">independently decides</span> which
+              maintains an eligible universe and <span className="text-[#0E1F1B]">independently decides</span> which
               currencies qualify for the active basket. Membership is an algorithmic property with
               hysteresis, so the system can admit a rising currency or retire a deteriorating one
               without discretionary intervention and without thrashing at the boundary. The engine
@@ -363,7 +363,7 @@ export function ConstituencySection({
         <div className="space-y-4">
           <Reveal>
             <Panel className="p-5">
-              <p id="constituency-score-h" className="text-[0.78rem] text-white/55 mb-3">
+              <p id="constituency-score-h" className="text-[0.78rem] text-[#5B6E68] mb-3">
                 For every candidate currency i, the engine computes a composite eligibility score
                 from six positive and two negative components. A currency becomes eligible for the
                 active basket only if <span className="font-mono text-mtqs-gold-light">Q_i ≥ Q_min</span>.
@@ -375,7 +375,7 @@ export function ConstituencySection({
                 <BorderedTable
                   headers={["Component", "Symbol", "Sign", "Measured property"]}
                   rows={QI_COMPONENTS.map((c) => [
-                    <span key="c" className="text-white/85">{c.component}</span>,
+                    <span key="c" className="text-[#0E1F1B]">{c.component}</span>,
                     <span key="s" className="font-mono text-mtqs-gold">{c.symbol}</span>,
                     <span key="sign">
                       {c.sign === "positive" ? (
@@ -384,7 +384,7 @@ export function ConstituencySection({
                         <Pill tone="rose">− negative</Pill>
                       )}
                     </span>,
-                    <span key="p" className="text-white/55">{c.property}</span>,
+                    <span key="p" className="text-[#5B6E68]">{c.property}</span>,
                   ])}
                 />
               </div>
@@ -394,9 +394,9 @@ export function ConstituencySection({
             <Panel className="p-5">
               <div className="flex items-center gap-2 mb-3">
                 <Scale className="h-4 w-4 text-mtqs-gold/70" aria-hidden="true" />
-                <h3 className="text-sm font-semibold text-white/90">Score normalization — §4.2.1</h3>
+                <h3 className="text-sm font-semibold text-[#0E1F1B]">Score normalization — §4.2.1</h3>
               </div>
-              <p className="text-[0.78rem] text-white/55 mb-3">
+              <p className="text-[0.78rem] text-[#5B6E68] mb-3">
                 Raw components are measured in different units (reserve shares in percent, turnover
                 in trillions, volatility in annualized decimal), so Q_i is normalized before
                 threshold comparison — otherwise datasets with different units silently distort the
@@ -406,7 +406,7 @@ export function ConstituencySection({
                 the published methodology version (§24.1).
               </p>
               <Formula>Q̃_i = (Q_i − Q_min) / (Q_max − Q_min)</Formula>
-              <p className="text-[0.7rem] text-white/45 mt-3">
+              <p className="text-[0.7rem] text-[#7A8C86] mt-3">
                 The coefficients a_k and the threshold Q_min are methodology parameters — fixed per
                 published methodology version; any change requires Risk Council approval through
                 the parameter-registry process (§22.3). The coefficients are themselves subject to
@@ -421,21 +421,21 @@ export function ConstituencySection({
             <Panel className="p-5">
               <div className="flex items-center gap-2 mb-3">
                 <Scale className="h-4 w-4 text-mtqs-gold/70" aria-hidden="true" />
-                <h3 className="text-sm font-semibold text-white/90">Structural score construction — §4.5</h3>
+                <h3 className="text-sm font-semibold text-[#0E1F1B]">Structural score construction — §4.5</h3>
               </div>
-              <p className="text-[0.78rem] text-white/55 mb-3">
+              <p className="text-[0.78rem] text-[#5B6E68] mb-3">
                 Every input is normalized before aggregation [MS §8]. The default transform is the
                 z-score, where μ_k and σ_k are the cross-sectional mean and standard deviation of
                 input k across the candidate universe:
               </p>
               <Formula>z_i,k = (x_i,k − μ_k) / σ_k</Formula>
-              <p className="text-[0.78rem] text-white/55 mt-3 mb-3">
+              <p className="text-[0.78rem] text-[#5B6E68] mt-3 mb-3">
                 A bounded percentile or rank transform is substituted when distributional stability
                 is preferred — when an input is heavy-tailed or the universe is small enough that a
                 single outlier would dominate the z-score. The composite structural score is then:
               </p>
               <Formula>S_i^Structural = ∑_k a_k · z_i,k</Formula>
-              <p className="text-[0.7rem] text-white/45 mt-3">
+              <p className="text-[0.7rem] text-[#7A8C86] mt-3">
                 The aggregation weights a_k are themselves subject to methodology validation: the
                 sensitivity of the final basket to each a_k is tested by parameter perturbation
                 (§23.6), and unstable coefficients are re-derived or the input is re-transformed.
@@ -467,12 +467,12 @@ export function ConstituencySection({
             <Panel className="p-5 h-full">
               <div className="flex items-center gap-2 mb-2">
                 <Database className="h-4 w-4 text-mtqs-gold/80" aria-hidden="true" />
-                <h3 className="text-sm font-semibold text-white/90">IMF COFER — reserve relevance (R_i)</h3>
+                <h3 className="text-sm font-semibold text-[#0E1F1B]">IMF COFER — reserve relevance (R_i)</h3>
               </div>
-              <p className="text-[0.76rem] text-white/55 leading-relaxed" id="constituency-sources-h">
+              <p className="text-[0.76rem] text-[#5B6E68] leading-relaxed" id="constituency-sources-h">
                 The Currency Composition of Official Foreign Exchange Reserves (COFER) is the
                 primary reserve-relevance input. It currently identifies{" "}
-                <span className="font-mono text-white/80">USD, EUR, CNY, JPY, GBP, AUD, CAD, CHF</span>{" "}
+                <span className="font-mono text-[#0E1F1B]">USD, EUR, CNY, JPY, GBP, AUD, CAD, CHF</span>{" "}
                 as reported reserve currencies, while explicitly excluding monetary gold from the
                 foreign-exchange-reserve classification. Two implications follow: gold&apos;s reserve
                 role is measured by supplementary sources (central-bank gold statistics) rather than
@@ -486,27 +486,27 @@ export function ConstituencySection({
             <Panel className="p-5 h-full">
               <div className="flex items-center gap-2 mb-2">
                 <Globe2 className="h-4 w-4 text-mtqs-gold/80" aria-hidden="true" />
-                <h3 className="text-sm font-semibold text-white/90">
+                <h3 className="text-sm font-semibold text-[#0E1F1B]">
                   BIS Triennial Survey 2025 — liquidity &amp; trade (L_i, T_i)
                 </h3>
               </div>
               <ul className="space-y-2 mb-3">
                 {BIS_2025_SHARES.map((s) => (
                   <li key={s.code} className="flex items-center gap-2">
-                    <span className="w-10 text-[0.68rem] font-mono text-white/60">{s.code}</span>
+                    <span className="w-10 text-[0.68rem] font-mono text-[#5B6E68]">{s.code}</span>
                     <MiniBar
                       value={s.sharePct}
                       max={100}
                       colorClass="bg-mtqs-gold/70"
                       className="flex-1"
                     />
-                    <span className="w-12 text-right font-mono text-[0.68rem] text-white/70">
+                    <span className="w-12 text-right font-mono text-[0.68rem] text-[#5B6E68]">
                       {s.sharePct.toFixed(1)}%
                     </span>
                   </li>
                 ))}
               </ul>
-              <p className="text-[0.68rem] text-white/45 leading-relaxed">
+              <p className="text-[0.68rem] text-[#7A8C86] leading-relaxed">
                 Share of one side of FX turnovers. CHF became the sixth-most-traded currency while
                 sterling&apos;s share declined. Because the survey is triennial, interim estimates are
                 interpolated from higher-frequency turnover oracles where available, and
@@ -519,7 +519,7 @@ export function ConstituencySection({
           <div className="mt-4 rounded-lg border border-mtqs-amber/25 bg-mtqs-amber/[0.06] p-4">
             <div className="flex items-start gap-3">
               <ShieldAlert className="h-4 w-4 text-mtqs-amber mt-0.5 shrink-0" aria-hidden="true" />
-              <p className="text-[0.74rem] text-amber-100/85 leading-relaxed">
+              <p className="text-[0.74rem] text-amber-700 leading-relaxed">
                 <span className="font-semibold text-mtqs-amber">These figures are INPUTS, never weights.</span>{" "}
                 COFER and BIS turnover shares feed R_i, L_i and T_i through the scoring model of
                 §4.2 — the published weight of any currency is set by the MASE pipeline (§24.5),
@@ -552,24 +552,24 @@ export function ConstituencySection({
         />
         <Reveal>
           <Panel className="p-5">
-            <h3 id="constituency-universe-h" className="text-sm font-semibold text-white/90 mb-1">
+            <h3 id="constituency-universe-h" className="text-sm font-semibold text-[#0E1F1B] mb-1">
               Monitored succession candidates (§3.3 — validation-stage universe)
             </h3>
-            <p className="text-[0.72rem] text-white/50 mb-4">
+            <p className="text-[0.72rem] text-[#5B6E68] mb-4">
               Seed weight = the envelope mid of the candidate&apos;s provisional admissibility band;
               the Risk Council sets the actual seed within the band at admission. Admission is
               governed — no candidate has been admitted on this pilot.
             </p>
 
             {error ? (
-              <div className="p-4 rounded-lg border border-rose-400/30 bg-rose-400/[0.06]">
+              <div className="p-4 rounded-lg border border-rose-200 bg-rose-50">
                 <div className="flex items-center gap-2 mb-1">
-                  <ShieldAlert className="h-4 w-4 text-rose-300" aria-hidden="true" />
-                  <span className="text-[0.8rem] font-semibold text-rose-100">
+                  <ShieldAlert className="h-4 w-4 text-rose-600" aria-hidden="true" />
+                  <span className="text-[0.8rem] font-semibold text-rose-700">
                     Candidate universe unavailable
                   </span>
                 </div>
-                <p className="text-[0.72rem] text-rose-100/70">
+                <p className="text-[0.72rem] text-rose-600">
                   /api/succession did not respond ({error}). Live admission state is not fabricated —
                   the blueprint reference on this page remains the specification. Retry from the
                   Succession Lab, or check /api/health.
@@ -591,17 +591,17 @@ export function ConstituencySection({
                     return (
                       <div
                         key={c.code}
-                        className="p-3.5 rounded-xl border border-white/[0.06] bg-white/[0.02]"
+                        className="p-3.5 rounded-xl border border-[#E3EAE6] bg-[#F7FAF8]"
                       >
                         <div className="flex items-center justify-between gap-2 mb-1">
                           <span className="font-mono text-sm font-semibold text-mtqs-gold">{c.code}</span>
-                          <span className="text-[0.66rem] text-white/50 text-right">{c.name}</span>
+                          <span className="text-[0.66rem] text-[#5B6E68] text-right">{c.name}</span>
                         </div>
                         <div className="flex items-baseline justify-between mb-1">
-                          <span className="text-[0.55rem] uppercase tracking-[0.18em] text-white/40">
+                          <span className="text-[0.55rem] uppercase tracking-[0.18em] text-[#7A8C86]">
                             seed weight
                           </span>
-                          <span className="font-mono text-[0.78rem] text-white/85">
+                          <span className="font-mono text-[0.78rem] text-[#0E1F1B]">
                             {(c.seedWeight * 100).toFixed(1)}%
                           </span>
                         </div>
@@ -611,21 +611,21 @@ export function ConstituencySection({
                           max={c.envelope.upper}
                           colorClass="bg-mtqs-gold/70"
                         />
-                        <div className="flex justify-between mt-1 text-[0.55rem] font-mono text-white/35">
+                        <div className="flex justify-between mt-1 text-[0.55rem] font-mono text-[#7A8C86]">
                           <span>lower {(c.envelope.lower * 100).toFixed(0)}%</span>
                           <span>envelope ±{(band * 50).toFixed(1)}pp</span>
                           <span>upper {(c.envelope.upper * 100).toFixed(0)}%</span>
                         </div>
-                        <p className="text-[0.62rem] text-white/45 mt-2 leading-relaxed">{c.note}</p>
-                        <div className="mt-2 pt-2 border-t border-white/[0.05] flex items-center justify-between">
-                          <span className="text-[0.55rem] uppercase tracking-wider text-white/35">
+                        <p className="text-[0.62rem] text-[#7A8C86] mt-2 leading-relaxed">{c.note}</p>
+                        <div className="mt-2 pt-2 border-t border-[#E3EAE6] flex items-center justify-between">
+                          <span className="text-[0.55rem] uppercase tracking-wider text-[#7A8C86]">
                             live USD quote
                           </span>
-                          <span className="font-mono text-[0.66rem] text-white/70">
+                          <span className="font-mono text-[0.66rem] text-[#5B6E68]">
                             {quote != null ? `$${quote.toFixed(4)}` : "—"}
                           </span>
                         </div>
-                        <div className="text-[0.5rem] text-white/25 mt-0.5 font-mono">
+                        <div className="text-[0.5rem] text-[#9AA9A3] mt-0.5 font-mono">
                           seed = band mid {(seedPct * 100).toFixed(1)}% · governed admission
                         </div>
                       </div>
@@ -636,7 +636,7 @@ export function ConstituencySection({
                 {/* Live basket weights */}
                 <div className="mt-5">
                   <div className="flex flex-wrap items-center gap-2 mb-2">
-                    <h4 className="text-[0.72rem] uppercase tracking-[0.2em] text-white/55">
+                    <h4 className="text-[0.72rem] uppercase tracking-[0.2em] text-[#5B6E68]">
                       Live basket weights (smoothed state)
                     </h4>
                     <Pill tone="emerald">
@@ -644,15 +644,15 @@ export function ConstituencySection({
                       I_t {data.live.iLevel.toFixed(6)}
                     </Pill>
                     {data.live.basis && (
-                      <span className="text-[0.55rem] font-mono text-white/35">
+                      <span className="text-[0.55rem] font-mono text-[#7A8C86]">
                         holdings basis: {data.live.basis}
                       </span>
                     )}
                   </div>
                   {data.live.weights ? (
-                    <div className="overflow-hidden rounded-md border border-white/[0.06]">
+                    <div className="overflow-hidden rounded-md border border-[#E3EAE6]">
                       <table className="w-full text-[0.72rem]">
-                        <thead className="bg-white/[0.02] text-white/55">
+                        <thead className="bg-[#F7FAF8] text-[#5B6E68]">
                           <tr>
                             <th className="text-left px-3 py-2 font-medium">Component</th>
                             <th className="text-left px-3 py-2 font-medium w-1/2">Smoothed weight</th>
@@ -663,16 +663,16 @@ export function ConstituencySection({
                           {basket.map((b) => {
                             const w = data.live.weights?.[b];
                             return (
-                              <tr key={b} className="border-t border-white/[0.06]">
+                              <tr key={b} className="border-t border-[#E3EAE6]">
                                 <td className="px-3 py-2 font-mono text-mtqs-gold">{b}</td>
                                 <td className="px-3 py-2">
                                   {w != null ? (
                                     <MiniBar value={w} max={0.35} colorClass="bg-mtqs-gold/60" />
                                   ) : (
-                                    <span className="text-white/30">—</span>
+                                    <span className="text-[#7A8C86]">—</span>
                                   )}
                                 </td>
-                                <td className="px-3 py-2 text-right font-mono text-white/75">
+                                <td className="px-3 py-2 text-right font-mono text-[#33544C]">
                                   {w != null ? `${(w * 100).toFixed(2)}%` : "—"}
                                 </td>
                               </tr>
@@ -682,12 +682,12 @@ export function ConstituencySection({
                       </table>
                     </div>
                   ) : (
-                    <p className="text-[0.7rem] text-white/40">
+                    <p className="text-[0.7rem] text-[#7A8C86]">
                       Live weights unavailable from the engine (genesis state) — shown as &ldquo;—&rdquo;.
                       The strategic prior (§3.2) is published on the Reference tab.
                     </p>
                   )}
-                  <p className="text-[0.6rem] text-white/35 mt-2">
+                  <p className="text-[0.6rem] text-[#7A8C86] mt-2">
                     Source: /api/succession · the engine&apos;s live smoothed weights over the canonical
                     7-component basket. Gold is the constitutional anchor (I3) and is never subject
                     to constituency retirement.
@@ -712,14 +712,14 @@ export function ConstituencySection({
             <Panel className="p-5 h-full">
               <div className="flex items-center gap-2 mb-2">
                 <RefreshCw className="h-4 w-4 text-mtqs-gold/70" aria-hidden="true" />
-                <h3 className="text-sm font-semibold text-white/90">Gradual transitions — §4.6</h3>
+                <h3 className="text-sm font-semibold text-[#0E1F1B]">Gradual transitions — §4.6</h3>
               </div>
-              <p className="text-[0.76rem] text-white/55 mb-3" id="constituency-transitions-h">
+              <p className="text-[0.76rem] text-[#5B6E68] mb-3" id="constituency-transitions-h">
                 A currency is never added or removed instantaneously [MS §44]. For an entering
                 currency j, the weight ramps over a transition window:
               </p>
               <Formula>W_j,t = r_t · W_j,target</Formula>
-              <ul className="mt-3 space-y-1.5 text-[0.72rem] text-white/55">
+              <ul className="mt-3 space-y-1.5 text-[0.72rem] text-[#5B6E68]">
                 <li>
                   <span className="text-mtqs-gold font-mono">r_t = t/T</span> — linear ramp is the default.
                 </li>
@@ -730,7 +730,7 @@ export function ConstituencySection({
                 </li>
                 <li>
                   The ramp feeds through the same MARP execution gates as any other weight change:{" "}
-                  <span className="text-white/80">
+                  <span className="text-[#0E1F1B]">
                     a transition is a sequence of justified partial corrections, not a block trade.
                   </span>
                 </li>
@@ -741,18 +741,18 @@ export function ConstituencySection({
             <Panel className="p-5 h-full">
               <div className="flex items-center gap-2 mb-2">
                 <Shuffle className="h-4 w-4 text-mtqs-gold/70" aria-hidden="true" />
-                <h3 className="text-sm font-semibold text-white/90">Two-threshold dead band — §4.7</h3>
+                <h3 className="text-sm font-semibold text-[#0E1F1B]">Two-threshold dead band — §4.7</h3>
               </div>
               <div className="space-y-2 mb-3">
                 <Formula>entry: Q_i &gt; Q_entry</Formula>
                 <Formula>exit: Q_i &lt; Q_exit</Formula>
                 <Formula>with Q_entry &gt; Q_exit (dead band)</Formula>
               </div>
-              <p className="text-[0.72rem] text-white/55 leading-relaxed">
+              <p className="text-[0.72rem] text-[#5B6E68] leading-relaxed">
                 A currency that has just entered must see its score fall below the{" "}
-                <span className="text-white/85">lower exit threshold</span> before retirement can
+                <span className="text-[#0E1F1B]">lower exit threshold</span> before retirement can
                 begin; a currency that has exited must exceed the{" "}
-                <span className="text-white/85">higher entry threshold</span> before re-admission.
+                <span className="text-[#0E1F1B]">higher entry threshold</span> before re-admission.
                 The dead-band width is a Risk-Council parameter bounded by a constitutional minimum,
                 and both thresholds are published. Hysteresis composes with the rebalancing
                 direction lock (§11.5) and the smoothing rule (§8.4) to give the basket{" "}
@@ -774,12 +774,12 @@ export function ConstituencySection({
         />
         <Reveal>
           <Panel className="p-5">
-            <p className="text-[0.78rem] text-white/55 mb-3" id="constituency-cases-h">
+            <p className="text-[0.78rem] text-[#5B6E68] mb-3" id="constituency-cases-h">
               The initial serious universe is{" "}
-              <span className="font-mono text-white/80">USD, EUR, JPY, CNY, GBP, CHF</span>, with{" "}
-              <span className="font-mono text-white/80">CAD, AUD, SGD</span> and other liquid
+              <span className="font-mono text-[#0E1F1B]">USD, EUR, JPY, CNY, GBP, CHF</span>, with{" "}
+              <span className="font-mono text-[#0E1F1B]">CAD, AUD, SGD</span> and other liquid
               currencies as monitored candidates [MS §7]. Two explicit non-decisions are
-              constitutional: <span className="text-white/85">GBP is not automatically removed, and CHF is not
+              constitutional: <span className="text-[#0E1F1B]">GBP is not automatically removed, and CHF is not
               automatically guaranteed admission.</span> The mathematical process must be able to produce
               any of the following outcomes, and the architecture must not pre-bias any of them:
             </p>
@@ -787,13 +787,13 @@ export function ConstituencySection({
               headers={["Case", "Outcome", "Meaning"]}
               rows={NON_DECISION_CASES.map((c) => [
                 <span key="c" className="font-mono font-semibold text-mtqs-gold">{c.c}</span>,
-                <span key="o" className="font-mono text-white/80">{c.outcome}</span>,
-                <span key="m" className="text-white/55">{c.meaning}</span>,
+                <span key="o" className="font-mono text-[#0E1F1B]">{c.outcome}</span>,
+                <span key="m" className="text-[#5B6E68]">{c.meaning}</span>,
               ])}
             />
-            <p className="text-[0.7rem] text-white/45 mt-3">
+            <p className="text-[0.7rem] text-[#7A8C86] mt-3">
               The same neutrality applies to the incumbent six: eligibility is{" "}
-              <span className="text-white/80">re-tested on every review</span>, and a currency whose Q_i
+              <span className="text-[#0E1F1B]">re-tested on every review</span>, and a currency whose Q_i
               falls below the exit threshold enters the retirement path (§4.6) with the same gradual
               transitions and the same anti-oscillation hysteresis as any other component.
             </p>
@@ -808,14 +808,14 @@ export function ConstituencySection({
             <div className="flex items-start gap-3">
               <ShieldAlert className="h-4 w-4 text-mtqs-amber mt-0.5 shrink-0" aria-hidden="true" />
               <div>
-                <h3 id="constituency-sgtxg-h" className="text-sm font-semibold text-white/90 mb-1">
+                <h3 id="constituency-sgtxg-h" className="text-sm font-semibold text-[#0E1F1B] mb-1">
                   SGTX-G is not inherited automatically — §4.8
                 </h3>
-                <p className="text-[0.74rem] text-white/55 leading-relaxed">
+                <p className="text-[0.74rem] text-[#5B6E68] leading-relaxed">
                   Because this project is MTQΣ, any physical-gold token must be designed under
                   MTQΣ&apos;s own legal and monetary architecture [MS §57]. The earlier SGTX-G concept
                   (a 1-gram physical-gold representation) is historical design input only. Concretely:{" "}
-                  <span className="text-white/85">
+                  <span className="text-[#0E1F1B]">
                     gold exposure in the reference basket is to the gold price reference unit (§17.4),
                     not to any specific token
                   </span>{" "}
@@ -845,10 +845,10 @@ export function ConstituencySection({
         />
         <Reveal>
           <Panel className="p-5">
-            <h3 id="constituency-machinery-h" className="text-sm font-semibold text-white/90 mb-1">
+            <h3 id="constituency-machinery-h" className="text-sm font-semibold text-[#0E1F1B] mb-1">
               Registry-based basket membership — implemented in the production engine, never fired
             </h3>
-            <p className="text-[0.76rem] text-white/55 leading-relaxed mb-4">
+            <p className="text-[0.76rem] text-[#5B6E68] leading-relaxed mb-4">
               Task M8-3a promoted the dynamic-membership reference layer into{" "}
               <code className="font-mono text-[0.7rem] text-mtqs-gold-light">src/lib/mtq/constituency/</code>: a
               Map-keyed component registry (stable string IDs, never recycled), the T1–T9 lifecycle machinery with
@@ -861,7 +861,7 @@ export function ConstituencySection({
             <div className="rounded-lg border border-mtqs-amber/25 bg-mtqs-amber/[0.06] p-4 mb-4">
               <div className="flex items-start gap-3">
                 <ShieldAlert className="h-4 w-4 text-mtqs-amber mt-0.5 shrink-0" aria-hidden="true" />
-                <p className="text-[0.74rem] text-amber-100/85 leading-relaxed">
+                <p className="text-[0.74rem] text-amber-700 leading-relaxed">
                   <span className="font-semibold text-mtqs-amber">QUIESCENT — {machinery?.quiescent.disclosure ??
                     "NO transition has ever run — the ACTIVE basket remains the 7-component genesis set at strategic-prior weights; transitions fire only on governance directives with valid rule evidence, and none exists."}</span>
                 </p>
@@ -869,12 +869,12 @@ export function ConstituencySection({
             </div>
 
             {machineryError ? (
-              <div className="p-4 rounded-lg border border-rose-400/30 bg-rose-400/[0.06]">
+              <div className="p-4 rounded-lg border border-rose-200 bg-rose-50">
                 <div className="flex items-center gap-2 mb-1">
-                  <ShieldAlert className="h-4 w-4 text-rose-300" aria-hidden="true" />
-                  <span className="text-[0.8rem] font-semibold text-rose-100">Machinery snapshot unavailable</span>
+                  <ShieldAlert className="h-4 w-4 text-rose-600" aria-hidden="true" />
+                  <span className="text-[0.8rem] font-semibold text-rose-700">Machinery snapshot unavailable</span>
                 </div>
-                <p className="text-[0.72rem] text-rose-100/70">
+                <p className="text-[0.72rem] text-rose-600">
                   /api/constituency did not respond ({machineryError}). Nothing is fabricated — the registry
                   reference above remains the specification.
                 </p>
@@ -890,7 +890,7 @@ export function ConstituencySection({
                 {/* The 7 genesis registry entries */}
                 <div className="flex flex-wrap items-center gap-2 mb-2">
                   <Database className="h-4 w-4 text-mtqs-gold/70" aria-hidden="true" />
-                  <h4 className="text-[0.78rem] font-semibold text-white/90">
+                  <h4 className="text-[0.78rem] font-semibold text-[#0E1F1B]">
                     DEFAULT_REGISTRY — the genesis 7 ({machinery.genesisRegistry.genesisWeightSumBp.toLocaleString("en-US")} bp = 100.00%)
                   </h4>
                   <Pill tone="emerald">
@@ -903,11 +903,11 @@ export function ConstituencySection({
                   rows={machinery.genesisRegistry.entries.map((e) => [
                     <span key="c" className="font-mono font-semibold text-mtqs-gold">
                       {e.code}
-                      <span className="text-white/35 font-normal"> · {e.id}</span>
+                      <span className="text-[#7A8C86] font-normal"> · {e.id}</span>
                     </span>,
-                    <span key="t" className="text-white/65 font-mono text-[0.68rem]">{e.componentType}</span>,
+                    <span key="t" className="text-[#5B6E68] font-mono text-[0.68rem]">{e.componentType}</span>,
                     <span key="w" className="inline-flex flex-col gap-1 min-w-[7.5rem]">
-                      <span className="font-mono text-white/85">{e.genesisWeightBp.toLocaleString("en-US")} bp</span>
+                      <span className="font-mono text-[#0E1F1B]">{e.genesisWeightBp.toLocaleString("en-US")} bp</span>
                       <MiniBar
                         value={e.genesisWeightBp}
                         max={3000}
@@ -916,13 +916,13 @@ export function ConstituencySection({
                         height="h-1"
                       />
                     </span>,
-                    <span key="e" className="font-mono text-[0.66rem] text-white/55">
+                    <span key="e" className="font-mono text-[0.66rem] text-[#5B6E68]">
                       {e.envelope.minPct.toFixed(0)}–{e.envelope.maxPct.toFixed(0)}%
                     </span>,
                     <Pill key="s" tone={e.lifecycleState === "ACTIVE" ? "emerald" : "muted"}>{e.lifecycleState}</Pill>,
                   ])}
                 />
-                <p className="text-[0.62rem] text-white/40 mt-2 leading-relaxed">
+                <p className="text-[0.62rem] text-[#7A8C86] mt-2 leading-relaxed">
                   Dossier: {machinery.genesisRegistry.dossierRef}. Registry IDs and stable string IDs are never
                   recycled or reused; registration of any non-genesis component requires a provenance dossier
                   reference (spec §3 T1 evidence row). No GPP_LEG record is registered today.
@@ -932,7 +932,7 @@ export function ConstituencySection({
                 <div className="mt-5">
                   <div className="flex flex-wrap items-center gap-2 mb-2">
                     <RefreshCw className="h-4 w-4 text-mtqs-gold/70" aria-hidden="true" />
-                    <h4 className="text-[0.78rem] font-semibold text-white/90">Lifecycle states (spec §3)</h4>
+                    <h4 className="text-[0.78rem] font-semibold text-[#0E1F1B]">Lifecycle states (spec §3)</h4>
                   </div>
                   <div className="flex flex-wrap items-center gap-1.5 mb-2">
                     {machinery.lifecycleLegend
@@ -944,20 +944,20 @@ export function ConstituencySection({
                             className={`rounded-md border px-1.5 py-0.5 font-mono text-[0.62rem] ${
                               l.state === "ACTIVE"
                                 ? "border-mtqs-emerald/40 bg-mtqs-emerald/10 text-mtqs-emerald"
-                                : "border-white/[0.08] bg-white/[0.03] text-white/60"
+                                : "border-[#E3EAE6] bg-[#F7FAF8] text-[#5B6E68]"
                             }`}
                           >
                             {l.state}
                           </span>
                           {i < arr.length - 1 ? (
-                            <span className="text-white/25 text-[0.6rem]" aria-hidden="true">
+                            <span className="text-[#9AA9A3] text-[0.6rem]" aria-hidden="true">
                               →
                             </span>
                           ) : null}
                         </span>
                       ))}
                   </div>
-                  <p className="text-[0.66rem] text-white/50 leading-relaxed">
+                  <p className="text-[0.66rem] text-[#5B6E68] leading-relaxed">
                     <span className="font-mono text-mtqs-amber">EMERGENCY-SUSPENDED</span> is a distinct OVERLAY
                     path (T7 — immediate freeze + fail-closed leg-pin), not a normal-retirement state. ELIGIBLE is a
                     queue state — admission is not yet weight-bearing. Weight-bearing states: ACTIVE, WATCH,
@@ -970,7 +970,7 @@ export function ConstituencySection({
                 <div className="mt-5">
                   <div className="flex flex-wrap items-center gap-2 mb-2">
                     <Shuffle className="h-4 w-4 text-mtqs-gold/70" aria-hidden="true" />
-                    <h4 className="text-[0.78rem] font-semibold text-white/90">
+                    <h4 className="text-[0.78rem] font-semibold text-[#0E1F1B]">
                       The T1–T9 transition & directive vocabulary
                     </h4>
                     <Pill tone="muted">directives evidence-checked · rejections recorded</Pill>
@@ -979,34 +979,34 @@ export function ConstituencySection({
                     headers={["ID", "Transition / directive", "Kind"]}
                     rows={machinery.transitions.map((t) => [
                       <span key="id" className="font-mono font-semibold text-mtqs-gold">{t.id}</span>,
-                      <span key="n" className="text-white/70">{t.name}</span>,
+                      <span key="n" className="text-[#5B6E68]">{t.name}</span>,
                       <Pill key="k" tone={t.kind === "governance directive" ? "gold" : "muted"}>
                         {t.kind}
                       </Pill>,
                     ])}
                   />
-                  <p className="text-[0.62rem] text-white/40 mt-2 leading-relaxed">
+                  <p className="text-[0.62rem] text-[#7A8C86] mt-2 leading-relaxed">
                     Governance directives (T3/T5/T7/T8/T9) are evidence-checked: the engine ENFORCES their rule
                     preconditions (a completed T2 record for T3; a completed exit window for T5; documented cause
                     for T7; fast-track window for T8; a fresh dossier for T9) and REJECTS directives whose
                     preconditions are not met — every rejection is recorded. Rule-driven transitions (T1/T2/T4/T4R/T6
                     and T2-EXPIRY) fire from score evidence only. Transitions ever run:{" "}
-                    <span className="font-mono text-white/60">{machinery.quiescent.transitionsEverRun}</span> ·
+                    <span className="font-mono text-[#5B6E68]">{machinery.quiescent.transitionsEverRun}</span> ·
                     directives ever applied:{" "}
-                    <span className="font-mono text-white/60">{machinery.quiescent.directivesEverApplied}</span>.
+                    <span className="font-mono text-[#5B6E68]">{machinery.quiescent.directivesEverApplied}</span>.
                   </p>
                 </div>
 
                 {/* Honest limits */}
-                <div className="mt-5 rounded-lg border border-rose-400/25 bg-rose-400/[0.05] p-4">
+                <div className="mt-5 rounded-lg border border-rose-200 bg-rose-50 p-4">
                   <div className="flex items-start gap-3">
-                    <ShieldAlert className="h-4 w-4 text-rose-300 mt-0.5 shrink-0" aria-hidden="true" />
+                    <ShieldAlert className="h-4 w-4 text-rose-600 mt-0.5 shrink-0" aria-hidden="true" />
                     <div>
-                      <h4 className="text-[0.76rem] font-semibold text-rose-100 mb-1">Honest limits of this machinery</h4>
-                      <p className="text-[0.7rem] text-rose-100/75 leading-relaxed">
+                      <h4 className="text-[0.76rem] font-semibold text-rose-700 mb-1">Honest limits of this machinery</h4>
+                      <p className="text-[0.7rem] text-rose-600 leading-relaxed">
                         {machinery.honestLimits.line}
                       </p>
-                      <p className="text-[0.64rem] text-white/45 mt-2 leading-relaxed">
+                      <p className="text-[0.64rem] text-[#7A8C86] mt-2 leading-relaxed">
                         {machinery.honestLimits.parameterClass} Scoring feeds: {machinery.honestLimits.scoringFeedDisclosure}
                       </p>
                     </div>

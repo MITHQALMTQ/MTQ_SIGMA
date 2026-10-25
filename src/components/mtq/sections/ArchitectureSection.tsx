@@ -359,7 +359,7 @@ function FlowNode({
   const cls =
     tone === "gold"
       ? "border-mtqs-gold/45 bg-mtqs-gold/[0.07] text-mtqs-gold-light mtqs-glow"
-      : "border-white/[0.08] bg-white/[0.03] text-white/85";
+      : "border-[#E3EAE6] bg-[#F7FAF8] text-[#0E1F1B]";
   return (
     <div
       className={`rounded-lg border px-3 py-2 text-center text-[0.72rem] font-medium tracking-wide ${cls} ${className}`}
@@ -370,7 +370,7 @@ function FlowNode({
           {chips.map((c) => (
             <span
               key={c}
-              className="rounded-full border border-white/[0.08] bg-white/[0.03] px-1.5 py-0.5 text-[0.58rem] uppercase tracking-[0.14em] text-white/55"
+              className="rounded-full border border-[#E3EAE6] bg-white px-1.5 py-0.5 text-[0.58rem] uppercase tracking-[0.14em] text-[#5B6E68]"
             >
               {c}
             </span>
@@ -393,8 +393,8 @@ function FlowDown({ className = "" }: { className?: string }) {
 /** A single checklist row (□ marker + text). */
 function CheckRow({ text }: { text: string }) {
   return (
-    <li className="flex items-start gap-2 text-[0.7rem] leading-relaxed text-white/55">
-      <span className="mt-[3px] inline-flex h-3 w-3 shrink-0 items-center justify-center rounded-[2px] border border-white/25 text-[0.55rem] text-white/40" aria-hidden="true">
+    <li className="flex items-start gap-2 text-[0.7rem] leading-relaxed text-[#5B6E68]">
+      <span className="mt-[3px] inline-flex h-3 w-3 shrink-0 items-center justify-center rounded-[2px] border border-[#BEE3DD] text-[0.55rem] text-[#7A8C86]" aria-hidden="true">
         □
       </span>
       <span>{text}</span>
@@ -453,7 +453,7 @@ export function ArchitectureSection({
               </Pill>
               <Pill tone="amber">SHADOW MODE ENFORCED</Pill>
               <Pill tone="rose">RESERVE TRADING NOT AUTHORIZED</Pill>
-              <p className="text-[0.68rem] leading-relaxed text-white/55">
+              <p className="text-[0.68rem] leading-relaxed text-[#5B6E68]">
                 §1.7: testnet inspection, testnet-only corrected deployments, simulation and
                 shadow-mode decision generation are authorized — production reserve trading is NOT.
               </p>
@@ -470,7 +470,7 @@ export function ArchitectureSection({
         />
         <Reveal>
           <Panel className="p-5 sm:p-6">
-            <p className="mb-2 text-[0.78rem] leading-relaxed text-white/55">
+            <p className="mb-2 text-[0.78rem] leading-relaxed text-[#5B6E68]">
               MTQΣ v2.0 is a closed-loop monetary architecture: every obligation the unit creates is
               defined, measured, collateralized, executed, verified and published inside one
               constitutionally governed loop. The declaration restates the whole architecture in
@@ -489,7 +489,7 @@ export function ArchitectureSection({
                 <li key={`${p.ref}·${DECLARATION_POINTS.indexOf(p)}`} className="flex items-start gap-2.5">
                   <GlowDot color="gold" size="h-1.5 w-1.5" className="mt-[7px] shrink-0" />
                   <div className="min-w-0">
-                    <span className="text-[0.78rem] leading-relaxed text-white/85">{p.text}</span>{" "}
+                    <span className="text-[0.78rem] leading-relaxed text-[#0E1F1B]">{p.text}</span>{" "}
                     <span className="ml-1 whitespace-nowrap font-mono text-[0.62rem] text-mtqs-gold/70">
                       [{p.ref}]
                     </span>
@@ -498,10 +498,10 @@ export function ArchitectureSection({
               ))}
             </ul>
             <div className="mt-5 rounded-lg border border-mtqs-amber/30 bg-mtqs-amber/[0.05] p-4">
-              <p className="text-[0.85rem] font-semibold text-amber-100">
+              <p className="text-[0.85rem] font-semibold text-amber-700">
                 This is not yet production-authorized. It is a candidate for testnet validation.
               </p>
-              <p className="mt-1.5 text-[0.75rem] leading-relaxed text-white/55">
+              <p className="mt-1.5 text-[0.75rem] leading-relaxed text-[#5B6E68]">
                 The reference methodology defines what one MTQΣ is intended to represent. The
                 reserve portfolio exists to collateralize that obligation.
               </p>
@@ -521,7 +521,7 @@ export function ArchitectureSection({
               constrained, robust, multi-model stability engine and changed only through cost-aware,
               risk-aware, liquidity-aware rebalancing rules.&rdquo;
             </p>
-            <p className="mt-2 text-[0.68rem] text-white/55">
+            <p className="mt-2 text-[0.68rem] text-[#5B6E68]">
               Every clause is load-bearing and traceable. If a summary of MTQΣ ever contradicts
               this sentence, the summary is wrong — the definition governs.
             </p>
@@ -544,12 +544,12 @@ export function ArchitectureSection({
               {HONEST_STATUS_ROWS.map((r) => (
                 <div
                   key={r.aspect}
-                  className="rounded-md border border-white/[0.06] bg-white/[0.02] p-2.5"
+                  className="rounded-md border border-[#E3EAE6] bg-[#F7FAF8] p-2.5"
                 >
-                  <div className="text-[0.62rem] uppercase tracking-[0.14em] text-white/55">
+                  <div className="text-[0.62rem] uppercase tracking-[0.14em] text-[#5B6E68]">
                     {r.aspect}
                   </div>
-                  <div className="mt-1 text-[0.68rem] font-medium text-amber-100">{r.status}</div>
+                  <div className="mt-1 text-[0.68rem] font-medium text-amber-700">{r.status}</div>
                 </div>
               ))}
             </div>
@@ -588,7 +588,7 @@ export function ArchitectureSection({
             {/* Two branch columns */}
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-6">
               {/* REFERENCE INDEX branch */}
-              <div className="rounded-xl border border-white/[0.06] bg-white/[0.015] p-3 sm:p-4">
+              <div className="rounded-xl border border-[#E3EAE6] bg-[#F7FAF8] p-3 sm:p-4">
                 <div className="mb-3 text-center text-[0.62rem] font-semibold uppercase tracking-[0.26em] text-mtqs-gold/80">
                   Reference Index
                 </div>
@@ -603,7 +603,7 @@ export function ArchitectureSection({
               </div>
 
               {/* RESERVE branch */}
-              <div className="rounded-xl border border-white/[0.06] bg-white/[0.015] p-3 sm:p-4">
+              <div className="rounded-xl border border-[#E3EAE6] bg-[#F7FAF8] p-3 sm:p-4">
                 <div className="mb-3 text-center text-[0.62rem] font-semibold uppercase tracking-[0.26em] text-mtqs-gold/80">
                   Reserve
                 </div>
@@ -613,7 +613,7 @@ export function ArchitectureSection({
                   <FlowNode label="Coverage / Liquidity" />
                   <FlowNode label="Custody / Gold" />
                 </div>
-                <p className="mt-3 text-[0.62rem] leading-relaxed text-white/55">
+                <p className="mt-3 text-[0.62rem] leading-relaxed text-[#5B6E68]">
                   Coverage, liquidity, custody and gold state feed the cash-flow, no-trade-zone and
                   risk-trigger inputs of MARP — execution is priced against reserve reality, not
                   against the index alone (§26.3.3).
@@ -667,7 +667,7 @@ export function ArchitectureSection({
               <FlowNode label="Audit / Publication" />
             </div>
 
-            <p className="mt-5 text-[0.68rem] leading-relaxed text-white/55">
+            <p className="mt-5 text-[0.68rem] leading-relaxed text-[#5B6E68]">
               §26.3.3 — the data-flow view (§26.3.1) and this hierarchy view are the same
               architecture from two angles: index mathematics and reserve economics run as parallel
               constitutional systems under one unit and converge only at MARP; downstream of MARP
@@ -699,42 +699,42 @@ export function ArchitectureSection({
               {FOUR_STATES.map((s) => (
                 <div
                   key={s.key}
-                  className="rounded-lg border border-white/[0.07] bg-white/[0.02] p-3.5"
+                  className="rounded-lg border border-[#E3EAE6] bg-[#F7FAF8] p-3.5"
                 >
                   <div className="flex items-baseline justify-between gap-2">
-                    <span className="text-[0.72rem] font-semibold text-white">{s.name}</span>
+                    <span className="text-[0.72rem] font-semibold text-[#0E1F1B]">{s.name}</span>
                     <span className="font-mono text-[0.66rem] text-mtqs-gold">
                       W<sup>{s.sup}</sup>
                     </span>
                   </div>
-                  <p className="mt-2 text-[0.68rem] leading-relaxed text-white/55">{s.def}</p>
+                  <p className="mt-2 text-[0.68rem] leading-relaxed text-[#5B6E68]">{s.def}</p>
                 </div>
               ))}
             </div>
             <div className="mt-4 grid grid-cols-1 lg:grid-cols-2 gap-3">
-              <div className="rounded-md border border-white/[0.06] bg-white/[0.02] p-3">
-                <p className="text-[0.7rem] leading-relaxed text-white/55">
+              <div className="rounded-md border border-[#E3EAE6] bg-[#F7FAF8] p-3">
+                <p className="text-[0.7rem] leading-relaxed text-[#5B6E68]">
                   The published live weight W<sub>t</sub><sup>Live</sup> is the{" "}
-                  <span className="text-white">Execution</span> state that has actually been
+                  <span className="text-[#0E1F1B]">Execution</span> state that has actually been
                   applied (§2.3; publication layer, Chapter 24). Every downstream system — index
                   valuation (Ch 9), execution (Ch 10–11), publication (Ch 24) — consumes exactly
                   one of these states; conflating them in any implementation is a specification
                   defect.
                 </p>
               </div>
-              <div className="rounded-md border border-white/[0.06] bg-white/[0.02] p-3">
-                <div className="text-[0.6rem] uppercase tracking-[0.18em] text-white/55">
+              <div className="rounded-md border border-[#E3EAE6] bg-[#F7FAF8] p-3">
+                <div className="text-[0.6rem] uppercase tracking-[0.18em] text-[#5B6E68]">
                   Live pilot cross-reference (validation-stage)
                 </div>
                 <div className="mt-1.5 flex flex-wrap gap-x-6 gap-y-1 font-mono text-[0.72rem] text-mtqs-gold">
                   <span>
-                    targetGoldWeight <span className="text-white">{liveTargetGold}</span>
+                    targetGoldWeight <span className="text-[#0E1F1B]">{liveTargetGold}</span>
                   </span>
                   <span>
-                    observedGoldWeight <span className="text-white">{liveObservedGold}</span>
+                    observedGoldWeight <span className="text-[#0E1F1B]">{liveObservedGold}</span>
                   </span>
                 </div>
-                <p className="mt-1 text-[0.62rem] text-white/55">
+                <p className="mt-1 text-[0.62rem] text-[#5B6E68]">
                   From the pilot snapshot — the deployed pilot&rsquo;s simplified target/observed
                   pair; never quoted as a final optimal weight (§26.6.2).
                 </p>
@@ -758,23 +758,23 @@ export function ArchitectureSection({
                   <span className="font-mono text-[0.66rem] text-mtqs-gold">{ex.id}</span>
                   <Pill tone="muted">{ex.tag}</Pill>
                 </div>
-                <h3 className="text-[0.8rem] font-semibold text-white leading-snug">{ex.title}</h3>
+                <h3 className="text-[0.8rem] font-semibold text-[#0E1F1B] leading-snug">{ex.title}</h3>
                 <div className="mt-2.5 space-y-2 flex-1">
                   <div>
-                    <div className="text-[0.58rem] uppercase tracking-[0.18em] text-white/55">
+                    <div className="text-[0.58rem] uppercase tracking-[0.18em] text-[#5B6E68]">
                       Scenario
                     </div>
-                    <p className="text-[0.68rem] leading-relaxed text-white/55">{ex.scenario}</p>
+                    <p className="text-[0.68rem] leading-relaxed text-[#5B6E68]">{ex.scenario}</p>
                   </div>
                   <div>
-                    <div className="text-[0.58rem] uppercase tracking-[0.18em] text-white/55">
+                    <div className="text-[0.58rem] uppercase tracking-[0.18em] text-[#5B6E68]">
                       Math
                     </div>
                     <div className="mt-1 space-y-1">
                       {ex.math.map((m) => (
                         <div
                           key={m}
-                          className="rounded border border-white/[0.06] bg-white/[0.02] px-2 py-1 font-mono text-[0.64rem] text-mtqs-gold-light break-words"
+                          className="rounded border border-[#E3EAE6] bg-[#F7FAF8] px-2 py-1 font-mono text-[0.64rem] text-mtqs-gold-light break-words"
                         >
                           {m}
                         </div>
@@ -782,10 +782,10 @@ export function ArchitectureSection({
                     </div>
                   </div>
                   <div>
-                    <div className="text-[0.58rem] uppercase tracking-[0.18em] text-white/55">
+                    <div className="text-[0.58rem] uppercase tracking-[0.18em] text-[#5B6E68]">
                       Decision outcome
                     </div>
-                    <p className="text-[0.68rem] leading-relaxed text-white/55">{ex.outcome}</p>
+                    <p className="text-[0.68rem] leading-relaxed text-[#5B6E68]">{ex.outcome}</p>
                   </div>
                 </div>
               </Panel>
@@ -811,14 +811,14 @@ export function ArchitectureSection({
             <Panel className="p-4">
               <div className="mb-3 flex items-center gap-2">
                 <Lock className="h-3.5 w-3.5 text-mtqs-emerald/80" aria-hidden="true" />
-                <span className="text-[0.72rem] font-semibold text-white">
+                <span className="text-[0.72rem] font-semibold text-[#0E1F1B]">
                   Locked concepts (constitutional)
                 </span>
                 <Pill tone="emerald">{LOCKED_CONCEPTS.length}</Pill>
               </div>
               <ol className="max-h-96 overflow-y-auto mtqs-scroll space-y-1.5 pr-2">
                 {LOCKED_CONCEPTS.map((c, i) => (
-                  <li key={c} className="flex items-start gap-2 text-[0.68rem] leading-relaxed text-white/55">
+                  <li key={c} className="flex items-start gap-2 text-[0.68rem] leading-relaxed text-[#5B6E68]">
                     <span className="mt-px w-5 shrink-0 text-right font-mono text-[0.6rem] text-mtqs-emerald/70">
                       {i + 1}.
                     </span>
@@ -830,14 +830,14 @@ export function ArchitectureSection({
             <Panel className="p-4">
               <div className="mb-3 flex items-center gap-2">
                 <FlaskConical className="h-3.5 w-3.5 text-mtqs-amber/80" aria-hidden="true" />
-                <span className="text-[0.72rem] font-semibold text-white">
+                <span className="text-[0.72rem] font-semibold text-[#0E1F1B]">
                   Not locked — must be quantitatively validated
                 </span>
                 <Pill tone="amber">{NOT_LOCKED.length}</Pill>
               </div>
               <ol className="max-h-96 overflow-y-auto mtqs-scroll space-y-1.5 pr-2">
                 {NOT_LOCKED.map((c, i) => (
-                  <li key={c} className="flex items-start gap-2 text-[0.68rem] leading-relaxed text-white/55">
+                  <li key={c} className="flex items-start gap-2 text-[0.68rem] leading-relaxed text-[#5B6E68]">
                     <span className="mt-px w-5 shrink-0 text-right font-mono text-[0.6rem] text-mtqs-amber/70">
                       {i + 1}.
                     </span>
@@ -845,7 +845,7 @@ export function ArchitectureSection({
                   </li>
                 ))}
               </ol>
-              <p className="mt-3 text-[0.64rem] leading-relaxed text-white/55">
+              <p className="mt-3 text-[0.64rem] leading-relaxed text-[#5B6E68]">
                 No numerical weighting percentage should be described as &ldquo;the final optimal
                 weight&rdquo; until it survives the complete research program (Ch 23) and Gate 2 of
                 the validation sequence (§25.5).
@@ -877,7 +877,7 @@ export function ArchitectureSection({
                 <div className="mb-3 flex items-center justify-between gap-2">
                   <div>
                     <span className="font-mono text-[0.64rem] text-mtqs-gold">{ph.phase}</span>
-                    <h3 className="text-[0.78rem] font-semibold text-white">{ph.title}</h3>
+                    <h3 className="text-[0.78rem] font-semibold text-[#0E1F1B]">{ph.title}</h3>
                   </div>
                   <Pill tone={ph.phase === "Phase 5" ? "rose" : "muted"}>
                     {ph.items.length} items
@@ -893,20 +893,20 @@ export function ArchitectureSection({
                     className={`mt-3 rounded-md border p-2.5 text-[0.64rem] leading-relaxed ${
                       ph.phase === "Phase 5"
                         ? "border-mtqs-rose/35 bg-mtqs-rose/[0.06] text-mtqs-rose"
-                        : "border-white/[0.07] bg-white/[0.02] text-white/55"
+                        : "border-[#E3EAE6] bg-[#F7FAF8] text-[#5B6E68]"
                     }`}
                   >
                     {ph.note}
                   </div>
                 ) : null}
                 {ph.phase === "Phase 1" ? (
-                  <p className="mt-2 text-[0.6rem] text-white/55">
+                  <p className="mt-2 text-[0.6rem] text-[#5B6E68]">
                     Reported Genesis Reserve Safe (contracts.ts):{" "}
                     <span className="font-mono text-mtqs-gold/80">{genesisReserveSafe}</span>
                   </p>
                 ) : null}
                 {ph.phase === "Phase 5" ? (
-                  <p className="mt-2 text-[0.6rem] text-white/55">
+                  <p className="mt-2 text-[0.6rem] text-[#5B6E68]">
                     Foundry verification commands: see the Developers tab.
                   </p>
                 ) : null}
@@ -915,7 +915,7 @@ export function ArchitectureSection({
           </div>
         </Reveal>
         <Reveal delay={0.05}>
-          <p className="mt-3 text-[0.66rem] leading-relaxed text-white/55">
+          <p className="mt-3 text-[0.66rem] leading-relaxed text-[#5B6E68]">
             The checklist compiles the developer deployment sequence from the blueprint&rsquo;s
             genesis and deployment modules (BP §13.7.4; BP §2.6.4). It targets the testnet edition;
             every phase that differs on mainnet is governed by the validation gates of §25.5 and
@@ -944,10 +944,10 @@ export function ArchitectureSection({
                 {GLOSSARY.map((g) => (
                   <div
                     key={g.term}
-                    className="border-b border-white/[0.05] pb-2"
+                    className="border-b border-[#E3EAE6] pb-2"
                   >
                     <dt className="font-mono text-[0.7rem] text-mtqs-gold">{g.term}</dt>
-                    <dd className="mt-0.5 text-[0.66rem] leading-relaxed text-white/55">
+                    <dd className="mt-0.5 text-[0.66rem] leading-relaxed text-[#5B6E68]">
                       {g.def}
                     </dd>
                   </div>
@@ -966,20 +966,20 @@ export function ArchitectureSection({
         />
         <Reveal>
           <Panel className="p-5">
-            <p className="mb-3 text-[0.72rem] leading-relaxed text-white/55">
+            <p className="mb-3 text-[0.72rem] leading-relaxed text-[#5B6E68]">
               The consolidated document is built from three sources: the{" "}
-              <span className="text-white/85">Source of Truth Blueprint v1.2</span> (BP — 16
+              <span className="text-[#0E1F1B]">Source of Truth Blueprint v1.2</span> (BP — 16
               sections, 80 solidity blocks), the{" "}
-              <span className="text-white/85">Consolidated Final Modification Specification
+              <span className="text-[#0E1F1B]">Consolidated Final Modification Specification
               Baseline v1.0</span> (MS — 103 sections), and the{" "}
-              <span className="text-white/85">COO Review</span> (COO-1…COO-28 plus the final
+              <span className="text-[#0E1F1B]">COO Review</span> (COO-1…COO-28 plus the final
               conclusion). The map records, chapter by chapter, which source material each part
               carries.
             </p>
-            <div className="overflow-hidden rounded-md border border-white/[0.06]">
+            <div className="overflow-hidden rounded-md border border-[#E3EAE6]">
               <div className="max-h-96 overflow-y-auto mtqs-scroll">
                 <table className="w-full text-[0.66rem]">
-                  <thead className="bg-white/[0.03] text-white/55 sticky top-0 backdrop-blur">
+                  <thead className="bg-[#F7FAF8] text-[#5B6E68] sticky top-0">
                     <tr>
                       <th className="text-left px-3 py-2 font-medium">Master section</th>
                       <th className="text-left px-3 py-2 font-medium">Source</th>
@@ -990,13 +990,13 @@ export function ArchitectureSection({
                     {LINEAGE_ROWS.map((r, i) => (
                       <tr
                         key={r.section}
-                        className={`border-t border-white/[0.06] ${i % 2 ? "bg-white/[0.015]" : ""}`}
+                        className={`border-t border-[#E3EAE6] ${i % 2 ? "bg-[#F7FAF8]" : ""}`}
                       >
                         <td className="px-3 py-2 font-mono text-mtqs-gold whitespace-nowrap">
                           {r.section}
                         </td>
-                        <td className="px-3 py-2 text-white/70 whitespace-nowrap">{r.source}</td>
-                        <td className="px-3 py-2 text-white/55">{r.content}</td>
+                        <td className="px-3 py-2 text-[#5B6E68] whitespace-nowrap">{r.source}</td>
+                        <td className="px-3 py-2 text-[#5B6E68]">{r.content}</td>
                       </tr>
                     ))}
                   </tbody>
@@ -1014,7 +1014,7 @@ export function ArchitectureSection({
             </div>
             <ol className="space-y-1">
               {CONSOLIDATION_ORDER.map((o, i) => (
-                <li key={o} className="flex items-start gap-2 text-[0.7rem] leading-relaxed text-white/55">
+                <li key={o} className="flex items-start gap-2 text-[0.7rem] leading-relaxed text-[#5B6E68]">
                   <span className="mt-px w-4 shrink-0 text-right font-mono text-[0.62rem] text-mtqs-gold/70">
                     {i + 1}.
                   </span>
@@ -1022,7 +1022,7 @@ export function ArchitectureSection({
                 </li>
               ))}
             </ol>
-            <p className="mt-2.5 text-[0.66rem] leading-relaxed text-white/55">
+            <p className="mt-2.5 text-[0.66rem] leading-relaxed text-[#5B6E68]">
               This is a hierarchy of authority, not a claim that source code already complies. The
               hierarchy does not authorize a developer to invent an objective function, conversion
               factor, monetary threshold, protection margin, asset admission exception, reserve
@@ -1039,11 +1039,11 @@ export function ArchitectureSection({
             <div className="mb-2 text-[0.6rem] uppercase tracking-[0.22em] text-mtqs-amber/80">
               §1.7 · Status declaration (binds every reader of this specification)
             </div>
-            <p className="text-[0.72rem] leading-relaxed text-white/70">
+            <p className="text-[0.72rem] leading-relaxed text-[#5B6E68]">
               MTQΣ is a testnet-development and correction candidate. Testnet inspection,
               testnet-only corrected deployments, simulation, and shadow-mode decision generation
               are authorized within the boundaries of Appendix F.{" "}
-              <span className="font-semibold text-amber-100">
+              <span className="font-semibold text-amber-700">
                 Production reserve trading is NOT authorized.
               </span>{" "}
               No live-asset pilot is authorized unless Gate 5 has been completed and a separate

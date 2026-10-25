@@ -142,7 +142,7 @@ export function SectionHeading({
     <div className={`flex items-end justify-between gap-4 mb-6 ${className}`}>
       <div className="space-y-1.5 min-w-0">
         <Eyebrow>{eyebrow}</Eyebrow>
-        <h2 className="mtqs-section-title text-white">
+        <h2 className="mtqs-section-title text-[#0E1F1B]">
           {title}
         </h2>
       </div>
@@ -223,13 +223,13 @@ export function Stat({
 }) {
   return (
     <div className={`flex flex-col gap-1 ${className}`}>
-      <span className="text-[0.625rem] uppercase tracking-[0.22em] text-white/55">
+      <span className="text-[0.625rem] uppercase tracking-[0.22em] text-[#5B6E68]">
         {label}
       </span>
-      <span className={`font-mono tabular-nums text-white ${valueClass}`}>
+      <span className={`font-mono tabular-nums text-[#0E1F1B] ${valueClass}`}>
         {value}
       </span>
-      {sub ? <span className="text-[0.7rem] text-white/55">{sub}</span> : null}
+      {sub ? <span className="text-[0.7rem] text-[#5B6E68]">{sub}</span> : null}
     </div>
   );
 }
@@ -240,7 +240,7 @@ export function MiniBar({
   max = 1,
   min = 0,
   colorClass = "bg-amber-400",
-  trackClass = "bg-white/5",
+  trackClass = "bg-[#EDF2EF]",
   className = "",
   height = "h-1.5",
 }: {
@@ -276,7 +276,7 @@ export function MiniBar({
 export function Skeleton({ className = "" }: { className?: string }) {
   return (
     <div
-      className={`animate-pulse rounded-md bg-white/[0.04] ${className}`}
+      className={`animate-pulse rounded-md bg-[#F0F5F2] ${className}`}
       aria-hidden="true"
     />
   );
@@ -293,12 +293,12 @@ export function Pill({
   className?: string;
 }) {
   const tones: Record<string, string> = {
-    default: "border-white/[0.06] bg-white/[0.03] text-white/55",
+    default: "border-[#E3EAE6] bg-[#F7FAF8] text-[#5B6E68]",
     gold: "border-mtqs-gold/30 bg-mtqs-gold/10 text-mtqs-gold",
     emerald: "border-mtqs-emerald/30 bg-mtqs-emerald/10 text-mtqs-emerald",
     rose: "border-mtqs-rose/30 bg-mtqs-rose/10 text-mtqs-rose",
     amber: "border-mtqs-amber/30 bg-mtqs-amber/10 text-mtqs-amber",
-    muted: "border-white/[0.06] bg-white/[0.02] text-white/55",
+    muted: "border-[#E3EAE6] bg-[#FAFCFA] text-[#5B6E68]",
   };
   return (
     <span
@@ -319,7 +319,7 @@ export function BrandPrinciples({ className = "" }: { className?: string }) {
   const principles = ["Honest", "Sovereign", "Basket-Referenced", "Calm"];
   return (
     <div
-      className={`flex flex-wrap items-center gap-x-3 gap-y-1 text-[0.65rem] uppercase tracking-[0.22em] text-white/75 ${className}`}
+      className={`flex flex-wrap items-center gap-x-3 gap-y-1 text-[0.65rem] uppercase tracking-[0.22em] text-[#33544C] ${className}`}
       aria-label="MTQΣ brand principles"
     >
       {principles.map((p, i) => (
@@ -409,20 +409,20 @@ export function StatCard({
       : tone === "rose"
       ? "text-mtqs-rose"
       : tone === "neutral"
-      ? "text-white"
+      ? "text-[#0E1F1B]"
       : "text-mtqs-gold-light";
   const trendColor =
     trendDirection === "up"
       ? "text-mtqs-emerald"
       : trendDirection === "down"
       ? "text-mtqs-rose"
-      : "text-white/55";
+      : "text-[#5B6E68]";
   const trendArrow = trendDirection === "up" ? "▲" : trendDirection === "down" ? "▼" : "■";
 
   return (
     <div className={`mtqs-stat-card mtqs-card-hover ${className}`}>
       <div className="flex items-start justify-between gap-3 relative z-10">
-        <span className="text-[0.6rem] uppercase tracking-[0.22em] text-white/55">
+        <span className="text-[0.6rem] uppercase tracking-[0.22em] text-[#5B6E68]">
           {label}
         </span>
         {Icon ? (

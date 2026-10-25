@@ -51,14 +51,14 @@ function VaultDiagram({ snapshot }: { snapshot: MetricsSnapshot }) {
   // Per-asset breakdown for legend — gold split into PAXG + XAUT
   const perIssuer = snapshot.perIssuer;
   const assets = [
-    { k: "USD", v: r.usdNet, color: "#EFC268", token: "USDC" },
-    { k: "EUR", v: r.eurNet, color: "#00C4DB", token: "EURC" },
+    { k: "USD", v: r.usdNet, color: "#D97706", token: "USDC" },
+    { k: "EUR", v: r.eurNet, color: "#14B8A6", token: "EURC" },
     { k: "GBP", v: r.gbpNet, color: "#9fb0a3", token: "GBP₿" },
     { k: "JPY", v: r.jpyNet, color: "#c9a05a", token: "JPY₿" },
     { k: "CNY", v: r.cnyNet, color: "#7d9082", token: "CNY₿" },
     { k: "CHF", v: r.chfNet, color: "#7ab8a3", token: "CHF₿" },
-    { k: "PAXG", v: perIssuer?.paxgUsd ?? r.goldNet / 2, color: "#f5d27a", token: "PAXG (Paxos)" },
-    { k: "XAUT", v: perIssuer?.xautUsd ?? r.goldNet / 2, color: "#e0c068", token: "XAUT (Tether)" },
+    { k: "PAXG", v: perIssuer?.paxgUsd ?? r.goldNet / 2, color: "#F59E0B", token: "PAXG (Paxos)" },
+    { k: "XAUT", v: perIssuer?.xautUsd ?? r.goldNet / 2, color: "#CA8A04", token: "XAUT (Tether)" },
   ];
   const total = assets.reduce((a, b) => a + b.v, 0) || 1;
 
@@ -72,8 +72,8 @@ function VaultDiagram({ snapshot }: { snapshot: MetricsSnapshot }) {
     >
       <defs>
         <radialGradient id="mtqs-vault-bg" cx="50%" cy="50%" r="60%">
-          <stop offset="0%" stopColor="rgba(43, 171, 251, 0.05)" />
-          <stop offset="100%" stopColor="rgba(43, 171, 251, 0)" />
+          <stop offset="0%" stopColor="rgba(13, 148, 136, 0.05)" />
+          <stop offset="100%" stopColor="rgba(13, 148, 136, 0)" />
         </radialGradient>
         <filter id="mtqs-vault-glow" x="-30%" y="-30%" width="160%" height="160%">
           <feGaussianBlur stdDeviation="2" />
@@ -94,7 +94,7 @@ function VaultDiagram({ snapshot }: { snapshot: MetricsSnapshot }) {
               y1={160 + r1 * Math.sin(a)}
               x2={160 + r2 * Math.cos(a)}
               y2={160 + r2 * Math.sin(a)}
-              stroke={i % 4 === 0 ? "rgba(43, 171, 251, 0.35)" : "rgba(43, 171, 251, 0.12)"}
+              stroke={i % 4 === 0 ? "rgba(13, 148, 136, 0.35)" : "rgba(13, 148, 136, 0.12)"}
               strokeWidth={i % 4 === 0 ? 1 : 0.5}
             />
           );
@@ -132,13 +132,13 @@ function VaultDiagram({ snapshot }: { snapshot: MetricsSnapshot }) {
       </g>
 
       {/* Middle ring: gold vs fiat summary (gold = darker gold arc) */}
-      <circle cx="160" cy="160" r="105" fill="none" stroke="rgba(255,255,255,0.06)" strokeWidth="1" />
+      <circle cx="160" cy="160" r="105" fill="none" stroke="rgba(14,31,27,0.08)" strokeWidth="1" />
       <circle
         cx="160"
         cy="160"
         r="105"
         fill="none"
-        stroke="#f5d27a"
+        stroke="#F59E0B"
         strokeWidth="6"
         strokeDasharray={`${goldPct * 2 * Math.PI * 105} ${2 * Math.PI * 105}`}
         strokeLinecap="round"
@@ -160,43 +160,43 @@ function VaultDiagram({ snapshot }: { snapshot: MetricsSnapshot }) {
       />
 
       {/* Inner ring: core vs buffer split */}
-      <circle cx="160" cy="160" r="78" fill="rgba(8,10,12,0.6)" stroke="rgba(43,171,251,0.18)" />
+      <circle cx="160" cy="160" r="78" fill="rgba(255,255,255,0.75)" stroke="rgba(13,148,136,0.18)" />
       {/* Buffer arc — 10% of the inner ring */}
       <motion.path
         d={arc(160, 160, 78, 0, bufferFrac * 360)}
-        fill="#00C4DB"
+        fill="#14B8A6"
         fillOpacity={0.16}
-        stroke="#00C4DB"
+        stroke="#14B8A6"
         strokeOpacity={0.4}
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
         transition={{ duration: 0.4, delay: 0.3 }}
       />
-      <text x="160" y="125" textAnchor="middle" fontSize="8" fill="#00C4DB" fontFamily="var(--font-geist-sans), sans-serif" letterSpacing="1.5">
+      <text x="160" y="125" textAnchor="middle" fontSize="8" fill="#14B8A6" fontFamily="var(--font-geist-sans), sans-serif" letterSpacing="1.5">
         BUFFER · {(BUFFER_SIZE * 100).toFixed(0)}%
       </text>
-      <text x="160" y="137" textAnchor="middle" fontSize="9" fill="#00C4DB" fontFamily="var(--font-geist-mono), monospace">
+      <text x="160" y="137" textAnchor="middle" fontSize="9" fill="#14B8A6" fontFamily="var(--font-geist-mono), monospace">
         {(bufferGoldRatio * 100).toFixed(1)}% Au
       </text>
 
       {/* Core label */}
-      <text x="160" y="172" textAnchor="middle" fontSize="8" fill="rgba(255,255,255,0.7)" fontFamily="var(--font-geist-sans), sans-serif" letterSpacing="1.5">
+      <text x="160" y="172" textAnchor="middle" fontSize="8" fill="#5B6E68" fontFamily="var(--font-geist-sans), sans-serif" letterSpacing="1.5">
         CORE · {(coreFrac * 100).toFixed(0)}%
       </text>
-      <text x="160" y="184" textAnchor="middle" fontSize="9" fill="rgba(255,255,255,0.85)" fontFamily="var(--font-geist-mono), monospace">
+      <text x="160" y="184" textAnchor="middle" fontSize="9" fill="#0E1F1B" fontFamily="var(--font-geist-mono), monospace">
         {(CORE_GOLD_WEIGHT * 100).toFixed(0)}% Au · {((1 - CORE_GOLD_WEIGHT) * 100).toFixed(0)}% fiat
       </text>
 
       {/* Center NAV readout */}
-      <text x="160" y="208" textAnchor="middle" fontSize="7.5" fill="rgba(43,171,251,0.7)" fontFamily="var(--font-geist-sans), sans-serif" letterSpacing="2">
+      <text x="160" y="208" textAnchor="middle" fontSize="7.5" fill="rgba(13,148,136,0.7)" fontFamily="var(--font-geist-sans), sans-serif" letterSpacing="2">
         NET ASSET VALUE
       </text>
-      <text x="160" y="222" textAnchor="middle" fontSize="11" fill="#EFC268" fontFamily="var(--font-geist-mono), monospace" fontWeight="700">
+      <text x="160" y="222" textAnchor="middle" fontSize="11" fill="#0D9488" fontFamily="var(--font-geist-mono), monospace" fontWeight="700">
         {fmtUsdCompact(nav)}
       </text>
 
       {/* Buffer state pill (visual) */}
-      <text x="160" y="245" textAnchor="middle" fontSize="9" fill={snapshot.bufferState === "EMERGENCY" ? "#ff5d73" : snapshot.bufferState === "STRESS" ? "#ff9f43" : "#00C4DB"} fontFamily="var(--font-geist-mono), monospace" letterSpacing="2" fontWeight="600">
+      <text x="160" y="245" textAnchor="middle" fontSize="9" fill={snapshot.bufferState === "EMERGENCY" ? "#E11D48" : snapshot.bufferState === "STRESS" ? "#D97706" : "#14B8A6"} fontFamily="var(--font-geist-mono), monospace" letterSpacing="2" fontWeight="600">
         {snapshot.bufferState}
       </text>
     </svg>
@@ -215,28 +215,28 @@ function GoldWeightGauge({ snapshot }: { snapshot: MetricsSnapshot }) {
   const obsPct = Math.max(0, Math.min(100, ((obs - lower) / range) * 100));
   const tgtPct = Math.max(0, Math.min(100, ((tgt - lower) / range) * 100));
   const basePct = ((base - lower) / range) * 100;
-  const stateColor = snapshot.bufferState === "EMERGENCY" ? "bg-rose-400" : snapshot.bufferState === "STRESS" ? "bg-amber-400" : "bg-emerald-400";
+  const stateColor = snapshot.bufferState === "EMERGENCY" ? "bg-rose-500" : snapshot.bufferState === "STRESS" ? "bg-amber-500" : "bg-emerald-500";
 
   return (
     <div>
       <div className="flex items-baseline justify-between mb-2">
-        <span className="text-[0.7rem] uppercase tracking-[0.2em] text-white/55">
+        <span className="text-[0.7rem] uppercase tracking-[0.2em] text-[#5B6E68]">
           Gold Weight (§6.5 + §8)
         </span>
-        <span className="text-[0.7rem] text-white/55 font-mono">
+        <span className="text-[0.7rem] text-[#5B6E68] font-mono">
           live envelope {lower.toFixed(0)}–{upper.toFixed(0)}% (§8.1) · strategic prior {base.toFixed(0)}% (soft anchor §3.2)
         </span>
       </div>
-      <div className="relative h-10 rounded-md border border-white/[0.06] bg-white/[0.02] overflow-hidden">
+      <div className="relative h-10 rounded-md border border-[#E3EAE6] bg-[#F7FAF8] overflow-hidden">
         {/* bounds track */}
-        <div className="absolute inset-y-0 left-0 right-0 bg-gradient-to-r from-amber-400/5 via-emerald-400/5 to-amber-400/5" />
+        <div className="absolute inset-y-0 left-0 right-0 bg-gradient-to-r from-amber-50 via-emerald-50 to-amber-50" />
         {/* lower bound zone (red zone below 22%) */}
         <div className="absolute inset-y-0 left-0 w-2 bg-rose-500/15" />
         <div className="absolute inset-y-0 right-0 w-2 bg-rose-500/15" />
 
         {/* base line */}
         <div className="absolute inset-y-0" style={{ left: `${basePct}%` }}>
-          <div className="h-full w-px bg-amber-300/40" />
+          <div className="h-full w-px bg-amber-500/40" />
           <span className="absolute -top-0.5 -translate-x-1/2 text-[0.55rem] text-mtqs-amber/80 font-mono">base</span>
         </div>
 
@@ -262,19 +262,19 @@ function GoldWeightGauge({ snapshot }: { snapshot: MetricsSnapshot }) {
           animate={{ left: `${tgtPct}%` }}
           transition={{ duration: 0.6 }}
         >
-          <div className="h-full w-px bg-amber-300" />
+          <div className="h-full w-px bg-amber-500" />
           <div className="absolute bottom-0 -translate-x-1/2 translate-y-full">
             <div className="text-[0.6rem] font-mono font-semibold text-mtqs-gold whitespace-nowrap">tgt {tgt.toFixed(2)}%</div>
           </div>
         </motion.div>
       </div>
-      <div className="mt-4 flex flex-wrap gap-3 text-[0.7rem] text-white/55">
+      <div className="mt-4 flex flex-wrap gap-3 text-[0.7rem] text-[#5B6E68]">
         <span>observed <span className="font-mono text-mtqs-gold">{obs.toFixed(2)}%</span></span>
         <span>target <span className="font-mono text-mtqs-gold">{tgt.toFixed(2)}%</span></span>
         <span>buffer-state <Pill tone={snapshot.bufferState === "EMERGENCY" ? "rose" : snapshot.bufferState === "STRESS" ? "amber" : "emerald"}>{snapshot.bufferState}</Pill></span>
         <span>buffer Au <span className="font-mono text-mtqs-gold">{(snapshot.bufferGoldRatio * 100).toFixed(2)}%</span></span>
       </div>
-      <p className="mt-2 text-[0.7rem] text-white/55 leading-relaxed">
+      <p className="mt-2 text-[0.7rem] text-[#5B6E68] leading-relaxed">
         Live target = <span className="font-mono text-mtqs-gold">MASE envelope output (20–32% admissibility, §8.1)</span> — validation-stage values. The legacy formula <span className="font-mono">W = 0.20 + 0.10·B_gold(RR) + θ, clamp[22,30]%</span> is the pre-MASE genesis fallback only (§13.5.2/§16.5: historical validation-stage init — not the live rule).
       </p>
     </div>
@@ -285,22 +285,22 @@ export function ReserveVault({ snapshot }: { snapshot: MetricsSnapshot | null })
   if (!snapshot) {
     return (
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
-        <div className="aspect-square animate-pulse rounded-lg bg-white/[0.03]" />
-        <div className="h-48 animate-pulse rounded-lg bg-white/[0.03]" />
+        <div className="aspect-square animate-pulse rounded-lg bg-[#F7FAF8]" />
+        <div className="h-48 animate-pulse rounded-lg bg-[#F7FAF8]" />
       </div>
     );
   }
   const r = snapshot.reserve;
   const perIssuer = snapshot.perIssuer;
   const assets = [
-    { k: "USD", v: r.usdNet, color: "#EFC268", token: "USDC" },
-    { k: "EUR", v: r.eurNet, color: "#00C4DB", token: "EURC" },
+    { k: "USD", v: r.usdNet, color: "#D97706", token: "USDC" },
+    { k: "EUR", v: r.eurNet, color: "#14B8A6", token: "EURC" },
     { k: "GBP", v: r.gbpNet, color: "#9fb0a3", token: "GBP₿" },
     { k: "JPY", v: r.jpyNet, color: "#c9a05a", token: "JPY₿" },
     { k: "CNY", v: r.cnyNet, color: "#7d9082", token: "CNY₿" },
     { k: "CHF", v: r.chfNet, color: "#7ab8a3", token: "CHF₿" },
-    { k: "PAXG", v: perIssuer?.paxgUsd ?? r.goldNet / 2, color: "#f5d27a", token: "PAXG (Paxos)" },
-    { k: "XAUT", v: perIssuer?.xautUsd ?? r.goldNet / 2, color: "#e0c068", token: "XAUT (Tether)" },
+    { k: "PAXG", v: perIssuer?.paxgUsd ?? r.goldNet / 2, color: "#F59E0B", token: "PAXG (Paxos)" },
+    { k: "XAUT", v: perIssuer?.xautUsd ?? r.goldNet / 2, color: "#CA8A04", token: "XAUT (Tether)" },
   ];
   const total = assets.reduce((a, b) => a + b.v, 0) || 1;
 
@@ -309,10 +309,10 @@ export function ReserveVault({ snapshot }: { snapshot: MetricsSnapshot | null })
       <Reveal>
         <Panel className="p-5">
           <div className="mb-3 flex items-center justify-between">
-            <span className="text-[0.625rem] uppercase tracking-[0.25em] text-white/55">Vault Composition</span>
+            <span className="text-[0.625rem] uppercase tracking-[0.25em] text-[#5B6E68]">Vault Composition</span>
             <Pill tone="gold">§4 + §8.3</Pill>
           </div>
-          <p className="mb-2 text-[0.62rem] text-white/45">
+          <p className="mb-2 text-[0.62rem] text-[#7A8C86]">
             Simulated pilot reserve (G8) — no real tokens or vaults exist.
           </p>
           <VaultDiagram snapshot={snapshot} />
@@ -323,13 +323,13 @@ export function ReserveVault({ snapshot }: { snapshot: MetricsSnapshot | null })
         <Reveal delay={0.05}>
           <Panel className="p-5">
             <div className="mb-3 flex items-center justify-between">
-              <span className="text-[0.625rem] uppercase tracking-[0.25em] text-white/55">Per-Asset Net Values</span>
-              <span className="text-[0.7rem] text-white/55 font-mono">after haircut</span>
+              <span className="text-[0.625rem] uppercase tracking-[0.25em] text-[#5B6E68]">Per-Asset Net Values</span>
+              <span className="text-[0.7rem] text-[#5B6E68] font-mono">after haircut</span>
             </div>
             <div className="space-y-2.5">
               {assets.map((a, i) => (
                 <div key={a.k} className="flex items-center gap-3">
-                  <span className="w-12 font-mono text-sm font-semibold text-white/90">{a.k}</span>
+                  <span className="w-12 font-mono text-sm font-semibold text-[#0E1F1B]">{a.k}</span>
                   <div className="flex-1">
                     <MiniBar
                       value={a.v}
@@ -341,7 +341,7 @@ export function ReserveVault({ snapshot }: { snapshot: MetricsSnapshot | null })
                   <span className="w-20 text-right text-[0.7rem] font-mono text-mtqs-gold">
                     {fmtUsdCompact(a.v)}
                   </span>
-                  <span className="w-10 text-right text-[0.65rem] font-mono text-white/55">
+                  <span className="w-10 text-right text-[0.65rem] font-mono text-[#5B6E68]">
                     {((a.v / total) * 100).toFixed(1)}%
                   </span>
                 </div>

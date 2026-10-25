@@ -518,7 +518,7 @@ export function EventExplorer({ limit = 60 }: { limit?: number }) {
         <div className="mb-3 flex items-center justify-between gap-3 flex-wrap">
           <div className="flex items-center gap-2.5">
             <Activity className="h-5 w-5 text-mtqs-gold" />
-            <h3 className="text-base font-semibold text-white">
+            <h3 className="text-base font-semibold text-[#0E1F1B]">
               Protocol Event Explorer
             </h3>
             <Pill tone="gold" className="font-mono tabular-nums">§42</Pill>
@@ -535,7 +535,7 @@ export function EventExplorer({ limit = 60 }: { limit?: number }) {
               onClick={fetchTrials}
               disabled={loading}
               aria-label="Refresh event explorer"
-              className="mtqs-focus inline-flex items-center gap-1.5 rounded-md border border-mtqs-amber/30 bg-mtqs-amber/5 px-2.5 py-1.5 text-xs text-mtqs-gold hover:bg-amber-500/[0.1] transition disabled:opacity-50"
+              className="mtqs-focus inline-flex items-center gap-1.5 rounded-md border border-mtqs-amber/30 bg-mtqs-amber/5 px-2.5 py-1.5 text-xs text-mtqs-gold hover:bg-amber-100 transition disabled:opacity-50"
             >
               <RefreshCw className={`h-3 w-3 ${loading ? "animate-spin" : ""}`} />
               <span className="hidden sm:inline">refresh</span>
@@ -553,7 +553,7 @@ export function EventExplorer({ limit = 60 }: { limit?: number }) {
 
         {/* ===== Search bar ===== */}
         <div className="relative mb-3">
-          <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-white/45" />
+          <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-[#7A8C86]" />
           <input
             type="text"
             value={query}
@@ -562,14 +562,14 @@ export function EventExplorer({ limit = 60 }: { limit?: number }) {
             spellCheck={false}
             autoComplete="off"
             aria-label="Search events"
-            className="mtqs-focus w-full rounded-md border border-white/[0.08] bg-white/[0.02] pl-9 pr-3 py-2 text-xs text-white placeholder:text-white/30 focus:outline-none focus:border-mtqs-gold/50 transition"
+            className="mtqs-focus w-full rounded-md border border-[#E3EAE6] bg-[#F7FAF8] pl-9 pr-3 py-2 text-xs text-[#0E1F1B] placeholder:text-[#7A8C86] focus:outline-none focus:border-mtqs-gold/50 transition"
           />
           {query && (
             <button
               type="button"
               onClick={() => setQuery("")}
               aria-label="Clear search"
-              className="mtqs-focus absolute right-2 top-1/2 -translate-y-1/2 text-white/45 hover:text-white text-xs px-1.5 py-0.5 rounded"
+              className="mtqs-focus absolute right-2 top-1/2 -translate-y-1/2 text-[#7A8C86] hover:text-[#0E1F1B] text-xs px-1.5 py-0.5 rounded"
             >
               ✕
             </button>
@@ -578,7 +578,7 @@ export function EventExplorer({ limit = 60 }: { limit?: number }) {
 
         {/* ===== Category filter chips ===== */}
         <div className="mb-3 flex items-center gap-1.5 flex-wrap" role="group" aria-label="Filter by event category">
-          <span className="inline-flex items-center gap-1 text-[0.65rem] uppercase tracking-[0.18em] text-white/55 mr-1">
+          <span className="inline-flex items-center gap-1 text-[0.65rem] uppercase tracking-[0.18em] text-[#5B6E68] mr-1">
             <Filter className="h-3 w-3" />
             Filter
           </span>
@@ -601,7 +601,7 @@ export function EventExplorer({ limit = 60 }: { limit?: number }) {
                       : tone === "rose"
                       ? "border-mtqs-rose/40 bg-mtqs-rose/15 text-mtqs-rose"
                       : "border-mtqs-gold/40 bg-mtqs-gold/15 text-mtqs-gold"
-                    : "border-white/[0.08] bg-white/[0.02] text-white/70 hover:border-white/[0.16] hover:text-white"
+                    : "border-[#E3EAE6] bg-[#F7FAF8] text-[#5B6E68] hover:border-[#BEE3DD] hover:text-[#0E1F1B]"
                 }`}
               >
                 <span>{c}</span>
@@ -612,7 +612,7 @@ export function EventExplorer({ limit = 60 }: { limit?: number }) {
         </div>
 
         {/* ===== Event table ===== */}
-        <div className="rounded-md border border-white/[0.06] overflow-hidden">
+        <div className="rounded-md border border-[#E3EAE6] overflow-hidden">
           {loading && filteredEvents.length === 0 ? (
             <div className="p-4 space-y-2">
               {[...Array(6)].map((_, i) => (
@@ -620,10 +620,10 @@ export function EventExplorer({ limit = 60 }: { limit?: number }) {
               ))}
             </div>
           ) : filteredEvents.length === 0 ? (
-            <div className="p-6 text-center text-[0.78rem] text-white/55">
-              <AlertTriangle className="h-5 w-5 mx-auto mb-2 text-white/40" />
+            <div className="p-6 text-center text-[0.78rem] text-[#5B6E68]">
+              <AlertTriangle className="h-5 w-5 mx-auto mb-2 text-[#7A8C86]" />
               <div className="font-medium mb-1">No events match your search</div>
-              <div className="text-[0.7rem] text-white/45">
+              <div className="text-[0.7rem] text-[#7A8C86]">
                 Try a different search term or clear the category filter.
               </div>
             </div>
@@ -634,7 +634,7 @@ export function EventExplorer({ limit = 60 }: { limit?: number }) {
                   Protocol event explorer — {filteredEvents.length} events ·
                   filter {activeCategory} · search &ldquo;{query}&rdquo;
                 </caption>
-                <thead className="sticky top-0 z-10 mtqs-glass text-white/55 backdrop-blur">
+                <thead className="sticky top-0 z-10 mtqs-glass text-[#5B6E68]">
                   <tr>
                     <th className="text-left px-3 py-2.5 font-medium w-8"></th>
                     <th className="text-left px-3 py-2.5 font-medium">Timestamp</th>
@@ -664,18 +664,18 @@ export function EventExplorer({ limit = 60 }: { limit?: number }) {
                               setExpandedId(isExpanded ? null : e.id);
                             }
                           }}
-                          className={`border-t border-white/[0.06] cursor-pointer transition ${
-                            i % 2 ? "bg-white/[0.01]" : ""
-                          } ${isExpanded ? "bg-mtqs-gold/[0.04]" : "hover:bg-white/[0.03]"}`}
+                          className={`border-t border-[#E3EAE6] cursor-pointer transition ${
+                            i % 2 ? "bg-[#F7FAF8]" : ""
+                          } ${isExpanded ? "bg-mtqs-gold/[0.04]" : "hover:bg-[#F0F7F4]"}`}
                         >
-                          <td className="px-3 py-2.5 text-white/55">
+                          <td className="px-3 py-2.5 text-[#5B6E68]">
                             {isExpanded ? (
                               <ChevronDown className="h-3.5 w-3.5 text-mtqs-gold" />
                             ) : (
                               <ChevronRight className="h-3.5 w-3.5" />
                             )}
                           </td>
-                          <td className="px-3 py-2.5 text-white/65 font-mono whitespace-nowrap">
+                          <td className="px-3 py-2.5 text-[#5B6E68] font-mono whitespace-nowrap">
                             {fmtTime(e.timestamp)}
                           </td>
                           <td className="px-3 py-2.5 whitespace-nowrap">
@@ -689,9 +689,9 @@ export function EventExplorer({ limit = 60 }: { limit?: number }) {
                               <span className="font-medium">{e.category}</span>
                             </span>
                           </td>
-                          <td className="px-3 py-2.5 text-white/75 max-w-[360px]">
+                          <td className="px-3 py-2.5 text-[#33544C] max-w-[360px]">
                             <div className="truncate">{e.description}</div>
-                            <div className="flex items-center gap-2 mt-0.5 text-[0.62rem] text-white/45">
+                            <div className="flex items-center gap-2 mt-0.5 text-[0.62rem] text-[#7A8C86]">
                               {e.source === "real" ? (
                                 <span className="text-mtqs-emerald">real · DB trial</span>
                               ) : (
@@ -699,14 +699,14 @@ export function EventExplorer({ limit = 60 }: { limit?: number }) {
                               )}
                               {e.chain && (
                                 <>
-                                  <span className="text-white/30">·</span>
+                                  <span className="text-[#7A8C86]">·</span>
                                   <span className="font-mono text-mtqs-gold/70">{e.chain}</span>
                                 </>
                               )}
                               {e.decisionId && (
                                 <>
-                                  <span className="text-white/30">·</span>
-                                  <span className="font-mono text-white/45">{e.decisionId}</span>
+                                  <span className="text-[#7A8C86]">·</span>
+                                  <span className="font-mono text-[#7A8C86]">{e.decisionId}</span>
                                 </>
                               )}
                             </div>
@@ -719,21 +719,21 @@ export function EventExplorer({ limit = 60 }: { limit?: number }) {
                                 className="inline-flex items-center gap-1.5 text-mtqs-gold/85"
                                 title="sim hash — no on-chain tx (engine simulation)"
                               >
-                                <Hash className="h-3 w-3 text-white/40" />
+                                <Hash className="h-3 w-3 text-[#7A8C86]" />
                                 {shortAddr(e.txHash, 8, 6)}
                               </span>
                             ) : (
-                              <span className="text-white/40 italic">—</span>
+                              <span className="text-[#7A8C86] italic">—</span>
                             )}
                           </td>
                           <td className="px-3 py-2.5 text-right font-mono tabular-nums whitespace-nowrap">
                             {e.block != null ? (
-                              <span className="inline-flex items-center gap-1.5 text-white/65">
-                                <Blocks className="h-3 w-3 text-white/40" />
+                              <span className="inline-flex items-center gap-1.5 text-[#5B6E68]">
+                                <Blocks className="h-3 w-3 text-[#7A8C86]" />
                                 #{e.block.toLocaleString()}
                               </span>
                             ) : (
-                              <span className="text-white/40 italic">—</span>
+                              <span className="text-[#7A8C86] italic">—</span>
                             )}
                           </td>
                         </tr>
@@ -753,12 +753,12 @@ export function EventExplorer({ limit = 60 }: { limit?: number }) {
                                   {e.details.map((d, j) => (
                                     <div
                                       key={j}
-                                      className="rounded-md border border-white/[0.06] bg-white/[0.02] px-2.5 py-1.5"
+                                      className="rounded-md border border-[#E3EAE6] bg-[#F7FAF8] px-2.5 py-1.5"
                                     >
-                                      <div className="text-[0.6rem] uppercase tracking-[0.18em] text-white/55">
+                                      <div className="text-[0.6rem] uppercase tracking-[0.18em] text-[#5B6E68]">
                                         {d.label}
                                       </div>
-                                      <div className={`text-[0.74rem] text-white/85 ${d.mono ? "font-mono tabular-nums" : ""}`}>
+                                      <div className={`text-[0.74rem] text-[#0E1F1B] ${d.mono ? "font-mono tabular-nums" : ""}`}>
                                         {d.value}
                                       </div>
                                     </div>
@@ -776,7 +776,7 @@ export function EventExplorer({ limit = 60 }: { limit?: number }) {
                                           if (ok) toast.success("Copied tx hash", { description: shortAddr(e.txHash!) });
                                           else toast.error("Copy failed");
                                         }}
-                                        className="mtqs-focus inline-flex items-center gap-1.5 rounded-md border border-white/[0.08] px-2 py-1 text-white/65 hover:border-mtqs-gold/30 hover:text-mtqs-gold transition"
+                                        className="mtqs-focus inline-flex items-center gap-1.5 rounded-md border border-[#E3EAE6] px-2 py-1 text-[#5B6E68] hover:border-mtqs-gold/30 hover:text-mtqs-gold transition"
                                       >
                                         <Copy className="h-3 w-3" />
                                         Copy tx hash
@@ -788,7 +788,7 @@ export function EventExplorer({ limit = 60 }: { limit?: number }) {
                                           rel="noopener noreferrer"
                                           onClick={(ev) => ev.stopPropagation()}
                                           aria-label="Open simulated tx on explorer (will not exist — all rows are engine simulations)"
-                                          className="mtqs-focus inline-flex items-center gap-1.5 rounded-md border border-white/[0.08] px-2 py-1 text-white/65 hover:border-mtqs-gold/30 hover:text-mtqs-gold transition"
+                                          className="mtqs-focus inline-flex items-center gap-1.5 rounded-md border border-[#E3EAE6] px-2 py-1 text-[#5B6E68] hover:border-mtqs-gold/30 hover:text-mtqs-gold transition"
                                         >
                                           <ExternalLink className="h-3 w-3" />
                                           Open on explorer
@@ -797,11 +797,11 @@ export function EventExplorer({ limit = 60 }: { limit?: number }) {
                                     </>
                                   )}
                                   {e.address && (
-                                    <span className="inline-flex items-center gap-1.5 rounded-md border border-white/[0.06] px-2 py-1 text-white/55 font-mono">
+                                    <span className="inline-flex items-center gap-1.5 rounded-md border border-[#E3EAE6] px-2 py-1 text-[#5B6E68] font-mono">
                                       wallet: {shortAddr(e.address, 6, 6)}
                                     </span>
                                   )}
-                                  <span className="ml-auto text-white/45 italic">
+                                  <span className="ml-auto text-[#7A8C86] italic">
                                     {e.source === "real"
                                       ? "Sourced from /api/trials (SQLite audit log)"
                                       : "Synthetic event · deterministic per hour · production will replace with on-chain logs"}
@@ -821,7 +821,7 @@ export function EventExplorer({ limit = 60 }: { limit?: number }) {
         </div>
 
         {/* ===== Footer annotation ===== */}
-        <div className="mt-3 text-[0.65rem] text-white/45 italic">
+        <div className="mt-3 text-[0.65rem] text-[#7A8C86] italic">
           Showing {filteredEvents.length} of {allEvents.length} events ·
           real trials from SQLite (Mint/Redeem) + synthetic protocol events
           (Oracle/Weight/Reserve/Risk/Rebalance/Governance/Genesis/Validation).
