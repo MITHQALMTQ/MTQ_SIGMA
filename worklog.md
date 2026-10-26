@@ -9620,3 +9620,20 @@ Stage Summary:
 - "Latest git + push all clouds" = DONE and verified on every plane (GitHub/Vercel/backup-release/CI), all at b7ba33a.
 - "Proceed deployment" = the deploy pipeline itself was broken (invalid YAML since Task 24) and is NOW FIXED and properly registered — the owner's Actions tab finally shows a dispatchable "Testnet Deployment" workflow; the full pre-deploy battery (compile, EIP-170 size gate, 56/56 tests, dry-run) is green on the latest commit.
 - The ONLY remaining inputs are the two owner items, unchanged: repo secret DEPLOYER_PRIVATE_KEY (fresh funded key, created outside any AI environment) + the 15 role-holder addresses in the dispatch form. The moment both exist, the launch is one click and this environment can take over post-deploy (registry commit, explorer verification, TESTNET_READINESS gate evidence).
+
+---
+Task ID: 30
+Agent: Orchestrator (CTO)
+Task: Owner report (chat, 2026-10-25): "it went back to old git again" — diagnose + recover forward-only + verify nothing was lost.
+
+Work Log:
+- OWNER OBSERVATION CONFIRMED, ROOT CAUSE ISOLATED: the sandbox itself was re-imaged to an OLD SNAPSHOT (Task-22-era, ~2026-10-24 19:00Z): the local repo's main sat at e349973 — the PRE-AMEND duplicate of the Task-22-addendum commit — and the running dev server served the old tree (pre-fresh-light dark era). CRITICAL CLARIFICATION: this was NOT a git rollback — origin/main never moved backward; it held the complete latest history at c8f20e2 the entire time (branch protection intact, Task-26 anchor in place, all work from Tasks 23–29 safe in the cloud). 4th incident of the stale-snapshot class, first at whole-repo scale (prior: Task 25 stale preview, Task 26 stale dev tree, Task 28 stale-CSS server).
+- DETECTION: the Task-26 anti-rollback machinery worked exactly as designed — the fetch-first battery + `merge-base --is-ancestor no-rollback-anchor main` FAILED locally within seconds of the owner's report, pinpointing the regression before any guesswork.
+- ZERO-DATA-LOSS RECOVERY, PROVEN BY BLOB HASH: e349973 vs the amended 1c4ee5e differ only in the 3 owner-screenshot blobs — and those blobs are byte-identical in origin/main (69d24a8 / 5e7570d / 1045e98, matching the Task-26 verification); every other upload file identical too (15/15 blob hashes match). e349973 remains recoverable via reflog (it is the pre-amend original). Local main moved FORWARD to origin/main c8f20e2 via hard reset to the remote tip; anchor check now PASSES on all planes. The fetch also recovered 2 tags the old snapshot lacked (no-rollback-anchor-2026-10-25 + backup-2026-10-25 @ f930bbf).
+- DEV TREE RESTARTED CLEAN: killed the old-snapshot server (was serving pre-redesign code), cleared .next, relaunched via the double-fork orphan watchdog (PPID 1). Engine healthy (engine:true, db:true), /api/metrics degraded:false, PAXG $3,998.70 vs XAUT $3,985.92 — DISTINCT live rates.
+- E2E PROOF THE LATEST CODE RUNS: landing + Pilot Command Center on the recovered tree — light theme live (body rgb(250,252,250)), zero page errors, 1280px no overflow, and the PAXG card shows the Task-27 feature ("Live market rate · $3998.70/PAXG (+0.64% vs XAU ref)" + "Ledger mark (§4.1) · XAU/USD" + "50/50 ISSUER SPLIT (§5.6)" sleeve labels) — impossible on the old snapshot. Evidence: audit-work/task30-snapshot-recovery.png.
+
+Stage Summary:
+- What the owner saw was real (the sandbox preview regressed) but the GIT itself never rolled back — the cloud (origin/main c8f20e2, Vercel production, backups) held the truth throughout; the anchor-tag machinery detected it and the recovery was a forward realignment with blob-hash-proven zero data loss.
+- Local == origin == what the dev server runs == production, all at c8f20e2; owner-visible preview restored to the latest light design with live per-token gold rates.
+- Operational lesson recorded: any session in a fresh/re-imaged sandbox MUST run the fetch-first + anchor-check battery before ANY work — the check caught this incident in one command.
