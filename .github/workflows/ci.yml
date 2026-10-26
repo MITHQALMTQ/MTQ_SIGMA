@@ -2,7 +2,9 @@ name: CI
 
 on:
   push:
-    branches: [main, autonoma-integration]
+    # Task 34 (2026-10-26): autonoma-integration removed — the branch was
+    # deleted from GitHub in Task 32; keeping it here was dead wiring.
+    branches: [main]
   pull_request:
 
 permissions:

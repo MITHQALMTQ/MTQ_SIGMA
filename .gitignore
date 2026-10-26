@@ -96,5 +96,3 @@ db/*.db-shm
 dev.log
 # Tool output cache (transient)
 tool-results/
-
-backups/

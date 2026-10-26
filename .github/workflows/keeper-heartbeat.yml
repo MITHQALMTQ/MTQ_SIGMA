@@ -5,9 +5,9 @@
 #     keeper do NOT prevent restarts. The PRIMARY uptime monitor is an
 #     EXTERNAL service (UptimeRobot or cron-job.org, both free, no card)
 #     that pings https://<koyeb-url>/health every 5 minutes.
-#   • This GitHub Actions workflow is a BACKUP. It runs every 10 minutes
-#     (GitHub Actions minimum cron granularity is 5 min, but 10 min is the
-#     practical reliability floor) and:
+#   • This GitHub Actions workflow is a BACKUP. (2026-10-26, Task 34: now
+#     DISPATCH-ONLY — the 10-min cron was removed; see the `on:` block note.)
+#     When enabled it:
 #       1. Pings /health.
 #       2. If /health fails, posts a Discord alert via webhook.
 #       3. Creates a GitHub issue so the failure is tracked.
@@ -18,11 +18,13 @@
 name: Keeper Heartbeat (Backup)
 
 on:
-  schedule:
-    # Every 10 minutes. GitHub Actions cron minimum is 5 min, but 5-min
-    # crons on the free tier are heavily throttled and frequently skipped.
-    # 10 min is the reliable floor.
-    - cron: '*/10 * * * *'
+  # Task 34 (2026-10-26): schedule REMOVED. The keeper mini-service is
+  # RETIRED-LOCALLY (Task 16: zero consumers, OOM root cause) and the
+  # KEEPER_URL repo secret is absent — the 10-min cron had been failing on
+  # EVERY run (pure red-X noise in the Actions tab). The workflow is kept
+  # dispatchable so it can be re-enabled the moment the keeper relaunches:
+  # restore the schedule trigger below and set KEEPER_URL (and optionally
+  # DISCORD_WEBHOOK) in repo Settings → Secrets → Actions.
   workflow_dispatch: # manual trigger from the Actions tab
 
 permissions:
