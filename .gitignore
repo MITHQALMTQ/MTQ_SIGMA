@@ -102,3 +102,8 @@ tool-results/
 # Root forge artifacts were deleted and must never be re-tracked.
 /foundry-out/
 /cache/
+
+# Task 35 (2026-10-26): contracts/cache/ is a regenerable forge cache
+# (solidity-files-cache.json) — deleted from tracking; forge build recreates
+# it locally. The tracked build outputs live in contracts/foundry-out/.
+contracts/cache/

@@ -51,9 +51,12 @@ export const DEPLOYER_WALLET = "0x3C3932F865892EFabE45892f453f81B64f6c8d8c";
 
 // Monad Testnet — Chain ID 10143
 // RPC corrected 2026-10-19 (OD-35 tooling): the previously recorded
-// https://testnet-rpc.monadvision.com is DEAD; the official RPC below matches
-// contracts/deployments/Monad-Testnet.json and was used for the live
-// OD-35 verification reads (block 72,421,819).
+// https://testnet-rpc.monadvision.com is DEAD — its last carriers
+// (scripts/deploy.ts, scripts/verify-deploy.ts, scripts/audit-chains.ts)
+// were removed in the 2026-10-26 Task 35 cleanup, closing v6 D-6 open
+// claim #17 / R-15. The official RPC below was used for the live OD-35
+// verification reads (block 72,421,819) and is the one every kept read-only
+// tool uses (verify-safe.ts, run-onchain-tests.ts, /api/onchain).
 export const MONAD_TESTNET: ChainInfo = {
   id: "monad",
   chainId: 10143,

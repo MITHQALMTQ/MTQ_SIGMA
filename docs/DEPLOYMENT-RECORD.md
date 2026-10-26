@@ -7,6 +7,28 @@
 | **Scope** | FACTUAL record only. This document does not claim production readiness; production reserve trading remains NOT AUTHORIZED (OD-1/OD-2 open; Gate 5 blocked). |
 | **Related** | `audit-work/v5/T01-T88-RECONCILIATION.md` (T-80 companion deliverable) · `audit-work/v5/SAFE-VERIFICATION.md` (OD-35/T-87 evidence) · `contracts/TOKEN-STANDARD.md` (OD-37/T-88 evidence) · `src/lib/mtq/oracle-feeds.ts` (OD-34/T-86 evidence) |
 
+> **ADDENDUM 2026-10-26 (Task 35 — owner directive "check against what we have
+> and only keep what is needed").** This record is a point-in-time snapshot
+> observed 2026-10-19 and is preserved verbatim below. Supersessions since that
+> date, so no section below is read as current state:
+> **(1)** the 2026-10-24 owner-directed registry cleanup removed the Robinhood
+> Chain (46630) suite and the Base/Arbitrum placeholders and pruned
+> `contracts/deployments/` to the single retained upgrade-path record
+> `MTQSigmaV2-PENDING.json` — the §3.4 deployment JSONs (and the
+> `Monad-Testnet.json` the OD-35 RPC correction referenced) are therefore no
+> longer on disk (recoverable from git history); **(2)** §1.2's "no remote
+> hosting configured" is superseded — the repo is hosted on GitHub
+> (`MITHQALMTQ/MTQ_SIGMA`, branch `main`) with CI, a nightly Turso backup
+> workflow, and Vercel auto-deploy on push; **(3)** the dead-RPC carriers
+> flagged by v6 D-6 open claim #17 / R-15 (`scripts/deploy.ts`,
+> `scripts/verify-deploy.ts`, `scripts/audit-chains.ts`, plus other superseded
+> one-off scripts) were removed 2026-10-26, closing that claim — §4
+> script-inventory rows for removed scripts are historical. The current
+> deployed estate is carried ONLY by the authoritative "WHAT YOU HAVE NOW"
+> registry: `src/lib/mtq/contracts.ts` (Monad Testnet 10143 · Arc Testnet
+> 5042002 · Solana devnet) + `src/lib/mtq/roles.ts` (AccessControl role
+> hashes, owner query set, cast-command reference).
+
 ---
 
 ## §1 Repository state
