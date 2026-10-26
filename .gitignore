@@ -96,3 +96,9 @@ db/*.db-shm
 dev.log
 # Tool output cache (transient)
 tool-results/
+
+# Task 34 (2026-10-26): root-level Foundry runs are RETIRED — the canonical
+# Foundry project is contracts/ (has its own foundry.toml + out + cache).
+# Root forge artifacts were deleted and must never be re-tracked.
+/foundry-out/
+/cache/
