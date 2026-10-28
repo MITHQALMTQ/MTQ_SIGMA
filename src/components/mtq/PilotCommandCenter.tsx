@@ -23,7 +23,7 @@ import { MotionConfig } from "framer-motion";
 
 import { Header, LiveTicker } from "@/components/mtq/Header";
 import { Footer } from "@/components/mtq/Footer";
-import { Sidebar } from "@/components/mtq/Sidebar";
+import { Sidebar, type SidebarMode } from "@/components/mtq/Sidebar";
 import { type SectionId, ALL_SECTIONS } from "@/components/mtq/Navigation";
 import { CinematicLoader } from "@/components/mtq/CinematicLoader";
 import { MobileBottomNav } from "@/components/mtq/MobileBottomNav";
@@ -956,6 +956,35 @@ export function PilotCommandCenter({ onExit }: { onExit?: () => void }) {
   const [error, setError] = useState<string | null>(null);
   const mountedRef = useRef(true);
 
+  // COMMAND-RAIL: desktop sidebar layout mode ("full" labels | "rail" icons).
+  // Persisted so the terminal remembers the operator's preference; the main
+  // content margin transitions in lock-step via data-sidebar-mode.
+  const [sidebarMode, setSidebarMode] = useState<SidebarMode>(() => {
+    if (typeof window === "undefined") return "full";
+    try {
+      return window.localStorage.getItem("mtqs.sidebar-rail") === "1"
+        ? "rail"
+        : "full";
+    } catch {
+      return "full";
+    }
+  });
+
+  useEffect(() => {
+    try {
+      window.localStorage.setItem(
+        "mtqs.sidebar-rail",
+        sidebarMode === "rail" ? "1" : "0",
+      );
+    } catch {
+      /* non-fatal */
+    }
+  }, [sidebarMode]);
+
+  const handleSidebarMode = useCallback((m: SidebarMode) => {
+    setSidebarMode(m);
+  }, []);
+
   const fetchSnapshot = useCallback(async () => {
     // PERF: skip polling while the tab is hidden — the engine tick keeps
     // running server-side, so data is never lost, just not re-fetched.
@@ -1030,17 +1059,22 @@ export function PilotCommandCenter({ onExit }: { onExit?: () => void }) {
           {/* Futuristic grid backdrop */}
           <div className="pointer-events-none fixed inset-0 mtqs-grid-bg" aria-hidden="true" />
 
-          {/* ─── SIDEBAR (fixed left on desktop, drawer on mobile) ─── */}
+          {/* ─── SIDEBAR (full ↔ rail on desktop, drawer on mobile) ─── */}
           <Sidebar
             active={section}
             onChange={handleNavigate}
             snapshot={snapshot}
             error={error}
+            mode={sidebarMode}
+            onModeChange={handleSidebarMode}
             onExit={onExit}
           />
 
-          {/* ─── MAIN CONTENT AREA (offset by sidebar on desktop) ─── */}
-          <div className="mtqs-main-with-sidebar relative z-10 flex flex-col flex-1 min-w-0">
+          {/* ─── MAIN CONTENT AREA (offset follows the sidebar mode) ─── */}
+          <div
+            className="mtqs-main-with-sidebar relative z-10 flex flex-col flex-1 min-w-0"
+            data-sidebar-mode={sidebarMode}
+          >
             {/* Top status bar (single instance) */}
             <TestnetStatusBar snapshot={snapshot} />
 
