@@ -1269,7 +1269,7 @@ export function PilotCommandCenter({ onExit }: { onExit?: () => void }) {
             </main>
 
             {/* Footer (sticky-bottom via mt-auto on the flex column) */}
-            <Footer />
+            <Footer onExit={onExit} />
           </div>
 
           {/* Mobile bottom nav (5 most important sections) */}

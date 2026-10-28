@@ -57,7 +57,7 @@ import {
   Menu,
   X,
   Search,
-  LogOut,
+  ArrowLeft,
   Lock as LockMini,
   PanelLeftClose,
   PanelLeftOpen,
@@ -315,7 +315,7 @@ export function Sidebar({
           <button
             type="button"
             onClick={() => setDrawerOpen(false)}
-            className="mtqs-sb-close md:hidden ml-auto"
+            className="mtqs-sb-close ml-auto"
             aria-label="Close sidebar"
           >
             <X className="h-4 w-4" aria-hidden="true" />
@@ -420,10 +420,11 @@ export function Sidebar({
             <span className="truncate">Not Production-Authorized</span>
           </div>
 
-          {/* Desktop mode toggle */}
+          {/* Desktop mode toggle — CSS-owned visibility
+              (.mtqs-sb-desktop-only; see TASK-37 cascade fix in globals.css). */}
           <button
             type="button"
-            className="mtqs-sb-utility hidden md:flex"
+            className="mtqs-sb-utility mtqs-sb-desktop-only"
             onClick={toggleMode}
             aria-label={
               isRail ? "Expand sidebar to full labels" : "Collapse sidebar to icon rail"
@@ -438,7 +439,9 @@ export function Sidebar({
             <span className="grow">{isRail ? "Expand" : "Collapse"}</span>
           </button>
 
-          {/* Mobile: back to landing */}
+          {/* Mobile: back to landing — TASK-37 R1 language alignment
+              (ArrowLeft, mirroring the header + footer exit controls).
+              CSS-owned visibility (.mtqs-sb-mobile-only). */}
           {onExit ? (
             <button
               type="button"
@@ -446,10 +449,10 @@ export function Sidebar({
                 setDrawerOpen(false);
                 onExit();
               }}
-              className="mtqs-sb-utility md:hidden"
+              className="mtqs-sb-utility mtqs-sb-mobile-only"
               aria-label="Back to the landing site"
             >
-              <LogOut className="h-4 w-4" aria-hidden="true" />
+              <ArrowLeft className="h-4 w-4" aria-hidden="true" />
               <span className="grow">Back to Landing</span>
             </button>
           ) : null}

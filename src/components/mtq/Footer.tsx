@@ -6,16 +6,22 @@
 // The original testnet explorer links + deployer wallet disclosure are
 // preserved (folded into the "Resources" + "Status" columns) so the data
 // surface area is unchanged.
+//
+// TASK-37 R2 — optional onExit renders a "Back to landing site" link in the
+// bottom bar. The header exit is desktop-only (hidden sm:inline-flex) and the
+// drawer exit requires opening the drawer — this link closes the exit loop at
+// page-bottom on EVERY viewport, mirroring the landing footer's "Launch App".
 
 "use client";
 
+import { ArrowLeft } from "lucide-react";
 import { ALL_CHAINS, DEPLOYER_WALLET } from "@/lib/mtq/contracts";
 import { BRAND_VOICE } from "@/lib/mtq/brand";
 import { BrandMark } from "@/components/landing/BrandMark";
 import { BrandPrinciples, GlowDot, GlowBadge } from "./primitives";
 import { shortAddr } from "./format";
 
-export function Footer() {
+export function Footer({ onExit }: { onExit?: () => void }) {
   const year = new Date().getFullYear();
   const statusDecl = BRAND_VOICE.statusDeclaration;
 
@@ -138,13 +144,26 @@ export function Footer() {
         <div
           className="mt-2 pt-4 border-t border-[#E3EAE6] flex flex-col sm:flex-row items-center justify-between gap-2 text-[0.66rem] text-[#5B6E68]"
         >
-          <div className="flex items-center gap-2">
+          <div className="flex flex-wrap items-center justify-center gap-2">
             <span>© {year} MTQΣ Protocol</span>
             <span className="text-[#9AA9A3]">·</span>
             <span>Global Digital Asset</span>
           </div>
-          <div className="font-mono text-[#7A8C86]">
-            Built on Next.js 16 · Real-time engine in-process · 4s poll
+          <div className="flex flex-wrap items-center justify-center gap-3">
+            {onExit ? (
+              <button
+                type="button"
+                onClick={onExit}
+                className="inline-flex items-center gap-1 rounded-md px-1.5 py-0.5 font-semibold text-[#0F766E] hover:bg-[#E7F4F1] hover:underline underline-offset-2 transition-colors"
+                aria-label="Back to the landing site"
+              >
+                <ArrowLeft className="h-3 w-3" aria-hidden />
+                Back to landing site
+              </button>
+            ) : null}
+            <span className="font-mono text-[#7A8C86]">
+              Built on Next.js 16 · Real-time engine in-process · 4s poll
+            </span>
           </div>
         </div>
       </div>

@@ -9,7 +9,7 @@
 "use client";
 
 import { motion } from "framer-motion";
-import { LogOut } from "lucide-react";
+import { ArrowLeft } from "lucide-react";
 import { GlowDot, Pill, TickNumber } from "./primitives";
 import { fmtFixed, fmtUsdCompact, fmtRatio, statusColor } from "./format";
 import { BRAND_VOICE, STATUS_COLORS } from "@/lib/mtq/brand";
@@ -82,16 +82,25 @@ export function Header({
           {onExit ? (
             <button
               onClick={onExit}
-              className="hidden sm:inline-flex items-center gap-1.5 rounded-lg border border-[#DCE5E0] bg-white px-2.5 py-1.5 text-[0.72rem] font-medium text-[#5B6E68] hover:text-[#0E1F1B] hover:border-[#0D9488] hover:bg-[#E7F4F1] transition-colors"
+              /* TASK-37 R1 — mirrored entry/exit language: this control pairs
+                 with the landing's "Launch App" (.lp-btn-launch) so the
+                 landing→app→landing loop reads as ONE design language:
+                 same teal-on-white tint, same #BEE3DD hairline border, same
+                 0.8rem radius, same hover bloom. ArrowLeft (not LogOut —
+                 this is a view switch, not a session end). */
+              className="hidden sm:inline-flex items-center gap-1.5 rounded-[0.8rem] border border-[#BEE3DD] bg-white px-[1.05rem] h-[2.1rem] text-[0.78rem] font-semibold text-[#0F766E] hover:border-[#0D9488] hover:bg-[#E7F4F1] hover:shadow-[0_2px_10px_rgba(13,148,136,0.12)] transition-all"
               aria-label="Back to the landing site"
               title="Back to the landing site"
             >
-              <LogOut className="h-3.5 w-3.5" aria-hidden />
-              Landing
+              <ArrowLeft className="h-3.5 w-3.5" aria-hidden />
+              Back to Landing
             </button>
           ) : null}
+          {/* TASK-37 cascade fix: phone-hide is CSS-owned (the unlayered
+              .mtqs-status-pill display beat Tailwind's layered
+              `hidden sm:inline-flex`, so the pill rendered on phones). */}
           <div
-            className="mtqs-status-pill hidden sm:inline-flex"
+            className="mtqs-status-pill"
             style={statusPillStyle}
             aria-label={`Protocol status: ${scBrand.label}`}
           >

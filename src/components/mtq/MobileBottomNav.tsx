@@ -1,6 +1,10 @@
 // MTQΣ — Mobile Bottom Navigation
-// 5 most important institutional actions: Overview, Reserve, Risk, Mint, Redeem
-// (All other sections reachable via hamburger in the desktop-style top Navigation.)
+// 5 most important institutional actions: Overview, Reserve, Risk, Mint, Redeem.
+// TASK-37 R3 — comment aligned with the Command-Rail layout: all other 21
+// sections are reachable via the floating hamburger → sidebar drawer
+// (Sidebar.tsx, md:hidden off-canvas with scrim + Escape). Labels stay short
+// ("Reserve", "Risk") — the sidebar carries the full labels
+// ("Reserve Vault", "Risk State").
 
 "use client";
 import { LayoutDashboard, Vault, Shield, Plus, Minus } from "lucide-react";

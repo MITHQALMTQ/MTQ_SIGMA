@@ -209,3 +209,4 @@ UNVERIFIED-live marker — never fabricated over.
 | 2026-10-24 | Estate registry cleanup per owner directive; re-verified read-only. |
 | 2026-10-26 | Task 35: registry made single-source (contracts.ts + roles.ts); DEPLOYMENT-RECORD un-staled via addendum. |
 | 2026-10-26 | **THIS FILE CREATED** (owner directive: one organized reference to always revert to). Consolidates contracts.ts + roles.ts posture as of the 2026-10-24/21 verification baselines. |
+| 2026-10-28 | Task 37 ("implement all recommended"): contract/role content unchanged — this revision records the UI-layer recommendation implementation only (landing↔app exit-language mirror, viewport-cascade fixes). No on-chain posture change; §0–§6 remain authoritative as written. |

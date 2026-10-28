@@ -690,6 +690,13 @@ body {
   border: 1px solid;
   transition: all 0.2s var(--ease-cinematic);
 }
+/* TASK-37 cascade fix — the Header pairs this class with Tailwind
+   `hidden sm:inline-flex`, which loses the cascade to the unlayered
+   display above, so the pill rendered on phones. CSS owns the phone hide
+   now (sm = 640px boundary). */
+@media (max-width: 639px) {
+  .mtqs-status-pill { display: none; }
+}
 
 /* Divider (was gold gradient → hairline) */
 .mtqs-divider-gold {
@@ -860,9 +867,14 @@ body {
   margin-left: auto;
 }
 
-/* Mobile close button inside the brand row */
+/* Mobile close button inside the brand row.
+   TASK-37 cascade fix: visibility is CSS-OWNED (display:none by default,
+   inline-flex only in the <768px drawer media query below) — the previous
+   `md:hidden` Tailwind utility lost the cascade to this unlayered rule
+   (Tailwind 4 utilities live in @layer utilities; unlayered CSS always
+   wins), so the mobile close button rendered on DESKTOP. */
 .mtqs-sb-close {
-  display: inline-flex;
+  display: none;
   align-items: center;
   justify-content: center;
   width: 1.9rem;
@@ -1120,7 +1132,14 @@ body {
   overflow: hidden;
 }
 
-/* Mode toggle + landing exit (quiet utilities row) */
+/* Mode toggle + landing exit (quiet utilities row).
+   TASK-37 cascade fix — viewport ownership:
+   • .mtqs-sb-desktop-only (mode toggle) — hidden below 768px, flex above.
+   • .mtqs-sb-mobile-only  (drawer exit)  — hidden above 767px, flex below.
+   Previously these relied on `hidden md:flex` / `md:hidden` Tailwind
+   utilities, which lose the cascade to this unlayered .mtqs-sb-utility
+   display:flex — the mode toggle rendered on MOBILE and the drawer exit
+   on DESKTOP. CSS now owns both, matching the hamburger pattern. */
 .mtqs-sb-utility {
   display: flex;
   align-items: center;
@@ -1135,6 +1154,11 @@ body {
   color: var(--sb-ink-3);
   cursor: pointer;
   transition: all 0.16s ease;
+}
+.mtqs-sb-mobile-only { display: none; }
+.mtqs-sb-desktop-only { display: none; }
+@media (min-width: 768px) {
+  .mtqs-sb-desktop-only { display: flex; }
 }
 .mtqs-sb-utility:hover {
   background: #F0F5F2;
@@ -1303,6 +1327,9 @@ body {
   .mtqs-sidebar.is-open { transform: translateX(0); }
   .mtqs-main-with-sidebar { margin-left: 0; }
   .mtqs-sidebar-hamburger { display: inline-flex; }
+  /* TASK-37 cascade fix — drawer-only controls, shown only on mobile. */
+  .mtqs-sb-close { display: inline-flex; }
+  .mtqs-sb-mobile-only { display: flex; }
 }
 
 /* ── Reduced motion safety ───────────────────────────────────── */
