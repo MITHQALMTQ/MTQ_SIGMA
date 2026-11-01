@@ -640,7 +640,7 @@ export function ContractsSection({ onNavigate: _onNavigate }: { onNavigate: (id:
           </div>
           <div className="mt-3">
             <button
-              onClick={() => _onNavigate("activity")}
+              onClick={() => _onNavigate("mint")}
               className="inline-flex items-center gap-1.5 text-[0.75rem] text-mtqs-gold/85 hover:text-mtqs-gold-light transition"
             >
               Open Mint/Redeem simulator

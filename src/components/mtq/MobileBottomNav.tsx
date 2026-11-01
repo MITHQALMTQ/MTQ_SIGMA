@@ -1,6 +1,6 @@
 // MTQΣ — Mobile Bottom Navigation
 // 5 most important institutional actions: Overview, Reserve, Risk, Mint, Redeem
-// (All other sections reachable via hamburger in the desktop-style top Navigation.)
+// (All other sections reachable via the hamburger drawer — the Sidebar rail.)
 
 "use client";
 import { LayoutDashboard, Vault, Shield, Plus, Minus } from "lucide-react";

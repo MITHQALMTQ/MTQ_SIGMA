@@ -1,14 +1,17 @@
-// MTQΣ — Sidebar Navigation (SIDEBAR-UI · platform-unified)
-// Fixed left sidebar (desktop) / collapsible drawer (mobile).
+// MTQΣ — Sidebar Navigation (SIDEBAR-UI · "Sovereign Rail" premium pass)
+// Fixed left rail (desktop) / collapsible drawer (mobile).
 // Sovereign institutional-terminal layout: coin-badge BrandMark → live
-// status pill → grouped section tree (PROTOCOL / OPERATIONS /
-// INSTITUTIONAL) → Cmd+K hint + honest-status badge.
+// vitals widget (status · RR · NAV with pulse) → grouped section tree
+// (PROTOCOL / OPERATIONS / INSTITUTIONAL, icon-chip items with gradient
+// active indicator) → Cmd+K hint + honest-status chip.
 //
-// Design language: platform-unified (landing reference) — midnight glass +
-// cyan accents (mtqs-glass-premium family). Active item has a cyan left
-// border + cyan tint. The nav is compacted so all 26 entries fit without
-// internal scrolling on standard viewports (no wheel dead-zone); the
-// mobile hamburger is a floating glass button at
+// Design language: platform-unified (landing reference) — layered
+// warm-neutral rail surface, hairline precision, teal brand accents,
+// calm micro-interactions (no translate-on-hover, no heavy shadows —
+// rich but never oppressive). Active item carries a gradient left
+// indicator + teal wash + tinted icon chip. The nav is compacted so all
+// 26 entries fit without internal scrolling on standard viewports (no
+// wheel dead-zone); the mobile hamburger is a floating glass button at
 // the top-left (md:hidden) that opens the drawer via a transform.
 //
 // The drawer state is owned internally (per the SidebarProps contract) and
@@ -31,8 +34,8 @@ import {
   RefreshCw,
   Eye,
   Users,
-  Plus,
-  Minus,
+  CirclePlus,
+  CircleMinus,
   Activity,
   FlaskConical,
   Coins,
@@ -95,8 +98,8 @@ const PROTOCOL: SectionDef[] = [
 
 // ─── OPERATIONS — user-facing mint/redeem/activity + labs (6) ──────────
 const OPERATIONS: SectionDef[] = [
-  { id: "mint", label: "Mint Simulator", icon: Plus },
-  { id: "redeem", label: "Redeem Simulator", icon: Minus },
+  { id: "mint", label: "Mint Simulator", icon: CirclePlus },
+  { id: "redeem", label: "Redeem Simulator", icon: CircleMinus },
   { id: "simulation", label: "Simulation Lab", icon: FlaskConical },
   { id: "issuance", label: "Issuance Lab", icon: Coins },
   { id: "activity", label: "Activity Explorer", icon: Activity },
@@ -242,8 +245,8 @@ export function Sidebar({ active, onChange, snapshot, error, onExit }: SidebarPr
         role="navigation"
         aria-label="MTQΣ institutional sections"
       >
-        {/* ── Brand lockup (compacted) ── */}
-        <div className="px-4 pt-3 pb-2 flex items-center gap-3">
+        {/* ── Brand lockup (premium) ── */}
+        <div className="mtqs-sidebar-brand flex items-center gap-3">
           <span className="shrink-0" role="img" aria-label="MTQΣ logo mark">
             <BrandMark size={38} />
           </span>
@@ -275,19 +278,20 @@ export function Sidebar({ active, onChange, snapshot, error, onExit }: SidebarPr
           </button>
         </div>
 
-        {/* Platform divider */}
-        <div className="mtqs-divider-gold mx-4" aria-hidden="true" />
+        {/* Gold hairline separator */}
+        <div className="mtqs-divider-gold" aria-hidden="true" />
 
-        {/* ── Live status pill (compacted) ── */}
-        <div className="px-4 pt-2 pb-1.5">
+        {/* ── Live vitals widget (status · RR · NAV) ── */}
+        <div className="mtqs-sidebar-vitals">
           <div
-            className="mtqs-sidebar-status-pill"
+            className="mtqs-sidebar-vitals-row"
             aria-label={`Protocol status: ${sc.label} · Reserve Ratio: ${rrTxt} · NAV: ${navTxt}`}
           >
             <span
-              className="inline-flex h-2 w-2 rounded-full"
+              className="mtqs-pulse-dot"
               style={{
                 backgroundColor: dotHex,
+                color: dotHex,
               }}
               aria-hidden="true"
             />
@@ -297,17 +301,27 @@ export function Sidebar({ active, onChange, snapshot, error, onExit }: SidebarPr
             >
               {error ? "FEED ERR" : sc.label}
             </span>
-            <span className="text-[#9AA9A3]">·</span>
-            <span className="text-[#5B6E68]">RR</span>
+            <span className="text-[#B7C6C0]">·</span>
+            <span className="text-[#7A8C86]">RR</span>
             <span className="text-[#0E1F1B]">{rrTxt}</span>
-            <span className="text-[#9AA9A3]">·</span>
-            <span className="text-[#5B6E68]">NAV</span>
-            <span className="text-[#0F766E]">{navTxt}</span>
+          </div>
+          <div className="mtqs-sidebar-vitals-meta">
+            <span>NAV</span>
+            <b className="text-[#0F766E]">{navTxt}</b>
+            <span className="ml-auto inline-flex items-center gap-1.5 normal-case tracking-normal text-[#8CA099] font-semibold">
+              <span
+                className="mtqs-pulse-dot"
+                style={{ backgroundColor: "#0D9488", color: "#0D9488" }}
+                aria-hidden="true"
+              />
+              LIVE
+            </span>
           </div>
         </div>
 
-        {/* ── Nav body (compacted — fits 26 entries without internal scroll on
-            standard viewports; overflow-y remains as a graceful fallback) ── */}
+        {/* ── Nav body — 26 entries at premium rhythm; overflow-y with thin
+            custom scrollbar + edge fades is the graceful fallback on shorter
+            viewports (fully visible on 1080p+ heights) ── */}
         <nav className="mtqs-sidebar-body" aria-label="Sidebar sections">
           {SIDEBAR_GROUPS.map((group) => (
             <div key={group.key} className="mb-0.5">
@@ -334,10 +348,9 @@ export function Sidebar({ active, onChange, snapshot, error, onExit }: SidebarPr
                             : `${s.label} section`
                         }
                       >
-                        <Icon
-                          className="mtqs-sidebar-item-icon"
-                          aria-hidden="true"
-                        />
+                        <span className="mtqs-sidebar-item-icon">
+                          <Icon aria-hidden="true" />
+                        </span>
                         <span className="truncate">{s.label}</span>
                       </button>
                     </li>
@@ -369,7 +382,7 @@ export function Sidebar({ active, onChange, snapshot, error, onExit }: SidebarPr
                 setDrawerOpen(false);
                 onExit();
               }}
-              className="mtqs-sidebar-cmdk md:hidden !justify-center"
+              className="mtqs-sidebar-cmdk mtqs-sidebar-exit"
               aria-label="Back to the landing site"
             >
               <span className="flex items-center gap-1.5">
@@ -382,10 +395,7 @@ export function Sidebar({ active, onChange, snapshot, error, onExit }: SidebarPr
             className="mtqs-sidebar-honest"
             title="Candidate for public testing — NOT production-authorized"
           >
-            <span
-              className="inline-flex h-1.5 w-1.5 rounded-full bg-mtqs-rose"
-              aria-hidden="true"
-            />
+            <span className="mtqs-pulse-dot" aria-hidden="true" />
             Not Production-Authorized
           </div>
         </div>
