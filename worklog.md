@@ -9825,3 +9825,20 @@ Stage Summary:
 - Sidebar is now premium-institutional grade (VLM 8.5/10), two latent cascade bugs fixed, all P3 wiring truths corrected.
 - docs/REFERENCE/ gives the owner the always-available contracts + roles baseline; audit-work/2026-11-01-MASTER-E2E-AUDIT.md is the evidence-backed audit register.
 - Audit hygiene: test trials purged, pilot engine restored to genesis, zero data loss, zero history erased.
+
+---
+Task ID: 37
+Agent: Orchestrator (CTO/API & Integration Architect mandate)
+Task: Owner directive — "PAXG and XAUT are giving same value, while the right thing they should be different. Check the API and if it's live, and check all other APIs for all others to be sure all is wired and connected correctly."
+
+Work Log:
+- LIVE FEED PROBE (direct, sandbox→provider): Frankfurter ECB (5 FX pairs, 2026-11-02 fixings) ✓ · gold-api XAU $3,947.70 ✓ · Yahoo PAXG-USD $3,948.75 ✓ · Yahoo XAUT-USD $3,933.30 ✓ · Yahoo ^VIX/^DX-Y.NYB ✓ (liveVix/liveDxy true). PAXG ≠ XAUT in the raw market — the external wiring is CORRECT and LIVE.
+- API WIRING SWEEP: all 33 public GET endpoints probed — 32/33 PASS with real payloads; single non-200 is /api/fred (503, FRED_API_KEY not configured — pre-documented honest degradation, Developers section labels it; FX engine already falls back to live Yahoo VIX/DXY so no user-facing breakage).
+- /api/fx and /api/metrics verified to carry DISTINCT paxgMarketUsd ($3,949.65) vs xautMarketUsd ($3,933.23) with live flags — TASK-27 fields flow correctly through getFx() → computeSnapshot → UI.
+- ROOT CAUSE (display layer, not wiring): the two gold-token hero cards led with the LEDGER SLEEVE value (perIssuer.paxgUsd === perIssuer.xautUsd — identical by §5.6 construction: exact 50/50 issuer split, same §4.1 XAU/USD mark, same 1.0% haircut) while each token's genuinely different live market rate was buried in a 0.7rem footnote. Two identical "$132.0K" headlines read as an API/wiring failure to any user.
+- FIX (TASK-28, display family only — NAV/RR ledger math untouched per §4.1/TASK-27 mandate): (1) HomeSection TokenMarketHero — card hero is now the token's OWN live market rate (Yahoo PAXG-USD/XAUT-USD) with ±% premium/discount vs the XAU reference; sleeve value demoted to a labeled secondary line; honest fallback to the labeled XAU/USD reference mark when the token feed is down (never a fabricated divergence). (2) ReserveVault Per-Asset rows — each gold-issuer row now shows its own live $/oz rate under the key + issuer label under the value. (3) GfbBasket GoldInReserve — live per-token rate line under each sleeve + narrative updated ("identical by §5.6 design … nonetheless distinct market instruments").
+- VERIFICATION (browser E2E): Home cards render $3,945.29 (PAXG, +0.42% vs ref) vs $3,931.98 (XAUT, +0.10% vs ref) — distinct heroes ✓; ReserveVault rows PAXG $3,945/oz vs XAUT $3,930/oz ✓; GoldInReserve live 3,945.13/token vs 3,930.22/token ✓. Final API re-check: paxgMarketUsd ≠ xautMarketUsd, liveCount 8/8, all sources live. lint exit 0; zero browser console/page errors; dev.log clean (only pre-existing documented AI-provider deterministic fallbacks).
+
+Stage Summary:
+- Verdict on the owner's question: every price API is LIVE and correctly wired (external feeds, /api/fx, /api/metrics, 32/33 endpoints PASS; /api/fred honestly 503-by-design without a key). The "same value" symptom was a display-layer ambiguity — the sleeve accounting is equal by blueprint design, and the per-token market rates (which ARE different, ~0.4% apart) were previously subordinated to identical headline numbers.
+- PAXG and XAUT now visibly price as distinct instruments on all three user surfaces, with the §5.6 50/50 sleeve equality explicitly labeled as deliberate so it can never again be mistaken for a wiring failure. Ledger/NAV math unchanged (constitutional §4.1 conservative marking preserved).

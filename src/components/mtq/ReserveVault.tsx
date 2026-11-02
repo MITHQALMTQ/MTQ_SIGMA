@@ -292,15 +292,20 @@ export function ReserveVault({ snapshot }: { snapshot: MetricsSnapshot | null })
   }
   const r = snapshot.reserve;
   const perIssuer = snapshot.perIssuer;
+  // TASK-28: per-token LIVE market rates (display family) so the PAXG/XAUT rows
+  // are distinguishable at a glance — the SLEEVE values are equal by the §5.6
+  // 50/50 issuer split, but each token trades at its OWN market price.
+  const paxgRate = snapshot.fx.paxgMarketUsd;
+  const xautRate = snapshot.fx.xautMarketUsd;
   const assets = [
-    { k: "USD", v: r.usdNet, color: "#D97706", token: "USDC" },
-    { k: "EUR", v: r.eurNet, color: "#14B8A6", token: "EURC" },
-    { k: "GBP", v: r.gbpNet, color: "#9fb0a3", token: "GBP₿" },
-    { k: "JPY", v: r.jpyNet, color: "#c9a05a", token: "JPY₿" },
-    { k: "CNY", v: r.cnyNet, color: "#7d9082", token: "CNY₿" },
-    { k: "CHF", v: r.chfNet, color: "#7ab8a3", token: "CHF₿" },
-    { k: "PAXG", v: perIssuer?.paxgUsd ?? r.goldNet / 2, color: "#F59E0B", token: "PAXG (Paxos)" },
-    { k: "XAUT", v: perIssuer?.xautUsd ?? r.goldNet / 2, color: "#CA8A04", token: "XAUT (Tether)" },
+    { k: "USD", v: r.usdNet, color: "#D97706", token: "USDC", rate: undefined as number | undefined },
+    { k: "EUR", v: r.eurNet, color: "#14B8A6", token: "EURC", rate: undefined as number | undefined },
+    { k: "GBP", v: r.gbpNet, color: "#9fb0a3", token: "GBP₿", rate: undefined as number | undefined },
+    { k: "JPY", v: r.jpyNet, color: "#c9a05a", token: "JPY₿", rate: undefined as number | undefined },
+    { k: "CNY", v: r.cnyNet, color: "#7d9082", token: "CNY₿", rate: undefined as number | undefined },
+    { k: "CHF", v: r.chfNet, color: "#7ab8a3", token: "CHF₿", rate: undefined as number | undefined },
+    { k: "PAXG", v: perIssuer?.paxgUsd ?? r.goldNet / 2, color: "#F59E0B", token: "PAXG (Paxos)", rate: paxgRate },
+    { k: "XAUT", v: perIssuer?.xautUsd ?? r.goldNet / 2, color: "#CA8A04", token: "XAUT (Tether)", rate: xautRate },
   ];
   const total = assets.reduce((a, b) => a + b.v, 0) || 1;
 
@@ -329,7 +334,16 @@ export function ReserveVault({ snapshot }: { snapshot: MetricsSnapshot | null })
             <div className="space-y-2.5">
               {assets.map((a, i) => (
                 <div key={a.k} className="flex items-center gap-3">
-                  <span className="w-12 font-mono text-sm font-semibold text-[#0E1F1B]">{a.k}</span>
+                  <span className="w-12 font-mono text-sm font-semibold text-[#0E1F1B]">
+                    {a.k}
+                    {/* TASK-28 — the token's OWN live market rate under the key so
+                        the two gold-issuer rows are visibly distinct instruments. */}
+                    {a.rate != null && (
+                      <span className="block text-[0.55rem] font-mono font-normal text-mtqs-gold/70">
+                        ${fmtFixed(a.rate, 0)}/oz
+                      </span>
+                    )}
+                  </span>
                   <div className="flex-1">
                     <MiniBar
                       value={a.v}
@@ -340,6 +354,7 @@ export function ReserveVault({ snapshot }: { snapshot: MetricsSnapshot | null })
                   </div>
                   <span className="w-20 text-right text-[0.7rem] font-mono text-mtqs-gold">
                     {fmtUsdCompact(a.v)}
+                    <span className="block text-[0.55rem] text-[#7A8C86]">{a.token}</span>
                   </span>
                   <span className="w-10 text-right text-[0.65rem] font-mono text-[#5B6E68]">
                     {((a.v / total) * 100).toFixed(1)}%

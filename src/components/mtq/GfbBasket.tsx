@@ -151,6 +151,12 @@ export function GoldInReserve({ snapshot }: { snapshot?: import("@/lib/mtq/engin
               ? `${snapshot.holdings.paxgOz.toFixed(3)} oz · ${((snapshot.holdings.paxgOz / snapshot.holdings.goldOz) * 100).toFixed(1)}% of gold`
               : "net of 1.0% haircut"}
           </div>
+          {/* TASK-28 — PAXG's OWN live market rate (different instrument from XAUT) */}
+          <div className="text-[0.6rem] font-mono text-mtqs-gold/80">
+            {snapshot.fx.paxgMarketUsd != null
+              ? `live ${fmtFixed(snapshot.fx.paxgMarketUsd, 2)}/token (Yahoo)`
+              : "live token rate — feed unavailable"}
+          </div>
         </div>
         <div>
           <div className="text-[0.7rem] text-[#5B6E68]">XAUT (Tether) · sleeve</div>
@@ -159,6 +165,12 @@ export function GoldInReserve({ snapshot }: { snapshot?: import("@/lib/mtq/engin
             {snapshot.holdings
               ? `${snapshot.holdings.xautOz.toFixed(3)} oz · ${((snapshot.holdings.xautOz / snapshot.holdings.goldOz) * 100).toFixed(1)}% of gold`
               : "net of 1.0% haircut"}
+          </div>
+          {/* TASK-28 — XAUT's OWN live market rate (different instrument from PAXG) */}
+          <div className="text-[0.6rem] font-mono text-mtqs-gold/80">
+            {snapshot.fx.xautMarketUsd != null
+              ? `live ${fmtFixed(snapshot.fx.xautMarketUsd, 2)}/token (Yahoo)`
+              : "live token rate — feed unavailable"}
           </div>
         </div>
         <div>
@@ -176,7 +188,9 @@ export function GoldInReserve({ snapshot }: { snapshot?: import("@/lib/mtq/engin
         Prior, 20-32% admissibility envelope). The two sleeve values are{" "}
         <span className="text-mtqs-gold font-medium">identical by §5.6 design</span> — gold is water-filled
         50/50 across Paxos/Tether under the 25% issuer cap, and both tokens are marked at the same live
-        XAU/USD oracle price with the same 1.0% haircut (§14.1.1). Under the v3.0 no-conventional-reserve
+        XAU/USD oracle price with the same 1.0% haircut (§14.1.1). The two tokens are nonetheless{" "}
+        <span className="text-mtqs-gold font-medium">distinct market instruments</span> — each trades at its
+        own live rate (shown above per sleeve). Under the v3.0 no-conventional-reserve
         objective the reserve role itself is slated for removal (Gate B, D-13.3–D-13.7 open); the pilot
         ledger above is the legacy v1/v2 reference path — simulated holdings, no real tokens or vaults
         (G8) — retained until that migration lands.
