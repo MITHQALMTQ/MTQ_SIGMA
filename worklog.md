@@ -9842,3 +9842,18 @@ Work Log:
 Stage Summary:
 - Verdict on the owner's question: every price API is LIVE and correctly wired (external feeds, /api/fx, /api/metrics, 32/33 endpoints PASS; /api/fred honestly 503-by-design without a key). The "same value" symptom was a display-layer ambiguity — the sleeve accounting is equal by blueprint design, and the per-token market rates (which ARE different, ~0.4% apart) were previously subordinated to identical headline numbers.
 - PAXG and XAUT now visibly price as distinct instruments on all three user surfaces, with the §5.6 50/50 sleeve equality explicitly labeled as deliberate so it can never again be mistaken for a wiring failure. Ledger/NAV math unchanged (constitutional §4.1 conservative marking preserved).
+
+---
+Task ID: 38
+Agent: Orchestrator (CTO mandate)
+Task: Owner directive (2026-11-03, screenshot attached) — "the attached part is not updating live, check if it's connected with live fx." Screenshot identified via VLM as the Reference Index section (Global Fiat Basket: GFB INDEX 1.1726, P_MTQ $1.1726, 7-component basket with per-component prices, plus the Oracle Consensus Board below).
+
+Work Log:
+- DIAGNOSIS — API IS LIVE: /api/gfb reads the engine's live snapshot (fx.ts live feeds → 4s engine tick → getSnapshot); two reads 9s apart returned advancing timestamp, GFB index 1.17281→1.17291, EUR 1.12175→1.12151, Gold 3946.60→3947.82. The wiring to live FX was always correct.
+- ROOT CAUSE — client-side one-shot read: ReferenceSection's useEffect had an empty dependency array — it fetched /api/gfb + /api/oracle exactly ONCE at section open, then every number on the board froze until the user re-opened the section. The panel's own footnote admitted it ("recorded from the canonical oracle board at section open (one-shot read)"), and the oracle pill read "6 pairs · recorded at open". Visually indistinguishable from a dead feed.
+- SWEEP for the same pattern: scanned all 27 fetch-bearing components — DashboardSection/HomeSection have their own 4s polls; all other one-shot fetches carry static data (evidence, tests, contracts registry, governance config). ReferenceSection was the ONLY frozen live-price surface.
+- FIX (TASK-38): replaced the one-shot read with the app's canonical polling pattern — setInterval(POLL_MS=4s) aligned with the Dashboard snapshot stream, document.hidden skip (engine keeps ticking server-side), visibilitychange immediate refresh, mounted guard, last-good-value retention on failed polls (never blanks a live board). Added a visible liveness indicator to the basket panel header (pulsing emerald dot + "live · 4s · read HH:MM:SS" clock) so users can SEE the stream. Updated the stale footnote to the honest live description (FX reference marks advance at the engine's 60s live-FX cache granularity — Frankfurter/gold-api cadence; index + oracle consensus re-sample every poll). Oracle pill: "6 pairs · live 4s poll".
+- VERIFICATION (browser E2E): Reference section opened; live indicator clock advanced 11:38:49 → 11:39:01; Gold component price moved $3948.63 → $3947.77; Oracle Consensus Board XAU/USD final price moved $3948.11 → $3947.90; P_MTQ $1.1729 rendering; zero console/page errors; lint exit 0; dev.log clean.
+
+Stage Summary:
+- Answer to the owner: the section WAS connected to live FX the whole time (API layer proven live with advancing values) — the defect was a one-shot client read that froze the board at section open. The Reference Index board (GFB index, P_MTQ, 7-component prices, live weights) and the Oracle Consensus Board now both stream on the same 4s cadence as the Dashboard, with a visible live clock proving it. Honest granularity labeling preserved (FX marks advance at the 60s feed cache cadence, not fake per-poll jitter).

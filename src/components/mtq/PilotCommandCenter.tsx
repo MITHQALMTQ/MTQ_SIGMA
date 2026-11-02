@@ -140,18 +140,51 @@ function ReferenceSection() {
   } | null>(null);
   const [oracle, setOracle] = useState<OracleBoard | null>(null);
   const [loading, setLoading] = useState(true);
+  // TASK-38 — LIVE POLL (owner directive 2026-11-03: "the attached part is not
+  // updating live"). This section previously took a ONE-SHOT read at section
+  // open (empty-deps useEffect), so every number on the board froze until the
+  // user re-opened the section — visually indistinguishable from a dead feed.
+  // The data path was always live (fx.ts live feeds → engine 4s tick →
+  // /api/gfb); only the UI read was one-shot (verified 2026-11-03: two /api/gfb
+  // reads 9s apart returned advancing timestamp, index 1.17281→1.17291, EUR
+  // 1.12175→1.12151, Gold 3946.60→3947.82). Now the board re-reads /api/gfb +
+  // /api/oracle on the SAME 4s cadence as the Dashboard's snapshot stream
+  // (POLL_MS), skips polls while the tab is hidden (engine keeps ticking
+  // server-side — no data lost), refreshes immediately on visibility return,
+  // and keeps last-good values on a failed poll (never blanks a live board).
+  // Honest granularity note: FX-backed component prices advance on the
+  // engine's 60s FX-cache TTL (live Frankfurter/gold-api cadence); the
+  // chain-linked index and oracle consensus re-sample every poll.
+  const [polledAt, setPolledAt] = useState<number | null>(null);
   useEffect(() => {
     let mounted = true;
-    Promise.all([
-      fetch("/api/gfb", { cache: "no-store" }).then((r) => r.json()).catch(() => null),
-      fetch("/api/oracle", { cache: "no-store" }).then((r) => r.json()).catch(() => null),
-    ]).then(([g, o]) => {
-      if (!mounted) return;
-      if (g && typeof g.gfbIndex === "number") setGfb(g);
-      if (o && Array.isArray(o.pairs)) setOracle(o as OracleBoard);
-      setLoading(false);
-    });
-    return () => { mounted = false; };
+    const poll = async () => {
+      if (typeof document !== "undefined" && document.hidden) return;
+      try {
+        const [g, o] = await Promise.all([
+          fetch("/api/gfb", { cache: "no-store" }).then((r) => r.json()).catch(() => null),
+          fetch("/api/oracle", { cache: "no-store" }).then((r) => r.json()).catch(() => null),
+        ]);
+        if (!mounted) return;
+        if (g && typeof g.gfbIndex === "number") setGfb(g);
+        if (o && Array.isArray(o.pairs)) setOracle(o as OracleBoard);
+        setPolledAt(Date.now());
+        setLoading(false);
+      } catch {
+        /* keep last-good values; the next poll retries */
+      }
+    };
+    poll();
+    const id = setInterval(poll, POLL_MS);
+    const onVisible = () => {
+      if (!document.hidden) poll();
+    };
+    document.addEventListener("visibilitychange", onVisible);
+    return () => {
+      mounted = false;
+      clearInterval(id);
+      document.removeEventListener("visibilitychange", onVisible);
+    };
   }, []);
 
   return (
@@ -197,6 +230,12 @@ function ReferenceSection() {
             <div className="flex items-center gap-2 mb-4">
               <BookOpen className="h-4 w-4 text-mtqs-gold/80" aria-hidden="true" />
               <h3 className="text-sm font-semibold text-[#0E1F1B]">7-Component Basket · Strategic Prior (§3.2)</h3>
+              {/* TASK-38 — visible liveness: pulsing dot + poll cadence + last-read
+                  clock so a user can SEE the board stream instead of inferring it. */}
+              <span className="ml-auto inline-flex items-center gap-1.5 font-mono text-[0.6rem] text-[#5B6E68]">
+                <GlowDot color="emerald" size="h-1.5 w-1.5" />
+                live · 4s{polledAt ? ` · read ${new Date(polledAt).toLocaleTimeString()}` : ""}
+              </span>
             </div>
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-7 gap-3">
               {GFB_COMPONENTS.map((c) => {
@@ -261,8 +300,9 @@ function ReferenceSection() {
               penalized, never enforced. <span className="text-mtqs-emerald/90">L</span> = live W<sup>Smooth</sup> · the MASE
               ensemble output (§7). Methodology is fixed; weights are <span className="text-[#33544C]">ADAPTIVE</span> (Invariant I3).
               Live weights are published in the 4-state table (MASE section) and via /api/gfb. Sum of prior weights = 100%
-              (USD 27 · EUR 20 · Gold 26 · JPY 9 · GBP 8 · CNY 5 · CHF 5). Prices on this board are recorded from the
-              canonical oracle board at section open (one-shot read — the live 4s stream renders in the Dashboard).
+              (USD 27 · EUR 20 · Gold 26 · JPY 9 · GBP 8 · CNY 5 · CHF 5). Prices stream live from the canonical oracle
+              board on a 4s poll (TASK-38); FX reference marks advance at the engine's 60s live-FX cache granularity
+              (Frankfurter/gold-api refresh cadence).
             </div>
           </Panel>
         </Reveal>
@@ -275,7 +315,7 @@ function ReferenceSection() {
           right={
             <Pill tone={oracle?.anyPaused ? "rose" : "emerald"}>
               <GlowDot color={oracle?.anyPaused ? "rose" : "emerald"} size="h-1.5 w-1.5" />
-              {oracle?.anyPaused ? "any paused (I9 halt)" : "6 pairs · recorded at open"}
+              {oracle?.anyPaused ? "any paused (I9 halt)" : "6 pairs · live 4s poll"}
             </Pill>
           }
         />
