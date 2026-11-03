@@ -9,14 +9,19 @@
 // non-decisions (§4.4). Gold exposure is to the gold price reference unit,
 // not to any token (§4.8).
 //
-// Live data: GET /api/succession (candidate universe + live basket weights).
-// Everything else is faithful static blueprint reference content.
+// Live data: GET /api/succession (candidate universe + live basket weights) AND
+// GET /api/constituency — polled every 60s with last-good retention (TASK-39):
+// the M8-3a machinery snapshot PLUS the live §4 scoring dossier (per-input
+// feed statuses, index-leg witnesses, source reachability), the D-13.11/D-13.14
+// parameter approval ledger, and the MTQSigmaV4 contract-layer status +
+// shadow-mode demonstration. Everything else is faithful static blueprint
+// reference content.
 //
 // Props: { onNavigate, snapshot } — shared section contract.
 
 "use client";
 
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useRef, useState, type ReactNode } from "react";
 import {
   Panel,
   Reveal,
@@ -36,6 +41,9 @@ import {
   Scale,
   ShieldAlert,
   RefreshCw,
+  Gauge,
+  Stamp,
+  FileCode2,
 } from "lucide-react";
 
 /* ---------- /api/succession GET shape (sibling contract) ---------- */
@@ -83,6 +91,217 @@ interface MachineryTransitionDto {
   kind: "rule-driven" | "governance directive";
 }
 
+/* ---------- /api/constituency GET shape — TASK-39 additions ----------
+   The three new payload sections surfaced by this section: the live §4
+   scoring dossier (feeds.ts), the §13 parameter approval ledger
+   (approvals.ts) and the MTQSigmaV4 contract-layer status + shadow-mode
+   demonstration (Task-13). Shapes mirror the route handler verbatim. */
+
+// The nine §4 scoring inputs, in canonical dossier order (the API's
+// components[].inputs object keys).
+const SCORING_INPUT_KEYS = [
+  "liquidity",
+  "dataQuality",
+  "convertibility",
+  "jurisdictionalRestrictions",
+  "currencyControl",
+  "benchmarkAvailability",
+  "volatility",
+  "diversification",
+  "geopoliticalExposure",
+] as const;
+
+type ScoringInputKey = (typeof SCORING_INPUT_KEYS)[number];
+
+// Short board labels — match the hard-gate vocabulary (L/QD/CV/JR/BA).
+const SCORING_INPUT_LABELS: Record<ScoringInputKey, string> = {
+  liquidity: "L",
+  dataQuality: "QD",
+  convertibility: "CV",
+  jurisdictionalRestrictions: "JR",
+  currencyControl: "CC",
+  benchmarkAvailability: "BA",
+  volatility: "V",
+  diversification: "D",
+  geopoliticalExposure: "GE",
+};
+
+// Dot color per per-input feed status (TASK-39 feeds.ts vocabulary).
+// emerald = live · gold = published official statistics · amber = live with a
+// caveat (proxy / declared / mixed) · rose = fixture fallback · neutral =
+// construction. String-keyed so unknown future statuses degrade to neutral.
+const FEED_STATUS_DOT: Record<string, "emerald" | "gold" | "amber" | "rose" | "neutral"> = {
+  LIVE: "emerald",
+  "LIVE-AUTOMATED": "emerald",
+  "LIVE-PROXY": "amber",
+  "PUBLISHED-OFFICIAL": "gold",
+  "DECLARED-ESTIMATE": "amber",
+  "FIXTURE-FALLBACK": "rose",
+  CONSTRUCTION: "neutral",
+  MIXED: "amber",
+};
+
+// Same vocabulary in Pill form (input-feed matrix table).
+const FEED_STATUS_TONE: Record<string, "emerald" | "gold" | "amber" | "rose" | "muted"> = {
+  LIVE: "emerald",
+  "LIVE-AUTOMATED": "emerald",
+  "LIVE-PROXY": "amber",
+  "PUBLISHED-OFFICIAL": "gold",
+  "DECLARED-ESTIMATE": "amber",
+  "FIXTURE-FALLBACK": "rose",
+  CONSTRUCTION: "muted",
+  MIXED: "amber",
+};
+
+interface ScoringHardGateDto {
+  gate: string;
+  value: number;
+  threshold: number;
+  comparator: string;
+  passed: boolean;
+}
+
+interface ScoringComponentDto {
+  id: string;
+  code: string;
+  name: string;
+  componentType: string;
+  inputs: Record<ScoringInputKey, number>;
+  inputStatus: Record<string, string>;
+  inputDetail: Record<string, string>;
+  composite: number;
+  hardGates: ScoringHardGateDto[];
+  hardGatesAllPass: boolean;
+  failedGates: string[];
+  notes: string[];
+}
+
+interface ScoringLegFamilyDto {
+  family: string;
+  source: string;
+  priceUsd: number;
+  asOf: string;
+  live: boolean;
+}
+
+interface ScoringLegWitnessDto {
+  legId: string;
+  componentCode: string;
+  families: ScoringLegFamilyDto[];
+  familiesLive: number;
+  maxPairwiseDivergencePct: number;
+  preconditionMet: boolean;
+}
+
+interface ScoringDossierDto {
+  builtAt: string;
+  cacheAgeSec: number;
+  parametersDigestNote: string;
+  inputFeedMatrix: {
+    input: string;
+    tier: 1 | 2 | 3;
+    status: string;
+    source: string;
+    detail: string;
+  }[];
+  components: ScoringComponentDto[];
+  legWitnesses: ScoringLegWitnessDto[];
+  precondition: {
+    required: string;
+    legsTotal: number;
+    legsMet: number;
+    met: boolean;
+    note: string;
+  };
+  sourceReachability: {
+    source: string;
+    url: string;
+    reachable: boolean;
+    detail: string;
+  }[];
+  findings: string[];
+  residualLimits: string[];
+}
+
+interface ApprovalLedgerEntryDto {
+  decisionId: string;
+  title: string;
+  scope: string;
+  status: string;
+  authority: string;
+  approvedAt: string;
+  channel: string;
+  traceId: string;
+  directiveVerbatim: string;
+  parameterDigest: string;
+  digestNote: string;
+  covers: string[];
+  residualOpens: string[];
+  calibrationNotes: string[];
+}
+
+interface ApprovalsDto {
+  summary: {
+    parameterClass: string;
+    ledgerCount: number;
+    allPilotApproved: boolean;
+    digest: string;
+    digestValid: boolean;
+    productionGateC: string;
+    note: string;
+  };
+  ledger: ApprovalLedgerEntryDto[];
+}
+
+interface ShadowCaseScenarioDto {
+  code: string;
+  status: string;
+  weightBp: number;
+}
+
+interface ShadowCaseDto {
+  caseId: string;
+  title: string;
+  description: string;
+  scenario: ShadowCaseScenarioDto[];
+  expected: "PASS" | "FAIL";
+  result: {
+    passed: boolean;
+    violations: { rule: number; error: string; detail: string }[];
+    sumBp: number;
+    checked: {
+      submissionCount: number;
+      activeCovered: number;
+      activeTotal: number;
+    };
+  };
+  verified: boolean;
+}
+
+interface ContractLayerV4Dto {
+  status: {
+    name: string;
+    sourcePath: string;
+    designPlanPath: string;
+    designPlanStatus: string;
+    compileArtifact: string;
+    compiler: string;
+    compileSettings: string;
+    deployedBytecodeBytes: number;
+    eip170: string;
+    deterministicRepro: string;
+    deployed: boolean;
+    deploymentPosture: string;
+    staticLayerClosed: string;
+    reproductionCommand: string;
+  };
+  shadowDemonstration: {
+    cases: ShadowCaseDto[];
+    summary: string;
+    allVerified: boolean;
+  };
+}
+
 interface ConstituencyMachineryDto {
   banner: string;
   module: string;
@@ -100,6 +319,10 @@ interface ConstituencyMachineryDto {
   };
   lifecycleLegend: { state: string; role: string }[];
   transitions: MachineryTransitionDto[];
+  // TASK-39 payload sections (always present in the extended route response).
+  scoringDossier: ScoringDossierDto;
+  approvals: ApprovalsDto;
+  contractLayerV4: ContractLayerV4Dto;
   honestLimits: {
     line: string;
     parameterClass: string;
@@ -107,6 +330,11 @@ interface ConstituencyMachineryDto {
     contractLayer: string;
   };
 }
+
+/* ---------- TASK-39: constituency API client poll interval ----------
+   The dossier's server-side cache is 10 min; a 60s client poll shows an
+   advancing cacheAge + fresh leg witnesses at reasonable cost. */
+const CONSTITUENCY_POLL_MS = 60_000;
 
 /* ---------- §4.2 The eight Q_i components (blueprint table, verbatim) ---------- */
 const QI_COMPONENTS: {
@@ -255,6 +483,494 @@ function Formula({ children }: { children: React.ReactNode }) {
   );
 }
 
+/* ============================================================
+   TASK-39 panel building blocks (all presentational, this file only)
+   ============================================================ */
+
+// ISO instant → compact local clock "HH:MM:SS" (dossier freshness).
+function fmtClock(iso: string): string {
+  const d = new Date(iso);
+  return Number.isNaN(d.getTime())
+    ? "—"
+    : d.toLocaleTimeString("en-GB", { hour12: false });
+}
+
+// asOf → published dates as-is (YYYY-MM-DD); live timestamps "MM-DD HH:MM".
+function fmtAsOf(asOf: string): string {
+  if (!asOf) return "—";
+  if (!asOf.includes("T")) return asOf;
+  const d = new Date(asOf);
+  if (Number.isNaN(d.getTime())) return asOf;
+  return `${d.toLocaleDateString("en-GB", { month: "2-digit", day: "2-digit" })} ${d.toLocaleTimeString("en-GB", { hour12: false, hour: "2-digit", minute: "2-digit" })}`;
+}
+
+// Comparator glyph for hard-gate chips (observed-vs-threshold display).
+function cmpGlyph(c: string): string {
+  return c === ">=" ? "≥" : c === "<=" ? "≤" : c === "==" ? "=" : c === "!=" ? "≠" : c;
+}
+
+/* ---------- FeedStatusDot — tiny dot + sr-only status text ---------- */
+function FeedStatusDot({ status }: { status: string }) {
+  const color = FEED_STATUS_DOT[status] ?? "neutral";
+  return (
+    <span className="relative inline-flex h-1.5 w-1.5 shrink-0" title={status}>
+      {color === "neutral" ? (
+        <span className="h-full w-full rounded-full bg-[#9AA9A3]" />
+      ) : (
+        <GlowDot color={color} size="h-1.5 w-1.5" />
+      )}
+      <span className="sr-only">{status}</span>
+    </span>
+  );
+}
+
+/* ---------- One component row of the live Q_i board ---------- */
+function ScoringComponentRow({ c }: { c: ScoringComponentDto }) {
+  return (
+    <article className="rounded-xl border border-[#E3EAE6] bg-[#F7FAF8] p-3.5">
+      <div className="flex flex-wrap items-center justify-between gap-x-3 gap-y-1.5 mb-2.5">
+        <div className="flex items-baseline gap-2 min-w-0">
+          <span className="font-mono text-sm font-semibold text-mtqs-gold">{c.code}</span>
+          <span className="text-[0.68rem] text-[#33544C]">{c.name}</span>
+          <span className="font-mono text-[0.55rem] uppercase tracking-wider text-[#9AA9A3]">
+            {c.componentType}
+          </span>
+        </div>
+        <div className="flex items-center gap-2.5">
+          <MiniBar
+            value={c.composite}
+            max={1}
+            colorClass={c.hardGatesAllPass ? "bg-mtqs-emerald/70" : "bg-mtqs-amber/70"}
+            className="w-20 sm:w-24"
+          />
+          <span
+            className="font-mono text-[0.95rem] font-bold text-[#0E1F1B] tabular-nums"
+            title={`composite Q_i = ${c.composite.toFixed(6)}`}
+          >
+            {c.composite.toFixed(3)}
+          </span>
+        </div>
+      </div>
+
+      {/* The 9 scoring inputs — 3×3 on mobile, one row from lg up */}
+      <div className="grid grid-cols-3 sm:grid-cols-5 lg:grid-cols-9 gap-1.5">
+        {SCORING_INPUT_KEYS.map((k) => {
+          const raw = c.inputs[k];
+          const v = Number.isFinite(raw) ? raw : 0;
+          const status = c.inputStatus[k] || "CONSTRUCTION";
+          const detail = c.inputDetail[k] || "";
+          return (
+            <div
+              key={k}
+              className="min-w-0 rounded-md border border-[#E3EAE6] bg-[#FAFCFA] px-1.5 py-1"
+              title={`${k} (${SCORING_INPUT_LABELS[k]}) = ${v.toFixed(4)} · ${status}${detail ? ` — ${detail}` : ""}`}
+            >
+              <div className="flex items-center gap-1">
+                <FeedStatusDot status={status} />
+                <span className="font-mono text-[0.55rem] uppercase tracking-wider text-[#7A8C86]">
+                  {SCORING_INPUT_LABELS[k]}
+                </span>
+              </div>
+              <span className="font-mono text-[0.74rem] text-[#0E1F1B] tabular-nums">
+                {v.toFixed(2)}
+              </span>
+            </div>
+          );
+        })}
+      </div>
+
+      {/* Hard gates — pass ticks emerald; fails rose with observed vs threshold */}
+      <div className="flex flex-wrap items-center gap-1.5 mt-2.5">
+        <span className="mr-0.5 text-[0.55rem] uppercase tracking-[0.18em] text-[#9AA9A3]">
+          hard gates
+        </span>
+        {c.hardGates.map((g) =>
+          g.passed ? (
+            <span
+              key={g.gate}
+              title={`${g.gate} gate: ${g.value.toFixed(3)} ${cmpGlyph(g.comparator)} ${g.threshold} — PASS`}
+              className="inline-flex items-center rounded-full border border-mtqs-emerald/30 bg-mtqs-emerald/10 px-2 py-0.5 font-mono text-[0.6rem] font-medium text-mtqs-emerald"
+            >
+              ✓ {g.gate}
+            </span>
+          ) : (
+            <span
+              key={g.gate}
+              title={`${g.gate} gate: observed ${g.value.toFixed(3)} vs required ${g.comparator} ${g.threshold} — FAIL`}
+              className="inline-flex items-center rounded-full border border-mtqs-rose/30 bg-mtqs-rose/10 px-2 py-0.5 font-mono text-[0.6rem] font-medium text-mtqs-rose"
+            >
+              ✗ {g.gate} {g.value.toFixed(2)}{cmpGlyph(g.comparator)}{g.threshold.toFixed(2)}
+            </span>
+          )
+        )}
+      </div>
+      {c.notes.length > 0 ? (
+        <ul className="mt-2 space-y-1">
+          {c.notes.map((n, i) => (
+            <li key={i} className="text-[0.62rem] text-mtqs-amber leading-relaxed">— {n}</li>
+          ))}
+        </ul>
+      ) : null}
+
+      {/* Expandable per-input provenance (keyboard-reachable <details>) */}
+      <details className="mt-2.5">
+        <summary className="cursor-pointer select-none text-[0.6rem] uppercase tracking-[0.16em] text-[#7A8C86] hover:text-mtqs-gold">
+          input provenance detail
+        </summary>
+        <dl className="mt-2 grid grid-cols-1 md:grid-cols-2 gap-x-4 gap-y-1.5">
+          {SCORING_INPUT_KEYS.map((k) => (
+            <div key={k} className="flex gap-2 min-w-0">
+              <dt className="w-7 shrink-0 pt-0.5 font-mono text-[0.58rem] text-mtqs-gold">
+                {SCORING_INPUT_LABELS[k]}
+              </dt>
+              <dd className="min-w-0 text-[0.6rem] leading-relaxed text-[#5B6E68]">
+                <span className="font-mono text-[0.55rem] text-[#7A8C86]">
+                  {c.inputStatus[k] || "—"}
+                </span>{" "}
+                — {c.inputDetail[k] || "—"}
+              </dd>
+            </div>
+          ))}
+        </dl>
+      </details>
+    </article>
+  );
+}
+
+/* ---------- Index-leg witness table (compact monospace) ---------- */
+function LegWitnessTable({ witnesses }: { witnesses: ScoringLegWitnessDto[] }) {
+  return (
+    <div className="overflow-x-auto rounded-md border border-[#E3EAE6] mtqs-scroll">
+      <table className="w-full text-[0.68rem] font-mono">
+        <thead className="bg-[#F7FAF8] text-[#5B6E68]">
+          <tr>
+            <th className="whitespace-nowrap px-3 py-2 text-left font-medium">Leg</th>
+            <th className="px-3 py-2 text-left font-medium">Witness families — price USD · as-of</th>
+            <th className="whitespace-nowrap px-3 py-2 text-right font-medium">Live</th>
+            <th className="whitespace-nowrap px-3 py-2 text-right font-medium">Max div</th>
+            <th className="whitespace-nowrap px-3 py-2 text-left font-medium">≥2-family</th>
+          </tr>
+        </thead>
+        <tbody>
+          {witnesses.map((w) => (
+            <tr key={w.legId} className="border-t border-[#E3EAE6]">
+              <td className="whitespace-nowrap px-3 py-2.5 align-top font-semibold text-mtqs-gold">
+                {w.legId}
+              </td>
+              <td className="px-3 py-2.5 align-top">
+                <ul className="space-y-1">
+                  {w.families.map((f) => (
+                    <li
+                      key={f.family}
+                      className="flex flex-wrap items-baseline gap-x-2 gap-y-0.5"
+                      title={`${f.source} · ${f.asOf}`}
+                    >
+                      <FeedStatusDot status={f.live ? "LIVE" : "CONSTRUCTION"} />
+                      <span className="text-[#33544C]">{f.family}</span>
+                      <span className="tabular-nums text-[#0E1F1B]">{f.priceUsd.toFixed(4)}</span>
+                      <span className="tabular-nums text-[0.6rem] text-[#9AA9A3]">
+                        {fmtAsOf(f.asOf)}
+                      </span>
+                    </li>
+                  ))}
+                </ul>
+              </td>
+              <td className="whitespace-nowrap px-3 py-2.5 text-right align-top tabular-nums text-[#5B6E68]">
+                {w.familiesLive}/{w.families.length}
+              </td>
+              <td className="whitespace-nowrap px-3 py-2.5 text-right align-top tabular-nums text-[#33544C]">
+                {w.maxPairwiseDivergencePct.toFixed(3)}%
+              </td>
+              <td className="whitespace-nowrap px-3 py-2.5 align-top">
+                {w.preconditionMet ? (
+                  <Pill tone="emerald">MET</Pill>
+                ) : (
+                  <Pill tone="rose">UNMET</Pill>
+                )}
+              </td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
+    </div>
+  );
+}
+
+/* ---------- Input feed matrix (9-row provenance/status table) ---------- */
+function InputFeedMatrixTable({
+  matrix,
+}: {
+  matrix: ScoringDossierDto["inputFeedMatrix"];
+}) {
+  return (
+    <div className="overflow-x-auto rounded-md border border-[#E3EAE6] mtqs-scroll">
+      <table className="w-full text-[0.7rem]">
+        <thead className="bg-[#F7FAF8] text-[#5B6E68]">
+          <tr>
+            <th className="px-3 py-2 text-left font-medium">Input</th>
+            <th className="whitespace-nowrap px-3 py-2 text-left font-medium">Tier</th>
+            <th className="whitespace-nowrap px-3 py-2 text-left font-medium">Feed status</th>
+            <th className="px-3 py-2 text-left font-medium">Source</th>
+          </tr>
+        </thead>
+        <tbody>
+          {matrix.map((r) => (
+            <tr key={r.input} className="border-t border-[#E3EAE6]" title={r.detail}>
+              <td className="whitespace-nowrap px-3 py-2 font-mono text-mtqs-gold">{r.input}</td>
+              <td className="whitespace-nowrap px-3 py-2 font-mono text-[#5B6E68]">tier {r.tier}</td>
+              <td className="whitespace-nowrap px-3 py-2">
+                <Pill tone={FEED_STATUS_TONE[r.status] ?? "muted"}>{r.status}</Pill>
+              </td>
+              <td className="px-3 py-2 leading-snug text-[#5B6E68]">{r.source}</td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
+    </div>
+  );
+}
+
+/* ---------- Source reachability list (last dossier build) ---------- */
+function SourceReachabilityList({
+  sources,
+}: {
+  sources: ScoringDossierDto["sourceReachability"];
+}) {
+  return (
+    <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+      {sources.map((s) => (
+        <div
+          key={s.source}
+          className="flex items-start gap-2 rounded-md border border-[#E3EAE6] bg-[#F7FAF8] px-2.5 py-2"
+          title={s.url}
+        >
+          <span className="mt-1 inline-flex shrink-0">
+            <GlowDot color={s.reachable ? "emerald" : "rose"} size="h-1.5 w-1.5" />
+            <span className="sr-only">{s.reachable ? "reachable" : "unreachable"}</span>
+          </span>
+          <div className="min-w-0">
+            <div className="text-[0.66rem] font-medium leading-tight text-[#33544C]">{s.source}</div>
+            <div className="text-[0.6rem] leading-snug text-[#7A8C86]">{s.detail}</div>
+          </div>
+        </div>
+      ))}
+    </div>
+  );
+}
+
+/* ---------- One D-13.11/D-13.14 decision card ---------- */
+function ApprovalCard({ entry }: { entry: ApprovalLedgerEntryDto }) {
+  return (
+    <article className="rounded-xl border border-[#E3EAE6] bg-[#F7FAF8] p-4">
+      <div className="flex flex-wrap items-baseline justify-between gap-x-3 gap-y-1">
+        <div className="flex min-w-0 flex-wrap items-baseline gap-x-2 gap-y-0.5">
+          <span className="font-mono text-[0.82rem] font-semibold text-mtqs-gold">
+            {entry.decisionId}
+          </span>
+          <span className="text-[0.7rem] leading-snug text-[#33544C]">{entry.title}</span>
+        </div>
+        <div className="flex items-center gap-1.5">
+          <Pill tone="emerald">{entry.status}</Pill>
+          <Pill tone="muted">{entry.scope}</Pill>
+        </div>
+      </div>
+      <div className="mt-2 flex flex-wrap gap-x-4 gap-y-1 font-mono text-[0.58rem] text-[#7A8C86]">
+        <span>{entry.authority}</span>
+        <span>approved {entry.approvedAt.slice(0, 10)}</span>
+        <span className="min-w-0" title={entry.channel}>
+          channel:{" "}
+          <span className="inline-block max-w-[15rem] truncate align-bottom">{entry.channel}</span>
+        </span>
+        <span>trace {entry.traceId}</span>
+        <span
+          className="min-w-0"
+          title={`${entry.parameterDigest} — ${entry.digestNote}`}
+        >
+          digest {entry.parameterDigest.slice(0, 12)}…
+        </span>
+      </div>
+
+      <div className="mt-3 grid grid-cols-1 md:grid-cols-2 gap-4">
+        <div>
+          <h5 className="mb-1.5 text-[0.6rem] uppercase tracking-[0.18em] text-[#5B6E68]">
+            Covers (pilot scope)
+          </h5>
+          <ul className="space-y-1">
+            {entry.covers.map((cv, i) => (
+              <li key={i} className="flex gap-1.5 text-[0.64rem] leading-relaxed text-[#33544C]">
+                <span className="text-mtqs-emerald" aria-hidden="true">·</span>
+                <span>{cv}</span>
+              </li>
+            ))}
+          </ul>
+        </div>
+        <div>
+          <h5 className="mb-1.5 text-[0.6rem] uppercase tracking-[0.18em] text-mtqs-amber">
+            Residual opens (stay with Gate-C)
+          </h5>
+          <ul className="space-y-1">
+            {entry.residualOpens.map((ro, i) => (
+              <li key={i} className="flex gap-1.5 text-[0.64rem] leading-relaxed text-amber-700">
+                <span className="text-mtqs-amber" aria-hidden="true">▸</span>
+                <span>{ro}</span>
+              </li>
+            ))}
+          </ul>
+        </div>
+      </div>
+
+      {entry.calibrationNotes.length > 0 ? (
+        <div className="mt-3 rounded-md border border-mtqs-amber/25 bg-mtqs-amber/[0.06] p-3">
+          <h5 className="mb-1.5 text-[0.6rem] uppercase tracking-[0.18em] text-mtqs-amber">
+            Calibration notes
+          </h5>
+          <ul className="space-y-1.5">
+            {entry.calibrationNotes.map((cn, i) => (
+              <li key={i} className="text-[0.64rem] leading-relaxed text-amber-700">
+                {cn}
+              </li>
+            ))}
+          </ul>
+        </div>
+      ) : null}
+
+      <details className="mt-3">
+        <summary className="cursor-pointer select-none text-[0.6rem] uppercase tracking-[0.16em] text-[#7A8C86] hover:text-mtqs-gold">
+          directive verbatim ({entry.directiveVerbatim.length} chars)
+        </summary>
+        <blockquote className="mt-2 border-l-2 border-mtqs-gold/40 pl-3 text-[0.64rem] italic leading-relaxed text-[#5B6E68]">
+          {entry.directiveVerbatim}
+        </blockquote>
+      </details>
+    </article>
+  );
+}
+
+/* ---------- One V4 shadow-demonstration case card ---------- */
+function ShadowCaseCard({ c }: { c: ShadowCaseDto }) {
+  const expectsPass = c.expected === "PASS";
+  return (
+    <article className="rounded-xl border border-[#E3EAE6] bg-[#F7FAF8] p-3.5">
+      <div className="mb-1.5 flex flex-wrap items-center justify-between gap-x-3 gap-y-1.5">
+        <div className="flex flex-wrap items-center gap-2">
+          <span
+            className={`inline-flex items-center rounded-full border px-2 py-0.5 font-mono text-[0.6rem] font-semibold ${
+              expectsPass
+                ? "border-mtqs-emerald/30 bg-mtqs-emerald/10 text-mtqs-emerald"
+                : "border-mtqs-rose/30 bg-mtqs-rose/10 text-mtqs-rose"
+            }`}
+          >
+            CASE {c.caseId} · expects {c.expected}
+          </span>
+          <span
+            className={`font-mono text-[0.6rem] font-medium ${
+              c.verified ? "text-mtqs-emerald" : "text-mtqs-rose"
+            }`}
+          >
+            {c.verified ? "✓ verified" : "✗ verification mismatch"}
+          </span>
+        </div>
+        <span className="font-mono text-[0.62rem] tabular-nums text-[#5B6E68]">
+          Σ {c.result.sumBp.toLocaleString("en-US")} bp
+        </span>
+      </div>
+      <h4 className="mb-1 text-[0.74rem] font-semibold leading-snug text-[#0E1F1B]">{c.title}</h4>
+      <p className="mb-2.5 text-[0.64rem] leading-relaxed text-[#5B6E68]">{c.description}</p>
+
+      {/* Scenario chips — code · status · weightBp */}
+      <div className="flex flex-wrap gap-1.5">
+        {c.scenario.map((s) => (
+          <span
+            key={`${s.code}-${s.status}`}
+            title={`${s.code} — ${s.status} — ${s.weightBp.toLocaleString("en-US")} bp`}
+            className={`inline-flex items-center gap-1 rounded-md border px-1.5 py-0.5 font-mono text-[0.58rem] ${
+              s.status === "ACTIVE"
+                ? "border-[#E3EAE6] bg-[#FAFCFA] text-[#33544C]"
+                : "border-mtqs-amber/30 bg-mtqs-amber/[0.08] text-mtqs-amber"
+            }`}
+          >
+            <span className="font-semibold">{s.code}</span>
+            <span className="text-[#9AA9A3]">{s.status === "ACTIVE" ? "ACT" : s.status.slice(0, 3)}</span>
+            <span className="tabular-nums">{s.weightBp.toLocaleString("en-US")}bp</span>
+          </span>
+        ))}
+      </div>
+
+      {/* Violations (FAIL-expected cases) */}
+      {c.result.violations.length > 0 ? (
+        <ul className="mt-2.5 space-y-1">
+          {c.result.violations.map((v, i) => (
+            <li
+              key={i}
+              className="rounded-md border border-mtqs-rose/25 bg-mtqs-rose/[0.06] px-2.5 py-1.5"
+            >
+              <span className="font-mono text-[0.6rem] font-semibold text-mtqs-rose">
+                rule {v.rule} · {v.error}
+              </span>
+              <span className="mt-0.5 block font-mono text-[0.58rem] leading-relaxed text-[#5B6E68]">
+                {v.detail}
+              </span>
+            </li>
+          ))}
+        </ul>
+      ) : (
+        <p className="mt-2.5 font-mono text-[0.6rem] text-mtqs-emerald">
+          no violations — submission accepted
+        </p>
+      )}
+      <p className="mt-2 font-mono text-[0.58rem] tabular-nums text-[#9AA9A3]">
+        submissions {c.result.checked.submissionCount} · active covered{" "}
+        {c.result.checked.activeCovered}/{c.result.checked.activeTotal}
+      </p>
+    </article>
+  );
+}
+
+/* ---------- Compact rose note when a TASK-39 payload is unavailable ---------- */
+function DossierUnavailable({ label, error }: { label: string; error: string | null }) {
+  return (
+    <div className="rounded-lg border border-rose-200 bg-rose-50 p-4">
+      <div className="mb-1 flex items-center gap-2">
+        <ShieldAlert className="h-4 w-4 text-rose-600" aria-hidden="true" />
+        <span className="text-[0.78rem] font-semibold text-rose-700">{label} unavailable</span>
+      </div>
+      <p className="text-[0.7rem] text-rose-600">
+        /api/constituency did not respond{error ? ` (${error})` : ""}. Nothing is fabricated —
+        the blueprint reference above remains the specification.
+      </p>
+    </div>
+  );
+}
+
+/* ---------- Key-fact cell for the V4 status grid ---------- */
+function FactCell({
+  label,
+  title,
+  oneLine = false,
+  children,
+}: {
+  label: string;
+  title?: string;
+  oneLine?: boolean;
+  children: ReactNode;
+}) {
+  return (
+    <div
+      className={`min-w-0 rounded-md border border-[#E3EAE6] bg-[#F7FAF8] px-3 py-2 ${oneLine ? "overflow-hidden" : ""}`}
+      title={title}
+    >
+      <div className="mb-1 text-[0.55rem] uppercase tracking-[0.2em] text-[#7A8C86]">{label}</div>
+      <div
+        className={`font-mono text-[0.64rem] leading-snug text-[#33544C] ${
+          oneLine ? "truncate whitespace-nowrap" : "break-words"
+        }`}
+      >
+        {children}
+      </div>
+    </div>
+  );
+}
+
 export function ConstituencySection({
   onNavigate: _onNavigate,
   snapshot,
@@ -264,10 +980,18 @@ export function ConstituencySection({
 }) {
   const [data, setData] = useState<SuccessionGetDto | null>(null);
   const [error, setError] = useState<string | null>(null);
-  // M8-3a machinery surfacing (Task M8-3c-b) — the QUIESCENT dynamic-membership
-  // engine state from /api/constituency (read-only; no transition is ever run).
+  // M8-3a machinery surfacing (Task M8-3c-b) + TASK-39 payload sections — the
+  // QUIESCENT dynamic-membership engine state, the live scoring dossier, the
+  // approval ledger and the V4 contract layer, all from /api/constituency
+  // (read-only; no transition is ever run).
   const [machinery, setMachinery] = useState<ConstituencyMachineryDto | null>(null);
   const [machineryError, setMachineryError] = useState<string | null>(null);
+  // TASK-39 polling: 60s client poll (the server caches the dossier for 10 min —
+  // the poll shows advancing cacheAge + fresh leg witnesses at reasonable cost).
+  // Last-good retention: a failed refresh keeps serving the previous snapshot,
+  // flagged stale, instead of blanking the panels.
+  const [machineryStale, setMachineryStale] = useState(false);
+  const machineryMountedRef = useRef(true);
 
   useEffect(() => {
     let mounted = true;
@@ -294,29 +1018,46 @@ export function ConstituencySection({
 
   const basket = data?.basket ?? ["USD", "EUR", "JPY", "GBP", "CNY", "CHF", "Gold"];
 
-  // M8-3a machinery fetch — separate lightweight GET (append-only addition, Task M8-3c-b).
-  useEffect(() => {
-    let mounted = true;
-    (async () => {
-      try {
-        const res = await fetch("/api/constituency", { cache: "no-store" });
-        if (!res.ok) {
-          if (mounted) setMachineryError(`HTTP ${res.status}`);
-          return;
-        }
-        const dto = (await res.json()) as ConstituencyMachineryDto;
-        if (mounted) {
-          setMachinery(dto);
-          setMachineryError(null);
-        }
-      } catch (e) {
-        if (mounted) setMachineryError(String(e));
+  // M8-3a machinery + TASK-39 dossier fetch — canonical polling pattern
+  // (PilotCommandCenter): fetch on mount, setInterval POLL_MS with a
+  // document.hidden skip, immediate refresh on visibilitychange→visible,
+  // mounted-ref guard, last-good retention on failure.
+  const fetchMachinery = useCallback(async () => {
+    // PERF: skip polling while the tab is hidden — the dossier's server-side
+    // cache keeps building, so data is never lost, just not re-fetched.
+    if (typeof document !== "undefined" && document.hidden) return;
+    try {
+      const res = await fetch("/api/constituency", { cache: "no-store" });
+      if (!res.ok) throw new Error(`HTTP ${res.status}`);
+      const dto = (await res.json()) as ConstituencyMachineryDto;
+      if (!machineryMountedRef.current) return;
+      setMachinery(dto);
+      setMachineryError(null);
+      setMachineryStale(false);
+    } catch (e) {
+      if (machineryMountedRef.current) {
+        setMachineryError(e instanceof Error ? e.message : String(e));
+        setMachineryStale(true);
       }
-    })();
-    return () => {
-      mounted = false;
-    };
+    }
   }, []);
+
+  useEffect(() => {
+    machineryMountedRef.current = true;
+    fetchMachinery();
+    const id = setInterval(fetchMachinery, CONSTITUENCY_POLL_MS);
+    // Refresh immediately when the tab becomes visible again (the dossier may
+    // be up to POLL_MS × N stale after a hidden period).
+    const onVisible = () => {
+      if (!document.hidden) fetchMachinery();
+    };
+    document.addEventListener("visibilitychange", onVisible);
+    return () => {
+      machineryMountedRef.current = false;
+      clearInterval(id);
+      document.removeEventListener("visibilitychange", onVisible);
+    };
+  }, [fetchMachinery]);
 
   return (
     <div className="space-y-10">
@@ -447,6 +1188,185 @@ export function ConstituencySection({
             </Panel>
           </Reveal>
         </div>
+      </section>
+
+      {/* ============ TASK-39 — §4 live scoring dossier (the centerpiece) ============ */}
+      <section
+        id="constituency-scoring-live"
+        aria-labelledby="constituency-scoring-live-h"
+        className="scroll-mt-32"
+      >
+        <SectionHeading
+          eyebrow="§4.2 · live dossier · task-39"
+          title="Eligibility Scoring — LIVE"
+          className="mb-0"
+          right={
+            machinery ? (
+              <Pill tone={machineryStale ? "amber" : "emerald"}>
+                <GlowDot color={machineryStale ? "amber" : "emerald"} size="h-1.5 w-1.5" />
+                {machineryStale ? "last-good snapshot" : "live-fed · per-input statuses"}
+              </Pill>
+            ) : (
+              <Pill tone="muted">loading dossier…</Pill>
+            )
+          }
+        />
+        <Reveal>
+          <Panel className="p-5">
+            <div className="flex items-center gap-2 mb-2">
+              <Gauge className="h-4 w-4 text-mtqs-gold/80" aria-hidden="true" />
+              <h3
+                id="constituency-scoring-live-h"
+                className="text-sm font-semibold text-[#0E1F1B]"
+              >
+                Live Q_i board — every input feed-statused, every leg multi-family witnessed
+              </h3>
+            </div>
+            <p className="text-[0.72rem] text-[#5B6E68] leading-relaxed mb-4">
+              The board below is computed by the TASK-39 live dossier: each of the nine inputs
+              carries a per-feed provenance status, each index leg is witnessed by at least two
+              independent source families, and the hard gates (L / QD / CV / JR / BA) are evaluated
+              against the D-13.11 pilot-approved draft minima. Scores are TESTNET-PILOT shadow-mode
+              measurements — no T2 confirmation is certifiable while the honest residuals below
+              stand.
+            </p>
+
+            {machineryError && !machinery ? (
+              <DossierUnavailable label="Scoring dossier" error={machineryError} />
+            ) : !machinery ? (
+              <div className="space-y-2">
+                {[...Array(3)].map((_, i) => (
+                  <Skeleton key={i} className="h-36 rounded-xl" />
+                ))}
+              </div>
+            ) : (
+              <>
+                {/* Header row — precondition chip + dossier freshness */}
+                <div className="flex flex-wrap items-center gap-2 mb-2">
+                  <Pill
+                    tone={machinery.scoringDossier.precondition.met ? "emerald" : "amber"}
+                  >
+                    <GlowDot
+                      color={machinery.scoringDossier.precondition.met ? "emerald" : "amber"}
+                      size="h-1.5 w-1.5"
+                    />
+                    ≥2-family precondition:{" "}
+                    {machinery.scoringDossier.precondition.met ? "MET" : "UNMET"}{" "}
+                    {machinery.scoringDossier.precondition.legsMet}/
+                    {machinery.scoringDossier.precondition.legsTotal}
+                  </Pill>
+                  <Pill tone={machineryStale ? "amber" : "emerald"}>
+                    <GlowDot color={machineryStale ? "amber" : "emerald"} size="h-1.5 w-1.5" />
+                    built {fmtClock(machinery.scoringDossier.builtAt)} · cache{" "}
+                    {machinery.scoringDossier.cacheAgeSec}s · {machineryStale ? "stale" : "live"}
+                  </Pill>
+                  <Pill tone="muted">
+                    {machinery.scoringDossier.components.length} components ·{" "}
+                    {machinery.scoringDossier.inputFeedMatrix.length} inputs · 5 hard gates
+                  </Pill>
+                </div>
+                <p
+                  className="text-[0.6rem] text-[#7A8C86] leading-relaxed mb-1"
+                  title={machinery.scoringDossier.precondition.required}
+                >
+                  {machinery.scoringDossier.precondition.note}
+                </p>
+                <p className="text-[0.6rem] text-[#7A8C86] leading-relaxed mb-4">
+                  {machinery.scoringDossier.parametersDigestNote}
+                </p>
+
+                {/* Last-good retention strip (stale while serving previous snapshot) */}
+                {machineryStale && machineryError ? (
+                  <div className="mb-4 flex items-center gap-2 rounded-lg border border-rose-200 bg-rose-50 px-3 py-2">
+                    <ShieldAlert
+                      className="h-3.5 w-3.5 shrink-0 text-rose-600"
+                      aria-hidden="true"
+                    />
+                    <span className="text-[0.66rem] leading-snug text-rose-600">
+                      Last /api/constituency refresh failed ({machineryError}) — serving the
+                      previously fetched dossier. Leg witnesses and feed statuses may be stale.
+                    </span>
+                  </div>
+                ) : null}
+
+                {/* The 7-component board */}
+                <div className="space-y-2.5">
+                  {machinery.scoringDossier.components.map((c) => (
+                    <ScoringComponentRow key={c.id} c={c} />
+                  ))}
+                </div>
+
+                {/* Calibration findings (honest flags — amber) */}
+                {machinery.scoringDossier.findings.length > 0 ? (
+                  <div className="mt-4 rounded-lg border border-mtqs-amber/25 bg-mtqs-amber/[0.06] p-4">
+                    <h4 className="mb-2 text-[0.66rem] uppercase tracking-[0.18em] text-mtqs-amber">
+                      Calibration findings
+                    </h4>
+                    <ul className="space-y-1.5">
+                      {machinery.scoringDossier.findings.map((f, i) => (
+                        <li key={i} className="text-[0.66rem] leading-relaxed text-amber-700">
+                          {f}
+                        </li>
+                      ))}
+                    </ul>
+                  </div>
+                ) : null}
+
+                {/* Honest residuals — always visible (honesty discipline) */}
+                <div className="mt-4 rounded-lg border border-rose-200 bg-rose-50 p-4">
+                  <h4 className="mb-2 text-[0.66rem] uppercase tracking-[0.18em] text-rose-700">
+                    Honest residuals
+                  </h4>
+                  <ul className="space-y-1.5">
+                    {machinery.scoringDossier.residualLimits.map((r, i) => (
+                      <li key={i} className="text-[0.66rem] leading-relaxed text-rose-600">
+                        {r}
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+
+                {/* Index-leg witness layer */}
+                <div className="mt-5">
+                  <div className="flex flex-wrap items-center gap-2 mb-2">
+                    <Globe2 className="h-4 w-4 text-mtqs-gold/70" aria-hidden="true" />
+                    <h4 className="text-[0.78rem] font-semibold text-[#0E1F1B]">
+                      Index-leg witness layer — ≥2 independent source families per leg
+                    </h4>
+                  </div>
+                  <LegWitnessTable witnesses={machinery.scoringDossier.legWitnesses} />
+                  <p className="mt-2 text-[0.6rem] text-[#7A8C86] leading-relaxed">
+                    {machinery.scoringDossier.precondition.required} — met at the pilot&apos;s
+                    off-chain witness layer; §17.10&apos;s three-family ON-CHAIN requirement
+                    remains a separate, still-open production gate.
+                  </p>
+                </div>
+
+                {/* Input feed matrix */}
+                <div className="mt-5">
+                  <div className="flex flex-wrap items-center gap-2 mb-2">
+                    <Database className="h-4 w-4 text-mtqs-gold/70" aria-hidden="true" />
+                    <h4 className="text-[0.78rem] font-semibold text-[#0E1F1B]">
+                      Input feed matrix — provenance &amp; tier
+                    </h4>
+                  </div>
+                  <InputFeedMatrixTable matrix={machinery.scoringDossier.inputFeedMatrix} />
+                </div>
+
+                {/* Source reachability */}
+                <div className="mt-5">
+                  <div className="flex flex-wrap items-center gap-2 mb-2">
+                    <Globe2 className="h-4 w-4 text-mtqs-gold/70" aria-hidden="true" />
+                    <h4 className="text-[0.78rem] font-semibold text-[#0E1F1B]">
+                      Source reachability (last dossier build)
+                    </h4>
+                  </div>
+                  <SourceReachabilityList sources={machinery.scoringDossier.sourceReachability} />
+                </div>
+              </>
+            )}
+          </Panel>
+        </Reveal>
       </section>
 
       {/* ============ §4.3 — institutional data sources ============ */}
@@ -837,9 +1757,9 @@ export function ConstituencySection({
           title="Dynamic-Membership Machinery"
           className="mb-0"
           right={
-            <Pill tone="amber">
-              <GlowDot color="amber" size="h-1.5 w-1.5" />
-              IMPLEMENTED · QUIESCENT
+            <Pill tone={machineryStale ? "rose" : "amber"}>
+              <GlowDot color={machineryStale ? "rose" : "amber"} size="h-1.5 w-1.5" />
+              IMPLEMENTED · QUIESCENT{machineryStale ? " · STALE" : ""}
             </Pill>
           }
         />
@@ -857,6 +1777,16 @@ export function ConstituencySection({
               basket remains byte-identical to the fixed 7-component engine until a governed directive fires.
             </p>
 
+            {/* Module banner — rendered verbatim from the API (TASK-39: the
+                parameters clause is now PILOT-APPROVED, owner directive 2026-11-03) */}
+            {machinery ? (
+              <div className="rounded-lg border border-mtqs-amber/25 bg-mtqs-amber/[0.06] px-4 py-2.5 mb-4 text-center">
+                <p className="font-mono text-[0.62rem] uppercase tracking-[0.14em] leading-relaxed text-mtqs-amber">
+                  {machinery.banner}
+                </p>
+              </div>
+            ) : null}
+
             {/* QUIESCENT disclosure */}
             <div className="rounded-lg border border-mtqs-amber/25 bg-mtqs-amber/[0.06] p-4 mb-4">
               <div className="flex items-start gap-3">
@@ -868,7 +1798,7 @@ export function ConstituencySection({
               </div>
             </div>
 
-            {machineryError ? (
+            {machineryError && !machinery ? (
               <div className="p-4 rounded-lg border border-rose-200 bg-rose-50">
                 <div className="flex items-center gap-2 mb-1">
                   <ShieldAlert className="h-4 w-4 text-rose-600" aria-hidden="true" />
@@ -997,7 +1927,9 @@ export function ConstituencySection({
                   </p>
                 </div>
 
-                {/* Honest limits */}
+                {/* Honest limits — TASK-39 wording rendered verbatim from the API
+                    (live feeds implemented · parameters PILOT-APPROVED · V4
+                    contract layer implemented at source, undeployed) */}
                 <div className="mt-5 rounded-lg border border-rose-200 bg-rose-50 p-4">
                   <div className="flex items-start gap-3">
                     <ShieldAlert className="h-4 w-4 text-rose-600 mt-0.5 shrink-0" aria-hidden="true" />
@@ -1007,9 +1939,243 @@ export function ConstituencySection({
                         {machinery.honestLimits.line}
                       </p>
                       <p className="text-[0.64rem] text-[#7A8C86] mt-2 leading-relaxed">
-                        {machinery.honestLimits.parameterClass} Scoring feeds: {machinery.honestLimits.scoringFeedDisclosure}
+                        {machinery.honestLimits.parameterClass}
+                      </p>
+                      <p className="text-[0.64rem] text-[#7A8C86] mt-2 leading-relaxed">
+                        <span className="font-semibold text-[#5B6E68]">Scoring feeds:</span>{" "}
+                        {machinery.honestLimits.scoringFeedDisclosure}
+                      </p>
+                      <p className="text-[0.64rem] text-[#7A8C86] mt-2 leading-relaxed">
+                        <span className="font-semibold text-[#5B6E68]">Contract layer:</span>{" "}
+                        {machinery.honestLimits.contractLayer}
                       </p>
                     </div>
+                  </div>
+                </div>
+              </>
+            )}
+          </Panel>
+        </Reveal>
+      </section>
+
+      {/* ============ TASK-39 — §13 parameter approval ledger ============ */}
+      <section
+        id="constituency-approvals"
+        aria-labelledby="constituency-approvals-h"
+        className="scroll-mt-32"
+      >
+        <SectionHeading
+          eyebrow="§13 · parameter registry · task-39"
+          title="Parameter Approvals — D-13.11 / D-13.14"
+          className="mb-0"
+          right={
+            machinery ? (
+              <Pill tone={machinery.approvals.summary.allPilotApproved ? "emerald" : "amber"}>
+                <GlowDot
+                  color={machinery.approvals.summary.allPilotApproved ? "emerald" : "amber"}
+                  size="h-1.5 w-1.5"
+                />
+                {machinery.approvals.summary.allPilotApproved ? "ALL PILOT-APPROVED" : "LEDGER INCOMPLETE"}
+              </Pill>
+            ) : (
+              <Pill tone="muted">loading ledger…</Pill>
+            )
+          }
+        />
+        <Reveal>
+          <Panel className="p-5">
+            <div className="flex items-center gap-2 mb-2">
+              <Stamp className="h-4 w-4 text-mtqs-gold/80" aria-hidden="true" />
+              <h3 id="constituency-approvals-h" className="text-sm font-semibold text-[#0E1F1B]">
+                Owner-directive approval ledger — TESTNET-PILOT scope only
+              </h3>
+            </div>
+            <p className="text-[0.72rem] text-[#5B6E68] leading-relaxed mb-4">
+              The §13 lifecycle parameters exercised by the machinery and the scoring dossier above
+              are no longer unapproved drafts: two owner directives (2026-11-03) approve them for
+              TESTNET-PILOT shadow operation, each recorded with the verbatim directive text, a
+              parameter digest binding the approval to the exact canonical parameter block, and the
+              residual opens that stay with Gate-C. This ledger never records production
+              ratification.
+            </p>
+
+            {machineryError && !machinery ? (
+              <DossierUnavailable label="Approval ledger" error={machineryError} />
+            ) : !machinery ? (
+              <div className="space-y-2">
+                {[...Array(2)].map((_, i) => (
+                  <Skeleton key={i} className="h-44 rounded-xl" />
+                ))}
+              </div>
+            ) : (
+              <>
+                {/* Summary chips — Gate-C production is always amber, never green */}
+                <div className="flex flex-wrap items-center gap-2 mb-3">
+                  <Pill tone="emerald">
+                    <GlowDot color="emerald" size="h-1.5 w-1.5" />
+                    PILOT-APPROVED
+                  </Pill>
+                  <span
+                    className="inline-flex"
+                    title={machinery.approvals.summary.digest}
+                  >
+                    <Pill
+                      tone={machinery.approvals.summary.digestValid ? "gold" : "rose"}
+                      className="font-mono"
+                    >
+                      digest {machinery.approvals.summary.digest.slice(0, 12)}…
+                      <span className="sr-only">
+                        {" "}
+                        {machinery.approvals.summary.digestValid ? "valid" : "INVALID"}
+                      </span>
+                    </Pill>
+                  </span>
+                  <Pill tone="muted">ledger {machinery.approvals.summary.ledgerCount}</Pill>
+                  <Pill tone="amber">Gate-C production: {machinery.approvals.summary.productionGateC}</Pill>
+                </div>
+                <p className="text-[0.64rem] text-[#7A8C86] leading-relaxed mb-4">
+                  {machinery.approvals.summary.note}
+                </p>
+
+                <div className="space-y-3">
+                  {machinery.approvals.ledger.map((e) => (
+                    <ApprovalCard key={e.decisionId} entry={e} />
+                  ))}
+                </div>
+              </>
+            )}
+          </Panel>
+        </Reveal>
+      </section>
+
+      {/* ============ TASK-39 — MTQSigmaV4 contract layer + shadow demonstration ============ */}
+      <section
+        id="constituency-contract-v4"
+        aria-labelledby="constituency-contract-v4-h"
+        className="scroll-mt-32"
+      >
+        <SectionHeading
+          eyebrow="task-13 · v4 · dynamic membership"
+          title="Contract Layer — MTQSigmaV4"
+          className="mb-0"
+          right={
+            machinery ? (
+              <Pill tone="amber">
+                <GlowDot color="amber" size="h-1.5 w-1.5" />
+                IMPLEMENTED (source) · UNDEPLOYED
+              </Pill>
+            ) : (
+              <Pill tone="muted">loading…</Pill>
+            )
+          }
+        />
+        <Reveal>
+          <Panel className="p-5">
+            <div className="flex items-center gap-2 mb-2">
+              <FileCode2 className="h-4 w-4 text-mtqs-gold/80" aria-hidden="true" />
+              <h3 id="constituency-contract-v4-h" className="text-sm font-semibold text-[#0E1F1B]">
+                Registry-based dynamic membership — compiled, deterministic, Gate-C-gated
+              </h3>
+            </div>
+
+            {machineryError && !machinery ? (
+              <DossierUnavailable label="Contract-layer status" error={machineryError} />
+            ) : !machinery ? (
+              <div className="space-y-2">
+                {[...Array(3)].map((_, i) => (
+                  <Skeleton key={i} className="h-16 rounded-md" />
+                ))}
+              </div>
+            ) : (
+              <>
+                <p className="text-[0.72rem] text-[#5B6E68] leading-relaxed mb-4">
+                  {machinery.contractLayerV4.status.name} — the V4 contract closes the V2/V3
+                  STATIC-layer findings at the source level and compiles deterministically, but it
+                  is UNDEPLOYED: testnet deployment is Gate-C / Task-12-gated, and the deployed
+                  v1.2 pilot estate is a different economic family and stays untouched. The shadow
+                  demonstration below exercises the V4 semantics through the TS reference
+                  validator.
+                </p>
+
+                {/* Key facts grid */}
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-2 mb-3">
+                  <FactCell
+                    label="Source"
+                    title={machinery.contractLayerV4.status.compileArtifact}
+                  >
+                    {machinery.contractLayerV4.status.sourcePath}
+                  </FactCell>
+                  <FactCell label="Compiler">
+                    {machinery.contractLayerV4.status.compiler}
+                  </FactCell>
+                  <FactCell label="Compile settings">
+                    {machinery.contractLayerV4.status.compileSettings}
+                  </FactCell>
+                  <FactCell label="Deployed bytecode">
+                    <span className="tabular-nums">
+                      {machinery.contractLayerV4.status.deployedBytecodeBytes.toLocaleString("en-US")} B
+                    </span>
+                  </FactCell>
+                  <FactCell label="EIP-170 verdict">
+                    <span className="text-mtqs-emerald">
+                      {machinery.contractLayerV4.status.eip170}
+                    </span>
+                  </FactCell>
+                  <FactCell
+                    label="Design plan"
+                    title={machinery.contractLayerV4.status.designPlanPath}
+                  >
+                    {machinery.contractLayerV4.status.designPlanStatus}
+                  </FactCell>
+                  <FactCell label="Deterministic repro">
+                    {machinery.contractLayerV4.status.deterministicRepro}
+                  </FactCell>
+                  <FactCell label="Deployment posture">
+                    <span className="text-mtqs-amber">
+                      {machinery.contractLayerV4.status.deploymentPosture}
+                    </span>
+                  </FactCell>
+                  <FactCell
+                    label="Reproduction command"
+                    title={machinery.contractLayerV4.status.reproductionCommand}
+                    oneLine
+                  >
+                    {machinery.contractLayerV4.status.reproductionCommand}
+                  </FactCell>
+                </div>
+
+                {/* STATIC-layer findings closed at source */}
+                <div className="rounded-lg border border-mtqs-emerald/25 bg-mtqs-emerald/[0.05] p-3.5 mb-2">
+                  <p className="text-[0.66rem] leading-relaxed text-[#33544C]">
+                    <span className="font-semibold text-mtqs-emerald">
+                      STATIC-layer findings closed at source:{" "}
+                    </span>
+                    {machinery.contractLayerV4.status.staticLayerClosed}
+                  </p>
+                </div>
+
+                {/* Shadow demonstration — 4 cases */}
+                <div className="mt-5">
+                  <div className="flex flex-wrap items-center gap-2 mb-2">
+                    <Scale className="h-4 w-4 text-mtqs-gold/70" aria-hidden="true" />
+                    <h4 className="text-[0.78rem] font-semibold text-[#0E1F1B]">
+                      Shadow-mode demonstration — V4 semantics, reference validator
+                    </h4>
+                    <Pill
+                      tone={machinery.contractLayerV4.shadowDemonstration.allVerified ? "emerald" : "rose"}
+                    >
+                      {machinery.contractLayerV4.shadowDemonstration.allVerified
+                        ? `${machinery.contractLayerV4.shadowDemonstration.cases.length}/${machinery.contractLayerV4.shadowDemonstration.cases.length} verified`
+                        : "verification mismatch"}
+                    </Pill>
+                  </div>
+                  <p className="text-[0.66rem] text-[#5B6E68] leading-relaxed mb-3">
+                    {machinery.contractLayerV4.shadowDemonstration.summary}
+                  </p>
+                  <div className="grid grid-cols-1 lg:grid-cols-2 gap-3">
+                    {machinery.contractLayerV4.shadowDemonstration.cases.map((c) => (
+                      <ShadowCaseCard key={c.caseId} c={c} />
+                    ))}
                   </div>
                 </div>
               </>

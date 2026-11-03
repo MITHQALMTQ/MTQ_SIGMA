@@ -12,10 +12,15 @@
 // engine. The machinery exists and is exercised only by evidence-checked
 // directives supplied in a versioned input dataset.
 //
-// ALL parameters UNAPPROVED DRAFT (spec §13 — parameters.ts). NO live scoring
-// feeds exist (types.ts SCORING_FEED_DISCLOSURE). The contract layer remains
-// static (see audit-work/task13/v4-contract-dynamic-membership-design-plan.md,
-// PROPOSED). Posture: TESTNET ONLY · SHADOW MODE ENFORCED · NOT ACCEPTED.
+// ALL parameters PILOT-APPROVED for TESTNET-PILOT shadow operation (owner
+// directive 2026-11-03 — D-13.11/D-13.14 recorded with evidence + parameter
+// digest in approvals.ts; PRODUCTION Gate-C ratification remains OPEN). LIVE
+// scoring feeds are IMPLEMENTED (feeds.ts — BIS/Frankfurter/Yahoo/gold-api/
+// COMEX/oracle-ledger/OFAC with per-input statuses; residuals honestly
+// labeled). The V4 dynamic-membership contract layer is IMPLEMENTED at the
+// source level (contracts/MTQSigmaV4.sol — compiled, UNDEPLOYED; TS reference
+// validator contract-v4.ts; design plan status IMPLEMENTED). Posture:
+// TESTNET ONLY · SHADOW MODE ENFORCED · NOT ACCEPTED.
 // ============================================================================
 
 export type {
@@ -76,3 +81,39 @@ export type { ComponentRegistryEntry, ComponentType } from "./registry";
 
 export { runLifecycleSimulation, glideRawPoint } from "./engine";
 export type { RunOptions } from "./engine";
+
+// TASK-39 additions (SERVER-ONLY: approvals digests use node:crypto via
+// serialization; feeds uses Prisma) — import directly from these modules in
+// client-safe contexts ONLY for contract-v4.ts (pure TS, no node builtins).
+export {
+  PARAMETER_APPROVAL_LEDGER,
+  LIFECYCLE_PARAMETER_CLASS_V2,
+  approvalStatusSummary,
+  lifecycleParameterDigest,
+} from "./approvals";
+export type {
+  ApprovalAuthority,
+  ApprovalScope,
+  ApprovalStatusSummary,
+  ParameterApprovalRecord,
+} from "./approvals";
+export {
+  V4_CONTRACT_STATUS,
+  demonstrateV4ReferenceValidation,
+  validateV4WeightSubmission,
+} from "./contract-v4";
+export type {
+  V4ComponentRecordRef,
+  V4DemoCase,
+  V4LifecycleStatus,
+  V4RuleViolation,
+  V4ValidationResult,
+} from "./contract-v4";
+export { buildLiveScoringDossier } from "./feeds";
+export type {
+  ComponentScoreRow,
+  FeedStatus,
+  InputFeedRow,
+  LegWitness,
+  LiveScoringDossier,
+} from "./feeds";

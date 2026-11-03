@@ -21,9 +21,17 @@
 
 import type { LifecycleParameters } from "./types";
 
-// --- §13 parameter class label (verbatim from the validated dataset) --------
+// --- §13 parameter class label (TASK-39 update) -----------------------------
+// Prior label (pre-TASK-39): "ALL PARAMETERS UNAPPROVED DRAFT". The owner's
+// 2026-11-03 directive ("fix and implement" the honest-limits items) is
+// recorded as the D-13.11/D-13.14 approval event in approvals.ts — the
+// parameter class is now PILOT-APPROVED with the evidence-bound digest.
+// Production Gate-C ratification remains OPEN (honest scope).
 export const LIFECYCLE_PARAMETER_CLASS =
-  "ALL PARAMETERS UNAPPROVED DRAFT — spec §13 (currency-constituency-and-weight-transition-spec.md v0.1 PROPOSED). Values marked PROTOTYPE-CHOICE deviate from (or convert) a draft and are labeled in methodology.prototypeChoices.";
+  "PILOT-APPROVED — spec §13 parameters approved for TESTNET-PILOT shadow operation by owner directive 2026-11-03 " +
+  "(D-13.11 / D-13.14 recorded with evidence + parameter digest in constituency/approvals.ts). PRODUCTION Gate-C " +
+  "ratification remains OPEN. Values marked PROTOTYPE-CHOICE deviate from (or convert) a draft and are labeled in " +
+  "methodology.prototypeChoices.";
 
 // --- Basket size (spec §7 / §13 — D-13.11, OPEN) ----------------------------
 /** N_max — maximum basket size. Spec §13 draft: "7–15 (initial 7)". */

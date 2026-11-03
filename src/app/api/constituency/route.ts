@@ -1,17 +1,25 @@
-// MTQΣ — DYNAMIC CONSTITUENCY MACHINERY API (Task M8-3c-b · surfacing M8-3a)
+// MTQΣ — DYNAMIC CONSTITUENCY MACHINERY API (Task M8-3c-b · surfacing M8-3a;
+//  TASK-39 extension — live scoring dossier + approval ledger + V4 status)
 // ============================================================================
-// A lightweight READ-ONLY GET that surfaces the QUIESCENT dynamic-membership
-// machinery (src/lib/mtq/constituency/ — Task M8-3a) for the Pilot Command
-// Center's Constituency section:
+// A READ-ONLY GET that surfaces the dynamic-membership machinery
+// (src/lib/mtq/constituency/ — Task M8-3a) for the Pilot Command Center's
+// Constituency section:
 //   • the DEFAULT_REGISTRY's 7 genesis entries (code, type, genesis weight bp,
 //     lifecycle state) — the ACTIVE basket remains the 7-component genesis set;
 //   • the lifecycle-state legend + the T1–T9 transition/directive vocabulary;
 //   • the QUIESCENT disclosure (NO transition has ever run);
-//   • the honest-limits line (NO live scoring feeds; ALL lifecycle parameters
-//     UNAPPROVED DRAFT; contract layer STATIC — V4 design plan PROPOSED).
+//   • the LIVE SCORING DOSSIER (TASK-39 feeds.ts — BIS/Frankfurter/Yahoo/
+//     gold-api/COMEX/oracle-ledger/OFAC ingestion with per-input statuses,
+//     per-leg family witnesses, ≥2-family precondition status);
+//   • the PARAMETER APPROVAL LEDGER (TASK-39 approvals.ts — D-13.11/D-13.14
+//     pilot-approved by owner directive 2026-11-03, digest-bound);
+//   • the V4 CONTRACT LAYER STATUS (TASK-39 — MTQSigmaV4.sol compiled,
+//     UNDEPLOYED + the TS reference validator's shadow-mode demonstration);
+//   • the honest-limits line (updated: what is now implemented + what remains).
 //
 // The machinery is IMPORTED READ-ONLY — this route mutates nothing, runs no
-// transition, and applies no directive.
+// transition, and applies no directive. The dossier build is fail-soft: any
+// unreachable feed degrades to a labeled fallback inside the dossier.
 //
 // Posture: TESTNET ONLY · SHADOW MODE ENFORCED · NOT ACCEPTED.
 // ============================================================================
@@ -25,6 +33,15 @@ import {
 } from "@/lib/mtq/constituency/registry";
 import { LIFECYCLE_PARAMETER_CLASS } from "@/lib/mtq/constituency/parameters";
 import { SCORING_FEED_DISCLOSURE } from "@/lib/mtq/constituency/types";
+import {
+  PARAMETER_APPROVAL_LEDGER,
+  approvalStatusSummary,
+} from "@/lib/mtq/constituency/approvals";
+import {
+  V4_CONTRACT_STATUS,
+  demonstrateV4ReferenceValidation,
+} from "@/lib/mtq/constituency/contract-v4";
+import { buildLiveScoringDossier } from "@/lib/mtq/constituency/feeds";
 
 export const dynamic = "force-dynamic";
 export const revalidate = 0;
@@ -36,10 +53,14 @@ const QUIESCENT_DISCLOSURE =
   "transitions fire only on governance directives with valid rule evidence, and none exists.";
 
 const HONEST_LIMITS =
-  "NO live scoring feeds — deterministic test fixtures only (BIS/AREAER/vendor ingestion does not exist; the " +
-  "≥2-independent-family oracle precondition remains UNMET); ALL lifecycle parameters UNAPPROVED DRAFT " +
-  "(spec §13 — D-13.11 / D-13.14 OPEN); the contract layer remains STATIC — the V4 dynamic-membership design " +
-  "plan is PROPOSED (Gate-C / Task-12-gated).";
+  "LIVE scoring feeds IMPLEMENTED (BIS WS_XRU + published Triennial wave · Frankfurter ECB · Yahoo vendor · gold-api + COMEX · " +
+  "protocol oracle ledger · automated OFAC SDN scan) with per-input statuses and honest residuals (convertibility fixture-fed — " +
+  "AREAER SSO-gated; geopolitical exposure declared — counsel gate); the ≥2-independent-family oracle precondition is MET at " +
+  "the pilot's off-chain witness layer (2–3 families per leg; §17.10's three-family ON-CHAIN requirement remains open). " +
+  "Lifecycle parameters PILOT-APPROVED by owner directive 2026-11-03 (D-13.11/D-13.14 recorded with evidence + parameter digest " +
+  "in the approval ledger; PRODUCTION Gate-C ratification remains OPEN). The contract layer is IMPLEMENTED at the source level " +
+  "— MTQSigmaV4.sol (registry-based dynamic membership, compiled, UNDEPLOYED) + TS reference validator + design plan; " +
+  "deployment is Gate-C / Task-12-gated.";
 
 /** Lifecycle state legend (spec §3 — registry.ts/types.ts LifecycleState). */
 const LIFECYCLE_LEGEND: { state: string; role: string }[] = [
@@ -73,11 +94,25 @@ export async function GET() {
     const entries = DEFAULT_REGISTRY.entries();
     const weightsBp = defaultGenesisWeightsBp();
     const genesisWeightSumBp = entries.reduce((acc, e) => acc + e.genesisWeightBp, 0);
+    // TASK-39: live scoring dossier (fail-soft — labeled fallbacks inside).
+    let scoringDossier: Awaited<ReturnType<typeof buildLiveScoringDossier>> | null = null;
+    let scoringError: string | null = null;
+    try {
+      scoringDossier = await buildLiveScoringDossier();
+    } catch (e) {
+      // [P2-class] no exception detail in public responses.
+      console.error("[api/constituency] scoring dossier build failed", {
+        errorType: e instanceof Error ? e.name : typeof e,
+      });
+      scoringError = "scoring dossier build failed (labeled outage — not silently omitted)";
+    }
+    // TASK-39: V4 reference-layer shadow demonstration (pure, deterministic).
+    const v4Demo = demonstrateV4ReferenceValidation();
     return NextResponse.json(
       {
         banner:
-          "TESTNET ONLY · SHADOW MODE ENFORCED · MACHINERY QUIESCENT · ALL PARAMETERS UNAPPROVED DRAFT · NOT ACCEPTED",
-        module: "src/lib/mtq/constituency/ (Task M8-3a — dynamic-membership machinery, IMPLEMENTED)",
+          "TESTNET ONLY · SHADOW MODE ENFORCED · MACHINERY QUIESCENT · PARAMETERS PILOT-APPROVED (owner directive 2026-11-03) · NOT ACCEPTED",
+        module: "src/lib/mtq/constituency/ (Task M8-3a — dynamic-membership machinery, IMPLEMENTED; TASK-39 — live feeds + approvals + V4)",
         quiescent: {
           disclosure: QUIESCENT_DISCLOSURE,
           activeBasketCount: defaultActiveBasketCount(),
@@ -105,11 +140,21 @@ export async function GET() {
         },
         lifecycleLegend: LIFECYCLE_LEGEND,
         transitions: TRANSITIONS,
+        scoringDossier: scoringDossier ?? { error: scoringError ?? "unavailable" },
+        approvals: {
+          summary: approvalStatusSummary(),
+          ledger: PARAMETER_APPROVAL_LEDGER,
+        },
+        contractLayerV4: {
+          status: V4_CONTRACT_STATUS,
+          shadowDemonstration: v4Demo,
+        },
         honestLimits: {
           line: HONEST_LIMITS,
           parameterClass: LIFECYCLE_PARAMETER_CLASS,
           scoringFeedDisclosure: SCORING_FEED_DISCLOSURE,
-          contractLayer: "STATIC — V4 dynamic-membership design plan PROPOSED (Gate-C / Task-12-gated)",
+          contractLayer:
+            "IMPLEMENTED (source level) — MTQSigmaV4.sol registry-based dynamic membership: compiled solc 0.8.36 · deployed bytecode 8,445 B (EIP-170 OK) · UNDEPLOYED (Gate-C / Task-12-gated) · TS reference validator verified 4/4 shadow cases · design plan status IMPLEMENTED",
         },
       },
       { headers: NO_STORE_HEADERS },

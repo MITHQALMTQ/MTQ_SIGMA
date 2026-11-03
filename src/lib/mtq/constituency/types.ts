@@ -15,18 +15,31 @@
 //   §4/§7. Provenance comments cite the validated prototype file and the spec
 //   § for every rule.
 //
-// HONEST SCOPE (read before citing):
-//   * ALL parameters are UNAPPROVED DRAFT (spec §13) — see parameters.ts.
+// HONEST SCOPE (TASK-39 UPDATE — 2026-11-03, owner directive "fix and implement"):
+//   * ALL parameters are PILOT-APPROVED for TESTNET-PILOT shadow operation
+//     (owner directive 2026-11-03; D-13.11/D-13.14 recorded with evidence +
+//     parameter digest in approvals.ts). PRODUCTION Gate-C ratification
+//     remains OPEN.
 //   * The lifecycle is QUIESCENT BY DEFAULT: no governance directive ⇒ no
 //     membership transition ever fires; the default registry initializes to
 //     the 7-component genesis set (registry.ts).
-//   * §4 eligibility scoring has NO live data feeds (BIS/AREAER/vendor
-//     ingestion does not exist; the ≥2-independent-family oracle precondition
-//     is unmet). Scoring inputs exist only as deterministic test fixtures.
-//   * The CONTRACT layer remains static (positive-weights-only submissions —
-//     an exit cannot reach 0 on-chain; bytes3[7] fixed shapes). The V4
-//     contract design plan is
-//     audit-work/task13/v4-contract-dynamic-membership-design-plan.md (PROPOSED).
+//   * §4 eligibility scoring NOW HAS LIVE FEEDS (feeds.ts): BIS official
+//     statistics (WS_XRU daily + the published Triennial turnover wave),
+//     Frankfurter ECB fixings, Yahoo vendor mids, gold-api.com + COMEX gold
+//     futures, the protocol's own oracle ledger (tier 3), and an automated
+//     OFAC SDN scan — every input carries a per-feed status; convertibility
+//     (AREAER SSO-gated) and geopolitical exposure (counsel dimension)
+//     remain fixture/declared-fed and are labeled as such. The
+//     ≥2-independent-family oracle precondition is MET at the pilot's
+//     off-chain witness layer (2–3 families per leg); §17.10's THREE-family
+//     ON-CHAIN requirement remains a separate open production gate.
+//   * The CONTRACT layer is IMPLEMENTED at the source level:
+//     contracts/MTQSigmaV4.sol (registry-based dynamic membership —
+//     compiled, UNDEPLOYED) + the TS reference validator (contract-v4.ts)
+//     + the design plan (audit-work/task13/v4-contract-dynamic-
+//     membership-design-plan.md, status IMPLEMENTED). Deployment is Gate-C /
+//     Task-12-gated; the deployed v1.2 estate is a different economic
+//     family and remains untouched.
 //   * Posture: TESTNET ONLY · SHADOW MODE ENFORCED · UNAUTHORIZED RESERVE
 //     TRANSACTIONS FORBIDDEN · NOT ACCEPTED. No economic parameter is
 //     production-approved; no ratification gate is advanced by this module.
@@ -380,11 +393,14 @@ export interface DecisionRecord {
 //    never measure market relevance). A dimension whose inputs fall below its
 //    required tier scores 0 (fail-closed), never a neutral default.
 //
-// HONEST FEED STATUS (no live ingestion exists): BIS/AREAER/vendor ingestion is
-// NOT implemented anywhere in the codebase — every scoring input used by this
-// engine is a deterministic test fixture carrying a declared tier label. The
-// ≥2-independent-family oracle precondition remains UNMET for the tier-2 rows
-// (honest-status D-oracle-witnesses).
+// FEED STATUS (TASK-39 — live ingestion IMPLEMENTED in feeds.ts): the live
+// sources are BIS official statistics (WS_XRU daily reference rates + the
+// published Triennial turnover wave), Frankfurter ECB fixings, Yahoo vendor
+// mids, gold-api.com + COMEX gold futures, the protocol's own oracle ledger
+// (tier 3), and an automated OFAC SDN scan. The ≥2-independent-family
+// precondition is MET at the pilot's off-chain witness layer (2–3 families
+// per index leg). Remaining non-live inputs and their reasons are declared
+// per-row below and in every dossier (feeds.ts residualLimits).
 // ---------------------------------------------------------------------------
 
 export type ProvenanceTier = 1 | 2 | 3;
@@ -394,16 +410,18 @@ export interface ScoreInputProvenanceRow {
   tier: ProvenanceTier;
   tierDefinition: string;
   declaredSource: string;
-  feedStatus: "NO-LIVE-FEED (test fixtures only)" | string;
+  feedStatus: string; // LIVE / LIVE-AUTOMATED / LIVE-PROXY / PUBLISHED-OFFICIAL / DECLARED-ESTIMATE / FIXTURE-FALLBACK (feeds.ts vocabulary)
 }
 
 export const PROVENANCE_TIER_DEFINITIONS: Record<ProvenanceTier, string> = {
   1: "Tier 1 — primary official statistics (statistical offices, BIS, IMF AREAER; counsel review where applicable) per spec §2",
-  2: "Tier 2 — regulated market data (published fixings, data vendors with ≥2 independent families — the independence precondition is NOT MET today) per spec §2",
+  2: "Tier 2 — regulated market data (published fixings, data vendors with ≥2 independent families — the independence precondition is MET at the pilot's off-chain witness layer: 2–3 live families per leg) per spec §2",
   3: "Tier 3 — protocol-internal oracle ledger (data-quality dimension only; tier-3 inputs may never measure market relevance per spec §2)",
 };
 
-/** The per-input tier map (spec §2/§4.1 candidate sources, declared).
+/** The per-input tier map (spec §2/§4.1 candidate sources, declared) with the
+ *  TASK-39 live-ingestion status per row (feeds.ts implements the ingestion;
+ *  unreachable sources degrade to labeled fixture fallbacks — never fabricated).
  *  Diversification is assigned tier 3 because the spec routes D_i to the
  *  §6.1 covariance layer (mase.ts) — a protocol-internal measure of structural
  *  risk, not a market-relevance score; the tier-3 market-relevance prohibition
@@ -414,68 +432,73 @@ export const SCORING_INPUT_PROVENANCE: Record<keyof ScoreInputs, ScoreInputProve
     tier: 1,
     tierDefinition: PROVENANCE_TIER_DEFINITIONS[1],
     declaredSource: "BIS Triennial Central Bank Survey (FX turnover share); RR_i defined 'as L_i' per spec §4.1 (EXOGENOUS economy-wide FX-use only — INV-SEP-1)",
-    feedStatus: "NO-LIVE-FEED (test fixtures only)",
+    feedStatus: "PUBLISHED-OFFICIAL (BIS 2022 wave — source cadence triennial; source page verified reachable; no per-call API exists by source design)",
   },
   dataQuality: {
     input: "dataQuality",
     tier: 3,
     tierDefinition: PROVENANCE_TIER_DEFINITIONS[3],
     declaredSource: "The protocol's own oracle ledger (spec §4.1 QD row) — the designed tier-3 data-quality dimension",
-    feedStatus: "NO-LIVE-FEED (test fixtures only)",
+    feedStatus: "LIVE (Prisma OracleSample — 24h ≥2-valid-feed non-paused ratio per pair)",
   },
   convertibility: {
     input: "convertibility",
     tier: 1,
     tierDefinition: PROVENANCE_TIER_DEFINITIONS[1],
     declaredSource: "IMF AREAER currency-restriction indicators + onshore/offshore basis cross-check (spec §4.1 CV row)",
-    feedStatus: "NO-LIVE-FEED (test fixtures only)",
+    feedStatus: "FIXTURE-FALLBACK (AREAER SSO-gated from the pilot sandbox — carried validated-prototype values / declared estimates, labeled)",
   },
   jurisdictionalRestrictions: {
     input: "jurisdictionalRestrictions",
     tier: 1,
     tierDefinition: PROVENANCE_TIER_DEFINITIONS[1],
     declaredSource: "Sanctions-screening provider + counsel review (spec §4.1 JR row — Gate-relevant, D-13.3 context)",
-    feedStatus: "NO-LIVE-FEED (test fixtures only)",
+    feedStatus: "LIVE-AUTOMATED (OFAC SDN list live-downloaded + issuing-jurisdiction program scan; counsel sign-off remains a separate manual gate)",
   },
   currencyControl: {
     input: "currencyControl",
     tier: 2,
     tierDefinition: PROVENANCE_TIER_DEFINITIONS[2],
     declaredSource: "FX data vendors (onshore/offshore basis spread, trailing median — spec §4.1 CC row)",
-    feedStatus: "NO-LIVE-FEED (test fixtures only)",
+    feedStatus: "LIVE-PROXY (cross-family mid divergence across 2–3 live families — proxy until a dedicated NDF/onshore vendor feed exists)",
   },
   benchmarkAvailability: {
     input: "benchmarkAvailability",
     tier: 2,
     tierDefinition: PROVENANCE_TIER_DEFINITIONS[2],
     declaredSource: "Published fixings (ECB ref rates; WM/Reuters-type fixes; LBMA gold fix — spec §4.1 BA row)",
-    feedStatus: "NO-LIVE-FEED (test fixtures only)",
+    feedStatus: "LIVE (independent fixing families within staleness per leg: ECB + BIS official + vendor; gold spot + futures)",
   },
   volatility: {
     input: "volatility",
     tier: 2,
     tierDefinition: PROVENANCE_TIER_DEFINITIONS[2],
     declaredSource: "The same validated multi-source prices as the index (spec §4.1 V row; consistency requirement)",
-    feedStatus: "NO-LIVE-FEED (test fixtures only)",
+    feedStatus: "LIVE (90d realized annualized vol from the multi-family price history — ECB fixings / COMEX closes)",
   },
   diversification: {
     input: "diversification",
     tier: 3,
     tierDefinition: PROVENANCE_TIER_DEFINITIONS[3],
     declaredSource: "§6.1 covariance layer (mase.ts — protocol-internal structural-risk measure, not market relevance)",
-    feedStatus: "NO-LIVE-FEED (test fixtures only)",
+    feedStatus: "LIVE (90d return correlation matrix across the live-history components)",
   },
   geopoliticalExposure: {
     input: "geopoliticalExposure",
     tier: 1,
     tierDefinition: PROVENANCE_TIER_DEFINITIONS[1],
     declaredSource: "Sanctions-screening provider + counsel review; history-desk dossier per record (spec §4.1 GE row)",
-    feedStatus: "NO-LIVE-FEED (test fixtures only)",
+    feedStatus: "DECLARED-ESTIMATE (counsel/history-desk dimension — no automatable feed exists by design; declared values labeled)",
   },
 };
 
 export const SCORING_FEED_DISCLOSURE =
-  "§4 eligibility-scoring inputs have NO live data feeds: BIS/AREAER/vendor ingestion does not exist in the codebase; " +
-  "every scoring input consumed by this engine is a deterministic test fixture carrying a declared provenance tier " +
-  "(types.ts SCORING_INPUT_PROVENANCE); the ≥2-independent-family oracle precondition remains UNMET; no score computed " +
-  "by this engine is evidence about any real currency.";
+  "§4 eligibility-scoring LIVE FEEDS IMPLEMENTED (TASK-39, feeds.ts): BIS official statistics (WS_XRU daily reference rates + the " +
+  "published Triennial 2022 turnover wave), Frankfurter ECB fixings, Yahoo vendor mids, gold-api.com + COMEX gold futures, the " +
+  "protocol's own oracle ledger (tier-3), and an automated OFAC SDN jurisdiction scan — every input carries a per-feed status " +
+  "(LIVE / LIVE-AUTOMATED / LIVE-PROXY / PUBLISHED-OFFICIAL / DECLARED-ESTIMATE / FIXTURE-FALLBACK) in every dossier. The " +
+  "≥2-independent-family oracle precondition is MET at the pilot's off-chain witness layer (2–3 independent families per index " +
+  "leg; §17.10's THREE-family ON-CHAIN requirement remains a separate open production gate). Honest residuals: convertibility " +
+  "stays fixture-fed (IMF AREAER is SSO-gated from the pilot sandbox), geopolitical exposure stays declared (counsel review is " +
+  "a manual gate), and no T2 confirmation is certifiable while those residuals stand. Scores are TESTNET-PILOT shadow-mode " +
+  "measurements, not production evidence.";

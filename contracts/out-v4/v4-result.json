@@ -1,0 +1,1799 @@
+{
+  "label": "v4",
+  "runs": 200,
+  "viaIR": true,
+  "sourcePath": "/home/z/my-project/contracts/MTQSigmaV4.sol",
+  "solcVersion": "0.8.36+commit.8a079791.Emscripten.clang",
+  "errors": [
+    {
+      "component": "general",
+      "errorCode": "2018",
+      "formattedMessage": "Warning: Function state mutability can be restricted to pure\n   --> MTQSigmaV4.sol:775:5:\n    |\n775 |     function getHonestStatus() external view returns (string memory) {\n    |     ^ (Relevant source part starts here and spans across multiple lines).\n\n",
+      "message": "Function state mutability can be restricted to pure",
+      "severity": "warning",
+      "sourceLocation": {
+        "end": 44967,
+        "file": "MTQSigmaV4.sol",
+        "start": 44724
+      },
+      "type": "Warning"
+    }
+  ],
+  "creationBytes": 9327,
+  "deployedBytes": 8445,
+  "abi": [
+    {
+      "inputs": [
+        {
+          "internalType": "address",
+          "name": "_governance",
+          "type": "address"
+        },
+        {
+          "internalType": "address",
+          "name": "_emergencyAuthority",
+          "type": "address"
+        }
+      ],
+      "stateMutability": "nonpayable",
+      "type": "constructor"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "uint256",
+          "name": "registryId",
+          "type": "uint256"
+        }
+      ],
+      "name": "ActiveOmitted",
+      "type": "error"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "bytes3",
+          "name": "id",
+          "type": "bytes3"
+        }
+      ],
+      "name": "AlreadyRegistered",
+      "type": "error"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "uint256",
+          "name": "activeCount",
+          "type": "uint256"
+        },
+        {
+          "internalType": "uint256",
+          "name": "nMax",
+          "type": "uint256"
+        }
+      ],
+      "name": "BasketFull",
+      "type": "error"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "uint256",
+          "name": "registryId",
+          "type": "uint256"
+        }
+      ],
+      "name": "DuplicateId",
+      "type": "error"
+    },
+    {
+      "inputs": [],
+      "name": "EmptySubmission",
+      "type": "error"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "uint256",
+          "name": "registryId",
+          "type": "uint256"
+        },
+        {
+          "internalType": "uint256",
+          "name": "weight",
+          "type": "uint256"
+        }
+      ],
+      "name": "ExcludedMustBeZero",
+      "type": "error"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "uint256",
+          "name": "registryId",
+          "type": "uint256"
+        },
+        {
+          "internalType": "uint256",
+          "name": "weight",
+          "type": "uint256"
+        }
+      ],
+      "name": "ExclusionWeightNotZero",
+      "type": "error"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "uint32",
+          "name": "minBp",
+          "type": "uint32"
+        },
+        {
+          "internalType": "uint32",
+          "name": "maxBp",
+          "type": "uint32"
+        }
+      ],
+      "name": "InvalidEnvelope",
+      "type": "error"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "uint256",
+          "name": "proposed",
+          "type": "uint256"
+        },
+        {
+          "internalType": "uint256",
+          "name": "maxAllowed",
+          "type": "uint256"
+        }
+      ],
+      "name": "InvalidNMax",
+      "type": "error"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "uint8",
+          "name": "current",
+          "type": "uint8"
+        }
+      ],
+      "name": "InvalidStatus",
+      "type": "error"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "uint256",
+          "name": "total",
+          "type": "uint256"
+        }
+      ],
+      "name": "InvariantSumNotExact",
+      "type": "error"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "uint256",
+          "name": "idsLen",
+          "type": "uint256"
+        },
+        {
+          "internalType": "uint256",
+          "name": "weightsLen",
+          "type": "uint256"
+        }
+      ],
+      "name": "LengthMismatch",
+      "type": "error"
+    },
+    {
+      "inputs": [],
+      "name": "MissingCause",
+      "type": "error"
+    },
+    {
+      "inputs": [],
+      "name": "MissingDossier",
+      "type": "error"
+    },
+    {
+      "inputs": [],
+      "name": "MissingEvidence",
+      "type": "error"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "uint256",
+          "name": "proposed",
+          "type": "uint256"
+        },
+        {
+          "internalType": "uint256",
+          "name": "activeCount",
+          "type": "uint256"
+        }
+      ],
+      "name": "NMaxBelowActive",
+      "type": "error"
+    },
+    {
+      "inputs": [],
+      "name": "NoPendingNMax",
+      "type": "error"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "uint256",
+          "name": "registryId",
+          "type": "uint256"
+        },
+        {
+          "internalType": "uint256",
+          "name": "weight",
+          "type": "uint256"
+        }
+      ],
+      "name": "NotBpQuantum",
+      "type": "error"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "uint256",
+          "name": "registryId",
+          "type": "uint256"
+        }
+      ],
+      "name": "NotRegistered",
+      "type": "error"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "uint8",
+          "name": "current",
+          "type": "uint8"
+        }
+      ],
+      "name": "NotSuspendable",
+      "type": "error"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "uint8",
+          "name": "current",
+          "type": "uint8"
+        }
+      ],
+      "name": "NotSuspended",
+      "type": "error"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "uint256",
+          "name": "registryId",
+          "type": "uint256"
+        },
+        {
+          "internalType": "uint256",
+          "name": "weight",
+          "type": "uint256"
+        }
+      ],
+      "name": "OmittedPositiveWeight",
+      "type": "error"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "uint256",
+          "name": "total",
+          "type": "uint256"
+        }
+      ],
+      "name": "RegistryFull",
+      "type": "error"
+    },
+    {
+      "inputs": [],
+      "name": "RenounceNotSelf",
+      "type": "error"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "uint256",
+          "name": "sum",
+          "type": "uint256"
+        }
+      ],
+      "name": "SumNotExact",
+      "type": "error"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "uint256",
+          "name": "currentBlock",
+          "type": "uint256"
+        },
+        {
+          "internalType": "uint256",
+          "name": "effectiveBlock",
+          "type": "uint256"
+        }
+      ],
+      "name": "TimelockNotElapsed",
+      "type": "error"
+    },
+    {
+      "inputs": [],
+      "name": "Unauthorized",
+      "type": "error"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "uint256",
+          "name": "registryId",
+          "type": "uint256"
+        },
+        {
+          "internalType": "uint256",
+          "name": "weight",
+          "type": "uint256"
+        },
+        {
+          "internalType": "uint256",
+          "name": "maxBp18",
+          "type": "uint256"
+        }
+      ],
+      "name": "WeightAboveEnvelope",
+      "type": "error"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "uint256",
+          "name": "registryId",
+          "type": "uint256"
+        },
+        {
+          "internalType": "uint256",
+          "name": "weight",
+          "type": "uint256"
+        },
+        {
+          "internalType": "uint256",
+          "name": "minBp18",
+          "type": "uint256"
+        }
+      ],
+      "name": "WeightBelowEnvelope",
+      "type": "error"
+    },
+    {
+      "inputs": [],
+      "name": "ZeroAuthority",
+      "type": "error"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "uint256",
+          "name": "registryId",
+          "type": "uint256"
+        }
+      ],
+      "name": "ZeroWeightForActive",
+      "type": "error"
+    },
+    {
+      "anonymous": false,
+      "inputs": [
+        {
+          "indexed": true,
+          "internalType": "uint256",
+          "name": "registryId",
+          "type": "uint256"
+        },
+        {
+          "indexed": false,
+          "internalType": "bytes32",
+          "name": "evidenceHash",
+          "type": "bytes32"
+        },
+        {
+          "indexed": false,
+          "internalType": "uint256",
+          "name": "timestamp",
+          "type": "uint256"
+        }
+      ],
+      "name": "AdmissionConfirmed",
+      "type": "event"
+    },
+    {
+      "anonymous": false,
+      "inputs": [
+        {
+          "indexed": true,
+          "internalType": "uint256",
+          "name": "registryId",
+          "type": "uint256"
+        },
+        {
+          "indexed": true,
+          "internalType": "bytes3",
+          "name": "id",
+          "type": "bytes3"
+        },
+        {
+          "indexed": false,
+          "internalType": "bytes32",
+          "name": "dossierHash",
+          "type": "bytes32"
+        },
+        {
+          "indexed": false,
+          "internalType": "uint64",
+          "name": "registeredAt",
+          "type": "uint64"
+        }
+      ],
+      "name": "ComponentRegistered",
+      "type": "event"
+    },
+    {
+      "anonymous": false,
+      "inputs": [
+        {
+          "indexed": true,
+          "internalType": "uint256",
+          "name": "registryId",
+          "type": "uint256"
+        },
+        {
+          "indexed": false,
+          "internalType": "bytes32",
+          "name": "evidenceHash",
+          "type": "bytes32"
+        },
+        {
+          "indexed": false,
+          "internalType": "uint256",
+          "name": "timestamp",
+          "type": "uint256"
+        }
+      ],
+      "name": "EligibilityMarked",
+      "type": "event"
+    },
+    {
+      "anonymous": false,
+      "inputs": [
+        {
+          "indexed": true,
+          "internalType": "uint256",
+          "name": "registryId",
+          "type": "uint256"
+        },
+        {
+          "indexed": false,
+          "internalType": "bytes32",
+          "name": "causeHash",
+          "type": "bytes32"
+        },
+        {
+          "indexed": false,
+          "internalType": "uint256",
+          "name": "timestamp",
+          "type": "uint256"
+        }
+      ],
+      "name": "EmergencySuspended",
+      "type": "event"
+    },
+    {
+      "anonymous": false,
+      "inputs": [
+        {
+          "indexed": true,
+          "internalType": "uint256",
+          "name": "registryId",
+          "type": "uint256"
+        },
+        {
+          "indexed": false,
+          "internalType": "uint256",
+          "name": "timestamp",
+          "type": "uint256"
+        }
+      ],
+      "name": "ExclusionCompleted",
+      "type": "event"
+    },
+    {
+      "anonymous": false,
+      "inputs": [
+        {
+          "indexed": false,
+          "internalType": "uint256",
+          "name": "oldNMax",
+          "type": "uint256"
+        },
+        {
+          "indexed": false,
+          "internalType": "uint256",
+          "name": "newNMax",
+          "type": "uint256"
+        },
+        {
+          "indexed": false,
+          "internalType": "uint256",
+          "name": "timestamp",
+          "type": "uint256"
+        }
+      ],
+      "name": "NMaxExecuted",
+      "type": "event"
+    },
+    {
+      "anonymous": false,
+      "inputs": [
+        {
+          "indexed": false,
+          "internalType": "uint256",
+          "name": "proposed",
+          "type": "uint256"
+        },
+        {
+          "indexed": false,
+          "internalType": "uint256",
+          "name": "effectiveBlock",
+          "type": "uint256"
+        },
+        {
+          "indexed": false,
+          "internalType": "uint256",
+          "name": "timestamp",
+          "type": "uint256"
+        }
+      ],
+      "name": "NMaxProposed",
+      "type": "event"
+    },
+    {
+      "anonymous": false,
+      "inputs": [
+        {
+          "indexed": false,
+          "internalType": "uint256",
+          "name": "newVersion",
+          "type": "uint256"
+        }
+      ],
+      "name": "RegistryVersionBumped",
+      "type": "event"
+    },
+    {
+      "anonymous": false,
+      "inputs": [
+        {
+          "indexed": true,
+          "internalType": "uint256",
+          "name": "registryId",
+          "type": "uint256"
+        },
+        {
+          "indexed": false,
+          "internalType": "bytes32",
+          "name": "freshDossierHash",
+          "type": "bytes32"
+        },
+        {
+          "indexed": false,
+          "internalType": "uint256",
+          "name": "timestamp",
+          "type": "uint256"
+        }
+      ],
+      "name": "Renominated",
+      "type": "event"
+    },
+    {
+      "anonymous": false,
+      "inputs": [
+        {
+          "indexed": true,
+          "internalType": "uint256",
+          "name": "registryId",
+          "type": "uint256"
+        },
+        {
+          "indexed": false,
+          "internalType": "bytes32",
+          "name": "evidenceHash",
+          "type": "bytes32"
+        },
+        {
+          "indexed": false,
+          "internalType": "uint256",
+          "name": "timestamp",
+          "type": "uint256"
+        }
+      ],
+      "name": "RetirementConfirmed",
+      "type": "event"
+    },
+    {
+      "anonymous": false,
+      "inputs": [
+        {
+          "indexed": true,
+          "internalType": "bytes32",
+          "name": "role",
+          "type": "bytes32"
+        },
+        {
+          "indexed": true,
+          "internalType": "address",
+          "name": "account",
+          "type": "address"
+        },
+        {
+          "indexed": true,
+          "internalType": "address",
+          "name": "sender",
+          "type": "address"
+        }
+      ],
+      "name": "RoleGranted",
+      "type": "event"
+    },
+    {
+      "anonymous": false,
+      "inputs": [
+        {
+          "indexed": true,
+          "internalType": "bytes32",
+          "name": "role",
+          "type": "bytes32"
+        },
+        {
+          "indexed": true,
+          "internalType": "address",
+          "name": "account",
+          "type": "address"
+        },
+        {
+          "indexed": true,
+          "internalType": "address",
+          "name": "sender",
+          "type": "address"
+        }
+      ],
+      "name": "RoleRevoked",
+      "type": "event"
+    },
+    {
+      "anonymous": false,
+      "inputs": [
+        {
+          "indexed": true,
+          "internalType": "uint256",
+          "name": "registryId",
+          "type": "uint256"
+        },
+        {
+          "indexed": false,
+          "internalType": "bool",
+          "name": "reinstated",
+          "type": "bool"
+        },
+        {
+          "indexed": false,
+          "internalType": "uint256",
+          "name": "timestamp",
+          "type": "uint256"
+        }
+      ],
+      "name": "SuspensionResolved",
+      "type": "event"
+    },
+    {
+      "anonymous": false,
+      "inputs": [
+        {
+          "indexed": true,
+          "internalType": "uint256",
+          "name": "registryId",
+          "type": "uint256"
+        },
+        {
+          "indexed": false,
+          "internalType": "bytes32",
+          "name": "reasonHash",
+          "type": "bytes32"
+        },
+        {
+          "indexed": false,
+          "internalType": "uint256",
+          "name": "timestamp",
+          "type": "uint256"
+        }
+      ],
+      "name": "WatchFlagged",
+      "type": "event"
+    },
+    {
+      "anonymous": false,
+      "inputs": [
+        {
+          "indexed": false,
+          "internalType": "uint256",
+          "name": "weightVersion",
+          "type": "uint256"
+        },
+        {
+          "indexed": false,
+          "internalType": "uint256",
+          "name": "count",
+          "type": "uint256"
+        },
+        {
+          "indexed": false,
+          "internalType": "bytes32",
+          "name": "vectorHash",
+          "type": "bytes32"
+        }
+      ],
+      "name": "WeightsSubmitted",
+      "type": "event"
+    },
+    {
+      "inputs": [],
+      "name": "ADMIN_ROLE",
+      "outputs": [
+        {
+          "internalType": "bytes32",
+          "name": "",
+          "type": "bytes32"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "DEFAULT_ADMIN_ROLE",
+      "outputs": [
+        {
+          "internalType": "bytes32",
+          "name": "",
+          "type": "bytes32"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "KEEPER_ROLE",
+      "outputs": [
+        {
+          "internalType": "bytes32",
+          "name": "",
+          "type": "bytes32"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "MAX_BASKET_SIZE",
+      "outputs": [
+        {
+          "internalType": "uint256",
+          "name": "",
+          "type": "uint256"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "MTQ_EMERGENCY_ROLE",
+      "outputs": [
+        {
+          "internalType": "bytes32",
+          "name": "",
+          "type": "bytes32"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "MTQ_GOVERNANCE_ROLE",
+      "outputs": [
+        {
+          "internalType": "bytes32",
+          "name": "",
+          "type": "bytes32"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "NMAX_TIMELOCK_BLOCKS",
+      "outputs": [
+        {
+          "internalType": "uint256",
+          "name": "",
+          "type": "uint256"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "activeCount",
+      "outputs": [
+        {
+          "internalType": "uint256",
+          "name": "count",
+          "type": "uint256"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "uint256",
+          "name": "registryId",
+          "type": "uint256"
+        }
+      ],
+      "name": "completeRetirement",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "uint256",
+          "name": "",
+          "type": "uint256"
+        }
+      ],
+      "name": "componentList",
+      "outputs": [
+        {
+          "internalType": "bytes3",
+          "name": "",
+          "type": "bytes3"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "uint256",
+          "name": "registryId",
+          "type": "uint256"
+        },
+        {
+          "internalType": "bytes32",
+          "name": "evidenceHash",
+          "type": "bytes32"
+        }
+      ],
+      "name": "confirmAdmission",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "uint256",
+          "name": "registryId",
+          "type": "uint256"
+        },
+        {
+          "internalType": "bytes32",
+          "name": "evidenceHash",
+          "type": "bytes32"
+        }
+      ],
+      "name": "confirmRetirement",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "uint256",
+          "name": "registryId",
+          "type": "uint256"
+        },
+        {
+          "internalType": "bytes32",
+          "name": "causeHash",
+          "type": "bytes32"
+        }
+      ],
+      "name": "emergencySuspend",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "executeNMax",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "uint256",
+          "name": "registryId",
+          "type": "uint256"
+        },
+        {
+          "internalType": "bytes32",
+          "name": "reasonHash",
+          "type": "bytes32"
+        }
+      ],
+      "name": "flagWatch",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "getActiveIds",
+      "outputs": [
+        {
+          "internalType": "uint256[]",
+          "name": "activeIds",
+          "type": "uint256[]"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "uint256",
+          "name": "registryId",
+          "type": "uint256"
+        }
+      ],
+      "name": "getActiveWeight",
+      "outputs": [
+        {
+          "internalType": "uint256",
+          "name": "",
+          "type": "uint256"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "getHonestStatus",
+      "outputs": [
+        {
+          "internalType": "string",
+          "name": "",
+          "type": "string"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "bytes32",
+          "name": "role",
+          "type": "bytes32"
+        },
+        {
+          "internalType": "address",
+          "name": "account",
+          "type": "address"
+        }
+      ],
+      "name": "grantRole",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "bytes32",
+          "name": "role",
+          "type": "bytes32"
+        },
+        {
+          "internalType": "address",
+          "name": "account",
+          "type": "address"
+        }
+      ],
+      "name": "hasRole",
+      "outputs": [
+        {
+          "internalType": "bool",
+          "name": "",
+          "type": "bool"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "bytes3",
+          "name": "",
+          "type": "bytes3"
+        }
+      ],
+      "name": "idToRegistryId",
+      "outputs": [
+        {
+          "internalType": "uint256",
+          "name": "",
+          "type": "uint256"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "uint256",
+          "name": "registryId",
+          "type": "uint256"
+        },
+        {
+          "internalType": "bytes32",
+          "name": "evidenceHash",
+          "type": "bytes32"
+        }
+      ],
+      "name": "markEligible",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "nMax",
+      "outputs": [
+        {
+          "internalType": "uint256",
+          "name": "",
+          "type": "uint256"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "nextRegistryId",
+      "outputs": [
+        {
+          "internalType": "uint256",
+          "name": "",
+          "type": "uint256"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "pendingNMax",
+      "outputs": [
+        {
+          "internalType": "uint256",
+          "name": "",
+          "type": "uint256"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "pendingNMaxEffectiveBlock",
+      "outputs": [
+        {
+          "internalType": "uint256",
+          "name": "",
+          "type": "uint256"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "uint256",
+          "name": "newNMax",
+          "type": "uint256"
+        }
+      ],
+      "name": "proposeNMax",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "uint256",
+          "name": "",
+          "type": "uint256"
+        }
+      ],
+      "name": "records",
+      "outputs": [
+        {
+          "internalType": "bytes3",
+          "name": "id",
+          "type": "bytes3"
+        },
+        {
+          "internalType": "uint64",
+          "name": "registeredAt",
+          "type": "uint64"
+        },
+        {
+          "internalType": "enum MTQSigmaV4.LifecycleStatus",
+          "name": "status",
+          "type": "uint8"
+        },
+        {
+          "internalType": "uint32",
+          "name": "envelopeMinBp",
+          "type": "uint32"
+        },
+        {
+          "internalType": "uint32",
+          "name": "envelopeMaxBp",
+          "type": "uint32"
+        },
+        {
+          "internalType": "uint32",
+          "name": "velocityBp",
+          "type": "uint32"
+        },
+        {
+          "internalType": "uint96",
+          "name": "baseFixingUsdMicros",
+          "type": "uint96"
+        },
+        {
+          "internalType": "bytes32",
+          "name": "dossierHash",
+          "type": "bytes32"
+        },
+        {
+          "internalType": "bool",
+          "name": "exists",
+          "type": "bool"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "bytes3",
+          "name": "id",
+          "type": "bytes3"
+        },
+        {
+          "internalType": "bytes32",
+          "name": "dossierHash",
+          "type": "bytes32"
+        },
+        {
+          "internalType": "uint32",
+          "name": "envMinBp",
+          "type": "uint32"
+        },
+        {
+          "internalType": "uint32",
+          "name": "envMaxBp",
+          "type": "uint32"
+        },
+        {
+          "internalType": "uint32",
+          "name": "velocityBp",
+          "type": "uint32"
+        },
+        {
+          "internalType": "uint96",
+          "name": "baseFixingUsdMicros",
+          "type": "uint96"
+        }
+      ],
+      "name": "register",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "registrySize",
+      "outputs": [
+        {
+          "internalType": "uint256",
+          "name": "",
+          "type": "uint256"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "registryVersion",
+      "outputs": [
+        {
+          "internalType": "uint256",
+          "name": "",
+          "type": "uint256"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "uint256",
+          "name": "registryId",
+          "type": "uint256"
+        },
+        {
+          "internalType": "bytes32",
+          "name": "freshDossierHash",
+          "type": "bytes32"
+        }
+      ],
+      "name": "renominate",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "bytes32",
+          "name": "role",
+          "type": "bytes32"
+        },
+        {
+          "internalType": "address",
+          "name": "account",
+          "type": "address"
+        }
+      ],
+      "name": "renounceRole",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "uint256",
+          "name": "registryId",
+          "type": "uint256"
+        },
+        {
+          "internalType": "bool",
+          "name": "reinstate",
+          "type": "bool"
+        }
+      ],
+      "name": "resolveSuspension",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "bytes32",
+          "name": "role",
+          "type": "bytes32"
+        },
+        {
+          "internalType": "address",
+          "name": "account",
+          "type": "address"
+        }
+      ],
+      "name": "revokeRole",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "uint256[]",
+          "name": "registryIds",
+          "type": "uint256[]"
+        },
+        {
+          "internalType": "uint256[]",
+          "name": "weightsBp18",
+          "type": "uint256[]"
+        }
+      ],
+      "name": "submitWeights",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "uint256",
+          "name": "",
+          "type": "uint256"
+        }
+      ],
+      "name": "suspensionCause",
+      "outputs": [
+        {
+          "internalType": "bytes32",
+          "name": "",
+          "type": "bytes32"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "totalWeight",
+      "outputs": [
+        {
+          "internalType": "uint256",
+          "name": "total",
+          "type": "uint256"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "uint256",
+          "name": "",
+          "type": "uint256"
+        }
+      ],
+      "name": "weightHistory",
+      "outputs": [
+        {
+          "internalType": "bytes32",
+          "name": "",
+          "type": "bytes32"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "weightVersion",
+      "outputs": [
+        {
+          "internalType": "uint256",
+          "name": "",
+          "type": "uint256"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "uint256",
+          "name": "",
+          "type": "uint256"
+        }
+      ],
+      "name": "weightsBp",
+      "outputs": [
+        {
+          "internalType": "uint256",
+          "name": "",
+          "type": "uint256"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    }
+  ],
+  "methodIdentifiers": {
+    "ADMIN_ROLE()": "75b238fc",
+    "DEFAULT_ADMIN_ROLE()": "a217fddf",
+    "KEEPER_ROLE()": "364bc15a",
+    "MAX_BASKET_SIZE()": "6f417ab2",
+    "MTQ_EMERGENCY_ROLE()": "cde16c3a",
+    "MTQ_GOVERNANCE_ROLE()": "595f075f",
+    "NMAX_TIMELOCK_BLOCKS()": "2b98cdc2",
+    "activeCount()": "4331ed1f",
+    "completeRetirement(uint256)": "73996f48",
+    "componentList(uint256)": "4439b585",
+    "confirmAdmission(uint256,bytes32)": "852715c7",
+    "confirmRetirement(uint256,bytes32)": "c7d60278",
+    "emergencySuspend(uint256,bytes32)": "be636457",
+    "executeNMax()": "89f21f15",
+    "flagWatch(uint256,bytes32)": "98464fbd",
+    "getActiveIds()": "11e40a8d",
+    "getActiveWeight(uint256)": "ccbb56a0",
+    "getHonestStatus()": "dfb76c1d",
+    "grantRole(bytes32,address)": "2f2ff15d",
+    "hasRole(bytes32,address)": "91d14854",
+    "idToRegistryId(bytes3)": "cfbf6413",
+    "markEligible(uint256,bytes32)": "cee0bc7e",
+    "nMax()": "caa95bb8",
+    "nextRegistryId()": "92acb0c0",
+    "pendingNMax()": "60bf2f0f",
+    "pendingNMaxEffectiveBlock()": "fb73e9b5",
+    "proposeNMax(uint256)": "b6cacf56",
+    "records(uint256)": "34461067",
+    "register(bytes3,bytes32,uint32,uint32,uint32,uint96)": "0ca40314",
+    "registrySize()": "9f88ce02",
+    "registryVersion()": "0f9be51c",
+    "renominate(uint256,bytes32)": "eefbaf22",
+    "renounceRole(bytes32,address)": "36568abe",
+    "resolveSuspension(uint256,bool)": "e11ee540",
+    "revokeRole(bytes32,address)": "d547741f",
+    "submitWeights(uint256[],uint256[])": "91cd3bb7",
+    "suspensionCause(uint256)": "5b609e6a",
+    "totalWeight()": "96c82e57",
+    "weightHistory(uint256)": "d7fc15f4",
+    "weightVersion()": "c8d84150",
+    "weightsBp(uint256)": "a4edc57a"
+  },
+  "storageLayout": {
+    "storage": [
+      {
+        "astId": 215,
+        "contract": "MTQSigmaV4.sol:MTQSigmaV4",
+        "label": "_roles",
+        "offset": 0,
+        "slot": "0",
+        "type": "t_mapping(t_bytes32,t_mapping(t_address,t_bool))"
+      },
+      {
+        "astId": 360,
+        "contract": "MTQSigmaV4.sol:MTQSigmaV4",
+        "label": "componentList",
+        "offset": 0,
+        "slot": "1",
+        "type": "t_array(t_bytes3)dyn_storage"
+      },
+      {
+        "astId": 366,
+        "contract": "MTQSigmaV4.sol:MTQSigmaV4",
+        "label": "records",
+        "offset": 0,
+        "slot": "2",
+        "type": "t_mapping(t_uint256,t_struct(ComponentRecord)356_storage)"
+      },
+      {
+        "astId": 371,
+        "contract": "MTQSigmaV4.sol:MTQSigmaV4",
+        "label": "idToRegistryId",
+        "offset": 0,
+        "slot": "3",
+        "type": "t_mapping(t_bytes3,t_uint256)"
+      },
+      {
+        "astId": 374,
+        "contract": "MTQSigmaV4.sol:MTQSigmaV4",
+        "label": "nextRegistryId",
+        "offset": 0,
+        "slot": "4",
+        "type": "t_uint256"
+      },
+      {
+        "astId": 377,
+        "contract": "MTQSigmaV4.sol:MTQSigmaV4",
+        "label": "registryVersion",
+        "offset": 0,
+        "slot": "5",
+        "type": "t_uint256"
+      },
+      {
+        "astId": 384,
+        "contract": "MTQSigmaV4.sol:MTQSigmaV4",
+        "label": "nMax",
+        "offset": 0,
+        "slot": "6",
+        "type": "t_uint256"
+      },
+      {
+        "astId": 390,
+        "contract": "MTQSigmaV4.sol:MTQSigmaV4",
+        "label": "pendingNMax",
+        "offset": 0,
+        "slot": "7",
+        "type": "t_uint256"
+      },
+      {
+        "astId": 392,
+        "contract": "MTQSigmaV4.sol:MTQSigmaV4",
+        "label": "pendingNMaxEffectiveBlock",
+        "offset": 0,
+        "slot": "8",
+        "type": "t_uint256"
+      },
+      {
+        "astId": 397,
+        "contract": "MTQSigmaV4.sol:MTQSigmaV4",
+        "label": "weightsBp",
+        "offset": 0,
+        "slot": "9",
+        "type": "t_mapping(t_uint256,t_uint256)"
+      },
+      {
+        "astId": 400,
+        "contract": "MTQSigmaV4.sol:MTQSigmaV4",
+        "label": "weightVersion",
+        "offset": 0,
+        "slot": "10",
+        "type": "t_uint256"
+      },
+      {
+        "astId": 404,
+        "contract": "MTQSigmaV4.sol:MTQSigmaV4",
+        "label": "weightHistory",
+        "offset": 0,
+        "slot": "11",
+        "type": "t_array(t_bytes32)dyn_storage"
+      },
+      {
+        "astId": 409,
+        "contract": "MTQSigmaV4.sol:MTQSigmaV4",
+        "label": "suspensionCause",
+        "offset": 0,
+        "slot": "12",
+        "type": "t_mapping(t_uint256,t_bytes32)"
+      }
+    ],
+    "types": {
+      "t_address": {
+        "encoding": "inplace",
+        "label": "address",
+        "numberOfBytes": "20"
+      },
+      "t_array(t_bytes3)dyn_storage": {
+        "base": "t_bytes3",
+        "encoding": "dynamic_array",
+        "label": "bytes3[]",
+        "numberOfBytes": "32"
+      },
+      "t_array(t_bytes32)dyn_storage": {
+        "base": "t_bytes32",
+        "encoding": "dynamic_array",
+        "label": "bytes32[]",
+        "numberOfBytes": "32"
+      },
+      "t_bool": {
+        "encoding": "inplace",
+        "label": "bool",
+        "numberOfBytes": "1"
+      },
+      "t_bytes3": {
+        "encoding": "inplace",
+        "label": "bytes3",
+        "numberOfBytes": "3"
+      },
+      "t_bytes32": {
+        "encoding": "inplace",
+        "label": "bytes32",
+        "numberOfBytes": "32"
+      },
+      "t_enum(LifecycleStatus)335": {
+        "encoding": "inplace",
+        "label": "enum MTQSigmaV4.LifecycleStatus",
+        "numberOfBytes": "1"
+      },
+      "t_mapping(t_address,t_bool)": {
+        "encoding": "mapping",
+        "key": "t_address",
+        "label": "mapping(address => bool)",
+        "numberOfBytes": "32",
+        "value": "t_bool"
+      },
+      "t_mapping(t_bytes3,t_uint256)": {
+        "encoding": "mapping",
+        "key": "t_bytes3",
+        "label": "mapping(bytes3 => uint256)",
+        "numberOfBytes": "32",
+        "value": "t_uint256"
+      },
+      "t_mapping(t_bytes32,t_mapping(t_address,t_bool))": {
+        "encoding": "mapping",
+        "key": "t_bytes32",
+        "label": "mapping(bytes32 => mapping(address => bool))",
+        "numberOfBytes": "32",
+        "value": "t_mapping(t_address,t_bool)"
+      },
+      "t_mapping(t_uint256,t_bytes32)": {
+        "encoding": "mapping",
+        "key": "t_uint256",
+        "label": "mapping(uint256 => bytes32)",
+        "numberOfBytes": "32",
+        "value": "t_bytes32"
+      },
+      "t_mapping(t_uint256,t_struct(ComponentRecord)356_storage)": {
+        "encoding": "mapping",
+        "key": "t_uint256",
+        "label": "mapping(uint256 => struct MTQSigmaV4.ComponentRecord)",
+        "numberOfBytes": "32",
+        "value": "t_struct(ComponentRecord)356_storage"
+      },
+      "t_mapping(t_uint256,t_uint256)": {
+        "encoding": "mapping",
+        "key": "t_uint256",
+        "label": "mapping(uint256 => uint256)",
+        "numberOfBytes": "32",
+        "value": "t_uint256"
+      },
+      "t_struct(ComponentRecord)356_storage": {
+        "encoding": "inplace",
+        "label": "struct MTQSigmaV4.ComponentRecord",
+        "members": [
+          {
+            "astId": 338,
+            "contract": "MTQSigmaV4.sol:MTQSigmaV4",
+            "label": "id",
+            "offset": 0,
+            "slot": "0",
+            "type": "t_bytes3"
+          },
+          {
+            "astId": 340,
+            "contract": "MTQSigmaV4.sol:MTQSigmaV4",
+            "label": "registeredAt",
+            "offset": 3,
+            "slot": "0",
+            "type": "t_uint64"
+          },
+          {
+            "astId": 343,
+            "contract": "MTQSigmaV4.sol:MTQSigmaV4",
+            "label": "status",
+            "offset": 11,
+            "slot": "0",
+            "type": "t_enum(LifecycleStatus)335"
+          },
+          {
+            "astId": 345,
+            "contract": "MTQSigmaV4.sol:MTQSigmaV4",
+            "label": "envelopeMinBp",
+            "offset": 12,
+            "slot": "0",
+            "type": "t_uint32"
+          },
+          {
+            "astId": 347,
+            "contract": "MTQSigmaV4.sol:MTQSigmaV4",
+            "label": "envelopeMaxBp",
+            "offset": 16,
+            "slot": "0",
+            "type": "t_uint32"
+          },
+          {
+            "astId": 349,
+            "contract": "MTQSigmaV4.sol:MTQSigmaV4",
+            "label": "velocityBp",
+            "offset": 20,
+            "slot": "0",
+            "type": "t_uint32"
+          },
+          {
+            "astId": 351,
+            "contract": "MTQSigmaV4.sol:MTQSigmaV4",
+            "label": "baseFixingUsdMicros",
+            "offset": 0,
+            "slot": "1",
+            "type": "t_uint96"
+          },
+          {
+            "astId": 353,
+            "contract": "MTQSigmaV4.sol:MTQSigmaV4",
+            "label": "dossierHash",
+            "offset": 0,
+            "slot": "2",
+            "type": "t_bytes32"
+          },
+          {
+            "astId": 355,
+            "contract": "MTQSigmaV4.sol:MTQSigmaV4",
+            "label": "exists",
+            "offset": 0,
+            "slot": "3",
+            "type": "t_bool"
+          }
+        ],
+        "numberOfBytes": "128"
+      },
+      "t_uint256": {
+        "encoding": "inplace",
+        "label": "uint256",
+        "numberOfBytes": "32"
+      },
+      "t_uint32": {
+        "encoding": "inplace",
+        "label": "uint32",
+        "numberOfBytes": "4"
+      },
+      "t_uint64": {
+        "encoding": "inplace",
+        "label": "uint64",
+        "numberOfBytes": "8"
+      },
+      "t_uint96": {
+        "encoding": "inplace",
+        "label": "uint96",
+        "numberOfBytes": "12"
+      }
+    }
+  }
+}

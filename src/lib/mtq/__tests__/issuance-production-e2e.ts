@@ -1701,20 +1701,20 @@ async function main(): Promise<void> {
     }));
     const dataset: Dataset = {
       datasetId: "QUIESCENT-GENESIS-EMPTY-DIRECTIVES-V1",
-      dataClass: "TEST FIXTURE (deterministic; NO live scoring feeds — types.ts SCORING_FEED_DISCLOSURE)",
+      dataClass: "DETERMINISTIC QUIESCENCE PROBE (no live-feed consumption — the TASK-39 live scoring dossier lives in constituency/feeds.ts and is surfaced separately; this probe dataset stays deterministic by design)",
       datasetHash: "",
       datasetHashNote: "sha256(canonicalSerialize(dataset minus datasetHash)) — computed by the runner (deterministic)",
       methodology: {
         version: "QUIESCENT-GENESIS-EMPTY-DIRECTIVES-V1",
         provenance: "src/lib/mtq/constituency (M8-3a production port; genesis quiescence probe)",
         posture: "TESTNET ONLY · SHADOW MODE ENFORCED · NOT ACCEPTED",
-        dataLabel: "SYNTHETIC TEST FIXTURE — no live feed exists",
+        dataLabel: "DETERMINISTIC QUIESCENCE PROBE — live scoring feeds exist separately (constituency/feeds.ts) but are NOT consumed by this probe dataset",
         specCitations: ["spec §2 (component registry)", "spec §3 (T1–T9 lifecycle)"],
         prototypeChoices: [],
       },
       parameters: defaultLifecycleParameters(),
       universe,
-      genesis: { weightsBp: defaultGenesisWeightsBp(), note: "genesis 7 at STRATEGIC_PRIOR bp — quiescent default (spec §13 parameters UNAPPROVED DRAFT)" },
+      genesis: { weightsBp: defaultGenesisWeightsBp(), note: "genesis 7 at STRATEGIC_PRIOR bp — quiescent default (spec §13 parameters PILOT-APPROVED 2026-11-03 — see approvals.ts)" },
       periods: [], // EMPTY directives + EMPTY scoring dataset — the quiescent probe
     };
     dataset.datasetHash = computeDatasetHash(dataset);
@@ -1735,8 +1735,10 @@ async function main(): Promise<void> {
     eq("S13-16", "the decision record carries the verified dataset hash (the quiescence probe is reproducible from versioned inputs)", decision.datasetHash, computeDatasetHash(dataset));
     check(
       "S13-17",
-      "constituency parameters remain UNAPPROVED DRAFT (spec §13 label) and the lifecycle parameter class is disclosed",
-      LIFECYCLE_PARAMETER_CLASS.includes("ALL PARAMETERS UNAPPROVED DRAFT") && dataset.parameters.parameterClass === LIFECYCLE_PARAMETER_CLASS,
+      "constituency parameters are PILOT-APPROVED per the TASK-39 approval ledger (owner directive 2026-11-03 — D-13.11/D-13.14) with the production Gate-C ratification honestly OPEN, and the lifecycle parameter class is disclosed",
+      LIFECYCLE_PARAMETER_CLASS.includes("PILOT-APPROVED") &&
+        LIFECYCLE_PARAMETER_CLASS.includes("Gate-C") &&
+        dataset.parameters.parameterClass === LIFECYCLE_PARAMETER_CLASS,
       LIFECYCLE_PARAMETER_CLASS.slice(0, 80) + "…",
     );
     check(
