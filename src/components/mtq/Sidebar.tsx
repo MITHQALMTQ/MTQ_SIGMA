@@ -10,9 +10,9 @@
 // • Rail mode shows instant fixed-position tooltips (hover + keyboard focus),
 //   which cannot be clipped by the scroll container.
 //
-// INFORMATION ARCHITECTURE — 5 semantic groups, all 26 sections reachable:
-//   COMMAND     (8) — what the protocol is doing right now
-//   OPERATIONS  (7) — what a pilot user does
+// INFORMATION ARCHITECTURE — 5 semantic groups, all 30 sections reachable:
+//   COMMAND     (10) — what the protocol is doing right now
+//   OPERATIONS  (9) — what a pilot user does
 //   ASSURANCE   (4) — proof it works
 //   PLATFORM    (5) — how it is built
 //   RESTRICTED  (2) — gated internal surfaces (lock-marked)
@@ -29,6 +29,10 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import {
   LayoutDashboard,
+  Radio,
+  FileSearch,
+  KeyRound,
+  Layers,
   BookOpen,
   Globe2,
   Landmark,
@@ -98,9 +102,12 @@ type SidebarGroup = {
   items: SectionDef[];
 };
 
-// ─── COMMAND — live protocol state surfaces (8) ────────────────────────
+// ─── COMMAND — live protocol state surfaces (10) ────────────────────────
+// 40-c: "network" (Sovereign Devnet NOC) + "explorer" (chain explorer).
 const COMMAND: SectionDef[] = [
   { id: "overview", label: "Overview", icon: LayoutDashboard },
+  { id: "network", label: "Network NOC", icon: Radio },
+  { id: "explorer", label: "Chain Explorer", icon: FileSearch },
   { id: "reference", label: "Reference Index", icon: BookOpen },
   { id: "reserve", label: "Reserve Vault", icon: Vault },
   { id: "risk", label: "Risk State", icon: Shield },
@@ -110,10 +117,14 @@ const COMMAND: SectionDef[] = [
   { id: "transparency", label: "Transparency", icon: Eye },
 ];
 
-// ─── OPERATIONS — what a pilot user does (7) ───────────────────────────
+// ─── OPERATIONS — what a pilot user does (9) ───────────────────────────
+// 40-c: "wallet" (browser-key devnet wallet — KeyRound, since Wallet icon
+// is taken by Portfolio) + "staking" (bond + on-chain governance).
 const OPERATIONS: SectionDef[] = [
   { id: "mint", label: "Mint", icon: Plus },
   { id: "redeem", label: "Redeem", icon: Minus },
+  { id: "wallet", label: "Devnet Wallet", icon: KeyRound },
+  { id: "staking", label: "Staking & Gov", icon: Layers },
   { id: "portfolio", label: "Portfolio", icon: Wallet },
   { id: "activity", label: "Activity", icon: Activity },
   { id: "simulation", label: "Simulation Lab", icon: FlaskConical },

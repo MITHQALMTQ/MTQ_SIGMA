@@ -111,3 +111,4 @@ contracts/cache/
 # TASK-39 — local backup vault (DB copies + git bundles stay on disk only; manifests tracked)
 /mtq-sigma-backups/*
 !/mtq-sigma-backups/BACKUP-MANIFEST-*.md
+

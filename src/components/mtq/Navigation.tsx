@@ -18,6 +18,8 @@
 export type SectionId =
   // PRIMARY
   | "overview"
+  | "network" // 40-c: Sovereign Devnet NOC
+  | "explorer" // 40-c: chain explorer
   | "reference"
   | "reserve"
   | "risk"
@@ -30,6 +32,8 @@ export type SectionId =
   // USER OPERATIONS
   | "mint"
   | "redeem"
+  | "wallet" // 40-c: devnet wallet (client-side signing)
+  | "staking" // 40-c: staking + on-chain governance
   | "portfolio"
   | "activity"
   // SUPPORTING
@@ -54,9 +58,11 @@ export type SectionDef = {
   icon?: React.ComponentType<{ className?: string }>;
 };
 
-// PRIMARY — institutional terminal main navigation (10)
+// PRIMARY — institutional terminal main navigation (12)
 const PRIMARY: SectionDef[] = [
   { id: "overview", label: "Overview" },
+  { id: "network", label: "Network" },
+  { id: "explorer", label: "Explorer" },
   { id: "reference", label: "Reference" },
   { id: "reserve", label: "Reserve" },
   { id: "risk", label: "Risk" },
@@ -68,10 +74,12 @@ const PRIMARY: SectionDef[] = [
   { id: "developers", label: "Developers" },
 ];
 
-// USER OPERATIONS — mint / redeem / portfolio / activity (4)
+// USER OPERATIONS — mint / redeem / wallet / staking / portfolio / activity (6)
 const USER_OPS: SectionDef[] = [
   { id: "mint", label: "Mint" },
   { id: "redeem", label: "Redeem" },
+  { id: "wallet", label: "Wallet" },
+  { id: "staking", label: "Staking" },
   { id: "portfolio", label: "Portfolio" },
   { id: "activity", label: "Activity" },
 ];

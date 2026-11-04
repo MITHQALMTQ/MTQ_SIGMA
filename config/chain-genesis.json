@@ -1,0 +1,73 @@
+{
+  "chain_id": "mtq-devnet-1",
+  "genesis_time_ms": 1761955200000,
+  "params": {
+    "base_fee_u": 1000,
+    "max_block_txs": 200,
+    "voting_period_s": 60,
+    "timelock_s": 15,
+    "heartbeat_ms": 5000
+  },
+  "validators": [
+    {
+      "moniker": "mtq-val-0.helios",
+      "pub_key": "05ae18b057b36be2e78718f4a5a4081fc8daa0b3fcb577b93ab155e03b18276c",
+      "address": "mtq1d0969d4c97a72c811778b3a38eddf00daa5f7f28",
+      "power": 10,
+      "self_stake_u": 1000000
+    },
+    {
+      "moniker": "mtq-val-1.equinox",
+      "pub_key": "6da88f305c517d33c16b5e2fa5d188d83d7727b76284aa67941ea40d848d6f09",
+      "address": "mtq1740b970a6b6d6ef721951708771fda7041d48627",
+      "power": 10,
+      "self_stake_u": 1000000
+    },
+    {
+      "moniker": "mtq-val-2.meridian",
+      "pub_key": "6632fe10f06b0839f2feadb1429c6c998adffb2670d51d83ea0b60c8cc5a2204",
+      "address": "mtq19d53b3162cee39585a7f0e5c2f0767b8570029e5",
+      "power": 10,
+      "self_stake_u": 1000000
+    },
+    {
+      "moniker": "mtq-val-3.aegis",
+      "pub_key": "de01a7c229b439eacd83040ba61c4085e13468e290c8e294795fc7cc21422efd",
+      "address": "mtq1ce17b55a99cf90116cde4efac7852d95824fd690",
+      "power": 10,
+      "self_stake_u": 1000000
+    }
+  ],
+  "allocs": [
+    {
+      "address": "mtq1d0969d4c97a72c811778b3a38eddf00daa5f7f28",
+      "fee_u": 5000000000,
+      "pmtq_u": 0,
+      "note": "mtq-val-0.helios operator balance (testnet fee credit)"
+    },
+    {
+      "address": "mtq1740b970a6b6d6ef721951708771fda7041d48627",
+      "fee_u": 5000000000,
+      "pmtq_u": 0,
+      "note": "mtq-val-1.equinox operator balance (testnet fee credit)"
+    },
+    {
+      "address": "mtq19d53b3162cee39585a7f0e5c2f0767b8570029e5",
+      "fee_u": 5000000000,
+      "pmtq_u": 0,
+      "note": "mtq-val-2.meridian operator balance (testnet fee credit)"
+    },
+    {
+      "address": "mtq1ce17b55a99cf90116cde4efac7852d95824fd690",
+      "fee_u": 5000000000,
+      "pmtq_u": 0,
+      "note": "mtq-val-3.aegis operator balance (testnet fee credit)"
+    },
+    {
+      "address": "mtq194e13e7e290a60f072aaa6f887d8f7e2248bc2d2",
+      "fee_u": 1000000000000,
+      "pmtq_u": 1000000000,
+      "note": "devnet faucet reserve (testnet-only credits, no value)"
+    }
+  ]
+}

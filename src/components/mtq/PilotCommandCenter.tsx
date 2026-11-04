@@ -52,6 +52,11 @@ import { TransparencySection } from "@/components/mtq/sections/TransparencySecti
 import { ValidationResearchSection } from "@/components/mtq/sections/ValidationResearchSection";
 import { ArchitectureSection } from "@/components/mtq/sections/ArchitectureSection";
 import { NetworksSection } from "@/components/mtq/sections/NetworksSection";
+// 40-c — Sovereign Devnet UI sections (Network NOC · Explorer · Wallet · Staking).
+import { NetworkSection } from "@/components/mtq/sections/NetworkSection";
+import { ExplorerSection } from "@/components/mtq/sections/ExplorerSection";
+import { WalletSection } from "@/components/mtq/sections/WalletSection";
+import { StakingSection } from "@/components/mtq/sections/StakingSection";
 import { DevelopersSection } from "@/components/mtq/sections/DevelopersSection";
 import { MandateCompliance } from "@/components/mtq/MandateCompliance";
 import { EvidencePackageSection } from "@/components/mtq/EvidencePackageSection";
@@ -1144,6 +1149,8 @@ export function PilotCommandCenter({ onExit }: { onExit?: () => void }) {
                 >
                   {/* ─── PRIMARY ─────────────────────────────────────────── */}
                   {section === "overview" && <HomeSection onNavigate={handleNavigate} snapshot={snapshot} />}
+                  {section === "network" && <NetworkSection />}
+                  {section === "explorer" && <ExplorerSection />}
                   {section === "reference" && <ReferenceSection />}
                   {section === "reserve" && <ReserveSection snapshot={snapshot} />}
                   {section === "risk" && <RiskSection snapshot={snapshot} />}
@@ -1176,6 +1183,8 @@ export function PilotCommandCenter({ onExit }: { onExit?: () => void }) {
                   {section === "redeem" && (
                     <RedeemSection onNavigate={handleNavigate} snapshot={snapshot} />
                   )}
+                  {section === "wallet" && <WalletSection onNavigate={handleNavigate} />}
+                  {section === "staking" && <StakingSection onNavigate={handleNavigate} />}
                   {section === "portfolio" && <DashboardSection snapshot={snapshot} onNavigate={handleNavigate} />}
                   {section === "activity" && (
                     <div className="space-y-10">

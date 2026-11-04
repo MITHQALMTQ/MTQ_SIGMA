@@ -69,6 +69,16 @@ export const RATE_LIMITS = {
   // budget as health — PoR is a public good, but the underlying pilot
   // state computation is non-trivial. STABILITY-POOL-FEES-POR.
   por: { capacity: 60, refillPerSec: 1 },
+  // Sovereign devnet reads (/api/chain/* GET): several sections poll at 2-4s
+  // cadence (NOC, Explorer, Wallet, Staking) — 120/min per IP accommodates
+  // the polls without being an abuse surface (reads are cheap in-process).
+  chain: { capacity: 120, refillPerSec: 2 },
+  // Devnet tx submission (/api/chain/submit POST): client-signed txs; the
+  // mempool re-validates anyway, but bound the hammer (20/min).
+  "chain-submit": { capacity: 20, refillPerSec: 20 / 60 },
+  // Devnet faucet POST: 6/min per IP — the one-drip-per-address rule is
+  // additionally enforced on-chain (faucet signs a real consensus tx).
+  faucet: { capacity: 6, refillPerSec: 6 / 60 },
 } as const;
 
 export interface RateLimitResult {
