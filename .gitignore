@@ -73,6 +73,13 @@ weight-vector.json
 # backup MANIFESTS are tracked so SHA-256 fingerprints live in the audit trail
 /backups/*
 !/backups/BACKUP-MANIFEST-*.md
+# TASK-38 — CLOUD DB LAYER (owner directive "backup on cloud"): the LATEST
+# logical SQL dumps of both databases are tracked in-git so the data survives
+# total disk loss. Only latest-* is tracked (overwrite each backup — git
+# history retains prior states); dated/physical/bundle artifacts stay disk-only.
+!/backups/db-snapshots/
+/backups/db-snapshots/*
+!/backups/db-snapshots/latest-*.sql
 
 # TASK 12 — AI-tool persisted-output cache (never commit: may snapshot file
 # contents that contain or later contain sensitive material)
