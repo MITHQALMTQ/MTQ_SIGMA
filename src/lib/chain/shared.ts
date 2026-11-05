@@ -67,7 +67,79 @@ export type TxType =
   | "delegate" // staking: { validator, amount }
   | "undelegate" // staking: { validator, amount } — enters the unbonding queue
   | "gov_submit" // gov: { proposal_type, title, description, payload, deposit }
-  | "gov_vote"; // gov: { proposal_id, option }
+  | "gov_vote" // gov: { proposal_id, option }
+  | "oracle_observe"; // oracle: { symbol, family, value_u } — validator-keyed price observation (Task-43)
+
+// ─── On-chain oracle consensus (§17.10 reference, Task-43) ────────────────────
+// Multi-family price aggregation with a Byzantine-robust pipeline:
+//   observations (validator-keyed, ACTIVE-only) → per-family MEDIAN →
+//   cross-family median-of-medians, gated by (a) ≥ ORACLE_MIN_FAMILIES
+//   distinct independent families, (b) cross-family spread ≤
+//   ORACLE_MAX_SPREAD_BP, (c) freshness ≤ ORACLE_MAX_STALENESS_BLOCKS.
+// FAIL-CLOSED: any gate miss ⇒ NO publication (single-family or divergent
+// data can NEVER move the on-chain price — the platform's ≥2-independent-
+// family precondition made mechanical).
+//
+// Fault model (honest): the per-family median tolerates < n/2 Byzantine
+// observers within a family of n; the cross-family median-of-medians
+// tolerates < f/2 fully-colluded families out of f published families.
+// With the required minimum of 2 families, a colluding minority cannot
+// force a publication — disagreement simply degrades (fail-closed).
+//
+// CONSTITUTIONAL NOTE: oracle_* aggregation thresholds are CODE CONSTANTS,
+// deliberately NOT in NETWORK_PARAM_ALLOWLIST — the monetary-guard pattern
+// "oracle" blocks network governance from oracle territory entirely, and
+// oracle-parameter governance belongs to the MTQ monetary track (Gate-C),
+// never to network governance. Threshold changes = code upgrades
+// (forward-only CHAIN_NODE_CODE_VERSION bump), not votable params.
+//
+// HONEST DATA DISCLOSURE: the reference devnet has NO automatic market
+// feeds. Observations arrive ONLY as genuine signed validator txs (smoke
+// battery, demo scripts, or future relay tooling); values are
+// operator-submitted test values, NOT market data. Production §17.10 =
+// Chainlink/Pyth/Chronicle EVM adapters (contracts/adapters/), Gate-C-gated.
+
+export interface OracleObservation {
+  id: number;
+  height: number;
+  observer: string; // mtq1… address of the (ACTIVE) validator that signed
+  family: string; // independent-family label, e.g. "chainlink-mirror"
+  symbol: string; // e.g. "XAU/USD", "EUR/USD"
+  value_u: number; // integer micro-units (value × 1e6)
+  time_ms: number;
+}
+
+export type OraclePriceStatus = "PUBLISHED" | "DEGRADED_SPREAD" | "STALE";
+
+export interface OracleFamilyMedian {
+  family: string;
+  median_u: number;
+  observers: number;
+}
+
+export interface OraclePriceRecord {
+  symbol: string;
+  height: number; // aggregation height (PUBLISHED) or last change (degraded/stale)
+  value_u: number; // last PUBLISHED value (retained on degraded/stale — fail-closed)
+  families: number;
+  observers: number;
+  spread_bp: number; // (maxFamilyMedian − minFamilyMedian) / minFamilyMedian × 10⁴
+  status: OraclePriceStatus;
+  family_medians: OracleFamilyMedian[];
+  time_ms: number;
+}
+
+export const ORACLE_MIN_FAMILIES = 2;
+export const ORACLE_MAX_SPREAD_BP = 200; // 2% cross-family median spread
+// 6 blocks ≈ 30 s at the 5 s production single-writer heartbeat cadence — a
+// conservative freshness bound (industry oracle heartbeat windows run seconds
+// to hours). Under the devnet's documented dual-writer pacing (smoke battery +
+// dev-server node both producing ~5 s blocks) wall-clock freshness halves to
+// ~15 s — disclosed; production is single-writer by design invariant.
+export const ORACLE_MAX_STALENESS_BLOCKS = 6;
+export const ORACLE_FAMILY_RE = /^[a-z0-9][a-z0-9-]{2,23}$/;
+export const ORACLE_SYMBOL_RE = /^[A-Z0-9]{2,4}\/[A-Z0-9]{2,4}$/;
+export const ORACLE_VALUE_MAX_U = 1_000_000_000_000_000; // 1e15 µ = 1e9 units
 
 // ─── Unbonding queue ─────────────────────────────────────────────────────────
 // Undelegated bond sits in a time-locked queue (unbonding_s network param);

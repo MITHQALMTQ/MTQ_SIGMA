@@ -31,7 +31,8 @@ export class Mempool {
     if (this.pool.has(hash)) return { ok: false, hash, error: "already in mempool" };
     if (this.pool.size >= MAX_POOL) return { ok: false, error: "mempool full" };
     if (tx.type !== "send" && tx.type !== "validator_register" && tx.type !== "delegate" &&
-        tx.type !== "undelegate" && tx.type !== "gov_submit" && tx.type !== "gov_vote") {
+        tx.type !== "undelegate" && tx.type !== "gov_submit" && tx.type !== "gov_vote" &&
+        tx.type !== "oracle_observe") {
       return { ok: false, error: `unknown tx type: ${tx.type}` };
     }
     if (!Number.isInteger(tx.fee) || tx.fee < params.base_fee_u) {

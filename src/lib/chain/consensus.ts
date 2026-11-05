@@ -223,11 +223,25 @@ export class ConsensusEngine {
     const totalPower = active.reduce((s, v) => s + v.power, 0);
     if (totalPower === 0) return null;
 
+    // BRING-UP BUG FIX (Task-43, the FOURTH recorded — observed live at height
+    // 648): proposer rotation must pick from validators this process HOLDS
+    // ENGINES for. Governance can admit validators with no in-process engine
+    // (dynamic membership); rotation onto such a validator burns the round
+    // instantly (`continue` — no proposal is ever signed), and with the other
+    // rounds failing on timing the 3-round budget exhausted → PERMANENT
+    // "round timeout" stall of the whole chain (liveness loss). Honest
+    // semantics preserved: quorum math keeps the FULL ACTIVE power — an
+    // engineless-but-ACTIVE validator legitimately raises the commitment bar
+    // (the co-located engines must still reach +2/3 of the TOTAL set).
+    const engineable = active.filter((v) => this.engines.some((e) => e.address === v.address));
+    if (engineable.length === 0) return null; // no co-located engine for any ACTIVE validator
+
     const started = Date.now();
     for (let round = 0; round < 3; round++) {
       // CometBFT-style proposer rotation: proposer changes across rounds so a
-      // failed round does not retry the same proposer forever.
-      const proposer = active[(height + round) % active.length];
+      // failed round does not retry the same proposer forever. (Task-43 fix:
+      // rotation is over the ENGINEABLE subset — see the note above runHeight.)
+      const proposer = engineable[(height + round) % engineable.length];
       const roundStart = Date.now();
       this.telemetry.push({
         height,

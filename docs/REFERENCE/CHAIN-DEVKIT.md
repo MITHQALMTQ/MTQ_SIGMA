@@ -50,6 +50,7 @@ to the MTQ Sigma Network sovereign devnet through the public HTTP API.
 | `GET /api/chain/validators` | Validator set + power + status + proposes-next |
 | `GET /api/chain/mempool` | Advisory admission view |
 | `GET /api/chain/gov` | Proposals + votes + params + gov events |
+| `GET /api/chain/oracle` | On-chain oracle consensus view — published multi-family price records (status/value/family medians/spread), observation provenance, thresholds, verbatim honest disclosure (Task-43) |
 | `POST /api/chain/submit` | Client-signed tx body `{ type, from, nonce, fee, payload, sig, pub_key }` — the server NEVER sees private keys |
 | `POST /api/chain/faucet` | `{ address }` → 10,000 MTQD + 10 PMTQ (one drip per address, enforced on-chain) |
 
@@ -63,6 +64,7 @@ to the MTQ Sigma Network sovereign devnet through the public HTTP API.
 | `undelegate` | `validator`, `amount` (µ) | Power drops NOW; funds enter the **unbonding queue** (`unbonding_s` param) and auto-release — no claim tx |
 | `gov_submit` | `proposal_type` (text · network_param · validator_set_change), `title` (4–120), `description` (≤2000), `payload`, `deposit` (≥ 100,000 µ) | network_param keys allowlisted; monetary-registry territory rejected at submission |
 | `gov_vote` | `proposal_id`, `option` ("YES" · "NO" · "ABSTAIN") | Power = floor(bonded/100,000) + ACTIVE-validator self power |
+| `oracle_observe` | `symbol` (e.g. "XAU/USD"), `family` (3–24 chars `[a-z0-9-]`), `value_u` (integer µ) | ACTIVE-validator signers only; one per (observer, family, symbol) per block; aggregated end-of-block — see §5b |
 
 ## 5. Unbonding lifecycle (Task-41)
 
@@ -73,6 +75,21 @@ to the MTQ Sigma Network sovereign devnet through the public HTTP API.
 3. End-of-block processing credits every mature entry to the delegator's `fee_u` and emits a
    `staking.unbond_released` event — **no claim transaction is needed**.
 4. `GET /api/chain/account?a=…` exposes `unbondings[]` with `release_in_ms` countdowns.
+
+## 5b. Oracle consensus lifecycle (Task-43, §17.10 reference)
+
+1. ACTIVE validators submit signed `oracle_observe` txs (per symbol + independent-family label).
+2. End-of-block aggregation: latest observation per (observer, family, symbol) within the last
+   6 blocks → **per-family median** → **cross-family median-of-medians**.
+3. Publication gates (all fail-closed): ≥ 2 distinct independent families AND cross-family
+   spread ≤ 200 bp AND freshness ≤ 6 blocks. Single-family or divergent data can NEVER move
+   the on-chain price — the record is marked `STALE` / `DEGRADED_SPREAD` and the last published
+   value is RETAINED (never zeroed).
+4. Aggregation thresholds are CODE CONSTANTS (not network-governance params — oracle territory
+   is constitutionally monetary-track; changes ship as code upgrades).
+5. The reference devnet has NO automatic market feeds: values are operator-submitted test
+   values arriving only as genuine signed validator transactions — the on-panel disclosure
+   is verbatim. Production §17.10 = Chainlink/Pyth/Chronicle EVM adapters (Gate-C-gated).
 
 ## 6. Governance lifecycle
 

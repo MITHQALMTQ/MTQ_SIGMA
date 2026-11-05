@@ -8,8 +8,9 @@
 //
 // Modules: bank (send), staking (register/delegate/undelegate + time-locked
 // unbonding queue), gov (submit/vote + end-of-block proposal processing +
-// timelocked execution), plus per-block unbonding maturation, validator power
-// recomputation and the flat state root.
+// timelocked execution), oracle (validator-keyed observations + multi-family
+// fail-closed median aggregation), plus per-block unbonding maturation,
+// validator power recomputation and the flat state root.
 //
 // Constitutional guard: gov proposal payloads touching MTQ monetary
 // registry territory are rejected at SUBMISSION (see shared.ts) — network
@@ -19,10 +20,18 @@ import {
   CHAIN_ID,
   DEFAULT_CHAIN_PARAMS,
   NETWORK_PARAM_ALLOWLIST,
+  ORACLE_FAMILY_RE,
+  ORACLE_MAX_SPREAD_BP,
+  ORACLE_MAX_STALENESS_BLOCKS,
+  ORACLE_MIN_FAMILIES,
+  ORACLE_SYMBOL_RE,
+  ORACLE_VALUE_MAX_U,
   violatesMonetaryGuard,
   type Block,
   type ChainParams,
   type GovProposal,
+  type OracleFamilyMedian,
+  type OraclePriceRecord,
   type Tx,
   type Validator,
   type VoteOption,
@@ -247,6 +256,29 @@ async function applyGovVote(tx: Tx, height: number, effects: string[]): Promise<
   return null;
 }
 
+// ─── oracle: validator-keyed observation submission (Task-43) ─────────────────
+
+async function applyOracleObserve(tx: Tx, height: number, timeMs: number, effects: string[]): Promise<string | null> {
+  const symbol = String(tx.payload.symbol ?? "");
+  const family = String(tx.payload.family ?? "");
+  const valueU = Number(tx.payload.value_u ?? NaN);
+  if (!ORACLE_SYMBOL_RE.test(symbol)) return "symbol must match e.g. XAU/USD (2-4 A-Z0-9 / 2-4 A-Z0-9)";
+  if (!ORACLE_FAMILY_RE.test(family)) return "family must be 3-24 chars [a-z0-9-]";
+  if (!Number.isInteger(valueU) || valueU <= 0 || valueU > ORACLE_VALUE_MAX_U) {
+    return `value_u must be an integer in (0, ${ORACLE_VALUE_MAX_U}] micro-units`;
+  }
+  // Observations are accepted from ACTIVE validators ONLY — the Byzantine-
+  // accountability model: every observation is attributable to a bonded,
+  // quorum-participating validator identity.
+  const val = (await store.getValidators()).find((v) => v.address === tx.from);
+  if (!val) return "observations are accepted from validators only";
+  if (val.status !== "ACTIVE") return `validator not ACTIVE (${val.status}) — observation rejected`;
+  const stored = await store.putOracleObservation(tx.from, family, symbol, valueU, height, timeMs);
+  if (!stored) return `duplicate observation (observer/family/symbol) in block ${height}`;
+  effects.push(`oracle.observe "${symbol}" = ${valueU / 1e6} family=${family} by ${val.moniker}`);
+  return null;
+}
+
 export async function applyTx(tx: Tx, height: number, params: ChainParams): Promise<ApplyResult> {
   const effects: string[] = [];
   // 1) signature + address binding
@@ -269,6 +301,7 @@ export async function applyTx(tx: Tx, height: number, params: ChainParams): Prom
     case "undelegate": err = await applyUndelegate(tx, height, params, effects); break;
     case "gov_submit": err = await applyGovSubmit(tx, height, params, effects); break;
     case "gov_vote": err = await applyGovVote(tx, height, effects); break;
+    case "oracle_observe": err = await applyOracleObserve(tx, height, Date.now(), effects); break;
     default: err = `unknown tx type ${tx.type}`;
   }
   return err ? { ok: false, error: err, effects } : { ok: true, effects };
@@ -344,7 +377,147 @@ export async function processBlockEnd(height: number, params: ChainParams, propo
     const rewardEffects = await distributeBlockReward(height, params, proposer ?? null);
     effects.push(...rewardEffects);
   }
+  // 5) Oracle consensus aggregation — multi-family fail-closed median
+  // (Task-43, §17.10 reference). See aggregateOracle for the algorithm.
+  const oracleEffects = await aggregateOracle(height);
+  effects.push(...oracleEffects);
   return effects;
+}
+
+// ─── oracle consensus aggregation (Task-43, §17.10 reference) ───────────────────
+
+function median(values: number[]): number {
+  // values: non-empty, sorted ascending
+  const n = values.length;
+  if (n % 2 === 1) return values[(n - 1) / 2];
+  const a = values[n / 2 - 1];
+  const b = values[n / 2];
+  // even-count median: LOWER element (never invents a value between the
+  // two central observations — conservative, deterministic)
+  return Math.min(a, b);
+}
+
+/** Per-block multi-family oracle aggregation. Pipeline (fail-closed at every
+ *  gate):
+ *  1. Fresh window = observations in the last ORACLE_MAX_STALENESS_BLOCKS
+ *     blocks; latest per (observer, family, symbol) wins.
+ *  2. Observer must STILL be an ACTIVE validator at aggregation time (a
+ *     fallen validator's stale observation is excluded).
+ *  3. Per family: median of that family's observer values (Byzantine-robust
+ *     within the family: tolerates < n/2 colluding observers).
+ *  4. Publication gates: ≥ ORACLE_MIN_FAMILIES distinct families AND
+ *     cross-family spread ≤ ORACLE_MAX_SPREAD_BP. Any gate miss ⇒ NO
+ *     publication — the last published value is RETAINED and the record is
+ *     marked DEGRADED_SPREAD / STALE with the full diagnostic medians.
+ *  5. On pass: value = median of family medians; full provenance recorded.
+ *  Emits events only on state changes (publication / status transition) so
+ *  the event log stays signal, not per-block noise.
+ */
+async function aggregateOracle(height: number): Promise<string[]> {
+  const out: string[] = [];
+  const fromHeight = Math.max(1, height - ORACLE_MAX_STALENESS_BLOCKS + 1);
+  const observations = await store.getOracleObservations(fromHeight);
+  if (observations.length === 0 && (await store.getOraclePrices()).length === 0) return out;
+
+  const validators = await store.getValidators();
+  const activeAddrs = new Set(validators.filter((v) => v.status === "ACTIVE").map((v) => v.address));
+  const monikerOf = new Map(validators.map((v) => [v.address, v.moniker] as const));
+
+  // group: symbol → (family → observer → latest value_u)
+  const bySymbol = new Map<string, Map<string, Map<string, number>>>();
+  for (const o of observations) {
+    if (!activeAddrs.has(o.observer)) continue; // fallen validator — excluded
+    let byFamily = bySymbol.get(o.symbol);
+    if (!byFamily) { byFamily = new Map(); bySymbol.set(o.symbol, byFamily); }
+    let byObserver = byFamily.get(o.family);
+    if (!byObserver) { byObserver = new Map(); byFamily.set(o.family, byObserver); }
+    byObserver.set(o.observer, o.value_u); // ordered ASC by id → last write = latest
+  }
+
+  const existing = new Map((await store.getOraclePrices()).map((p) => [p.symbol, p] as const));
+  const now = Date.now();
+
+  // aggregate every symbol that has EVER been tracked (existing records) or
+  // has fresh observations now
+  const symbols = new Set<string>([...existing.keys(), ...bySymbol.keys()]);
+  for (const symbol of symbols) {
+    const families = bySymbol.get(symbol);
+    const prev = existing.get(symbol) ?? null;
+
+    // (a) no fresh observations at all → STALE if a tracked record exists
+    if (!families || families.size === 0) {
+      if (prev && prev.status !== "STALE") {
+        await store.upsertOraclePrice({ ...prev, status: "STALE", time_ms: now });
+        await store.putEvent(height, "oracle.price_stale", { symbol, reason: `no observations in the last ${ORACLE_MAX_STALENESS_BLOCKS} blocks` }, now);
+        out.push(`oracle.price_stale "${symbol}" — no fresh observations (last published value retained)`);
+      }
+      continue;
+    }
+
+    // (b) per-family medians
+    const famMedians: OracleFamilyMedian[] = [];
+    for (const [family, observers] of families) {
+      const vals = Array.from(observers.values()).sort((a, b) => a - b);
+      famMedians.push({ family, median_u: median(vals), observers: vals.length });
+    }
+    famMedians.sort((a, b) => (a.family < b.family ? -1 : 1)); // deterministic order
+    const totalObservers = famMedians.reduce((s, f) => s + f.observers, 0);
+
+    // (c) families gate — single-family data can NEVER publish
+    if (famMedians.length < ORACLE_MIN_FAMILIES) {
+      const retained = prev?.value_u ?? 0;
+      const rec: OraclePriceRecord = {
+        symbol, height, value_u: retained, families: famMedians.length, observers: totalObservers,
+        spread_bp: 0, status: "STALE", family_medians: famMedians, time_ms: now,
+      };
+      await store.upsertOraclePrice(rec);
+      if (!prev || prev.status !== "STALE") {
+        await store.putEvent(height, "oracle.price_stale", {
+          symbol, reason: `insufficient independent families (${famMedians.length} < ${ORACLE_MIN_FAMILIES}) — publication gate closed`,
+          family_medians: famMedians,
+        }, now);
+        out.push(`oracle.price_stale "${symbol}" — ${famMedians.length} family only (< ${ORACLE_MIN_FAMILIES}): gate closed, no publication`);
+      }
+      continue;
+    }
+
+    // (d) spread gate — cross-family divergence bound
+    const minM = famMedians.reduce((m, f) => Math.min(m, f.median_u), Number.MAX_SAFE_INTEGER);
+    const maxM = famMedians.reduce((m, f) => Math.max(m, f.median_u), 0);
+    const spreadBp = Math.floor(((maxM - minM) / minM) * 10_000);
+    if (spreadBp > ORACLE_MAX_SPREAD_BP) {
+      // FAIL-CLOSED: divergent families ⇒ NO publication, last value retained
+      const retained = prev?.value_u ?? 0;
+      const rec: OraclePriceRecord = {
+        symbol, height, value_u: retained, families: famMedians.length, observers: totalObservers,
+        spread_bp: spreadBp, status: "DEGRADED_SPREAD", family_medians: famMedians, time_ms: now,
+      };
+      await store.upsertOraclePrice(rec);
+      await store.putEvent(height, "oracle.price_degraded", {
+        symbol, spread_bp: spreadBp, limit_bp: ORACLE_MAX_SPREAD_BP,
+        family_medians: famMedians, retained_value_u: retained,
+        reason: `cross-family spread ${spreadBp}bp > ${ORACLE_MAX_SPREAD_BP}bp — fail-closed, value NOT updated`,
+      }, now);
+      out.push(`oracle.price_degraded "${symbol}" — spread ${spreadBp}bp > ${ORACLE_MAX_SPREAD_BP}bp (${famMedians.map((f) => `${f.family}:${f.median_u / 1e6}`).join(" vs ")}) — value retained`);
+      continue;
+    }
+
+    // (e) all gates passed → publish median-of-family-medians
+    const familyValues = famMedians.map((f) => f.median_u).sort((a, b) => a - b);
+    const value = median(familyValues);
+    const rec: OraclePriceRecord = {
+      symbol, height, value_u: value, families: famMedians.length, observers: totalObservers,
+      spread_bp: spreadBp, status: "PUBLISHED", family_medians: famMedians, time_ms: now,
+    };
+    await store.upsertOraclePrice(rec);
+    await store.putEvent(height, "oracle.price_published", {
+      symbol, value_u: value, families: famMedians.length, observers: totalObservers, spread_bp: spreadBp,
+      family_medians: famMedians, observers_detail: Array.from(families.entries()).flatMap(([f, obs]) =>
+        Array.from(obs.keys()).map((addr) => ({ family: f, observer: addr, moniker: monikerOf.get(addr) ?? addr }))),
+    }, now);
+    out.push(`oracle.price_published "${symbol}" = ${value / 1e6} (${famMedians.length} families · ${totalObservers} observers · spread ${spreadBp}bp ≤ ${ORACLE_MAX_SPREAD_BP}bp)`);
+  }
+  return out;
 }
 
 /** Distribute the per-block reward (integer micro-units, fail-closed on an
@@ -478,6 +651,7 @@ export async function computeStateRoot(): Promise<string> {
   const unbondings = await store.getUnbondings();
   const proposals = (await store.getProposals()).slice(0, 50).map((p) => [p.id, p.status]);
   const params = await store.loadParams(DEFAULT_CHAIN_PARAMS);
+  const oraclePrices = (await store.getOraclePrices()).map((p) => [p.symbol, p.height, p.value_u, p.status]);
   const canonical = JSON.stringify({
     chain_id: CHAIN_ID,
     accounts: accounts.rows.map((r) => [r.address, Number(r.nonce), Number(r.fee_u), Number(r.pmtq_u)]),
@@ -485,6 +659,7 @@ export async function computeStateRoot(): Promise<string> {
     stakes: stakes.map((s) => [s.delegator, s.validator, s.amount_u]),
     unbondings: unbondings.map((u) => [u.delegator, u.validator, u.amount_u, u.release_ms]),
     proposals,
+    oracle_prices: oraclePrices,
     params,
   });
   return "sroot_" + createHash("sha256").update(canonical).digest("hex").slice(0, 48);

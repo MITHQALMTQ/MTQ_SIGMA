@@ -120,6 +120,7 @@ const API_GROUPS: { group: string; rows: ApiRow[] }[] = [
       { method: "GET", path: "/api/chain/validators", desc: "Validator set: pubkey, address, moniker, status (ACTIVE/CANDIDATE/RETIRED), power, self-stake, delegated, commission, proposes-next flag." },
       { method: "GET", path: "/api/chain/mempool", desc: "Advisory mempool admission view (pending txs with fee/nonce)." },
       { method: "GET", path: "/api/chain/gov", desc: "Governance: proposals with tallies + votes + lifecycle timestamps, network params, recent gov events." },
+      { method: "GET", path: "/api/chain/oracle", desc: "On-chain oracle consensus view (§17.10 reference) — published multi-family price records, observation provenance, thresholds." },
       { method: "POST", path: "/api/chain/submit", desc: "Submit a CLIENT-SIGNED transaction (ed25519 over canonical bytes — the server never sees private keys). Body: { type, from, nonce, fee, payload, sig, pub_key }.", rateLimited: true },
       { method: "POST", path: "/api/chain/faucet", desc: "Faucet drip: { address } → 10,000 MTQD + 10 PMTQ (one drip per address, enforced on-chain).", rateLimited: true },
     ],
@@ -391,7 +392,7 @@ cast call --rpc-url "$RPC" "$SAFE" "getGuard()(address)"`;
           right={
             <Pill tone="muted">
               <Network className="h-3 w-3" aria-hidden="true" />
-              10 routes · client-signed txs
+              11 routes · client-signed txs
             </Pill>
           }
         />

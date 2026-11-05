@@ -11,7 +11,7 @@
 
 "use client";
 
-import { useEffect, useMemo, useRef, useState } from "react";
+import { Fragment, useEffect, useMemo, useRef, useState } from "react";
 import {
   Blocks,
   Fingerprint,
@@ -44,15 +44,25 @@ import {
   fmtUptime,
   useChainBlockStream,
   useChainPoll,
+  useOracleView,
+  type ChainPollState,
   type ChainSummaryDto,
+  type OracleFamilyMedianDto,
+  type OracleViewDto,
 } from "@/components/mtq/chain/chain-kit";
-import { shortAddr } from "@/components/mtq/format";
+import { fmtAgo, shortAddr } from "@/components/mtq/format";
 
 const POLL_MS = 3000;
 
 export function NetworkSection() {
   const poll = useChainPoll<ChainSummaryDto>("/api/chain", POLL_MS);
   const summary = poll.data;
+
+  // TASK-43 — on-chain oracle consensus (§17.10 reference) on its own 6s poll
+  // (canonical pattern: hidden-tab skip, visibility refresh, last-good
+  // retention). The panel below keeps its own honest loading / error / empty
+  // states — an empty price set is a NORMAL devnet state, not a failure.
+  const oracle = useOracleView();
 
   // TASK-42 — live SSE block-event push: instant refresh on every committed
   // block (throttled ≥700ms so bursts never stampede the API). Polling stays
@@ -397,6 +407,11 @@ export function NetworkSection() {
             </Panel>
           </Reveal>
 
+          {/* ─── Oracle consensus (§17.10 reference) ─── */}
+          <Reveal>
+            <OracleConsensusCard poll={oracle} />
+          </Reveal>
+
           {/* ─── Network parameters ─── */}
           <Reveal>
             <Panel className="p-5">
@@ -491,5 +506,298 @@ export function NetworkSection() {
         </>
       ) : null}
     </div>
+  );
+}
+
+/* ============================================================
+   TASK-43 — Oracle consensus (§17.10 reference) subviews
+   Local to NetworkSection: the panel renders GET /api/chain/oracle on
+   its own 6s poll (passed in as a ChainPollState). Every state is
+   honest — skeleton on first load, VERBATIM module disclosure, an
+   explicit empty devnet state, last-good retention flagged stale,
+   and an inline error panel on hard fetch failure.
+   ============================================================ */
+
+/** Price display: micro-units → grouped decimal (2 digits for large values,
+ *  4 for small ones — the contract's "2–4 decimals"). */
+function fmtPriceU(u: number | null | undefined): string {
+  if (u == null || !Number.isFinite(u)) return "—";
+  const v = u / 1e6;
+  const digits = Math.abs(v) >= 1000 ? 2 : 4;
+  return v.toLocaleString("en-US", {
+    minimumFractionDigits: digits,
+    maximumFractionDigits: digits,
+  });
+}
+
+/** Oracle record status → brand pill (PUBLISHED emerald · DEGRADED_SPREAD rose · STALE amber). */
+function OracleStatusBadge({ status }: { status: string }) {
+  if (status === "PUBLISHED") {
+    return (
+      <Pill tone="emerald">
+        <GlowDot color="emerald" size="h-1.5 w-1.5" />
+        PUBLISHED
+      </Pill>
+    );
+  }
+  if (status === "DEGRADED_SPREAD") {
+    return (
+      <Pill tone="rose">
+        <GlowDot color="rose" size="h-1.5 w-1.5" />
+        DEGRADED_SPREAD
+      </Pill>
+    );
+  }
+  if (status === "STALE") {
+    return (
+      <Pill tone="amber">
+        <GlowDot color="amber" size="h-1.5 w-1.5" />
+        STALE
+      </Pill>
+    );
+  }
+  return <Pill tone="muted">{status || "—"}</Pill>;
+}
+
+/** Per-family medians as wrapping mono chips — family · median (µ→display) · observer count. */
+function OracleFamilyMedians({ medians }: { medians: OracleFamilyMedianDto[] }) {
+  if (medians.length === 0) {
+    return <span className="text-[0.62rem] text-[#5B6E68]">no family medians recorded</span>;
+  }
+  return (
+    <span className="flex flex-wrap items-baseline gap-1.5">
+      {medians.map((m) => (
+        <span
+          key={m.family}
+          className="inline-flex items-baseline gap-1 rounded-md border border-[#E3EAE6] bg-[#FAFCFA] px-2 py-0.5 font-mono text-[0.62rem]"
+        >
+          <span className="text-[#0E1F1B]">{m.family}</span>
+          <span className="tabular-nums text-[#33544C]">{fmtPriceU(m.median_u)}</span>
+          <span className="text-[#5B6E68]">· {m.observers} obs</span>
+        </span>
+      ))}
+    </span>
+  );
+}
+
+/** Oracle consensus panel — prices table + observation provenance + verbatim
+ *  disclosure. Desktop (md+) renders a semantic table with an always-visible
+ *  per-family medians sub-row; below md each price is a stacked card so 390px
+ *  stays clean with zero horizontal overflow. */
+function OracleConsensusCard({ poll }: { poll: ChainPollState<OracleViewDto> }) {
+  const view = poll.data;
+  const observations = (view?.recent_observations ?? []).slice(0, 25);
+
+  return (
+    <Panel className="p-5">
+      <div className="mb-1 flex flex-wrap items-center justify-between gap-2">
+        <h3 className="text-sm font-semibold text-[#0E1F1B]">Oracle consensus — §17.10 reference</h3>
+        <div className="flex flex-wrap items-center gap-2">
+          <Pill tone="gold">multi-family · fail-closed</Pill>
+          <LiveClockPill stale={poll.stale} lastReadAt={poll.lastReadAt} loading={poll.loading} />
+        </div>
+      </div>
+      <p className="mb-4 text-[0.7rem] text-[#5B6E68]">
+        Validator-keyed observations aggregate per family into medians, then a cross-family
+        median-of-medians — a price publishes on-chain only when every gate passes. Read from
+        GET /api/chain/oracle on a 6s poll; all values are operator-submitted test values, not
+        market data.
+      </p>
+
+      {view ? (
+        <>
+          {poll.stale && poll.error ? (
+            <StaleStrip error={poll.error} source="/api/chain/oracle" />
+          ) : null}
+
+          {/* Honest disclosure — VERBATIM from the oracle module (same row
+              styling as the node honest panel: amber label + relaxed body). */}
+          <div className="mb-4 rounded-lg border border-mtqs-amber/40 bg-amber-50 px-3 py-2.5">
+            <div className="flex flex-wrap items-center gap-2">
+              <ShieldAlert className="h-3.5 w-3.5 shrink-0 text-mtqs-amber" aria-hidden="true" />
+              <span className="text-[0.6rem] font-semibold uppercase tracking-[0.2em] text-amber-700">
+                Disclosure
+              </span>
+              <Pill tone="amber">disclosed by the oracle module · rendered verbatim</Pill>
+            </div>
+            <p className="mt-1 text-[0.74rem] leading-relaxed text-[#33544C]">{view.honest}</p>
+          </div>
+
+          {/* Publication gates — live thresholds from the module */}
+          <div className="mb-4 flex flex-wrap items-center gap-2">
+            <span className="text-[0.6rem] uppercase tracking-[0.18em] text-[#5B6E68]">
+              publication gates
+            </span>
+            <Pill tone="default">≥ {view.thresholds.min_families} independent families</Pill>
+            <Pill tone="default">≤ {view.thresholds.max_spread_bp} bp cross-family spread</Pill>
+            <Pill tone="default">≤ {view.thresholds.max_staleness_blocks}-block freshness</Pill>
+          </div>
+
+          {/* Published prices */}
+          {view.prices.length === 0 ? (
+            <p className="rounded-lg border border-[#E3EAE6] bg-[#FAFCFA] px-3 py-4 text-center text-[0.72rem] leading-relaxed text-[#5B6E68]">
+              No published prices yet — the reference devnet has no automatic market feeds;
+              observations arrive only via genuinely signed validator transactions.
+            </p>
+          ) : (
+            <>
+              {/* Desktop (md+): semantic table, one row per symbol plus an
+                  always-visible per-family medians sub-row under it. */}
+              <div className="hidden overflow-x-auto md:block">
+                <table className="w-full min-w-[640px] text-left text-[0.72rem]">
+                  <thead>
+                    <tr className="border-b border-[#E3EAE6] text-[0.6rem] uppercase tracking-[0.16em] text-[#5B6E68]">
+                      <th scope="col" className="py-2 pr-3 font-medium">Symbol</th>
+                      <th scope="col" className="py-2 pr-3 font-medium">Value</th>
+                      <th scope="col" className="py-2 pr-3 font-medium">Status</th>
+                      <th scope="col" className="py-2 pr-3 font-medium">Families</th>
+                      <th scope="col" className="py-2 pr-3 font-medium">Observers</th>
+                      <th scope="col" className="py-2 pr-3 font-medium">Spread (bp)</th>
+                      <th scope="col" className="py-2 font-medium">Height</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {view.prices.map((p) => (
+                      <Fragment key={`${p.symbol}-${p.height}`}>
+                        <tr className="border-b border-[#EDF2EF]">
+                          <td className="py-2 pr-3 font-mono text-[#0E1F1B]">{p.symbol}</td>
+                          <td className="py-2 pr-3 font-mono tabular-nums text-[#0E1F1B]">
+                            {fmtPriceU(p.value_u)}
+                          </td>
+                          <td className="py-2 pr-3">
+                            <OracleStatusBadge status={p.status} />
+                          </td>
+                          <td className="py-2 pr-3 font-mono tabular-nums text-[#33544C]">
+                            {p.families}
+                          </td>
+                          <td className="py-2 pr-3 font-mono tabular-nums text-[#33544C]">
+                            {p.observers}
+                          </td>
+                          <td className="py-2 pr-3 font-mono tabular-nums text-[#33544C]">
+                            {p.spread_bp}
+                          </td>
+                          <td className="py-2 font-mono tabular-nums text-[#33544C]">
+                            #{p.height}
+                          </td>
+                        </tr>
+                        <tr className="border-b border-[#EDF2EF] bg-[#FAFCFA]">
+                          <td colSpan={7} className="px-1.5 py-2">
+                            <span className="mr-2 align-baseline text-[0.58rem] uppercase tracking-[0.18em] text-[#5B6E68]">
+                              family medians
+                            </span>
+                            <OracleFamilyMedians medians={p.family_medians} />
+                          </td>
+                        </tr>
+                      </Fragment>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+
+              {/* Mobile (<md): stacked cards with the same fields, wrapping
+                  medians — 390px clean, no horizontal overflow. */}
+              <div className="space-y-3 md:hidden">
+                {view.prices.map((p) => (
+                  <div
+                    key={`${p.symbol}-${p.height}`}
+                    className="rounded-lg border border-[#E3EAE6] bg-[#FAFCFA] p-3"
+                  >
+                    <div className="flex flex-wrap items-center justify-between gap-2">
+                      <span className="font-mono text-[0.8rem] font-semibold text-[#0E1F1B]">
+                        {p.symbol}
+                      </span>
+                      <OracleStatusBadge status={p.status} />
+                    </div>
+                    <div className="mt-1 font-mono tabular-nums text-[1.05rem] text-[#0E1F1B]">
+                      {fmtPriceU(p.value_u)}
+                    </div>
+                    <div className="mt-2 flex flex-wrap gap-x-4 gap-y-1 text-[0.64rem] text-[#5B6E68]">
+                      <span>
+                        families{" "}
+                        <span className="font-mono tabular-nums text-[#33544C]">{p.families}</span>
+                      </span>
+                      <span>
+                        observers{" "}
+                        <span className="font-mono tabular-nums text-[#33544C]">{p.observers}</span>
+                      </span>
+                      <span>
+                        spread{" "}
+                        <span className="font-mono tabular-nums text-[#33544C]">{p.spread_bp} bp</span>
+                      </span>
+                      <span>
+                        height{" "}
+                        <span className="font-mono tabular-nums text-[#33544C]">#{p.height}</span>
+                      </span>
+                    </div>
+                    <div className="mt-2 border-t border-[#EDF2EF] pt-2">
+                      <OracleFamilyMedians medians={p.family_medians} />
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </>
+          )}
+
+          {/* Recent observations — signed validator submissions (≤ 25) */}
+          <div className="mt-5">
+            <div className="mb-2 flex flex-wrap items-center justify-between gap-2">
+              <h4 className="text-[0.78rem] font-semibold text-[#0E1F1B]">
+                Recent observations — signed validator submissions
+              </h4>
+              <Pill tone="muted">latest {observations.length}</Pill>
+            </div>
+            {observations.length === 0 ? (
+              <p className="rounded-lg border border-[#E3EAE6] bg-[#FAFCFA] px-3 py-3 text-center text-[0.72rem] text-[#5B6E68]">
+                No oracle observations recorded yet.
+              </p>
+            ) : (
+              <ul className="mtqs-scroll max-h-72 divide-y divide-[#EDF2EF] overflow-y-auto rounded-lg border border-[#E3EAE6]">
+                {observations.map((o) => (
+                  <li
+                    key={o.id}
+                    className="flex flex-wrap items-baseline gap-x-2 gap-y-0.5 px-3 py-2 text-[0.68rem]"
+                  >
+                    <span className="font-semibold text-[#0E1F1B]">
+                      {o.observer_moniker || shortAddr(o.observer, 10, 6)}
+                    </span>
+                    <span className="text-[#5B6E68]" aria-hidden="true">·</span>
+                    <span className="font-mono text-[#33544C]">{o.family}</span>
+                    <span className="text-[#5B6E68]" aria-hidden="true">·</span>
+                    <span className="font-mono text-[#33544C]">{o.symbol}</span>
+                    <span className="text-[#5B6E68]" aria-hidden="true">·</span>
+                    <span className="font-mono tabular-nums text-[#0E1F1B]">
+                      {fmtPriceU(o.value_u)}
+                    </span>
+                    <span className="text-[#5B6E68]" aria-hidden="true">·</span>
+                    <span className="font-mono tabular-nums text-[#5B6E68]">#{o.height}</span>
+                    <span className="ml-auto pl-2 text-[0.62rem] text-[#5B6E68]">
+                      {fmtAgo(o.time_ms)}
+                    </span>
+                  </li>
+                ))}
+              </ul>
+            )}
+          </div>
+        </>
+      ) : poll.loading ? (
+        <Skeleton className="h-56 rounded-xl" />
+      ) : poll.error ? (
+        /* Hard fetch failure — no last-good data to serve (section pattern). */
+        <div className="rounded-lg border border-mtqs-rose/30 bg-mtqs-rose/[0.05] px-3 py-3">
+          <div className="flex items-start gap-2">
+            <ShieldAlert className="mt-0.5 h-4 w-4 shrink-0 text-mtqs-rose" aria-hidden="true" />
+            <div>
+              <p className="text-[0.66rem] font-semibold uppercase tracking-[0.18em] text-mtqs-rose">
+                Oracle API unreachable
+              </p>
+              <p className="mt-0.5 text-[0.72rem] leading-relaxed text-[#5B6E68]">
+                GET /api/chain/oracle failed ({poll.error}). No oracle prices or observations are
+                shown rather than fake ones.
+              </p>
+            </div>
+          </div>
+        </div>
+      ) : null}
+    </Panel>
   );
 }

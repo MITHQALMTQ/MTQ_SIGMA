@@ -70,7 +70,7 @@ const G = globalThis as unknown as { __MTQ_CHAIN__?: ChainNodeRuntime };
 // HMR cannot re-run instrumentation.ts, and the old runtime's interval
 // closure otherwise keeps executing the OLD state machine forever). In
 // production the constant never changes per process → zero restarts.
-export const CHAIN_NODE_CODE_VERSION = 44; // Task-42: SSE block-event emit in produceBlock (44 > 43: second substantive change needed its own bump)
+export const CHAIN_NODE_CODE_VERSION = 47; // Task-43: consensus liveness fix — proposer rotation over the ENGINEABLE subset (governance-admitted engineless validators no longer burn rounds → no more post-admission round-timeout stalls; quorum math unchanged on FULL active power)
 
 // ─── boot ────────────────────────────────────────────────────────────────────
 

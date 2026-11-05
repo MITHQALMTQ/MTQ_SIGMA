@@ -12,6 +12,10 @@
  *     (state-machine test — the governance path is proven by leg 4) → heartbeat
  *     block pays uMTQD from the treasury to proposer + ACTIVE validators →
  *     econ.block_reward event + balance conservation asserted → restored OFF
+ *  7. oracle consensus (Task-43, §17.10 reference): two independent families
+ *     publish a median-of-medians price; a divergent third family trips the
+ *     fail-closed spread gate (value retained); a single-family symbol stays
+ *     gated closed; a non-validator observation lands as a FAILED receipt.
  */
 import { ensureChainNode, signAndSubmit, faucetDrip } from "@/lib/chain/node";
 import * as store from "@/lib/chain/store";
@@ -164,8 +168,12 @@ async function main() {
   // restore OFF (the shipped default — activation is dual-gated in the
   // Network Economics Specification DRAFT).
   {
+    // Battery hygiene (Task-43 hardening): the try/finally guarantees rewards
+    // are restored OFF even when a leg assertion FAILS — a prior run left the
+    // shared params ON after its failure, an unacceptable default-state leak.
     const treasury = await store.getMeta("treasury_address");
     if (!treasury) throw new Error("treasury_address meta not provisioned (Task-42 boot step missing?)");
+    try {
     const valsNow = await store.getValidators();
     const activeNow = valsNow.filter(v => v.status === "ACTIVE");
     const balBefore = new Map<string, number>();
@@ -186,10 +194,81 @@ async function main() {
     if (paidTotal <= 0) throw new Error("reward events carry zero amount");
     if (tBefore - tAfter !== paidTotal) throw new Error(`treasury delta ${tBefore - tAfter} != paid total ${paidTotal} (conservation broken)`);
     if (validatorDelta !== paidTotal) throw new Error(`validator delta ${validatorDelta} != paid total ${paidTotal} (conservation broken)`);
-    // restore OFF — the shipped default
-    const paramsOff = { ...paramsOn, rewards_enabled: 0, block_reward_u: 0 };
-    await store.saveParams(paramsOff);
-    console.log("[smoke] econ leg: rewards restored OFF (shipped default; activation dual-gated per NES-DRAFT)");
+    // restore OFF — the shipped default (ALSO on failure — see try/finally note above)
+    } finally {
+      const cur = await store.loadParams(DEFAULT_CHAIN_PARAMS);
+      if (cur.rewards_enabled !== 0 || cur.block_reward_u !== 0) {
+        await store.saveParams({ ...cur, rewards_enabled: 0, block_reward_u: 0 });
+        console.log("[smoke] econ leg: rewards restored OFF (finally-guard — shipped default state protected)");
+      }
+    }
+  }
+
+  // 7) ORACLE CONSENSUS (Task-43, §17.10 reference) — fail-closed multi-family
+  //    aggregation over genuinely signed validator txs.
+  {
+    const XAU = "XAU/USD";
+    const v0 = rt.genesis.validators[0].address;
+    const v1 = rt.genesis.validators[1].address;
+    const v2 = rt.genesis.validators[2].address;
+    // val-0 submits TWO txs (XAU chainlink-mirror + EUR frankfurter-mirror) in
+    // ONE block → consecutive nonces from a single base read (same-block chain).
+    const v0n = await nextNonce(v0);
+    const ro1 = await signAndSubmit("val-0", { type: "oracle_observe", from: v0, nonce: v0n, fee: 1000, payload: { symbol: XAU, family: "chainlink-mirror", value_u: 3_940_000_000 } });
+    const ro3 = await signAndSubmit("val-0", { type: "oracle_observe", from: v0, nonce: v0n + 1, fee: 1000, payload: { symbol: "EUR/USD", family: "frankfurter-mirror", value_u: 1_085_000_000 } });
+    const ro2 = await signAndSubmit("val-1", { type: "oracle_observe", from: v1, nonce: await nextNonce(v1), fee: 1000, payload: { symbol: XAU, family: "pyth-mirror", value_u: 3_945_000_000 } });
+    // negative control: the faucet is NOT a validator → the observation must
+    // land in a block with a FAILED receipt (Byzantine-accountability model).
+    const fAcctO = await store.getAccount(faucetAddr);
+    const ro4 = await signAndSubmit("faucet", { type: "oracle_observe", from: faucetAddr, nonce: fAcctO.nonce + 1, fee: 1000, payload: { symbol: XAU, family: "yahoo-mirror", value_u: 3_900_000_000 } });
+    console.log(`[smoke] oracle submit: v0=${ro1.ok} v0eur=${ro3.ok} v1=${ro2.ok} faucet(non-validator)=${ro4.ok}`);
+    // NOTE (dual-writer timing): the dev-server node ALSO produces ~5s heartbeat
+    // blocks, so chain height advances at ~2× cadence — assert PUBLISHED after
+    // ONE block (~4s), not after 8s (which would exceed the 3-block freshness
+    // window and honestly flip the record to STALE — verified as its own leg below).
+    await sleep(4000);
+    let prices = await store.getOraclePrices();
+    const xau = prices.find(p => p.symbol === XAU);
+    console.log(`[smoke] oracle leg: XAU/USD status=${xau?.status} value=${(xau?.value_u ?? 0) / 1e6} families=${xau?.families} observers=${xau?.observers} spread=${xau?.spread_bp}bp`);
+    if (!xau || xau.status !== "PUBLISHED") throw new Error(`two-family publication failed (${xau?.status})`);
+    if (xau.value_u !== 3_940_000_000) throw new Error(`median-of-medians wrong (${xau.value_u} — expected the LOWER central family median 3,940,000,000)`);
+    if (xau.families !== 2) throw new Error(`family count wrong (${xau.families})`);
+    // single-family control: EUR/USD has ONE family → gate stays closed (STALE)
+    const eur = prices.find(p => p.symbol === "EUR/USD");
+    console.log(`[smoke] oracle leg: EUR/USD single family → status=${eur?.status} (gate closed — value ${eur?.value_u ?? 0}, never published)`);
+    if (!eur || eur.status !== "STALE" || eur.families !== 1) throw new Error("single-family gate not enforced");
+    if (eur.value_u !== 0) throw new Error("single-family symbol must never publish a value");
+    // non-validator FAILED receipt
+    const oops = ro4.hash ? await store.getTx(ro4.hash) : null;
+    console.log(`[smoke] oracle leg: non-validator receipt ok=${oops?.result.ok} error="${oops?.result.error}"`);
+    if (!oops || oops.result.ok) throw new Error("non-validator observation was not rejected");
+    // divergence: chronicle-mirror far off → DEGRADED_SPREAD, value RETAINED.
+    // Submitted IMMEDIATELY after the publication check (no extra delay — the
+    // first-pair observations must still be inside the 6-block freshness
+    // window when the divergent family aggregates with them).
+    const published = xau.value_u;
+    const ro5 = await signAndSubmit("val-2", { type: "oracle_observe", from: v2, nonce: await nextNonce(v2), fee: 1000, payload: { symbol: XAU, family: "chronicle-mirror", value_u: 4_800_000_000 } });
+    if (!ro5.ok) throw new Error(`divergence submit failed: ${ro5.error}`);
+    await sleep(3500);
+    prices = await store.getOraclePrices();
+    const xau2 = prices.find(p => p.symbol === XAU)!;
+    console.log(`[smoke] oracle leg: divergence → status=${xau2.status} value=${xau2.value_u / 1e6} (retained ${published === xau2.value_u}) spread=${xau2.spread_bp}bp families=${xau2.families}`);
+    if (xau2.status !== "DEGRADED_SPREAD") throw new Error(`spread gate did not trip (${xau2.status})`);
+    if (xau2.value_u !== published) throw new Error("fail-closed value retention broken");
+    if (xau2.spread_bp <= 200) throw new Error(`spread computation wrong (${xau2.spread_bp}bp)`);
+    const oracleEvents = (await store.getRecentEvents(80)).filter(e => e.type.startsWith("oracle."));
+    console.log(`[smoke] oracle leg: ${oracleEvents.length} oracle event(s) — ${[...new Set(oracleEvents.map(e => e.type))].join(", ")}`);
+    if (!oracleEvents.some(e => e.type === "oracle.price_published")) throw new Error("no oracle.price_published event");
+    if (!oracleEvents.some(e => e.type === "oracle.price_degraded")) throw new Error("no oracle.price_degraded event");
+    // freshness gate (positive): with no NEW observations, the record must
+    // honestly transition to STALE once the 6-block window passes — the last
+    // published value is RETAINED (fail-closed, never zeroed).
+    await sleep(22_000); // ≈9 blocks under the dual-writer cadence — safely past the 6-block window
+    prices = await store.getOraclePrices();
+    const xau3 = prices.find(p => p.symbol === XAU)!;
+    console.log(`[smoke] oracle leg: freshness expiry → status=${xau3.status} value=${xau3.value_u / 1e6} (retained ${xau3.value_u === published})`);
+    if (xau3.status !== "STALE") throw new Error(`freshness gate did not fire (${xau3.status})`);
+    if (xau3.value_u !== published) throw new Error("stale record must retain the last published value");
   }
 
   // 5) state root advances + telemetry exists
@@ -200,7 +279,7 @@ async function main() {
   console.log(`[smoke] final height: ${hFinal} · telemetry rounds: ${rt.telemetry.length}`);
   const blocks = await store.getBlocks(Math.max(1, hFinal - 4), hFinal);
   console.log("[smoke] last blocks:", blocks.map(b => `${b.height}(${b.num_txs}tx,${b.consensus_ms}ms)`).join(" "));
-  console.log("\n[smoke] ALL PASS ✅ — devnet: blocks+QC, signed txs, faucet, governance, dynamic membership, block-reward engine (default OFF)");
+  console.log("\n[smoke] ALL PASS ✅ — devnet: blocks+QC, signed txs, faucet, governance, dynamic membership, block-reward engine (default OFF), oracle consensus (multi-family fail-closed)");
   rt.stop();
   process.exit(0);
 }

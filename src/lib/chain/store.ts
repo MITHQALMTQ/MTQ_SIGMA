@@ -10,7 +10,7 @@
 import { createClient, type Client } from "@libsql/client";
 import { mkdirSync } from "node:fs";
 import { dirname, join } from "node:path";
-import { blockHeaderHash, type Block, type ChainParams, type GovProposal, type Tx, type UnbondingEntry, type Validator } from "./shared";
+import { blockHeaderHash, type Block, type ChainParams, type GovProposal, type OracleObservation, type OraclePriceRecord, type Tx, type UnbondingEntry, type Validator } from "./shared";
 
 let client: Client | null = null;
 
@@ -116,6 +116,28 @@ CREATE TABLE IF NOT EXISTS unbondings (
 );
 CREATE INDEX IF NOT EXISTS idx_unbondings_del ON unbondings(delegator, claimed_height);
 CREATE INDEX IF NOT EXISTS idx_unbondings_release ON unbondings(claimed_height, release_ms);
+CREATE TABLE IF NOT EXISTS oracle_observations (
+  id INTEGER PRIMARY KEY AUTOINCREMENT,
+  height INTEGER NOT NULL,
+  observer TEXT NOT NULL,
+  family TEXT NOT NULL,
+  symbol TEXT NOT NULL,
+  value_u INTEGER NOT NULL,
+  time_ms INTEGER NOT NULL,
+  UNIQUE (height, observer, family, symbol)
+);
+CREATE INDEX IF NOT EXISTS idx_oracle_obs_symbol ON oracle_observations(symbol, height);
+CREATE TABLE IF NOT EXISTS oracle_prices (
+  symbol TEXT PRIMARY KEY,
+  height INTEGER NOT NULL,
+  value_u INTEGER NOT NULL,
+  families INTEGER NOT NULL,
+  observers INTEGER NOT NULL,
+  spread_bp INTEGER NOT NULL,
+  status TEXT NOT NULL,
+  family_medians TEXT NOT NULL,
+  time_ms INTEGER NOT NULL
+);
 `;
 
 // HMR-migration guard: instrumentation only boots the node once per server
@@ -130,6 +152,21 @@ async function ensureUnbondingsTable(): Promise<void> {
   await chainDb().execute("CREATE INDEX IF NOT EXISTS idx_unbondings_del ON unbondings(delegator, claimed_height)");
   await chainDb().execute("CREATE INDEX IF NOT EXISTS idx_unbondings_release ON unbondings(claimed_height, release_ms)");
   unbondingsTableReady = true;
+}
+
+// HMR-migration guard (same pattern as unbondings): the oracle tables must
+// exist before any observation/price operation on a freshly reloaded module.
+let oracleTablesReady = false;
+async function ensureOracleTables(): Promise<void> {
+  if (oracleTablesReady) return;
+  await chainDb().execute(
+    "CREATE TABLE IF NOT EXISTS oracle_observations (id INTEGER PRIMARY KEY AUTOINCREMENT, height INTEGER NOT NULL, observer TEXT NOT NULL, family TEXT NOT NULL, symbol TEXT NOT NULL, value_u INTEGER NOT NULL, time_ms INTEGER NOT NULL, UNIQUE (height, observer, family, symbol))",
+  );
+  await chainDb().execute("CREATE INDEX IF NOT EXISTS idx_oracle_obs_symbol ON oracle_observations(symbol, height)");
+  await chainDb().execute(
+    "CREATE TABLE IF NOT EXISTS oracle_prices (symbol TEXT PRIMARY KEY, height INTEGER NOT NULL, value_u INTEGER NOT NULL, families INTEGER NOT NULL, observers INTEGER NOT NULL, spread_bp INTEGER NOT NULL, status TEXT NOT NULL, family_medians TEXT NOT NULL, time_ms INTEGER NOT NULL)",
+  );
+  oracleTablesReady = true;
 }
 
 export async function initSchema(): Promise<void> {
@@ -537,4 +574,90 @@ export async function loadParams(defaults: ChainParams): Promise<ChainParams> {
 
 export async function saveParams(p: ChainParams): Promise<void> {
   await setMeta("chain_params", JSON.stringify(p));
+}
+
+// ─── oracle consensus (§17.10 reference, Task-43) ─────────────────────────────
+
+function oracleObservationRow(r: Record<string, unknown>): OracleObservation {
+  return {
+    id: Number(r.id),
+    height: Number(r.height),
+    observer: String(r.observer),
+    family: String(r.family),
+    symbol: String(r.symbol),
+    value_u: Number(r.value_u),
+    time_ms: Number(r.time_ms),
+  };
+}
+
+function oraclePriceRow(r: Record<string, unknown>): OraclePriceRecord {
+  return {
+    symbol: String(r.symbol),
+    height: Number(r.height),
+    value_u: Number(r.value_u),
+    families: Number(r.families),
+    observers: Number(r.observers),
+    spread_bp: Number(r.spread_bp),
+    status: String(r.status) as OraclePriceRecord["status"],
+    family_medians: JSON.parse(String(r.family_medians)) as OraclePriceRecord["family_medians"],
+    time_ms: Number(r.time_ms),
+  };
+}
+
+/** Record a validator observation. Returns false on the one-per-block
+ *  per-(observer, family, symbol) duplicate (enforced by the UNIQUE index —
+ *  applyTx turns this into a FAILED receipt, never a silent overwrite). */
+export async function putOracleObservation(
+  observer: string,
+  family: string,
+  symbol: string,
+  valueU: number,
+  height: number,
+  timeMs: number,
+): Promise<boolean> {
+  await ensureOracleTables();
+  try {
+    const r = await chainDb().execute({
+      sql: "INSERT INTO oracle_observations (height, observer, family, symbol, value_u, time_ms) VALUES (?,?,?,?,?,?)",
+      args: [height, observer, family, symbol, valueU, timeMs],
+    });
+    return Number((r as unknown as { rowsAffected?: number }).rowsAffected ?? 0) === 1;
+  } catch {
+    return false; // UNIQUE violation — duplicate observation in this block
+  }
+}
+
+/** All observations from `fromHeight` upward (fresh window for aggregation). */
+export async function getOracleObservations(fromHeight: number): Promise<OracleObservation[]> {
+  await ensureOracleTables();
+  const r = await chainDb().execute({
+    sql: "SELECT * FROM oracle_observations WHERE height >= ? ORDER BY id ASC LIMIT 2000",
+    args: [fromHeight],
+  });
+  return r.rows.map((row) => oracleObservationRow(row as Record<string, unknown>));
+}
+
+/** Most recent observations (provenance feed for the UI/explorer). */
+export async function getRecentOracleObservations(limit = 25): Promise<OracleObservation[]> {
+  await ensureOracleTables();
+  const r = await chainDb().execute({
+    sql: "SELECT * FROM oracle_observations ORDER BY id DESC LIMIT ?",
+    args: [limit],
+  });
+  return r.rows.map((row) => oracleObservationRow(row as Record<string, unknown>));
+}
+
+export async function upsertOraclePrice(rec: OraclePriceRecord): Promise<void> {
+  await ensureOracleTables();
+  await chainDb().execute({
+    sql: "INSERT INTO oracle_prices (symbol, height, value_u, families, observers, spread_bp, status, family_medians, time_ms) VALUES (?,?,?,?,?,?,?,?,?) " +
+      "ON CONFLICT(symbol) DO UPDATE SET height=excluded.height, value_u=excluded.value_u, families=excluded.families, observers=excluded.observers, spread_bp=excluded.spread_bp, status=excluded.status, family_medians=excluded.family_medians, time_ms=excluded.time_ms",
+    args: [rec.symbol, rec.height, rec.value_u, rec.families, rec.observers, rec.spread_bp, rec.status, JSON.stringify(rec.family_medians), rec.time_ms],
+  });
+}
+
+export async function getOraclePrices(): Promise<OraclePriceRecord[]> {
+  await ensureOracleTables();
+  const r = await chainDb().execute("SELECT * FROM oracle_prices ORDER BY symbol ASC LIMIT 200");
+  return r.rows.map((row) => oraclePriceRow(row as Record<string, unknown>));
 }

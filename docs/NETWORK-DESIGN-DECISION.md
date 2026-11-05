@@ -241,3 +241,55 @@ implemented behind a dual-gate that keeps it OFF until the owner ratifies.
    ≥700ms); the canonical HTTP polling remains the correctness path in every
    consumer — the stream is instant-refresh sugar, never a dependency. The
    node's honest payload gained a "transport" line stating exactly this.
+
+## 10. NDD-1 Task-43 addendum (2026-11-05) — on-chain oracle consensus (§17.10 reference)
+
+1. **Module:** `oracle_observe` tx type (ACTIVE-validator signers only;
+   one-per-(observer, family, symbol)-per-block enforced by a UNIQUE index →
+   FAILED receipt on duplicates, never silent overwrites) + end-of-block
+   `aggregateOracle` in state.ts: fresh window (last 6 blocks) → latest per
+   (observer, family, symbol) → **per-family median** → **cross-family
+   median-of-medians** (even-count medians take the LOWER central value —
+   never invents a value between observations) → publication gates: ≥2
+   distinct independent families, cross-family spread ≤200 bp, freshness
+   ≤6 blocks — **fail-closed on every gate**: divergent or single-family
+   data can never move the on-chain price; DEGRADED_SPREAD/STALE records
+   RETAIN the last published value with full per-family diagnostic medians.
+   Fault model documented in source (per-family median tolerates <n/2
+   Byzantine observers; cross-family median-of-medians tolerates <f/2
+   colluded families). State root covers oracle price records (complete
+   commitment). Surfaces: `GET /api/chain/oracle` (prices + provenance +
+   thresholds + verbatim honest line), NOC panel (subagent-wired), devkit
+   doc §5b, chain-smoke leg 7.
+2. **Constitutional consistency (deliberate):** aggregation thresholds are
+   CODE CONSTANTS, not network-governance params — the monetary-guard
+   pattern "oracle" already bars network governance from oracle territory;
+   threshold governance belongs to the MTQ monetary track (Gate-C), and
+   changes ship as forward-only code upgrades.
+3. **Honest data disclosure (verbatim on-panel + API):** the reference devnet
+   has NO automatic market feeds — observations arrive only as genuinely
+   signed validator transactions (smoke battery, E2E feed scripts); values
+   are operator-submitted test values, NOT market data. Production §17.10
+   = Chainlink/Pyth/Chronicle EVM adapters, Gate-C-gated.
+4. **BRING-UP BUG #4 (found live, kept as engineering record):** proposer
+   rotation (`active[(height+round) % active.length]`) could land on a
+   governance-admitted validator with NO in-process engine (dynamic
+   membership admits identities; only the genesis 4 have engine keys here)
+   — that round burns instantly (`continue`, no proposal signed), and with
+   the remaining rounds failing on timing the 3-round budget exhausted →
+   PERMANENT "round timeout" stall of the whole chain (observed live at
+   height 648 after the smoke battery's val-5 admission; both co-located
+   writers stalled). **Fix:** rotation is over the ENGINEABLE subset
+   (`active.filter(v => engines.some(e => e.address === v.address))`) while
+   quorum math keeps the FULL ACTIVE power — an engineless-but-ACTIVE
+   validator legitimately raises the commitment bar (honest BFT semantics:
+   a validator that isn't signing raises the bar). Verified live: v47
+   reboot resumed at h647 and the chain advanced immediately; the full
+   smoke battery then passed including governance admission + subsequent
+   liveness to h716.
+5. **Battery hardening:** the econ leg now restores `rewards_enabled=0 /
+   block_reward_u=0` in a `finally` guard (a failed run previously left the
+   shared params ON — default-state hygiene); the oracle leg asserts
+   PUBLISHED (median exact), single-family gate-closed (STALE, value 0),
+   non-validator FAILED receipt, DEGRADED_SPREAD retention (2,182 bp),
+   freshness expiry (STALE with retained value), and both event types.

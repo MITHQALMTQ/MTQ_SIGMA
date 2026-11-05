@@ -11,6 +11,8 @@
 //   • useChainSubmitter — client-side ed25519 signing (private key NEVER
 //     leaves the browser) + POST /api/chain/submit, with local nonce tracking
 //     so rapid consecutive submissions don't collide.
+//   • Task-43: OracleViewDto + useOracleView — §17.10 on-chain oracle consensus
+//     view (GET /api/chain/oracle, 6s poll).
 //   • Small shared atoms: CopyMono, ValidatorStatusPill, TxTypePill,
 //     TxResultBadge, QuorumChip, LiveClockPill, StaleStrip, FieldCell.
 //
@@ -299,6 +301,62 @@ export interface SubmitOutcomeDto {
 }
 
 /* ============================================================
+   Task-43 — oracle consensus module (§17.10 reference) DTOs
+   Wire shapes of GET /api/chain/oracle. All monetary amounts are INTEGER
+   micro-units (÷1e6 to display), exactly like every other chain amount.
+   ============================================================ */
+
+/** One family median contributing to a published oracle price. */
+export interface OracleFamilyMedianDto {
+  family: string;
+  /** Family median in integer micro-units (÷1e6 to display). */
+  median_u: number;
+  observers: number;
+}
+
+/** A published multi-family price record (cross-family median-of-medians). */
+export interface OraclePriceDto {
+  symbol: string;
+  /** Aggregation height the record was published at. */
+  height: number;
+  /** Cross-family median value in integer micro-units (÷1e6 to display). */
+  value_u: number;
+  families: number;
+  observers: number;
+  /** Cross-family spread in basis points. */
+  spread_bp: number;
+  status: "PUBLISHED" | "DEGRADED_SPREAD" | "STALE";
+  family_medians: OracleFamilyMedianDto[];
+  time_ms: number;
+}
+
+/** Raw observation provenance row (a genuinely signed validator tx). */
+export interface OracleObservationDto {
+  id: number;
+  height: number;
+  observer: string;
+  observer_moniker: string;
+  family: string;
+  symbol: string;
+  value_u: number;
+  time_ms: number;
+}
+
+/** Full GET /api/chain/oracle payload. */
+export interface OracleViewDto {
+  height: number;
+  prices: OraclePriceDto[];
+  recent_observations: OracleObservationDto[];
+  thresholds: {
+    min_families: number;
+    max_spread_bp: number;
+    max_staleness_blocks: number;
+  };
+  /** VERBATIM honest disclosure from the oracle module — render word-for-word. */
+  honest: string;
+}
+
+/* ============================================================
    Micro-unit formatters (all on-chain amounts are integers, ÷1e6)
    ============================================================ */
 
@@ -520,6 +578,22 @@ export function useChainPoll<T>(url: string | null, intervalMs: number): ChainPo
   }, []);
 
   return { data, error, stale, loading, lastReadAt, refresh };
+}
+
+/* ============================================================
+   useOracleView — Task-43 oracle consensus poll (6s)
+   ============================================================ */
+
+/**
+ * On-chain oracle consensus view from GET /api/chain/oracle, on the app's
+ * canonical poll pattern (hidden-tab skip · visibility refresh · last-good
+ * retention flagged stale). 6s cadence — oracle records move with signed
+ * validator observations, not with every block, so this poll deliberately
+ * runs slower than the 3s summary poll. Empty prices (the reference devnet
+ * has no automatic market feeds) is a NORMAL state, not an error.
+ */
+export function useOracleView(): ChainPollState<OracleViewDto> {
+  return useChainPoll<OracleViewDto>("/api/chain/oracle", 6000);
 }
 
 /* ============================================================

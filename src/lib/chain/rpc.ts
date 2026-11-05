@@ -7,7 +7,7 @@
 
 import { chainNode, chainReady, submitTx, faucetDrip } from "./node";
 import * as store from "./store";
-import { CHAIN_ID, DEFAULT_CHAIN_PARAMS, type GovProposal, type Tx, type Validator } from "./shared";
+import { CHAIN_ID, DEFAULT_CHAIN_PARAMS, ORACLE_MAX_SPREAD_BP, ORACLE_MAX_STALENESS_BLOCKS, ORACLE_MIN_FAMILIES, type GovProposal, type OracleObservation, type OraclePriceRecord, type Tx, type Validator } from "./shared";
 import { genesisHash } from "./genesis";
 import { pubToAddress } from "./crypto";
 
@@ -23,6 +23,8 @@ export const CHAIN_HONEST_STATUS = {
     "Production network path: Cosmos SDK + CometBFT multi-host validator set (docs/NETWORK-DESIGN-DECISION.md). Production authorization for MTQ remains FALSE per the 11 validation gates.",
   transport:
     "API transport: HTTP polling (canonical, every consumer) + an in-process SSE block-event stream (GET /api/chain/stream) for instant refresh — no external message broker, no extra process; SSE is best-effort sugar and every consumer keeps its polling fallback.",
+  oracle:
+    "Oracle consensus module (§17.10 reference): validator-keyed observations → per-family medians → cross-family median-of-medians, gated by ≥2 independent families, a ≤2% cross-family spread, and ≤6-block freshness (~30 s at the production single-writer heartbeat cadence) — fail-closed on every gate (divergent or single-family data can never move the on-chain price). The reference devnet has NO automatic market feeds: observations arrive ONLY as genuinely signed validator transactions, and their values are operator-submitted test values, NOT market data. Production §17.10 three-family on-chain oracle (Chainlink/Pyth/Chronicle EVM adapters) remains Gate-C-gated; oracle-parameter governance stays in the MTQ monetary track, never network governance.",
   label: "TESTNET-ONLY · REFERENCE DEVNET · NOT DECENTRALIZED · NOT PRODUCTION-AUTHORIZED",
 } as const;
 
@@ -241,6 +243,38 @@ export async function getGovernanceView() {
 }
 
 export { submitTx, faucetDrip, store };
+
+// ─── oracle consensus view (Task-43, §17.10 reference) ─────────────────────────
+
+export interface OracleView {
+  height: number;
+  prices: OraclePriceRecord[];
+  recent_observations: Array<OracleObservation & { observer_moniker: string }>;
+  thresholds: {
+    min_families: number;
+    max_spread_bp: number;
+    max_staleness_blocks: number;
+  };
+  honest: string;
+}
+
+export async function getOracleView(): Promise<OracleView> {
+  const height = await store.getHeight();
+  const prices = await store.getOraclePrices();
+  const observations = await store.getRecentOracleObservations(25);
+  const monikerOf = new Map((await store.getValidators()).map((v) => [v.address, v.moniker] as const));
+  return {
+    height,
+    prices,
+    recent_observations: observations.map((o) => ({ ...o, observer_moniker: monikerOf.get(o.observer) ?? o.observer.slice(0, 14) + "…" })),
+    thresholds: {
+      min_families: ORACLE_MIN_FAMILIES,
+      max_spread_bp: ORACLE_MAX_SPREAD_BP,
+      max_staleness_blocks: ORACLE_MAX_STALENESS_BLOCKS,
+    },
+    honest: CHAIN_HONEST_STATUS.oracle,
+  };
+}
 
 export async function getFaucetAddress(): Promise<string> {
   const rt = await chainNode();
