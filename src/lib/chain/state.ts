@@ -6,9 +6,10 @@
 // tx that fails here is included with a FAILED receipt, exactly like an
 // EVM reverted tx, never silently dropped).
 //
-// Modules: bank (send), staking (register/delegate/undelegate), gov
-// (submit/vote + end-of-block proposal processing + timelocked execution),
-// plus per-block validator power recomputation and the flat state root.
+// Modules: bank (send), staking (register/delegate/undelegate + time-locked
+// unbonding queue), gov (submit/vote + end-of-block proposal processing +
+// timelocked execution), plus per-block unbonding maturation, validator power
+// recomputation and the flat state root.
 //
 // Constitutional guard: gov proposal payloads touching MTQ monetary
 // registry territory are rejected at SUBMISSION (see shared.ts) — network
@@ -113,7 +114,7 @@ async function applyDelegate(tx: Tx, height: number, effects: string[]): Promise
   return null;
 }
 
-async function applyUndelegate(tx: Tx, height: number, effects: string[]): Promise<string | null> {
+async function applyUndelegate(tx: Tx, height: number, params: ChainParams, effects: string[]): Promise<string | null> {
   const validatorAddr = String(tx.payload.validator ?? "");
   const amount = Number(tx.payload.amount ?? 0);
   if (!Number.isInteger(amount) || amount <= 0) return "invalid amount";
@@ -122,9 +123,6 @@ async function applyUndelegate(tx: Tx, height: number, effects: string[]): Promi
   const stakes = (await store.getStakes(tx.from, validatorAddr)).filter((s) => s.amount_u > 0);
   const bonded = stakes.reduce((s, x) => s + x.amount_u, 0);
   if (bonded < amount) return `unbond amount exceeds bonded (${bonded} < ${amount})`;
-  // Unbonding period: immediate in the reference devnet — documented
-  // simplification; the production network design sets it via the approved
-  // Network Economics Specification (not invented here).
   let left = amount;
   for (const s of stakes) {
     if (left <= 0) break;
@@ -137,13 +135,21 @@ async function applyUndelegate(tx: Tx, height: number, effects: string[]): Promi
     await store.putValidator({ ...val, self_stake: Math.max(0, val.self_stake - left) });
     left = 0;
   }
-  const acct = await store.getAccount(tx.from);
-  await store.executeAccountUpdate(tx.from, { fee_u: acct.fee_u + amount });
+  // Voting power drops NOW (validator.delegated reduced; end-of-block
+  // recompute) — funds return via the time-locked unbonding queue.
   const fresh = (await store.getValidators()).find((v) => v.address === validatorAddr)!;
   const newDel = Math.max(0, fresh.delegated - Math.min(amount, val.delegated));
   await store.putValidator({ ...fresh, delegated: newDel });
-  effects.push(`staking.undelegate ${amount / 1e6} MTQD ← ${val.moniker} (unbond immediate — reference simplification)`);
-  void height;
+  if (params.unbonding_s > 0) {
+    const releaseMs = Date.now() + params.unbonding_s * 1000;
+    await store.putUnbonding(tx.from, validatorAddr, amount, height, releaseMs);
+    effects.push(`staking.undelegate ${amount / 1e6} MTQD ← ${val.moniker} → unbonding queue (power dropped now; funds release in ${params.unbonding_s}s)`);
+  } else {
+    // unbonding_s = 0 (governance-set): immediate release — legacy path
+    const acct = await store.getAccount(tx.from);
+    await store.executeAccountUpdate(tx.from, { fee_u: acct.fee_u + amount });
+    effects.push(`staking.undelegate ${amount / 1e6} MTQD ← ${val.moniker} (unbonding_s=0 — immediate release)`);
+  }
   return null;
 }
 
@@ -260,7 +266,7 @@ export async function applyTx(tx: Tx, height: number, params: ChainParams): Prom
     case "send": err = await applySend(tx, effects); break;
     case "validator_register": err = await applyValidatorRegister(tx, height, effects); break;
     case "delegate": err = await applyDelegate(tx, height, effects); break;
-    case "undelegate": err = await applyUndelegate(tx, height, effects); break;
+    case "undelegate": err = await applyUndelegate(tx, height, params, effects); break;
     case "gov_submit": err = await applyGovSubmit(tx, height, params, effects); break;
     case "gov_vote": err = await applyGovVote(tx, height, effects); break;
     default: err = `unknown tx type ${tx.type}`;
@@ -275,6 +281,19 @@ export async function processBlockEnd(height: number, params: ChainParams): Prom
   const proposals = await store.getProposals();
   const validators = await store.getValidators();
   const totalPower = validators.filter((v) => v.status === "ACTIVE").reduce((s, v) => s + v.power, 0);
+
+  // 0) unbonding queue maturation — mature entries auto-claim to balance.
+  // The CLAIM runs first through the atomic guarded UPDATE; only the winner
+  // credits the funds (concurrent writers can never double-release).
+  const mature = await store.getMatureUnbondings(Date.now());
+  for (const u of mature) {
+    const won = await store.markUnbondingClaimed(u.id, height);
+    if (!won) continue; // already claimed by a concurrent processor
+    const acct = await store.getAccount(u.delegator);
+    await store.executeAccountUpdate(u.delegator, { fee_u: acct.fee_u + u.amount_u });
+    await store.putEvent(height, "staking.unbond_released", { id: u.id, delegator: u.delegator, validator: u.validator, amount_u: u.amount_u }, Date.now());
+    effects.push(`staking.unbond_released ${u.amount_u / 1e6} MTQD → ${u.delegator.slice(0, 14)}… (queued @ h${u.created_height}, released @ h${height})`);
+  }
 
   // 1) close voting periods
   for (const p of proposals) {
@@ -373,6 +392,7 @@ export async function computeStateRoot(): Promise<string> {
   const accounts = await store.chainDb().execute("SELECT address, nonce, fee_u, pmtq_u FROM accounts ORDER BY address");
   const validators = (await store.getValidators()).map((v) => [v.address, v.status, v.power, v.self_stake, v.delegated]);
   const stakes = await store.getStakes();
+  const unbondings = await store.getUnbondings();
   const proposals = (await store.getProposals()).slice(0, 50).map((p) => [p.id, p.status]);
   const params = await store.loadParams(DEFAULT_CHAIN_PARAMS);
   const canonical = JSON.stringify({
@@ -380,6 +400,7 @@ export async function computeStateRoot(): Promise<string> {
     accounts: accounts.rows.map((r) => [r.address, Number(r.nonce), Number(r.fee_u), Number(r.pmtq_u)]),
     validators,
     stakes: stakes.map((s) => [s.delegator, s.validator, s.amount_u]),
+    unbondings: unbondings.map((u) => [u.delegator, u.validator, u.amount_u, u.release_ms]),
     proposals,
     params,
   });

@@ -387,13 +387,14 @@ export function NetworkSection() {
                 Live values from the node&apos;s parameter store (governance can change them via
                 passed network_param proposals).
               </p>
-              <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-5">
+              <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-6">
                 {(
                   [
                     ["Base fee", `${summary.params.base_fee_u.toLocaleString("en-US")} µMTQD`, `(${fmtMicro(summary.params.base_fee_u, 4)} MTQD)`],
                     ["Max block txs", `${summary.params.max_block_txs.toLocaleString("en-US")}`, "transactions per block"],
                     ["Voting period", `${summary.params.voting_period_s.toLocaleString("en-US")} s`, "governance voting window"],
                     ["Timelock", `${summary.params.timelock_s.toLocaleString("en-US")} s`, "passed → execute delay"],
+                    ["Unbonding", `${summary.params.unbonding_s.toLocaleString("en-US")} s`, "undelegate → funds release queue"],
                     ["Heartbeat", `${summary.params.heartbeat_ms.toLocaleString("en-US")} ms`, `empty-block interval (${fmtDuration(summary.params.heartbeat_ms)})`],
                   ] as const
                 ).map(([label, value, sub]) => (

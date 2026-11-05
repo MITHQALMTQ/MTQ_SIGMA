@@ -149,16 +149,22 @@ export async function getTxDetail(hash: string) {
 export async function getAccountInfo(address: string) {
   const acct = await store.getAccount(address);
   const stakes = await store.getStakes(address);
+  const unbondings = await store.getUnbondings(address);
   const validators = await store.getValidators();
   const asValidator = validators.find((v) => v.address === address) ?? null;
   const txs = await store.getTxsByAddress(address, 25);
   return {
     address,
-    exists: acct.nonce > 0 || acct.fee_u > 0 || acct.pmtq_u > 0 || stakes.length > 0 || !!asValidator,
+    exists: acct.nonce > 0 || acct.fee_u > 0 || acct.pmtq_u > 0 || stakes.length > 0 || unbondings.length > 0 || !!asValidator,
     nonce: acct.nonce,
     fee_u: acct.fee_u,
     pmtq_u: acct.pmtq_u,
     bonded_u: stakes.reduce((s, x) => s + x.amount_u, 0),
+    unbonding_u: unbondings.reduce((s, x) => s + x.amount_u, 0),
+    unbondings: unbondings.map((u) => {
+      const v = validators.find((x) => x.address === u.validator);
+      return { ...u, validator_moniker: v?.moniker ?? u.validator, release_in_ms: Math.max(0, u.release_ms - Date.now()) };
+    }),
     stakes: stakes.map((s) => {
       const v = validators.find((x) => x.address === s.validator);
       return { ...s, validator_moniker: v?.moniker ?? s.validator, validator_status: v?.status ?? "UNKNOWN" };

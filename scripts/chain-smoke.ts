@@ -3,6 +3,8 @@
  *  1. heartbeat blocks advance with valid QCs (+2/3 precommits)
  *  2. a signed send tx flows mempool → block → state
  *  3. faucet drip signs a REAL consensus tx
+ *  3b. unbonding queue: delegate → undelegate → time-locked queue
+ *      (power drops now, funds NOT credited) → maturity → auto-release
  *  4. governance: submit → vote → pass → timelock → EXECUTED validator_set_change
  *     (V4 dynamic-membership mechanism live)
  *  5. state root advances; explorer queries return the data
@@ -52,6 +54,40 @@ async function main() {
   const ua = await store.getAccount(userAddr);
   console.log(`[smoke] user balance after drip: ${ua.fee_u} uMTQD (expect 10,000 MTQD = 10,000,000,000 u)`);
   if (ua.fee_u !== 10_000 * 1_000_000) throw new Error("drip amount wrong");
+
+  // 3b) UNBONDING QUEUE: faucet delegates → undelegates → queue → auto-release
+  //     (power drops at undelegate; funds return after unbonding_s without a claim tx)
+  {
+    const fAcct = await store.getAccount(faucetAddr);
+    const delAmt = Math.floor(0.5 * 1_000_000);
+    const rd = await signAndSubmit("faucet", { type: "delegate", from: faucetAddr, nonce: fAcct.nonce + 1, fee: 1000, payload: { validator: val0Addr, amount: delAmt } });
+    if (!rd.ok) throw new Error(`smoke delegate failed: ${rd.error}`);
+    await sleep(6000);
+    const bonded = await store.getStakes(faucetAddr, val0Addr);
+    const bondedU = bonded.reduce((s, x) => s + x.amount_u, 0);
+    console.log(`[smoke] queue leg: faucet bonded ${bondedU / 1e6} MTQD to val-0`);
+    if (bondedU < delAmt) throw new Error("delegate not executed");
+    const fAcct2 = await store.getAccount(faucetAddr);
+    const undelAmt = Math.floor(0.25 * 1_000_000);
+    const ru = await signAndSubmit("faucet", { type: "undelegate", from: faucetAddr, nonce: fAcct2.nonce + 1, fee: 1000, payload: { validator: val0Addr, amount: undelAmt } });
+    if (!ru.ok) throw new Error(`smoke undelegate failed: ${ru.error}`);
+    await sleep(6000);
+    const queued = await store.getUnbondings(faucetAddr);
+    const feeAtQueue = (await store.getAccount(faucetAddr)).fee_u;
+    const qU = queued.reduce((s, x) => s + x.amount_u, 0);
+    console.log(`[smoke] queue leg: unbonding pending ${qU / 1e6} MTQD (release in ~${Math.max(0, Math.round((queued[0]?.release_ms ?? 0) - Date.now()) / 1000)}s) · fee_u ${fAcct2.fee_u} → ${feeAtQueue} (−fee only)`);
+    if (qU !== undelAmt) throw new Error(`unbonding queue amount wrong (${qU})`);
+    // Only the tx fee itself may have been charged — the unbonded amount must
+    // NOT be credited until the queue matures.
+    if (feeAtQueue !== fAcct2.fee_u - 1000) throw new Error(`unexpected fee delta ${fAcct2.fee_u - feeAtQueue} (expected just the 1000 µ tx fee)`);
+    const waitMs = Math.max(0, (queued[0]?.release_ms ?? 0) - Date.now()) + 8000;
+    await sleep(waitMs);
+    const afterRelease = await store.getUnbondings(faucetAddr);
+    const feeAfterRelease = (await store.getAccount(faucetAddr)).fee_u;
+    console.log(`[smoke] queue leg: after maturity → pending ${afterRelease.length} · fee_u ${feeAtQueue} → ${feeAfterRelease} (+${feeAfterRelease - feeAtQueue})`);
+    if (afterRelease.length !== 0) throw new Error("unbonding not auto-claimed at maturity");
+    if (feeAfterRelease - feeAtQueue !== undelAmt) throw new Error(`release amount wrong (${feeAfterRelease - feeAtQueue})`);
+  }
 
   // 4) governance: validator_set_change add — register a 5th validator first
   const val5 = generateKeyPair();

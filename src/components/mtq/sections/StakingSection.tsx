@@ -63,6 +63,7 @@ import {
   type GovViewDto,
   type StakeRowDto,
   type SubmitOutcomeDto,
+  type UnbondingRowDto,
   type ValidatorDto,
 } from "@/components/mtq/chain/chain-kit";
 import { NETWORK_PARAM_ALLOWLIST } from "@/lib/chain/shared";
@@ -504,7 +505,11 @@ export function StakingSection({ onNavigate }: { onNavigate: (id: SectionId) => 
                       </span>
                     </span>
                     <span className="text-[#7A8C86]">
-                      unbonding is immediate — reference simplification
+                      {gov.data
+                        ? gov.data.params.unbonding_s > 0
+                          ? `power drops now · funds queue ${gov.data.params.unbonding_s}s (unbonding_s param) then auto-release`
+                          : "unbonding_s = 0 — funds release immediately (governance-set)"
+                        : "power drops now · funds queue per unbonding_s param"}
                     </span>
                   </div>
                   <Button
@@ -524,9 +529,16 @@ export function StakingSection({ onNavigate }: { onNavigate: (id: SectionId) => 
           {/* Bonded positions */}
           {wallet ? (
             <Panel className="mt-6 p-5">
-              <h3 className="mb-3 text-sm font-semibold text-[#0E1F1B]">
-                Bonded positions {acct ? `(${acct.stakes.length})` : ""}
-              </h3>
+              <div className="mb-3 flex flex-wrap items-center justify-between gap-2">
+                <h3 className="text-sm font-semibold text-[#0E1F1B]">
+                  Bonded positions {acct ? `(${acct.stakes.length})` : ""}
+                </h3>
+                {acct && acct.unbonding_u > 0 ? (
+                  <Pill tone="amber" className="font-mono">
+                    unbonding {fmtMicro(acct.unbonding_u)} MTQD
+                  </Pill>
+                ) : null}
+              </div>
               {!acct && account.loading ? (
                 <Skeleton className="h-16 rounded-lg" />
               ) : acct && acct.stakes.length === 0 ? (
@@ -542,6 +554,32 @@ export function StakingSection({ onNavigate }: { onNavigate: (id: SectionId) => 
                   </ul>
                 </div>
               ) : null}
+            </Panel>
+          ) : null}
+
+          {/* Unbonding queue — time-locked returning funds */}
+          {wallet && acct && acct.unbondings.length > 0 ? (
+            <Panel className="mt-6 p-5">
+              <div className="mb-3 flex flex-wrap items-center justify-between gap-2">
+                <h3 className="text-sm font-semibold text-[#0E1F1B]">
+                  Unbonding queue ({acct.unbondings.length})
+                </h3>
+                <Pill tone="muted" className="font-mono">
+                  auto-release at maturity · no claim tx needed
+                </Pill>
+              </div>
+              <div className="max-h-72 overflow-y-auto rounded-lg border border-[#E3EAE6] bg-white mtqs-scroll">
+                <ul className="divide-y divide-[#EDF2EF]">
+                  {acct.unbondings.map((u) => (
+                    <UnbondingRow key={u.id} u={u} now={now} />
+                  ))}
+                </ul>
+              </div>
+              <p className="mt-3 text-[0.62rem] text-[#7A8C86]">
+                Undelegated bond sits in a time-locked queue (unbonding_s network param — current{" "}
+                <span className="font-mono">{gov.data ? `${gov.data.params.unbonding_s}s` : "…"}</span>). Voting power already dropped at
+                undelegate; funds return to your balance automatically at the next block after maturity.
+              </p>
             </Panel>
           ) : null}
         </section>
@@ -730,6 +768,28 @@ function StakeRow({ s }: { s: StakeRowDto }) {
         bonded at #{s.created_height.toLocaleString("en-US")} ·{" "}
         <span className="font-mono" title={s.validator}>
           {shortAddr(s.validator, 10, 6)}
+        </span>
+      </span>
+    </li>
+  );
+}
+
+function UnbondingRow({ u, now }: { u: UnbondingRowDto; now: number }) {
+  const left = u.release_ms - now;
+  return (
+    <li className="flex flex-wrap items-center gap-x-3 gap-y-1 px-3 py-2.5 text-[0.7rem]">
+      <span className="font-semibold text-[#0E1F1B]">{u.validator_moniker}</span>
+      <Pill tone={left > 0 ? "amber" : "emerald"}>
+        {left > 0 ? "unbonding" : "mature"}
+      </Pill>
+      <span className="font-mono tabular-nums text-[#33544C]">{fmtMicro(u.amount_u)} MTQD</span>
+      <span className="font-mono text-[0.62rem] text-[#7A8C86]">
+        {left > 0 ? `releases in ${fmtDuration(left)}` : "releases at next block"}
+      </span>
+      <span className="ml-auto text-[0.62rem] text-[#7A8C86]">
+        queued at #{u.created_height.toLocaleString("en-US")} ·{" "}
+        <span className="font-mono" title={u.validator}>
+          {shortAddr(u.validator, 10, 6)}
         </span>
       </span>
     </li>

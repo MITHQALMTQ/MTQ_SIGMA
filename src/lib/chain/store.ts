@@ -10,7 +10,7 @@
 import { createClient, type Client } from "@libsql/client";
 import { mkdirSync } from "node:fs";
 import { dirname, join } from "node:path";
-import { blockHeaderHash, type Block, type ChainParams, type GovProposal, type Tx, type Validator } from "./shared";
+import { blockHeaderHash, type Block, type ChainParams, type GovProposal, type Tx, type UnbondingEntry, type Validator } from "./shared";
 
 let client: Client | null = null;
 
@@ -105,7 +105,32 @@ CREATE TABLE IF NOT EXISTS events (
   time_ms INTEGER NOT NULL
 );
 CREATE INDEX IF NOT EXISTS idx_events_height ON events(height);
+CREATE TABLE IF NOT EXISTS unbondings (
+  id INTEGER PRIMARY KEY AUTOINCREMENT,
+  delegator TEXT NOT NULL,
+  validator TEXT NOT NULL,
+  amount_u INTEGER NOT NULL,
+  created_height INTEGER NOT NULL,
+  release_ms INTEGER NOT NULL,
+  claimed_height INTEGER
+);
+CREATE INDEX IF NOT EXISTS idx_unbondings_del ON unbondings(delegator, claimed_height);
+CREATE INDEX IF NOT EXISTS idx_unbondings_release ON unbondings(claimed_height, release_ms);
 `;
+
+// HMR-migration guard: instrumentation only boots the node once per server
+// process, but dev-mode module reloads can create fresh store instances —
+// ensure the unbondings table exists before any queue operation.
+let unbondingsTableReady = false;
+async function ensureUnbondingsTable(): Promise<void> {
+  if (unbondingsTableReady) return;
+  await chainDb().execute(
+    "CREATE TABLE IF NOT EXISTS unbondings (id INTEGER PRIMARY KEY AUTOINCREMENT, delegator TEXT NOT NULL, validator TEXT NOT NULL, amount_u INTEGER NOT NULL, created_height INTEGER NOT NULL, release_ms INTEGER NOT NULL, claimed_height INTEGER)",
+  );
+  await chainDb().execute("CREATE INDEX IF NOT EXISTS idx_unbondings_del ON unbondings(delegator, claimed_height)");
+  await chainDb().execute("CREATE INDEX IF NOT EXISTS idx_unbondings_release ON unbondings(claimed_height, release_ms)");
+  unbondingsTableReady = true;
+}
 
 export async function initSchema(): Promise<void> {
   const c = chainDb();
@@ -359,6 +384,64 @@ export async function putStake(delegator: string, validator: string, amountU: nu
     sql: "INSERT INTO stakes (delegator, validator, amount_u, created_height) VALUES (?,?,?,?)",
     args: [delegator, validator, amountU, height],
   });
+}
+
+// ─── unbonding queue ─────────────────────────────────────────────────────────
+
+function unbondingRow(r: Record<string, unknown>): UnbondingEntry {
+  return {
+    id: Number(r.id),
+    delegator: String(r.delegator),
+    validator: String(r.validator),
+    amount_u: Number(r.amount_u),
+    created_height: Number(r.created_height),
+    release_ms: Number(r.release_ms),
+    claimed_height: r.claimed_height == null ? null : Number(r.claimed_height),
+  };
+}
+
+export async function putUnbonding(delegator: string, validator: string, amountU: number, height: number, releaseMs: number): Promise<void> {
+  await ensureUnbondingsTable();
+  await chainDb().execute({
+    sql: "INSERT INTO unbondings (delegator, validator, amount_u, created_height, release_ms) VALUES (?,?,?,?,?)",
+    args: [delegator, validator, amountU, height, releaseMs],
+  });
+}
+
+/** Pending (unclaimed) unbonding entries — optionally filtered by delegator. */
+export async function getUnbondings(delegator?: string): Promise<UnbondingEntry[]> {
+  await ensureUnbondingsTable();
+  const r = delegator
+    ? await chainDb().execute({
+        sql: "SELECT * FROM unbondings WHERE claimed_height IS NULL AND delegator = ? ORDER BY release_ms ASC, id ASC LIMIT 500",
+        args: [delegator],
+      })
+    : await chainDb().execute(
+        "SELECT * FROM unbondings WHERE claimed_height IS NULL ORDER BY release_ms ASC, id ASC LIMIT 1000",
+      );
+  return r.rows.map(unbondingRow);
+}
+
+/** Mature (release_ms <= now) pending entries — eligible for automatic claim. */
+export async function getMatureUnbondings(nowMs: number): Promise<UnbondingEntry[]> {
+  await ensureUnbondingsTable();
+  const r = await chainDb().execute({
+    sql: "SELECT * FROM unbondings WHERE claimed_height IS NULL AND release_ms <= ? ORDER BY release_ms ASC, id ASC LIMIT 500",
+    args: [nowMs],
+  });
+  return r.rows.map(unbondingRow);
+}
+
+export async function markUnbondingClaimed(id: number, height: number): Promise<boolean> {
+  await ensureUnbondingsTable();
+  // Atomic claim gate: the guarded UPDATE succeeds for exactly ONE caller —
+  // under any concurrent writer, the loser sees rowsAffected 0 and must NOT
+  // credit the account (prevents double-release of the same queue entry).
+  const r = await chainDb().execute({
+    sql: "UPDATE unbondings SET claimed_height = ? WHERE id = ? AND claimed_height IS NULL",
+    args: [height, id],
+  });
+  return Number((r as unknown as { rowsAffected?: number }).rowsAffected ?? 0) === 1;
 }
 
 export async function getProposals(): Promise<GovProposal[]> {

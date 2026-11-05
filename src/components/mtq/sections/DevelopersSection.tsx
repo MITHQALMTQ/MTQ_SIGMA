@@ -15,7 +15,7 @@
 
 import { Fragment } from "react";
 import { toast } from "sonner";
-import { ArrowRight, Terminal, FolderGit2, Plug, ShieldAlert } from "lucide-react";
+import { ArrowRight, FileCode2, FolderGit2, KeyRound, Network, Plug, ShieldAlert, Terminal } from "lucide-react";
 import { Panel, Reveal, Pill, GlowDot, SectionHeading } from "@/components/mtq/primitives";
 import { shortAddr, copyToClipboard } from "@/components/mtq/format";
 import { ALL_CHAINS, CANONICAL_MTQ_ADDRESSES, DEPLOYER_WALLET } from "@/lib/mtq/contracts";
@@ -109,7 +109,76 @@ const API_GROUPS: { group: string; rows: ApiRow[] }[] = [
       { method: "POST", path: "/api/ai/screen", desc: "Named-entity screening via the Hugging Face Inference API. Origin-restricted (same-origin only — non-whitelisted origins get 403).", rateLimited: true },
     ],
   },
+  {
+    group: "MTQ Sigma Network · sovereign devnet (mtq-devnet-1)",
+    rows: [
+      { method: "GET", path: "/api/chain", desc: "Chain summary: height, latest block + quorum certificate, validator set + power, network params, consensus telemetry, uptime, honest-status payload.", rateLimited: true },
+      { method: "GET", path: "/api/chain/blocks?page=&pageSize=", desc: "Paginated block list (pageSize 5–50, default 15)." },
+      { method: "GET", path: "/api/chain/block?id=", desc: "Block detail by height or blk_… hash — header commitments, QC precommit signers, included txs with receipts." },
+      { method: "GET", path: "/api/chain/tx?hash= · ?from= · ?recent=", desc: "Transaction receipts: by hash, by sender address, or the recent feed. FAILED txs carry honest revert-style receipts." },
+      { method: "GET", path: "/api/chain/account?a=", desc: "Account state: balances (uMTQD fee asset + PMTQ mirror), nonce, bonded stakes, unbonding queue with release countdowns, validator role, recent txs." },
+      { method: "GET", path: "/api/chain/validators", desc: "Validator set: pubkey, address, moniker, status (ACTIVE/CANDIDATE/RETIRED), power, self-stake, delegated, commission, proposes-next flag." },
+      { method: "GET", path: "/api/chain/mempool", desc: "Advisory mempool admission view (pending txs with fee/nonce)." },
+      { method: "GET", path: "/api/chain/gov", desc: "Governance: proposals with tallies + votes + lifecycle timestamps, network params, recent gov events." },
+      { method: "POST", path: "/api/chain/submit", desc: "Submit a CLIENT-SIGNED transaction (ed25519 over canonical bytes — the server never sees private keys). Body: { type, from, nonce, fee, payload, sig, pub_key }.", rateLimited: true },
+      { method: "POST", path: "/api/chain/faucet", desc: "Faucet drip: { address } → 10,000 MTQD + 10 PMTQ (one drip per address, enforced on-chain).", rateLimited: true },
+    ],
+  },
 ];
+
+/* ============================================================
+   MTQ Sigma Network devkit — transaction format + signing guide
+   (facts mirror src/lib/chain/shared.ts exactly; honest labels verbatim)
+   ============================================================ */
+const CHAIN_DEVKIT_FACTS: Array<[string, string]> = [
+  ["Chain ID", "mtq-devnet-1 (reference devnet — single-process, 4 validator engines, +2/3 QC per block)"],
+  ["Address", "mtq1 + hex( sha256( ed25519 pubkey )[0:20] ) — 44 chars, documented simplification vs bech32"],
+  ["Signature", "ed25519 (RFC 8032) over canonicalTxBytes, hex-encoded — @noble/curves both sides (node + browser wallet)"],
+  ["Canonical tx bytes", 'JSON.stringify({ type, from, nonce, fee, payload }) — FIXED key order, payload keys SORTED, no whitespace; UTF-8 encoded'],
+  ["Nonce", "per-account strictly +1 (mempool admits ≤ +500 lookahead; consensus re-validates authoritatively)"],
+  ["Fee asset", "uMTQD — testnet-only network credit (MTQΣ is NOT the gas token). Fee ≥ base_fee_u, charged even on module failure"],
+  ["Amounts", "integer micro-units (1e-6) — no floats on-chain; PMTQ is a NON-CANONICAL pilot ledger mirror"],
+  ["Tx types", "send · validator_register · delegate · undelegate · gov_submit · gov_vote"],
+  ["Unbonding", "undelegate drops voting power immediately; funds sit in a time-locked queue (unbonding_s param) and auto-release WITHOUT a claim tx"],
+  ["Governance", "network_param (allowlisted keys only) · text · validator_set_change (add/remove/repower — V4 dynamic membership). MTQ monetary-registry territory is constitutionally REJECTED at submission"],
+];
+
+const CHAIN_SIGN_EXAMPLE = `// Sign + submit a devnet tx from any client (same path as the browser Wallet).
+// Deps: @noble/curves, @noble/hashes — the exact libraries the node verifies with.
+import { ed25519 } from "@noble/curves/ed25519.js";
+import { sha256 } from "@noble/hashes/sha2.js";
+
+const toHex = (b: Uint8Array) => [...b].map(x => x.toString(16).padStart(2, "0")).join("");
+
+// 1) local keypair — the private key never leaves the client
+const priv = crypto.getRandomValues(new Uint8Array(32));
+const pub  = ed25519.getPublicKey(priv);
+const from = "mtq1" + toHex(sha256(pub).slice(0, 20));
+
+// 2) canonical unsigned tx (payload keys must be sorted)
+const unsigned = {
+  type: "send", from, nonce: 1, fee: 1000,          // fee in uMTQD
+  payload: { amount: 2_000_000, asset: "FEE", to: recipient }, // sorted: amount, asset, to
+};
+const bytes = new TextEncoder().encode(JSON.stringify({
+  type: unsigned.type, from: unsigned.from, nonce: unsigned.nonce,
+  fee: unsigned.fee, payload: unsigned.payload,
+}));
+
+// 3) sign over EXACTLY those bytes, then submit
+const sig = ed25519.sign(bytes, priv);
+const res = await fetch("/api/chain/submit", {
+  method: "POST", headers: { "content-type": "application/json" },
+  body: JSON.stringify({ ...unsigned, sig: toHex(sig), pub_key: toHex(pub) }),
+});
+const receipt = await res.json(); // { ok, hash } — inclusion with the next block; FAILED txs keep honest receipts`;
+
+const CHAIN_CURL_EXAMPLE = `# read-only surface
+curl localhost:3000/api/chain                      # summary + honest status
+curl "localhost:3000/api/chain/account?a=mtq1…"   # balances · bonds · unbonding queue
+# faucet: POST { "address": "mtq1…" } → 10,000 MTQD + 10 PMTQ (one drip per address)
+curl -X POST localhost:3000/api/chain/faucet -H 'content-type: application/json' \\
+  -d '{"address":"mtq1…"}'`;
 
 /* ============================================================
    Repo artifacts — every row verified to exist in the repository
@@ -126,6 +195,10 @@ const REPO_ARTIFACTS: { name: string; purpose: string }[] = [
   { name: "CHANGELOG.md", purpose: "Project changelog." },
   { name: "README.md · AGENTS.md", purpose: "Repository overview + agent working instructions." },
   { name: "contracts/", purpose: "Solidity sources: MTQSigma.sol · MTQSigmaV2.sol · MTQSigmaV2.t.sol · MTQSigmaV3.sol · MtqEcosystem.sol · adapters/ (ChainlinkAdapter, PythAdapter, ChronicleAdapter) · deployments/ register (MTQSigmaV2-PENDING.json only; superseded generation JSONs removed 2026-10-24) · foundry.toml." },
+  { name: "src/lib/chain/", purpose: "Sovereign devnet reference node core (Task-40/41): shared.ts (canonical tx bytes + allowlist + monetary guard) · crypto.ts (ed25519, deterministic public devnet keys) · state.ts (deterministic apply + unbonding queue) · consensus.ts (4 signed BFT engines) · node.ts · rpc.ts · wallet-store.ts (browser key custody)." },
+  { name: "scripts/chain-*.ts", purpose: "Devnet battery: chain-smoke.ts (blocks+QC · signed txs · faucet · unbonding queue · governance · dynamic membership) · chain-gov-cycle.ts (governance full-cycle over public HTTP) · chain-devkit-example.ts (external-integrator golden loop)." },
+  { name: "docs/NETWORK-DESIGN-DECISION.md", purpose: "NDD-1 — the in-process reference-node decision record: honest deviation vs Cosmos SDK preference, binding NOT-claims, bring-up bugs, asset conventions, deployment inventory." },
+  { name: "docs/REFERENCE/CHAIN-DEVKIT.md", purpose: "Devnet integrator reference: full route table, tx payload schemas per type, unbonding lifecycle, honest disclosures." },
   { name: "foundry.toml", purpose: "Root Foundry configuration." },
   { name: "scripts/verify-safe.ts", purpose: "Read-only Safe verification script (eth_call / eth_getCode / eth_getStorageAt) behind the OD-35 evidence." },
   { name: "docs/", purpose: "Audit & record set: MAINNET-AUDIT-REPORT.md, BANK-GRADE-AUDIT.md, CORRECTED-BANK-AUDIT.md, BLUEPRINT-GAP-ANALYSIS.md, DEPLOYMENT-RECORD.md (OD-36), SIMPLIFICATION-MEMO.md." },
@@ -305,6 +378,115 @@ cast call --rpc-url "$RPC" "$SAFE" "getGuard()(address)"`;
                   ))}
                 </tbody>
               </table>
+            </div>
+          </Panel>
+        </Reveal>
+      </section>
+
+      {/* ---------- MTQ Sigma Network Devkit ---------- */}
+      <section id="dev-devkit" className="scroll-mt-32">
+        <SectionHeading
+          eyebrow="sovereign devnet · mtq-devnet-1"
+          title="MTQ Sigma Network Devkit"
+          right={
+            <Pill tone="muted">
+              <Network className="h-3 w-3" aria-hidden="true" />
+              10 routes · client-signed txs
+            </Pill>
+          }
+        />
+        <Reveal>
+          <Panel className="p-5">
+            <div className="mb-4 rounded-lg border border-mtqs-amber/30 bg-amber-50 px-4 py-3">
+              <p className="flex items-start gap-2 text-[0.7rem] leading-relaxed text-amber-800">
+                <ShieldAlert className="mt-0.5 h-4 w-4 shrink-0 text-mtqs-amber" aria-hidden="true" />
+                TESTNET-ONLY · REFERENCE DEVNET · NOT DECENTRALIZED · NOT PRODUCTION-AUTHORIZED — single-process
+                reference node (4 validator engines, real signed BFT voting, +2/3 quorum certificates);
+                staking records bonding + voting power only (no rewards/inflation/slashing — economics await
+                the approved Network Economics Specification). Full disclosure: /api/chain honest payload.
+              </p>
+            </div>
+
+            {/* Format facts */}
+            <div className="mb-5">
+              <h3 className="mb-2 flex items-center gap-2 text-sm font-semibold text-[#0E1F1B]">
+                <KeyRound className="h-4 w-4 text-mtqs-gold" aria-hidden="true" />
+                Transaction format &amp; identity
+              </h3>
+              <div className="overflow-x-auto">
+                <table className="w-full text-[0.68rem]">
+                  <tbody>
+                    {CHAIN_DEVKIT_FACTS.map(([k, v]) => (
+                      <tr key={k} className="border-t border-[#E3EAE6]">
+                        <td className="px-3 py-2 align-top text-[0.6rem] uppercase tracking-[0.14em] text-[#5B6E68] w-40 min-w-36">
+                          {k}
+                        </td>
+                        <td className="px-3 py-2 align-top text-[#33544C] leading-relaxed">{v}</td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            </div>
+
+            {/* Signing example */}
+            <div className="mb-5">
+              <h3 className="mb-2 flex items-center gap-2 text-sm font-semibold text-[#0E1F1B]">
+                <FileCode2 className="h-4 w-4 text-mtqs-gold" aria-hidden="true" />
+                Sign &amp; submit (TypeScript — the browser Wallet uses this exact path)
+              </h3>
+              <pre className="mtqs-scroll overflow-x-auto rounded-lg border border-[#E3EAE6] bg-[#F7FAF8] p-3.5 font-mono text-[0.62rem] leading-relaxed text-[#0E1F1B]">
+{CHAIN_SIGN_EXAMPLE}
+              </pre>
+              <pre className="mtqs-scroll mt-2 overflow-x-auto rounded-lg border border-[#E3EAE6] bg-[#F7FAF8] p-3.5 font-mono text-[0.62rem] leading-relaxed text-[#0E1F1B]">
+{CHAIN_CURL_EXAMPLE}
+              </pre>
+            </div>
+
+            {/* Runnable references */}
+            <div className="grid grid-cols-1 gap-2 sm:grid-cols-3">
+              {[
+                ["scripts/chain-devkit-example.ts", "Runnable golden loop: keygen → faucet → signed send → delegate → undelegate → unbonding queue → auto-release (public HTTP only)."],
+                ["docs/REFERENCE/CHAIN-DEVKIT.md", "Committed reference doc: full route table, payload schemas, lifecycle notes, honest disclosures."],
+                ["src/lib/chain/shared.ts", "Canonical byte encoding + network-param allowlist + monetary guard (the single source of truth for tx format)."],
+              ].map(([name, desc]) => (
+                <div key={name} className="rounded-md border border-[#E3EAE6] bg-[#F7FAF8] p-2.5">
+                  <div className="font-mono text-[0.62rem] break-all text-mtqs-gold">{name}</div>
+                  <p className="mt-1 text-[0.62rem] leading-relaxed text-[#5B6E68]">{desc}</p>
+                </div>
+              ))}
+            </div>
+
+            {/* Cross-nav */}
+            <div className="mt-4 flex flex-wrap items-center gap-2">
+              <button
+                onClick={() => onNavigate("network")}
+                className="mtqs-focus rounded-lg border border-[#E3EAE6] px-3 py-1.5 text-[0.75rem] text-[#0E1F1B] hover:bg-[#F0F7F4] transition inline-flex items-center gap-1.5"
+              >
+                Network NOC
+                <ArrowRight className="h-3.5 w-3.5" aria-hidden="true" />
+              </button>
+              <button
+                onClick={() => onNavigate("explorer")}
+                className="mtqs-focus rounded-lg border border-[#E3EAE6] px-3 py-1.5 text-[0.75rem] text-[#0E1F1B] hover:bg-[#F0F7F4] transition inline-flex items-center gap-1.5"
+              >
+                Explorer
+                <ArrowRight className="h-3.5 w-3.5" aria-hidden="true" />
+              </button>
+              <button
+                onClick={() => onNavigate("wallet")}
+                className="mtqs-focus rounded-lg border border-[#E3EAE6] px-3 py-1.5 text-[0.75rem] text-[#0E1F1B] hover:bg-[#F0F7F4] transition inline-flex items-center gap-1.5"
+              >
+                Wallet (browser keygen)
+                <ArrowRight className="h-3.5 w-3.5" aria-hidden="true" />
+              </button>
+              <button
+                onClick={() => onNavigate("staking")}
+                className="mtqs-focus rounded-lg border border-[#E3EAE6] px-3 py-1.5 text-[0.75rem] text-[#0E1F1B] hover:bg-[#F0F7F4] transition inline-flex items-center gap-1.5"
+              >
+                Staking &amp; Governance
+                <ArrowRight className="h-3.5 w-3.5" aria-hidden="true" />
+              </button>
             </div>
           </Panel>
         </Reveal>

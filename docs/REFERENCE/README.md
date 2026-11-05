@@ -14,6 +14,7 @@ Command Center. These documents are the stable, human-readable baseline for
 |---|---|---|
 | [`CONTRACTS-BASELINE.md`](./CONTRACTS-BASELINE.md) | The complete deployed estate: all 19 contracts across Monad Testnet / Arc Testnet / Solana devnet, deployer wallets, AccessControl roles, the 7-command operator reference, known findings affecting the estate, and the change protocol. | Snapshot of the runtime registries (`src/lib/mtq/contracts.ts`, `src/lib/mtq/roles.ts`) — those files remain the **single source of truth**; this doc is the dated human-readable baseline. |
 | [`ROLES-AND-MANDATES.md`](./ROLES-AND-MANDATES.md) | The full role division: executive/operational mandates (COO / CTO / CFO / PM / Security), on-chain AccessControl roles, the 4-tier governance hierarchy (blueprint-specified vs. current reality), sign-off authority matrix, and escalation paths. | Derived from the blueprint (§21), the audit corpus (`audit-work/`), and the org structure used across the worklog. |
+| [`CHAIN-DEVKIT.md`](./CHAIN-DEVKIT.md) | The sovereign-devnet integrator reference (`mtq-devnet-1`): honest scope, identity & canonical tx bytes, public route table, per-type payload schemas, unbonding + governance lifecycles, network-param allowlist, runnable golden loop. | Snapshot of the chain core (`src/lib/chain/shared.ts` / `state.ts` / `rpc.ts` — those files remain the single source of truth); runnable reference: `scripts/chain-devkit-example.ts`. |
 
 ---
 

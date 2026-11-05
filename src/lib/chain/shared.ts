@@ -65,9 +65,26 @@ export type TxType =
   | "send" // bank: payload { to, asset, amount }
   | "validator_register" // staking: { moniker, commission_bp, self_stake, pub_key }
   | "delegate" // staking: { validator, amount }
-  | "undelegate" // staking: { validator, amount }
+  | "undelegate" // staking: { validator, amount } — enters the unbonding queue
   | "gov_submit" // gov: { proposal_type, title, description, payload, deposit }
   | "gov_vote"; // gov: { proposal_id, option }
+
+// ─── Unbonding queue ─────────────────────────────────────────────────────────
+// Undelegated bond sits in a time-locked queue (unbonding_s network param);
+// voting power drops IMMEDIATELY at undelegate, funds return at maturity.
+// This is a pure time-lock mechanism — NO reward stream, NO slashing, NO
+// economic invention (all economics await the owner-approved Network
+// Economics Specification).
+
+export interface UnbondingEntry {
+  id: number;
+  delegator: string;
+  validator: string;
+  amount_u: number;
+  created_height: number;
+  release_ms: number;
+  claimed_height: number | null;
+}
 
 export interface TxPayload {
   [k: string]: unknown;
@@ -235,6 +252,7 @@ export const NETWORK_PARAM_ALLOWLIST: Record<string, { min: number; max: number;
   voting_period_s: { min: 10, max: 604800, note: "governance voting period seconds" },
   timelock_s: { min: 0, max: 86400, note: "passed-proposal execution delay seconds" },
   heartbeat_ms: { min: 1000, max: 60000, note: "empty-block heartbeat interval ms" },
+  unbonding_s: { min: 0, max: 2_592_000, note: "unbonding queue period seconds (0 = immediate release)" },
 };
 
 // Substrings that identify monetary-registry territory — rejected outright.
@@ -289,6 +307,7 @@ export interface ChainParams {
   voting_period_s: number;
   timelock_s: number;
   heartbeat_ms: number;
+  unbonding_s: number;
 }
 
 export const DEFAULT_CHAIN_PARAMS: ChainParams = {
@@ -297,4 +316,5 @@ export const DEFAULT_CHAIN_PARAMS: ChainParams = {
   voting_period_s: 60,
   timelock_s: 15,
   heartbeat_ms: 5000,
+  unbonding_s: 30, // devnet-paced queue (production value awaits the approved Network Economics Specification)
 };

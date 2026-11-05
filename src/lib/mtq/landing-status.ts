@@ -187,13 +187,16 @@ export const ECOSYSTEM = {
     { text: "Unified in One Platform.", tone: "gradient" as const },
   ],
   paragraph:
-    "Track performance, run simulated operations, and follow governance transparency — all in a sleek, intuitive interface designed for the next generation of users.",
+    "Track live monetary state, run simulated operations, and explore a sovereign devnet — network NOC, explorer, browser wallet, staking and on-chain governance — in one institutional-grade interface.",
   checklist: [
     "Real-time analytics & insights",
     "Simulated mint/redeem across 3 testnets",
-    // 16c-012: no voting portal exists — the real surface is the Governance
-    // transparency view (councils, gates, spec status) in the terminal.
-    "Governance transparency & gates view",
+    // Task-40/41: network-level voting now EXISTS on the sovereign reference
+    // devnet (Staking section: proposals, votes, timelocked execution). MTQ
+    // MONETARY governance remains the transparency view (councils, gates,
+    // spec status) — monetary parameters are never votable by design.
+    "Sovereign devnet: NOC · explorer · wallet · staking",
+    "On-chain network governance + transparency gates",
     "Developer tools & APIs",
   ],
   cta: { label: "Launch Pilot Command Center", href: "#home" },

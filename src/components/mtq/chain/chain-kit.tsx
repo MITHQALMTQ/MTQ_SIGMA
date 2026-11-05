@@ -60,6 +60,7 @@ export interface ChainParamsDto {
   voting_period_s: number;
   timelock_s: number;
   heartbeat_ms: number;
+  unbonding_s: number;
 }
 
 export interface TelemetryRowDto {
@@ -186,6 +187,18 @@ export interface StakeRowDto {
   created_height: number;
 }
 
+export interface UnbondingRowDto {
+  id: number;
+  delegator: string;
+  validator: string;
+  validator_moniker: string;
+  amount_u: number;
+  created_height: number;
+  release_ms: number;
+  claimed_height: number | null;
+  release_in_ms: number; // >0 pending · 0 mature (auto-claimed at next block)
+}
+
 export interface AccountDto {
   address: string;
   exists: boolean;
@@ -193,6 +206,8 @@ export interface AccountDto {
   fee_u: number;
   pmtq_u: number;
   bonded_u: number;
+  unbonding_u: number;
+  unbondings: UnbondingRowDto[];
   stakes: StakeRowDto[];
   validator: ValidatorCoreDto | null;
   recent_txs: TxRowDto[];

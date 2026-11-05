@@ -1,7 +1,7 @@
 # MTQ Sigma Network — Network Design Decision Record
 ## NDD-1: Sovereign Devnet Reference Node (in-process, TypeScript)
 
-**Status:** IMPLEMENTED (testnet reference layer) · **Date:** 2026-11-04 · **Owner:** Jozour LLC
+**Status:** IMPLEMENTED (testnet reference layer) · **Date:** 2026-11-04 · **Owner:** Jozour LLC · **Task-41 addendum:** 2026-11-05 (below)
 **Deciders:** COO/CTO/PM (session mandate — Master Development Directive Part 2/Part 3)
 **Scope:** Network infrastructure only. MTQ monetary governance untouched (Part 2 rules 1–4 preserved by construction).
 
@@ -115,6 +115,7 @@ structurally cannot have — exactly why they are documented:
 | Fees | min `base_fee_u` (governance param) | charged even on module failure |
 | State root | flat sha256 over canonical full state | simplification vs merkle-trie — still a complete, deterministic commitment; `state_root` commits the state as of BEFORE the block (documented) |
 | Block cadence | heartbeat 5 s (param) or promptly on ready txs | empty blocks honest |
+| Unbonding queue | `unbonding_s` param (default 30 s; bounds 0–30 d) | undelegate drops power NOW; funds time-lock then AUTO-release at end-of-block (no claim tx). `0` restores immediate release. Pure time-lock — no rewards/slashing (economics UNAPPROVED) |
 
 ## 6. Verification evidence
 
@@ -142,3 +143,40 @@ structurally cannot have — exactly why they are documented:
 | APIs | `/api/chain`, `/api/chain/{blocks,block,tx,account,validators,mempool,gov,submit,faucet}` |
 | UI | Network NOC · Explorer · Wallet · Staking & Governance sections |
 | Production authorization | **FALSE** — unchanged; the 11 MTQ validation gates bind (Part 15 Phase 8) |
+
+## 8. NDD-1 Task-41 addendum (2026-11-05) — ecosystem completion
+
+1. **Unbonding queue (validator-ecosystem completion):** `undelegate` now moves funds
+   into a time-locked `unbondings` queue instead of crediting immediately.
+   Voting power still drops at undelegate (validator `delegated` reduced,
+   end-of-block recompute). Mature entries are auto-claimed by end-of-block
+   processing (credited to `fee_u` + `staking.unbond_released` event) — no claim
+   transaction exists. The queue is covered by the flat state root and exposed via
+   `/api/chain/account` (`unbondings[]` with release countdowns). Network param
+   `unbonding_s` (default 30 s, bounds [0, 2,592,000]) is governance-controllable
+   via the allowlist; **0 restores the previous immediate-release behavior**.
+   Pure time-lock — NO reward stream, NO slashing (economics await the approved
+   Network Economics Specification; the task-40 “unbonding is immediate”
+   simplification is closed).
+2. **Hot code-upgrade mechanism (dev-mode operational need):** dev HMR cannot
+   re-run `instrumentation.ts`, so a running node would keep executing the OLD
+   state machine forever. `CHAIN_NODE_CODE_VERSION` in `node.ts` is bumped on
+   every substantive state-machine change; the hot-reload-safe accessor
+   `chainNode()` reboots the runtime when the loaded module's version is
+   STRICTLY NEWER (forward-only — stale module instances never tear down newer
+   runtimes, preventing version flapping). Committed blocks are never lost
+   (reboot resumes from `db/chain.db`); only the ephemeral mempool of
+   in-flight uncommitted txs is dropped. In production the constant never
+   changes per process → zero reboots.
+3. **Developer surface (Directive Part 8 — delivered):** Developers section
+   “MTQ Sigma Network Devkit” (10-route chain API reference, tx format +
+   identity facts, canonical-bytes signing example + curl, runnable
+   references, verbatim honest panel, cross-nav) · committed golden loop
+   `scripts/chain-devkit-example.ts` (keygen → faucet → signed send → delegate
+   → undelegate → queue → auto-release over PUBLIC HTTP ONLY — run PASS) ·
+   `docs/REFERENCE/CHAIN-DEVKIT.md` (integrator baseline, reference-library
+   entry) · landing ecosystem copy refreshed honestly (sovereign devnet now
+   exists; monetary governance remains the non-votable transparency view).
+4. **Smoke battery extended:** `scripts/chain-smoke.ts` leg 3b verifies the
+   queue end-to-end in-process (bond → undelegate → NOT credited → maturity →
+   auto-release with exact amount).

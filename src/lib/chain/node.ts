@@ -32,6 +32,7 @@ import { signTx } from "./crypto";
 
 interface ChainNodeRuntime {
   ready: boolean;
+  codeVersion: number; // state-machine version this runtime instance runs
   bootedAtMs: number;
   genesis: Genesis;
   keys: NodeKeys;
@@ -47,6 +48,13 @@ interface ChainNodeRuntime {
 }
 
 const G = globalThis as unknown as { __MTQ_CHAIN__?: ChainNodeRuntime };
+
+// Bump on every substantive state-machine/protocol change so the running
+// devnet node hot-upgrades to the new code at the next API request (dev-mode
+// HMR cannot re-run instrumentation.ts, and the old runtime's interval
+// closure otherwise keeps executing the OLD state machine forever). In
+// production the constant never changes per process → zero restarts.
+export const CHAIN_NODE_CODE_VERSION = 42; // Task-41: unbonding queue + atomic claim gate
 
 // ─── boot ────────────────────────────────────────────────────────────────────
 
@@ -98,6 +106,7 @@ export async function ensureChainNode(): Promise<ChainNodeRuntime> {
 
   const runtime: ChainNodeRuntime = {
     ready: true,
+    codeVersion: CHAIN_NODE_CODE_VERSION,
     bootedAtMs: Date.now(),
     genesis,
     keys,
@@ -136,10 +145,23 @@ function teardownStale(prev: ChainNodeRuntime): void {
   try { prev.stop(); } catch { /* best-effort */ }
 }
 
-/** Hot-reload-safe accessor for API routes. */
+/** Hot-reload-safe accessor for API routes. Also performs the dev-mode code
+ *  upgrade: when the loaded module's CHAIN_NODE_CODE_VERSION is strictly
+ *  NEWER than the running runtime's, the stale runtime is torn down (timers +
+ *  engines) and the node re-boots from persisted state — committed blocks are
+ *  never lost, only the ephemeral mempool of in-flight (uncommitted) txs is
+ *  dropped. */
 export async function chainNode(): Promise<ChainNodeRuntime> {
   const cur = G.__MTQ_CHAIN__;
-  if (cur?.ready) return cur;
+  // Forward-only: only a strictly NEWER code version reboots the node — a
+  // stale module instance (dev HMR transition) must never tear down a runtime
+  // that runs newer code (prevents version flapping).
+  if (cur?.ready) {
+    if (cur.codeVersion >= CHAIN_NODE_CODE_VERSION) return cur;
+    console.log(
+      `[chain] code upgrade: v${cur.codeVersion} → v${CHAIN_NODE_CODE_VERSION} — rebooting node (state resumes from db/chain.db)`,
+    );
+  }
   if (cur) teardownStale(cur);
   return ensureChainNode();
 }
