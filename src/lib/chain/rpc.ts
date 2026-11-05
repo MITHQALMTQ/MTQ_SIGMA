@@ -7,7 +7,7 @@
 
 import { chainNode, chainReady, submitTx, faucetDrip } from "./node";
 import * as store from "./store";
-import { CHAIN_ID, DEFAULT_CHAIN_PARAMS, type Tx, type Validator } from "./shared";
+import { CHAIN_ID, DEFAULT_CHAIN_PARAMS, type GovProposal, type Tx, type Validator } from "./shared";
 import { genesisHash } from "./genesis";
 import { pubToAddress } from "./crypto";
 
@@ -18,9 +18,11 @@ export const CHAIN_HONEST_STATUS = {
   separation:
     "Network governance cannot alter MTQ monetary parameters (constitutional guard enforced at proposal submission). MTQΣ is NOT the gas token — fees are paid in uMTQD, a testnet-only credit. PMTQ is a NON-CANONICAL pilot ledger mirror; canonical MTQΣ supply accounting stays in the monetary protocol engine.",
   economics:
-    "Staking records bonding + voting power only. No reward stream, no inflation, no slashing events (single-process mode) — all economic parameters await the separately approved Network Economics Specification (owner approval required; nothing invented here).",
+    "Staking records bonding + voting power. A block-reward ENGINE is implemented (uMTQD testnet credit paid from the devnet treasury account) per the Network Economics Specification DRAFT — but rewards_enabled is DEFAULT OFF (block_reward_u = 0): no reward is paid anywhere until the owner ratifies the DRAFT values AND network governance votes activation. No MTQΣ inflation ever (constitutional); no slashing implemented in the single-process reference (no honest equivocation evidence can exist in-process — taxonomy documented in the draft); PMTQ/MTQ monetary territory is untouched by network economics.",
   productionPath:
     "Production network path: Cosmos SDK + CometBFT multi-host validator set (docs/NETWORK-DESIGN-DECISION.md). Production authorization for MTQ remains FALSE per the 11 validation gates.",
+  transport:
+    "API transport: HTTP polling (canonical, every consumer) + an in-process SSE block-event stream (GET /api/chain/stream) for instant refresh — no external message broker, no extra process; SSE is best-effort sugar and every consumer keeps its polling fallback.",
   label: "TESTNET-ONLY · REFERENCE DEVNET · NOT DECENTRALIZED · NOT PRODUCTION-AUTHORIZED",
 } as const;
 
@@ -153,9 +155,38 @@ export async function getAccountInfo(address: string) {
   const validators = await store.getValidators();
   const asValidator = validators.find((v) => v.address === address) ?? null;
   const txs = await store.getTxsByAddress(address, 25);
+  // Governance participation (Task 42-D): ballots cast by this address across
+  // the MOST RECENT proposals. Bounded scan — getProposals() is id-DESC so
+  // slice(0,50) is the newest 50; one indexed votes-table read per proposal,
+  // keeping only this voter's ballot. Older proposals are NOT scanned (a vote
+  // older than the 50-proposal window is invisible here — the UI discloses
+  // this bound; a proper voter-indexed query is a future store extension).
+  const votes: Array<{
+    proposal_id: number;
+    proposal_title: string;
+    proposal_status: GovProposal["status"];
+    option: string;
+    power: number;
+    height: number;
+  }> = [];
+  for (const p of (await store.getProposals()).slice(0, 50)) {
+    const mine = (await store.getVotes(p.id)).find((v) => v.voter === address);
+    if (mine) {
+      votes.push({
+        proposal_id: p.id,
+        proposal_title: p.title,
+        proposal_status: p.status,
+        option: mine.option,
+        power: mine.power,
+        height: mine.height,
+      });
+    }
+  }
   return {
     address,
-    exists: acct.nonce > 0 || acct.fee_u > 0 || acct.pmtq_u > 0 || stakes.length > 0 || unbondings.length > 0 || !!asValidator,
+    exists:
+      acct.nonce > 0 || acct.fee_u > 0 || acct.pmtq_u > 0 || stakes.length > 0 ||
+      unbondings.length > 0 || !!asValidator || votes.length > 0,
     nonce: acct.nonce,
     fee_u: acct.fee_u,
     pmtq_u: acct.pmtq_u,
@@ -170,6 +201,7 @@ export async function getAccountInfo(address: string) {
       return { ...s, validator_moniker: v?.moniker ?? s.validator, validator_status: v?.status ?? "UNKNOWN" };
     }),
     validator: asValidator,
+    votes,
     recent_txs: txs,
   };
 }

@@ -180,3 +180,64 @@ structurally cannot have — exactly why they are documented:
 4. **Smoke battery extended:** `scripts/chain-smoke.ts` leg 3b verifies the
    queue end-to-end in-process (bond → undelegate → NOT credited → maturity →
    auto-release with exact amount).
+
+## 9. NDD-1 Task-42 addendum (2026-11-06) — network economics machinery (default OFF)
+
+Owner directive: implement all missing items and recommendations with full
+consensus creative thinking. The standing "network economics UNINVENTED"
+residual is closed in the only honest way available: the specification is
+AUTHORED as a draft for ratification, and the block-reward ENGINE is
+implemented behind a dual-gate that keeps it OFF until the owner ratifies.
+
+1. **Network Economics Specification DRAFT** — `docs/NETWORK-ECONOMICS-SPEC-DRAFT.md`
+   (NES-DRAFT-1): decision register D-NE-1…D-NE-10, all OPEN/FOR-RATIFICATION.
+   Reward asset = uMTQD testnet credit ONLY (constitutional exclusion of
+   MTQΣ — network economics may never create monetary-supply pressure);
+   treasury = pre-funded allocation, fail-closed exhaustion, no print path;
+   distribution = proposer 20% cut + ACTIVE validators pro-rata by voting
+   power with deterministic floor-dust-to-proposer; slashing taxonomy
+   DOCUMENTED-NOT-IMPLEMENTED (a single-process node cannot produce honest
+   equivocation evidence — a fake slashing demo would be dishonest theater;
+   burn mechanics fully specified for the multi-host production node); fee
+   flow unchanged (implicit burn today, redirection FOR RATIFICATION);
+   production unbonding proposal 21d (slashing-safety rationale). Ratification
+   protocol is DUAL-GATE: owner directive (recorded with verbatim evidence +
+   parameter digest, same discipline as the constituency approvals ledger)
+   THEN network governance vote on `rewards_enabled`.
+2. **Engine (implemented, default OFF):** `shared.ts` allowlist gains
+   `rewards_enabled` (bounds [0,1]) and `block_reward_u` (bounds [0,1e9] µ);
+   `ChainParams` + `DEFAULT_CHAIN_PARAMS` gain both, shipped at 0/0 — no
+   reward is paid anywhere; `state.ts::distributeBlockReward` runs in
+   processBlockEnd step 4 (post power-recompute — pays the set that closed
+   the block): integer micro-units, fail-closed on insufficient treasury
+   (`econ.rewards_exhausted`), proposer-not-in-set dust burn rule, full
+   `econ.block_reward` event record; `node.ts` provisions the devnet treasury
+   (`treasury_address` = faucet account) in chain meta at every boot;
+   `CHAIN_NODE_CODE_VERSION` 42 → 43 (hot code upgrade, committed state
+   resumes — verified in dev.log v42→v43).
+3. **Constitutional position (unchanged):** uMTQD reward params are network
+   territory (the fee asset), NOT MTQ monetary registry — the monetary guard
+   still rejects any monetary-territory proposal at submission. Honest
+   status (rpc.ts, rendered verbatim in the NOC) states the machinery + the
+   OFF default + the dual-gate activation + the no-slashing rationale.
+4. **Smoke battery extended (leg 6):** enable rewards via the param store
+   (state-machine test; governance path proven by leg 4) → heartbeat block
+   pays from treasury → `econ.block_reward` events present → conservation
+   asserted (treasury Δ = −Σ validator Δ = paid total) → restored OFF.
+5. **Verification:** chain-smoke FULL battery incl. leg 6 (see §6 for the
+   standing battery) — see Task-42 worklog for the recorded run.
+
+6. **SSE live block-event push (closes the task-40 "no WS push (polling only)"
+   residual):** GET /api/chain/stream — a Server-Sent-Events route fed by the
+   node's block-committed listener registry (node.ts subscribeChainEvents;
+   per-subscriber try/catch isolation; stop() clears subscribers so hot code
+   upgrades never leak them). In-process by design: the sandbox reaps
+   detached processes (NDD-1 §2), so a separate WebSocket broker process is
+   infeasible — SSE over the existing HTTP surface is the honest real-time
+   transport for this topology. Bounded: 20 concurrent streams (503 beyond —
+   honest overload), 15s heartbeats, 10-minute self-close (EventSource
+   reconnects), abort-signal cleanup. Consumers (NOC + Explorer) render "SSE
+   live"/"poll only" pills and refresh instantly on block events (throttled
+   ≥700ms); the canonical HTTP polling remains the correctness path in every
+   consumer — the stream is instant-refresh sugar, never a dependency. The
+   node's honest payload gained a "transport" line stating exactly this.

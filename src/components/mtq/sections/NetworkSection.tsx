@@ -11,7 +11,7 @@
 
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import {
   Blocks,
   Fingerprint,
@@ -42,6 +42,7 @@ import {
   fmtMicro,
   fmtPower,
   fmtUptime,
+  useChainBlockStream,
   useChainPoll,
   type ChainSummaryDto,
 } from "@/components/mtq/chain/chain-kit";
@@ -52,6 +53,19 @@ const POLL_MS = 3000;
 export function NetworkSection() {
   const poll = useChainPoll<ChainSummaryDto>("/api/chain", POLL_MS);
   const summary = poll.data;
+
+  // TASK-42 — live SSE block-event push: instant refresh on every committed
+  // block (throttled ≥700ms so bursts never stampede the API). Polling stays
+  // the correctness path — SSE is instant-refresh sugar; if the stream is
+  // down the board simply keeps its 3s cadence.
+  const lastPushRefreshRef = useRef(0);
+  const blockStream = useChainBlockStream(() => {
+    const now = Date.now();
+    if (now - lastPushRefreshRef.current >= 700) {
+      lastPushRefreshRef.current = now;
+      poll.refresh();
+    }
+  });
 
   // Local 1s clock so Uptime (mm:ss) ticks between server reads.
   const [now, setNow] = useState(() => Date.now());
@@ -87,9 +101,13 @@ export function NetworkSection() {
         className="mb-0"
         right={
           <div className="flex flex-wrap items-center gap-2">
+            <Pill tone={blockStream.connected ? "emerald" : "muted"}>
+              <GlowDot color={blockStream.connected ? "emerald" : undefined} size="h-1.5 w-1.5" />
+              {blockStream.connected ? "SSE live" : "poll only"}
+            </Pill>
             <LiveClockPill stale={poll.stale} lastReadAt={poll.lastReadAt} loading={poll.loading} />
             <Pill tone="muted" className="font-mono">
-              height {summary ? summary.height.toLocaleString("en-US") : "—"}
+              height {blockStream.lastEvent ? blockStream.lastEvent.height.toLocaleString("en-US") : summary ? summary.height.toLocaleString("en-US") : "—"}
             </Pill>
           </div>
         }
@@ -387,7 +405,7 @@ export function NetworkSection() {
                 Live values from the node&apos;s parameter store (governance can change them via
                 passed network_param proposals).
               </p>
-              <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-6">
+              <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-7">
                 {(
                   [
                     ["Base fee", `${summary.params.base_fee_u.toLocaleString("en-US")} µMTQD`, `(${fmtMicro(summary.params.base_fee_u, 4)} MTQD)`],
@@ -396,6 +414,7 @@ export function NetworkSection() {
                     ["Timelock", `${summary.params.timelock_s.toLocaleString("en-US")} s`, "passed → execute delay"],
                     ["Unbonding", `${summary.params.unbonding_s.toLocaleString("en-US")} s`, "undelegate → funds release queue"],
                     ["Heartbeat", `${summary.params.heartbeat_ms.toLocaleString("en-US")} ms`, `empty-block interval (${fmtDuration(summary.params.heartbeat_ms)})`],
+                    ["Block reward", summary.params.rewards_enabled === 1 ? `${summary.params.block_reward_u.toLocaleString("en-US")} µMTQD` : "OFF", "uMTQD testnet credit · Net-Econ DRAFT (ratification open)"],
                   ] as const
                 ).map(([label, value, sub]) => (
                   <div
@@ -436,6 +455,7 @@ export function NetworkSection() {
                     ["Separation", summary.honest.separation],
                     ["Economics", summary.honest.economics],
                     ["Production path", summary.honest.productionPath],
+                    ["Transport", summary.honest.transport],
                   ] as const
                 ).map(([label, text]) => (
                   <div key={label}>

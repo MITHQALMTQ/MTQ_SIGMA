@@ -410,7 +410,7 @@ export interface ScoreInputProvenanceRow {
   tier: ProvenanceTier;
   tierDefinition: string;
   declaredSource: string;
-  feedStatus: string; // LIVE / LIVE-AUTOMATED / LIVE-PROXY / PUBLISHED-OFFICIAL / DECLARED-ESTIMATE / FIXTURE-FALLBACK (feeds.ts vocabulary)
+  feedStatus: string; // LIVE / LIVE-AUTOMATED / LIVE-PROXY / LIVE-UPLOADED / PUBLISHED-OFFICIAL / DECLARED-ESTIMATE / FIXTURE-FALLBACK (feeds.ts vocabulary)
 }
 
 export const PROVENANCE_TIER_DEFINITIONS: Record<ProvenanceTier, string> = {
@@ -446,7 +446,7 @@ export const SCORING_INPUT_PROVENANCE: Record<keyof ScoreInputs, ScoreInputProve
     tier: 1,
     tierDefinition: PROVENANCE_TIER_DEFINITIONS[1],
     declaredSource: "IMF AREAER currency-restriction indicators + onshore/offshore basis cross-check (spec §4.1 CV row)",
-    feedStatus: "FIXTURE-FALLBACK (AREAER SSO-gated from the pilot sandbox — carried validated-prototype values / declared estimates, labeled)",
+    feedStatus: "FIXTURE-FALLBACK by default (AREAER SSO-gated from the pilot sandbox — carried validated-prototype values / declared estimates, labeled); LIVE-UPLOADED with digest-bound provenance when the operator services the token-gated upload path (POST /api/constituency/upload, Task-42)",
   },
   jurisdictionalRestrictions: {
     input: "jurisdictionalRestrictions",
@@ -488,7 +488,7 @@ export const SCORING_INPUT_PROVENANCE: Record<keyof ScoreInputs, ScoreInputProve
     tier: 1,
     tierDefinition: PROVENANCE_TIER_DEFINITIONS[1],
     declaredSource: "Sanctions-screening provider + counsel review; history-desk dossier per record (spec §4.1 GE row)",
-    feedStatus: "DECLARED-ESTIMATE (counsel/history-desk dimension — no automatable feed exists by design; declared values labeled)",
+    feedStatus: "DECLARED-ESTIMATE by default (counsel/history-desk dimension — no automatable feed exists by design; declared values labeled); LIVE-UPLOADED with digest-bound provenance when the desk services the token-gated upload path (Task-42)",
   },
 };
 
@@ -496,9 +496,10 @@ export const SCORING_FEED_DISCLOSURE =
   "§4 eligibility-scoring LIVE FEEDS IMPLEMENTED (TASK-39, feeds.ts): BIS official statistics (WS_XRU daily reference rates + the " +
   "published Triennial 2022 turnover wave), Frankfurter ECB fixings, Yahoo vendor mids, gold-api.com + COMEX gold futures, the " +
   "protocol's own oracle ledger (tier-3), and an automated OFAC SDN jurisdiction scan — every input carries a per-feed status " +
-  "(LIVE / LIVE-AUTOMATED / LIVE-PROXY / PUBLISHED-OFFICIAL / DECLARED-ESTIMATE / FIXTURE-FALLBACK) in every dossier. The " +
+  "(LIVE / LIVE-AUTOMATED / LIVE-PROXY / LIVE-UPLOADED / PUBLISHED-OFFICIAL / DECLARED-ESTIMATE / FIXTURE-FALLBACK) in every dossier. The " +
   "≥2-independent-family oracle precondition is MET at the pilot's off-chain witness layer (2–3 independent families per index " +
   "leg; §17.10's THREE-family ON-CHAIN requirement remains a separate open production gate). Honest residuals: convertibility " +
-  "stays fixture-fed (IMF AREAER is SSO-gated from the pilot sandbox), geopolitical exposure stays declared (counsel review is " +
-  "a manual gate), and no T2 confirmation is certifiable while those residuals stand. Scores are TESTNET-PILOT shadow-mode " +
+  "defaults to fixture-fed (IMF AREAER is SSO-gated from the pilot sandbox — the TASK-42 operator-upload path upgrades it to " +
+  "LIVE-UPLOADED with digest-bound provenance when serviced), geopolitical exposure defaults to declared (counsel review is " +
+  "a manual gate with the same upload upgrade path), and no T2 confirmation is certifiable while those residuals stand. Scores are TESTNET-PILOT shadow-mode " +
   "measurements, not production evidence.";

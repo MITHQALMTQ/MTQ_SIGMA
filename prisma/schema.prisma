@@ -327,3 +327,27 @@ model IssuanceEvent {
   @@index([state])
   @@index([createdAt])
 }
+
+// ============================================================================
+// ScoringUpload — Task-42 operator-serviced ingestion for SSO-gated official
+// sources (IMF AREAER convertibility; geopolitical-exposure counsel desk).
+// The automated AREAER fetch is SSO-gated from the pilot sandbox (verified:
+// redirect to login); this table is the honest operator fallback: an
+// authorized operator posts values transcribed from the official source,
+// each record digest-bound (sha256 over the canonical payload) with the
+// declared source label. feeds.ts reads fresh rows (≤ 90 days) and upgrades
+// the corresponding scoring input to LIVE-UPLOADED with full provenance.
+// Fail-closed by design: the write path requires MTQ_UPLOAD_TOKEN.
+// ============================================================================
+model ScoringUpload {
+  id          Int      @id @default(autoincrement())
+  kind        String   // "convertibility" | "geopoliticalExposure"
+  ccy         String   // USD · EUR · JPY · GBP · CHF · CNY · XAU
+  value       Float    // [0, 1] normalized scoring input
+  sourceLabel String   // operator-declared provenance, e.g. "IMF AREAER 2025 annual report §X table Y"
+  sourceUrl   String?  // optional citation
+  sha256      String   // digest over canonical {kind,ccy,value,sourceLabel,uploadedAtIso}
+  uploadedAt  DateTime @default(now())
+
+  @@index([kind, ccy, uploadedAt])
+}

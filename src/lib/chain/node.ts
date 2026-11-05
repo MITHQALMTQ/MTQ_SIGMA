@@ -28,7 +28,20 @@ import {
   type Tx,
 } from "./shared";
 import type { NodeKeys } from "./crypto";
-import { signTx } from "./crypto";
+import { signTx, pubToAddress } from "./crypto";
+
+/** Block-committed event pushed to SSE subscribers (Task-42). Pure data —
+ *  no engine internals leak into the public stream payload. */
+export interface ChainBlockEvent {
+  height: number;
+  hash: string;
+  txs: number;
+  proposer: string | null;
+  qc_committed_power: number;
+  qc_total_power: number;
+  consensus_ms: number;
+  time_ms: number;
+}
 
 interface ChainNodeRuntime {
   ready: boolean;
@@ -44,6 +57,9 @@ interface ChainNodeRuntime {
   lastError: string | null;
   timer: ReturnType<typeof setInterval> | null;
   telemetry: RoundTelemetry[];
+  /** Task-42 SSE subscribers — block-committed listeners. Cleaned on stop()
+  *  so a hot code-upgrade teardown never leaks stale subscribers. */
+  blockListeners: Set<(ev: ChainBlockEvent) => void>;
   stop: () => void;
 }
 
@@ -54,7 +70,7 @@ const G = globalThis as unknown as { __MTQ_CHAIN__?: ChainNodeRuntime };
 // HMR cannot re-run instrumentation.ts, and the old runtime's interval
 // closure otherwise keeps executing the OLD state machine forever). In
 // production the constant never changes per process → zero restarts.
-export const CHAIN_NODE_CODE_VERSION = 42; // Task-41: unbonding queue + atomic claim gate
+export const CHAIN_NODE_CODE_VERSION = 44; // Task-42: SSE block-event emit in produceBlock (44 > 43: second substantive change needed its own bump)
 
 // ─── boot ────────────────────────────────────────────────────────────────────
 
@@ -100,6 +116,11 @@ export async function ensureChainNode(): Promise<ChainNodeRuntime> {
   }
 
   const params = await store.loadParams({ ...DEFAULT_CHAIN_PARAMS, ...genesis.params });
+  // Task-42: provision the devnet treasury address (the faucet account) in
+  // chain metadata — the block-reward engine pays uMTQD from this account
+  // when (and only when) rewards_enabled=1 (default OFF). Idempotent; set on
+  // every boot so hot code-upgrades on older DBs pick it up too.
+  await store.setMeta("treasury_address", pubToAddress(keys.faucet.pub));
   const mempool = new Mempool();
   const engine = new ConsensusEngine(keys.validators, store.getValidators);
   await engine.init();
@@ -118,11 +139,13 @@ export async function ensureChainNode(): Promise<ChainNodeRuntime> {
     lastError: null,
     timer: null,
     telemetry: engine.recentTelemetry,
+    blockListeners: new Set(),
     stop: () => {
       runtime.ready = false;
       runtime.producing = false;
       engine.stop();
       if (runtime.timer) clearInterval(runtime.timer);
+      runtime.blockListeners.clear();
     },
   };
   G.__MTQ_CHAIN__ = runtime;
@@ -228,6 +251,38 @@ async function produceBlock(rt: ChainNodeRuntime): Promise<void> {
     consensus_ms: Math.round(consensusMs),
     proposer: active.find((v) => v.address === block.header.proposer)?.moniker ?? block.header.proposer,
   }, block.header.time_ms);
+  // Task-42 SSE push: notify subscribers (each listener isolated in try/catch
+  // so one dead consumer can never break block production).
+  if (rt.blockListeners.size > 0) {
+    const ev: ChainBlockEvent = {
+      height,
+      hash: blockHeaderHash(block.header),
+      txs: block.txs.length,
+      proposer: block.header.proposer ?? null,
+      qc_committed_power: block.qc.committed_power,
+      qc_total_power: block.qc.total_voting_power,
+      consensus_ms: Math.round(consensusMs),
+      time_ms: block.header.time_ms,
+    };
+    for (const cb of rt.blockListeners) {
+      try { cb(ev); } catch { /* isolate subscriber failures */ }
+    }
+  }
+}
+
+// ─── SSE block-event subscription (Task-42) ─────────────────────────────
+
+/** Subscribe to block-committed events (in-process push — the transport is
+ *  the /api/chain/stream SSE route). Returns an unsubscribe function. Listener
+ *  failures are isolated by the producer; unsubscribe is idempotent. */
+export async function subscribeChainEvents(
+  cb: (ev: ChainBlockEvent) => void,
+): Promise<() => void> {
+  const rt = await chainNode();
+  rt.blockListeners.add(cb);
+  return () => {
+    rt.blockListeners.delete(cb);
+  };
 }
 
 // ─── tx submission (used by RPC routes + faucet) ─────────────────────────────

@@ -81,6 +81,164 @@ interface ValidationDto {
   totalRuntimeMs: number;
   cached: boolean;
   audit: ValidationAuditDto;
+  // [Task 42-C] §23.3/§23.4 pilot-scale walk-forward + purged K-fold run
+  // record (served by /api/validation from the committed evidence file or
+  // recomputed deterministically — walkForwardSource says which). Absent on
+  // older backend builds: the panel below degrades honestly, never fakes.
+  walkForward?: WalkForwardDto;
+  walkForwardSource?: "file" | "computed";
+}
+
+/* ---------- §23.3/§23.4 run-record payload (Task 42-C backend contract) ---------- */
+interface WfMetricSetDto {
+  /** Annualized OOS portfolio vol: √252 · population std of daily r_p. */
+  oosVolAnnualized: number;
+  /** Annualized equal-weight benchmark vol over the same test days. */
+  benchmarkEwVol: number;
+  /** OOS Sharpe: mean(daily)/std(daily), rf=0 — daily frequency, NOT annualized. */
+  oosSharpe: number;
+  /** Annualized tracking error vs equal-weight: √252 · std(r_p − r_ew). */
+  trackingErrorVsEW: number;
+  /** Max drawdown of the cumulative product path over the test window (≤ 0). */
+  oosMaxDrawdown: number;
+  /** Σ|w_k − w_{k−1}|/2 (fold 0 vs static equal weights 1/7). */
+  weightTurnover: number;
+  /** Portfolio vol estimated on the train window under the fold's held weights. */
+  inSampleVol: number;
+  /** oosVolAnnualized / inSampleVol. */
+  overfitRatio: number;
+}
+
+interface WfFoldDto extends WfMetricSetDto {
+  fold: number;
+  /** Train index ranges, half-open [start, end) day intervals (1–2 disjoint
+  *  ranges for purged folds; a single range for walk-forward folds). */
+  trainRanges: [number, number][];
+  /** Test block, half-open [start, end). */
+  testRange: [number, number];
+  trainDays: number;
+  testDays: number;
+}
+
+interface WfProgramDto {
+  folds: WfFoldDto[];
+  aggregate: {
+    folds: number;
+    oosDaysScored: number;
+    mean: WfMetricSetDto;
+    median: WfMetricSetDto;
+  };
+}
+
+interface WalkForwardDto {
+  program: string;
+  generatedAt: number;
+  runtimeMs: number;
+  config?: {
+    walkForward?: { initialTrainDays?: number; testDays?: number; stepDays?: number; folds?: number };
+    purgedKfold?: { k?: number; purgeDays?: number; embargoDays?: number; blockSizes?: number[] };
+    [key: string]: unknown;
+  };
+  walkForward: WfProgramDto;
+  purgedKfold: WfProgramDto;
+  leakageCheck: {
+    verified?: boolean;
+    purgeDays?: number;
+    embargoDays?: number;
+    [key: string]: unknown;
+  };
+  disclosure: string;
+}
+
+/* ---------- §23.3/§23.4 run-record formatting helpers ---------- */
+function wfPct(x: number | undefined, digits = 2): string {
+  return typeof x === "number" && Number.isFinite(x) ? `${(x * 100).toFixed(digits)}%` : "—";
+}
+
+function wfNum(x: number | undefined, digits = 3): string {
+  return typeof x === "number" && Number.isFinite(x) ? x.toFixed(digits) : "—";
+}
+
+/** Half-open day ranges rendered compactly: "[0, 252)" / "[0, 130)∪[313, 756)". */
+function wfRanges(rs: [number, number][] | undefined): string {
+  if (!Array.isArray(rs) || rs.length === 0) return "—";
+  return rs.map(([a, b]) => `[${a}, ${b})`).join("∪");
+}
+
+const WF_FOLD_HEADERS = [
+  "Fold",
+  "Train (days)",
+  "Test (days)",
+  "OOS vol",
+  "EW vol",
+  "TE vs EW",
+  "Overfit",
+  "Turnover",
+];
+
+/** Fold rows + mean/median summary rows for one program's table. */
+function wfFoldRows(program: WfProgramDto | undefined): React.ReactNode[][] {
+  const rows: React.ReactNode[][] = (program?.folds ?? []).map((f) => [
+    <span key="fold" className="font-mono text-[#33544C]">#{f.fold}</span>,
+    <span key="train" className="font-mono text-[0.62rem] text-[#5B6E68]">{wfRanges(f.trainRanges)}</span>,
+    <span key="test" className="font-mono text-[0.62rem] text-[#5B6E68]">
+      {Array.isArray(f.testRange) ? `[${f.testRange[0]}, ${f.testRange[1]})` : "—"}
+    </span>,
+    <span key="oosvol" className="font-mono text-[#33544C]">{wfPct(f.oosVolAnnualized)}</span>,
+    <span key="ewvol" className="font-mono text-[#5B6E68]">{wfPct(f.benchmarkEwVol)}</span>,
+    <span key="te" className="font-mono text-[#5B6E68]">{wfPct(f.trackingErrorVsEW)}</span>,
+    <span key="of" className="font-mono text-[#33544C]">{wfNum(f.overfitRatio)}</span>,
+    <span key="tu" className="font-mono text-[#5B6E68]">{wfNum(f.weightTurnover)}</span>,
+  ]);
+  const agg = program?.aggregate;
+  if (agg && agg.mean && agg.median) {
+    // Mean/median summary rows over all folds (descriptive only — no verdict).
+    const summaryCell = (label: string) => (
+      <span className="font-mono font-semibold text-[#0E1F1B]">
+        {label} ({agg.folds ?? "—"} folds)
+      </span>
+    );
+    const metricCells = (set: WfMetricSetDto, emphasize: boolean) =>
+      ([
+        <span key="oosvol" className={emphasize ? "font-mono font-semibold text-[#33544C]" : "font-mono text-[#33544C]"}>
+          {wfPct(set.oosVolAnnualized)}
+        </span>,
+        <span key="ewvol" className="font-mono text-[#5B6E68]">{wfPct(set.benchmarkEwVol)}</span>,
+        <span key="te" className="font-mono text-[#5B6E68]">{wfPct(set.trackingErrorVsEW)}</span>,
+        <span key="of" className={emphasize ? "font-mono font-semibold text-[#33544C]" : "font-mono text-[#33544C]"}>
+          {wfNum(set.overfitRatio)}
+        </span>,
+        <span key="tu" className="font-mono text-[#5B6E68]">{wfNum(set.weightTurnover)}</span>,
+      ] as React.ReactNode[]);
+    rows.push([
+      summaryCell("mean"),
+      <span key="train" className="font-mono text-[0.62rem] text-[#7A8C86]">—</span>,
+      <span key="test" className="font-mono text-[0.62rem] text-[#7A8C86]">
+        {agg.oosDaysScored != null ? `${agg.oosDaysScored} d scored` : "—"}
+      </span>,
+      ...metricCells(agg.mean, true),
+    ]);
+    rows.push([
+      summaryCell("median"),
+      <span key="train" className="font-mono text-[0.62rem] text-[#7A8C86]">—</span>,
+      <span key="test" className="font-mono text-[0.62rem] text-[#7A8C86]">—</span>,
+      ...metricCells(agg.median, false),
+    ]);
+  }
+  return rows;
+}
+
+/** Small aggregate stat chip (matches the stress-matrix run-meta styling). */
+function WfStatChip({ label, value, sub }: { label: string; value: string; sub?: string }) {
+  return (
+    <div className="p-2 rounded-lg bg-[#F7FAF8]">
+      <div className="text-[#7A8C86] text-[0.55rem] uppercase tracking-wider">{label}</div>
+      <div className="font-mono text-[#33544C]">{value}</div>
+      {sub && (
+        <div className="text-[0.55rem] text-[#7A8C86] font-mono mt-0.5">{sub}</div>
+      )}
+    </div>
+  );
 }
 
 /* ---------- §23.5 Monte Carlo generator families (blueprint table) ---------- */
@@ -246,6 +404,11 @@ export function ValidationResearchSection({
   const [data, setData] = useState<ValidationDto | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [retry, setRetry] = useState(0);
+  // [Task 42-C] §23.3/§23.4 run-record view of the same payload (undefined
+  // until /api/validation answers — the panel below degrades honestly).
+  const wf = data?.walkForward;
+  const wfCfg = wf?.config?.walkForward;
+  const pkc = wf?.config?.purgedKfold;
 
   useEffect(() => {
     let mounted = true;
@@ -689,6 +852,192 @@ export function ValidationResearchSection({
               <span className="font-semibold text-rose-600">inadmissible at the gates of §23.12</span>.
             </p>
           </div>
+        </Reveal>
+
+        {/* ============ §23.3/§23.4 — pilot-scale run record (live) ============ */}
+        <Reveal delay={0.15}>
+          <Panel className="p-5 mt-4">
+            <div className="flex flex-wrap items-center justify-between gap-2 mb-3">
+              <div className="flex items-center gap-2">
+                <Beaker className="h-4 w-4 text-mtqs-gold/70" aria-hidden="true" />
+                <h3 className="text-sm font-semibold text-[#0E1F1B]">
+                  §23.3 / §23.4 — Run Record (Pilot-Scale)
+                </h3>
+              </div>
+              {wf?.leakageCheck?.verified === true ? (
+                <Pill tone="emerald">
+                  <GlowDot color="emerald" size="h-1.5 w-1.5" />
+                  LEAKAGE CHECK VERIFIED · 0 INTERSECTIONS
+                </Pill>
+              ) : wf ? (
+                <Pill tone="rose">
+                  <GlowDot color="rose" size="h-1.5 w-1.5" />
+                  LEAKAGE CHECK NOT VERIFIED
+                </Pill>
+              ) : null}
+            </div>
+
+            {error ? (
+              <div className="p-3 rounded-lg border border-rose-200 bg-rose-50 text-[0.7rem] text-rose-600 leading-relaxed">
+                The §23.3/§23.4 run record is unavailable — /api/validation did not respond ({error}).
+                No walk-forward or purged-CV number is fabricated here; the retry control in the
+                stress matrix above re-fetches the full payload, and this panel renders once the
+                endpoint responds.
+              </div>
+            ) : !data ? (
+              <div className="space-y-2">
+                <div className="flex items-center gap-2 text-[0.68rem] text-[#7A8C86] mb-1">
+                  <Skeleton className="h-3 w-3 rounded-full" />
+                  Loading the §23.3/§23.4 pilot-scale run record…
+                </div>
+                {[...Array(3)].map((_, i) => (
+                  <Skeleton key={i} className="h-8 rounded-md" />
+                ))}
+              </div>
+            ) : !wf ? (
+              <p className="text-[0.7rem] text-amber-700 leading-relaxed">
+                The /api/validation payload carries no walkForward record (older backend build).{" "}
+                Nothing is fabricated in its place — the run record renders once the endpoint serves
+                the §23.3/§23.4 pilot evidence.
+              </p>
+            ) : (
+              <>
+                <p className="text-[0.72rem] text-[#5B6E68] mb-3">
+                  The reference engine now executes a genuine pilot-scale run of both programs over
+                  the deterministic simulated 756-day series: a §23.3 rolling walk-forward{" "}
+                  ({wfCfg?.folds ?? 8} folds, {wfCfg?.initialTrainDays ?? 252}d initial train /{" "}
+                  {wfCfg?.testDays ?? 63}d test / {wfCfg?.stepDays ?? 63}d step) and a §23.4 purged +
+                  embargoed K-fold (K={pkc?.k ?? 5}). Each fold refits the full §5.1 → §6.1 → §6.2 →
+                  §7.5 → §8.1 estimator family on the train slice only and scores the held weights
+                  out-of-sample; the leakage discipline is verified mechanically (index-set
+                  intersections counted per fold, zero required). Served live from /api/validation —
+                  source:{" "}
+                  <span className="font-mono text-[#33544C]">
+                    {data.walkForwardSource ?? "unknown"}
+                  </span>
+                  .
+                </p>
+
+                {/* Aggregate stat chips */}
+                <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-2 mb-3 text-[0.66rem]">
+                  <WfStatChip
+                    label="WF · mean OOS vol"
+                    value={wfPct(wf.walkForward?.aggregate?.mean?.oosVolAnnualized)}
+                    sub={`vs EW ${wfPct(wf.walkForward?.aggregate?.mean?.benchmarkEwVol)}`}
+                  />
+                  <WfStatChip
+                    label="WF · mean overfit ratio"
+                    value={wfNum(wf.walkForward?.aggregate?.mean?.overfitRatio)}
+                    sub={`median ${wfNum(wf.walkForward?.aggregate?.median?.overfitRatio)}`}
+                  />
+                  <WfStatChip
+                    label="WF · mean TE vs EW"
+                    value={wfPct(wf.walkForward?.aggregate?.mean?.trackingErrorVsEW)}
+                    sub={`median ${wfPct(wf.walkForward?.aggregate?.median?.trackingErrorVsEW)}`}
+                  />
+                  <WfStatChip
+                    label="Purged · mean OOS vol"
+                    value={wfPct(wf.purgedKfold?.aggregate?.mean?.oosVolAnnualized)}
+                    sub={`vs EW ${wfPct(wf.purgedKfold?.aggregate?.mean?.benchmarkEwVol)}`}
+                  />
+                  <WfStatChip
+                    label="Purged · mean overfit ratio"
+                    value={wfNum(wf.purgedKfold?.aggregate?.mean?.overfitRatio)}
+                    sub={`median ${wfNum(wf.purgedKfold?.aggregate?.median?.overfitRatio)}`}
+                  />
+                  <WfStatChip
+                    label="Purged · mean TE vs EW"
+                    value={wfPct(wf.purgedKfold?.aggregate?.mean?.trackingErrorVsEW)}
+                    sub={`median ${wfPct(wf.purgedKfold?.aggregate?.median?.trackingErrorVsEW)}`}
+                  />
+                </div>
+
+                {/* Fold tables — both programs */}
+                <div className="space-y-3">
+                  <div>
+                    <div className="text-[0.62rem] uppercase tracking-[0.18em] text-[#7A8C86] mb-1.5">
+                      §23.3 · rolling walk-forward — {wf.walkForward?.aggregate?.folds ?? "—"} folds ·{" "}
+                      {wf.walkForward?.aggregate?.oosDaysScored ?? "—"} OOS days scored
+                    </div>
+                    <BorderedTable
+                      headers={WF_FOLD_HEADERS}
+                      rows={wfFoldRows(wf.walkForward)}
+                      maxHeight="max-h-72"
+                    />
+                  </div>
+                  <div>
+                    <div className="text-[0.62rem] uppercase tracking-[0.18em] text-[#7A8C86] mb-1.5">
+                      §23.4 · purged + embargoed K-fold — K={pkc?.k ?? 5} ·{" "}
+                      {wf.purgedKfold?.aggregate?.folds ?? "—"} folds ·{" "}
+                      {wf.purgedKfold?.aggregate?.oosDaysScored ?? "—"} OOS days scored
+                    </div>
+                    <BorderedTable
+                      headers={WF_FOLD_HEADERS}
+                      rows={wfFoldRows(wf.purgedKfold)}
+                      maxHeight="max-h-72"
+                    />
+                  </div>
+                </div>
+
+                {/* Purge/embargo parameters + estimator note */}
+                <p className="text-[0.66rem] text-[#7A8C86] mt-3 leading-relaxed">
+                  Parameters: <span className="font-mono text-[#5B6E68]">{pkc?.purgeDays ?? 21}d purge</span>{" "}
+                  (the OOS label horizon used in scoring) ·{" "}
+                  <span className="font-mono text-[#5B6E68]">{pkc?.embargoDays ?? 10}d embargo</span> ·{" "}
+                  K={pkc?.k ?? 5} contiguous blocks
+                  {Array.isArray(pkc?.blockSizes) && pkc.blockSizes.length
+                    ? ` (${pkc.blockSizes.join("/")})`
+                    : ""}{" "}
+                  · exclusion zone{" "}
+                  <span className="font-mono">
+                    [testStart−{pkc?.purgeDays ?? 21}, testEnd+{pkc?.embargoDays ?? 10}]
+                  </span>{" "}
+                  closed &amp; clamped, purged train union concatenated. Estimator family refit per
+                  train slice: §5.1 multi-horizon vols → §6.1 blended covariance → §6.2 shrinkage →
+                  §7.5 six families (uniform 1/6) → §8.1 envelope projection; weights held fixed
+                  inside each fold (daily rebalancing to fixed fractions — §8.4/§8.3 smoothing is not
+                  simulated intra-fold).
+                </p>
+
+                {/* Run-record disclosure — verbatim */}
+                <div className="mt-3 p-4 rounded-lg border border-[#E3EAE6] bg-[#F7FAF8]">
+                  <div className="flex items-center gap-2 mb-2">
+                    <ClipboardCheck className="h-4 w-4 text-mtqs-gold/80" aria-hidden="true" />
+                    <span className="text-[0.66rem] uppercase tracking-[0.18em] text-[#5B6E68]">
+                      Run-record disclosure — verbatim
+                    </span>
+                  </div>
+                  <p className="text-[0.68rem] text-[#5B6E68] leading-relaxed border-l-2 border-mtqs-gold/30 pl-3">
+                    {wf.disclosure}
+                  </p>
+                </div>
+
+                {/* Run meta */}
+                <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 mt-3 text-[0.66rem]">
+                  <div className="p-2 rounded-lg bg-[#F7FAF8]">
+                    <div className="text-[#7A8C86] text-[0.55rem] uppercase tracking-wider">Program</div>
+                    <div className="font-mono text-[#33544C] text-[0.6rem] leading-tight">{wf.program || "—"}</div>
+                  </div>
+                  <div className="p-2 rounded-lg bg-[#F7FAF8]">
+                    <div className="text-[#7A8C86] text-[0.55rem] uppercase tracking-wider">Generated at</div>
+                    <div className="font-mono text-[#33544C]">
+                      {wf.generatedAt != null ? new Date(wf.generatedAt).toISOString() : "—"}
+                    </div>
+                  </div>
+                  <div className="p-2 rounded-lg bg-[#F7FAF8]">
+                    <div className="text-[#7A8C86] text-[0.55rem] uppercase tracking-wider">Runtime</div>
+                    <div className="font-mono text-[#33544C]">
+                      {typeof wf.runtimeMs === "number" ? `${(wf.runtimeMs / 1000).toFixed(1)}s` : "—"}
+                    </div>
+                  </div>
+                  <div className="p-2 rounded-lg bg-[#F7FAF8]">
+                    <div className="text-[#7A8C86] text-[0.55rem] uppercase tracking-wider">Source</div>
+                    <div className="font-mono text-[#33544C]">{data.walkForwardSource ?? "—"}</div>
+                  </div>
+                </div>
+              </>
+            )}
+          </Panel>
         </Reveal>
       </section>
 

@@ -276,7 +276,7 @@ export async function applyTx(tx: Tx, height: number, params: ChainParams): Prom
 
 // ─── end-of-block processing ────────────────────────────────────────────────
 
-export async function processBlockEnd(height: number, params: ChainParams): Promise<string[]> {
+export async function processBlockEnd(height: number, params: ChainParams, proposer?: string): Promise<string[]> {
   const effects: string[] = [];
   const proposals = await store.getProposals();
   const validators = await store.getValidators();
@@ -327,7 +327,90 @@ export async function processBlockEnd(height: number, params: ChainParams): Prom
     }
   }
   // An ACTIVE validator whose power drops to 0 loses consensus participation.
+
+  // 4) Network economics — block rewards (DEFAULT OFF, Task-42).
+  // Machinery per the Network Economics Specification DRAFT
+  // (docs/NETWORK-ECONOMICS-SPEC-DRAFT.md): pays uMTQD testnet credit from
+  // the devnet treasury (the faucet account) to the block proposer (20% cut)
+  // + all ACTIVE validators pro-rata by voting power over the remaining 80%,
+  // with rounding dust flowing to the proposer (deterministic, no dust loss).
+  // Runs only when rewards_enabled=1 AND block_reward_u>0 — the shipped
+  // default is OFF; activation is dual-gated (owner ratification of the DRAFT
+  // + governance vote on rewards_enabled). MTQΣ supply is constitutionally
+  // untouched: rewards are uMTQD network credit, never the monetary asset.
+  // Distribution uses the post-recompute ACTIVE set — the validators that
+  // closed this block (documented in the DRAFT §4).
+  if (params.rewards_enabled === 1 && params.block_reward_u > 0) {
+    const rewardEffects = await distributeBlockReward(height, params, proposer ?? null);
+    effects.push(...rewardEffects);
+  }
   return effects;
+}
+
+/** Distribute the per-block reward (integer micro-units, fail-closed on an
+ * insufficient treasury — never partial). Pure bookkeeping in the shared
+ * state store; emits an econ.block_reward event with the full payout record. */
+async function distributeBlockReward(
+  height: number,
+  params: ChainParams,
+  proposer: string | null,
+): Promise<string[]> {
+  const out: string[] = [];
+  const treasury = await store.getMeta("treasury_address");
+  if (!treasury) {
+    await store.putEvent(height, "econ.reward_skipped", { reason: "treasury_address meta not provisioned" }, Date.now());
+    out.push("econ.reward_skipped: treasury not provisioned (node boot sets it)");
+    return out;
+  }
+  const R = params.block_reward_u;
+  const tAcct = await store.getAccount(treasury);
+  if (tAcct.fee_u < R) {
+    // fail-closed: never pay partially, never borrow — event + skip
+    await store.putEvent(height, "econ.rewards_exhausted", { treasury, attempted_u: R, available_u: tAcct.fee_u }, Date.now());
+    out.push(`econ.rewards_exhausted: treasury ${tAcct.fee_u} < ${R} uMTQD — reward skipped (fail-closed)`);
+    return out;
+  }
+  const active = (await store.getValidators()).filter((v) => v.status === "ACTIVE" && v.power > 0);
+  const totalPower = active.reduce((s, v) => s + v.power, 0);
+  if (totalPower <= 0) {
+    await store.putEvent(height, "econ.reward_skipped", { reason: "no ACTIVE voting power" }, Date.now());
+    out.push("econ.reward_skipped: no ACTIVE voting power to distribute to");
+    return out;
+  }
+  // proposer 20% cut (floor), remainder pro-rata by power, dust → proposer
+  const proposerCut = Math.floor(R / 5);
+  const base = R - proposerCut;
+  let paid = 0;
+  for (const v of active) {
+    const share = Math.floor((base * v.power) / totalPower);
+    if (share <= 0) continue;
+    const acct = await store.getAccount(v.address);
+    await store.executeAccountUpdate(v.address, { fee_u: acct.fee_u + share });
+    paid += share;
+  }
+  const proposerShare = R - paid; // proposerCut + all floor-rounding dust
+  if (proposerShare > 0) {
+    if (proposer && active.some((v) => v.address === proposer)) {
+      const acct = await store.getAccount(proposer);
+      await store.executeAccountUpdate(proposer, { fee_u: acct.fee_u + proposerShare });
+      paid += proposerShare;
+    } else {
+      // no recorded proposer in the ACTIVE set: dust stays in the treasury
+      // (documented burn rule — deterministic, no invention)
+      await store.putEvent(height, "econ.reward_dust_burned", { amount_u: proposerShare, reason: "proposer not in ACTIVE set" }, Date.now());
+      out.push(`econ.reward_dust_burned ${proposerShare} uMTQD → treasury (proposer not in ACTIVE set)`);
+    }
+  }
+  const tAfter = await store.getAccount(treasury);
+  await store.executeAccountUpdate(treasury, { fee_u: tAfter.fee_u - paid });
+  await store.putEvent(
+    height,
+    "econ.block_reward",
+    { amount_u: paid, r_u: R, proposer, proposer_share_u: proposerShare, recipients: active.length, treasury, total_power: totalPower },
+    Date.now(),
+  );
+  out.push(`econ.block_reward ${paid / 1e6} MTQD ← treasury → proposer cut ${proposerShare / 1e6} + ${active.length} ACTIVE validators (pro-rata by power)`);
+  return out;
 }
 
 async function executeProposal(
@@ -417,7 +500,7 @@ export async function applyBlock(b: Block): Promise<void> {
     const res = await applyTx(tx, b.header.height, params);
     await store.putTx(txHash(tx), b.header.height, i, tx, { ok: res.ok, error: res.error, effects: res.effects }, b.header.time_ms);
   }
-  const endEffects = await processBlockEnd(b.header.height, params);
+  const endEffects = await processBlockEnd(b.header.height, params, b.header.proposer);
   for (const e of endEffects) {
     await store.putEvent(b.header.height, "gov.processing", { detail: e }, b.header.time_ms);
   }

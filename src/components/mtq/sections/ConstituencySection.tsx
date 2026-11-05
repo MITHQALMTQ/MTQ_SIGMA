@@ -127,13 +127,15 @@ const SCORING_INPUT_LABELS: Record<ScoringInputKey, string> = {
 };
 
 // Dot color per per-input feed status (TASK-39 feeds.ts vocabulary).
-// emerald = live · gold = published official statistics · amber = live with a
-// caveat (proxy / declared / mixed) · rose = fixture fallback · neutral =
-// construction. String-keyed so unknown future statuses degrade to neutral.
+// emerald = live · gold = published official statistics / operator-serviced
+// upload of a gated official source · amber = live with a caveat (proxy /
+// declared / mixed) · rose = fixture fallback · neutral = construction.
+// String-keyed so unknown future statuses degrade to neutral.
 const FEED_STATUS_DOT: Record<string, "emerald" | "gold" | "amber" | "rose" | "neutral"> = {
   LIVE: "emerald",
   "LIVE-AUTOMATED": "emerald",
   "LIVE-PROXY": "amber",
+  "LIVE-UPLOADED": "gold", // Task-42: operator-serviced ingestion of a gated official source — distinct from automated live
   "PUBLISHED-OFFICIAL": "gold",
   "DECLARED-ESTIMATE": "amber",
   "FIXTURE-FALLBACK": "rose",
@@ -146,6 +148,7 @@ const FEED_STATUS_TONE: Record<string, "emerald" | "gold" | "amber" | "rose" | "
   LIVE: "emerald",
   "LIVE-AUTOMATED": "emerald",
   "LIVE-PROXY": "amber",
+  "LIVE-UPLOADED": "gold", // Task-42 operator-serviced ingestion (gated official source, digest-bound)
   "PUBLISHED-OFFICIAL": "gold",
   "DECLARED-ESTIMATE": "amber",
   "FIXTURE-FALLBACK": "rose",
@@ -842,6 +845,123 @@ function ApprovalCard({ entry }: { entry: ApprovalLedgerEntryDto }) {
           {entry.directiveVerbatim}
         </blockquote>
       </details>
+    </article>
+  );
+}
+
+/* ---------- TASK-42 — D-13.11 calibration decision-support explorer ----------
+ * Interactive what-if for the recorded L-gate calibration finding (feeds.ts
+ * finding: against the PUBLISHED BIS 2022 shares, the draft L ≥ 0.30 gate
+ * fails 4/7 genesis members under the spec §4.1 share/max-share
+ * normalization). Pure client-side arithmetic over PUBLISHED constants +
+ * the live dossier's observed liquidity values — the engine's actual gates
+ * are NEVER touched by this tool; it exists to help the owner adjudicate
+ * the D-13.11 calibration input with eyes open. */
+const CAL_BIS_2022_SHARE_PCT: Record<string, number> = {
+  USD: 88.5,
+  EUR: 30.5,
+  JPY: 16.7,
+  GBP: 12.9,
+  CNY: 7.0,
+  CHF: 5.2,
+};
+const CAL_MAX_SHARE_PCT = 88.5; // spec §4.1 “max_share: universe max” = USD
+const CAL_XAU_NOTE =
+  "XAU has no BIS-triennial row by source design — the gold leg's liquidity is the declared LBMA-based estimate (0.35), shown for completeness but NOT part of the BIS-shares calibration finding.";
+
+function CalibrationExplorer({ components }: { components: ScoringComponentDto[] }) {
+  const [theta, setTheta] = useState(0.3); // draft D-13.11 pilot-approved gate
+  const [mode, setMode] = useState<"normalized" | "raw">("normalized");
+  // Engine's actual threshold + observed values from the live dossier
+  const lGate = components[0]?.hardGates?.find((g) => g.gate === "L");
+  const engineThreshold = lGate?.threshold ?? 0.3;
+  const rows = components
+    .filter((c) => ["USD", "EUR", "JPY", "GBP", "CHF", "CNY", "XAU"].includes(c.code))
+    .map((c) => {
+      const sharePct = CAL_BIS_2022_SHARE_PCT[c.code]; // undefined for XAU (by design)
+      const normalized = sharePct != null ? sharePct / CAL_MAX_SHARE_PCT : c.inputs.liquidity; // §4.1 form
+      const raw = sharePct != null ? sharePct / 100 : c.inputs.liquidity;
+      const value = mode === "normalized" ? normalized : raw;
+      return { code: c.code, sharePct, normalized, raw, value, passes: value >= theta, isXau: c.code === "XAU" };
+    });
+  const passCount = rows.filter((r) => r.passes && !r.isXau).length;
+  const fiatCount = rows.filter((r) => !r.isXau).length;
+  return (
+    <article className="rounded-xl border border-[#E3EAE6] bg-[#F7FAF8] p-4">
+      <div className="mb-1.5 flex flex-wrap items-center justify-between gap-2">
+        <h4 className="text-[0.78rem] font-semibold text-[#0E1F1B]">L-gate threshold explorer (what-if)</h4>
+        <span className="font-mono text-[0.6rem] text-[#7A8C86]">
+          engine gate today: L ≥ {engineThreshold.toFixed(2)} (§4.1 normalized)
+        </span>
+      </div>
+      <p className="mb-3 text-[0.64rem] leading-relaxed text-[#5B6E68]">
+        Drag θ to see how the published BIS 2022 turnover shares clear or fail the L hard gate under the two
+        candidate normalizations — the calibration question the owner holds open under D-13.11. This tool
+        changes NOTHING in the engine: the pilot-approved gate ({engineThreshold.toFixed(2)}, digest-bound in
+        the approval ledger above) keeps running; the finding stays recorded, never silently re-normalized.
+      </p>
+      <div className="mb-3 flex flex-wrap items-center gap-x-4 gap-y-2">
+        <label className="flex items-center gap-2 text-[0.66rem] text-[#33544C]">
+          <span className="font-mono">θ = {theta.toFixed(3)}</span>
+          <input
+            type="range"
+            min={0.05}
+            max={0.5}
+            step={0.005}
+            value={theta}
+            onChange={(e) => setTheta(Number(e.target.value))}
+            className="h-1.5 w-44 cursor-pointer accent-mtqs-gold"
+            aria-label="L-gate threshold theta"
+          />
+        </label>
+        <div className="flex overflow-hidden rounded-md border border-[#E3EAE6] text-[0.6rem] font-medium" role="group" aria-label="normalization mode">
+          {(["normalized", "raw"] as const).map((m) => (
+            <button
+              key={m}
+              type="button"
+              onClick={() => setMode(m)}
+              className={`px-2.5 py-1 transition-colors ${
+                mode === m ? "bg-[#0E1F1B] text-white" : "bg-[#FAFCFA] text-[#5B6E68] hover:bg-[#Eef4f0]"
+              }`}
+            >
+              {m === "normalized" ? "share / max-share (§4.1)" : "raw share of 100%"}
+            </button>
+          ))}
+        </div>
+        <span className="font-mono text-[0.62rem] tabular-nums text-[#33544C]">
+          {passCount}/{fiatCount} fiat members pass{rows.some((r) => r.isXau) ? " (XAU excluded — no BIS row)" : ""}
+        </span>
+      </div>
+      <div className="overflow-x-auto">
+        <table className="w-full min-w-[34rem] border-collapse text-[0.64rem]">
+          <thead>
+            <tr className="border-b border-[#E3EAE6] text-left text-[0.58rem] uppercase tracking-[0.14em] text-[#7A8C86]">
+              <th className="py-1.5 pr-3 font-medium">member</th>
+              <th className="py-1.5 pr-3 font-medium text-right">BIS share</th>
+              <th className="py-1.5 pr-3 font-medium text-right">L (§4.1 norm)</th>
+              <th className="py-1.5 pr-3 font-medium text-right">raw share</th>
+              <th className="py-1.5 font-medium text-right">vs θ</th>
+            </tr>
+          </thead>
+          <tbody className="font-mono tabular-nums">
+            {rows.map((r) => (
+              <tr key={r.code} className="border-b border-[#Eef4f0] last:border-b-0">
+                <td className="py-1.5 pr-3 font-semibold text-[#0E1F1B]">{r.code}</td>
+                <td className="py-1.5 pr-3 text-right text-[#5B6E68]">{r.isXau ? "—" : `${r.sharePct!.toFixed(1)}%`}</td>
+                <td className="py-1.5 pr-3 text-right text-[#33544C]">{r.normalized.toFixed(3)}</td>
+                <td className="py-1.5 pr-3 text-right text-[#5B6E68]">{r.raw.toFixed(3)}</td>
+                <td className={`py-1.5 text-right font-semibold ${r.passes ? "text-mtqs-emerald" : "text-mtqs-rose"}`}>
+                  {r.passes ? "PASS" : "FAIL"}
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+      <p className="mt-2.5 text-[0.6rem] leading-relaxed text-[#7A8C86]">
+        {CAL_XAU_NOTE} Published shares: BIS Triennial 2022 (instrument share of global FX turnover, two-sided of 200%;
+        bis.org/statistics/rpfx22_fx.htm). Observed dossier values (not shown here) additionally carry feed statuses.
+      </p>
     </article>
   );
 }
@@ -2042,6 +2162,14 @@ export function ConstituencySection({
                     <ApprovalCard key={e.decisionId} entry={e} />
                   ))}
                 </div>
+
+                {/* TASK-42 — D-13.11 calibration decision support (client-side
+                    what-if over published constants; engine gates untouched) */}
+                {machinery.scoringDossier?.components?.length ? (
+                  <div className="mt-4">
+                    <CalibrationExplorer components={machinery.scoringDossier.components} />
+                  </div>
+                ) : null}
               </>
             )}
           </Panel>

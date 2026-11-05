@@ -61,6 +61,11 @@ export interface ChainParamsDto {
   timelock_s: number;
   heartbeat_ms: number;
   unbonding_s: number;
+  /** Task-42: block-reward engine switch — 0 = OFF (shipped default; dual-gate
+   *  activation: owner ratification of the Network Economics DRAFT + governance vote). */
+  rewards_enabled: number;
+  /** Task-42: per-block reward in uMTQD from the devnet treasury (0 = nothing paid). */
+  block_reward_u: number;
 }
 
 export interface TelemetryRowDto {
@@ -81,6 +86,7 @@ export interface ChainHonestDto {
   separation: string;
   economics: string;
   productionPath: string;
+  transport: string;
   label: string;
 }
 
@@ -199,6 +205,19 @@ export interface UnbondingRowDto {
   release_in_ms: number; // >0 pending · 0 mature (auto-claimed at next block)
 }
 
+/** Task-42-D: ballot cast by THIS account on a governance proposal. Sourced
+ *  from a bounded scan of the 50 most recent proposals (rpc.getAccountInfo) —
+ *  ballots on older proposals are not included. */
+export interface AccountVoteDto {
+  proposal_id: number;
+  proposal_title: string;
+  proposal_status: GovProposalDto["status"];
+  /** YES | NO | ABSTAIN — stored verbatim from the signed vote. */
+  option: string;
+  power: number;
+  height: number;
+}
+
 export interface AccountDto {
   address: string;
   exists: boolean;
@@ -210,6 +229,8 @@ export interface AccountDto {
   unbondings: UnbondingRowDto[];
   stakes: StakeRowDto[];
   validator: ValidatorCoreDto | null;
+  /** Task-42-D: this account's governance ballots (newest proposals first). */
+  votes: AccountVoteDto[];
   recent_txs: TxRowDto[];
 }
 
@@ -348,6 +369,85 @@ export interface ChainPollState<T> {
   /** Force an immediate re-fetch (manual refresh / after a submission). */
   refresh: () => void;
 }
+
+/* ============================================================
+   useChainBlockStream — Task-42 SSE live block-event hook
+   ============================================================ */
+
+/** Block-committed event payload from GET /api/chain/stream (SSE). */
+export interface ChainBlockEventDto {
+  height: number;
+  hash: string;
+  txs: number;
+  proposer: string | null;
+  qc_committed_power: number;
+  qc_total_power: number;
+  consensus_ms: number;
+  time_ms: number;
+}
+
+export interface ChainBlockStreamState {
+  /** True while the SSE connection is open (live push active). */
+  connected: boolean;
+  /** The most recent block event received (null before the first push). */
+  lastEvent: ChainBlockEventDto | null;
+  /** Millisecond timestamp of the last received event (for liveness clocks). */
+  lastEventAt: number | null;
+}
+
+/**
+ * Live block-event subscription over SSE (Task-42). EventSource handles
+ * auto-reconnect; onBlock is invoked through a ref so callers never cause
+ * re-subscription (callback identity is free to change). Failed streams just
+ * leave `connected=false` — the consumer's canonical HTTP polling remains the
+ * correctness path (SSE is instant-refresh sugar, never a dependency).
+ * Events are ALSO delivered while document.hidden (cheap, ≤1/heartbeat) so a
+ * tab returning to focus is already current.
+ */
+export function useChainBlockStream(onBlock?: (ev: ChainBlockEventDto) => void): ChainBlockStreamState {
+  const [connected, setConnected] = useState(false);
+  const [lastEvent, setLastEvent] = useState<ChainBlockEventDto | null>(null);
+  const [lastEventAt, setLastEventAt] = useState<number | null>(null);
+  const onBlockRef = useRef(onBlock);
+  useEffect(() => {
+    onBlockRef.current = onBlock;
+  }, [onBlock]);
+
+  useEffect(() => {
+    let es: EventSource | null = null;
+    try {
+      es = new EventSource("/api/chain/stream");
+    } catch {
+      return; // no EventSource support → stay on polling (honest fallback)
+    }
+    const source = es;
+    const onOpen = () => setConnected(true);
+    const onErr = () => setConnected(false); // EventSource retries on its own
+    const onBlockEv = (e: MessageEvent<string>) => {
+      try {
+        const ev = JSON.parse(e.data) as ChainBlockEventDto;
+        setLastEvent(ev);
+        setLastEventAt(Date.now());
+        onBlockRef.current?.(ev);
+      } catch {
+        // malformed frame — ignore; polling remains the truth path
+      }
+    };
+    source.addEventListener("open", onOpen);
+    source.addEventListener("error", onErr);
+    source.addEventListener("block", onBlockEv as EventListener);
+    return () => {
+      source.removeEventListener("open", onOpen);
+      source.removeEventListener("error", onErr);
+      source.removeEventListener("block", onBlockEv as EventListener);
+      source.close();
+      setConnected(false);
+    };
+  }, []);
+
+  return { connected, lastEvent, lastEventAt };
+}
+
 
 /**
  * Canonical app polling hook (pattern: ConstituencySection / ReferenceSection):

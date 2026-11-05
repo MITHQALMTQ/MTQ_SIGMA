@@ -21,11 +21,16 @@
 //   * Protocol-internal oracle ledger — LIVE (Prisma OracleSample, tier 3).
 //   * OFAC SDN sanctions scan — LIVE-AUTOMATED (jurisdictional subset only;
 //     counsel sign-off remains a separate manual gate).
-//   * IMF AREAER — FIXTURE-FALLBACK (elibrary-areaer requires SSO login from
-//     this sandbox; convertibility stays carried from the validated
-//     prototype dataset / declared estimates, labeled).
-//   * Geopolitical exposure — DECLARED-ESTIMATE (counsel/history-desk
-//     dimension; no automatable feed exists by design).
+//   * IMF AREAER — FIXTURE-FALLBACK by default (elibrary-areaer requires
+//     SSO login from this sandbox) — TASK-42: an OPERATOR-UPLOAD path exists
+//     (POST /api/constituency/upload, token-gated, digest-bound): when an
+//     authorized operator services it, convertibility/geopolitical inputs
+//     upgrade to LIVE-UPLOADED with full provenance (source label + upload
+//     timestamp + sha256 digest) — operator-serviced ingestion of a gated
+//     official source, honestly distinguished from an automated live feed.
+//   * Geopolitical exposure — DECLARED-ESTIMATE by default (counsel/history-
+//     desk dimension; no automatable feed exists by design) — same operator-
+//     upload upgrade path as AREAER (LIVE-UPLOADED once serviced).
 //
 // HONEST CONTRACT (never violated by this module):
 //   * Every input value carries its feed status; nothing fabricated —
@@ -56,6 +61,7 @@ export type FeedStatus =
   | "LIVE" // computed from a reachable live source at build time
   | "LIVE-AUTOMATED" // live source + automated mapping (manual review separate)
   | "LIVE-PROXY" // live source measuring an adjacent quantity (proxy labeled)
+  | "LIVE-UPLOADED" // operator-serviced ingestion of a gated official source — digest-bound provenance (Task-42)
   | "PUBLISHED-OFFICIAL" // official published statistics, coarse refresh cadence
   | "DECLARED-ESTIMATE" // expert-declared value, no feed exists by design
   | "FIXTURE-FALLBACK" // carried fixture value because the feed is unreachable
@@ -143,6 +149,53 @@ const CC_DIVERGENCE_MAX = 0.05;
 const BA_FAMILIES_REQUIRED = 2;
 /** Oracle-ledger data-quality window (24h of consensus samples). */
 const QD_WINDOW_MS = 24 * 60 * 60_000;
+/** Operator-serviced upload freshness window (Task-42): an AREAER/counsel
+ * upload is honored for 90 days — matching the AREAER annual-report cycle
+ * with one quarter of slack; older rows are ignored (honest staleness). */
+const UPLOAD_FRESH_MS = 90 * 24 * 60 * 60_000;
+
+// ─── Operator-serviced ingestion (Task-42) ─────────────────────────────────
+
+export interface OperatorUploadRow {
+  kind: "convertibility" | "geopoliticalExposure";
+  ccy: string;
+  value: number;
+  sourceLabel: string;
+  sourceUrl: string | null;
+  sha256: string;
+  uploadedAt: Date;
+}
+
+/** Read fresh operator uploads for the gated-source inputs (≤ 90 days),
+ * latest row per (kind, ccy). Honest degradation on any store error: an
+ * empty map (the inputs then carry their fixture/declared fallbacks with
+ * the existing labels). */
+async function fetchOperatorUploads(): Promise<Record<string, OperatorUploadRow>> {
+  try {
+    const rows = await db.scoringUpload.findMany({
+      where: { uploadedAt: { gte: new Date(Date.now() - UPLOAD_FRESH_MS) } },
+      orderBy: { uploadedAt: "asc" },
+    });
+    const latest: Record<string, OperatorUploadRow> = {};
+    for (const r of rows) {
+      if (r.kind !== "convertibility" && r.kind !== "geopoliticalExposure") continue;
+      if (!(r.ccy in CV_FIXTURE)) continue; // only the genesis-7 universe
+      if (r.value < 0 || r.value > 1) continue;
+      latest[`${r.kind}:${r.ccy}`] = {
+        kind: r.kind,
+        ccy: r.ccy,
+        value: r.value,
+        sourceLabel: r.sourceLabel,
+        sourceUrl: r.sourceUrl,
+        sha256: r.sha256,
+        uploadedAt: r.uploadedAt,
+      };
+    }
+    return latest;
+  } catch {
+    return {}; // store unavailable/migrated-not-yet → honest empty (labeled fallbacks)
+  }
+}
 
 /** BIS Triennial Central Bank Survey 2022 wave — PUBLISHED instrument shares
  *  of global FX turnover (out of 200%, two-sided; bis.org Triennial 2022
@@ -593,7 +646,7 @@ export async function buildLiveScoringDossier(force = false): Promise<LiveScorin
   const builtAt = new Date().toISOString();
 
   // --- parallel family + history fetches -------------------------------
-  const [frank, yahoo, goldApi, yahooGold, ofac, ledger, bisHist, frankHist, goldHist, bisPage] =
+  const [frank, yahoo, goldApi, yahooGold, ofac, ledger, bisHist, frankHist, goldHist, bisPage, uploads] =
     await Promise.all([
       fetchFrankfurterFamily(),
       fetchYahooFamily(),
@@ -607,6 +660,7 @@ export async function buildLiveScoringDossier(force = false): Promise<LiveScorin
       fetchFrankfurterHistory(90),
       fetchYahooHistory(YAHOO_GOLD_SYMBOL, "3mo"),
       fetchText(BIS_TRIENNIAL_SOURCE_URL, 12_000).then((t) => typeof t === "string" && t.length > 500),
+      fetchOperatorUploads(),
     ]);
 
   const bisSeries: Record<string, BisXruSeries | undefined> = {};
@@ -727,12 +781,21 @@ export async function buildLiveScoringDossier(force = false): Promise<LiveScorin
       inputDetail.dataQuality = "Oracle ledger unreachable/empty this cycle — carried conservative fixture 0.9/0.85 (labeled)";
     }
 
-    // convertibility — AREAER (tier 1) — offline → carried fixture
-    inputs.convertibility = clamp01(CV_FIXTURE[ccy]);
-    inputStatus.convertibility = "FIXTURE-FALLBACK";
-    inputDetail.convertibility = CV_FIXTURE[ccy] !== undefined && ["USD", "EUR", "JPY", "GBP", "CHF"].includes(ccy)
-      ? "IMF AREAER ingestion UNREACHABLE (elibrary-areaer requires SSO login from the pilot sandbox) — value carried from the validated prototype dataset inputs-v1.json (labeled fixture)"
-      : "IMF AREAER ingestion UNREACHABLE (SSO-gated) — DECLARED estimate pending AREAER ingestion (prototype universe has no row for this component)";
+    // convertibility — AREAER (tier 1) — automated fetch SSO-gated; the
+    // Task-42 operator-upload path upgrades this input to LIVE-UPLOADED
+    // (digest-bound provenance) whenever an authorized operator services it
+    const cvUpload = uploads[`convertibility:${ccy}`];
+    if (cvUpload) {
+      inputs.convertibility = clamp01(cvUpload.value);
+      inputStatus.convertibility = "LIVE-UPLOADED";
+      inputDetail.convertibility = `IMF AREAER operator upload — value ${cvUpload.value} (source: ${cvUpload.sourceLabel}${cvUpload.sourceUrl ? " · " + cvUpload.sourceUrl : ""}), uploaded ${cvUpload.uploadedAt.toISOString().slice(0, 10)}, record digest sha256:${cvUpload.sha256.slice(0, 16)}… — operator-serviced ingestion of the SSO-gated official source (automated fetch remains unreachable and labeled); ≤90-day freshness honored`;
+    } else {
+      inputs.convertibility = clamp01(CV_FIXTURE[ccy]);
+      inputStatus.convertibility = "FIXTURE-FALLBACK";
+      inputDetail.convertibility = CV_FIXTURE[ccy] !== undefined && ["USD", "EUR", "JPY", "GBP", "CHF"].includes(ccy)
+        ? "IMF AREAER ingestion UNREACHABLE (elibrary-areaer requires SSO login from the pilot sandbox) — value carried from the validated prototype dataset inputs-v1.json (labeled fixture); an operator can upgrade this input via the token-gated upload path (POST /api/constituency/upload)"
+        : "IMF AREAER ingestion UNREACHABLE (SSO-gated) — DECLARED estimate pending AREAER ingestion (prototype universe has no row for this component); an operator can upgrade this input via the token-gated upload path (POST /api/constituency/upload)";
+    }
 
     // jurisdictionalRestrictions — automated OFAC scan (tier 1, automated subset)
     if (ofac.reachable) {
@@ -821,10 +884,19 @@ export async function buildLiveScoringDossier(force = false): Promise<LiveScorin
       }
     }
 
-    // geopoliticalExposure — counsel/history-desk (tier 1, not automatable)
-    inputs.geopoliticalExposure = clamp01(GE_FIXTURE[ccy]);
-    inputStatus.geopoliticalExposure = "DECLARED-ESTIMATE";
-    inputDetail.geopoliticalExposure = "Counsel/history-desk dossier dimension — no automatable feed exists BY DESIGN; declared estimate${' (prototype value)' where carried} pending counsel review";
+    // geopoliticalExposure — counsel/history-desk (tier 1, not automatable
+    // by design); the Task-42 operator-upload path upgrades it to
+    // LIVE-UPLOADED (digest-bound provenance) when the desk services it
+    const geUpload = uploads[`geopoliticalExposure:${ccy}`];
+    if (geUpload) {
+      inputs.geopoliticalExposure = clamp01(geUpload.value);
+      inputStatus.geopoliticalExposure = "LIVE-UPLOADED";
+      inputDetail.geopoliticalExposure = `Counsel/history-desk operator upload — value ${geUpload.value} (source: ${geUpload.sourceLabel}${geUpload.sourceUrl ? " · " + geUpload.sourceUrl : ""}), uploaded ${geUpload.uploadedAt.toISOString().slice(0, 10)}, record digest sha256:${geUpload.sha256.slice(0, 16)}… — operator-serviced review dimension (no automatable feed exists BY DESIGN); ≤90-day freshness honored`;
+    } else {
+      inputs.geopoliticalExposure = clamp01(GE_FIXTURE[ccy]);
+      inputStatus.geopoliticalExposure = "DECLARED-ESTIMATE";
+      inputDetail.geopoliticalExposure = "Counsel/history-desk dossier dimension — no automatable feed exists BY DESIGN; declared estimate${' (prototype value)' where carried} pending counsel review; the desk can upgrade this input via the token-gated upload path (POST /api/constituency/upload)";
+    }
 
     const composite = compositeScore(inputs);
     const gates = evaluateHardGates(inputs, params.hardGates);
@@ -897,15 +969,16 @@ export async function buildLiveScoringDossier(force = false): Promise<LiveScorin
       { source: "gold-api.com (XAU spot)", url: GOLD_API_URL, reachable: Boolean(goldApi?.reachable), detail: goldApi ? "$" + goldApi.quote.priceUsd.toFixed(2) + "/oz" : "unreachable" },
       { source: "BIS Triennial turnover (2022 wave)", url: BIS_TRIENNIAL_SOURCE_URL, reachable: Boolean(bisPage), detail: "published-wave source page (triennial cadence; wave values are the tier-1 input)" },
       { source: "OFAC SDN list", url: OFAC_SDN_URL, reachable: ofac.reachable, detail: ofac.reachable ? `${ofac.sdnEntries.toLocaleString()} entries scanned` : "unreachable" },
-      { source: "IMF AREAER", url: "https://www.elibrary-areaer.imf.org", reachable: false, detail: "SSO-gated from this sandbox — convertibility stays fixture-fed (labeled)" },
+      { source: "IMF AREAER", url: "https://www.elibrary-areaer.imf.org", reachable: false, detail: "SSO-gated from this sandbox — automated fetch unreachable; OPERATOR-UPLOAD path available (POST /api/constituency/upload, token-gated): convertibility upgrades to LIVE-UPLOADED with digest provenance when serviced" + (Object.keys(uploads).some((k) => k.startsWith("convertibility:")) ? " — CURRENTLY SERVICED (fresh uploads on record)" : "") },
+      { source: "Counsel/history-desk upload (Task-42)", url: "/api/constituency/upload", reachable: Object.keys(uploads).some((k) => k.startsWith("geopoliticalExposure:")), detail: Object.keys(uploads).filter((k) => k.startsWith("geopoliticalExposure:")).length > 0 ? `${Object.keys(uploads).filter((k) => k.startsWith("geopoliticalExposure:")).length} fresh geopolitical-exposure uploads on record` : "no fresh uploads — GE stays declared (labeled)" },
       { source: "Protocol oracle ledger (Prisma)", url: "db/custom.db OracleSample", reachable: ledger.reachable, detail: ledger.reachable ? `${Object.keys(ledger.perPair).length} pairs, 24h window` : "no recent samples" },
     ],
     findings,
     residualLimits: [
-      "Convertibility (CV) remains fixture/declared-fed: IMF AREAER is SSO-gated from this sandbox — no live CV evidence is claimed.",
-      "Geopolitical exposure (GE) is a declared estimate: the counsel/history-desk review is a manual gate with no automatable feed by design.",
+      "Convertibility (CV) defaults to fixture/declared-fed: the automated IMF AREAER fetch is SSO-gated from this sandbox. The token-gated operator-upload path (POST /api/constituency/upload) upgrades CV to LIVE-UPLOADED with digest provenance once serviced — anything short of that carries no live CV evidence claim.",
+      "Geopolitical exposure (GE) defaults to a declared estimate: the counsel/history-desk review is a manual gate with no automatable feed by design; the same upload path upgrades it to LIVE-UPLOADED once the desk services it.",
       "JR measures the AUTOMATED OFAC subset only — counsel sign-off remains a separate manual gate.",
-      "No T2 confirmation is certifiable from this dossier while CV/GE are non-live and counsel review is pending.",
+      "No T2 confirmation is certifiable from this dossier while CV/GE are unserviced and counsel review is pending (LIVE-UPLOADED rows are operator-serviced ingestion, not automated feeds).",
       "BIS Triennial liquidity values are the published 2022 wave (triennial cadence) — official statistics, not a per-call live API.",
     ],
   };

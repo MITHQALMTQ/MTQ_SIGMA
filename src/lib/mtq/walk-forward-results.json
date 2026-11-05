@@ -1,0 +1,867 @@
+{
+  "program": "MTQΣ §23.3/§23.4 walk-forward + purged K-fold CV (pilot-scale)",
+  "generatedAt": 1793896083887,
+  "runtimeMs": 690,
+  "config": {
+    "series": {
+      "source": "src/lib/mtq/mase.ts buildSimulatedReturnSeries — deterministic simulated series",
+      "days": 756,
+      "model": "fixed-seed one-factor (dollar-strength) daily model, disclosed loadings",
+      "baselineVols": {
+        "USD": 0.05,
+        "EUR": 0.1,
+        "JPY": 0.12,
+        "GBP": 0.11,
+        "CNY": 0.09,
+        "CHF": 0.1,
+        "Gold": 0.15
+      },
+      "baselineRegime": {
+        "regime": 1,
+        "vix": 18.5,
+        "dxy": 100,
+        "goldVol": 0.15
+      },
+      "baselinePrices": {
+        "USD": 1,
+        "EUR": 1,
+        "JPY": 1,
+        "GBP": 1,
+        "CNY": 1,
+        "CHF": 1,
+        "Gold": 1
+      },
+      "calibrationNote": "disclosed baseline calibration constants (the engine's non-VIX-stressed defaults) — NOT live market data; vix=18.5 ⇒ VIX factor 1 ⇒ stationary vol path at the baseline vols",
+      "disclosure": "Deterministic simulated 756-day daily series (fixed-seed one-factor model, loadings disclosed) — trailing segment calibrated to live VIX (h=30 input), older data reverts to static baselines (126d half-life). Stands in for the blueprint's validated multi-source price history (§6.1); production swaps the series, not the formulas."
+    },
+    "walkForward": {
+      "initialTrainDays": 252,
+      "testDays": 63,
+      "stepDays": 63,
+      "folds": 8,
+      "scheme": "rolling: fold k trains on [0, 252+k·63), tests on [252+k·63, 252+(k+1)·63); weights fitted on train only and held fixed inside the fold (daily rebalancing to fixed fractions)"
+    },
+    "purgedKfold": {
+      "k": 5,
+      "purgeDays": 21,
+      "embargoDays": 10,
+      "blockSizes": [
+        151,
+        151,
+        151,
+        151,
+        152
+      ],
+      "blockSplit": "floor(756/5)=151 per block; the 1-day trailing remainder is absorbed by the last block",
+      "exclusionZone": "closed [testStart−21, testEnd+10] clamped to series bounds (strict reading: satisfies both the half-open train-set rule and the closed-set leakage assertion)",
+      "estimatorNote": "covariance/vol estimators are refit on the concatenation of kept days (the purged union) — the leakage-controlled estimator; §5.1 horizon windows are measured in kept samples over the union, a disclosed pilot-scale approximation of the calendar-true production windows"
+    },
+    "estimatorFamily": {
+      "replication": "maseEnsemble cannot be called with a sliced series (it derives the full 756-day series internally), so its pipeline is replicated verbatim on each train slice from the same exported mase.ts functions: multiHorizonVols → blendedCovariance → shrinkCovariance → computeCrisisScore → classifySixRegimes → 7 member models → 50/50 Stability blend → uniform 1/6 family average",
+      "heldWeights": "§8.1 envelope-projected ensemble target (the engine publication step — engine.ts applies applyEnvelopes to the ensemble target); §8.4/§8.3 smoothing/velocity need persisted engine state and are NOT simulated inside a fold (weights held fixed per fold — pilot design)",
+      "adaptiveAlpha": "none — uniform §7.5 1/6 family weights (the engine's cold-start form; §7.6 adaptive α requires the engine's persisted OOS ledger)"
+    },
+    "metrics": {
+      "vol": "annualized √252 · population std (engine convention: mase.ts horizonVol/estimateVolatility)",
+      "oosSharpe": "mean(daily r_p)/std(daily r_p), rf=0 — daily frequency, NOT annualized",
+      "trackingErrorVsEW": "annualized std of r_p − r_ew (equal-weight benchmark)",
+      "oosMaxDrawdown": "min drawdown of the cumulative product path over the fold's test window",
+      "weightTurnover": "Σ|w_k − w_{k−1}|/2 between consecutive folds' held weights; fold 0 vs static equal weights 1/7",
+      "inSampleVol": "annualized portfolio vol on the train window under the fold's held weights",
+      "overfitRatio": "oosVolAnnualized / inSampleVol"
+    }
+  },
+  "walkForward": {
+    "folds": [
+      {
+        "fold": 0,
+        "trainRanges": [
+          [
+            0,
+            252
+          ]
+        ],
+        "testRange": [
+          252,
+          315
+        ],
+        "trainDays": 252,
+        "testDays": 63,
+        "weights": {
+          "USD": 0.32000022655807875,
+          "EUR": 0.17621487798455002,
+          "JPY": 0.0889378571876432,
+          "GBP": 0.08143283841808052,
+          "CNY": 0.07000004955957974,
+          "CHF": 0.05610252913377359,
+          "Gold": 0.20731162115829407
+        },
+        "ensembleTarget": {
+          "USD": 0.38158458361892533,
+          "EUR": 0.13187761024433312,
+          "JPY": 0.08580113038596535,
+          "GBP": 0.07856080422611907,
+          "CNY": 0.09294258527203145,
+          "CHF": 0.05412386321646306,
+          "Gold": 0.1751094230361626
+        },
+        "oosVolAnnualized": 0.05968920323966479,
+        "benchmarkEwVol": 0.06532465037066647,
+        "oosSharpe": -0.2031338132105712,
+        "trackingErrorVsEW": 0.02209646285460687,
+        "oosMaxDrawdown": -0.050444165527193885,
+        "weightTurnover": 0.27495529712949435,
+        "inSampleVol": 0.05162130580975431,
+        "overfitRatio": 1.1562900686713349
+      },
+      {
+        "fold": 1,
+        "trainRanges": [
+          [
+            0,
+            315
+          ]
+        ],
+        "testRange": [
+          315,
+          378
+        ],
+        "trainDays": 315,
+        "testDays": 63,
+        "weights": {
+          "USD": 0.3200002527582811,
+          "EUR": 0.17693359462391298,
+          "JPY": 0.08118954634474979,
+          "GBP": 0.07575153004427536,
+          "CNY": 0.070000055290874,
+          "CHF": 0.06796785079212668,
+          "Gold": 0.20815717014577997
+        },
+        "ensembleTarget": {
+          "USD": 0.3699668551412903,
+          "EUR": 0.13434322550391714,
+          "JPY": 0.07800792669105736,
+          "GBP": 0.07278301294279109,
+          "CNY": 0.09863543498807362,
+          "CHF": 0.06530435703418369,
+          "Gold": 0.1809591876986868
+        },
+        "oosVolAnnualized": 0.062248999041174806,
+        "benchmarkEwVol": 0.06907131183751655,
+        "oosSharpe": 0.14207523311079556,
+        "trackingErrorVsEW": 0.02074389454912619,
+        "oosMaxDrawdown": -0.03900488457678686,
+        "weightTurnover": 0.013429619216698566,
+        "inSampleVol": 0.0535396889315365,
+        "overfitRatio": 1.1626701664399894
+      },
+      {
+        "fold": 2,
+        "trainRanges": [
+          [
+            0,
+            378
+          ]
+        ],
+        "testRange": [
+          378,
+          441
+        ],
+        "trainDays": 378,
+        "testDays": 63,
+        "weights": {
+          "USD": 0.3200004460610127,
+          "EUR": 0.1822362212046711,
+          "JPY": 0.08893179939771545,
+          "GBP": 0.06478700190822735,
+          "CNY": 0.07000009757584653,
+          "CHF": 0.059648879494090236,
+          "Gold": 0.2143955543584366
+        },
+        "ensembleTarget": {
+          "USD": 0.37162120732242016,
+          "EUR": 0.13440621090126426,
+          "JPY": 0.08296048830288251,
+          "GBP": 0.0604368892835468,
+          "CNY": 0.11951111890869716,
+          "CHF": 0.05564376525677994,
+          "Gold": 0.17542032002440916
+        },
+        "oosVolAnnualized": 0.04920012339662116,
+        "benchmarkEwVol": 0.05447932897294062,
+        "oosSharpe": 0.29768272579590005,
+        "trackingErrorVsEW": 0.019754840094210416,
+        "oosMaxDrawdown": -0.012948132493534548,
+        "weightTurnover": 0.019283499434084497,
+        "inSampleVol": 0.05580764037598992,
+        "overfitRatio": 0.8816019287887414
+      },
+      {
+        "fold": 3,
+        "trainRanges": [
+          [
+            0,
+            441
+          ]
+        ],
+        "testRange": [
+          441,
+          504
+        ],
+        "trainDays": 441,
+        "testDays": 63,
+        "weights": {
+          "USD": 0.32000041383108235,
+          "EUR": 0.1813520987507347,
+          "JPY": 0.08283237435269994,
+          "GBP": 0.07173756023637998,
+          "CNY": 0.07000009052554926,
+          "CHF": 0.060722052008571815,
+          "Gold": 0.21335541029498198
+        },
+        "ensembleTarget": {
+          "USD": 0.3783875575011983,
+          "EUR": 0.12663844397379373,
+          "JPY": 0.07764731556436946,
+          "GBP": 0.06724700361448226,
+          "CNY": 0.11527446117108239,
+          "CHF": 0.056921033241780376,
+          "Gold": 0.1778841849332934
+        },
+        "oosVolAnnualized": 0.04215866580795532,
+        "benchmarkEwVol": 0.044803789426553726,
+        "oosSharpe": -0.020637466617770096,
+        "trackingErrorVsEW": 0.01725467125655311,
+        "oosMaxDrawdown": -0.02309751928297321,
+        "weightTurnover": 0.008023730842634164,
+        "inSampleVol": 0.055125801014795445,
+        "overfitRatio": 0.7647719403957537
+      },
+      {
+        "fold": 4,
+        "trainRanges": [
+          [
+            0,
+            504
+          ]
+        ],
+        "testRange": [
+          504,
+          567
+        ],
+        "trainDays": 504,
+        "testDays": 63,
+        "weights": {
+          "USD": 0.3200003199275886,
+          "EUR": 0.1787761643205378,
+          "JPY": 0.08921943484530977,
+          "GBP": 0.06817146417040568,
+          "CNY": 0.07000006998416002,
+          "CHF": 0.06350764755136534,
+          "Gold": 0.2103248992006326
+        },
+        "ensembleTarget": {
+          "USD": 0.3692284992074828,
+          "EUR": 0.1392676455915931,
+          "JPY": 0.08483963162174325,
+          "GBP": 0.0648249108208303,
+          "CNY": 0.10295821186748352,
+          "CHF": 0.06039004206609347,
+          "Gold": 0.17849105882477356
+        },
+        "oosVolAnnualized": 0.0476148854627873,
+        "benchmarkEwVol": 0.052747911119047176,
+        "oosSharpe": 0.14842557434171275,
+        "trackingErrorVsEW": 0.021494680569786886,
+        "oosMaxDrawdown": -0.009688401735863383,
+        "weightTurnover": 0.00917265603540347,
+        "inSampleVol": 0.05348243137693618,
+        "overfitRatio": 0.8902902174959979
+      },
+      {
+        "fold": 5,
+        "trainRanges": [
+          [
+            0,
+            567
+          ]
+        ],
+        "testRange": [
+          567,
+          630
+        ],
+        "trainDays": 567,
+        "testDays": 63,
+        "weights": {
+          "USD": 0.32000031266515583,
+          "EUR": 0.17857694329154528,
+          "JPY": 0.08616625430389505,
+          "GBP": 0.07098056193505319,
+          "CNY": 0.07000006839550285,
+          "CHF": 0.06418533788938272,
+          "Gold": 0.21009052151946497
+        },
+        "ensembleTarget": {
+          "USD": 0.37012290649841434,
+          "EUR": 0.13900317731056294,
+          "JPY": 0.08202774088112462,
+          "GBP": 0.06757140819270785,
+          "CNY": 0.10381389055165273,
+          "CHF": 0.06110255467516264,
+          "Gold": 0.17635832189037481
+        },
+        "oosVolAnnualized": 0.04310764514924718,
+        "benchmarkEwVol": 0.04319002667643332,
+        "oosSharpe": -0.02897935084081732,
+        "trackingErrorVsEW": 0.02336825500501955,
+        "oosMaxDrawdown": -0.03263400661447735,
+        "weightTurnover": 0.0034867881026648465,
+        "inSampleVol": 0.05287587080629277,
+        "overfitRatio": 0.8152611860931646
+      },
+      {
+        "fold": 6,
+        "trainRanges": [
+          [
+            0,
+            630
+          ]
+        ],
+        "testRange": [
+          630,
+          693
+        ],
+        "trainDays": 630,
+        "testDays": 63,
+        "weights": {
+          "USD": 0.32000016954277083,
+          "EUR": 0.17465084996936198,
+          "JPY": 0.0894439750811017,
+          "GBP": 0.07307267337908374,
+          "CNY": 0.07000003708748112,
+          "CHF": 0.0673607067409512,
+          "Gold": 0.20547158819924932
+        },
+        "ensembleTarget": {
+          "USD": 0.35874145716139777,
+          "EUR": 0.13100261163518853,
+          "JPY": 0.08706213434663904,
+          "GBP": 0.07112679083224285,
+          "CNY": 0.10562348192132799,
+          "CHF": 0.06556693052436072,
+          "Gold": 0.1808765935788431
+        },
+        "oosVolAnnualized": 0.04855344118638588,
+        "benchmarkEwVol": 0.05690718111120321,
+        "oosSharpe": 0.010168804564336135,
+        "trackingErrorVsEW": 0.021846981765395294,
+        "oosMaxDrawdown": -0.019323461375886697,
+        "weightTurnover": 0.008545201072805687,
+        "inSampleVol": 0.051659587596707274,
+        "overfitRatio": 0.9398727989357899
+      },
+      {
+        "fold": 7,
+        "trainRanges": [
+          [
+            0,
+            693
+          ]
+        ],
+        "testRange": [
+          693,
+          756
+        ],
+        "trainDays": 693,
+        "testDays": 63,
+        "weights": {
+          "USD": 0.32000020015985026,
+          "EUR": 0.1754907291472665,
+          "JPY": 0.08852095212984702,
+          "GBP": 0.07312453727907385,
+          "CNY": 0.07000004378496724,
+          "CHF": 0.06640385614926989,
+          "Gold": 0.20645968134972528
+        },
+        "ensembleTarget": {
+          "USD": 0.3779031819464954,
+          "EUR": 0.1381572724783803,
+          "JPY": 0.08575132108229887,
+          "GBP": 0.07083662708478859,
+          "CNY": 0.08732089421481018,
+          "CHF": 0.0643262216769456,
+          "Gold": 0.17570448151628104
+        },
+        "oosVolAnnualized": 0.058867220508872296,
+        "benchmarkEwVol": 0.06564108012936663,
+        "oosSharpe": -0.006796585456394161,
+        "trackingErrorVsEW": 0.020288952033932307,
+        "oosMaxDrawdown": -0.049657510344137124,
+        "weightTurnover": 0.0018798735429360613,
+        "inSampleVol": 0.05144925854437698,
+        "overfitRatio": 1.1441801529189588
+      }
+    ],
+    "aggregate": {
+      "folds": 8,
+      "oosDaysScored": 504,
+      "mean": {
+        "oosVolAnnualized": 0.05143002297408859,
+        "benchmarkEwVol": 0.05652065995546596,
+        "oosSharpe": 0.04235064021089896,
+        "trackingErrorVsEW": 0.020856092266078825,
+        "oosMaxDrawdown": -0.029599760243856632,
+        "weightTurnover": 0.042347083172090204,
+        "inSampleVol": 0.05319519805704867,
+        "overfitRatio": 0.9693673074674662
+      },
+      "median": {
+        "oosVolAnnualized": 0.04887678229150352,
+        "benchmarkEwVol": 0.05569325504207191,
+        "oosSharpe": 0.001686109553970987,
+        "trackingErrorVsEW": 0.021119287559456537,
+        "oosMaxDrawdown": -0.02786576294872528,
+        "weightTurnover": 0.008858928554104578,
+        "inSampleVol": 0.053179151091614474,
+        "overfitRatio": 0.9150815082158938
+      }
+    }
+  },
+  "purgedKfold": {
+    "folds": [
+      {
+        "fold": 0,
+        "trainRanges": [
+          [
+            162,
+            756
+          ]
+        ],
+        "testRange": [
+          0,
+          151
+        ],
+        "trainDays": 594,
+        "testDays": 151,
+        "weights": {
+          "USD": 0.32000148179003945,
+          "EUR": 0.17746993324721072,
+          "JPY": 0.09110333288975551,
+          "GBP": 0.06263644702842733,
+          "CNY": 0.07000032414157115,
+          "CHF": 0.07000032414157115,
+          "Gold": 0.2087881567614244
+        },
+        "ensembleTarget": {
+          "USD": 0.3923548492579535,
+          "EUR": 0.13543844208192835,
+          "JPY": 0.08726867874393508,
+          "GBP": 0.056762286190973794,
+          "CNY": 0.0847467495647495,
+          "CHF": 0.07402903103850007,
+          "Gold": 0.16939996312195962
+        },
+        "oosVolAnnualized": 0.053997303753264794,
+        "benchmarkEwVol": 0.0566533062128846,
+        "oosSharpe": -0.10316713775838385,
+        "trackingErrorVsEW": 0.021420456425888634,
+        "oosMaxDrawdown": -0.06267392125987581,
+        "weightTurnover": 0.27768814322724616,
+        "inSampleVol": 0.05195242910797256,
+        "overfitRatio": 1.0393605203914984
+      },
+      {
+        "fold": 1,
+        "trainRanges": [
+          [
+            0,
+            130
+          ],
+          [
+            313,
+            756
+          ]
+        ],
+        "testRange": [
+          151,
+          302
+        ],
+        "trainDays": 573,
+        "testDays": 151,
+        "weights": {
+          "USD": 0.32000026515019586,
+          "EUR": 0.17727352616987702,
+          "JPY": 0.10348499858841129,
+          "GBP": 0.06256712688348601,
+          "CNY": 0.07000005800160534,
+          "CHF": 0.0581169355948044,
+          "Gold": 0.20855708961162
+        },
+        "ensembleTarget": {
+          "USD": 0.39940931184232176,
+          "EUR": 0.12978250100078947,
+          "JPY": 0.0992390129543172,
+          "GBP": 0.05975284591451449,
+          "CNY": 0.08682835044286616,
+          "CHF": 0.055732399893986956,
+          "Gold": 0.16925557795120388
+        },
+        "oosVolAnnualized": 0.05326086587069134,
+        "benchmarkEwVol": 0.05782094714994372,
+        "oosSharpe": -0.07745955297498722,
+        "trackingErrorVsEW": 0.02199650037865396,
+        "oosMaxDrawdown": -0.07693329855554853,
+        "weightTurnover": 0.012381665698655665,
+        "inSampleVol": 0.05187260525860017,
+        "overfitRatio": 1.0267628858271198
+      },
+      {
+        "fold": 2,
+        "trainRanges": [
+          [
+            0,
+            281
+          ],
+          [
+            464,
+            756
+          ]
+        ],
+        "testRange": [
+          302,
+          453
+        ],
+        "trainDays": 573,
+        "testDays": 151,
+        "weights": {
+          "USD": 0.3200003073653974,
+          "EUR": 0.1784315617963002,
+          "JPY": 0.09772706976155274,
+          "GBP": 0.06736028835781116,
+          "CNY": 0.07000006723618069,
+          "CHF": 0.05656122101652217,
+          "Gold": 0.2099194844662356
+        },
+        "ensembleTarget": {
+          "USD": 0.398294902828364,
+          "EUR": 0.13859907791444306,
+          "JPY": 0.09310909848130045,
+          "GBP": 0.06417726160969656,
+          "CNY": 0.08674486624774874,
+          "CHF": 0.05388849078049231,
+          "Gold": 0.16518630213795477
+        },
+        "oosVolAnnualized": 0.054846639552794285,
+        "benchmarkEwVol": 0.06116452983089176,
+        "oosSharpe": 0.15802382691285877,
+        "trackingErrorVsEW": 0.020883057360933075,
+        "oosMaxDrawdown": -0.03825797431273459,
+        "weightTurnover": 0.007313643405140808,
+        "inSampleVol": 0.05180471165286983,
+        "overfitRatio": 1.0587191358250894
+      },
+      {
+        "fold": 3,
+        "trainRanges": [
+          [
+            0,
+            432
+          ],
+          [
+            615,
+            756
+          ]
+        ],
+        "testRange": [
+          453,
+          604
+        ],
+        "trainDays": 573,
+        "testDays": 151,
+        "weights": {
+          "USD": 0.32000029133114116,
+          "EUR": 0.1779917145526651,
+          "JPY": 0.08786348364070323,
+          "GBP": 0.06828076118533492,
+          "CNY": 0.07000006372868713,
+          "CHF": 0.06646166844068604,
+          "Gold": 0.20940201712078246
+        },
+        "ensembleTarget": {
+          "USD": 0.39778807410108075,
+          "EUR": 0.13129792768575835,
+          "JPY": 0.0839184692189702,
+          "GBP": 0.06521499852214967,
+          "CNY": 0.09359548367780526,
+          "CHF": 0.06347758188246215,
+          "Gold": 0.16470746491177357
+        },
+        "oosVolAnnualized": 0.045508857196826645,
+        "benchmarkEwVol": 0.049332164390683574,
+        "oosSharpe": 0.06282317594192148,
+        "trackingErrorVsEW": 0.02064493267537872,
+        "oosMaxDrawdown": -0.01866772849808329,
+        "weightTurnover": 0.010820920251687599,
+        "inSampleVol": 0.05465880905545921,
+        "overfitRatio": 0.8325987701387964
+      },
+      {
+        "fold": 4,
+        "trainRanges": [
+          [
+            0,
+            583
+          ]
+        ],
+        "testRange": [
+          604,
+          756
+        ],
+        "trainDays": 583,
+        "testDays": 152,
+        "weights": {
+          "USD": 0.32000026673962756,
+          "EUR": 0.17731712701733557,
+          "JPY": 0.09129989555618788,
+          "GBP": 0.07071600125595673,
+          "CNY": 0.07000005834929353,
+          "CHF": 0.06205826635532137,
+          "Gold": 0.20860838472627724
+        },
+        "ensembleTarget": {
+          "USD": 0.36319395508630536,
+          "EUR": 0.13366924802438895,
+          "JPY": 0.08753233545812253,
+          "GBP": 0.06779785131719016,
+          "CNY": 0.1015155407163733,
+          "CHF": 0.059497384476420084,
+          "Gold": 0.18679368492119952
+        },
+        "oosVolAnnualized": 0.05232886958745189,
+        "benchmarkEwVol": 0.0581760932016569,
+        "oosSharpe": -0.004350683794193632,
+        "trackingErrorVsEW": 0.02144402710065247,
+        "oosMaxDrawdown": -0.05372557690147173,
+        "weightTurnover": 0.005871651986106542,
+        "inSampleVol": 0.052604742468416926,
+        "overfitRatio": 0.9947557412503129
+      }
+    ],
+    "aggregate": {
+      "folds": 5,
+      "oosDaysScored": 756,
+      "mean": {
+        "oosVolAnnualized": 0.05198850719220579,
+        "benchmarkEwVol": 0.05662940815721211,
+        "oosSharpe": 0.00717392566544311,
+        "trackingErrorVsEW": 0.021277794788301368,
+        "oosMaxDrawdown": -0.05005169990554279,
+        "weightTurnover": 0.06281520491376737,
+        "inSampleVol": 0.052578659508663736,
+        "overfitRatio": 0.9904394106865633
+      },
+      "median": {
+        "oosVolAnnualized": 0.05326086587069134,
+        "benchmarkEwVol": 0.05782094714994372,
+        "oosSharpe": -0.004350683794193632,
+        "trackingErrorVsEW": 0.021420456425888634,
+        "oosMaxDrawdown": -0.05372557690147173,
+        "weightTurnover": 0.010820920251687599,
+        "inSampleVol": 0.05195242910797256,
+        "overfitRatio": 1.0267628858271198
+      }
+    }
+  },
+  "leakageCheck": {
+    "verified": true,
+    "purgeDays": 21,
+    "embargoDays": 10,
+    "method": "mechanical index-set intersection: |train ∩ [testStart−PURGE, testEnd+EMBARGO]| counted per fold (must be 0 — the program throws otherwise); walk-forward additionally asserts |train ∩ test| = 0 per fold",
+    "perFold": [
+      {
+        "fold": 0,
+        "testRange": [
+          0,
+          151
+        ],
+        "exclusionZone": [
+          0,
+          161
+        ],
+        "trainDays": 594,
+        "excludedDays": 162,
+        "trainIntersectionWithZone": 0,
+        "ok": true
+      },
+      {
+        "fold": 1,
+        "testRange": [
+          151,
+          302
+        ],
+        "exclusionZone": [
+          130,
+          312
+        ],
+        "trainDays": 573,
+        "excludedDays": 183,
+        "trainIntersectionWithZone": 0,
+        "ok": true
+      },
+      {
+        "fold": 2,
+        "testRange": [
+          302,
+          453
+        ],
+        "exclusionZone": [
+          281,
+          463
+        ],
+        "trainDays": 573,
+        "excludedDays": 183,
+        "trainIntersectionWithZone": 0,
+        "ok": true
+      },
+      {
+        "fold": 3,
+        "testRange": [
+          453,
+          604
+        ],
+        "exclusionZone": [
+          432,
+          614
+        ],
+        "trainDays": 573,
+        "excludedDays": 183,
+        "trainIntersectionWithZone": 0,
+        "ok": true
+      },
+      {
+        "fold": 4,
+        "testRange": [
+          604,
+          756
+        ],
+        "exclusionZone": [
+          583,
+          755
+        ],
+        "trainDays": 583,
+        "excludedDays": 173,
+        "trainIntersectionWithZone": 0,
+        "ok": true
+      }
+    ],
+    "walkForward": {
+      "perFold": [
+        {
+          "fold": 0,
+          "trainRange": [
+            0,
+            252
+          ],
+          "testRange": [
+            252,
+            315
+          ],
+          "trainIntersectionWithTest": 0,
+          "ok": true
+        },
+        {
+          "fold": 1,
+          "trainRange": [
+            0,
+            315
+          ],
+          "testRange": [
+            315,
+            378
+          ],
+          "trainIntersectionWithTest": 0,
+          "ok": true
+        },
+        {
+          "fold": 2,
+          "trainRange": [
+            0,
+            378
+          ],
+          "testRange": [
+            378,
+            441
+          ],
+          "trainIntersectionWithTest": 0,
+          "ok": true
+        },
+        {
+          "fold": 3,
+          "trainRange": [
+            0,
+            441
+          ],
+          "testRange": [
+            441,
+            504
+          ],
+          "trainIntersectionWithTest": 0,
+          "ok": true
+        },
+        {
+          "fold": 4,
+          "trainRange": [
+            0,
+            504
+          ],
+          "testRange": [
+            504,
+            567
+          ],
+          "trainIntersectionWithTest": 0,
+          "ok": true
+        },
+        {
+          "fold": 5,
+          "trainRange": [
+            0,
+            567
+          ],
+          "testRange": [
+            567,
+            630
+          ],
+          "trainIntersectionWithTest": 0,
+          "ok": true
+        },
+        {
+          "fold": 6,
+          "trainRange": [
+            0,
+            630
+          ],
+          "testRange": [
+            630,
+            693
+          ],
+          "trainIntersectionWithTest": 0,
+          "ok": true
+        },
+        {
+          "fold": 7,
+          "trainRange": [
+            0,
+            693
+          ],
+          "testRange": [
+            693,
+            756
+          ],
+          "trainIntersectionWithTest": 0,
+          "ok": true
+        }
+      ]
+    }
+  },
+  "disclosure": "PILOT-SCALE RUN RECORD — internal evidence only. This record is a pilot-scale execution of §23.3 rolling walk-forward validation (8 folds, 252d initial train / 63d test / 63d step) and §23.4 purged/embargoed K-fold cross-validation (K=5, 21-day purge, 10-day embargo, mechanically verified empty train/test intersection) over the engine's deterministic simulated 756-day daily return series (fixed-seed one-factor model, disclosed loadings, disclosed baseline calibration — NOT live market data). It is NOT the production §23.3/§23.4 program, which requires ≥10 years of validated multi-source market data and the full §23.12 evidence sequence. No §25.5 validation gate is claimed as passed by this record. All figures are descriptive statistics of this simulated exercise only — never pass/fail claims, and never performance claims about MTQΣ (§23.1 negative rule: Perf(old architecture) ⇏ Perf(MTQΣ))."
+}

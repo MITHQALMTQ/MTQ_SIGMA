@@ -246,6 +246,14 @@ export type VoteOption = "YES" | "NO" | "ABSTAIN";
 // ONLY touch these keys. Anything resembling MTQ monetary registry parameters
 // is REJECTED at submission (Part 2 rules 2/3: network governance must not
 // acquire control over MTQ monetary governance).
+//
+// rewards_enabled / block_reward_u (Task-42): the block-reward ENGINE switch
+// and per-block amount for uMTQD testnet credit, paid from the devnet
+// treasury per the Network Economics Specification DRAFT
+// (docs/NETWORK-ECONOMICS-SPEC-DRAFT.md). Values are network territory (the
+// fee asset, not the MTQ monetary registry) BUT default OFF (0) — activation
+// is dual-gated: owner ratification of the DRAFT + a network governance
+// vote on rewards_enabled. Nothing is paid until both gates clear.
 export const NETWORK_PARAM_ALLOWLIST: Record<string, { min: number; max: number; note: string }> = {
   base_fee_u: { min: 0, max: 1_000_000, note: "minimum tx fee in uMTQD" },
   max_block_txs: { min: 1, max: 5000, note: "transactions per block cap" },
@@ -253,6 +261,8 @@ export const NETWORK_PARAM_ALLOWLIST: Record<string, { min: number; max: number;
   timelock_s: { min: 0, max: 86400, note: "passed-proposal execution delay seconds" },
   heartbeat_ms: { min: 1000, max: 60000, note: "empty-block heartbeat interval ms" },
   unbonding_s: { min: 0, max: 2_592_000, note: "unbonding queue period seconds (0 = immediate release)" },
+  rewards_enabled: { min: 0, max: 1, note: "block-reward engine switch (0 = OFF — activation awaits owner ratification of the Network Economics Specification DRAFT + governance vote)" },
+  block_reward_u: { min: 0, max: 1_000_000_000, note: "per-block reward in uMTQD paid from the devnet treasury when rewards_enabled=1 (uMTQD testnet credit only — NEVER MTQΣ; production value awaits ratification)" },
 };
 
 // Substrings that identify monetary-registry territory — rejected outright.
@@ -308,6 +318,13 @@ export interface ChainParams {
   timelock_s: number;
   heartbeat_ms: number;
   unbonding_s: number;
+  /** Block-reward engine switch (Task-42 Network Economics DRAFT). 0 = OFF —
+  *  the shipped default; no reward is paid anywhere until the owner ratifies
+  *  the DRAFT values AND network governance votes activation. */
+  rewards_enabled: number;
+  /** Per-block reward in uMTQD (testnet credit) paid from the devnet treasury
+  *  when rewards_enabled=1. Default 0. Never MTQΣ (constitutional). */
+  block_reward_u: number;
 }
 
 export const DEFAULT_CHAIN_PARAMS: ChainParams = {
@@ -317,4 +334,6 @@ export const DEFAULT_CHAIN_PARAMS: ChainParams = {
   timelock_s: 15,
   heartbeat_ms: 5000,
   unbonding_s: 30, // devnet-paced queue (production value awaits the approved Network Economics Specification)
+  rewards_enabled: 0, // OFF — Network Economics Specification DRAFT awaits owner ratification (Task-42)
+  block_reward_u: 0, // OFF (with rewards_enabled) — no reward stream until dual-gate activation
 };

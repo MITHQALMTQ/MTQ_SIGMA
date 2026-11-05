@@ -6,14 +6,15 @@
 //   • /api/chain/tx?recent=1               — latest 25 committed txs
 //   • /api/chain/validators                — address → moniker lookup
 // Search resolves height | blk_… | tx_… | mtq1… (block/tx detail dialogs,
-// inline account view). Detail dialogs fetch once per open — a FAILED receipt
-// is shown as FAILED, never hidden; empty blocks say so.
+// rich account detail view — balances, staking queues, governance ballots,
+// validator role, recent txs). Detail dialogs fetch once per open — a FAILED
+// receipt is shown as FAILED, never hidden; empty blocks say so.
 //
 // TASK 40-c — section contract: ExplorerSection() takes no props.
 
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { toast } from "sonner";
 import { Search, ShieldAlert, X, ChevronLeft, ChevronRight, UserRound } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -34,7 +35,7 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
-import { Panel, Pill, Reveal, SectionHeading, Skeleton } from "@/components/mtq/primitives";
+import { Panel, Pill, Reveal, SectionHeading, Skeleton, GlowDot } from "@/components/mtq/primitives";
 import {
   CopyMono,
   FieldCell,
@@ -44,14 +45,20 @@ import {
   TxResultBadge,
   TxTypePill,
   ValidatorStatusPill,
+  fmtDuration,
   fmtMicro,
   fmtPower,
+  useChainBlockStream,
   useChainPoll,
   type AccountDto,
+  type AccountVoteDto,
   type BlockDetailDto,
   type BlockRowDto,
   type BlocksPageDto,
+  type GovProposalDto,
+  type StakeRowDto,
   type TxRowDto,
+  type UnbondingRowDto,
   type ValidatorDto,
 } from "@/components/mtq/chain/chain-kit";
 import { fmtAgo, fmtTime, shortAddr, copyToClipboard } from "@/components/mtq/format";
@@ -106,6 +113,28 @@ function txCounterparty(raw: TxRowDto["raw"]): string | null {
   return null;
 }
 
+/* ---------- account-view helpers ---------- */
+
+/** Proposal status → badge classes (same tone map as StakingSection — kept
+ *  local per the self-contained-sections convention). */
+function proposalStatusBadge(status: GovProposalDto["status"]): string {
+  switch (status) {
+    case "VOTING":
+      return "border-mtqs-amber/40 bg-mtqs-amber/10 text-mtqs-amber";
+    case "PASSED":
+      return "border-mtqs-emerald/40 bg-mtqs-emerald/10 text-mtqs-emerald";
+    case "EXECUTED":
+      return "border-mtqs-emerald bg-mtqs-emerald text-white";
+    case "REJECTED":
+    case "FAILED_EXECUTION":
+      return "border-mtqs-rose/40 bg-mtqs-rose/10 text-mtqs-rose";
+    case "EXECUTION_QUEUED":
+      return "border-slate-300 bg-slate-100 text-slate-600";
+    default:
+      return "border-[#E3EAE6] bg-[#F7FAF8] text-[#5B6E68]";
+  }
+}
+
 /* ============================================================ */
 
 export function ExplorerSection() {
@@ -136,6 +165,19 @@ export function ExplorerSection() {
     accountAddr ? `/api/chain/account?a=${accountAddr}` : null,
     POLL_MS,
   );
+
+  // TASK-42 — live SSE block-event push: refresh the boards the instant a
+  // block commits (throttled ≥700ms). Polling remains the correctness path;
+  // a down stream just leaves the 3s cadence.
+  const lastPushRefreshRef = useRef(0);
+  const blockStream = useChainBlockStream(() => {
+    const now = Date.now();
+    if (now - lastPushRefreshRef.current < 700) return;
+    lastPushRefreshRef.current = now;
+    blocks.refresh();
+    recentTxs.refresh();
+    if (accountAddr) account.refresh();
+  });
 
   function runSearch(e: React.FormEvent) {
     e.preventDefault();
@@ -169,13 +211,17 @@ export function ExplorerSection() {
         className="mb-0"
         right={
           <div className="flex flex-wrap items-center gap-2">
+            <Pill tone={blockStream.connected ? "emerald" : "muted"}>
+              <GlowDot color={blockStream.connected ? "emerald" : undefined} size="h-1.5 w-1.5" />
+              {blockStream.connected ? "SSE live" : "poll only"}
+            </Pill>
             <LiveClockPill
               stale={blocks.stale}
               lastReadAt={blocks.lastReadAt}
               loading={blocks.loading}
             />
             <Pill tone="muted" className="font-mono">
-              tip {blocks.data ? blocks.data.height.toLocaleString("en-US") : "—"}
+              tip {blockStream.lastEvent ? blockStream.lastEvent.height.toLocaleString("en-US") : blocks.data ? blocks.data.height.toLocaleString("en-US") : "—"}
             </Pill>
           </div>
         }
@@ -217,10 +263,10 @@ export function ExplorerSection() {
         </Panel>
       </Reveal>
 
-      {/* ─── Inline account view (search: mtq1…) ─── */}
+      {/* ─── Rich account detail view (search: mtq1…) ─── */}
       {accountAddr ? (
         <Reveal>
-          <Panel className="p-5">
+          <Panel className="p-4 sm:p-5">
             <div className="mb-4 flex flex-wrap items-center justify-between gap-2">
               <h3 className="flex items-center gap-2 text-sm font-semibold text-[#0E1F1B]">
                 <UserRound className="h-4 w-4 text-mtqs-gold" aria-hidden="true" />
@@ -244,20 +290,29 @@ export function ExplorerSection() {
                 </Button>
               </div>
             </div>
+            {account.stale && account.error && account.data ? (
+              <StaleStrip error={account.error} source="/api/chain/account" />
+            ) : null}
             {account.error && !account.data ? (
-              <p className="rounded-lg border border-rose-200 bg-rose-50 px-3 py-3 text-[0.72rem] text-rose-600">
-                Account lookup failed ({account.error}).
-              </p>
+              <div className="flex items-start gap-3 rounded-lg border border-rose-200 bg-rose-50 px-3 py-3">
+                <ShieldAlert className="mt-0.5 h-4 w-4 shrink-0 text-mtqs-rose" aria-hidden="true" />
+                <p className="text-[0.72rem] text-rose-600">
+                  Account lookup failed ({account.error}) — no balances are shown rather than
+                  fabricated values.
+                </p>
+              </div>
             ) : account.data ? (
               <AccountView
                 account={account.data}
                 loading={account.loading}
+                readAt={account.lastReadAt}
                 onOpenBlock={(h) => setBlockQuery(String(h))}
                 onOpenTx={(h) => setTxQuery(h)}
               />
             ) : (
               <div className="space-y-2">
                 <Skeleton className="h-24 rounded-xl" />
+                <Skeleton className="h-40 rounded-xl" />
                 <Skeleton className="h-40 rounded-xl" />
               </div>
             )}
@@ -977,24 +1032,46 @@ function TxDetailDialog({
 }
 
 /* ============================================================
-   Account view (inline card)
+   Account view — rich detail panel (Task 42-D)
+   Full-width account sheet: identity header (address · exists/
+   unknown · nonce), balances row, staking block (bonded positions +
+   unbonding queue with live countdowns), governance ballots, validator
+   role (only when the account IS one), recent transactions. Every empty
+   state is an honest line — nothing is fabricated.
    ============================================================ */
 
 function AccountView({
   account,
   loading,
+  readAt,
   onOpenBlock,
   onOpenTx,
 }: {
   account: AccountDto;
   loading: boolean;
+  readAt: number | null;
   onOpenBlock: (height: number) => void;
   onOpenTx: (hash: string) => void;
 }) {
+  // 1s ticker so unbonding countdowns advance between polls (StakingSection
+  // pattern). release_in_ms is anchored at the server read, so the live
+  // countdown subtracts client-side elapsed time since readAt — immune to
+  // server/client clock skew.
+  const [now, setNow] = useState(() => Date.now());
+  useEffect(() => {
+    const id = setInterval(() => setNow(Date.now()), 1000);
+    return () => clearInterval(id);
+  }, []);
+  const elapsedSinceRead = readAt == null ? 0 : Math.max(0, now - readAt);
+
   return (
-    <div className="space-y-4">
-      <div className="flex flex-wrap items-center gap-2">
-        <span className="font-mono text-[0.78rem] break-all text-[#0E1F1B]" title={account.address}>
+    <div className="space-y-5">
+      {/* Identity header — full address, copy affordance, exists/unknown, nonce */}
+      <div className="flex flex-wrap items-center gap-x-3 gap-y-1.5">
+        <span
+          className="font-mono text-[0.78rem] break-all text-[#0E1F1B]"
+          title={account.address}
+        >
           {account.address}
         </span>
         <button
@@ -1015,97 +1092,151 @@ function AccountView({
             on-chain
           </Pill>
         ) : (
-          <Pill tone="muted">not seen on-chain (zero balances)</Pill>
+          <Pill tone="muted">unknown</Pill>
         )}
+        <Pill tone="muted" className="font-mono">
+          nonce {account.nonce}
+        </Pill>
         {loading ? <Pill tone="muted">refreshing…</Pill> : null}
       </div>
 
-      <div className="grid grid-cols-2 gap-2 sm:grid-cols-4">
-        <FieldCell label="MTQD balance" mono>
-          {fmtMicro(account.fee_u)}
-        </FieldCell>
-        <FieldCell label="PMTQ balance" mono>
-          {fmtMicro(account.pmtq_u)}
-        </FieldCell>
-        <FieldCell label="Bonded" mono>
-          {fmtMicro(account.bonded_u)}
-        </FieldCell>
-        <FieldCell label="Nonce" mono>{account.nonce}</FieldCell>
-      </div>
-
-      <p className="text-[0.62rem] text-[#7A8C86]">
-        MTQD is a testnet-only fee credit · PMTQ is a non-canonical pilot ledger mirror.
-      </p>
-
-      {account.validator ? (
-        <div className="rounded-lg border border-mtqs-gold/25 bg-mtqs-gold/[0.04] p-3">
-          <div className="mb-1.5 flex flex-wrap items-center gap-2">
-            <span className="text-[0.8rem] font-semibold text-[#0E1F1B]">
-              {account.validator.moniker}
-            </span>
-            <ValidatorStatusPill status={account.validator.status} />
-            <Pill tone="muted" className="font-mono">
-              power {fmtPower(account.validator.power)}
-            </Pill>
-          </div>
-          <div className="flex flex-wrap gap-x-4 gap-y-1 text-[0.64rem] text-[#5B6E68]">
-            <span>
-              self-stake{" "}
-              <span className="font-mono tabular-nums text-[#33544C]">
-                {fmtMicro(account.validator.self_stake)} MTQD
-              </span>
-            </span>
-            <span>
-              delegated{" "}
-              <span className="font-mono tabular-nums text-[#33544C]">
-                {fmtMicro(account.validator.delegated)} MTQD
-              </span>
-            </span>
-            <span>
-              commission{" "}
-              <span className="font-mono tabular-nums text-[#33544C]">
-                {(account.validator.commission_bp / 100).toFixed(2)}%
-              </span>
-            </span>
-            <span>
-              joined height{" "}
-              <span className="font-mono tabular-nums text-[#33544C]">
-                #{account.validator.joined_height.toLocaleString("en-US")}
-              </span>
-            </span>
-          </div>
+      {/* Unknown-account state — honest zeros, never invented history */}
+      {!account.exists ? (
+        <div className="flex items-start gap-2.5 rounded-lg border border-[#E3EAE6] bg-[#FAFCFA] px-3 py-2.5">
+          <UserRound className="mt-0.5 h-4 w-4 shrink-0 text-[#7A8C86]" aria-hidden="true" />
+          <p className="text-[0.7rem] leading-relaxed text-[#5B6E68]">
+            Account not found on-chain (no nonce, no balance, no history) — the address is valid
+            mtq1 form, but the chain has recorded no activity for it. The blocks below read zero
+            and empty, honestly.
+          </p>
         </div>
       ) : null}
 
-      {account.stakes.length > 0 ? (
-        <div>
-          <p className="mb-1.5 text-[0.6rem] uppercase tracking-[0.18em] text-[#5B6E68]">
+      {/* Balances row */}
+      <section className="space-y-2">
+        <p className="text-[0.6rem] uppercase tracking-[0.18em] text-[#5B6E68]">Balances</p>
+        <div className="grid grid-cols-2 gap-2 sm:grid-cols-4">
+          <FieldCell label="MTQD · testnet credit" mono>
+            {fmtMicro(account.fee_u, 3)}{" "}
+            <span className="text-[0.6rem] text-[#7A8C86]">MTQD</span>
+          </FieldCell>
+          <FieldCell label="PMTQ · non-canonical mirror" mono>
+            {fmtMicro(account.pmtq_u, 3)}{" "}
+            <span className="text-[0.6rem] text-[#7A8C86]">PMTQ</span>
+          </FieldCell>
+          <FieldCell label="Bonded (staked)" mono>
+            {fmtMicro(account.bonded_u)}{" "}
+            <span className="text-[0.6rem] text-[#7A8C86]">MTQD</span>
+          </FieldCell>
+          <FieldCell label="Unbonding (queued)" mono>
+            {fmtMicro(account.unbonding_u)}{" "}
+            <span className="text-[0.6rem] text-[#7A8C86]">MTQD</span>
+          </FieldCell>
+        </div>
+        <p className="text-[0.62rem] text-[#7A8C86]">
+          MTQD is devnet uMTQD — a testnet-only fee credit · PMTQ is a NON-CANONICAL pilot
+          ledger mirror; canonical MTQΣ supply accounting stays in the monetary protocol
+          engine.
+        </p>
+      </section>
+
+      {/* Staking block — bonded positions + unbonding queue */}
+      <section className="space-y-3">
+        <p className="text-[0.6rem] uppercase tracking-[0.18em] text-[#5B6E68]">Staking</p>
+        <div className="space-y-1.5">
+          <p className="text-[0.66rem] font-medium text-[#33544C]">
             Bonded positions ({account.stakes.length})
           </p>
-          <div className="overflow-hidden rounded-lg border border-[#E3EAE6]">
-            <ul className="divide-y divide-[#EDF2EF]">
-              {account.stakes.map((s, i) => (
-                <li
-                  key={s.id ?? `${s.validator}-${i}`}
-                  className="flex flex-wrap items-center gap-x-3 gap-y-1 bg-white px-3 py-2 text-[0.68rem]"
-                >
-                  <span className="font-semibold text-[#0E1F1B]">{s.validator_moniker}</span>
-                  <ValidatorStatusPill status={s.validator_status} />
-                  <span className="font-mono tabular-nums text-[#33544C]">
-                    {fmtMicro(s.amount_u)} MTQD
-                  </span>
-                  <span className="ml-auto text-[0.62rem] text-[#7A8C86]">
-                    bonded at #{s.created_height.toLocaleString("en-US")}
-                  </span>
-                </li>
-              ))}
-            </ul>
-          </div>
+          {account.stakes.length > 0 ? (
+            <AccountStakesTable stakes={account.stakes} />
+          ) : (
+            <p className="rounded-lg border border-[#E3EAE6] bg-[#FAFCFA] px-3 py-2.5 text-[0.7rem] text-[#5B6E68]">
+              No bonded positions — this account delegates to no validator.
+            </p>
+          )}
         </div>
+        <div className="space-y-1.5">
+          <p className="text-[0.66rem] font-medium text-[#33544C]">
+            Unbonding queue ({account.unbondings.length})
+          </p>
+          {account.unbondings.length > 0 ? (
+            <AccountUnbondingsTable unbondings={account.unbondings} elapsed={elapsedSinceRead} />
+          ) : (
+            <p className="rounded-lg border border-[#E3EAE6] bg-[#FAFCFA] px-3 py-2.5 text-[0.7rem] text-[#5B6E68]">
+              No unbonding entries — nothing time-locked in the release queue.
+            </p>
+          )}
+        </div>
+      </section>
+
+      {/* Governance block — ballots cast by this account */}
+      <section className="space-y-1.5">
+        <p className="text-[0.6rem] uppercase tracking-[0.18em] text-[#5B6E68]">
+          Governance participation
+        </p>
+        {account.votes.length > 0 ? (
+          <AccountVotesTable votes={account.votes} />
+        ) : (
+          <p className="rounded-lg border border-[#E3EAE6] bg-[#FAFCFA] px-3 py-2.5 text-[0.7rem] text-[#5B6E68]">
+            No governance votes cast by this address.
+          </p>
+        )}
+        <p className="text-[0.62rem] text-[#7A8C86]">
+          Ballots across the 50 most recent proposals (bounded lookup — ballots on older
+          proposals are not shown here).
+        </p>
+      </section>
+
+      {/* Validator block — only when this account IS a validator */}
+      {account.validator ? (
+        <section className="space-y-1.5">
+          <p className="text-[0.6rem] uppercase tracking-[0.18em] text-[#5B6E68]">Validator role</p>
+          <div className="rounded-lg border border-mtqs-gold/25 bg-mtqs-gold/[0.04] p-3">
+            <div className="mb-1.5 flex flex-wrap items-center gap-2">
+              <span className="text-[0.8rem] font-semibold text-[#0E1F1B]">
+                {account.validator.moniker}
+              </span>
+              <ValidatorStatusPill status={account.validator.status} />
+              <Pill tone="muted" className="font-mono">
+                power {fmtPower(account.validator.power)}
+              </Pill>
+            </div>
+            <div className="flex flex-wrap gap-x-4 gap-y-1 text-[0.64rem] text-[#5B6E68]">
+              <span>
+                self-stake{" "}
+                <span className="font-mono tabular-nums text-[#33544C]">
+                  {fmtMicro(account.validator.self_stake)} MTQD
+                </span>
+              </span>
+              <span>
+                delegated{" "}
+                <span className="font-mono tabular-nums text-[#33544C]">
+                  {fmtMicro(account.validator.delegated)} MTQD
+                </span>
+              </span>
+              <span title="Commission is informational only — rewards_enabled is default OFF (no reward stream anywhere)">
+                commission{" "}
+                <span className="font-mono tabular-nums text-[#33544C]">
+                  {(account.validator.commission_bp / 100).toFixed(2)}%
+                </span>{" "}
+                <span className="text-[#7A8C86]">
+                  (informational — no reward stream by default)
+                </span>
+              </span>
+              <span>
+                joined height{" "}
+                <span className="font-mono tabular-nums text-[#33544C]">
+                  #{account.validator.joined_height.toLocaleString("en-US")}
+                </span>
+              </span>
+            </div>
+          </div>
+        </section>
       ) : null}
 
-      <div>
-        <p className="mb-1.5 text-[0.6rem] uppercase tracking-[0.18em] text-[#5B6E68]">
+      {/* Recent transactions — last 25 touching this address */}
+      <section className="space-y-1.5">
+        <p className="text-[0.6rem] uppercase tracking-[0.18em] text-[#5B6E68]">
           Recent transactions ({account.recent_txs.length})
         </p>
         {account.recent_txs.length === 0 ? (
@@ -1137,13 +1268,166 @@ function AccountView({
                   >
                     #{t.height.toLocaleString("en-US")}
                   </button>
-                  <span className="ml-auto text-[0.62rem] text-[#7A8C86]">{fmtAgo(t.time_ms)}</span>
+                  <span
+                    className="ml-auto text-[0.62rem] text-[#7A8C86]"
+                    title={fmtTime(t.time_ms)}
+                  >
+                    {fmtTime(t.time_ms)} ({fmtAgo(t.time_ms)})
+                  </span>
                 </li>
               ))}
             </ul>
           </div>
         )}
-      </div>
+        <p className="text-[0.62rem] text-[#7A8C86]">
+          Last 25 committed transactions touching this address (from or to) — FAILED receipts
+          render as failures, never hidden.
+        </p>
+      </section>
+    </div>
+  );
+}
+
+/* ============================================================
+   Account sub-tables (bonded / unbonding / governance)
+   ============================================================ */
+
+/** Bonded delegation positions — validator moniker, status pill, amount. */
+function AccountStakesTable({ stakes }: { stakes: StakeRowDto[] }) {
+  return (
+    <div className="overflow-x-auto">
+      <Table className="min-w-[560px]">
+        <TableHeader>
+          <TableRow className="border-[#E3EAE6] hover:bg-transparent">
+            <TableHead className="text-[0.6rem] uppercase tracking-[0.16em] text-[#5B6E68]">Validator</TableHead>
+            <TableHead className="text-[0.6rem] uppercase tracking-[0.16em] text-[#5B6E68]">Status</TableHead>
+            <TableHead className="text-right text-[0.6rem] uppercase tracking-[0.16em] text-[#5B6E68]">Amount</TableHead>
+            <TableHead className="text-right text-[0.6rem] uppercase tracking-[0.16em] text-[#5B6E68]">Bonded at</TableHead>
+          </TableRow>
+        </TableHeader>
+        <TableBody>
+          {stakes.map((s, i) => (
+            <TableRow key={s.id ?? `${s.validator}-${i}`} className="border-[#EDF2EF]">
+              <TableCell className="py-2 text-[0.72rem] font-semibold text-[#0E1F1B]" title={s.validator}>
+                {s.validator_moniker}
+              </TableCell>
+              <TableCell className="py-2">
+                <ValidatorStatusPill status={s.validator_status} />
+              </TableCell>
+              <TableCell className="py-2 text-right font-mono tabular-nums text-[0.72rem] text-[#33544C]">
+                {fmtMicro(s.amount_u)} MTQD
+              </TableCell>
+              <TableCell className="py-2 text-right font-mono tabular-nums text-[0.68rem] text-[#5B6E68]">
+                #{s.created_height.toLocaleString("en-US")}
+              </TableCell>
+            </TableRow>
+          ))}
+        </TableBody>
+      </Table>
+    </div>
+  );
+}
+
+/** Unbonding queue — time-locked releases with a live countdown driven by
+ *  release_in_ms minus client-elapsed time since the last successful read. */
+function AccountUnbondingsTable({
+  unbondings,
+  elapsed,
+}: {
+  unbondings: UnbondingRowDto[];
+  elapsed: number;
+}) {
+  return (
+    <div className="overflow-x-auto">
+      <Table className="min-w-[640px]">
+        <TableHeader>
+          <TableRow className="border-[#E3EAE6] hover:bg-transparent">
+            <TableHead className="text-[0.6rem] uppercase tracking-[0.16em] text-[#5B6E68]">Validator</TableHead>
+            <TableHead className="text-right text-[0.6rem] uppercase tracking-[0.16em] text-[#5B6E68]">Amount</TableHead>
+            <TableHead className="text-[0.6rem] uppercase tracking-[0.16em] text-[#5B6E68]">Release</TableHead>
+            <TableHead className="text-right text-[0.6rem] uppercase tracking-[0.16em] text-[#5B6E68]">Queued at</TableHead>
+          </TableRow>
+        </TableHeader>
+        <TableBody>
+          {unbondings.map((u) => {
+            const left = Math.max(0, u.release_in_ms - elapsed);
+            return (
+              <TableRow key={u.id} className="border-[#EDF2EF]">
+                <TableCell className="py-2 text-[0.72rem] font-semibold text-[#0E1F1B]" title={u.validator}>
+                  {u.validator_moniker}
+                </TableCell>
+                <TableCell className="py-2 text-right font-mono tabular-nums text-[0.72rem] text-[#33544C]">
+                  {fmtMicro(u.amount_u)} MTQD
+                </TableCell>
+                <TableCell className="py-2">
+                  <span className="inline-flex flex-wrap items-center gap-2">
+                    <Pill tone={left > 0 ? "amber" : "emerald"}>
+                      {left > 0 ? "unbonding" : "mature"}
+                    </Pill>
+                    <span className="font-mono text-[0.62rem] text-[#7A8C86]">
+                      {left > 0 ? `releases in ${fmtDuration(left)}` : "releases at next block"}
+                    </span>
+                  </span>
+                </TableCell>
+                <TableCell className="py-2 text-right font-mono tabular-nums text-[0.68rem] text-[#5B6E68]">
+                  #{u.created_height.toLocaleString("en-US")}
+                </TableCell>
+              </TableRow>
+            );
+          })}
+        </TableBody>
+      </Table>
+    </div>
+  );
+}
+
+/** Governance ballots cast by this account — proposal, its status, the vote
+ *  option (YES emerald · NO rose · ABSTAIN muted — StakingSection tone map)
+ *  and the voting power the ballot carried. */
+function AccountVotesTable({ votes }: { votes: AccountVoteDto[] }) {
+  return (
+    <div className="overflow-x-auto">
+      <Table className="min-w-[720px]">
+        <TableHeader>
+          <TableRow className="border-[#E3EAE6] hover:bg-transparent">
+            <TableHead className="text-[0.6rem] uppercase tracking-[0.16em] text-[#5B6E68]">Proposal</TableHead>
+            <TableHead className="text-[0.6rem] uppercase tracking-[0.16em] text-[#5B6E68]">Status</TableHead>
+            <TableHead className="text-[0.6rem] uppercase tracking-[0.16em] text-[#5B6E68]">Vote</TableHead>
+            <TableHead className="text-right text-[0.6rem] uppercase tracking-[0.16em] text-[#5B6E68]">Power</TableHead>
+            <TableHead className="text-right text-[0.6rem] uppercase tracking-[0.16em] text-[#5B6E68]">Cast at</TableHead>
+          </TableRow>
+        </TableHeader>
+        <TableBody>
+          {votes.map((v) => (
+            <TableRow key={`${v.proposal_id}-${v.height}`} className="border-[#EDF2EF]">
+              <TableCell className="py-2 text-[0.72rem] text-[#33544C]">
+                <span className="font-mono font-semibold text-mtqs-gold">#{v.proposal_id}</span>{" "}
+                <span className="align-middle">{v.proposal_title}</span>
+              </TableCell>
+              <TableCell className="py-2">
+                <span
+                  className={`inline-flex items-center rounded-full border px-2.5 py-0.5 text-[0.6875rem] font-medium ${proposalStatusBadge(
+                    v.proposal_status,
+                  )}`}
+                >
+                  {v.proposal_status}
+                </span>
+              </TableCell>
+              <TableCell className="py-2">
+                <Pill tone={v.option === "YES" ? "emerald" : v.option === "NO" ? "rose" : "muted"}>
+                  <span className="font-mono">{v.option}</span>
+                </Pill>
+              </TableCell>
+              <TableCell className="py-2 text-right font-mono tabular-nums text-[0.72rem] text-[#33544C]">
+                {fmtPower(v.power)}
+              </TableCell>
+              <TableCell className="py-2 text-right font-mono tabular-nums text-[0.68rem] text-[#5B6E68]">
+                #{v.height.toLocaleString("en-US")}
+              </TableCell>
+            </TableRow>
+          ))}
+        </TableBody>
+      </Table>
     </div>
   );
 }
