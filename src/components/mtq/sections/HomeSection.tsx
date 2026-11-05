@@ -210,9 +210,17 @@ function QuickStatsRow({ snapshot }: { snapshot: MetricsSnapshot | null }) {
 
 /* ---------- Live stats band (GFB / Price / NAV / RR) ---------- */
 function LiveStatsBand({ snapshot }: { snapshot: MetricsSnapshot | null }) {
+  // TASK-38 / F-38-2: unify the no-liability RR convention with every other
+  // surface (hero pill, QuickStatsRow, sidebar capsule, header ticker all
+  // print "∞"). This band previously printed "—" — same state, three
+  // different glyphs. `reserveRatio` is `null` here when the engine computed
+  // Infinity (JSON transport) — zero circulating liability, fully reserved.
+  const rrInfinite = snapshot != null && !Number.isFinite(snapshot.reserveRatio);
   const rrTxt = snapshot && Number.isFinite(snapshot.reserveRatio)
     ? fmtRatio(snapshot.reserveRatio)
-    : "—";
+    : rrInfinite
+    ? "∞"
+    : null;
   const rrTone =
     !snapshot || !Number.isFinite(snapshot.reserveRatio)
       ? "text-mtqs-emerald"
@@ -222,11 +230,16 @@ function LiveStatsBand({ snapshot }: { snapshot: MetricsSnapshot | null }) {
       ? "text-mtqs-amber"
       : "text-mtqs-rose";
 
-  const stats = [
+  const stats: { label: string; value: string | null; tone: string; hint?: string }[] = [
     { label: "Reference Index", value: snapshot ? fmtFixed(snapshot.gfbIndex, 4) : null, tone: "text-mtqs-gold-light" },
     { label: "Reference Value", value: snapshot ? fmtFixed(snapshot.mtqPrice, 4) : null, tone: snapshot?.priceInBand ? "text-mtqs-emerald" : "text-mtqs-rose" },
     { label: "Pilot Ledger NAV", value: snapshot ? fmtUsdCompact(snapshot.nav) : null, tone: "text-[#0E1F1B]" },
-    { label: "Reserve Ratio (legacy)", value: snapshot ? rrTxt : null, tone: rrTone },
+    {
+      label: "Reserve Ratio (legacy)",
+      value: rrTxt,
+      tone: rrTone,
+      hint: rrInfinite ? "no circulating liability — fully reserved" : undefined,
+    },
   ];
 
   return (
@@ -251,6 +264,9 @@ function LiveStatsBand({ snapshot }: { snapshot: MetricsSnapshot | null }) {
           ) : (
             <Skeleton className="h-7 w-24" />
           )}
+          {s.value && s.hint ? (
+            <div className="mt-0.5 text-[0.6rem] leading-tight text-[#7A8C86]">{s.hint}</div>
+          ) : null}
         </Panel>
       ))}
       </div>

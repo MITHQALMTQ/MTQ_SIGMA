@@ -155,8 +155,19 @@ export function LiveTicker({ snapshot }: { snapshot: MetricsSnapshot | null }) {
       ? `${snapshot.oracle?.pairs.filter((p) => !p.paused).length ?? 0}/${snapshot.oracle?.pairs.length ?? 0} · DEGRADED (redeem open)`
       : `${snapshot.oracle?.pairs.filter((p) => !p.paused).length ?? 0}/${snapshot.oracle?.pairs.length ?? 0} LIVE`;
 
-  const toneByRr = snapshot.reserveRatio >= 1.1 ? "emerald" : snapshot.reserveRatio >= 1.05 ? "amber" : snapshot.reserveRatio >= 1.0 ? "amber" : "rose";
-  const toneByLcr = snapshot.lcr >= 1.0 ? "emerald" : "amber";
+  // TASK-38 / F-38-1: `reserveRatio`/`lcr` arrive as `null` when the engine
+  // computes Infinity (JSON.stringify(Infinity) → null) — i.e. zero circulating
+  // liability, the FULLY-RESERVED healthiest state. `null >= threshold` is
+  // always false in JS, so the previous chain fell through to "rose"/"amber"
+  // and rendered "∞ — no liability" in the DANGER color. Guard the non-finite
+  // case first and classify it emerald (same convention as every other RR
+  // surface: hero pill, QuickStatsRow, sidebar capsule).
+  const toneByRr = !Number.isFinite(snapshot.reserveRatio)
+    ? "emerald"
+    : snapshot.reserveRatio >= 1.1 ? "emerald" : snapshot.reserveRatio >= 1.05 ? "amber" : snapshot.reserveRatio >= 1.0 ? "amber" : "rose";
+  const toneByLcr = !Number.isFinite(snapshot.lcr)
+    ? "emerald"
+    : snapshot.lcr >= 1.0 ? "emerald" : "amber";
   const toneByPrice = snapshot.priceInBand ? "emerald" : "rose";
 
   const items = [
