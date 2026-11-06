@@ -30,16 +30,39 @@ else
 fi
 
 # [2/6] local HEAD vs origin/main — THE stale-snapshot detector.
+# Task 49 upgrade: THREE-WAY classification. The old binary check advised
+# `reset --hard origin/main` for any inequality — correct for a stale tree
+# (re-image resurrection), but DESTRUCTIVE for a DIVERGED history (incident
+# #9, 2026-11-06: a re-image mid-session spawned parallel local/origin lines;
+# reset --hard would have destroyed 4 local-only task commits). Classify:
+#   EQUAL    → aligned
+#   BEHIND   → stale tree → forward-only reset advice is CORRECT
+#   DIVERGED → parallel lines → NEVER reset; forward-only MERGE (task49 pattern)
 HEAD_SHA=$(git rev-parse HEAD)
 ORIGIN_SHA=$(git rev-parse origin/main)
 if [ "$HEAD_SHA" = "$ORIGIN_SHA" ]; then
   echo "[2/6] local == origin/main == ${HEAD_SHA:0:12}  OK"
 else
-  echo "[2/6] STALE TREE DETECTED: local ${HEAD_SHA:0:12} != origin/main ${ORIGIN_SHA:0:12}"
-  echo "      This is the known sandbox re-image regression (worklog Task 30/31)."
-  echo "      Forward-only recovery: prove content redundancy by blob hash,"
-  echo "      then: git reset --hard origin/main  (NEVER roll back the remote)."
-  fail=1
+  if git merge-base --is-ancestor "$HEAD_SHA" "$ORIGIN_SHA"; then
+    echo "[2/6] STALE TREE DETECTED: local ${HEAD_SHA:0:12} is BEHIND origin/main ${ORIGIN_SHA:0:12}"
+    echo "      This is the known sandbox re-image regression (worklog Task 30/31)."
+    echo "      Forward-only recovery: prove content redundancy by blob hash,"
+    echo "      then: git reset --hard origin/main  (NEVER roll back the remote)."
+    fail=1
+  elif git merge-base --is-ancestor "$ORIGIN_SHA" "$HEAD_SHA"; then
+    echo "[2/6] local ${HEAD_SHA:0:12} is AHEAD of origin/main ${ORIGIN_SHA:0:12} (unpushed work)"
+    echo "      Not a regression — but PUSH before any risky operation so the cloud"
+    echo "      layer (git = the off-box truth) holds this work: git push origin HEAD:main"
+    echo "      (unpushed commits are exactly what the re-image wiped in incident #9)."
+  else
+    echo "[2/6] DIVERGED HISTORY DETECTED: local ${HEAD_SHA:0:12} and origin/main ${ORIGIN_SHA:0:12} share neither tip"
+    echo "      This is the parallel-line signature (incident #9, task49): a re-image"
+    echo "      wiped a session mid-work and BOTH lines advanced the same directives."
+    echo "      DO NOT reset --hard (destroys local-only commits). Recover forward-only:"
+    echo "        git merge origin/main --no-ff --no-commit   → resolve per task49"
+    echo "        (union-of-intent: keep BOTH lines' work; see task49 commit message)"
+    fail=1
+  fi
 fi
 
 # [3/6] No-rollback anchor (Task 26 machinery) must be an ancestor of HEAD.
