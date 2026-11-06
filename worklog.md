@@ -10133,3 +10133,26 @@ Stage Summary:
 - The "databases being deleted" root cause is CLOSED: deletion may still happen (external re-image), but the platform now detects and self-heals both databases forward-only from the git-tracked cloud layer in seconds, with zero manual work, surgical selectivity (healthy DBs untouched), and a worst-case loss window of ~minutes (was 25h) via the continuous cloud-sync loop.
 - The silent genesis re-seed path is unreachable whenever the cloud layer is ahead — regardless of who restarts the dev server.
 - Standing residuals (owner-side, unchanged): Gate-C ratification register, V4 Solidity UNDEPLOYED, external validation gates, FRED_API_KEY, MTQ_UPLOAD_TOKEN provisioning, off-box backup replication, multi-host CometBFT production path; dashboard-audit queue continues (Reference Index, Reserve Vault, Risk State, Rebalancing, Constituency, Governance, Transparency).
+
+---
+
+Task ID: 44 (incident #7 — production validation of the Task-42 self-healing data layer; session-open recovery of the 4th upload-route deletion)
+Agent: Orchestrator (COO/CTO/crypto/blockchain/ecosystem expert)
+
+Task: Continue the standing directive with the databases-deletion root-cause as priority one: open the session, verify the Task-42 remediation posture, and recover anything the latest sandbox re-image destroyed.
+
+Work Log:
+- SESSION-OPEN FORENSICS: git status showed ONE working-tree delta — `src/app/api/constituency/upload/route.ts` DELETED (4th time; the task39/task43a recurring casualty). DBs present and advancing (db/*.db mtime tracking the running server, started 11:57 by plain `bun run dev` — NOT under the watchdog).
+- PRODUCTION SELF-HEAL EVIDENCE FOUND: `mtq-sigma-backups/selfheal-archive/20261106T115751131Z-chain/` EMPTY (chain.db wiped — nothing left to archive) + `…T115753364Z-custom/custom.db` 221,184 bytes (the regressed re-seeded stub) — the Task-42 in-process boot heal fired at the 11:57 start, rebuilt chain to the git-tracked dump tip h2606 and custom to 8,002 rows, verified integrity+tip, archived the casualties, and resumed. FIRST NON-DRILL validation: the "databases being deleted" class healed itself with zero manual work while the watchdog was absent (layer (a) alone sufficed).
+- UPLOAD ROUTE: restored byte-exact from git (`git checkout --`); live-verified both legs — HTTP 403 fail-closed without MTQ_UPLOAD_TOKEN + `verify-upload-path.ts` PASS (EUR convertibility LIVE-UPLOADED 0.93 with sha256 digest + source label + upload date, 1 test row cleaned up).
+- STALE-TREE RECOVERY: session-open battery [2/6] flagged local 4735d3d != origin/main 4fe4528 (same task42 message; an unpushed local amend). Content redundancy PROVEN: `git diff` local↔origin blob-identical on every path except the two dump files, where local was merely a fresher live-derivable refresh (h2606/8,002 vs origin h1908/5,909; live DBs h2642+ ahead of both). Forward-only `git reset --hard origin/main` executed (never roll back the remote); battery then 6/6 PASS at 4fe4528; db/*.db untouched (gitignored); server healthy throughout.
+- WATCHDOG v2 RE-ARMED: `( setsid bash dev-watchdog.sh >> /tmp/watchdog-launch.log 2>&1 & )` (pid 1658; port guard passively supervising the healthy :3000; cloud-sync subloop detached). The subloop immediately honored thresholds (Δ27<60 / Δ72<400 no-ops), then post-reset detected +757 blocks / +2,273 rows past the adopted h1908 dump tip and REFRESHED the cloud layer to h2665 / 8,182 rows in one tick — the designed write-behind behavior end-to-end.
+- VERIFICATION BATTERY: tsc 0 · lint 0 · battery 6/6 PASS at 4fe4528 · check-db-regression OK (h2660 / 8,167 rows at battery time, floors 500/4,000) · /api/health engine+db true · cloud-sync log shows correct threshold gating then refresh.
+- DOCS: backups/INCIDENT-2026-11-06-DB-REGRESSION.md § PRODUCTION VALIDATION — Incident #7 (what the re-image destroyed; the four automatic recovery steps; verified state; honest loss bound ≈ the write-behind window ~16 blocks/~35 rows vs 25h in incident #6; standing conclusion) · this entry.
+- COMMIT DISCIPLINE: fresh dumps (h2665 / 8,182 rows) round-trip verified then committed with the incident documentation per the standing post-substantive-change rule.
+
+Stage Summary:
+- Incident #7 of the re-image class hit at ~11:57Z and was fully healed BEFORE this session touched anything: the Task-42 boot self-heal restored both databases forward-only from the git-tracked cloud layer with zero manual work — the production proof that the databases-deletion root cause is closed.
+- This session's recovery work was confined to what the self-heal cannot fix: the source-tree casualties (upload route byte-exact restore + live re-verification, forward-only git realignment to origin/main with proven blob redundancy) and re-arming the watchdog/cloud-sync supervision plane.
+- Honest loss bound for incident #7: minutes-class (~16 blocks / ~35 rows — the write-behind window), vs 25h in incident #6.
+- Standing residuals (owner-side, unchanged): Gate-C ratification register, V4 Solidity UNDEPLOYED, external validation gates, FRED_API_KEY, MTQ_UPLOAD_TOKEN provisioning, off-box backup replication, multi-host CometBFT production path; dashboard-audit queue continues (Reference Index, Reserve Vault, Risk State, Rebalancing, Constituency, Governance, Transparency).

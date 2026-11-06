@@ -173,3 +173,61 @@ dumper terminates each DDL line explicitly.
   restores SOURCE to the last auto-committed state; the battery [2/6]
   local==origin check + forward-only `git reset --hard origin/main` recovery
   (Tasks 30/31) remains the guard for that class.
+
+## PRODUCTION VALIDATION — Incident #7 (2026-11-06 ~11:57Z): the remediation healed a REAL re-image with zero manual work
+
+**Detected**: 2026-11-06 ~11:59Z (Task 44 session-open forensics) — the first
+re-image event AFTER the Task-42 remediation shipped, and the first
+**non-drill** proof that the "databases being deleted" class is closed.
+
+### What the re-image destroyed (incident #7 of the class)
+
+- `db/chain.db` — **wiped entirely** (boot heal archived nothing; archive dir
+  `mtq-sigma-backups/selfheal-archive/20261106T115751131Z-chain/` is empty —
+  there was no file left to archive).
+- `db/custom.db` — **regressed to a 221,184-byte re-seeded stub** (archived at
+  `mtq-sigma-backups/selfheal-archive/20261106T115753364Z-custom/custom.db`;
+  vs 3.4MB live and 8,002-row cloud layer).
+- `src/app/api/constituency/upload/route.ts` — **deleted (4th time)**, the
+  task39/task43a recurring casualty.
+- Local git HEAD drifted from origin/main (local amend `4735d3d` with
+  post-message cloud-sync-refreshed dumps vs the published `4fe4528`).
+
+### What the platform did about it — automatically
+
+1. **Boot self-heal fired at 11:57 server start** (in-process layer, works
+   regardless of who starts the server — the watchdog was NOT running at that
+   moment): chain rebuilt from the git-tracked dump to its exact tip h2606;
+   custom rebuilt to its exact 8,002 rows; both verified integrity + tip;
+   regressed originals archived (the empty chain archive dir + the 221KB
+   custom stub are the forensic record). Chain `mode=RESUME` — the silent
+   genesis re-seed path never ran.
+2. **Session-open battery [2/6] caught the stale tree**; content redundancy
+   proven (local↔origin blob-identical on every path except the two dump
+   files, where local was merely a fresher, live-derivable refresh) →
+   forward-only `git reset --hard origin/main` → battery 6/6 PASS at
+   `4fe4528`.
+3. **Upload route restored byte-exact from git** and re-verified LIVE:
+   fail-closed 403 without token + `verify-upload-path.ts` PASS
+   (LIVE-UPLOADED with sha256 digest + source label + upload date, cleanup).
+4. **Watchdog v2 re-armed** (fully detached); its 60s cloud-sync subloop then
+   detected +757 blocks / +2,273 rows past the adopted dump tip and refreshed
+   the cloud layer to h2665 / 8,182 rows within one tick.
+
+### Verified state after recovery (12:0xZ)
+
+- Live: chain advancing (h2660+ during battery), custom 8,167+ rows,
+  `/api/health` `engine:true db:true`, regression sentinel OK.
+- Honest loss bound for incident #7: the 11:57 heal restored to the h2606
+  dump tip; live height at detection was h2622 — worst-case exposure ≈ the
+  write-behind window (~16 blocks / ~35 rows), exactly the designed
+  minutes-class bound (vs 25h in incident #6). Zero manual recovery steps.
+
+### Standing conclusion
+
+The Task-42 three-layer design held under real fire with only layer (a)
+(in-process boot heal) + the battery guards present — and layers (b)/(c)
+(watchdog pre-boot heal + cloud-sync loop) were re-armed within minutes of
+session open. The class is closed: deletion may recur externally, but
+detection→archive→restore→verify→resume is now an automatic, forward-only,
+surgically selective platform behavior.
