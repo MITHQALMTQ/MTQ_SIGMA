@@ -66,7 +66,7 @@ const DISCLAIMER =
   "AI-generated from the blueprint constants. Informational only.";
 const FALLBACK_MODEL = "fallback";
 const FALLBACK_ANSWER =
-  "Blueprint Q&A unavailable (all 5 AI providers unreachable). The full v1.0 blueprint is documented in the Docs section above; the authoritative TS constants live in src/lib/mtq/blueprint.ts.";
+  "Blueprint Q&A unavailable (all AI providers unreachable). The full v1.0 blueprint is documented in the Docs section above; the authoritative TS constants live in src/lib/mtq/blueprint.ts.";
 
 const MAX_QUESTION = 500;
 
@@ -284,7 +284,7 @@ export async function answerQuestion(question: string): Promise<QaResult> {
     }
     if (!aiResult.success) {
       console.error(
-        `[ai/qa] all 5 AI providers failed — using deterministic fallback. lastError=${aiResult.error ?? "n/a"}`,
+        `[ai/qa] all AI providers failed — using deterministic fallback. lastError=${aiResult.error ?? "n/a"}`,
       );
     }
   } catch (e) {

@@ -317,7 +317,7 @@ export async function generateRiskSignals(
     }
     if (!aiResult.success) {
       console.error(
-        `[ai/risk-signals] all 5 AI providers failed — using deterministic fallback. lastError=${aiResult.error ?? "n/a"}`,
+        `[ai/risk-signals] all AI providers failed — using deterministic fallback. lastError=${aiResult.error ?? "n/a"}`,
       );
     }
   } catch (e) {
