@@ -63,6 +63,7 @@ import { EvidencePackageSection } from "@/components/mtq/EvidencePackageSection"
 import { InstitutionalDashboard } from "@/components/mtq/InstitutionalDashboard";
 import type { MetricsSnapshot } from "@/lib/mtq/engine";
 import type { OracleBoard } from "@/lib/mtq/oracle";
+import { ADMISSIBILITY_ENVELOPES } from "@/lib/mtq/blueprint";
 import {
   BookOpen,
   Vault as VaultIcon,
@@ -125,6 +126,24 @@ const GFB_COMPONENTS = [
 const LIVE_WEIGHT_ORDER: Record<string, number> = {
   USD: 0, EUR: 1, JPY: 2, GBP: 3, CNY: 4, CHF: 5, Gold: 6,
 };
+
+// F-45-1 (Task-45 Reference Index audit): bar scale = the widest §8.1
+// constitutional upper envelope (32% — USD and Gold). The old hardcoded
+// max=0.30 SATURATED the live bar whenever a weight reached its envelope
+// bound (live USD sat at exactly 32.0% during the audit, rendering at 100%
+// width — visually indistinguishable from 0.30). Sourcing the scale from
+// ADMISSIBILITY_ENVELOPES keeps it constitutionally grounded.
+const ENVELOPE_BAR_MAX = Math.max(
+  ...Object.values(ADMISSIBILITY_ENVELOPES).map((e) => e.upper),
+);
+
+// F-45-2 (Task-45 Reference Index audit): sub-0.1 quotes (JPY/USD ≈ 0.0063)
+// need 6dp to show four significant figures; the old `p < 2 ? 4 : 2`
+// rendered "$0.0063" — two sig figs, a ~0.2% visual rounding on a reference
+// terminal. Shared by the basket cards AND the oracle consensus table so the
+// precision convention stays unified (Task-38 convention discipline).
+const fmtRefPrice = (p: number): string =>
+  `$${p.toFixed(p < 0.1 ? 6 : p < 2 ? 4 : 2)}`;
 
 // FIX 1.1 — `reference` section: GFB Index composition + live oracle consensus.
 //   Fetches /api/gfb (the 7-component basket) + /api/oracle (consensus board).
@@ -272,9 +291,9 @@ function ReferenceSection() {
                       </span>
                     </div>
                     <div className="mt-2">
-                      <MiniBar value={c.weight} max={0.30} colorClass="bg-mtqs-gold" className="mb-1" />
+                      <MiniBar value={c.weight} max={ENVELOPE_BAR_MAX} colorClass="bg-mtqs-gold" className="mb-1" />
                       {liveW != null ? (
-                        <MiniBar value={liveW} max={0.30} colorClass="bg-mtqs-emerald" className="mb-1" />
+                        <MiniBar value={liveW} max={ENVELOPE_BAR_MAX} colorClass="bg-mtqs-emerald" className="mb-1" />
                       ) : (
                         <div className="mb-1 text-[0.6rem] font-mono text-[#7A8C86]">live —</div>
                       )}
@@ -294,7 +313,7 @@ function ReferenceSection() {
                       )}
                     </div>
                     <div className="mt-1 font-mono text-[0.72rem] text-[#33544C]">
-                      {price != null ? `$${price.toFixed(price < 2 ? 4 : 2)}` : "—"}
+                      {price != null ? fmtRefPrice(price) : "—"}
                     </div>
                   </div>
                 );
@@ -305,9 +324,10 @@ function ReferenceSection() {
               penalized, never enforced. <span className="text-mtqs-emerald/90">L</span> = live W<sup>Smooth</sup> · the MASE
               ensemble output (§7). Methodology is fixed; weights are <span className="text-[#33544C]">ADAPTIVE</span> (Invariant I3).
               Live weights are published in the 4-state table (MASE section) and via /api/gfb. Sum of prior weights = 100%
-              (USD 27 · EUR 20 · Gold 26 · JPY 9 · GBP 8 · CNY 5 · CHF 5). Prices stream live from the canonical oracle
-              board on a 4s poll (TASK-38); FX reference marks advance at the engine's 60s live-FX cache granularity
-              (Frankfurter/gold-api refresh cadence).
+              (USD 27 · EUR 20 · Gold 26 · JPY 9 · GBP 8 · CNY 5 · CHF 5). Live weights are constitutionally
+              envelope-bounded per component (§8.1 — e.g. USD 23–32%, Gold 20–32%; the bar scale is the widest
+              upper bound). Prices stream live from the canonical oracle board on a 4s poll (TASK-38); FX reference
+              marks advance at the engine's 60s live-FX cache granularity (Frankfurter/gold-api refresh cadence).
             </div>
           </Panel>
         </Reveal>
@@ -346,7 +366,7 @@ function ReferenceSection() {
                       <tr key={p.pair} className="border-b border-[#EDF2EF] last:border-b-0">
                         <td className="py-2 pr-4 text-mtqs-gold">{p.pair}</td>
                         <td className="py-2 px-3 text-right text-[#0E1F1B]">
-                          {p.finalPrice > 0 ? `$${p.finalPrice.toFixed(p.finalPrice < 2 ? 4 : 2)}` : "—"}
+                          {p.finalPrice > 0 ? fmtRefPrice(p.finalPrice) : "—"}
                         </td>
                         <td className="py-2 px-3 text-right text-[#33544C]">{p.validCount}/3</td>
                         <td className="py-2 px-3 text-[#33544C]">{p.method}</td>
