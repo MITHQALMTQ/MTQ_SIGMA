@@ -85,3 +85,91 @@ devnet-history loss.**
 4. Standing lesson reinforced: **the disk-only vault is not durable across re-images —
    the git-tracked cloud layer is the recovery source of record.** Refresh
    `backups/db-snapshots/latest-*.sql` after any substantive data change (one command each).
+
+---
+
+## ROOT-CAUSE REMEDIATION — Task 42 (2026-11-06, same day)
+
+The sections above describe DETECTION and MANUAL recovery. Task 42 closes the
+root cause itself: **the databases can still be deleted by a re-image, but the
+platform now self-heals in seconds with bounded loss and zero manual work.**
+
+### Root-cause chain (why DBs kept getting "deleted")
+
+1. The sandbox re-image wipes gitignored paths — `db/*.db` and the disk vault
+   are gitignored BY DESIGN (continuously-written binaries), so every re-image
+   deletes them. This external cause cannot be removed from inside the box.
+2. On the next dev-server boot, `ensureChainNode()` found height 0 and
+   **silently re-seeded genesis** — actively diverging from the recovered
+   history and making the regression worse (the 00:13 re-seed).
+3. Detection existed only at session-open (manual, battery [6/6]); the
+   watchdog restarted `next dev` with no DB guard; the cloud layer was
+   refreshed only manually ("after substantive change") — the incident's
+   honest loss bound was ~25h of chain.
+
+### The fix (three independent layers, any one sufficient)
+
+| Layer | Where | What it does |
+|---|---|---|
+| **Boot self-heal** (primary) | `src/lib/chain/node.ts` `ensureChainNode()` → `src/lib/db-ops.ts` `selfHealDatabases()` | BEFORE any schema/genesis work: if the git-tracked dump is strictly ahead of the live DB (missing / unreadable / genesis-scale), archive the regressed file to `mtq-sigma-backups/selfheal-archive/` and rebuild it from the dump, verified (integrity_check + exact tip). Runs no matter WHO starts the dev server. The silent re-seed path is closed. |
+| **Watchdog pre-boot heal + port guard** | `dev-watchdog.sh` v2 | Runs `scripts/db-selfheal.ts` before every `next dev` start; never double-starts a healthy server; supervises passively when :3000 is already up. |
+| **Continuous cloud-sync + mid-run guard** | `scripts/db-cloud-sync.ts` (60s loop under the watchdog) | Write-behind refresh of the cloud dumps (chain Δ≥60 blocks ≈ ~5 min worst-case loss; custom Δ≥400 rows). **Refuses to dump a DB that is behind its dump** (a wipe must never overwrite the recovery source). If the live DB falls behind while the server runs (ghost-inode deletion), it SIGTERMs the server (only when the watchdog is alive to restart it) so the reboot heals. |
+
+Safety properties (all enforced in `src/lib/db-ops.ts`):
+- **Forward-only**: a live DB at/ahead of its dump is never touched (Phase-C
+  drill: chain wiped → chain restored, custom byte-identical by SHA-256).
+- **Never destroys the cloud copy**: the refresh path suppresses dumping on
+  the regression signature.
+- **Atomic dumps**: tmp+rename write — a concurrent git auto-commit can never
+  snapshot a torn dump.
+- **Verified restores**: integrity_check + exact tip/rows match, else the
+  half-built file is deleted and the error is rethrown (nothing boots on a
+  torn state).
+- **Intentional resets stay possible**: the sentinel `db/ALLOW-GENESIS-RESET`
+  (`bun run scripts/db-selfheal.ts --allow-reset "reason"`, first line =
+  expiry epoch-ms) stands the auto-heal down while fresh; the session-open
+  battery passes with a loud NOTE. Loud-and-acknowledged beats silent loss.
+- **Honest instrumentation**: a healed chain records `boot_mode=self-healed`,
+  `selfheal_at`, `selfheal_dump` in its meta table.
+
+Dump format upgraded to **v2 self-contained** (schema+data+machine-readable
+`-- MTQ-DUMP-TIP rows=… height=… tables=…` line): restoring needs only an
+empty file + `executeMultiple()` — no Prisma, no initSchema. Legacy v1 dumps
+remain restorable (schema fallback path). NOTE (bug found+fixed during build):
+`sqlite_master` stores CREATE statements without trailing semicolons — the
+dumper terminates each DDL line explicitly.
+
+### LIVE FIRE-DRILL (executed and verified 2026-11-06 ~01:07–01:10Z)
+
+- **Phase A — healthy restart**: old bare server killed → watchdog adopted the
+  port in ~8s → pre-boot heal correctly NO-OP'd ("live at/ahead of cloud
+  dumps") → `next dev` booted with v49 code → `mode=RESUME` at h1879.
+- **Phase B — full wipe (the incident scenario)**: server+watchdog stopped →
+  dumps refreshed at the frozen tip (h1883, round-trip PASS) → **both DB files
+  removed** (quarantined to `mtq-sigma-backups/2026-11-06-task42-drill-quarantine/`)
+  → `check-db-regression` FAILS loudly (detection) → watchdog relaunched →
+  **both DBs auto-RESTORED from the git-tracked dumps in ~5s** → `mode=RESUME`
+  at h1883 → height advancing → session-open battery 6/6 PASS. Zero manual
+  recovery work, zero loss (drill dumps were taken at the frozen tip).
+- **Phase C — selective wipe**: only `db/chain.db` wiped (0-byte) → heal
+  archived the dead file, restored chain to h1883, RESUME — **custom.db
+  byte-identical before/after (SHA-256 verified)**: the heal never touches a
+  healthy DB.
+- **Browser E2E post-drill**: app + Overview render live (gold/PAXG/XAUT/RR ∞),
+  NOC shows the recovered chain (height 18xx live, validators 8/8), mobile
+  390px zero horizontal overflow, ZERO console/page errors. Screenshots:
+  `audit-work/v13-task42/`.
+
+### Standing posture after Task 42
+
+- The dev server runs under `dev-watchdog.sh` v2 (self-heal + cloud-sync armed).
+  Relaunch if ever absent: `( setsid bash dev-watchdog.sh >> /tmp/watchdog-launch.log 2>&1 & )`.
+- Cloud layer freshness is now automatic (≤ ~5 min of chain behind worst-case);
+  the platform's git auto-commit carries the tracked dumps into history, and
+  session-close pushes carry them to origin (the true cloud).
+- Worst-case honest loss bound for a re-image: blocks/telemetry since the last
+  cloud-sync refresh (minutes) — versus 25h in the original incident.
+- Remaining external residual (documented, outside the box): the re-image also
+  restores SOURCE to the last auto-committed state; the battery [2/6]
+  local==origin check + forward-only `git reset --hard origin/main` recovery
+  (Tasks 30/31) remains the guard for that class.

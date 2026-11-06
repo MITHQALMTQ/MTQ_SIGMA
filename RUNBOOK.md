@@ -161,6 +161,37 @@ the 2026-10-23T12:55Z loss incident is why it exists:)
 - First run (2026-10-23T20:42Z): 8,748 rows — see
   `backups/BACKUP-MANIFEST-2026-10-23.md` § 2026-10-23T20:42Z for counts + hash.
 
+### 2.1.2 Self-healing data layer + automatic cloud sync (Task 42, 2026-11-06)
+
+Root-cause remediation for the 2026-11-06 DB-deletion incident class (sandbox
+re-image wipes the gitignored `db/*.db`): recovery is now AUTOMATIC and
+forward-only, and the git-tracked cloud layer refreshes itself. Full design,
+safety properties, and the live fire-drill evidence:
+`backups/INCIDENT-2026-11-06-DB-REGRESSION.md` § "ROOT-CAUSE REMEDIATION".
+
+Operational summary:
+
+- **Boot self-heal** (always on, `src/lib/chain/node.ts` → `src/lib/db-ops.ts`):
+  if the git-tracked dump (`backups/db-snapshots/latest-*.sql`, format v2
+  self-contained) is strictly ahead of the live DB, the regressed file is
+  archived (`mtq-sigma-backups/selfheal-archive/`) and rebuilt from the dump,
+  verified. The chain node can no longer silently re-seed genesis.
+- **dev-watchdog.sh v2** owns the dev server: pre-boot self-heal, port guard
+  (never double-starts), and a 60s **cloud-sync loop**
+  (`scripts/db-cloud-sync.ts`) that refreshes the dumps (chain Δ≥60 blocks /
+  custom Δ≥400 rows — worst-case re-image loss ≈ minutes) and restarts the
+  server on the live-regression signature. Relaunch:
+  `( setsid bash dev-watchdog.sh >> /tmp/watchdog-launch.log 2>&1 & )`
+- **Manual commands:**
+  - Heal now: `bun run scripts/db-selfheal.ts`
+  - Round-trip validate a dump: `bun run scripts/db-restore-verify.ts <dump> <src-db>`
+  - Refresh a dump now: `bun run scripts/backup-logical-dump.ts <db> <out>`
+  - Intentional genesis reset: `bun run scripts/db-selfheal.ts --allow-reset "reason"`
+    (sentinel `db/ALLOW-GENESIS-RESET`, expires ≤168h; record it in worklog.md)
+- **Never** overwrite `latest-*.sql` from a DB that is behind it — the dump is
+  the recovery source of record (the automatic loop refuses; honor the same
+  rule manually).
+
 ### 2.2 Restore procedure (cold recovery)
 
 If the primary Turso DB is corrupted / deleted / region-down:

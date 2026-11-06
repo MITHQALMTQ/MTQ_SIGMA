@@ -70,12 +70,37 @@ const G = globalThis as unknown as { __MTQ_CHAIN__?: ChainNodeRuntime };
 // HMR cannot re-run instrumentation.ts, and the old runtime's interval
 // closure otherwise keeps executing the OLD state machine forever). In
 // production the constant never changes per process → zero restarts.
-export const CHAIN_NODE_CODE_VERSION = 48; // Task-40 (F-40-2): telemetry proposer field now ships the canonical ADDRESS (was moniker — the NOC treated it as an address and mangled the display); substantive engine-module change ⇒ forward-only bump per the task-41 hot-upgrade discipline
+export const CHAIN_NODE_CODE_VERSION = 49; // Task-42 (root-cause remediation): boot-time DB self-heal — ensureChainNode() now restores db/{chain,custom}.db forward-only from the git-tracked cloud dumps BEFORE any schema/genesis work, so a sandbox re-image data-layer wipe can no longer silently re-seed a fresh chain (incident 2026-11-06 class); no consensus/state-machine change, but boot-path change ⇒ forward-only bump per the task-41 hot-upgrade discipline
 
 // ─── boot ────────────────────────────────────────────────────────────────────
 
 export async function ensureChainNode(): Promise<ChainNodeRuntime> {
   if (G.__MTQ_CHAIN__?.ready) return G.__MTQ_CHAIN__;
+
+  // Task-42 ROOT-CAUSE REMEDIATION (incident 2026-11-06): a sandbox re-image
+  // wipes the gitignored data layer — booting on a wiped db/chain.db used to
+  // silently re-seed genesis (divergence + forensic mess). BEFORE any
+  // schema/genesis work, self-heal both databases forward-only from the
+  // git-tracked cloud dumps whenever the cloud layer is strictly ahead. This
+  // runs no matter who starts the dev server (platform restart, watchdog, or
+  // manual). Once-per-process guard via globalThis (HMR-safe); an intentional
+  // genesis reset opts out via the db/ALLOW-GENESIS-RESET sentinel.
+  const SH = G as unknown as { __MTQ_DB_SELFHEALED__?: boolean };
+  if (!SH.__MTQ_DB_SELFHEALED__) {
+    SH.__MTQ_DB_SELFHEALED__ = true;
+    try {
+      const { selfHealDatabases } = await import("@/lib/db-ops");
+      const rep = await selfHealDatabases();
+      if (rep.healed) {
+        console.log(
+          `[chain] DB SELF-HEAL — restored from git-tracked cloud dumps: ` +
+          `chain ${rep.chain.live} → ${rep.chain.dump}, custom ${rep.custom.live} → ${rep.custom.dump}`,
+        );
+      }
+    } catch (e) {
+      console.error("[chain] DB self-heal FAILED (continuing — an empty DB may re-seed):", e);
+    }
+  }
 
   const { genesis, keys, created } = ensureGenesis();
   await store.initSchema();

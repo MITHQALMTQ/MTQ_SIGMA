@@ -72,12 +72,16 @@ fi
 # [6/6] Database regression detector (incident 2026-11-06: sandbox re-image
 # re-seeded db/chain.db to genesis + wiped db/custom.db telemetry; git-tracked
 # truth survived, DBs did not — caught only by manual row-count comparison).
+# Task 42: recovery is now AUTOMATIC at boot (node.ts self-heal + watchdog
+# pre-boot heal + db-cloud-sync guard), so this check usually passes by
+# session-open; it stays as the loud manual gate + reset-acknowledgment gate.
 if bun run scripts/check-db-regression.ts; then
   :
 else
-  echo "[6/6] DATABASE REGRESSION SIGNATURE — recover forward-only per"
-  echo "      backups/INCIDENT-2026-11-06-DB-REGRESSION.md BEFORE ANY WORK."
-  echo "      (an intentional recorded reset may be acknowledged in worklog.md)"
+  echo "[6/6] DATABASE REGRESSION SIGNATURE — one-command recovery:"
+  echo "      bun run scripts/db-selfheal.ts   (forward-only restore from the"
+  echo "      git-tracked cloud layer; see backups/INCIDENT-2026-11-06-DB-REGRESSION.md)"
+  echo "      (an intentional reset uses: db-selfheal.ts --allow-reset \"reason\" + worklog.md)"
   fail=1
 fi
 
