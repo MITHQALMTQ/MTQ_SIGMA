@@ -10235,3 +10235,21 @@ Work Log:
 Stage Summary:
 - Constituency: data layer audited CLEAN — the live smoothed weights, chain-index level, Q_i composites and regime probabilities all reproduce exactly from the live APIs; two convention defects found and fixed (F-51-1 NOK seed ≠ band mid breaking the documented convention with a self-contradictory card; F-51-2 hardcoded bar scale drifting from the platform-wide constitutional envelope-max convention).
 - Audit queue remaining: Governance, Transparency.
+
+---
+
+Task ID: 52 (dashboard-audit #9 — Governance; post-recovery-merge continuation)
+Agent: Orchestrator (COO/CTO/crypto/blockchain/ecosystem expert)
+
+Task: Audit the Governance dashboard per the Task-38 queue — data path, every displayed number live and correctly wired/mapped, recompute the math; fix defects; browser-verify.
+
+Work Log:
+- DATA PATH: GovernanceSection = static §22 4-council cards + Authority Hierarchy panel + LIVE §25.5 honest-status block (one-shot GET /api/honest-status with the 16c-004 no-stale-loading guard). EventExplorer carries a second copy of the four-layer registry (spec rows, OD-3 honest).
+- VERIFICATION (EXACT, from live API + canonical constants): /api/honest-status → status "NOT PRODUCTION-AUTHORIZED" · isProductionAuthorized false · gates 0/11 passed (G1 Smart Contract Audit … G11 Mainnet Deployment Approval, all FAIL — honest) · implementedMask 0xFFF vs authorizedMask 0x0 (everything implemented, nothing authorized — internally consistent and matching the DOM cards) · OD-3 qualifier "SPECIFIED — NOT OPERATIONAL" present on the council grid · Authority Hierarchy claims verified against PARAMETER_REGISTRY byte-exact: RR_TARGET {layer: CONSTITUTIONAL, immutable: true} (v2.0 §14.6.3 correction noted in-source) · LCR_TARGET {layer: RISK, envelope [0.8, 1.2]} · MIN_PROFITABILITY_USD {layer: RISK, envelope [0, 1000]} — the panel's displayed envelopes [0.80, 1.20] and [0, 1000] match.
+- F-52-1 (P2 — governance-authority naming drift, FIXED): the canonical GOVERNANCE_HIERARCHY (blueprint.ts §22, rendered verbatim on the Risk State tab's hierarchy cards — Task-48-verified) specifies the Emergency layer as "Multi-Sig (4/7) · Instant"; SecuritySection ("Emergency via Multi-Sig (4/7 · instant)") and ArchitectureSection ("emergencyCouncil — 4/7 Multi-Sig") agree. But the Governance tab's OWN council card said "Council 4/7" and EventExplorer's governance rows said "Council 4/7" — the Emergency body mislabeled as a Council on exactly the two surfaces whose job is to state the governance specification, disagreeing with the canonical table on a 4/7-threshold authority claim (the F-47-1 cross-surface-drift class, on text instead of color). FIXED: both → "Multi-Sig 4/7" with in-source comments tying them to GOVERNANCE_HIERARCHY. LIVE-VERIFIED in the DOM: "Emergency Council | Multi-Sig 4/7 | TIMELOCK: INSTANT".
+- BROWSER E2E (1440×900): all 4 council cards render with correct authority pills (Multi-Sig 7/7 · DAO Vote 51% · Council 4/7 · Multi-Sig 4/7) · OD-3 amber qualifier strip · Authority Hierarchy panel · honest-status 4 stat cards (NO · 0/11 · 0xFFF · 0x0) + 11-gate list all-FAIL honest + disclaimer + version line. Mobile 390×844: scrollWidth=390 zero horizontal overflow. ZERO console/page errors after clean reload. Screenshots: audit-work/v21-task52/ (governance-desktop-fixed · governance-mobile-390).
+- VERIFICATION BATTERY: tsc 0 · lint 0 · /api/health 200.
+
+Stage Summary:
+- Governance: data layer audited CLEAN — the honest-status block is fully consistent (0/11 gates, 0xFFF/0x0 masks, NOT PRODUCTION-AUTHORIZED), the parameter-registry claims reproduce byte-exact from PARAMETER_REGISTRY, and the OD-3 specified-not-operational discipline holds on every surface. One P2 cross-surface defect found and fixed (F-52-1: Emergency authority mislabeled "Council 4/7" on the Governance tab + EventExplorer vs the canonical "Multi-Sig (4/7)").
+- Audit queue remaining: Transparency (last).

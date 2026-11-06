@@ -870,10 +870,15 @@ interface HonestStatusResp {
 }
 
 const COUNCILS = [
+  // F-52-1 (Task-52 audit): authority strings now mirror the canonical
+  // GOVERNANCE_HIERARCHY (blueprint.ts §22) exactly — the Emergency layer is
+  // a Multi-Sig (4/7), NOT a "Council" (this card previously said "Council
+  // 4/7", disagreeing with the Risk State tab's canonical hierarchy cards and
+  // the Security/Architecture tabs).
   { name: "Constitutional", icon: Crown, authority: "Multi-Sig 7/7", timelock: "90 days", scope: "Immutable parameters · core architecture · envelopes · hard floors · liquidation staging", tone: "gold" as const },
   { name: "Monetary DAO",   icon: Landmark, authority: "DAO Vote 51%", timelock: "48 hours", scope: "RR target · fee structure · smoothing parameters", tone: "emerald" as const },
   { name: "Risk Council",   icon: ShieldIcon, authority: "Council 4/7", timelock: "24 hours", scope: "Haircuts · thresholds · eject parameters · LCR targets", tone: "amber" as const },
-  { name: "Emergency Council", icon: AlertTriangle, authority: "Council 4/7", timelock: "instant", scope: "Pause operations · force rebalance · emergency eject", tone: "rose" as const },
+  { name: "Emergency Council", icon: AlertTriangle, authority: "Multi-Sig 4/7", timelock: "instant", scope: "Pause operations · force rebalance · emergency eject", tone: "rose" as const },
 ];
 
 function GovernanceSection() {
