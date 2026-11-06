@@ -19,6 +19,8 @@ const HL_CLASS = {
 export function Hero({ onLaunch }: { onLaunch?: () => void }) {
   return (
     <section id="home" className="relative overflow-visible" aria-labelledby="hero-heading">
+      {/* 2026 upscale — engineering-paper dot grid, masked into the hero air */}
+      <div className="lp-hero-grid" aria-hidden="true" />
       <div className="relative z-10 mx-auto grid w-full max-w-7xl grid-cols-1 gap-10 px-5 pb-16 pt-12 sm:px-8 lg:grid-cols-[minmax(0,540px)_minmax(0,1fr)] lg:items-center lg:gap-6 lg:pb-24 lg:pt-16 xl:px-10">
         {/* left — copy */}
         <div className="lp-rise">
@@ -33,7 +35,7 @@ export function Hero({ onLaunch }: { onLaunch?: () => void }) {
               </span>
             ))}
           </h1>
-          <p className="mt-5 max-w-[33rem] text-[0.95rem] leading-relaxed text-[#4A5C56]">
+          <p className="lp-lede">
             {HERO.paragraph}
           </p>
           <div className="mt-8 flex flex-wrap items-center gap-4">

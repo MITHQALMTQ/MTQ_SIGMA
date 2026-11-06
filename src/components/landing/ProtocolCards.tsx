@@ -29,8 +29,9 @@ export function ProtocolCards() {
               <span className="lp-icon-chip">
                 <Icon className="size-5" strokeWidth={1.9} aria-hidden />
               </span>
-              <h3 className="mt-4 text-[1.02rem] font-bold text-[#0E1F1B]">{card.title}</h3>
-              <p className="mt-1.5 text-[0.84rem] leading-relaxed text-[#5B6E68]">{card.body}</p>
+              {/* 2026 depth pass: title 17px/700 with breathing room to body */}
+              <h3 className="mt-4.5 text-[1.06rem] font-bold tracking-[-0.01em] text-[#0E1F1B]">{card.title}</h3>
+              <p className="mt-2 text-[0.84rem] leading-relaxed text-[#5B6E68]">{card.body}</p>
             </article>
           );
         })}

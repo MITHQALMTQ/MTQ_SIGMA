@@ -47,6 +47,25 @@ export async function register(): Promise<void> {
     g.__MTQ_CHAIN_ERROR__ = String(e);
   }
 
+  // [2b] Pilot-engine warm boot (2026-11-08 root-cause fix — lazy-init gap).
+  //      The §engine tick loop (pilot-state) previously started ONLY when an
+  //      organic request hit /api/metrics — after a server restart with no
+  //      browser traffic, /api/health honestly reported engine:false for an
+  //      unbounded window and the metrics engine sat cold. Warm it here so
+  //      the engine is a property of the SERVER boot, not of traffic. Fire-
+  //      and-forget: register() must never block route compilation on FX
+  //      network fetches; failures log loudly and the first metrics request
+  //      still lazy-boots (belt).
+  try {
+    const pilot = await import("@/lib/mtq/pilot-state");
+    void pilot.getSnapshot().then(
+      () => console.log("[pilot] engine warm-booted at server start"),
+      (e) => console.error("[pilot] engine warm-boot FAILED (first request will retry):", e),
+    );
+  } catch (e) {
+    console.error("[pilot] warm-boot import failed (first request will retry):", e);
+  }
+
   // [3] In-process cloud-sync write-behind + source-integrity sweep (Task 47).
   //     Global-this guarded (hot reload re-runs modules; the interval must
   //     not stack), unref'd (never keeps the process alive on shutdown).

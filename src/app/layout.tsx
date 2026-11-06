@@ -86,12 +86,23 @@ export const metadata: Metadata = {
     description:
       "Transparent rules · measurable controls · accountable governance. Testnet only · shadow mode enforced · reserve trading not authorized.",
     type: "website",
+    // 2026-11-08 graphics upscale: AI-generated premium brand card (VLM-
+    // verified on-brand: paper-white, mint dot-grid, hexagonal Σ shield).
+    images: [
+      {
+        url: "/brand/mtqs-og-2026.png",
+        width: 1344,
+        height: 768,
+        alt: "MTQΣ — hexagonal Sigma shield emblem on paper-white with mint dot-grid",
+      },
+    ],
   },
   twitter: {
     card: "summary_large_image",
     title: "MTQΣ — Monetary Architecture Protocol",
     description:
       "Transparent rules · measurable controls · accountable governance. Testnet only · shadow mode enforced · reserve trading not authorized.",
+    images: ["/brand/mtqs-og-2026.png"],
   },
 };
 

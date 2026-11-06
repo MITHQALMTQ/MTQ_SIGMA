@@ -17,7 +17,12 @@ export function StatsRow() {
           <dl className="mt-3 grid grid-cols-2 gap-x-4 gap-y-7 sm:grid-cols-4 sm:gap-x-2">
             {PROTOCOL_STATS.items.map((s) => (
               <div key={s.label} className="flex flex-col items-center gap-1.5 text-center">
-                <dd className="lp-stat-num">{s.value}</dd>
+                {/* 2026 warm counterpoint (VLM review): the testnet stat carries
+                    the single amber accent — breaking the teal monotony and
+                    guiding the eye to the "live networks" story. */}
+                <dd className={`lp-stat-num ${s.label === "Testnets Deployed" ? "lp-stat-num-warm" : ""}`}>
+                  {s.value}
+                </dd>
                 <dt className="lp-stat-label">{s.label}</dt>
               </div>
             ))}
