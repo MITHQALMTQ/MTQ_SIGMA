@@ -1,15 +1,11 @@
 // GET /api/ai/status
 //
-// Returns the live cross-vendor consensus board: every member (5 free
-// open-source vendors + the platform bootstrap), its configuration state,
-// health, sticky model, latency, and cooldown. Plus FRED data-member state
-// and the degradation ladder explanation.
-//
-// The board is the operational truth for "is the consensus working" —
-// /api/ai/briefing etc. attach their own member provenance per response.
+// Task 47 — the consensus-layer status view: validated providers, the
+// multi-model roster, catalog sync state (the downloaded model databases),
+// and the most recent consensus runs with their per-vote attestations.
 
 import { NextResponse } from "next/server";
-import { getBoard, MEMBER_REGISTRY } from "@/lib/ai/consensus";
+import { getConsensusStatus } from "@/lib/ai/consensus";
 import { rateLimit, getClientIP } from "@/lib/mtq/rate-limit";
 
 export const dynamic = "force-dynamic";
@@ -24,51 +20,26 @@ export async function GET(req: Request) {
     );
   }
 
-  const board = getBoard();
-  const active = board.filter((m) => m.configured && m.healthy).length;
-  const configured = board.filter((m) => m.configured).length;
-  const fredConfigured = Boolean(process.env.FRED_API_KEY);
+  const view = await getConsensusStatus();
 
   return NextResponse.json(
     {
-      source: "MTQΣ AI Consensus Status",
+      source: "MTQΣ AI Consensus Layer (Task 47)",
       fetchedAt: new Date().toISOString(),
-      engine: "cross-vendor consensus (parallel fan-out → agreement scoring → centroid synthesis)",
-      board: board.map((m) => ({
-        member: m.id,
-        vendor: m.vendor,
-        role: MEMBER_REGISTRY.find((d) => d.id === m.id)?.bootstrap
-          ? "platform bootstrap"
-          : "external vendor",
-        model: m.model,
-        configured: m.configured,
-        healthy: m.healthy,
-        latencyMs: m.latencyMs ?? null,
-        cooldownMs: m.cooldownUntil ?? 0,
-        lastError: m.lastError ?? null,
-      })),
-      dataMembers: {
-        fred: {
-          configured: fredConfigured,
-          note: "FRED (Federal Reserve Economic Data) — official macro grounding context injected into consensus prompts",
-        },
-      },
-      summary: {
-        activeMembers: active,
-        configuredMembers: configured,
-        totalMembers: board.length,
-        mode: active >= 2 ? "consensus" : active === 1 ? "single-source" : "unavailable (deterministic fallbacks active)",
-      },
+      mode: "multi-provider consensus (all AI models vote)",
+      providers: view.providers,
+      roster: view.roster,
+      defaults: view.defaults,
+      catalog: view.catalog,
+      recentRuns: view.recentRuns,
+      policy: view.policy,
       note:
-        "Every AI answer fans out to all healthy members in parallel; the centroid (highest mean pairwise agreement) " +
-        "response is the consensus answer with full member provenance. Failed members enter a 10-minute cooldown. " +
-        "Pasting a valid key into .env joins the consensus with zero code changes. AI output is advisory only.",
+        "Free-tier providers only — live-validated 2026-11-06 (NVIDIA ✅ · OpenRouter ✅ · Groq 403 ❌ · Google leaked-key 403 ❌ · HuggingFace 402-paywall ❌ removed). " +
+        "Every AI feature fans out to a 3-voter panel spanning both providers; quorum = ≥ ceil(k/2) parsed votes. " +
+        "AI output is ADVISORY ONLY — never writes engine state.",
     },
     {
-      headers: {
-        "X-RateLimit-Remaining": String(rl.remaining),
-        "Cache-Control": "no-store",
-      },
+      headers: { "X-RateLimit-Remaining": String(rl.remaining), "Cache-Control": "no-store" },
     },
   );
 }

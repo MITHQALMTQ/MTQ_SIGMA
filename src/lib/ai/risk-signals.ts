@@ -1,19 +1,22 @@
-// MTQΣ — Risk Signals (cross-vendor consensus edition, 2026-11-06).
+// MTQΣ — Risk Signals (Task 47: multi-provider CONSENSUS mode).
 //
-// Server-side only. Generates 2-5 fast risk signals from the live snapshot
-// via the cross-vendor consensus engine (src/lib/ai/consensus.ts): the prompt
-// fans out to every healthy member in parallel; the centroid response (and
-// its member provenance + agreement score) is returned. Risk signals are
-// ADVISORY ONLY — they never write to engine state and never trigger
-// rebalance. The engine math (src/lib/mtq/engine.ts) is always the source of
-// truth.
+// Server-side only. Generates 2-5 fast risk signals from the live snapshot.
+// The 3-voter panel (NVIDIA + OpenRouter) each proposes signals; the engine
+// clusters them by title similarity and keeps only quorum-supported clusters
+// (a signal only surfaces when ≥ ceil(k/2) distinct models proposed it —
+// cross-model agreement, not one model's opinion). Risk signals are ADVISORY
+// ONLY — they never write to engine state and never trigger rebalance. The
+// engine math (src/lib/mtq/engine.ts)
+// is always the source of truth.
 //
 // Caching: 15s in-memory cache (risk signals need freshness but not every poll).
 //
 // Graceful fallback: rule-based signals derived directly from the snapshot —
-// the pilot stays fully functional even when no consensus member answers.
+// the pilot stays fully functional even when every AI provider is down.
 
-import { runConsensus, getFredContext, type ConsensusResult } from "./consensus";
+import { callWithFallback } from "./model-fallback";
+import { runConsensus, PANEL_FAST, getFredContext } from "./consensus";
+import { AI_CONSENSUS_ENABLED, hasKey } from "./keys";
 import type { MetricsSnapshot } from "@/lib/mtq/engine";
 
 const FALLBACK_MODEL = "fallback-rules";
@@ -33,14 +36,13 @@ export interface RiskSignalsResult {
   signals: RiskSignal[];
   generatedAt: number;
   model: string;
-  /** Consensus provenance — present whenever ≥1 member answered. */
   consensus?: {
-    mode: ConsensusResult["mode"];
-    provider: string;
-    vendor: string;
+    status: string;
+    votersOk: number;
+    votersAsked: number;
     agreement: number | null;
-    members: ConsensusResult["members"];
-    fredGrounded: boolean;
+    runId?: string;
+    votes: Array<{ provider: string; model: string; role: string; ok: boolean; latencyMs: number; error?: string }>;
   };
 }
 
@@ -100,7 +102,7 @@ function buildSnapshotSummary(snap: MetricsSnapshot): string {
   });
 }
 
-function buildPrompt(snap: MetricsSnapshot, fredContext: string): string {
+function buildPrompt(snap: MetricsSnapshot): string {
   const summary = buildSnapshotSummary(snap);
   return [
     "You are a real-time risk monitor for the MTQΣ protocol. Given this live snapshot, output 2-5 risk signals as a JSON array. Each signal MUST be an object with shape: {severity: 'critical'|'warning'|'info', title: string, detail: string, source: string}. Only emit signals for genuine risks (don't pad). If everything is normal, emit one 'info' signal saying so.",
@@ -108,7 +110,6 @@ function buildPrompt(snap: MetricsSnapshot, fredContext: string): string {
     "Snapshot:",
     summary,
     "",
-    fredContext ? fredContext + "\n" : "",
     "Risk areas to consider: oracle consensus (paused/ok), issuer concentration (top issuer share vs 25% warn / 30% breach), peg health (mtqPrice vs 1.00 PAR, band 0.50-2.00), buffer state (BASE/STRESS/EMERGENCY), geopolitical eject ladder (stage 0 = inactive), reserve ratio (1.10 target, 1.05 stress floor), reconciliation findings.",
     "",
     "Output ONLY the JSON array — no markdown fences, no prose. The `source` field must be a short string (e.g. '§9 oracle', '§5.6 concentration', '§14.1 buffer').",
@@ -233,20 +234,68 @@ export async function generateRiskSignals(
     return cached.result;
   }
 
-  // FRED official macro context (best-effort grounding — never fatal).
-  const fredContext = await getFredContext();
-  const prompt = buildPrompt(snapshot, fredContext);
+  const prompt = buildPrompt(snapshot);
 
-  // Cross-vendor consensus fan-out. maxTokens is sized to fit within the
-  // smallest provider credit limit we've observed in production (OpenRouter
-  // free tier can deny >100 max_tokens).
+  // ---- PRIMARY PATH: multi-provider consensus (Task 47) -------------------
+  if (AI_CONSENSUS_ENABLED && (hasKey("nvidia") || hasKey("openrouter"))) {
+    try {
+      // FRED macro grounding (owner directive): identical official context for
+      // every voter — VIX/DXY/gold/10Y from the Federal Reserve itself.
+      const fred = await getFredContext();
+      const con = await runConsensus<Record<string, unknown>>({
+        taskType: "risk-signals",
+        system: RISK_SYSTEM_INSTRUCTION,
+        user: prompt + (fred ? `\n\n${fred}` : ""),
+        mode: "signal-merge",
+        voters: 3,
+        panel: PANEL_FAST, // fast instruction-followers — long-context capable
+        maxTokens: 500,
+        temperature: 0.2,
+      });
+      if (con.ok && Array.isArray(con.result?.signals)) {
+        const signals = (con.result.signals as unknown[])
+          .map((item) => validateSignal(item as Record<string, unknown>))
+          .filter((s): s is RiskSignal => s !== null)
+          .slice(0, 5);
+        if (signals.length > 0) {
+          const result: RiskSignalsResult = {
+            signals,
+            generatedAt: Date.now(),
+            model: `consensus(signal-merge) — ${con.votersOk}/${con.votersAsked} voters`,
+            consensus: {
+              status: con.status,
+              votersOk: con.votersOk,
+              votersAsked: con.votersAsked,
+              agreement: con.agreement,
+              runId: con.runId,
+              votes: con.votes.map((v) => ({ provider: v.provider, model: v.model, role: v.role, ok: v.ok && v.parsed, latencyMs: v.latencyMs, error: v.error })),
+            },
+          };
+          cached = { signals, at: Date.now(), result };
+          return result;
+        }
+      }
+      console.error(
+        `[ai/risk-signals] consensus ${con.status} (votersOk=${con.votersOk}/${con.votersAsked}) votes=[${con.votes
+          .map((v) => `${v.model}:${v.ok && v.parsed ? "ok" : (v.error ?? "fail").slice(0, 40)}`)
+          .join(" | ")}] — degrading to single-model chain`,
+      );
+    } catch (e) {
+      console.error("[ai/risk-signals] consensus threw:", (e as Error).message?.slice(0, 200));
+    }
+  }
+
+  // ---- DEGRADATION PATH: validated single-model chain --------------------
   try {
-    const aiResult = await runConsensus(
+    const aiResult = await callWithFallback(
       [
         { role: "system", content: RISK_SYSTEM_INSTRUCTION },
         { role: "user", content: prompt },
       ],
-      { maxTokens: 100, temperature: 0.3, task: "risk-signals" },
+      { maxTokens: 100, temperature: 0.3 },
+    );
+    console.error(
+      `[ai/risk-signals] callWithFallback result: success=${aiResult.success} provider=${aiResult.provider} model=${aiResult.model} latencyMs=${aiResult.latencyMs} contentLen=${aiResult.content?.length ?? 0} error=${aiResult.error ?? "n/a"}`,
     );
 
     if (aiResult.success && aiResult.content && aiResult.content.length > 0) {
@@ -258,28 +307,22 @@ export async function generateRiskSignals(
           signals,
           generatedAt: Date.now(),
           model: aiResult.model,
-          consensus: {
-            mode: aiResult.mode,
-            provider: aiResult.provider,
-            vendor: aiResult.vendor,
-            agreement: aiResult.agreement,
-            members: aiResult.members,
-            fredGrounded: fredContext.length > 0,
-          },
         };
         cached = { signals, at: Date.now(), result };
         return result;
       }
       console.error(
-        `[ai/risk-signals] consensus centroid (${aiResult.provider}/${aiResult.model}) returned no parseable signals; falling through`,
+        `[ai/risk-signals] ${aiResult.provider}/${aiResult.model} returned no parseable signals; falling through`,
       );
     }
-    console.error(
-      `[ai/risk-signals] consensus unavailable — using deterministic fallback. lastError=${aiResult.error ?? "n/a"}`,
-    );
+    if (!aiResult.success) {
+      console.error(
+        `[ai/risk-signals] all 5 AI providers failed — using deterministic fallback. lastError=${aiResult.error ?? "n/a"}`,
+      );
+    }
   } catch (e) {
     console.error(
-      "[ai/risk-signals] runConsensus threw:",
+      "[ai/risk-signals] callWithFallback threw:",
       (e as Error).message?.slice(0, 200),
     );
   }

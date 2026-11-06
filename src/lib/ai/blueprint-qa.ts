@@ -1,23 +1,22 @@
-// MTQΣ — Blueprint Q&A (cross-vendor consensus edition, 2026-11-06).
+// MTQΣ — Blueprint Q&A (Task 47: multi-provider CONSENSUS mode, long-context).
 //
 // Server-side only. Answers user questions about the MTQΣ Master Monetary
 // Architecture v1.0 by feeding the authoritative TS constants from
 // `src/lib/mtq/blueprint.ts` as context (NOT the raw 3270-line docx — the TS
 // constants are the live, reconciled v1.0 source of truth).
 //
-// The model is asked to cite section numbers (e.g. "per §9.2"). We extract
-// those citations with a regex so the UI can highlight them.
+// The 3-voter panel (NVIDIA + OpenRouter) each answers as JSON
+// {"answer": "..."}; the MEDOID draft (highest mean pairwise lexical
+// similarity) wins — cross-model agreement on the answer's substance.
+// Citations are re-extracted from the winning draft.
 //
-// Execution model (src/lib/ai/consensus.ts): the question is answered by a
-// CROSS-VENDOR CONSENSUS — fanned out in parallel to every healthy member
-// (Groq · OpenRouter · NVIDIA · Gemini · Hugging Face · platform bootstrap);
-// the centroid response (highest mean pairwise agreement) is the answer, with
-// full member provenance + agreement score on the result.
-//
-// AI output is ADVISORY ONLY. It never modifies engine state. Every answer
-// includes the disclaimer.
+// Degradation: consensus failure → validated single-model chain
+// (model-fallback.ts) → deterministic fallback. AI output is ADVISORY ONLY.
+// It never modifies engine state. Every answer includes the disclaimer.
 
-import { runConsensus, type ConsensusResult } from "./consensus";
+import { callWithFallback } from "./model-fallback";
+import { runConsensus, PANEL_FAST } from "./consensus";
+import { AI_CONSENSUS_ENABLED, hasKey } from "./keys";
 import {
   STRATEGIC_PRIOR,
   STRATEGIC_PRIOR_TABLE,
@@ -76,13 +75,14 @@ export interface QaResult {
   citations: string[];
   model: string;
   disclaimer: string;
-  /** Consensus provenance — present whenever ≥1 member answered. */
   consensus?: {
-    mode: ConsensusResult["mode"];
-    provider: string;
-    vendor: string;
+    status: string;
+    votersOk: number;
+    votersAsked: number;
     agreement: number | null;
-    members: ConsensusResult["members"];
+    winner?: string;
+    runId?: string;
+    votes: Array<{ provider: string; model: string; role: string; ok: boolean; latencyMs: number; error?: string }>;
   };
 }
 
@@ -181,6 +181,7 @@ function buildBlueprintContext(): string {
 
 const SYSTEM_INSTRUCTION = [
   "You are the MTQΣ protocol documentation assistant. Answer questions about the MTQΣ Master Monetary Architecture v1.0. Cite section numbers (e.g., 'per §9.2', 'per §14.1') when relevant. If the question is outside the blueprint scope, say so. Do not invent facts. Be concise (3-5 sentences).",
+  'You answer ONLY with a JSON object of the exact shape {"answer": "<your answer text>"} — the value must be YOUR actual answer (not a placeholder), no markdown fences, no extra keys.',
 ].join("\n");
 
 /** Extract §X.Y style section citations from the answer. */
@@ -218,16 +219,59 @@ export async function answerQuestion(question: string): Promise<QaResult> {
     "Answer (3-5 sentences, cite §-numbers, do not invent facts):",
   ].join("\n");
 
-  // Cross-vendor consensus fan-out. maxTokens is sized to fit within the
-  // smallest provider credit limit we've observed in production (OpenRouter
-  // free tier can deny >100 max_tokens).
+  // ---- PRIMARY PATH: multi-provider consensus (Task 47) -------------------
+  if (AI_CONSENSUS_ENABLED && (hasKey("nvidia") || hasKey("openrouter"))) {
+    try {
+      const con = await runConsensus<Record<string, unknown>>({
+        taskType: "qa",
+        system: SYSTEM_INSTRUCTION,
+        user: prompt,
+        mode: "medoid",
+        proseField: "answer",
+        voters: 3,
+        panel: PANEL_FAST, // fast instruction-followers — the blueprint context is ~4KB
+        maxTokens: 500,
+        temperature: 0.2,
+      });
+      const answer = con.ok ? String(con.result?.answer ?? "") : "";
+      if (con.ok && answer.trim().length > 0) {
+        return {
+          answer,
+          citations: extractCitations(answer),
+          model: con.winner ?? "consensus",
+          disclaimer: DISCLAIMER,
+          consensus: {
+            status: con.status,
+            votersOk: con.votersOk,
+            votersAsked: con.votersAsked,
+            agreement: con.agreement,
+            winner: con.winner,
+            runId: con.runId,
+            votes: con.votes.map((v) => ({ provider: v.provider, model: v.model, role: v.role, ok: v.ok && v.parsed, latencyMs: v.latencyMs, error: v.error })),
+          },
+        };
+      }
+      console.error(
+        `[ai/qa] consensus ${con.status} (votersOk=${con.votersOk}/${con.votersAsked}) votes=[${con.votes
+          .map((v) => `${v.model}:${v.ok && v.parsed ? "ok" : (v.error ?? "fail").slice(0, 40)}`)
+          .join(" | ")}] — degrading to single-model chain`,
+      );
+    } catch (e) {
+      console.error("[ai/qa] consensus threw:", (e as Error).message?.slice(0, 200));
+    }
+  }
+
+  // ---- DEGRADATION PATH: validated single-model chain --------------------
   try {
-    const aiResult = await runConsensus(
+    const aiResult = await callWithFallback(
       [
         { role: "system", content: SYSTEM_INSTRUCTION },
         { role: "user", content: prompt },
       ],
-      { maxTokens: 100, temperature: 0.2, task: "qa" },
+      { maxTokens: 100, temperature: 0.2 },
+    );
+    console.error(
+      `[ai/qa] callWithFallback result: success=${aiResult.success} provider=${aiResult.provider} model=${aiResult.model} latencyMs=${aiResult.latencyMs} contentLen=${aiResult.content?.length ?? 0} error=${aiResult.error ?? "n/a"}`,
     );
 
     if (aiResult.success && aiResult.content && aiResult.content.length > 0) {
@@ -236,21 +280,16 @@ export async function answerQuestion(question: string): Promise<QaResult> {
         citations: extractCitations(aiResult.content),
         model: aiResult.model,
         disclaimer: DISCLAIMER,
-        consensus: {
-          mode: aiResult.mode,
-          provider: aiResult.provider,
-          vendor: aiResult.vendor,
-          agreement: aiResult.agreement,
-          members: aiResult.members,
-        },
       };
     }
-    console.error(
-      `[ai/qa] consensus unavailable — using deterministic fallback. lastError=${aiResult.error ?? "n/a"}`,
-    );
+    if (!aiResult.success) {
+      console.error(
+        `[ai/qa] all 5 AI providers failed — using deterministic fallback. lastError=${aiResult.error ?? "n/a"}`,
+      );
+    }
   } catch (e) {
     console.error(
-      "[ai/qa] runConsensus threw:",
+      "[ai/qa] callWithFallback threw:",
       (e as Error).message?.slice(0, 200),
     );
   }

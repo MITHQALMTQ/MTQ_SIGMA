@@ -24,7 +24,7 @@ import { useState, useRef, useEffect, useCallback } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Send, BookOpen, Sparkles, AlertCircle } from "lucide-react";
 import { Panel, Reveal, Pill, GlowDot, Skeleton } from "./primitives";
-import { ConsensusBadge, type ConsensusMeta } from "./AIConsensus";
+import { ConsensusBadge, type ConsensusMeta } from "./ConsensusBadge";
 
 /* ---------- API shape contract (must match P1-A backend) ---------- */
 interface QaResponse {
