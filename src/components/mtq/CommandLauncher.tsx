@@ -39,6 +39,8 @@ export function CommandLauncher({ onNavigate }: { onNavigate: (id: SectionId) =>
 
   const commands: Command[] = [
     { id: "overview", label: "Go to Overview", action: () => onNavigate("overview"), category: "Navigation" },
+    { id: "network", label: "Open Network NOC", action: () => onNavigate("network"), category: "Navigation" },
+    { id: "explorer", label: "Open Chain Explorer", action: () => onNavigate("explorer"), category: "Navigation" },
     { id: "reference", label: "Go to Reference", action: () => onNavigate("reference"), category: "Navigation" },
     { id: "reserve", label: "Go to Reserve", action: () => onNavigate("reserve"), category: "Navigation" },
     { id: "risk", label: "Go to Risk", action: () => onNavigate("risk"), category: "Navigation" },
@@ -50,20 +52,19 @@ export function CommandLauncher({ onNavigate }: { onNavigate: (id: SectionId) =>
     { id: "developers", label: "Go to Developers", action: () => onNavigate("developers"), category: "Navigation" },
     { id: "mint", label: "Mint MTQΣ", action: () => onNavigate("mint"), category: "Operations" },
     { id: "redeem", label: "Redeem MTQΣ", action: () => onNavigate("redeem"), category: "Operations" },
-    { id: "portfolio", label: "Go to Portfolio", action: () => onNavigate("portfolio"), category: "Operations" },
+    { id: "wallet", label: "Open Devnet Wallet", action: () => onNavigate("wallet"), category: "Operations" },
+    { id: "staking", label: "Open Staking & Gov", action: () => onNavigate("staking"), category: "Operations" },
+    { id: "portfolio", label: "Go to Dashboard", action: () => onNavigate("portfolio"), category: "Operations" },
     { id: "activity", label: "Go to Activity", action: () => onNavigate("activity"), category: "Operations" },
     { id: "simulation", label: "Open Simulation Lab", action: () => onNavigate("simulation"), category: "Supporting" },
     { id: "constituency", label: "Open Constituency", action: () => onNavigate("constituency"), category: "Supporting" },
     { id: "issuance", label: "Open Issuance Lab", action: () => onNavigate("issuance"), category: "Supporting" },
-    { id: "architecture", label: "Open Architecture", action: () => onNavigate("architecture"), category: "Supporting" },
-    { id: "docs", label: "Open Documentation", action: () => onNavigate("docs"), category: "Supporting" },
+    { id: "docs", label: "Open Blueprint & Docs", action: () => onNavigate("docs"), category: "Supporting" },
     { id: "security", label: "Open Security", action: () => onNavigate("security"), category: "Supporting" },
-    { id: "contracts", label: "Open Contracts", action: () => onNavigate("contracts"), category: "Supporting" },
+    { id: "contracts", label: "Open Contracts & Chains", action: () => onNavigate("contracts"), category: "Supporting" },
     { id: "authorization", label: "Open Authorization Audit", action: () => onNavigate("authorization"), category: "Supporting" },
-    { id: "networks", label: "Open Networks", action: () => onNavigate("networks"), category: "Supporting" },
     { id: "faucet", label: "Open Faucet", action: () => onNavigate("faucet"), category: "Supporting" },
     { id: "investors", label: "Open Investors Dashboard", action: () => onNavigate("investors"), category: "Restricted" },
-    { id: "pitch", label: "Open Pitch", action: () => onNavigate("pitch"), category: "Restricted" },
   ];
 
   const filtered = commands.filter((c) =>

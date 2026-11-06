@@ -6,12 +6,15 @@
 // staged as two client views inside it:
 //   • LANDING      — the pixel-parity marketing composition (nav → cinematic
 //                    hero → protocol cards → stats → ecosystem → footer).
-//   • COMMAND CENTER — the full institutional terminal: 26 sections covering
+//   • COMMAND CENTER — the full institutional terminal: 27 sections covering
 //                    the blueprint v2.0 (reference, reserve, risk, MARP,
 //                    transparency, governance, validation, evidence, mint,
 //                    redeem, portfolio, activity, simulation, constituency,
 //                    architecture, docs, security, contracts, networks,
-//                    faucet + restricted investors/pitch).
+//                    faucet + restricted investors). T47: networks folded
+//                    into Contracts & Chains, architecture into Blueprint &
+//                    Docs, pitch into Investors — 30 → 27 tabs, zero lost
+//                    content.
 //
 // Entry points: nav "Launch App" button, hero primary CTA, ecosystem CTA,
 // footer link. Exit: the "Landing" button in the Command Center header.

@@ -1022,6 +1022,16 @@ function GovernanceSection() {
 
 const SECTION_KEY = "mtqs.section";
 
+/* T47 consolidation — sections removed from the registry live on under their
+   merged parents. Any stale persisted id (sessionStorage written before the
+   consolidation, or an old launch link) is redirected to its new home BEFORE
+   the ALL_SECTIONS validation, so no visitor can ever restore a dead section. */
+const LEGACY_SECTION_REDIRECT: Record<string, SectionId> = {
+  networks: "contracts",
+  architecture: "docs",
+  pitch: "investors",
+};
+
 export function PilotCommandCenter({ onExit }: { onExit?: () => void }) {
   // Restore the last visited section (session persistence) so launching from
   // the landing page or refreshing keeps the user where they were.
@@ -1029,8 +1039,9 @@ export function PilotCommandCenter({ onExit }: { onExit?: () => void }) {
     if (typeof window === "undefined") return "overview";
     try {
       const saved = window.sessionStorage.getItem(SECTION_KEY);
-      if (saved && ALL_SECTIONS.some((s) => s.id === saved)) {
-        return saved as SectionId;
+      const mapped = saved ? LEGACY_SECTION_REDIRECT[saved] ?? saved : null;
+      if (mapped && ALL_SECTIONS.some((s) => s.id === mapped)) {
+        return mapped as SectionId;
       }
     } catch {
       /* storage unavailable — fall back to overview */
@@ -1202,7 +1213,6 @@ export function PilotCommandCenter({ onExit }: { onExit?: () => void }) {
                   {section === "validation" && (
                     <div className="space-y-10">
                       <ValidationResearchSection onNavigate={handleNavigate} snapshot={snapshot} />
-                      <MandateCompliance />
                       <TestsSection onNavigate={handleNavigate} />
                     </div>
                   )}
@@ -1256,17 +1266,37 @@ export function PilotCommandCenter({ onExit }: { onExit?: () => void }) {
                   {section === "issuance" && (
                     <IssuanceSection onNavigate={handleNavigate} snapshot={snapshot} />
                   )}
-                  {section === "architecture" && (
-                    <ArchitectureSection onNavigate={handleNavigate} snapshot={snapshot} />
-                  )}
                   {section === "docs" && (
-                    <DocsSection onNavigate={handleNavigate} snapshot={snapshot} />
+                    <div className="space-y-10">
+                      {/* T47: the former Architecture tab (Blueprint v2.0 Ch 26 +
+                          appendices — final declarations, two-engine hierarchy,
+                          Four Weight States, deployment checklist, glossary)
+                          renders under the Docs reference — one blueprint tab. */}
+                      <DocsSection onNavigate={handleNavigate} snapshot={snapshot} />
+                      <ArchitectureSection onNavigate={handleNavigate} snapshot={snapshot} />
+                    </div>
                   )}
                   {section === "security" && <SecuritySection onNavigate={handleNavigate} />}
-                  {section === "contracts" && <ContractsSection onNavigate={handleNavigate} />}
-                  {section === "authorization" && <AuthorizationAuditSection />}
-                  {section === "networks" && (
-                    <NetworksSection onNavigate={handleNavigate} snapshot={snapshot} />
+                  {section === "authorization" && (
+                    <div className="space-y-10">
+                      {/* T47: MandateCompliance moved here from Validation — its
+                          OD-35 Safe custody evidence, role/authorization register
+                          and OD/C/T registers belong with the authorization audit
+                          (its OD-34 oracle content complements Contracts & Chains). */}
+                      <AuthorizationAuditSection />
+                      <MandateCompliance />
+                    </div>
+                  )}
+                  {section === "contracts" && (
+                    <div className="space-y-10">
+                      {/* T47: the former Networks tab renders under the contract
+                          registry — chain metadata (RPC / explorer / deployer /
+                          canonical addresses) renders once in the registry above;
+                          the OD-34 oracle deployment registry, chain policy notes
+                          and §1.7 verification banner render below. */}
+                      <ContractsSection onNavigate={handleNavigate} />
+                      <NetworksSection onNavigate={handleNavigate} snapshot={snapshot} />
+                    </div>
                   )}
                   {section === "faucet" && (
                     <div className="space-y-10">
@@ -1349,9 +1379,12 @@ export function PilotCommandCenter({ onExit }: { onExit?: () => void }) {
                         <InstitutionalDashboard />
                       </section>
                       <InvestorSection onNavigate={handleNavigate} snapshot={snapshot} />
+                      {/* T47: the restricted Pitch Deck renders here — a
+                          fundraising deck is not pilot functionality, but stays
+                          reachable on the investors surface for owner demos. */}
+                      <PitchSection onNavigate={handleNavigate} />
                     </div>
                   )}
-                  {section === "pitch" && <PitchSection onNavigate={handleNavigate} />}
 
                 </motion.div>
               </AnimatePresence>

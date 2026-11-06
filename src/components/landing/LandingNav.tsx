@@ -45,15 +45,16 @@ type NavMenu = {
 };
 
 /* All targets are REAL terminal sections (verified in the router):
-   contracts · networks · developers · governance · transparency · security ·
-   docs · architecture · validation · evidence. */
+   contracts (merged T47: registry + chains + oracle deployments) ·
+   developers · governance · transparency · security · docs (merged T47:
+   blueprint + architecture) · architecture → docs · validation · evidence. */
 const NAV_MENUS: NavMenu[] = [
   {
     which: "developers",
     label: "Developers",
     items: [
       { kind: "launch", label: "Contract Registry", hint: "3 testnets, canonical addresses", section: "contracts" },
-      { kind: "launch", label: "Testnet Networks", hint: "Chains · RPC · explorers · oracles", section: "networks" },
+      { kind: "launch", label: "Chains & Oracle Deployments", hint: "RPC · explorers · OD-34 registry", section: "contracts" },
       { kind: "launch", label: "Developer Reference & API", hint: "40 read-only endpoints + verification", section: "developers" },
       { kind: "dialog", label: "Status register", hint: "Deployment & test evidence summary", which: "developers" },
     ],
@@ -73,7 +74,7 @@ const NAV_MENUS: NavMenu[] = [
     label: "Resources",
     items: [
       { kind: "launch", label: "Documentation", hint: "Master blueprint v1.0 chapters", section: "docs" },
-      { kind: "launch", label: "Architecture", hint: "Final declarations & two-engine hierarchy", section: "architecture" },
+      { kind: "launch", label: "Blueprint & Architecture", hint: "Final declarations & two-engine hierarchy", section: "docs" },
       { kind: "launch", label: "Validation & Research", hint: "§23 stress matrix, live verdicts", section: "validation" },
       { kind: "launch", label: "Evidence Package", hint: "§1 restrictions · findings · re-runs", section: "evidence" },
       { kind: "dialog", label: "Status register", hint: "Evidence package D-1…D-6", which: "resources" },
@@ -289,7 +290,7 @@ export function LandingNav({
             <button
               type="button"
               className="lp-chain-pill"
-              title="Pilot environment: live testnets — see the Networks tab in the terminal"
+              title="Pilot environment: live testnets — see the Contracts & Chains tab in the terminal"
               aria-label="Pilot environment: live testnets"
               aria-haspopup="menu"
               aria-expanded={chainOpen}
@@ -333,15 +334,15 @@ export function LandingNav({
                     type="button"
                     role="menuitem"
                     className="lp-nav-menu-item"
-                    onClick={() => pickLaunch("networks")}
+                    onClick={() => pickLaunch("contracts")}
                   >
                     <span className="min-w-0">
                       <span className="flex items-center gap-1.5 text-[0.8rem] font-semibold text-[#0E1F1B]">
-                        Open Networks in the terminal
+                        Open Contracts &amp; Chains in the terminal
                         <ArrowUpRight className="size-3 shrink-0 text-[#0D9488]" aria-hidden />
                       </span>
                       <span className="mt-0.5 block truncate text-[0.66rem] text-[#5B6E68]">
-                        Full registry: 3 testnets (Monad · Arc · Solana devnet)
+                        Full registry: 3 testnets (Monad · Arc · Solana devnet) + oracle deployments
                       </span>
                     </span>
                   </button>

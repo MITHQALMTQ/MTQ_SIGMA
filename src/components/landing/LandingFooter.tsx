@@ -17,16 +17,16 @@ const FOOTER_LINKS = [
   { label: "Ecosystem", href: "#ecosystem" },
 ] as const;
 
-/* Working footer "tabs" — each launches the terminal at a REAL section. */
+/* Working footer "tabs" — each launches the terminal at a REAL section.
+   T47: Networks folded into Contracts & Chains; Architecture folded into
+   Documentation (Blueprint & Docs) — both old targets removed, nothing dead. */
 const FOOTER_LAUNCH_LINKS: { label: string; section: string }[] = [
-  { label: "Contracts", section: "contracts" },
-  { label: "Networks", section: "networks" },
+  { label: "Contracts & Chains", section: "contracts" },
   { label: "API Reference", section: "developers" },
   { label: "Governance", section: "governance" },
   { label: "Transparency", section: "transparency" },
   { label: "Security", section: "security" },
-  { label: "Documentation", section: "docs" },
-  { label: "Architecture", section: "architecture" },
+  { label: "Blueprint & Docs", section: "docs" },
   { label: "Validation", section: "validation" },
   { label: "Evidence", section: "evidence" },
 ];
