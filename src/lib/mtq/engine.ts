@@ -1093,6 +1093,26 @@ export function evaluateRebalance(
   maybeResetDailyTurnover(s);
   const remainingDaily = MAX_DAILY_TURNOVER * nav - s.dailyTurnoverUsd;
   if (tradeUsd > remainingDaily) tradeUsd = Math.max(0, remainingDaily);
+  // F-53-1 (Task-53 audit): a turnover-exhausted day sizes the trade to $0 —
+  // the ε gate below then passes trivially (a $0 trade costs ≈$0) and the
+  // decision reads shouldRebalance: true · “executing” with nothing
+  // executable (live-observed: “Benefit − cost > ε ($10); executing (§12.8
+  // unified gate…)” alongside Trade Size $0 — and applyRebalanceTrade has no
+  // zero-size guard, so the legacy path would mutate lastTradeDir/lastTradeAt
+  // on a phantom trade, poisoning the §11.5.3 direction lock). Honest
+  // decision: nothing can execute today — the economic signal rides in the
+  // reason string, never in a phantom “executing” flag.
+  if (tradeUsd <= 0) {
+    return {
+      shouldRebalance: false,
+      direction: 0,
+      observedGoldWeight: observed,
+      targetGoldWeight: target,
+      deviation,
+      tradeUsd: 0,
+      reason: `Turnover budget exhausted (§11.5.2): the daily 5%-of-NAV cap is consumed — deviation ${(deviation * 100).toFixed(2)}pp would otherwise trade (~$${surplusUsd.toFixed(0)}); nothing executable until the budget resets`,
+    };
+  }
 
   // §12.7 cost model (Task 8-b — exact v2.0 cost assembly, replacing the former
   // "0.1% slippage + flat $50 gas" estimate): EstimatedCost =
@@ -1184,6 +1204,11 @@ function chargeRebalanceFee(s: ReserveState, tradeUsd: number, assetClass: "STAB
 // Apply a rebalance trade in USD terms (mutates state).
 export function applyRebalanceTrade(s: ReserveState, decision: RebalanceDecision, goldPrice: number): void {
   if (!decision.shouldRebalance) return;
+  // F-53-1 belt: a zero-size trade must never mutate state (the decision
+  // layer now returns shouldRebalance:false for turnover-exhausted days, but
+  // defense in depth — a phantom trade would poison the §11.5.3 direction
+  // lock with lastTradeDir/lastTradeAt set on a $0 fill).
+  if (!(decision.tradeUsd > 0)) return;
   const usd = decision.tradeUsd;
   // §20.4 — deduct the rebalancing fee BEFORE execution; the swap settles on
   // the net notional (sell: proceeds reduced; buy: gold bought with net).
