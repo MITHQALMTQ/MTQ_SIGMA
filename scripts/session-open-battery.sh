@@ -21,52 +21,64 @@ cd "$(git rev-parse --show-toplevel 2>/dev/null)" || { echo "BATTERY FAIL: not a
 fail=0
 echo "== MTQΣ session-open battery =="
 
-# [1/5] Fetch first — always. Local refs are worthless until refreshed.
-echo "[1/5] git fetch origin ..."
+# [1/6] Fetch first — always. Local refs are worthless until refreshed.
+echo "[1/6] git fetch origin ..."
 if git fetch origin --quiet --tags 2>/dev/null; then
   echo "      fetch OK"
 else
   echo "      WARN: fetch failed (offline?); continuing with existing refs"
 fi
 
-# [2/5] local HEAD vs origin/main — THE stale-snapshot detector.
+# [2/6] local HEAD vs origin/main — THE stale-snapshot detector.
 HEAD_SHA=$(git rev-parse HEAD)
 ORIGIN_SHA=$(git rev-parse origin/main)
 if [ "$HEAD_SHA" = "$ORIGIN_SHA" ]; then
-  echo "[2/5] local == origin/main == ${HEAD_SHA:0:12}  OK"
+  echo "[2/6] local == origin/main == ${HEAD_SHA:0:12}  OK"
 else
-  echo "[2/5] STALE TREE DETECTED: local ${HEAD_SHA:0:12} != origin/main ${ORIGIN_SHA:0:12}"
+  echo "[2/6] STALE TREE DETECTED: local ${HEAD_SHA:0:12} != origin/main ${ORIGIN_SHA:0:12}"
   echo "      This is the known sandbox re-image regression (worklog Task 30/31)."
   echo "      Forward-only recovery: prove content redundancy by blob hash,"
   echo "      then: git reset --hard origin/main  (NEVER roll back the remote)."
   fail=1
 fi
 
-# [3/5] No-rollback anchor (Task 26 machinery) must be an ancestor of HEAD.
+# [3/6] No-rollback anchor (Task 26 machinery) must be an ancestor of HEAD.
 anchor=$(git tag -l 'no-rollback-anchor-*' | sort | tail -1)
 if [ -n "$anchor" ] && git merge-base --is-ancestor "$anchor" HEAD; then
-  echo "[3/5] no-rollback anchor '$anchor' is ancestor of HEAD  OK"
+  echo "[3/6] no-rollback anchor '$anchor' is ancestor of HEAD  OK"
 else
-  echo "[3/5] ANCHOR CHECK FAILED (anchor: '${anchor:-none found}') — history may have been rolled back!"
+  echo "[3/6] ANCHOR CHECK FAILED (anchor: '${anchor:-none found}') — history may have been rolled back!"
   fail=1
 fi
 
-# [4/5] Working tree state (informational — dirty is normal mid-work,
+# [4/6] Working tree state (informational — dirty is normal mid-work,
 # but a freshly re-imaged session should be clean).
 if [ -z "$(git status --porcelain)" ]; then
-  echo "[4/5] working tree clean  OK"
+  echo "[4/6] working tree clean  OK"
 else
-  echo "[4/5] working tree dirty (shown if fresh session — investigate):"
+  echo "[4/6] working tree dirty (shown if fresh session — investigate):"
   git status --porcelain | head -10
 fi
 
-# [5/5] Dev server liveness (informational).
+# [5/6] Dev server liveness (informational).
 if curl -s -m 3 -o /dev/null http://localhost:3000/api/health 2>/dev/null; then
-  echo "[5/5] dev server responding on :3000  OK"
+  echo "[5/6] dev server responding on :3000  OK"
 else
-  echo "[5/5] dev server NOT responding on :3000"
+  echo "[5/6] dev server NOT responding on :3000"
   echo "      (if needed, relaunch: ( setsid bash dev-watchdog.sh >> /tmp/watchdog-launch.log 2>&1 & )"
   echo "       — the double-fork orphan pattern; single-fork is reaped, Task 31)"
+fi
+
+# [6/6] Database regression detector (incident 2026-11-06: sandbox re-image
+# re-seeded db/chain.db to genesis + wiped db/custom.db telemetry; git-tracked
+# truth survived, DBs did not — caught only by manual row-count comparison).
+if bun run scripts/check-db-regression.ts; then
+  :
+else
+  echo "[6/6] DATABASE REGRESSION SIGNATURE — recover forward-only per"
+  echo "      backups/INCIDENT-2026-11-06-DB-REGRESSION.md BEFORE ANY WORK."
+  echo "      (an intentional recorded reset may be acknowledged in worklog.md)"
+  fail=1
 fi
 
 if [ "$fail" -eq 0 ]; then
