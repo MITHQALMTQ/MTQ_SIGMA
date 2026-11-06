@@ -540,11 +540,16 @@ function ReserveSection({ snapshot }: { snapshot: MetricsSnapshot | null }) {
 
 // FIX 1.3 — `risk` section: 6-state risk machine + VIX/DXY + canonical thresholds.
 //   Reads the parent-polled snapshot.
+// F-47-1: DEFENSIVE = amber, NOT rose — the F-38-1/F-46-1 canonical convention
+//   (rose = EMERGENCY §21.2 hard-floor breach ONLY) applies to the state ladder
+//   too: DEFENSIVE (RR 1.00–1.02, solvency intact) painted rose was visually
+//   indistinguishable from EMERGENCY on the ladder + header pill. Matches the
+//   canonical status-tone.tsx and RiskStateMachine maps.
 const RISK_TONE: Record<string, "emerald" | "amber" | "rose"> = {
   NORMAL: "emerald",
   CAUTION: "amber",
   STRESS: "amber",
-  DEFENSIVE: "rose",
+  DEFENSIVE: "amber",
   EMERGENCY: "rose",
   RECOVERY: "amber",
 };

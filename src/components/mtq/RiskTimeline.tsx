@@ -4,7 +4,12 @@
 // Each row is clickable → expands to show what caused the transition
 // (the "worse condition binds" rule, the threshold crossed, the policy
 // adjustments applied). Color-coded by state (NORMAL=emerald, CAUTION=amber,
-// STRESS=amber/orange, DEFENSIVE=rose, EMERGENCY=rose, RECOVERY=cyan).
+// STRESS=amber/orange, DEFENSIVE=amber, EMERGENCY=rose, RECOVERY=cyan).
+// F-47-1: DEFENSIVE pill tone = amber (rose = EMERGENCY §21.2 hard-floor
+// breach ONLY — the F-38-1/F-46-1 canonical convention); the row's TEXT color
+// still uses the brand severity ramp (STATUS_COLORS.DEFENSIVE #FF6B6B — a
+// distinct soft red, darker than EMERGENCY's #FF4D6D), so DEFENSIVE stays
+// visually distinct from EMERGENCY on BOTH layers.
 //
 // For the pilot we synthesise the last 10 transitions based on the current
 // engine state — production reads from the RebalancingDecision + DailyStateVector
@@ -51,11 +56,12 @@ interface RiskTransition {
 }
 
 // State → tailwind text color (matches brand STATUS_COLORS but in tailwind tokens).
+// F-47-1: DEFENSIVE → amber (rose reserved for EMERGENCY per §21.2 convention).
 const STATE_TONE: Record<RiskStateName, "emerald" | "amber" | "rose" | "gold"> = {
   NORMAL: "emerald",
   CAUTION: "amber",
   STRESS: "amber",
-  DEFENSIVE: "rose",
+  DEFENSIVE: "amber",
   EMERGENCY: "rose",
   RECOVERY: "emerald",
 };

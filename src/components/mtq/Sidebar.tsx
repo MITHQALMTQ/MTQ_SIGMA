@@ -169,9 +169,11 @@ const SIDEBAR_GROUPS: SidebarGroup[] = [
 const ALL_SIDEBAR_ITEMS: SectionDef[] = SIDEBAR_GROUPS.flatMap((g) => g.items);
 
 // Status → dot tone for the live capsule.
+// F-47-1: DEFENSIVE joins the amber family — rose is reserved for EMERGENCY
+// (§21.2 hard-floor breach ONLY), matching the canonical status-tone.tsx.
 function statusTone(s: string | undefined): "emerald" | "amber" | "rose" {
   if (s === "NORMAL") return "emerald";
-  if (s === "CAUTION" || s === "RECOVERY" || s === "STRESS") return "amber";
+  if (s === "CAUTION" || s === "RECOVERY" || s === "STRESS" || s === "DEFENSIVE") return "amber";
   return "rose";
 }
 function statusDotHex(tone: "emerald" | "amber" | "rose"): string {
