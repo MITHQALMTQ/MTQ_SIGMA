@@ -46,3 +46,41 @@ working tree clean except the new upload. No data loss; no regression.
 2. The 323MB bundle + physical copies remain disk-only (repo-size hygiene).
 3. No cloud *database service* is wired in this environment (honest note, unchanged) —
    the cloud layer here is the git repository itself.
+
+---
+
+# Backup Manifest — 2026-11-06 evening (TASK-47 harden + push)
+
+**Trigger**: owner directive — "check that no databases has been removed … be sure both are
+at the latest updates … harden and backup and push to local server and cloud."
+
+**Database integrity (pre-backup, verified per-table vs cloud layer)**:
+- `db/chain.db` — integrity ok · tip h4072 · 13 tables · every table ≥ cloud-dump counts
+- `db/custom.db` — integrity ok · 12,755+ rows · 11 tables · every table ≥ cloud-dump counts
+- Chain of custody forward-only: origin/main h3813/11,963 → local dumps h3941/12,395 → live h3972+/12,488+ (nothing removed anywhere)
+
+## Layers (dual-location, SHA-256 fingerprints)
+
+### LOCAL (disk vault — `mtq-sigma-backups/2026-11-06-task47/`)
+| Artifact | Bytes | SHA-256 |
+|---|---|---|
+| chain-2026-11-06T-task47.db (VACUUM INTO, tip h4072) | 9,371,648 | `947ad1334c603ce6e6f59bea62893b9ee24779301234c36b05fe153c6d5a81d4` |
+| custom-2026-11-06T-task47.db (VACUUM INTO) | 5,275,648 | `a18905c5b9fe206766f6368f311c3a3cc21092ddd62a40b83ff3a3cc68405c0a` |
+| chain-…-logical.sql (8,598 rows, tip h4067) | 7,612,454 | `bc81a3ed7eeb597cbb2595fa5533db665133ce055b2cf3c889dfaaa0d924dbba` |
+| custom-…-logical.sql (12,755 rows) | 9,174,633 | `bc0477e5c5fe467ea0a59e3e7970d3e67a792f951462355d739f2a4b68d1af4c` |
+| mtq-sigma-full-0552ab5.bundle (git --all) | 331,233,993 | `df6e3b5a01167aca58e15210ba1056f64532397f61d9dfdc2921816046d9963b` |
+
+### CLOUD (git-tracked + GitHub push)
+| Artifact | Path | State |
+|---|---|---|
+| latest-chain.sql (logical dump, h4067 / 8,598 rows) | `backups/db-snapshots/latest-chain.sql` | round-trip PASS (integrity ok · exact tip · genesis gen_3baf0dba… · 8 validators) |
+| latest-custom.sql (logical dump, 12,755 rows) | `backups/db-snapshots/latest-custom.sql` | round-trip PASS |
+| Full repo history + code + Task-47 root-cause fixes | GitHub `MITHQALMTQ/MTQ_SIGMA` origin/main push | force-with-lease from 0552ab5-lineage (amend-drift realignment; content diff vs origin was dump-blobs only, local strictly fresher — task44 precedent) |
+
+**Task-47 hardening shipped with this backup** (root-cause, closed classes):
+1. Source-file deletion auto-heal — `src/lib/boot/source-integrity.ts` + watchdog v3 pre-boot + instrumentation boot & 60s sweep (unstaged deletions of HEAD-tracked files restored via git restore; sentinel `db/ALLOW-FILE-DELETIONS`; live-fire tested).
+2. In-process cloud-sync write-behind — `src/instrumentation.ts` 60s `cloudSyncRefresh()` loop (dump freshness survives watchdog death — incident #7 class).
+3. HuggingFace Router endpoint migration in `src/lib/ai/model-fallback.ts` (legacy endpoint permanently dead).
+4. FRED layer LIVE (FRED_API_KEY verified; /api/fred serving real series).
+
+**Honest loss bound**: write-behind window only — Δ<60 chain blocks / Δ<400 custom rows at any moment (the 60s in-process + watchdog loops bound it to minutes).

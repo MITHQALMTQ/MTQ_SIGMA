@@ -123,3 +123,7 @@ contracts/cache/
 # TASK-42 — intentional-reset sentinel (auto-heal opt-out; expiry+reason live
 # in the file, never commit it — remove it to re-arm the DB self-heal)
 db/ALLOW-GENESIS-RESET
+
+# TASK-47 — intentional file-deletion sentinel (source-integrity opt-out;
+# expiry+reason live in the file, never commit it — remove to re-arm)
+db/ALLOW-FILE-DELETIONS

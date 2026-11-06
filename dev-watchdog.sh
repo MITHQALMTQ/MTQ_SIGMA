@@ -1,8 +1,18 @@
 #!/bin/bash
-# MTQΣ dev-server watchdog v2 (Task 42 — root-cause remediation for the
-# 2026-11-06 database-deletion incident class).
+# MTQΣ dev-server watchdog v3 (Task 47 — root-cause remediation round 2).
 #
-# Changes vs v1:
+# Changes vs v2 (task42):
+#   - PRE-BOOT SOURCE-INTEGRITY HEAL: before every `next dev` start, runs
+#     scripts/source-integrity-heal.ts — unstaged deletions of HEAD-tracked
+#     files (the recurring /api/constituency/upload deletion class, 5×) are
+#     restored BEFORE the server compiles routes. Sentineled via
+#     db/ALLOW-FILE-DELETIONS; staged/committed deletions are respected.
+#   - IN-PROCESS GUARD (belt): src/instrumentation.ts now runs the same
+#     restore at boot + every 60s and the cloud-sync write-behind itself —
+#     dump freshness no longer depends on THIS watchdog surviving (incident
+#     #7: re-image killed the watchdog while the server kept running).
+#
+# Carried from v2:
 #   - PRE-BOOT DB SELF-HEAL: before every `next dev` start, runs
 #     scripts/db-selfheal.ts — a wiped/regressed data layer is restored
 #     forward-only from the git-tracked cloud dumps BEFORE the chain node
@@ -45,7 +55,7 @@ WATCHDOG_PID_LOG=/tmp/mtq-watchdog.pid
 export NODE_OPTIONS="${NODE_OPTIONS:+$NODE_OPTIONS }--max-old-space-size=768"
 
 echo $$ > "$WATCHDOG_PID_LOG"
-echo "[$(date -u +%H:%M:%S)] watchdog v2 up (pid $$) — self-heal + cloud-sync armed" >> "$LOG"
+echo "[$(date -u +%H:%M:%S)] watchdog v3 up (pid $$) — self-heal + source-integrity + cloud-sync armed" >> "$LOG"
 
 # Task 42: cloud-layer sync loop (detached subshell). Never fatal.
 (
@@ -62,6 +72,11 @@ while true; do
     sleep 15
     continue
   fi
+
+  # Pre-boot source-integrity heal (Task 47): restore unstaged deletions of
+  # HEAD-tracked files BEFORE the server compiles routes.
+  echo "[$(date -u +%H:%M:%S)] watchdog: :3000 down — source-integrity heal before boot..." >> "$LOG"
+  bun run scripts/source-integrity-heal.ts >> "$LOG" 2>&1 || true
 
   # Pre-boot DB self-heal (Task 42): restore a wiped/regressed data layer
   # BEFORE the chain node boots — the silent re-seed path is closed.

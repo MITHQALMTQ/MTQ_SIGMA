@@ -10,8 +10,14 @@
 //   2. OpenRouter (multi-model gateway, region-agnostic)
 //   3. NVIDIA (enterprise-grade, US-focused)
 //   4. Gemini (Google, good but geo-blocked in EU)
-//   5. HuggingFace (inference API, always available but lower quality)
+//   5. HuggingFace (Router Inference API — Task 47: requires PRO/pre-paid
+//      credits for serverless models; verified live 2026-11-06)
 //   6. Fallback-rules (deterministic, always works, no AI)
+//
+// Empty keys are skipped gracefully (partial configuration degrades, never
+// crashes). Verified 2026-11-06 evening: only FRED (macro data, separate
+// layer) is fully live; Groq key FORBIDDEN, Gemini key leak-flagged 403,
+// HF account un-credited, OpenRouter/NVIDIA keys not yet supplied.
 
 export type AIModelProvider = "groq" | "openrouter" | "nvidia" | "gemini" | "huggingface" | "fallback";
 
@@ -71,7 +77,14 @@ export const MODEL_CHAIN: AIModelConfig[] = [
     provider: "huggingface",
     model: "meta-llama/Llama-3.3-70B-Instruct",
     apiKey: process.env.HUGGINGFACE_API_KEY ?? "",
-    endpoint: "https://api-inference.huggingface.co/models",
+    // Task 47: legacy api-inference.huggingface.co is DEPRECATED/UNREACHABLE
+    // (HTTP 000 — connection failure). The Router Inference API is its
+    // OpenAI-compatible replacement and flows through the generic callModel
+    // path below. NOTE: serverless inference on 70B-class models requires
+    // HF PRO or pre-paid credits (verified live 2026-11-06); the free tier
+    // returns "Purchase pre-paid credits…" — the chain simply falls through
+    // until the account is funded or another provider key lands in .env.local.
+    endpoint: "https://router.huggingface.co/v1/chat/completions",
     maxTokens: 1024,
     temperature: 0.7,
   },
@@ -129,11 +142,9 @@ async function callModel(
   if (config.provider === "gemini") {
     return callGemini(config, messages, maxTokens, temperature);
   }
-  if (config.provider === "huggingface") {
-    return callHuggingFace(config, messages, maxTokens, temperature);
-  }
 
-  // Groq, OpenRouter, NVIDIA all use OpenAI-compatible API
+  // Groq, OpenRouter, NVIDIA, and HuggingFace (Router Inference API, Task 47)
+  // all use the OpenAI-compatible chat-completions contract.
   const res = await fetch(config.endpoint, {
     method: "POST",
     headers: {
@@ -191,39 +202,12 @@ async function callGemini(
   return data.candidates?.[0]?.content?.parts?.[0]?.text ?? "";
 }
 
-async function callHuggingFace(
-  config: AIModelConfig,
-  messages: Array<{ role: string; content: string }>,
-  _maxTokens: number,
-  temperature: number,
-): Promise<string> {
-  const prompt = messages.map((m) => `${m.role}: ${m.content}`).join("\n");
-  const url = `${config.endpoint}/${config.model}`;
-
-  const res = await fetch(url, {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-      Authorization: `Bearer ${config.apiKey}`,
-    },
-    body: JSON.stringify({
-      inputs: prompt,
-      parameters: { temperature, max_new_tokens: _maxTokens, return_full_text: false },
-    }),
-    signal: AbortSignal.timeout(15000),
-  });
-
-  if (!res.ok) {
-    const err = await res.text();
-    throw new Error(`HuggingFace HTTP ${res.status}: ${err.slice(0, 100)}`);
-  }
-
-  const data = await res.json();
-  if (Array.isArray(data) && data[0]?.generated_text) {
-    return data[0].generated_text;
-  }
-  return "";
-}
+/*
+ * callHuggingFace — REMOVED (Task 47): targeted the deprecated
+ * api-inference.huggingface.co text-generation API (permanently unreachable,
+ * HTTP 000). The HuggingFace Router is OpenAI-compatible and is served by the
+ * generic callModel path above.
+ */
 
 /**
  * Get the status of all AI providers (for monitoring/debugging).
