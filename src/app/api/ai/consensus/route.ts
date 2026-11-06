@@ -2,7 +2,8 @@
 //
 // Task 47 — ad-hoc multi-provider consensus query. Body: { question: string }
 // (max 500 chars; control chars stripped). The SAME question goes to the
-// 3-voter panel (NVIDIA + OpenRouter); the engine aggregates:
+// voter panel (every keyed provider: NVIDIA · OpenRouter · Gemini); the
+// engine aggregates:
 //   * field-majority vote over the JSON fields each model returns
 // The response carries the consensus result, the per-vote attestation
 // (provider/model/latency/parse status — never raw vote content, which stays
@@ -13,7 +14,7 @@
 
 import { NextResponse } from "next/server";
 import { runConsensus } from "@/lib/ai/consensus";
-import { AI_CONSENSUS_ENABLED, hasKey } from "@/lib/ai/keys";
+import { AI_CONSENSUS_ENABLED, anyConsensusProviderKeyed } from "@/lib/ai/keys";
 import { rateLimit, getClientIP } from "@/lib/mtq/rate-limit";
 
 export const dynamic = "force-dynamic";
@@ -54,9 +55,9 @@ export async function POST(req: Request) {
   if (!AI_CONSENSUS_ENABLED) {
     return NextResponse.json({ error: "AI consensus disabled", model: "disabled" }, { status: 503 });
   }
-  if (!hasKey("nvidia") && !hasKey("openrouter")) {
+  if (!anyConsensusProviderKeyed()) {
     return NextResponse.json(
-      { error: "No validated AI provider key configured (see .env — NVIDIA + OpenRouter are the working free providers)" },
+      { error: "No consensus-capable AI provider key configured (see .env.local — NVIDIA · OpenRouter · Google AI Studio/Gemini are the keyed free providers)" },
       { status: 503, headers: { "X-RateLimit-Remaining": String(rl.remaining) } },
     );
   }

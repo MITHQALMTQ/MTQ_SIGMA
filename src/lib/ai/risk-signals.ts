@@ -16,7 +16,7 @@
 
 import { callWithFallback } from "./model-fallback";
 import { runConsensus, PANEL_FAST, getFredContext } from "./consensus";
-import { AI_CONSENSUS_ENABLED, hasKey } from "./keys";
+import { AI_CONSENSUS_ENABLED, anyConsensusProviderKeyed } from "./keys";
 import type { MetricsSnapshot } from "@/lib/mtq/engine";
 
 const FALLBACK_MODEL = "fallback-rules";
@@ -237,7 +237,7 @@ export async function generateRiskSignals(
   const prompt = buildPrompt(snapshot);
 
   // ---- PRIMARY PATH: multi-provider consensus (Task 47) -------------------
-  if (AI_CONSENSUS_ENABLED && (hasKey("nvidia") || hasKey("openrouter"))) {
+  if (AI_CONSENSUS_ENABLED && anyConsensusProviderKeyed()) {
     try {
       // FRED macro grounding (owner directive): identical official context for
       // every voter — VIX/DXY/gold/10Y from the Federal Reserve itself.

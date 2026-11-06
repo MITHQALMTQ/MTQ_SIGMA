@@ -1,6 +1,6 @@
 // MTQΣ — Local SQLite full backup (fix 16d-006/16d-007, Task 16-fix-C).
 //
-// Dumps ALL 9 Prisma models (the complete schema — not the 5-table subset that
+// Dumps ALL 12 Prisma models (the complete schema — not the 5-table subset that
 // scripts/backup-turso.ts covers) from the local SQLite database to a single
 // timestamped JSON file under backups/, with per-table row counts and a
 // SHA-256 manifest line. Read-only against the source DB (SELECTs only).
@@ -37,8 +37,8 @@ const db = new PrismaClient({
   datasources: { db: { url: DB_URL } },
 });
 
-// All 9 models, ordered by createdAt ASC (matches the 12:55Z backup-manifest
-// convention). Prisma model key → table name used in the JSON output.
+// All 12 models, ordered by createdAt ASC (AiModelCatalog by updatedAt —
+// matches the 12:55Z backup-manifest convention). Prisma model key → table name.
 const TABLES: [keyof PrismaClient, string][] = [
   ["pilotTrial", "PilotTrial"],
   ["metricSample", "MetricSample"],
@@ -49,6 +49,13 @@ const TABLES: [keyof PrismaClient, string][] = [
   ["mbzMintRequest", "MbzMintRequest"],
   ["mbzBackingCertificate", "MbzBackingCertificate"],
   ["mbzBank", "MbzBank"],
+  // Task-47 AI consensus layer (2026-11-08 hardening: the JSON vault backup
+  // was silently NOT covering these three tables since Task 47 added them —
+  // the git-tracked SQL dump layer did, but a vault layer that silently
+  // omits tables is a partial backup wearing a full backup's name).
+  ["aiModelCatalog", "AiModelCatalog"],
+  ["consensusRun", "ConsensusRun"],
+  ["consensusVote", "ConsensusVote"],
 ];
 
 // JSON-safe serialization: Date → ISO string (Prisma returns Date objects for
@@ -64,9 +71,11 @@ async function main() {
   let totalRows = 0;
 
   for (const [model, name] of TABLES) {
-    // @ts-expect-error — dynamic model accessor; all 9 models expose findMany
+    // @ts-expect-error — dynamic model accessor; all 12 models expose findMany
     const rows = await (db[model] as { findMany: (a: unknown) => Promise<unknown[]> })
-      .findMany({ orderBy: { createdAt: "asc" } });
+      // AiModelCatalog has no createdAt (only updatedAt/lastProbedAt — see
+      // prisma/schema.prisma); every other table orders by createdAt ASC.
+      .findMany({ orderBy: { [model === "aiModelCatalog" ? "updatedAt" : "createdAt"]: "asc" } });
     tables[name] = JSON.parse(JSON.stringify(rows, jsonSafe));
     rowCounts[name] = rows.length;
     totalRows += rows.length;

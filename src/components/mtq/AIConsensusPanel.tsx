@@ -2,14 +2,16 @@
 // ----------------------------------------------------------------------------
 // Renders the free-tier multi-provider AI consensus layer:
 //   * provider health (NVIDIA ✅ · OpenRouter ✅ — the two live-validated
-//     free providers; Groq/Google/HF shown as removed with reasons)
-//   * the validated voter roster (7 models · anchor/verifier/fast roles ·
+//     free providers — plus Google AI Studio, key re-validated 2026-11-08:
+//     authenticates but sandbox-geo-gated, shown honestly; Groq/HF shown
+//     as removed with reasons)
+//   * the validated voter roster (9 models · anchor/verifier/fast roles ·
 //     measured probe latencies)
 //   * the downloaded model-catalog databases (AiModelCatalog stats)
 //   * recent consensus runs with per-vote attestations (ConsensusRun/Vote)
-//   * a LIVE consensus check: the operator's question goes to the 3-voter
-//     panel; the response shows the field-majority result, per-vote status,
-//     and the agreement score.
+//   * a LIVE consensus check: the operator's question goes to the voter
+//     panel (keyed providers only); the response shows the field-majority
+//     result, per-vote status, and the agreement score.
 //
 // Data: GET /api/ai/status (120s poll, pauses hidden) · POST /api/ai/consensus
 // (rate-limited 5/min shared bucket) · POST /api/ai/catalog-sync.
@@ -73,12 +75,19 @@ interface ConsensusResponse {
   disclaimer: string;
 }
 
-/** Non-working providers — surfaced honestly with their failure reason. */
+/** Non-working providers — surfaced honestly with their failure reason.
+ *  Google AI Studio was removed from this list 2026-11-08: the owner
+ *  supplied a fresh AQ.…-format key that authenticates (the old AIza… key
+ *  was leak-revoked). It now renders as a live roster provider, geo-gated. */
 const REMOVED_PROVIDERS: Array<{ name: string; reason: string }> = [
-  { name: "Groq", reason: "403 Forbidden — key rejected" },
-  { name: "Google AI Studio", reason: "403 — key auto-revoked as leaked" },
-  { name: "Hugging Face", reason: "402 paywall — not free (removed)" },
+  { name: "Groq", reason: "403 Forbidden — key rejected (re-confirmed 2026-11-08)" },
+  { name: "Hugging Face", reason: "402 paywall — zero free models on the router (re-probed 2026-11-08)" },
 ];
+
+/** Providers whose key is VALID but whose egress region is geo-blocked by
+ *  the vendor — key ✓ (amber, not emerald) + honest status text. Generation
+ *  serves from supported regions (e.g. the Vercel US deploy target). */
+const GEO_GATED_PROVIDERS = new Set(["gemini"]);
 
 function roleTone(role: string): "gold" | "muted" | "amber" {
   if (role === "anchor") return "gold";
@@ -229,7 +238,7 @@ export function AIConsensusPanel({ className = "" }: { className?: string }) {
               <div className="flex items-center gap-2 mb-2">
                 <Layers className="h-3 w-3 text-mtqs-gold/70" aria-hidden="true" />
                 <span className="text-[0.62rem] uppercase tracking-[0.18em] text-[#5B6E68]">
-                  Providers (live-validated 2026-11-06)
+                  Providers (validated 2026-11-06 · Gemini re-audited 2026-11-08)
                 </span>
               </div>
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
@@ -240,15 +249,26 @@ export function AIConsensusPanel({ className = "" }: { className?: string }) {
                   >
                     <div className="flex items-center gap-2 min-w-0">
                       {p.keyPresent ? (
-                        <CheckCircle2 className="h-3.5 w-3.5 text-emerald-600 shrink-0" aria-hidden="true" />
+                        <CheckCircle2
+                          className={`h-3.5 w-3.5 shrink-0 ${GEO_GATED_PROVIDERS.has(p.provider) ? "text-amber-500" : "text-emerald-600"}`}
+                          aria-hidden="true"
+                        />
                       ) : (
                         <XCircle className="h-3.5 w-3.5 text-mtqs-rose shrink-0" aria-hidden="true" />
                       )}
                       <span className="text-[0.75rem] font-medium text-[#0E1F1B] capitalize truncate">{p.provider}</span>
                       <span className="text-[0.65rem] font-mono text-[#7A8C86]">{p.rosterModels} models</span>
                     </div>
-                    <span className={`text-[0.62rem] font-mono ${p.keyPresent ? "text-emerald-700" : "text-mtqs-rose"}`}>
-                      {p.keyPresent ? "FREE · OK" : "NO KEY"}
+                    <span
+                      className={`text-[0.62rem] font-mono whitespace-nowrap ${
+                        p.keyPresent ? (GEO_GATED_PROVIDERS.has(p.provider) ? "text-amber-600" : "text-emerald-700") : "text-mtqs-rose"
+                      }`}
+                    >
+                      {p.keyPresent
+                        ? GEO_GATED_PROVIDERS.has(p.provider)
+                          ? "FREE · KEY ✓ · GEO-GATED HERE"
+                          : "FREE · OK"
+                        : "NO KEY"}
                     </span>
                   </div>
                 ))}
@@ -291,7 +311,11 @@ export function AIConsensusPanel({ className = "" }: { className?: string }) {
                           <Pill tone={roleTone(r.role)} className="text-[0.55rem] uppercase tracking-wider">{r.role}</Pill>
                         </td>
                         <td className="py-1.5 pr-3 text-right font-mono tabular-nums text-[#33544C] whitespace-nowrap">
-                          {r.probeLatencyMs >= 1000 ? `${(r.probeLatencyMs / 1000).toFixed(1)}s` : `${r.probeLatencyMs}ms`}
+                          {r.probeLatencyMs > 0
+                            ? r.probeLatencyMs >= 1000
+                              ? `${(r.probeLatencyMs / 1000).toFixed(1)}s`
+                              : `${r.probeLatencyMs}ms`
+                            : "—"}
                         </td>
                         <td className="py-1.5 text-[0.65rem] text-[#5B6E68] hidden sm:table-cell max-w-[16rem] truncate" title={r.note}>
                           {r.note}
@@ -336,7 +360,7 @@ export function AIConsensusPanel({ className = "" }: { className?: string }) {
               <div className="flex items-center gap-2 mb-2">
                 <Send className="h-3 w-3 text-mtqs-gold/70" aria-hidden="true" />
                 <span className="text-[0.62rem] uppercase tracking-[0.18em] text-[#5B6E68]">
-                  Live consensus check (3 voters · field-majority)
+                  Live consensus check (voter panel · field-majority)
                 </span>
               </div>
               <div className="flex flex-col sm:flex-row gap-2">

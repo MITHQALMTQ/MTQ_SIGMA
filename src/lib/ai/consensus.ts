@@ -12,7 +12,8 @@
 //        succeeded (single-source output, no cross-checking).
 //   NEW: EVERY AI feature fans the same prompt out to a multi-provider voter
 //        panel (NVIDIA NIM + OpenRouter — the two providers whose keys passed
-//        the 2026-11-06 live validation), then aggregates:
+//        the 2026-11-06 live validation — plus Google AI Studio Gemini since
+//        the 2026-11-08 key re-validation), then aggregates:
 //          * structured JSON  → field-level majority vote (exact canonical
 //                               value comparison; roster-priority tie-break)
 //          * prose            → medoid draft (the draft with the highest mean
@@ -31,9 +32,18 @@
 //   OPENROUTER ✅ auth OK; $0-pricing ("free") models that generate:
 //            xingchen-agi/xing4.0-29b-a4b:free   0.85s (verifier)
 //            openrouter/free                     0.77s (anchor meta-router)
-//   REMOVED (not working — see .env header): Groq 403 · Google leaked-key 403
-//   · HuggingFace 402-paywall. z.ai/zai-org models (e.g. NVIDIA z-ai/glm-5.3-
-//   flash) are EXCLUDED BY POLICY per the owner's "remove all z.ai" directive.
+//   GEMINI  ✅ key re-validated 2026-11-08 (owner-supplied AQ.…-format key;
+//            the OLD AIza… key was leak-revoked). Live model IDs probe-
+//            verified: gemini-3.8-flash (current gen — Google's retirement
+//            notice) · gemini-3.5-flash. CAVEAT: the sandbox egress region
+//            is geo-blocked by Google (400 FAILED_PRECONDITION "User
+//            location is not supported") — generation serves from supported
+//            regions (e.g. the Vercel US deploy target). Geo-fails are FAST
+//            (~0.2s) so a blocked voter never burns the panel budget.
+//   REMOVED (not working — see .env header): Groq 403 · HuggingFace
+//   402-paywall (zero free models on the router, re-probed 2026-11-08).
+//   z.ai/zai-org models (e.g. NVIDIA z-ai/glm-5.3-flash) are EXCLUDED BY
+//   POLICY per the owner's "remove all z.ai" directive.
 //
 // HONEST CONTRACT: AI output is ADVISORY ONLY — never writes engine state,
 // never modifies reserves, never triggers rebalance. Persistence failures are
@@ -52,7 +62,7 @@ import { hasKey, type AIProvider } from "./keys";
 export type ConsensusRole = "anchor" | "verifier" | "fast";
 
 export interface RosterEntry {
-  provider: "nvidia" | "openrouter";
+  provider: "nvidia" | "openrouter" | "gemini";
   model: string;
   role: ConsensusRole;
   /** roster priority — lower = preferred (tie-break in majority votes) */
@@ -128,6 +138,24 @@ export const CONSENSUS_ROSTER: readonly RosterEntry[] = Object.freeze([
     probeLatencyMs: 30_006,
     note: "cold-start heavy — 5-voter panels only",
   },
+  {
+    provider: "gemini",
+    model: "gemini-3.8-flash",
+    role: "anchor",
+    priority: 8,
+    timeoutMs: 30_000,
+    probeLatencyMs: 0,
+    note: "Google AI Studio current-gen flash — key re-validated 2026-11-08; sandbox egress geo-blocked (fast-fail 400 in ~0.2s), serves from supported regions",
+  },
+  {
+    provider: "gemini",
+    model: "gemini-3.5-flash",
+    role: "verifier",
+    priority: 9,
+    timeoutMs: 30_000,
+    probeLatencyMs: 0,
+    note: "previous-gen flash still serving — cross-gen verifier within Google AI Studio",
+  },
 ] as const);
 
 /** Default voter panels. Panel selection guarantees ≥2 providers whenever
@@ -139,22 +167,23 @@ export const CONSENSUS_ROSTER: readonly RosterEntry[] = Object.freeze([
  *  strongest reasoner but throttles on LONG outputs (>30s for ~700 tokens)
  *  and xing4.0-29B struggles with complex multi-paragraph instructions — so
  *  long-prose tasks (briefing) pass an explicit fast panel instead. */
-const PANEL_3 = ["mistralai/mistral-large-4-1t-a52b", "xingchen-agi/xing4.0-29b-a4b:free", "nvidia/nemotron-3.5-bolt-e4b"] as const;
+const PANEL_3 = ["mistralai/mistral-large-4-1t-a52b", "gemini-3.8-flash", "xingchen-agi/xing4.0-29b-a4b:free", "nvidia/nemotron-3.5-bolt-e4b"] as const;
 const PANEL_5 = [
   ...PANEL_3,
   "openrouter/free",
   "poolside/laguna-xs-2.1",
+  "gemini-3.5-flash",
 ] as const;
-/** Fast instruction-followers spanning both providers — the panel for
+/** Fast instruction-followers spanning all keyed providers — the panel for
  *  long-context and long-prose tasks (briefing · QA · risk-signals). Live
  *  evidence: mistral-large-4 times out on ≥4KB contexts and xing4.0 rambles
  *  unparseably on complex instructions, while these three parse reliably.
  *  (xing4.0 handles SHORT JSON prompts fine — it is the reliable OpenRouter
  *  voter here; the openrouter/free meta-router intermittently 404s ZDR /
  *  429s upstream.) */
-export const PANEL_FAST = ["nvidia/nemotron-3.5-bolt-e4b", "poolside/laguna-xs-2.1", "xingchen-agi/xing4.0-29b-a4b:free"] as const;
+export const PANEL_FAST = ["nvidia/nemotron-3.5-bolt-e4b", "poolside/laguna-xs-2.1", "xingchen-agi/xing4.0-29b-a4b:free", "gemini-3.8-flash"] as const;
 
-function providerKeyPresent(p: "nvidia" | "openrouter"): boolean {
+function providerKeyPresent(p: "nvidia" | "openrouter" | "gemini"): boolean {
   return hasKey(p as AIProvider);
 }
 
@@ -179,16 +208,20 @@ function selectVoters(size: 3 | 5, panel?: readonly string[]): RosterEntry[] {
 }
 
 // ---------------------------------------------------------------------------
-// Unified OpenAI-compatible caller (NVIDIA + OpenRouter both speak it)
+// Unified OpenAI-compatible caller (NVIDIA + OpenRouter speak it; Gemini has
+// its own generateContent caller below)
 // ---------------------------------------------------------------------------
 
-const ENDPOINTS: Record<"nvidia" | "openrouter", string> = {
+const ENDPOINTS: Record<"nvidia" | "openrouter" | "gemini", string> = {
   nvidia: "https://integrate.api.nvidia.com/v1/chat/completions",
   openrouter: "https://openrouter.ai/api/v1/chat/completions",
+  // Google AI Studio (Gemini) is NOT OpenAI-compatible: the model rides the
+  // request path and the body is contents/parts — handled in callModelOnce.
+  gemini: "https://generativelanguage.googleapis.com/v1beta",
 };
 
-function apiKey(p: "nvidia" | "openrouter"): string {
-  const k = { nvidia: process.env.NVIDIA_API_KEY, openrouter: process.env.OPENROUTER_API_KEY };
+function apiKey(p: "nvidia" | "openrouter" | "gemini"): string {
+  const k = { nvidia: process.env.NVIDIA_API_KEY, openrouter: process.env.OPENROUTER_API_KEY, gemini: process.env.GEMINI_API_KEY };
   return (k[p] ?? "") as string;
 }
 
@@ -224,6 +257,7 @@ async function callModelOnce(
 ): Promise<{ ok: true; content: string; latencyMs: number } | { ok: false; error: string; latencyMs: number }> {
   const t0 = Date.now();
   try {
+    if (entry.provider === "gemini") return await callGeminiOnce(entry, messages, opts, t0);
     const res = await fetch(ENDPOINTS[entry.provider], {
       method: "POST",
       headers: {
@@ -250,6 +284,49 @@ async function callModelOnce(
     }
     const data = await res.json() as any;
     const content: string = data.choices?.[0]?.message?.content ?? "";
+    if (!content.trim()) return { ok: false, error: "empty content", latencyMs };
+    return { ok: true, content, latencyMs };
+  } catch (e: unknown) {
+    const msg = e instanceof Error ? e.message : String(e);
+    return { ok: false, error: msg.slice(0, 200), latencyMs: Date.now() - t0 };
+  }
+}
+
+/** Google AI Studio (Gemini) — generateContent protocol (NOT OpenAI-
+ *  compatible). The key passes as a query param (the documented AI Studio
+ *  auth mode; the 2026-11-08 AQ.…-format key is accepted there). The system
+ *  message becomes systemInstruction; multi-part text replies are joined.
+ *  A geo-blocked egress fails FAST (HTTP 400 in ~0.2s) and the honest error
+ *  string is persisted on the vote attestation. */
+async function callGeminiOnce(
+  entry: RosterEntry,
+  messages: VoteMessage[],
+  opts: { maxTokens: number; temperature: number },
+  t0: number,
+): Promise<{ ok: true; content: string; latencyMs: number } | { ok: false; error: string; latencyMs: number }> {
+  const system = messages.filter((m) => m.role === "system").map((m) => m.content).join("\n\n");
+  const user = messages.filter((m) => m.role !== "system").map((m) => m.content).join("\n\n");
+  const url = `${ENDPOINTS.gemini}/models/${entry.model}:generateContent?key=${encodeURIComponent(apiKey("gemini"))}`;
+  try {
+    const res = await fetch(url, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        ...(system ? { systemInstruction: { parts: [{ text: system }] } } : {}),
+        contents: [{ role: "user", parts: [{ text: user }] }],
+        generationConfig: { maxOutputTokens: opts.maxTokens, temperature: opts.temperature },
+      }),
+      signal: AbortSignal.timeout(entry.timeoutMs),
+    });
+    const latencyMs = Date.now() - t0;
+    if (!res.ok) {
+      const body = (await res.text()).slice(0, 200);
+      return { ok: false, error: `HTTP ${res.status}: ${body}`, latencyMs };
+    }
+    const data = await res.json() as { candidates?: Array<{ content?: { parts?: Array<{ text?: unknown }> } }> };
+    const content = (data.candidates?.[0]?.content?.parts ?? [])
+      .map((p) => (typeof p.text === "string" ? p.text : ""))
+      .join("");
     if (!content.trim()) return { ok: false, error: "empty content", latencyMs };
     return { ok: true, content, latencyMs };
   } catch (e: unknown) {
@@ -828,7 +905,7 @@ export interface ConsensusStatusView {
 
 export async function getConsensusStatus(limitRuns = 8): Promise<ConsensusStatusView> {
   const roster = CONSENSUS_ROSTER.map((r) => ({ ...r, excluded: false }));
-  const providers = (["nvidia", "openrouter"] as const).map((p) => ({
+  const providers = (["nvidia", "openrouter", "gemini"] as const).map((p) => ({
     provider: p,
     keyPresent: providerKeyPresent(p),
     endpoint: ENDPOINTS[p],
@@ -887,7 +964,7 @@ export async function getConsensusStatus(limitRuns = 8): Promise<ConsensusStatus
     catalog,
     recentRuns,
     policy:
-      "Free-tier providers only (no billing ever) — live-validated 2026-11-06. z.ai/zai-org models excluded by owner directive. " +
+      "Free-tier providers only (no billing ever) — live-validated 2026-11-06; Gemini key re-validated 2026-11-08 (sandbox egress geo-blocked — serves from supported regions). z.ai/zai-org models excluded by owner directive. " +
       "AI output is ADVISORY ONLY — never writes engine state. Every run + vote persisted as an attestation.",
   };
 }

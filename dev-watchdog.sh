@@ -44,6 +44,21 @@ set +a
 # Reset DATABASE_URL so it doesn't shadow TURSO_DATABASE_URL
 unset DATABASE_URL
 
+# 2026-11-08 ROOT-CAUSE FIX (stale-secret pinning class): this watchdog is a
+# LONG-LIVED shell, so any secret sourced above stays exported in OUR
+# environment forever — every `next dev` we spawn INHERITS it, and Next.js
+# deliberately never overwrites pre-set process.env values with .env.local
+# values. Live incident: the owner pasted a fresh GEMINI_API_KEY into
+# .env.local, but this shell still exported the leak-revoked AIza… key from
+# its own boot hours earlier → the restarted server kept answering with the
+# DEAD key (403 "reported as leaked") no matter how many times .env.local was
+# fixed or the server restarted. Fix: NEVER pass secrets through this shell —
+# unset them here so the ONLY path for keys into next dev is Next.js's own
+# .env.local loading, which is re-read fresh at every boot. (The bun
+# self-heal/cloud-sync scripts this watchdog execs need DATABASE_URL-class
+# config only — never AI/FRED keys.)
+unset GEMINI_API_KEY GROQ_API_KEY HUGGINGFACE_API_KEY NVIDIA_API_KEY OPENROUTER_API_KEY FRED_API_KEY
+
 LOG=dev.log
 PIDS_LOG=/tmp/mtq-dev.pid
 WATCHDOG_PID_LOG=/tmp/mtq-watchdog.pid

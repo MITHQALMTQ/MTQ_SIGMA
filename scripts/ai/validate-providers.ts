@@ -177,7 +177,7 @@ async function testGoogle(): Promise<ProviderResult> {
       r.auth = true; r.catalogCount = ids.length; r.catalogSample = ids.slice(0, 40);
     } else { r.notes = `auth HTTP ${res.status}: ${(await res.text()).slice(0, 200)}`; return r; }
   } catch (e: any) { r.notes = `auth error ${e?.message ?? e}`; return r; }
-  const genModel = r.catalogSample.find((m) => /gemma-3-(4|12|27)b|gemini-2\.0-flash\b|gemini-2\.5-flash\b/i.test(m)) ?? r.catalogSample.find((m) => !/embedding|aqa|image|tts|veo/i.test(m));
+  const genModel = r.catalogSample.find((m) => /gemma-3-(4|12|27)b|gemini-2\.0-flash\b|gemini-2\.5-flash\b|gemini-3\.[58]-flash\b/i.test(m)) ?? r.catalogSample.find((m) => !/embedding|aqa|image|tts|veo/i.test(m));
   if (!genModel) { r.notes += " | no chat model"; return r; }
   try {
     const t0 = Date.now();

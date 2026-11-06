@@ -53,6 +53,19 @@ export function hasKey(provider: AIProvider): boolean {
   return k[provider].length > 0;
 }
 
+/** True when ANY consensus-capable provider has a key configured.
+ *
+ *  SINGLE GATE HELPER (2026-11-08 root-cause fix): the consensus-capability
+ *  gate was hard-coded as `hasKey("nvidia") || hasKey("openrouter")` in FOUR
+ *  separate files (the /api/ai/consensus route + briefing/risk-signals/qa
+ *  libs), so when the owner's fresh Gemini key was validated and pasted in,
+ *  every AI route stayed 503-blocked — the gate is now derived here, once.
+ *  Keep the provider list in sync with CONSENSUS_ROSTER in consensus.ts
+ *  (nvidia · openrouter · gemini as of 2026-11-08). */
+export function anyConsensusProviderKeyed(): boolean {
+  return hasKey("nvidia") || hasKey("openrouter") || hasKey("gemini");
+}
+
 /** Parse an env feature flag. Defaults to `true` when unset; truthy values:
  *  "true" / "1" / "on" (case-insensitive). Anything else disables the flag. */
 function readFlag(name: string, def: boolean): boolean {

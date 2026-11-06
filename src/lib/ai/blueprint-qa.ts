@@ -16,7 +16,7 @@
 
 import { callWithFallback } from "./model-fallback";
 import { runConsensus, PANEL_FAST } from "./consensus";
-import { AI_CONSENSUS_ENABLED, hasKey } from "./keys";
+import { AI_CONSENSUS_ENABLED, anyConsensusProviderKeyed } from "./keys";
 import {
   STRATEGIC_PRIOR,
   STRATEGIC_PRIOR_TABLE,
@@ -220,7 +220,7 @@ export async function answerQuestion(question: string): Promise<QaResult> {
   ].join("\n");
 
   // ---- PRIMARY PATH: multi-provider consensus (Task 47) -------------------
-  if (AI_CONSENSUS_ENABLED && (hasKey("nvidia") || hasKey("openrouter"))) {
+  if (AI_CONSENSUS_ENABLED && anyConsensusProviderKeyed()) {
     try {
       const con = await runConsensus<Record<string, unknown>>({
         taskType: "qa",

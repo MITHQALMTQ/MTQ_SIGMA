@@ -34,8 +34,8 @@ export async function GET(req: Request) {
       recentRuns: view.recentRuns,
       policy: view.policy,
       note:
-        "Free-tier providers only — live-validated 2026-11-06 (NVIDIA ✅ · OpenRouter ✅ · Groq 403 ❌ · Google leaked-key 403 ❌ · HuggingFace 402-paywall ❌ removed). " +
-        "Every AI feature fans out to a 3-voter panel spanning both providers; quorum = ≥ ceil(k/2) parsed votes. " +
+        "Free-tier providers only — NVIDIA ✅ · OpenRouter ✅ (live-validated 2026-11-06) · Google AI Studio key re-validated 2026-11-08 (AQ.… key authenticates; sandbox egress geo-blocked 400 — serves from supported regions e.g. Vercel US) · Groq 403 ❌ · HuggingFace 402-paywall ❌ removed. " +
+        "Every AI feature fans out to a voter panel spanning all keyed providers; quorum = ≥ ceil(k/2) parsed votes. " +
         "AI output is ADVISORY ONLY — never writes engine state.",
     },
     {
