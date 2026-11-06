@@ -1,4 +1,4 @@
-// MTQΣ — Blueprint Q&A (5-provider fallback chain, long-context).
+// MTQΣ — Blueprint Q&A (cross-vendor consensus edition, 2026-11-06).
 //
 // Server-side only. Answers user questions about the MTQΣ Master Monetary
 // Architecture v1.0 by feeding the authoritative TS constants from
@@ -8,18 +8,16 @@
 // The model is asked to cite section numbers (e.g. "per §9.2"). We extract
 // those citations with a regex so the UI can highlight them.
 //
-// Provider chain (handled by src/lib/ai/model-fallback.ts):
-//   1. Groq (llama-3.3-70b-versatile)
-//   2. OpenRouter (meta-llama/llama-3.3-70b-instruct)
-//   3. NVIDIA (meta/llama-3.3-70b-instruct)
-//   4. Gemini (gemini-2.0-flash-001)
-//   5. HuggingFace (meta-llama/Llama-3.3-70B-Instruct)
-//   6. fallback (deterministic — always works)
+// Execution model (src/lib/ai/consensus.ts): the question is answered by a
+// CROSS-VENDOR CONSENSUS — fanned out in parallel to every healthy member
+// (Groq · OpenRouter · NVIDIA · Gemini · Hugging Face · platform bootstrap);
+// the centroid response (highest mean pairwise agreement) is the answer, with
+// full member provenance + agreement score on the result.
 //
 // AI output is ADVISORY ONLY. It never modifies engine state. Every answer
 // includes the disclaimer.
 
-import { callWithFallback } from "./model-fallback";
+import { runConsensus, type ConsensusResult } from "./consensus";
 import {
   STRATEGIC_PRIOR,
   STRATEGIC_PRIOR_TABLE,
@@ -78,6 +76,14 @@ export interface QaResult {
   citations: string[];
   model: string;
   disclaimer: string;
+  /** Consensus provenance — present whenever ≥1 member answered. */
+  consensus?: {
+    mode: ConsensusResult["mode"];
+    provider: string;
+    vendor: string;
+    agreement: number | null;
+    members: ConsensusResult["members"];
+  };
 }
 
 /** Strip control chars + collapse whitespace; reject empty / oversized input. */
@@ -212,19 +218,16 @@ export async function answerQuestion(question: string): Promise<QaResult> {
     "Answer (3-5 sentences, cite §-numbers, do not invent facts):",
   ].join("\n");
 
-  // Try the 5-provider fallback chain (Groq → OpenRouter → NVIDIA → Gemini → HuggingFace).
-  // maxTokens is sized to fit within the smallest provider credit limit we've
-  // observed in production (OpenRouter free tier can deny >100 max_tokens).
+  // Cross-vendor consensus fan-out. maxTokens is sized to fit within the
+  // smallest provider credit limit we've observed in production (OpenRouter
+  // free tier can deny >100 max_tokens).
   try {
-    const aiResult = await callWithFallback(
+    const aiResult = await runConsensus(
       [
         { role: "system", content: SYSTEM_INSTRUCTION },
         { role: "user", content: prompt },
       ],
-      { maxTokens: 100, temperature: 0.2 },
-    );
-    console.error(
-      `[ai/qa] callWithFallback result: success=${aiResult.success} provider=${aiResult.provider} model=${aiResult.model} latencyMs=${aiResult.latencyMs} contentLen=${aiResult.content?.length ?? 0} error=${aiResult.error ?? "n/a"}`,
+      { maxTokens: 100, temperature: 0.2, task: "qa" },
     );
 
     if (aiResult.success && aiResult.content && aiResult.content.length > 0) {
@@ -233,16 +236,21 @@ export async function answerQuestion(question: string): Promise<QaResult> {
         citations: extractCitations(aiResult.content),
         model: aiResult.model,
         disclaimer: DISCLAIMER,
+        consensus: {
+          mode: aiResult.mode,
+          provider: aiResult.provider,
+          vendor: aiResult.vendor,
+          agreement: aiResult.agreement,
+          members: aiResult.members,
+        },
       };
     }
-    if (!aiResult.success) {
-      console.error(
-        `[ai/qa] all 5 AI providers failed — using deterministic fallback. lastError=${aiResult.error ?? "n/a"}`,
-      );
-    }
+    console.error(
+      `[ai/qa] consensus unavailable — using deterministic fallback. lastError=${aiResult.error ?? "n/a"}`,
+    );
   } catch (e) {
     console.error(
-      "[ai/qa] callWithFallback threw:",
+      "[ai/qa] runConsensus threw:",
       (e as Error).message?.slice(0, 200),
     );
   }

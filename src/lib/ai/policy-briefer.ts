@@ -1,4 +1,4 @@
-// MTQΣ — AI Policy Briefer (5-provider fallback chain).
+// MTQΣ — AI Policy Briefer (cross-vendor consensus edition, 2026-11-06).
 //
 // Server-side only. Generates a 3-paragraph COO-voice board briefing from the
 // live `MetricsSnapshot`. The engine math (src/lib/mtq/engine.ts) is the
@@ -6,23 +6,16 @@
 // state, never modifies reserve, never triggers rebalance. AI output is
 // always labelled "AI-generated, informational only — not financial advice".
 //
-// Provider chain (handled by src/lib/ai/model-fallback.ts):
-//   1. Groq (llama-3.3-70b-versatile)
-//   2. OpenRouter (meta-llama/llama-3.3-70b-instruct)
-//   3. NVIDIA (meta/llama-3.3-70b-instruct)
-//   4. Gemini (gemini-2.0-flash-001)
-//   5. HuggingFace (meta-llama/Llama-3.3-70B-Instruct)
-//   6. fallback-rules (deterministic — always works)
-//
-// Caching: 60s in-memory cache so /api/ai/briefing polling (every 4s) does not
-// burn API quota. A stale cached briefing is acceptable because the live
-// metrics are still shown verbatim in the dashboard from /api/metrics.
-//
-// Graceful fallback: if every AI provider errors / is geo-blocked / has no
-// key, returns a deterministic rule-based briefing derived from the snapshot,
-// with `model = "fallback-rules"`.
+// Execution model (src/lib/ai/consensus.ts): the prompt is answered by a
+// CROSS-VENDOR CONSENSUS — fanned out in parallel to every healthy member
+// (Groq · OpenRouter · NVIDIA · Gemini · Hugging Face · platform bootstrap),
+// with FRED (Federal Reserve Economic Data) injected as official macro
+// grounding context. The centroid (highest mean pairwise agreement) response
+// is the consensus answer; member provenance + agreement score ride along on
+// the result. Degradation ladder: consensus → single-source → deterministic
+// fallback-rules (always works, honestly labelled).
 
-import { callWithFallback } from "./model-fallback";
+import { runConsensus, getFredContext, type ConsensusResult } from "./consensus";
 import type { MetricsSnapshot } from "@/lib/mtq/engine";
 
 const CACHE_MS = 60_000;
@@ -46,6 +39,16 @@ export interface BriefingResult {
   model: string;
   sources: string[];
   disclaimer: string;
+  /** Consensus provenance — vendor board, mode, agreement score. Present
+   *  whenever at least one member answered (null on fallback-rules). */
+  consensus?: {
+    mode: ConsensusResult["mode"];
+    provider: string;
+    vendor: string;
+    agreement: number | null;
+    members: ConsensusResult["members"];
+    fredGrounded: boolean;
+  };
 }
 
 /** Round to N decimals (avoids floating-point noise in the prompt). */
@@ -106,7 +109,7 @@ function buildSnapshotSummary(snap: MetricsSnapshot): string {
   );
 }
 
-function buildPrompt(snap: MetricsSnapshot): string {
+function buildPrompt(snap: MetricsSnapshot, fredContext: string): string {
   const summary = buildSnapshotSummary(snap);
   return [
     "You are the Chief Operating Officer (COO) of the MTQΣ protocol. You are calm, executive, and action-oriented. You speak in plain English to a board-level audience. You cite live metrics by name (GFB Index, Reserve Ratio, LCR, status, oracle agreement, concentration). You NEVER give financial advice. You flag risks and recommend governance actions.",
@@ -114,6 +117,7 @@ function buildPrompt(snap: MetricsSnapshot): string {
     "Below is the live protocol snapshot (compact JSON):",
     summary,
     "",
+    fredContext ? fredContext + "\n" : "",
     "Write exactly THREE paragraphs. Do not preface with headings; the paragraphs are:",
     "1. State of the Protocol — current monetary state in one paragraph. Reference the GFB Index level, Reserve Ratio, LCR, and protocol status, and one sentence on peg health (mtqPrice vs 1.00 PAR).",
     "2. Risk Watch — the top 2-3 risks right now. Choose from: oracle consensus (paused/ok), issuer concentration (top issuer + share vs 25% warn / 30% breach), peg health (mtqPrice), buffer state (BASE/STRESS/EMERGENCY), geopolitical eject ladder stage (0 = inactive), reconciliation findings F1-F4 severity.",
@@ -181,44 +185,49 @@ export async function generateBriefing(
     return cached.result;
   }
 
-  const prompt = buildPrompt(snapshot);
+  // FRED official macro context (best-effort grounding — never fatal).
+  const fredContext = await getFredContext();
+  const prompt = buildPrompt(snapshot, fredContext);
 
-  // Try the 5-provider fallback chain (Groq → OpenRouter → NVIDIA → Gemini → HuggingFace).
-  // maxTokens is sized to fit within the smallest provider credit limit we've
-  // observed in production (OpenRouter free tier can deny >100 max_tokens).
+  // Cross-vendor consensus fan-out. maxTokens is sized to fit within the
+  // smallest provider credit limit we've observed in production (OpenRouter
+  // free tier can deny >100 max_tokens).
   try {
-    const aiResult = await callWithFallback(
+    const aiResult = await runConsensus(
       [{ role: "user", content: prompt }],
-      { maxTokens: 100, temperature: 0.4 },
-    );
-    console.error(
-      `[ai/briefing] callWithFallback result: success=${aiResult.success} provider=${aiResult.provider} model=${aiResult.model} latencyMs=${aiResult.latencyMs} contentLen=${aiResult.content?.length ?? 0} error=${aiResult.error ?? "n/a"}`,
+      { maxTokens: 100, temperature: 0.4, task: "briefing" },
     );
 
     if (aiResult.success && aiResult.content && aiResult.content.length > 0) {
       const result: BriefingResult = {
         briefing: aiResult.content,
         generatedAt: Date.now(),
-        model: aiResult.model, // e.g. "llama-3.3-70b-versatile", "gemini-2.0-flash-001"
-        sources: SOURCES,
+        model: aiResult.model,
+        sources: fredContext ? [...SOURCES, "FRED macro data"] : SOURCES,
         disclaimer: DISCLAIMER_AI,
+        consensus: {
+          mode: aiResult.mode,
+          provider: aiResult.provider,
+          vendor: aiResult.vendor,
+          agreement: aiResult.agreement,
+          members: aiResult.members,
+          fredGrounded: fredContext.length > 0,
+        },
       };
       cached = { briefing: aiResult.content, at: Date.now(), result };
       return result;
     }
-    if (!aiResult.success) {
-      console.error(
-        `[ai/briefing] all 5 AI providers failed — using deterministic fallback. lastError=${aiResult.error ?? "n/a"}`,
-      );
-    }
+    console.error(
+      `[ai/briefing] consensus unavailable — using deterministic fallback. lastError=${aiResult.error ?? "n/a"}`,
+    );
   } catch (e) {
     console.error(
-      "[ai/briefing] callWithFallback threw:",
+      "[ai/briefing] runConsensus threw:",
       (e as Error).message?.slice(0, 200),
     );
   }
 
-  // All providers failed (or returned empty content) → deterministic fallback briefing.
+  // No member answered (or returned empty content) → deterministic fallback briefing.
   const briefing = fallbackBriefing(snapshot);
   const result: BriefingResult = {
     briefing,
