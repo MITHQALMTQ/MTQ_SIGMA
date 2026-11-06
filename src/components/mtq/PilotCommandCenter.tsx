@@ -30,6 +30,10 @@ import { MobileBottomNav } from "@/components/mtq/MobileBottomNav";
 import { TestnetStatusBar } from "@/components/mtq/TestnetStatusBar";
 import { CommandLauncher } from "@/components/mtq/CommandLauncher";
 import { SectionHeading, Reveal, Pill, GlowDot, Panel, Stat, MiniBar, Skeleton } from "@/components/mtq/primitives";
+// F-46-1 (Task-46 Reserve Vault audit): canonical RR/LCR surface helpers —
+// fmtRatio ("∞ — no liability" for the null/Infinity case), rrColor, lcrColor.
+// Same convention as the Header ticker, InstitutionalHero and LiveMonetaryState.
+import { fmtRatio, rrColor, lcrColor } from "@/components/mtq/format";
 import { FaucetPanel } from "@/components/mtq/FaucetPanel";
 import { EventExplorer } from "@/components/mtq/EventExplorer";
 import { HomeSection } from "@/components/mtq/sections/HomeSection";
@@ -106,8 +110,6 @@ const fmtUsd = (n: number | null | undefined): string => {
   return `$${n.toFixed(2)}`;
 };
 const fmtPct = (n: number | null | undefined, d = 1): string =>
-  n == null || !Number.isFinite(n) ? "—" : `${(n * 100).toFixed(d)}%`;
-const fmtRatio = (n: number | null | undefined, d = 2): string =>
   n == null || !Number.isFinite(n) ? "—" : `${(n * 100).toFixed(d)}%`;
 
 // GFB Index 7-component basket — matches the canonical strategic prior.
@@ -451,17 +453,35 @@ function ReserveSection({ snapshot }: { snapshot: MetricsSnapshot | null }) {
             </Panel>
             <Panel className="p-5">
               <Stat label="Reserve Ratio (RR)" value={
-                <span className={`text-2xl font-mono tabular-nums ${snapshot && snapshot.reserveRatio < 1.05 ? "text-mtqs-rose" : "text-emerald-600"}`}>
+                // F-46-1: null RR = Infinity = zero circulating liability — the
+                // fully-reserved state. Canonical rrColor (null→emerald; rose
+                // is EMERGENCY RR<1.00 ONLY per §21.2 — the old inline
+                // `< 1.05 → rose` painted the amber CAUTION/STRESS bands as
+                // danger AND coerced null<1.05→true, rendering the healthiest
+                // state in ROSE (the F-38-1 class, missed here in Task 38).
+                <span className={`text-2xl font-mono tabular-nums ${rrColor(snapshot?.reserveRatio)}`}>
                   {snapshot ? fmtRatio(snapshot.reserveRatio) : <Skeleton className="h-7 w-20 inline-block" />}
                 </span>
-              } sub={`target ≥ ${(1.10 * 100).toFixed(0)}% · hard floor ${(1.00 * 100).toFixed(0)}%`} />
+              } sub={
+                snapshot && !Number.isFinite(snapshot.reserveRatio)
+                  ? "no circulating liability — fully reserved"
+                  : `target ≥ ${(1.10 * 100).toFixed(0)}% · hard floor ${(1.00 * 100).toFixed(0)}%`
+              } />
             </Panel>
             <Panel className="p-5">
               <Stat label="LCR (liquidity coverage)" value={
-                <span className={`text-2xl font-mono tabular-nums ${snapshot && snapshot.lcr < 1.0 ? "text-mtqs-rose" : "text-emerald-600"}`}>
+                // F-46-1: same convention — null LCR = ∞ (no liability to
+                // cover) → emerald; finite < 1.0 is AMBER (liquidity stress),
+                // never rose (matching lcrColor and §21.2: only RR < 1.00 is
+                // the red EMERGENCY state).
+                <span className={`text-2xl font-mono tabular-nums ${lcrColor(snapshot?.lcr)}`}>
                   {snapshot ? fmtRatio(snapshot.lcr) : <Skeleton className="h-7 w-20 inline-block" />}
                 </span>
-              } sub={`target ≥ ${(1.00 * 100).toFixed(0)}%`} />
+              } sub={
+                snapshot && !Number.isFinite(snapshot.lcr)
+                  ? "no circulating liability — fully reserved"
+                  : `target ≥ ${(1.00 * 100).toFixed(0)}%`
+              } />
             </Panel>
             <Panel className="p-5">
               <Stat label="Liability (MTQ supply × P)" value={
