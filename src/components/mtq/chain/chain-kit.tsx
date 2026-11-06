@@ -73,6 +73,9 @@ export interface ChainParamsDto {
 export interface TelemetryRowDto {
   height: number;
   round: number;
+  /** Proposer ADDRESS (mtq1…) — canonical identity, same semantics as
+   *  latest_block.proposer. The NOC maps it to a moniker for display
+   *  (Task-40 F-40-2: the engine used to ship the moniker here). */
   proposer: string;
   proposed_at_ms: number | null;
   prevotes: number; // summed voting POWER of prevotes

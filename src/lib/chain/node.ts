@@ -70,7 +70,7 @@ const G = globalThis as unknown as { __MTQ_CHAIN__?: ChainNodeRuntime };
 // HMR cannot re-run instrumentation.ts, and the old runtime's interval
 // closure otherwise keeps executing the OLD state machine forever). In
 // production the constant never changes per process → zero restarts.
-export const CHAIN_NODE_CODE_VERSION = 47; // Task-43: consensus liveness fix — proposer rotation over the ENGINEABLE subset (governance-admitted engineless validators no longer burn rounds → no more post-admission round-timeout stalls; quorum math unchanged on FULL active power)
+export const CHAIN_NODE_CODE_VERSION = 48; // Task-40 (F-40-2): telemetry proposer field now ships the canonical ADDRESS (was moniker — the NOC treated it as an address and mangled the display); substantive engine-module change ⇒ forward-only bump per the task-41 hot-upgrade discipline
 
 // ─── boot ────────────────────────────────────────────────────────────────────
 

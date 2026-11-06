@@ -69,6 +69,27 @@ export interface ChainSummary {
   honest: typeof CHAIN_HONEST_STATUS;
 }
 
+/** Task-40 audit fix (F-40-1): the proposer for the NEXT height must be
+ *  computed EXACTLY as the consensus engine rotates it — over the ENGINEABLE
+ *  subset of ACTIVE validators (validators this process holds keys for; the
+ *  Task-43 liveness semantics), index (height+1) mod subset length. The old
+ *  formula rotated over ALL ACTIVE validators, so on a mature set (genesis 4
+ *  engineable + governance-admitted engineless) the UI's gold "proposes next"
+ *  star sat on a validator that can never propose for 4 of every 8 heights.
+ *  Returns null when the node runtime is unavailable — then NO validator is
+ *  marked (honest absence rather than a wrong guess). */
+function nextProposerOf(
+  rt: Awaited<ReturnType<typeof chainNode>> | null,
+  height: number,
+  active: Validator[],
+): string | null {
+  if (!rt || active.length === 0) return null;
+  const engineable = new Set(rt.keys.validators.map((k) => pubToAddress(k.pub)));
+  const subset = active.filter((v) => engineable.has(v.address));
+  if (subset.length === 0) return null;
+  return subset[(height + 1) % subset.length]?.address ?? null;
+}
+
 export async function getSummary(): Promise<ChainSummary> {
   const ready = chainReady();
   const height = await store.getHeight();
@@ -80,6 +101,7 @@ export async function getSummary(): Promise<ChainSummary> {
   const windowSpanMs = Math.max(1, (blocks[0]?.time_ms ?? Date.now()) - (blocks[blocks.length - 1]?.time_ms ?? Date.now()));
   const latest = blocks[0] ?? null;
   const rt = ready ? await chainNode() : null;
+  const nextProposer = nextProposerOf(rt, height, active);
 
   let genesisHashVal = await store.getMeta("genesis_hash");
   if (!genesisHashVal && rt) genesisHashVal = genesisHash(rt.genesis);
@@ -104,7 +126,7 @@ export async function getSummary(): Promise<ChainSummary> {
       active: active.length,
       total: vals.length,
       total_power: active.reduce((s, v) => s + v.power, 0),
-      list: vals.map((v) => ({ ...v, is_proposer_next: active.length > 0 && v.address === active[(height + 1) % active.length]?.address })),
+      list: vals.map((v) => ({ ...v, is_proposer_next: v.address === nextProposer })),
     },
     params,
     mempool_size: rt?.mempool.size ?? 0,
@@ -212,9 +234,12 @@ export async function getValidatorList() {
   const vals = await store.getValidators();
   const height = await store.getHeight();
   const active = vals.filter((v) => v.status === "ACTIVE");
+  // Task-40 audit fix (F-40-1): same engineable-subset rotation as getSummary.
+  const rt = chainReady() ? await chainNode() : null;
+  const nextProposer = nextProposerOf(rt, height, active);
   return vals.map((v) => ({
     ...v,
-    is_proposer_next: active.length > 0 && v.address === active[(height + 1) % active.length]?.address,
+    is_proposer_next: v.address === nextProposer,
   }));
 }
 

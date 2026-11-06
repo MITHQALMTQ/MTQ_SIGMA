@@ -40,6 +40,10 @@ const BUS_LATENCY_MS = 35; // per-hop simulated latency — keeps rounds observa
 export interface RoundTelemetry {
   height: number;
   round: number;
+  /** Proposer ADDRESS (mtq1…) — canonical identity, exactly like
+   *  BlockHeader.proposer. Task-40 audit fix (F-40-2): this used to ship the
+   *  moniker while the NOC UI treated it as an address (moniker lookup →
+   *  shortAddr fallback → mangled text like "mtq-val-2.…eridian"). */
   proposer: string;
   proposed_at_ms: number | null;
   prevotes: number;
@@ -246,7 +250,7 @@ export class ConsensusEngine {
       this.telemetry.push({
         height,
         round,
-        proposer: proposer.moniker,
+        proposer: proposer.address, // F-40-2: canonical address, not the moniker
         proposed_at_ms: null,
         prevotes: 0,
         precommits: 0,
