@@ -10091,3 +10091,21 @@ Stage Summary:
 - Network NOC: fully audited — every API live, every number correctly wired; two real wiring defects found and fixed (engineless-validator "proposes next" star wrong 4-of-8 heights on the mature set; telemetry proposer mangled through an address/moniker contract mismatch), both live-verified at their exact failure cases, with the version-bump discipline honored and the v48 hot-upgrade resume verified.
 - The fix propagates beyond the NOC: /api/chain/validators feeds StakingSection and ExplorerSection the same corrected is_proposer_next.
 - Audit queue remaining (Task 38's list): Chain Explorer, Reference Index, Reserve Vault, Risk State, Rebalancing, Constituency, Governance, Transparency.
+
+---
+
+Task ID: 41 (dashboard-audit series #3 — Chain Explorer; owner directive point 2 continuation)
+Agent: Orchestrator (COO/CTO/crypto/blockchain/ecosystem expert)
+
+Task: Audit the Chain Explorer dashboard per the Task-38 queue — APIs, connections, every displayed number live and correctly wired/mapped; fix defects; browser-verify.
+
+Work Log:
+- API INVENTORY (all live, 200, canonical 3s poll pattern each): GET /api/chain/blocks?page&P&pageSize=15 (paginated table) · GET /api/chain/tx?recent=1 (latest 25) · GET /api/chain/validators (address→moniker lookup map) · detail dialogs fetch-once: /api/chain/block, /api/chain/tx, /api/chain/account. SSE live pill via useChainBlockStream (instant refresh sugar; polling canonical).
+- STATIC WIRING AUDIT: blocks table proposer = monikerByAddr.get(header.proposer) — header.proposer IS the canonical address (correct contract, unlike the pre-F-40-2 telemetry field) ✓ · QuorumChip committed*3 > total*2 = strict >⅔ exactly matching the engine's commit rule ✓ · TxResultBadge SUCCESS/FAILED visible never hidden ✓ · account balances fmtMicro with honest labels (MTQD testnet-credit · PMTQ non-canonical mirror) ✓ · pagination from total_pages with tip + page controls ✓ · search resolver (height | blk_ | tx_ | mtq1) ✓.
+- BROWSER E2E (1440×900): blocks table 15 rows — #1,601 blk_fbd3c337…9649e5 · proposer mtq-val-1.equinox (clean moniker; consistent with the FIXED rotation: engineable[1601%4]=equinox) · consensus 154 ms · quorum 50/54 (the honest engineless-raises-the-bar state) · 5s ago ✓ · Transactions tab: 25 rows including the RESTORED task43 oracle_observe txs (tx_c677e77… SUCCESS #774, original Nov 05 timestamps — the incident-recovered history visible end-to-end) ✓ · account search mtq1d096… → rich panel: MTQD/PMTQ/Bonded/Unbonding balances, staking, governance ballots (YES votes power 20/17/15/12 on the 4 EXECUTED admission proposals with the bounded-50-proposal disclosure), validator role block (power 20 · self-stake/delegated 1.00 · commission informational), recent txs 25 ✓ · block detail dialog: QC height/round/committed/total, hashes, state root, proposer ✓ · mobile 390×844: scrollWidth=390 zero overflow ✓ · ZERO console/page errors.
+- DEFECTS FOUND: none — the Explorer's wiring is correct as-built (it is also an indirect beneficiary of Task-40's F-40-1 rpc fix via the shared validator endpoint).
+- Screenshots: audit-work/v12-task40/ (explorer-account-restored · explorer-block-detail · explorer-mobile-390).
+
+Stage Summary:
+- Chain Explorer: audited clean — every API live, every number correctly wired; the recovered chain history (governance proposals, oracle observations, transactions) renders end-to-end with full provenance; no fixes needed.
+- Audit queue remaining: Reference Index, Reserve Vault, Risk State, Rebalancing, Constituency, Governance, Transparency.
