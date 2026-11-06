@@ -31,6 +31,7 @@ import { TrialLog, type PilotTrial } from "@/components/mtq/TrialLog";
 import { HonestStatus } from "@/components/mtq/HonestStatus";
 import { AIPolicyBriefing } from "@/components/mtq/AIPolicyBriefing";
 import { RiskSignals } from "@/components/mtq/RiskSignals";
+import { AIConsensusPanel } from "@/components/mtq/AIConsensusPanel";
 import { ParameterRegistry } from "@/components/mtq/ParameterRegistry";
 import { ReproducibilityPanel } from "@/components/mtq/ReproducibilityPanel";
 import { WeightChangeDrawer } from "@/components/mtq/WeightChangeDrawer";
@@ -555,14 +556,23 @@ export function DashboardSection({
         <TrialLog trials={trials} loading={trialsLoading} onRefresh={fetchTrials} />
       </Section>
 
-      {/* ===== 17a — AI Policy Briefing (COO AI · Gemini) ===== */}
+      {/* ===== 17a — AI Policy Briefing (COO AI · multi-model consensus) ===== */}
       <Section id="ai-briefing" eyebrow="AI · advisory" title="AI Monetary Policy Briefing · COO AI">
         <AIPolicyBriefing />
       </Section>
 
-      {/* ===== 17b — AI Risk Signals (Groq) ===== */}
+      {/* ===== 17b — AI Risk Signals (multi-model consensus) ===== */}
       <Section id="ai-risk" eyebrow="AI · advisory" title="Live Risk Monitor · AI Signals">
         <RiskSignals />
+      </Section>
+
+      {/* ===== 17c — AI Multi-Model Consensus Layer (Task 47) ===== */}
+      <Section
+        id="ai-consensus"
+        eyebrow="AI · infrastructure"
+        title="Free-Tier AI Consensus Layer · Multi-Provider"
+      >
+        <AIConsensusPanel />
       </Section>
 
       {/* ===== 18 — Honest Status Declaration ===== */}

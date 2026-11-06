@@ -46,6 +46,14 @@ interface RiskSignalsResponse {
   signals: RiskSignal[];
   generatedAt: number;
   model: string;
+  consensus?: {
+    status: string;
+    votersOk: number;
+    votersAsked: number;
+    agreement: number | null;
+    runId?: string;
+    votes: Array<{ provider: string; model: string; role: string; ok: boolean; latencyMs: number; error?: string }>;
+  };
 }
 
 /* ---------- Model badge tone: gold / muted / rose ---------- */
@@ -326,6 +334,15 @@ export function RiskSignals({ className = "" }: { className?: string }) {
               <span>
                 Generated {fmtAgo(data.generatedAt)}
               </span>
+              {data.consensus && (
+                <>
+                  <span className="text-[#7A8C86]">·</span>
+                  <span title={data.consensus.votes.map((v) => `${v.provider}/${v.model}: ${v.ok ? "ok" : (v.error ?? "failed")} ${v.latencyMs}ms`).join("\n")}>
+                    consensus {data.consensus.status.toLowerCase()} · {data.consensus.votersOk}/{data.consensus.votersAsked} voters
+                    {data.consensus.agreement !== null && ` · agreement ${(data.consensus.agreement * 100).toFixed(0)}%`}
+                  </span>
+                </>
+              )}
               <span className="text-[#7A8C86]">·</span>
               <span>{signals.length} signals</span>
             </div>

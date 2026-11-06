@@ -351,3 +351,76 @@ model ScoringUpload {
 
   @@index([kind, ccy, uploadedAt])
 }
+
+// ============================================================================
+// AiModelCatalog — Task 47 free-tier AI consensus layer. The DOWNLOADED
+// model-catalog "database": every model each working provider exposes
+// (NVIDIA NIM full catalog · OpenRouter $0-pricing models), persisted so
+// routing decisions are data-driven and offline-capable. Probed rows carry
+// live status (WORKING · EMPTY · TIMEOUT · HTTP_* · NOT_PROBED) + measured
+// latency from the Task-47 live validation. Owner directive 2026-11-06:
+// free providers only, no billing ever; z.ai/zai-org models are EXCLUDED by
+// policy (EXCLUDED status) per the same directive.
+// ============================================================================
+model AiModelCatalog {
+  id           String    @id // "<provider>::<model>"
+  provider     String    // "nvidia" | "openrouter"
+  model        String    // provider-native model id
+  role         String?   // "anchor" | "verifier" | "fast" — consensus-roster roles (null = catalog-only)
+  status       String    @default("NOT_PROBED") // WORKING · EMPTY · TIMEOUT · HTTP_404 · HTTP_402 · EXCLUDED · NOT_PROBED
+  latencyMs    Int?
+  free         Boolean   @default(true)
+  contextK     Int?
+  source       String    @default("task47-live-probe") // provenance of the row
+  lastProbedAt DateTime?
+  updatedAt    DateTime  @updatedAt
+
+  @@index([provider, status])
+  @@index([role])
+}
+
+// ============================================================================
+// ConsensusRun — one multi-model consensus execution (Task 47). Every AI
+// feature (briefing · QA · risk-signals · ad-hoc) records its run here:
+// how many voters were asked, how many answered, whether quorum was met,
+// the field-level agreement score, and the winning aggregated result JSON.
+// ADVISORY ONLY — AI output never touches engine state.
+// ============================================================================
+model ConsensusRun {
+  id           String   @id @default(cuid())
+  taskType     String   // "briefing" | "qa" | "risk-signals" | "adhoc" | "audit-crosscheck"
+  promptDigest String   // sha256 hex (first 16 chars) over system+user prompt
+  votersAsked  Int
+  votersOk     Int
+  quorum       Boolean
+  agreement    Float?   // 0..1 mean field-level agreement of voters with winner
+  status       String   // CONSENSUS · NO-QUORUM · ALL-FAILED
+  resultJson   String?  // winning aggregated result (JSON string)
+  durationMs   Int?
+  createdAt    DateTime @default(now())
+
+  @@index([taskType, createdAt])
+  @@index([createdAt])
+}
+
+// ============================================================================
+// ConsensusVote — one model's vote inside a ConsensusRun. The per-voter
+// attestation: which provider/model/role voted, did it parse, latency, error
+// class, and a sha256 digest of its raw content (content itself is NOT stored
+// — token-privacy + row-size discipline; the digest proves reproducibility).
+// ============================================================================
+model ConsensusVote {
+  id            String   @id @default(cuid())
+  runId         String
+  provider      String
+  model         String
+  role          String
+  ok            Boolean
+  latencyMs     Int?
+  error         String?
+  contentDigest String? // sha256 hex (first 16 chars) of raw content
+  createdAt     DateTime @default(now())
+
+  @@index([runId])
+  @@index([provider, model, createdAt])
+}

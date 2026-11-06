@@ -1,4 +1,4 @@
-// MTQΣ — AI Policy Briefer (5-provider fallback chain).
+// MTQΣ — AI Policy Briefer (Task 47: multi-provider CONSENSUS mode).
 //
 // Server-side only. Generates a 3-paragraph COO-voice board briefing from the
 // live `MetricsSnapshot`. The engine math (src/lib/mtq/engine.ts) is the
@@ -6,23 +6,22 @@
 // state, never modifies reserve, never triggers rebalance. AI output is
 // always labelled "AI-generated, informational only — not financial advice".
 //
-// Provider chain (handled by src/lib/ai/model-fallback.ts):
-//   1. Groq (llama-3.3-70b-versatile)
-//   2. OpenRouter (meta-llama/llama-3.3-70b-instruct)
-//   3. NVIDIA (meta/llama-3.3-70b-instruct)
-//   4. Gemini (gemini-2.0-flash-001)
-//   5. HuggingFace (meta-llama/Llama-3.3-70B-Instruct)
-//   6. fallback-rules (deterministic — always works)
+// Task-47 consensus path (src/lib/ai/consensus.ts):
+//   1. CONSENSUS (primary): 3 voters across 2 providers (NVIDIA + OpenRouter)
+//      each draft the briefing as JSON {"briefing": "..."}; the MEDOID draft
+//      (highest mean pairwise lexical similarity to the others) wins. Every
+//      vote is persisted (ConsensusRun/ConsensusVote attestation).
+//   2. Single-model chain (degradation): AI_CONSENSUS_ENABLED=false or
+//      consensus failure → validated fallback chain (model-fallback.ts).
+//   3. fallback-rules (deterministic — always works, no AI).
 //
 // Caching: 60s in-memory cache so /api/ai/briefing polling (every 4s) does not
-// burn API quota. A stale cached briefing is acceptable because the live
+// burn free-tier quota. A stale cached briefing is acceptable because the live
 // metrics are still shown verbatim in the dashboard from /api/metrics.
-//
-// Graceful fallback: if every AI provider errors / is geo-blocked / has no
-// key, returns a deterministic rule-based briefing derived from the snapshot,
-// with `model = "fallback-rules"`.
 
 import { callWithFallback } from "./model-fallback";
+import { runConsensus, PANEL_FAST, type ConsensusResult } from "./consensus";
+import { AI_CONSENSUS_ENABLED, hasKey } from "./keys";
 import type { MetricsSnapshot } from "@/lib/mtq/engine";
 
 const CACHE_MS = 60_000;
@@ -40,12 +39,23 @@ interface Cached {
 }
 let cached: Cached | null = null;
 
+export interface ConsensusMeta {
+  status: string;
+  votersOk: number;
+  votersAsked: number;
+  agreement: number | null;
+  winner?: string;
+  runId?: string;
+  votes: Array<{ provider: string; model: string; role: string; ok: boolean; latencyMs: number; error?: string }>;
+}
+
 export interface BriefingResult {
   briefing: string;
   generatedAt: number;
   model: string;
   sources: string[];
   disclaimer: string;
+  consensus?: ConsensusMeta;
 }
 
 /** Round to N decimals (avoids floating-point noise in the prompt). */
@@ -106,20 +116,27 @@ function buildSnapshotSummary(snap: MetricsSnapshot): string {
   );
 }
 
-function buildPrompt(snap: MetricsSnapshot): string {
+function buildSystem(): string {
+  return [
+    "You are the Chief Operating Officer (COO) of the MTQΣ protocol. You are calm, executive, and action-oriented.",
+    "You speak in plain English to a board-level audience. You cite live metrics by name (GFB Index, Reserve Ratio, LCR, status, oracle agreement, concentration).",
+    "You NEVER give financial advice. You flag risks and recommend governance actions.",
+    'You answer ONLY with a JSON object of the exact shape {"briefing": "<your three-paragraph briefing text>"} — the value of "briefing" must be YOUR actual briefing text (not a placeholder), no markdown fences, no extra keys.',
+  ].join(" ");
+}
+
+function buildUser(snap: MetricsSnapshot): string {
   const summary = buildSnapshotSummary(snap);
   return [
-    "You are the Chief Operating Officer (COO) of the MTQΣ protocol. You are calm, executive, and action-oriented. You speak in plain English to a board-level audience. You cite live metrics by name (GFB Index, Reserve Ratio, LCR, status, oracle agreement, concentration). You NEVER give financial advice. You flag risks and recommend governance actions.",
-    "",
     "Below is the live protocol snapshot (compact JSON):",
     summary,
     "",
-    "Write exactly THREE paragraphs. Do not preface with headings; the paragraphs are:",
+    "Write exactly THREE paragraphs as the value of the \"briefing\" JSON string. Do not preface with headings; the paragraphs are:",
     "1. State of the Protocol — current monetary state in one paragraph. Reference the GFB Index level, Reserve Ratio, LCR, and protocol status, and one sentence on peg health (mtqPrice vs 1.00 PAR).",
     "2. Risk Watch — the top 2-3 risks right now. Choose from: oracle consensus (paused/ok), issuer concentration (top issuer + share vs 25% warn / 30% breach), peg health (mtqPrice), buffer state (BASE/STRESS/EMERGENCY), geopolitical eject ladder stage (0 = inactive), reconciliation findings F1-F4 severity.",
     "3. Recommended Governance Actions — 2-3 concrete actions for the protocol owner / keeper. Examples: monitor issuer concentration, unpause oracle, escalate eject, verify reconciliation F-IDs. Be specific. Do not recommend buying or selling assets — that is the engine's job, not yours.",
     "",
-    "End your response with the disclaimer line, verbatim: 'AI-generated, informational only — not financial advice.'",
+    "End the briefing string with the disclaimer line, verbatim: 'AI-generated, informational only — not financial advice.'",
   ].join("\n");
 }
 
@@ -173,6 +190,19 @@ function fallbackBriefing(snap: MetricsSnapshot): string {
   return lines.join("\n");
 }
 
+/** Compact consensus metadata for the API response (no raw vote content). */
+function consensusMeta(r: ConsensusResult): ConsensusMeta {
+  return {
+    status: r.status,
+    votersOk: r.votersOk,
+    votersAsked: r.votersAsked,
+    agreement: r.agreement,
+    winner: r.winner,
+    runId: r.runId,
+    votes: r.votes.map((v) => ({ provider: v.provider, model: v.model, role: v.role, ok: v.ok && v.parsed, latencyMs: v.latencyMs, error: v.error })),
+  };
+}
+
 export async function generateBriefing(
   snapshot: MetricsSnapshot,
 ): Promise<BriefingResult> {
@@ -181,44 +211,68 @@ export async function generateBriefing(
     return cached.result;
   }
 
-  const prompt = buildPrompt(snapshot);
+  // ---- PRIMARY PATH: multi-provider consensus (Task 47) -------------------
+  if (AI_CONSENSUS_ENABLED && (hasKey("nvidia") || hasKey("openrouter"))) {
+    try {
+      const con = await runConsensus<Record<string, unknown>>({
+        taskType: "briefing",
+        system: buildSystem(),
+        user: buildUser(snapshot),
+        mode: "medoid",
+        proseField: "briefing",
+        voters: 3,
+        panel: PANEL_FAST, // fast instruction-followers — mistral throttles on long outputs
+        maxTokens: 450,
+        temperature: 0.3,
+      });
+      const briefing = con.ok ? String(con.result?.briefing ?? "") : "";
+      if (con.ok && briefing.trim().length > 0) {
+        const result: BriefingResult = {
+          briefing,
+          generatedAt: Date.now(),
+          model: con.winner ?? "consensus",
+          sources: SOURCES,
+          disclaimer: DISCLAIMER_AI,
+          consensus: consensusMeta(con),
+        };
+        cached = { briefing, at: Date.now(), result };
+        return result;
+      }
+      console.error(
+        `[ai/briefing] consensus ${con.status} (votersOk=${con.votersOk}/${con.votersAsked}) votes=[${con.votes
+          .map((v) => `${v.model}:${v.ok && v.parsed ? "ok" : (v.error ?? "fail").slice(0, 40)}`)
+          .join(" | ")}] — degrading to single-model chain`,
+      );
+    } catch (e) {
+      console.error("[ai/briefing] consensus threw:", (e as Error).message?.slice(0, 200));
+    }
+  }
 
-  // Try the 5-provider fallback chain (Groq → OpenRouter → NVIDIA → Gemini → HuggingFace).
-  // maxTokens is sized to fit within the smallest provider credit limit we've
-  // observed in production (OpenRouter free tier can deny >100 max_tokens).
+  // ---- DEGRADATION PATH: validated single-model chain --------------------
   try {
     const aiResult = await callWithFallback(
-      [{ role: "user", content: prompt }],
-      { maxTokens: 100, temperature: 0.4 },
+      [{ role: "user", content: buildPromptLegacy(snapshot) }],
+      { maxTokens: 700, temperature: 0.3 },
     );
-    console.error(
-      `[ai/briefing] callWithFallback result: success=${aiResult.success} provider=${aiResult.provider} model=${aiResult.model} latencyMs=${aiResult.latencyMs} contentLen=${aiResult.content?.length ?? 0} error=${aiResult.error ?? "n/a"}`,
-    );
-
     if (aiResult.success && aiResult.content && aiResult.content.length > 0) {
       const result: BriefingResult = {
         briefing: aiResult.content,
         generatedAt: Date.now(),
-        model: aiResult.model, // e.g. "llama-3.3-70b-versatile", "gemini-2.0-flash-001"
+        model: aiResult.model,
         sources: SOURCES,
         disclaimer: DISCLAIMER_AI,
       };
       cached = { briefing: aiResult.content, at: Date.now(), result };
       return result;
     }
-    if (!aiResult.success) {
-      console.error(
-        `[ai/briefing] all 5 AI providers failed — using deterministic fallback. lastError=${aiResult.error ?? "n/a"}`,
-      );
-    }
-  } catch (e) {
     console.error(
-      "[ai/briefing] callWithFallback threw:",
-      (e as Error).message?.slice(0, 200),
+      `[ai/briefing] single-model chain failed — using deterministic fallback. lastError=${aiResult.error ?? "n/a"}`,
     );
+  } catch (e) {
+    console.error("[ai/briefing] callWithFallback threw:", (e as Error).message?.slice(0, 200));
   }
 
-  // All providers failed (or returned empty content) → deterministic fallback briefing.
+  // ---- FINAL FALLBACK: deterministic rules --------------------------------
   const briefing = fallbackBriefing(snapshot);
   const result: BriefingResult = {
     briefing,
@@ -229,4 +283,22 @@ export async function generateBriefing(
   };
   cached = { briefing, at: Date.now(), result };
   return result;
+}
+
+/** Legacy single-model prompt (kept verbatim for the degradation path). */
+function buildPromptLegacy(snap: MetricsSnapshot): string {
+  const summary = buildSnapshotSummary(snap);
+  return [
+    "You are the Chief Operating Officer (COO) of the MTQΣ protocol. You are calm, executive, and action-oriented. You speak in plain English to a board-level audience. You cite live metrics by name (GFB Index, Reserve Ratio, LCR, status, oracle agreement, concentration). You NEVER give financial advice. You flag risks and recommend governance actions.",
+    "",
+    "Below is the live protocol snapshot (compact JSON):",
+    summary,
+    "",
+    "Write exactly THREE paragraphs. Do not preface with headings; the paragraphs are:",
+    "1. State of the Protocol — current monetary state in one paragraph. Reference the GFB Index level, Reserve Ratio, LCR, and protocol status, and one sentence on peg health (mtqPrice vs 1.00 PAR).",
+    "2. Risk Watch — the top 2-3 risks right now. Choose from: oracle consensus (paused/ok), issuer concentration (top issuer + share vs 25% warn / 30% breach), peg health (mtqPrice), buffer state (BASE/STRESS/EMERGENCY), geopolitical eject ladder stage (0 = inactive), reconciliation findings F1-F4 severity.",
+    "3. Recommended Governance Actions — 2-3 concrete actions for the protocol owner / keeper. Examples: monitor issuer concentration, unpause oracle, escalate eject, verify reconciliation F-IDs. Be specific. Do not recommend buying or selling assets — that is the engine's job, not yours.",
+    "",
+    "End your response with the disclaimer line, verbatim: 'AI-generated, informational only — not financial advice.'",
+  ].join("\n");
 }

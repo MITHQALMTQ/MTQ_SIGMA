@@ -5,9 +5,14 @@
 // undefined, but we add an explicit `typeof window !== 'undefined'` guard in
 // `getKeys()` as defense in depth).
 //
-// The three provider keys (Gemini / Groq / Hugging Face) are read from
-// `process.env` exactly once at module load. They are NEVER exposed to the
-// client. AI calls always happen server-side via the /api/ai/* routes.
+// Task 47 (2026-11-06) — owner directive "totally free api open source … no
+// billing ever … All AI models work in consensus and remove all z.ai". All
+// five supplied keys were LIVE-validated (scripts/ai/validate-providers.ts):
+// only NVIDIA and OpenRouter generate successfully and are kept in .env
+// (GROQ 403 · GEMINI leaked-key 403 · HUGGINGFACE 402-paywall — removed).
+// The keys are read from `process.env` exactly once at module load and are
+// NEVER exposed to the client. AI calls always happen server-side via the
+// /api/ai/* routes.
 //
 // Feature flags default to `true`. The protocol owner can disable a specific
 // AI capability (e.g. AI_BRIEFING_ENABLED=false) without changing code — the
@@ -65,3 +70,6 @@ export const AI_QA_ENABLED = readFlag("AI_QA_ENABLED", true);
 export const AI_RISK_SIGNALS_ENABLED = readFlag("AI_RISK_SIGNALS_ENABLED", true);
 export const AI_SCREEN_ENABLED = readFlag("AI_SCREEN_ENABLED", true);
 export const AI_NVIDIA_ENABLED = readFlag("AI_NVIDIA_ENABLED", true);
+/** Task 47 — multi-provider consensus mode (all AI models vote). When false,
+ *  features fall back to the single-model chain (model-fallback.ts). */
+export const AI_CONSENSUS_ENABLED = readFlag("AI_CONSENSUS_ENABLED", true);

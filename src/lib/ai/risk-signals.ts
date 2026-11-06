@@ -1,9 +1,12 @@
-// MTQΣ — Risk Signals (5-provider fallback chain).
+// MTQΣ — Risk Signals (Task 47: multi-provider CONSENSUS mode).
 //
-// Server-side only. Generates 2-5 fast risk signals from the live snapshot
-// using the 5-provider fallback chain (Groq → OpenRouter → NVIDIA → Gemini →
-// HuggingFace). Risk signals are ADVISORY ONLY — they never write to engine
-// state and never trigger rebalance. The engine math (src/lib/mtq/engine.ts)
+// Server-side only. Generates 2-5 fast risk signals from the live snapshot.
+// The 3-voter panel (NVIDIA + OpenRouter) each proposes signals; the engine
+// clusters them by title similarity and keeps only quorum-supported clusters
+// (a signal only surfaces when ≥ ceil(k/2) distinct models proposed it —
+// cross-model agreement, not one model's opinion). Risk signals are ADVISORY
+// ONLY — they never write to engine state and never trigger rebalance. The
+// engine math (src/lib/mtq/engine.ts)
 // is always the source of truth.
 //
 // Caching: 15s in-memory cache (risk signals need freshness but not every poll).
@@ -12,6 +15,8 @@
 // the pilot stays fully functional even when every AI provider is down.
 
 import { callWithFallback } from "./model-fallback";
+import { runConsensus, PANEL_FAST } from "./consensus";
+import { AI_CONSENSUS_ENABLED, hasKey } from "./keys";
 import type { MetricsSnapshot } from "@/lib/mtq/engine";
 
 const FALLBACK_MODEL = "fallback-rules";
@@ -31,6 +36,14 @@ export interface RiskSignalsResult {
   signals: RiskSignal[];
   generatedAt: number;
   model: string;
+  consensus?: {
+    status: string;
+    votersOk: number;
+    votersAsked: number;
+    agreement: number | null;
+    runId?: string;
+    votes: Array<{ provider: string; model: string; role: string; ok: boolean; latencyMs: number; error?: string }>;
+  };
 }
 
 interface Cached {
@@ -223,9 +236,53 @@ export async function generateRiskSignals(
 
   const prompt = buildPrompt(snapshot);
 
-  // Try the 5-provider fallback chain (Groq → OpenRouter → NVIDIA → Gemini → HuggingFace).
-  // maxTokens is sized to fit within the smallest provider credit limit we've
-  // observed in production (OpenRouter free tier can deny >100 max_tokens).
+  // ---- PRIMARY PATH: multi-provider consensus (Task 47) -------------------
+  if (AI_CONSENSUS_ENABLED && (hasKey("nvidia") || hasKey("openrouter"))) {
+    try {
+      const con = await runConsensus<Record<string, unknown>>({
+        taskType: "risk-signals",
+        system: RISK_SYSTEM_INSTRUCTION,
+        user: prompt,
+        mode: "signal-merge",
+        voters: 3,
+        panel: PANEL_FAST, // fast instruction-followers — long-context capable
+        maxTokens: 500,
+        temperature: 0.2,
+      });
+      if (con.ok && Array.isArray(con.result?.signals)) {
+        const signals = (con.result.signals as unknown[])
+          .map((item) => validateSignal(item as Record<string, unknown>))
+          .filter((s): s is RiskSignal => s !== null)
+          .slice(0, 5);
+        if (signals.length > 0) {
+          const result: RiskSignalsResult = {
+            signals,
+            generatedAt: Date.now(),
+            model: `consensus(signal-merge) — ${con.votersOk}/${con.votersAsked} voters`,
+            consensus: {
+              status: con.status,
+              votersOk: con.votersOk,
+              votersAsked: con.votersAsked,
+              agreement: con.agreement,
+              runId: con.runId,
+              votes: con.votes.map((v) => ({ provider: v.provider, model: v.model, role: v.role, ok: v.ok && v.parsed, latencyMs: v.latencyMs, error: v.error })),
+            },
+          };
+          cached = { signals, at: Date.now(), result };
+          return result;
+        }
+      }
+      console.error(
+        `[ai/risk-signals] consensus ${con.status} (votersOk=${con.votersOk}/${con.votersAsked}) votes=[${con.votes
+          .map((v) => `${v.model}:${v.ok && v.parsed ? "ok" : (v.error ?? "fail").slice(0, 40)}`)
+          .join(" | ")}] — degrading to single-model chain`,
+      );
+    } catch (e) {
+      console.error("[ai/risk-signals] consensus threw:", (e as Error).message?.slice(0, 200));
+    }
+  }
+
+  // ---- DEGRADATION PATH: validated single-model chain --------------------
   try {
     const aiResult = await callWithFallback(
       [
