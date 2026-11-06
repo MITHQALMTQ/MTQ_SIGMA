@@ -2449,15 +2449,20 @@ export interface MetricsSnapshot {
     } | null }[];
     totalTradeUsd: number;
   } | null;
-  // §14.1 — per-component MARP execution summary (read-only projection of what
-  // MARP WOULD do this tick; the actual mutation happens in applyMarpRebalance()
-  // only when USE_MARP_EXECUTION=true in pilot-state.ts). The UI shows this
-  // alongside the legacy §7 single-direction decision for A/B comparison.
+  // §14.1 — per-component MARP execution summary. F-50-1 (Task 50 audit):
+  // appliedCount/skippedCount/totalTradeUsd are the DECISION-LEVEL projection
+  // (what the §11 ladder approved this tick — the pre-execution view);
+  // `lastPass` is the REAL outcome of the most recent execution pass. The two
+  // can legitimately differ — applyMarpRebalance enforces the §11.5.2 daily
+  // turnover budget, §11.5.3 direction locks and §11.4 liquidity caps AGAIN
+  // at execution time. The UI must never present the projection as execution.
   marpExecution: {
-    appliedCount: number;     // # of decisions with shouldTrade && level >= 6
-    skippedCount: number;     // # of decisions skipped (no-trade zone / low urgency / cost-benefit fail / turnover cap / direction lock)
-    totalTradeUsd: number;    // Σ tradeUsd for the would-execute decisions
+    appliedCount: number;     // # of decisions the ladder APPROVED (shouldTrade && level ≥ 8) — projection
+    skippedCount: number;     // # of decisions the ladder declined — projection
+    totalTradeUsd: number;    // Σ tradeUsd of the APPROVED decisions — projection (pre-execution)
     path: 'legacy' | 'marp';   // which execution path is currently mutating state (mirrors s.rebalancePath)
+    /** F-50-1 — the REAL last execution pass outcome (null before the first pass). */
+    lastPass: MarpExecutionPass | null;
   } | null;
   // §14.1 — which rebalance execution path is currently active. Reads from
   // s.rebalancePath (set by the feature flag in pilot-state.ts::tick()). The
@@ -2552,7 +2557,21 @@ export interface MetricsSnapshot {
   parameterRegistry: typeof PARAMETER_REGISTRY;
 }
 
-export function computeSnapshot(s: ReserveState, fx: FxSnapshot, ctx?: { oracle?: OracleBoard | null; registry?: AssetRecord[] | null }): MetricsSnapshot {
+// F-50-1 (Task 50 audit) — the REAL outcome of one MARP execution pass, as
+// captured by pilot-state.ts::tick() immediately after applyMarpRebalance()
+// (or the reason a pass was held). Contrast with the decision-level
+// projection in MetricsSnapshot.marpExecution — the projection is what the
+// §11 ladder approved; this is what actually mutated the ledger.
+export interface MarpExecutionPass {
+  at: number;             // epoch ms of the pass
+  appliedCount: number;   // trades that ACTUALLY mutated the ledger
+  skippedCount: number;   // declined at execution time
+  totalTradeUsd: number;  // Σ tradeUsd ACTUALLY executed
+  turnoverCapped: string[]; // components blocked by the §11.5.2 daily budget at execution
+  heldBy: string | null;  // why a pass didn't run (oracle gate / correlation warning / out-of-band price / legacy path active / execution error)
+}
+
+export function computeSnapshot(s: ReserveState, fx: FxSnapshot, ctx?: { oracle?: OracleBoard | null; registry?: AssetRecord[] | null; lastMarpExecutionPass?: MarpExecutionPass | null }): MetricsSnapshot {
   // P0-FIX-1: the MTQ price comes from the canonical chain-linked index
   // (state.chainIndex.I_t), NOT from the legacy Laspeyres computeGfbIndex.
   // The legacy computeGfbIndex is retained as a deprecated export for the
@@ -2672,7 +2691,7 @@ export function computeSnapshot(s: ReserveState, fx: FxSnapshot, ctx?: { oracle?
   // by `advanceMase()` in the tick loop). computeSnapshot uses that as the EMA
   // prior — it does NOT mutate state, so multiple calls within a single tick
   // return the same value (idempotent).
-  const maseData = buildMaseSnapshot(s, fx, vals, nav, rr);
+  const maseData = buildMaseSnapshot(s, fx, vals, nav, rr, ctx?.lastMarpExecutionPass);
 
   return {
     fetchedAt: fx.fetchedAt,
@@ -2941,6 +2960,7 @@ function buildMaseSnapshot(
   vals: ReturnType<typeof reserveAssetValues>,
   nav: number,
   rr: number,
+  lastMarpExecutionPass?: MarpExecutionPass | null,
 ): MaseSnapshotData {
   const prices = buildPriceData(fx);
   // §5.1 — this supplies the h=30 (30-day, VIX-calibrated) horizon input; the
@@ -3033,6 +3053,9 @@ function buildMaseSnapshot(
     skippedCount: marpDecisions.length - wouldExecute.length,
     totalTradeUsd: wouldExecute.reduce((a, d) => a + d.tradeUsd, 0),
     path: s.rebalancePath,
+    // F-50-1 — the REAL last-pass outcome rides alongside the projection so
+    // no surface can mistake "approved by the ladder" for "mutated the ledger".
+    lastPass: lastMarpExecutionPass ?? null,
   };
 
   // §8.1 — Admissibility envelope status per component

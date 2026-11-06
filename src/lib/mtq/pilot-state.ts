@@ -30,6 +30,7 @@ import {
   updateBufferState,
   advanceMacro,
   advanceMase,
+  type MarpExecutionPass,
   advanceChainIndex,
   advanceRiskState,
   stepMacroSignals,
@@ -145,6 +146,12 @@ const STATE_SCHEMA_VERSION = 18;
 // changes the DECISION ROUTE, not the production-authorization posture
 // (still NOT PRODUCTION-AUTHORIZED; all 11 §25.5 gates still not conducted).
 const USE_MARP_EXECUTION = true;
+// F-50-1 (Task 50 audit) — the LAST REAL MARP execution pass (execution truth,
+// distinct from the snapshot's decision-level marpExecution projection).
+// Updated by tick() immediately after applyMarpRebalance (or when the pass is
+// held); threaded into every computeSnapshot so the published snapshot always
+// carries the real outcome alongside the projection.
+let lastMarpExecutionPass: MarpExecutionPass | null = null;
 // AUDIT-RETENTION: prune the audit-trail tables at most every 5 minutes.
 // Calling pruneAuditTrail on every tick would lock the DB for ~ms every 4s;
 // 5min is well below the time it takes the tables to grow past their caps
@@ -385,7 +392,7 @@ async function tick(store: PilotStore) {
   // AUDIT-FIX F-9 tick reorder: compute snap0 BEFORE the peg-health update so
   // the §21.5.3 RR-coupled eject triggers receive the live reserve ratio (the
   // same post-index/post-MASE snapshot the rest of the tick consumes).
-  const snap0 = computeSnapshot(store.state, store.fx, { oracle: store.oracle, registry: store.registry });
+  const snap0 = computeSnapshot(store.state, store.fx, { oracle: store.oracle, registry: store.registry, lastMarpExecutionPass });
   // §5/§11 peg health + eject ladder — with the §21.5.3 RR-coupled triggers
   // (stage 2 RR<1.08 · stage 3 RR<1.05 · stage 4 RR<1.02) and the 5% pause rule.
   updatePegHealth(store.state, SIM_TICK_HOURS, store.fx, snap0.reserveRatio);
@@ -427,6 +434,23 @@ async function tick(store: PilotStore) {
   // reflect the active path. Idempotent per tick — the value only changes if
   // USE_MARP_EXECUTION is recompiled (which triggers a singleton rebuild).
   store.state.rebalancePath = USE_MARP_EXECUTION ? 'marp' : 'legacy';
+  // F-50-1 (Task 50 audit) — capture the REAL outcome of the MARP execution
+  // pass. The snapshot's marpExecution projection (appliedCount etc.) is the
+  // §11-ladder APPROVAL view computed BEFORE execution; applyMarpRebalance
+  // may still decline approved trades at execution time (§11.5.2 daily
+  // turnover budget — live-observed exhausting within a day of ticks, §11.5.3
+  // direction locks, §11.4 liquidity caps). This module-level record is the
+  // execution truth, threaded into every computeSnapshot call below so no UI
+  // surface can present "approved" as "executed".
+  // Default = the legacy-path posture; overwritten by the MARP branches below.
+  let marpPassThisTick: MarpExecutionPass = {
+    at: Date.now(),
+    appliedCount: 0,
+    skippedCount: 0,
+    totalTradeUsd: 0,
+    turnoverCapped: [],
+    heldBy: 'legacy §7 execution path active (USE_MARP_EXECUTION=false)',
+  };
   if (USE_MARP_EXECUTION) {
     // §14.1 + §10 MARP per-component execution (v1.0 production target).
     // Index gold (s.indexPaxg + s.indexXaut) is LOCKED — only reserve gold
@@ -453,6 +477,17 @@ async function tick(store: PilotStore) {
           marpDecisions,
           { poolDepth24hUsd: store.fx.xauPoolDepth24hUsd, reserveRatio: snap0.reserveRatio },
         );
+        // F-50-1 — the REAL pass outcome (not the pre-execution projection).
+        marpPassThisTick = {
+          at: Date.now(),
+          appliedCount: result.appliedCount,
+          skippedCount: result.skippedCount,
+          totalTradeUsd: result.totalTradeUsd,
+          turnoverCapped: result.traces
+            .filter((t) => !t.applied && t.canonicalSkipReason === 'Turnover cap')
+            .map((t) => t.component),
+          heldBy: null,
+        };
         if (result.appliedCount > 0) {
           console.log(
             `[mtq-pilot] MARP execution: ${result.appliedCount} applied, ` +
@@ -461,7 +496,29 @@ async function tick(store: PilotStore) {
         }
       } catch (e) {
         console.error('[mtq-pilot] MARP execution error:', e);
+        marpPassThisTick = {
+          at: Date.now(), appliedCount: 0, skippedCount: 0, totalTradeUsd: 0,
+          turnoverCapped: [], heldBy: 'execution error (see pilot log)',
+        };
       }
+    } else {
+      // F-50-1 — record WHY the pass didn't run (the same gates the code
+      // comments document, now machine-readable on the snapshot).
+      const heldBy = store.oracle.anyFailed
+        ? '§17.7 oracle FAILED — rebalancing paused'
+        : store.oracle.anyDegraded
+          ? '§17.7 oracle DEGRADED — rebalancing paused'
+          : rebalanceHeld
+            ? '§17.9 source-correlation warning — rebalancing held'
+            : 'reference price outside the safety band';
+      marpPassThisTick = {
+        at: Date.now(),
+        appliedCount: 0,
+        skippedCount: (snap0.marp?.decisions ?? []).length,
+        totalTradeUsd: 0,
+        turnoverCapped: [],
+        heldBy,
+      };
     }
     // §24.2 — the legacy §7 single-direction decision is still EVALUATED each
     // tick, but with MARP active it is ADVISORY ONLY (never applied). The row
@@ -497,7 +554,7 @@ async function tick(store: PilotStore) {
     if (decision.shouldRebalance) {
       applyRebalanceTrade(store.state, decision, store.fx.XAU_USD);
       // Recompute post-trade snapshot for the audit-trail row.
-      const snapPost = computeSnapshot(store.state, store.fx, { oracle: store.oracle, registry: store.registry });
+      const snapPost = computeSnapshot(store.state, store.fx, { oracle: store.oracle, registry: store.registry, lastMarpExecutionPass });
       rebalanceAudit = {
         decision,
         navUsd: snap0.nav,
@@ -529,6 +586,10 @@ async function tick(store: PilotStore) {
       };
     }
   }
+  // F-50-1 — publish this tick's REAL execution outcome for every subsequent
+  // computeSnapshot (snap0 was computed pre-execution and carries the previous
+  // pass — semantically correct for "last execution pass as of that snapshot").
+  lastMarpExecutionPass = marpPassThisTick;
   // §8 buffer state
   updateBufferState(store.state, snap0.reserveRatio);
   // FIX: §5.6 concentration rebalancing — multi-issuer optimizer (Circle/Paxos/Tether)
@@ -619,7 +680,7 @@ async function tick(store: PilotStore) {
   }
   // §24.1 — DailyStateVector (throttled 30s; final post-tick snapshot).
   try {
-    const finalSnap = computeSnapshot(store.state, store.fx, { oracle: store.oracle, registry: store.registry });
+    const finalSnap = computeSnapshot(store.state, store.fx, { oracle: store.oracle, registry: store.registry, lastMarpExecutionPass });
     store.lastDailyVectorAt = await persistDailyStateVector(finalSnap, store.tickCount, store.lastDailyVectorAt);
     // §10 + §24.2 — MARP per-component decisions (advisory rows; only when
     // the snapshot actually has a marp block — true once advanceMase has run).
@@ -668,7 +729,7 @@ async function tick(store: PilotStore) {
 
 export async function getSnapshot(): Promise<MetricsSnapshot> {
   const store = await ensureStore();
-  return computeSnapshot(store.state, store.fx, { oracle: store.oracle, registry: store.registry });
+  return computeSnapshot(store.state, store.fx, { oracle: store.oracle, registry: store.registry, lastMarpExecutionPass });
 }
 
 export async function getOracle(): Promise<OracleBoard> {
@@ -726,7 +787,7 @@ export async function applyTrial(req: TrialReq): Promise<TrialResp> {
       error: `Oracle ${mode}. ${req.type} suspended per §17.7.`,
     };
   }
-  const snap = computeSnapshot(store.state, store.fx, { oracle: store.oracle, registry: store.registry });
+  const snap = computeSnapshot(store.state, store.fx, { oracle: store.oracle, registry: store.registry, lastMarpExecutionPass });
   if (req.type === "MINT") {
     if (!(req.amount > 0)) return { ok: false, snapshot: snap, error: "Invalid amount" };
     const guards: MintGuardOpts = {};
@@ -735,7 +796,7 @@ export async function applyTrial(req: TrialReq): Promise<TrialResp> {
     const res = applyMint(store.state, store.fx, snap.status, req.amount, guards);
     // Fee revenue → §13.2 treasury sweep
     maybeTreasurySweep(store.state, res.ok ? res.feeUsd : 0);
-    return { ok: res.ok, mint: res, snapshot: computeSnapshot(store.state, store.fx, { oracle: store.oracle, registry: store.registry }), error: res.reason };
+    return { ok: res.ok, mint: res, snapshot: computeSnapshot(store.state, store.fx, { oracle: store.oracle, registry: store.registry, lastMarpExecutionPass }), error: res.reason };
   } else {
     if (!(req.amount > 0)) return { ok: false, snapshot: snap, error: "Invalid amount" };
     const guards: RedeemGuardOpts = {};
@@ -743,12 +804,12 @@ export async function applyTrial(req: TrialReq): Promise<TrialResp> {
     if (req.quoteExpiresAt != null) guards.quoteExpiresAt = req.quoteExpiresAt;
     const res = applyRedeem(store.state, store.fx, snap.status, req.amount, guards);
     maybeTreasurySweep(store.state, res.ok ? res.feeUsd : 0);
-    return { ok: res.ok, redeem: res, snapshot: computeSnapshot(store.state, store.fx, { oracle: store.oracle, registry: store.registry }), error: res.reason };
+    return { ok: res.ok, redeem: res, snapshot: computeSnapshot(store.state, store.fx, { oracle: store.oracle, registry: store.registry, lastMarpExecutionPass }), error: res.reason };
   }
 }
 
 function getSnapshotSync(store: PilotStore): MetricsSnapshot {
-  return computeSnapshot(store.state, store.fx, { oracle: store.oracle, registry: store.registry });
+  return computeSnapshot(store.state, store.fx, { oracle: store.oracle, registry: store.registry, lastMarpExecutionPass });
 }
 
 export async function getFx(): Promise<FxSnapshot> {

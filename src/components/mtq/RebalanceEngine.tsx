@@ -418,12 +418,20 @@ export function RebalanceEngine({ snapshot }: { snapshot: MetricsSnapshot | null
                         <GlowDot color={marpExec.appliedCount > 0 ? "gold" : "emerald"} size="h-1.5 w-1.5" />
                         {marpExec.appliedCount > 0
                           ? activePath === "marp"
-                            ? `${marpExec.appliedCount} executing`
+                            ? `${marpExec.appliedCount} eligible (pre-execution)`
                             : `${marpExec.appliedCount} would-execute`
                           : "all in no-trade zone"}
                       </Pill>
-                      <Pill tone="muted">{marpExec.skippedCount} skipped</Pill>
-                      <Pill tone="muted">total: {fmtUsdCompact(marpExec.totalTradeUsd)}</Pill>
+                      <Pill tone="muted">{marpExec.skippedCount} declined</Pill>
+                      <Pill tone="muted">Σ approved: {fmtUsdCompact(marpExec.totalTradeUsd)}</Pill>
+                      {marpExec.lastPass && (
+                        <Pill tone={marpExec.lastPass.heldBy ? "amber" : marpExec.lastPass.appliedCount > 0 ? "emerald" : "default"}>
+                          <GlowDot color={marpExec.lastPass.heldBy ? "amber" : marpExec.lastPass.appliedCount > 0 ? "emerald" : "amber"} size="h-1.5 w-1.5" />
+                          {marpExec.lastPass.heldBy
+                            ? `last pass held — ${marpExec.lastPass.heldBy}`
+                            : `last pass: ${marpExec.lastPass.appliedCount} applied · Σ ${fmtUsdCompact(marpExec.lastPass.totalTradeUsd)} executed`}
+                        </Pill>
+                      )}
                     </>
                   )}
                 </div>
@@ -509,11 +517,19 @@ export function RebalanceEngine({ snapshot }: { snapshot: MetricsSnapshot | null
                       ))}
                       {marpExec && (
                         <tr className="border-t-2 border-mtqs-amber/30 bg-mtqs-amber/5">
-                          <td className="px-2 py-2 font-mono font-semibold text-mtqs-gold" colSpan={2}>Σ MARP execution summary</td>
+                          <td className="px-2 py-2 font-mono font-semibold text-mtqs-gold" colSpan={2}>Σ MARP summary (projection + last real pass)</td>
                           <td className="px-2 py-2 text-right font-mono font-semibold text-mtqs-gold">{fmtUsdCompact(marpExec.totalTradeUsd)}</td>
                           <td className="px-2 py-2" colSpan={4}>
                             <span className="text-[0.66rem] text-[#5B6E68]">
-                              {marpExec.appliedCount} applied · {marpExec.skippedCount} skipped · path = {marpExec.path}
+                              {marpExec.appliedCount} eligible · {marpExec.skippedCount} declined · path = {marpExec.path}
+                              {marpExec.lastPass && (
+                                <>
+                                  {" · "}
+                                  {marpExec.lastPass.heldBy
+                                    ? `last pass held — ${marpExec.lastPass.heldBy}`
+                                    : `last pass: ${marpExec.lastPass.appliedCount} applied · ${marpExec.lastPass.skippedCount} skipped · Σ ${fmtUsdCompact(marpExec.lastPass.totalTradeUsd)} executed${marpExec.lastPass.turnoverCapped.length > 0 ? ` (§11.5.2 turnover-capped: ${marpExec.lastPass.turnoverCapped.join(", ")})` : ""}`}
+                                </>
+                              )}
                             </span>
                           </td>
                         </tr>

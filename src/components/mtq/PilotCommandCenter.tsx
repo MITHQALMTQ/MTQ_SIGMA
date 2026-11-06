@@ -772,12 +772,37 @@ function RebalancingSection({ snapshot }: { snapshot: MetricsSnapshot | null }) 
               </Pill>
               {snapshot?.marpExecution && (
                 <span>
-                  applied: <span className="font-mono text-[#33544C]">{snapshot.marpExecution.appliedCount}</span>
-                  {" · "}skipped: <span className="font-mono text-[#33544C]">{snapshot.marpExecution.skippedCount}</span>
-                  {" · "}Σ trade: <span className="font-mono text-[#33544C]">{fmtUsd(snapshot.marpExecution.totalTradeUsd)}</span>
+                  eligible this tick: <span className="font-mono text-[#33544C]">{snapshot.marpExecution.appliedCount}</span>
+                  {" · "}Σ approved: <span className="font-mono text-[#33544C]">{fmtUsd(snapshot.marpExecution.totalTradeUsd)}</span>
+                  <span className="text-[#7A8C86]"> (pre-execution projection)</span>
                 </span>
               )}
             </div>
+            {/* F-50-1 — the REAL last execution pass, distinct from the projection above */}
+            {snapshot?.marpExecution?.lastPass && (
+              <div
+                data-testid="marp-last-pass"
+                className="mt-2 rounded-md border border-[#E3EAE6] bg-[#F7FAF8] px-3 py-2 text-[0.65rem] text-[#5B6E68] leading-relaxed"
+              >
+                <span className="uppercase tracking-[0.16em] text-[#7A8C86]">Last execution pass</span>
+                {" · "}
+                {snapshot.marpExecution.lastPass.heldBy ? (
+                  <span className="text-mtqs-amber">held — {snapshot.marpExecution.lastPass.heldBy}</span>
+                ) : (
+                  <>
+                    applied <span className="font-mono text-[#33544C]">{snapshot.marpExecution.lastPass.appliedCount}</span>
+                    {" · "}skipped <span className="font-mono text-[#33544C]">{snapshot.marpExecution.lastPass.skippedCount}</span>
+                    {" · "}Σ executed <span className="font-mono text-[#33544C]">{fmtUsd(snapshot.marpExecution.lastPass.totalTradeUsd)}</span>
+                    {snapshot.marpExecution.lastPass.turnoverCapped.length > 0 && (
+                      <span className="text-mtqs-amber">
+                        {" · "}§11.5.2 turnover-capped: {snapshot.marpExecution.lastPass.turnoverCapped.join(", ")}
+                      </span>
+                    )}
+                  </>
+                )}
+                {" · "}<span className="text-[#7A8C86]">{new Date(snapshot.marpExecution.lastPass.at).toLocaleTimeString()}</span>
+              </div>
+            )}
           </Panel>
         </Reveal>
         {marp && marp.decisions.length > 0 && (
@@ -817,7 +842,9 @@ function RebalancingSection({ snapshot }: { snapshot: MetricsSnapshot | null }) 
                 Σ MARP trade: <span className="font-mono text-[#33544C]">{fmtUsd(marp.totalTradeUsd)}</span>
                 {" · "}MARP is the <span className="text-[#33544C]">ACTIVE execution path</span> in the simulated pilot
                 (<code className="font-mono text-mtqs-gold">USE_MARP_EXECUTION=true</code> · testnet shadow mode) —
-                applied decisions mutate the pilot ledger; no on-chain settlement occurs.
+                eligible decisions mutate the pilot ledger <span className="text-[#33544C]">at execution time</span>, subject to the
+                §11.5.2 daily-turnover budget (5% NAV), §11.5.3 direction locks and §11.4 liquidity caps — the
+                “last execution pass” line above reports what actually executed; no on-chain settlement occurs.
               </div>
             </Panel>
           </Reveal>
