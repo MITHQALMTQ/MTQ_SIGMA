@@ -9,13 +9,17 @@
 //     NEVER regenerated when the live DB is behind it (that would overwrite
 //     the recovery source of record with a wiped state — see db-ops.ts).
 //
-//  2. MID-RUN REGRESSION GUARD — if the live DB is behind the cloud dump
-//     (file deleted under the running server → SQLite writes into a ghost
-//     inode, or the server re-seeded a fresh chain), the server is SIGTERM'd
-//     so the watchdog restarts it and the boot-time self-heal restores.
-//     Only fires when the watchdog itself is alive (verified via pid +
-//     cmdline) — never kill the only server without a supervisor to restart
-//     it. Suppressed entirely while the intentional-reset sentinel is fresh.
+//  2. MID-RUN REGRESSION GUARD — if the live DB is materially behind the
+//     cloud dump (file deleted under the running server → SQLite writes into
+//     a ghost inode, or the server re-seeded a fresh chain), the server is
+//     SIGTERM'd so the watchdog restarts it and the boot-time self-heal
+//     restores. F-47-2: "behind" uses customBehindDump (prune-tolerant —
+//     sub-10% deficits from the audit-trail retention prune are NOT a wipe;
+//     this script's naive rows<damp comparison caused incident #8's 60s
+//     kill loop). Only fires when the watchdog itself is alive (verified via
+//     pid + cmdline) — never kill the only server without a supervisor to
+//     restart it. Suppressed entirely while the intentional-reset sentinel
+//     is fresh.
 //
 // Log: /tmp/db-cloud-sync.log (owner: dev-watchdog.sh).
 
@@ -27,6 +31,7 @@ import {
   CUSTOM_DB,
   CUSTOM_DUMP,
   cloudSyncRefresh,
+  customBehindDump,
   probeChainHeight,
   probeCustomRows,
   readDumpTip,
@@ -91,7 +96,7 @@ if (sentinel.active) {
   const xp = await probeCustomRows(CUSTOM_DB);
   const xt = readDumpTip(CUSTOM_DUMP);
   const chainBehind = !!ct && (ct.height ?? 0) > (cp.ok ? cp.height : 0);
-  const customBehind = !!xt && xt.rows > (xp.ok ? xp.rows : 0);
+  const customBehind = !!xt && customBehindDump(xp.ok ? xp.rows : 0, xt.rows);
   if (chainBehind || customBehind) {
     console.log(
       `[cloud-sync] REGRESSION: chain ${cp.ok ? `h${cp.height}` : cp.reason} vs dump h${ct?.height ?? "-"} · ` +
