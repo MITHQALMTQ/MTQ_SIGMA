@@ -33,6 +33,7 @@ import {
 } from "@/components/mtq/primitives";
 import type { SectionId } from "@/components/mtq/Navigation";
 import type { MetricsSnapshot } from "@/lib/mtq/engine";
+import { ADMISSIBILITY_ENVELOPES } from "@/lib/mtq/blueprint";
 import {
   Landmark,
   Database,
@@ -47,6 +48,16 @@ import {
 } from "lucide-react";
 
 /* ---------- /api/succession GET shape (sibling contract) ---------- */
+// F-51-2 (Task-51 audit): the live-weights bar below scaled to a hardcoded
+// 0.35 while every other weight bar on the platform scales to the
+// constitutional envelope maximum (Task-45 F-45-1 convention — never
+// hardcode the scale). 0.35 > the 0.32 envelope cap meant no saturation,
+// but the SAME weight rendered different widths on different tabs. Derived,
+// constitutionally grounded, cross-surface consistent.
+const ENVELOPE_BAR_MAX = Math.max(
+  ...Object.values(ADMISSIBILITY_ENVELOPES).map((e) => e.upper),
+);
+
 interface SuccessionCandidateDto {
   code: string;
   name: string;
@@ -1707,7 +1718,7 @@ export function ConstituencySection({
                                 <td className="px-3 py-2 font-mono text-mtqs-gold">{b}</td>
                                 <td className="px-3 py-2">
                                   {w != null ? (
-                                    <MiniBar value={w} max={0.35} colorClass="bg-mtqs-gold/60" />
+                                    <MiniBar value={w} max={ENVELOPE_BAR_MAX} colorClass="bg-mtqs-gold/60" />
                                   ) : (
                                     <span className="text-[#7A8C86]">—</span>
                                   )}
