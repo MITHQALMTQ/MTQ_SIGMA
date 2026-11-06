@@ -1,10 +1,11 @@
 // GET /api/ai/status
 //
-// Returns the status of all AI providers and the fallback chain.
+// Task 47 — the consensus-layer status view: validated providers, the
+// multi-model roster, catalog sync state (the downloaded model databases),
+// and the most recent consensus runs with their per-vote attestations.
 
 import { NextResponse } from "next/server";
-import { getProviderStatus, MODEL_CHAIN } from "@/lib/ai/model-fallback";
-import { hasKey, type AIProvider } from "@/lib/ai/keys";
+import { getConsensusStatus } from "@/lib/ai/consensus";
 import { rateLimit, getClientIP } from "@/lib/mtq/rate-limit";
 
 export const dynamic = "force-dynamic";
@@ -19,28 +20,26 @@ export async function GET(req: Request) {
     );
   }
 
-  const providers = getProviderStatus();
-  const keys = ["groq", "gemini", "huggingface", "nvidia", "openrouter"] as AIProvider[];
+  const view = await getConsensusStatus();
 
-  return NextResponse.json({
-    source: "MTQΣ AI Provider Status",
-    fetchedAt: new Date().toISOString(),
-    fallbackChain: MODEL_CHAIN.map((c, i) => ({
-      priority: i + 1,
-      provider: c.provider,
-      model: c.model,
-      configured: c.apiKey.length > 0,
-      endpoint: c.endpoint,
-    })),
-    providers: keys.map((k) => ({
-      provider: k,
-      hasKey: hasKey(k),
-    })),
-    totalConfigured: providers.filter((p) => p.configured).length,
-    totalProviders: providers.length,
-    note: "When a provider fails, the system automatically falls back to the next. "
-      + "If all fail, deterministic fallback-rules are used.",
-  }, {
-    headers: { "X-RateLimit-Remaining": String(rl.remaining), "Cache-Control": "no-store" },
-  });
+  return NextResponse.json(
+    {
+      source: "MTQΣ AI Consensus Layer (Task 47)",
+      fetchedAt: new Date().toISOString(),
+      mode: "multi-provider consensus (all AI models vote)",
+      providers: view.providers,
+      roster: view.roster,
+      defaults: view.defaults,
+      catalog: view.catalog,
+      recentRuns: view.recentRuns,
+      policy: view.policy,
+      note:
+        "Free-tier providers only — live-validated 2026-11-06 (NVIDIA ✅ · OpenRouter ✅ · Groq 403 ❌ · Google leaked-key 403 ❌ · HuggingFace 402-paywall ❌ removed). " +
+        "Every AI feature fans out to a 3-voter panel spanning both providers; quorum = ≥ ceil(k/2) parsed votes. " +
+        "AI output is ADVISORY ONLY — never writes engine state.",
+    },
+    {
+      headers: { "X-RateLimit-Remaining": String(rl.remaining), "Cache-Control": "no-store" },
+    },
+  );
 }

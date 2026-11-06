@@ -4,7 +4,12 @@
 // Each row is clickable → expands to show what caused the transition
 // (the "worse condition binds" rule, the threshold crossed, the policy
 // adjustments applied). Color-coded by state (NORMAL=emerald, CAUTION=amber,
-// STRESS=amber/orange, DEFENSIVE=rose, EMERGENCY=rose, RECOVERY=cyan).
+// STRESS=amber/orange, DEFENSIVE=amber, EMERGENCY=rose, RECOVERY=cyan).
+// F-47-1: DEFENSIVE pill tone = amber (rose = EMERGENCY §21.2 hard-floor
+// breach ONLY — the F-38-1/F-46-1 canonical convention); the row's TEXT color
+// still uses the brand severity ramp (STATUS_COLORS.DEFENSIVE #FF6B6B — a
+// distinct soft red, darker than EMERGENCY's #FF4D6D), so DEFENSIVE stays
+// visually distinct from EMERGENCY on BOTH layers.
 //
 // For the pilot we synthesise the last 10 transitions based on the current
 // engine state — production reads from the RebalancingDecision + DailyStateVector
@@ -39,7 +44,7 @@ interface RiskTransition {
   toState: RiskStateName;
   rr: number;
   lcr: number;
-  trigger: "RR threshold" | "LCR threshold" | "Both RR + LCR" | "Recovery confirmation" | "Manual override";
+  trigger: "RR threshold" | "LCR threshold" | "Both RR + LCR" | "Recovery confirmation" | "Threshold recovery" | "Manual override";
   action: string;
   evidence: string;
   detail: {
@@ -51,11 +56,12 @@ interface RiskTransition {
 }
 
 // State → tailwind text color (matches brand STATUS_COLORS but in tailwind tokens).
+// F-47-1: DEFENSIVE → amber (rose reserved for EMERGENCY per §21.2 convention).
 const STATE_TONE: Record<RiskStateName, "emerald" | "amber" | "rose" | "gold"> = {
   NORMAL: "emerald",
   CAUTION: "amber",
   STRESS: "amber",
-  DEFENSIVE: "rose",
+  DEFENSIVE: "amber",
   EMERGENCY: "rose",
   RECOVERY: "emerald",
 };
@@ -135,12 +141,23 @@ function buildHistory(snapshot: MetricsSnapshot): RiskTransition[] {
 
   // Build transitions from chain.
   const now = Date.now();
+  // F-48-1 fix (Task 48): timestamps must be STRICTLY MONOTONIC oldest→newest.
+  // The old per-row formula (now − (n−1−i)·randomStep) multiplied a per-row
+  // random step by the remaining index — random steps at different rows made
+  // the date column non-monotonic (live-observed: Nov 01 listed below Nov 04;
+  // the oldest row dated AFTER Oct 27). Now each row owns the gap to the NEXT
+  // NEWER row (12–36h) and the clock accumulates — dates can never invert.
+  const gaps = chain.map(() => (rand() * 2 + 1) * 3600_000 * 12); // gaps[i] = gap before row i (i > 0)
+  let clock = now - gaps.slice(1).reduce((a, b) => a + b, 0); // oldest timestamp
+  const tsFor = chain.map((_, i) => {
+    if (i > 0) clock += gaps[i];
+    return clock;
+  });
   const transitions: RiskTransition[] = [];
   for (let i = 0; i < chain.length; i++) {
     const toState = chain[i];
     const fromState = i === 0 ? chain[i] : chain[i - 1];
-    // Spread timestamps across the last 30 days.
-    const ts = now - (chain.length - 1 - i) * (rand() * 2 + 1) * 3600_000 * 12;
+    const ts = tsFor[i];
     // RR/LCR consistent with the toState severity (rough bands).
     const rrBand: Record<RiskStateName, [number, number]> = {
       NORMAL: [1.12, 1.35],
@@ -186,6 +203,14 @@ function buildHistory(snapshot: MetricsSnapshot): RiskTransition[] {
     } else if (worseCondition === "lcr") {
       trigger = "LCR threshold";
       thresholdCrossed = `LCR ${lcr.toFixed(3)} crossed into the ${toState} band`;
+    } else if (toState === "NORMAL") {
+      // F-48-3 fix (Task 48): an IMPROVEMENT to NORMAL with both conditions
+      // healthy is the AUTOMATIC §21.2 normalization — not a council override.
+      // (The old label said "Manual override / Risk Council 4/7 vote" while the
+      // same row's evidence described the automatic worse-condition-binds
+      // derivation — internally contradictory, live-observed on the newest row.)
+      trigger = "Threshold recovery";
+      thresholdCrossed = `RR ${rr.toFixed(3)} ≥ 1.10 AND LCR ${lcr.toFixed(3)} ≥ 1.00 → automatic return to NORMAL (worse-condition-binds §21.2)`;
     } else {
       trigger = "Manual override";
       thresholdCrossed = "Risk Council 4/7 governance vote (§22.3 risk-tier timelock 24h)";

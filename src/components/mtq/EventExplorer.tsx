@@ -200,10 +200,13 @@ function buildSyntheticEvents(now: number): ProtocolEvent[] {
   // so these rows state the four SPECIFIED layers truthfully instead of
   // fabricating governance activity that never happened. ===
   const GOV_LAYERS = [
+    // F-52-1: Emergency authority mirrors the canonical GOVERNANCE_HIERARCHY
+    // (blueprint.ts §22) — Multi-Sig (4/7), matching the Risk State tab's
+    // hierarchy cards and the Security/Architecture tabs.
     { layer: "Constitutional", authority: "7/7 Multi-Sig", timelock: "90 days", scope: "immutable parameters · core architecture" },
     { layer: "Monetary DAO", authority: "DAO Vote 51%", timelock: "48 hours", scope: "fee structure · smoothing parameters" },
     { layer: "Risk Council", authority: "Council 4/7", timelock: "24 hours", scope: "haircuts · thresholds · eject parameters" },
-    { layer: "Emergency Council", authority: "Council 4/7", timelock: "instant", scope: "pause · force rebalance · emergency eject" },
+    { layer: "Emergency Council", authority: "Multi-Sig 4/7", timelock: "instant", scope: "pause · force rebalance · emergency eject" },
   ] as const;
   for (let i = 0; i < 4; i++) {
     const t = hourBucket * 3_600_000 - i * 3 * 3_600_000 - 45 * 60 * 1000;

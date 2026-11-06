@@ -10,12 +10,14 @@
 // • Rail mode shows instant fixed-position tooltips (hover + keyboard focus),
 //   which cannot be clipped by the scroll container.
 //
-// INFORMATION ARCHITECTURE — 5 semantic groups, all 30 sections reachable:
+// INFORMATION ARCHITECTURE — 5 semantic groups, all 27 sections reachable
+//   (T47 consolidation: networks→contracts, architecture→docs, pitch→
+//    investors merged; "Portfolio" relabelled "Dashboard"):
 //   COMMAND     (10) — what the protocol is doing right now
 //   OPERATIONS  (9) — what a pilot user does
 //   ASSURANCE   (4) — proof it works
-//   PLATFORM    (5) — how it is built
-//   RESTRICTED  (2) — gated internal surfaces (lock-marked)
+//   PLATFORM    (3) — how it is built
+//   RESTRICTED  (1) — gated internal surface (lock-marked)
 //
 // Honesty is a layout rule here: the "Not Production-Authorized" strip is
 // pinned in the footer OUTSIDE the scroll area — always visible, any height.
@@ -35,7 +37,6 @@ import {
   Layers,
   BookOpen,
   Globe2,
-  Landmark,
   Vault,
   Shield,
   RefreshCw,
@@ -47,17 +48,15 @@ import {
   FlaskConical,
   Coins,
   Droplet,
+  Gauge,
   TrendingUp,
   CheckCircle2,
   ClipboardCheck,
   Lock,
   FileCode,
   ShieldCheck,
-  Network,
   FileText,
   Code,
-  Wallet,
-  Presentation,
   Menu,
   X,
   Search,
@@ -118,14 +117,16 @@ const COMMAND: SectionDef[] = [
 ];
 
 // ─── OPERATIONS — what a pilot user does (9) ───────────────────────────
-// 40-c: "wallet" (browser-key devnet wallet — KeyRound, since Wallet icon
-// is taken by Portfolio) + "staking" (bond + on-chain governance).
+// 40-c: "wallet" (browser-key devnet wallet — KeyRound) + "staking" (bond
+// + on-chain governance).
+// T47: "portfolio" relabelled "Dashboard" (renders DashboardSection — the
+// full legacy protocol grid; Gauge icon, LayoutDashboard belongs to Overview).
 const OPERATIONS: SectionDef[] = [
   { id: "mint", label: "Mint", icon: Plus },
   { id: "redeem", label: "Redeem", icon: Minus },
   { id: "wallet", label: "Devnet Wallet", icon: KeyRound },
   { id: "staking", label: "Staking & Gov", icon: Layers },
-  { id: "portfolio", label: "Portfolio", icon: Wallet },
+  { id: "portfolio", label: "Dashboard", icon: Gauge },
   { id: "activity", label: "Activity", icon: Activity },
   { id: "simulation", label: "Simulation Lab", icon: FlaskConical },
   { id: "issuance", label: "Issuance Lab", icon: Coins },
@@ -140,20 +141,21 @@ const ASSURANCE: SectionDef[] = [
   { id: "authorization", label: "Authorization Audit", icon: ShieldCheck },
 ];
 
-// ─── PLATFORM — how it is built (5) ────────────────────────────────────
+// ─── PLATFORM — how it is built (3) ────────────────────────────────────
+// T47: "networks" merged into "contracts" (Contracts & Chains — kills the
+// one-letter collision with Network NOC); "architecture" merged into "docs"
+// (Blueprint & Docs — both static blueprint reference).
 const PLATFORM: SectionDef[] = [
-  { id: "contracts", label: "Contracts", icon: FileCode },
-  { id: "networks", label: "Networks", icon: Network },
-  { id: "architecture", label: "Architecture", icon: Landmark },
-  { id: "docs", label: "Documentation", icon: FileText },
+  { id: "contracts", label: "Contracts & Chains", icon: FileCode },
+  { id: "docs", label: "Blueprint & Docs", icon: FileText },
   { id: "developers", label: "Developers", icon: Code },
 ];
 
-// ─── RESTRICTED — gated internal surfaces (2) ──────────────────────────
-// "investors" renders the Institutional Dashboard; "pitch" the Pitch Deck.
+// ─── RESTRICTED — gated internal surface (1) ────────────────────────────
+// T47: "pitch" merged under "investors" — Institutional Dashboard + investor
+// diligence + Pitch Deck render on one restricted surface.
 const RESTRICTED: SectionDef[] = [
   { id: "investors", label: "Investor Dashboard", icon: TrendingUp },
-  { id: "pitch", label: "Pitch Deck", icon: Presentation },
 ];
 
 const SIDEBAR_GROUPS: SidebarGroup[] = [
@@ -167,9 +169,11 @@ const SIDEBAR_GROUPS: SidebarGroup[] = [
 const ALL_SIDEBAR_ITEMS: SectionDef[] = SIDEBAR_GROUPS.flatMap((g) => g.items);
 
 // Status → dot tone for the live capsule.
+// F-47-1: DEFENSIVE joins the amber family — rose is reserved for EMERGENCY
+// (§21.2 hard-floor breach ONLY), matching the canonical status-tone.tsx.
 function statusTone(s: string | undefined): "emerald" | "amber" | "rose" {
   if (s === "NORMAL") return "emerald";
-  if (s === "CAUTION" || s === "RECOVERY" || s === "STRESS") return "amber";
+  if (s === "CAUTION" || s === "RECOVERY" || s === "STRESS" || s === "DEFENSIVE") return "amber";
   return "rose";
 }
 function statusDotHex(tone: "emerald" | "amber" | "rose"): string {

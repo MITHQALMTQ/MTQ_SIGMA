@@ -62,7 +62,7 @@ export const CANDIDATE_UNIVERSE: SuccessionCandidate[] = [
   { code: "CAD", name: "Canadian Dollar", seedWeight: 0.05, envelope: { lower: 0.03, upper: 0.07 }, frankfurterKey: "CAD", note: "G10 oil-linked currency; deep liquidity, strong rule-of-law profile." },
   { code: "KRW", name: "South Korean Won", seedWeight: 0.04, envelope: { lower: 0.02, upper: 0.06 }, frankfurterKey: "KRW", note: "Large economy; on-chain issuer depth is thinner — wider envelope band." },
   { code: "SEK", name: "Swedish Krona", seedWeight: 0.04, envelope: { lower: 0.02, upper: 0.06 }, frankfurterKey: "SEK", note: "EU-adjacent G10; diversifies the EUR block without duplicating it." },
-  { code: "NOK", name: "Norwegian Krone", seedWeight: 0.03, envelope: { lower: 0.02, upper: 0.05 }, frankfurterKey: "NOK", note: "Sovereign-wealth-fund anchor; smaller FX depth — lower envelope." },
+  { code: "NOK", name: "Norwegian Krone", seedWeight: 0.035, envelope: { lower: 0.02, upper: 0.05 }, frankfurterKey: "NOK", note: "Sovereign-wealth-fund anchor; smaller FX depth — lower envelope." },
 ];
 
 export function findCandidate(code: string): SuccessionCandidate | undefined {

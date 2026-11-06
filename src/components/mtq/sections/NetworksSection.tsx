@@ -1,31 +1,28 @@
-// MTQΣ — Networks Section (dedicated chains page)
+// MTQΣ — Chains & Oracle Deployments sub-surface (T47 merge).
 //
-// Chain cards for every entry in ALL_CHAINS (rendered dynamically — nothing
-// hardcoded), the OD-34 / §17.10 on-chain oracle deployment registry
-// (CHAIN_ORACLE_DEPLOYMENTS + getOracleFeedSummary from oracle-feeds.ts, with
-// the module's honest UNVERIFIED feed labels verbatim), chain policy notes,
-// and the §1.7 independent-verification banner with the DEPLOYER_WALLET.
+// Formerly a standalone "Networks" tab — folded UNDER the Contracts & Chains
+// tab (2026-11-06): its chain-card grid duplicated the contract registry's
+// canonical cards + metadata strip (chainID / currency / RPC / deployer /
+// explorer / canonical MTQΣ) and the one-letter label collided with the
+// live "Network NOC" tab. What remains here is the UNIQUE content:
+//   • the OD-34 / §17.10 on-chain oracle deployment registry
+//     (CHAIN_ORACLE_DEPLOYMENTS + getOracleFeedSummary, with the module's
+//     honest UNVERIFIED feed labels verbatim),
+//   • chain policy notes (incl. the Solana Gate-7 deferral),
+//   • the §1.7 independent-verification banner with the DEPLOYER_WALLET.
 //
-// Sibling scope: the Contracts tab is the address registry (per-contract
-// rows); THIS page is about chains / RPC / explorers / oracle deployments.
-//
-// Props: { onNavigate, snapshot }.
+// Props: { onNavigate, snapshot } (both unused — signature kept for the
+// PCC render-map uniformity).
 
 "use client";
 
 import { useMemo } from "react";
 import { toast } from "sonner";
-import { ExternalLink, ShieldAlert, Server, Globe2, FileWarning } from "lucide-react";
+import { ShieldAlert, FileWarning } from "lucide-react";
 import { Panel, Reveal, Pill, GlowDot, SectionHeading } from "@/components/mtq/primitives";
 import { TruthBanner } from "@/components/mtq/TruthBanner";
 import { shortAddr, copyToClipboard } from "@/components/mtq/format";
-import {
-  ALL_CHAINS,
-  CANONICAL_MTQ_ADDRESSES,
-  DEPLOYER_WALLET,
-  buildExplorerAddressUrl,
-  type ChainInfo,
-} from "@/lib/mtq/contracts";
+import { DEPLOYER_WALLET } from "@/lib/mtq/contracts";
 import {
   CHAIN_ORACLE_DEPLOYMENTS,
   getOracleFeedSummary,
@@ -61,129 +58,10 @@ function Cell({ label, children }: { label: string; children: React.ReactNode })
   );
 }
 
-/* ---------- One chain card ---------- */
-function ChainCard({ chain }: { chain: ChainInfo }) {
-  const canonical = CANONICAL_MTQ_ADDRESSES[chain.id];
-  // Defensive: a chain whose only records are the zero-address placeholder
-  // has NO live deployment — derived from the data, never from a hardcoded
-  // chain id. (No current registry chain is placeholder-only: the
-  // Base/Arbitrum mainnet targets were removed from the registry 2026-10-24.)
-  const zeroAddr = "0x0000000000000000000000000000000000000000";
-  const isPendingOnly = chain.contracts.length > 0 && chain.contracts.every((c) => c.address === zeroAddr);
-  const note = canonical?.note ?? chain.contracts[0]?.note;
-
-  return (
-    <Panel className="p-4 sm:p-5">
-      <div className="mb-3 flex items-start justify-between gap-3 flex-wrap">
-        <div>
-          <h3 className="text-[0.92rem] font-semibold text-[#0E1F1B]">{chain.label}</h3>
-          <div className="text-[0.66rem] text-[#5B6E68]">
-            {chain.network} · {chain.isEvm ? "EVM" : "SPL / non-EVM"}
-          </div>
-        </div>
-        {isPendingOnly ? (
-          <Pill tone="muted">
-            <GlowDot color="gold" size="h-1.5 w-1.5" />
-            MAINNET TARGET · NO DEPLOYMENT
-          </Pill>
-        ) : (
-          <Pill tone="amber">
-            <GlowDot color="amber" size="h-1.5 w-1.5" />
-            TESTNET
-          </Pill>
-        )}
-      </div>
-
-      <div className="grid grid-cols-2 lg:grid-cols-4 gap-2">
-        <Cell label="Chain ID">
-          <span className="font-mono text-mtqs-gold">{String(chain.chainId)}</span>
-        </Cell>
-        <Cell label="Native currency">
-          <span className="font-mono text-mtqs-gold">{chain.nativeCurrency}</span>
-        </Cell>
-        <Cell label="Deployed contracts">
-          <span className="font-mono text-mtqs-gold">{chain.contracts.length}</span>
-          {isPendingOnly ? (
-            <span className="ml-1 text-[0.6rem] text-[#5B6E68]">(pending)</span>
-          ) : null}
-        </Cell>
-        <Cell label="Deployer wallet">
-          <span className="inline-flex items-center gap-1 font-mono text-mtqs-gold">
-            {shortAddr(chain.wallet, 6, 4)}
-            <CopyButton value={chain.wallet} label="deployer wallet" />
-          </span>
-        </Cell>
-      </div>
-
-      <div className="mt-2 space-y-2">
-        <div className="rounded-md border border-[#E3EAE6] bg-[#F7FAF8] p-2.5">
-          <div className="flex items-center gap-1.5 text-[0.6rem] uppercase tracking-[0.16em] text-[#5B6E68]">
-            <Server className="h-3 w-3" aria-hidden="true" />
-            RPC URL
-          </div>
-          <div className="mt-0.5 flex items-center gap-1 min-w-0">
-            <span className="font-mono text-[0.68rem] text-mtqs-gold truncate">{chain.rpcUrl}</span>
-            <CopyButton value={chain.rpcUrl} label="RPC URL" />
-          </div>
-        </div>
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
-          <div className="rounded-md border border-[#E3EAE6] bg-[#F7FAF8] p-2.5 min-w-0">
-            <div className="flex items-center gap-1.5 text-[0.6rem] uppercase tracking-[0.16em] text-[#5B6E68]">
-              <ExternalLink className="h-3 w-3" aria-hidden="true" />
-              Explorer
-            </div>
-            <a
-              href={chain.explorer}
-              target="_blank"
-              rel="noreferrer"
-              className="mt-0.5 inline-block font-mono text-[0.66rem] text-mtqs-emerald/85 underline-offset-4 hover:underline break-all"
-            >
-              {chain.explorer} ↗
-            </a>
-          </div>
-          <div className="rounded-md border border-[#E3EAE6] bg-[#F7FAF8] p-2.5 min-w-0">
-            <div className="text-[0.6rem] uppercase tracking-[0.16em] text-[#5B6E68]">
-              Canonical MTQΣ
-            </div>
-            {canonical ? (
-              <div className="mt-0.5 flex items-center gap-1 min-w-0 flex-wrap">
-                <a
-                  href={canonical.explorer}
-                  target="_blank"
-                  rel="noreferrer"
-                  className="font-mono text-[0.66rem] text-mtqs-gold underline-offset-4 hover:underline"
-                  title={canonical.address}
-                >
-                  {shortAddr(canonical.address, 10, 6)}
-                </a>
-                <CopyButton value={canonical.address} label="canonical MTQΣ address" />
-                <a
-                  href={canonical.explorer}
-                  target="_blank"
-                  rel="noreferrer"
-                  className="text-[0.6rem] text-mtqs-emerald/75 hover:text-mtqs-emerald"
-                >
-                  explorer ↗
-                </a>
-              </div>
-            ) : (
-              <div className="mt-0.5 font-mono text-[0.66rem] text-[#5B6E68]">— (none recorded)</div>
-            )}
-          </div>
-        </div>
-        {note ? (
-          <div className="rounded-md border border-[#E3EAE6] bg-[#F7FAF8] p-2.5">
-            <div className="text-[0.6rem] uppercase tracking-[0.16em] text-[#5B6E68]">Note</div>
-            <p className="mt-0.5 text-[0.64rem] leading-relaxed text-[#5B6E68]">{note}</p>
-          </div>
-        ) : null}
-      </div>
-    </Panel>
-  );
-}
-
 /* ============================================================
-   NetworksSection
+   NetworksSection — unique deployment content (T47: renders under
+   the Contracts & Chains tab; the chain-card grid was removed as a
+   duplicate of the contract registry above it)
    ============================================================ */
 export function NetworksSection({
   onNavigate: _onNavigate,
@@ -199,53 +77,20 @@ export function NetworksSection({
 
   return (
     <div className="space-y-10">
-      {/* ---------- Page heading ---------- */}
-      <div>
-        <SectionHeading
-          eyebrow="deployment · chains"
-          title="Testnet Networks"
-          className="mb-4"
-          right={
-            <Pill tone="amber">
-              <GlowDot color="amber" size="h-1.5 w-1.5" />
-              TESTNET ONLY · no production network
-            </Pill>
-          }
-        />
-        <Reveal>
-          <TruthBanner lines={["TESTNET ONLY", "RESERVE TRADING NOT AUTHORIZED"]}>
-            <p className="text-[0.68rem] leading-relaxed text-[#5B6E68]">
-              Appendix D.1: the v2.0 testnet edition targets Arc, Monad and Solana Devnet —
-              the registry contains exactly these three owner-declared deployments (the former
-              Base/Arbitrum mainnet placeholders were removed 2026-10-24). The pilot operates
-              on testnets only, and every network the contracts inhabit must return the same
-              honest status.
-            </p>
-          </TruthBanner>
-        </Reveal>
-      </div>
-
-      {/* ---------- Chain cards (ALL_CHAINS, rendered dynamically) ---------- */}
-      <section id="networks-chains" className="scroll-mt-32">
-        <SectionHeading
-          eyebrow="chains · rpc · explorers"
-          title="Chain Registry"
-          right={
-            <Pill tone="gold">
-              <Globe2 className="h-3 w-3" aria-hidden="true" />
-              {ALL_CHAINS.length} chains ·{" "}
-              {ALL_CHAINS.reduce((a, c) => a + c.contracts.length, 0)} recorded entries
-            </Pill>
-          }
-        />
-        <Reveal>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            {ALL_CHAINS.map((chain) => (
-              <ChainCard key={chain.id} chain={chain} />
-            ))}
-          </div>
-        </Reveal>
-      </section>
+      {/* ---------- Sub-surface heading (T47: no page-level heading — this
+          renders under the Contracts & Chains tab heading) ---------- */}
+      <Reveal>
+        <TruthBanner lines={["TESTNET ONLY", "RESERVE TRADING NOT AUTHORIZED"]}>
+          <p className="text-[0.68rem] leading-relaxed text-[#5B6E68]">
+            Appendix D.1: the v2.0 testnet edition targets Arc, Monad and Solana Devnet —
+            the registry contains exactly these three owner-declared deployments (the former
+            Base/Arbitrum mainnet placeholders were removed 2026-10-24). The pilot operates
+            on testnets only, and every network the contracts inhabit must return the same
+            honest status. Chain IDs, RPC endpoints, explorers, deployer wallets and
+            canonical MTQΣ addresses render in the registry above.
+          </p>
+        </TruthBanner>
+      </Reveal>
 
       {/* ---------- On-chain oracle deployments (OD-34 / §17.10) ---------- */}
       <section

@@ -540,11 +540,16 @@ function ReserveSection({ snapshot }: { snapshot: MetricsSnapshot | null }) {
 
 // FIX 1.3 — `risk` section: 6-state risk machine + VIX/DXY + canonical thresholds.
 //   Reads the parent-polled snapshot.
+// F-47-1: DEFENSIVE = amber, NOT rose — the F-38-1/F-46-1 canonical convention
+//   (rose = EMERGENCY §21.2 hard-floor breach ONLY) applies to the state ladder
+//   too: DEFENSIVE (RR 1.00–1.02, solvency intact) painted rose was visually
+//   indistinguishable from EMERGENCY on the ladder + header pill. Matches the
+//   canonical status-tone.tsx and RiskStateMachine maps.
 const RISK_TONE: Record<string, "emerald" | "amber" | "rose"> = {
   NORMAL: "emerald",
   CAUTION: "amber",
   STRESS: "amber",
-  DEFENSIVE: "rose",
+  DEFENSIVE: "amber",
   EMERGENCY: "rose",
   RECOVERY: "amber",
 };
@@ -767,12 +772,37 @@ function RebalancingSection({ snapshot }: { snapshot: MetricsSnapshot | null }) 
               </Pill>
               {snapshot?.marpExecution && (
                 <span>
-                  applied: <span className="font-mono text-[#33544C]">{snapshot.marpExecution.appliedCount}</span>
-                  {" · "}skipped: <span className="font-mono text-[#33544C]">{snapshot.marpExecution.skippedCount}</span>
-                  {" · "}Σ trade: <span className="font-mono text-[#33544C]">{fmtUsd(snapshot.marpExecution.totalTradeUsd)}</span>
+                  eligible this tick: <span className="font-mono text-[#33544C]">{snapshot.marpExecution.appliedCount}</span>
+                  {" · "}Σ approved: <span className="font-mono text-[#33544C]">{fmtUsd(snapshot.marpExecution.totalTradeUsd)}</span>
+                  <span className="text-[#7A8C86]"> (pre-execution projection)</span>
                 </span>
               )}
             </div>
+            {/* F-50-1 — the REAL last execution pass, distinct from the projection above */}
+            {snapshot?.marpExecution?.lastPass && (
+              <div
+                data-testid="marp-last-pass"
+                className="mt-2 rounded-md border border-[#E3EAE6] bg-[#F7FAF8] px-3 py-2 text-[0.65rem] text-[#5B6E68] leading-relaxed"
+              >
+                <span className="uppercase tracking-[0.16em] text-[#7A8C86]">Last execution pass</span>
+                {" · "}
+                {snapshot.marpExecution.lastPass.heldBy ? (
+                  <span className="text-mtqs-amber">held — {snapshot.marpExecution.lastPass.heldBy}</span>
+                ) : (
+                  <>
+                    applied <span className="font-mono text-[#33544C]">{snapshot.marpExecution.lastPass.appliedCount}</span>
+                    {" · "}skipped <span className="font-mono text-[#33544C]">{snapshot.marpExecution.lastPass.skippedCount}</span>
+                    {" · "}Σ executed <span className="font-mono text-[#33544C]">{fmtUsd(snapshot.marpExecution.lastPass.totalTradeUsd)}</span>
+                    {snapshot.marpExecution.lastPass.turnoverCapped.length > 0 && (
+                      <span className="text-mtqs-amber">
+                        {" · "}§11.5.2 turnover-capped: {snapshot.marpExecution.lastPass.turnoverCapped.join(", ")}
+                      </span>
+                    )}
+                  </>
+                )}
+                {" · "}<span className="text-[#7A8C86]">{new Date(snapshot.marpExecution.lastPass.at).toLocaleTimeString()}</span>
+              </div>
+            )}
           </Panel>
         </Reveal>
         {marp && marp.decisions.length > 0 && (
@@ -812,7 +842,9 @@ function RebalancingSection({ snapshot }: { snapshot: MetricsSnapshot | null }) 
                 Σ MARP trade: <span className="font-mono text-[#33544C]">{fmtUsd(marp.totalTradeUsd)}</span>
                 {" · "}MARP is the <span className="text-[#33544C]">ACTIVE execution path</span> in the simulated pilot
                 (<code className="font-mono text-mtqs-gold">USE_MARP_EXECUTION=true</code> · testnet shadow mode) —
-                applied decisions mutate the pilot ledger; no on-chain settlement occurs.
+                eligible decisions mutate the pilot ledger <span className="text-[#33544C]">at execution time</span>, subject to the
+                §11.5.2 daily-turnover budget (5% NAV), §11.5.3 direction locks and §11.4 liquidity caps — the
+                “last execution pass” line above reports what actually executed; no on-chain settlement occurs.
               </div>
             </Panel>
           </Reveal>
@@ -838,10 +870,15 @@ interface HonestStatusResp {
 }
 
 const COUNCILS = [
+  // F-52-1 (Task-52 audit): authority strings now mirror the canonical
+  // GOVERNANCE_HIERARCHY (blueprint.ts §22) exactly — the Emergency layer is
+  // a Multi-Sig (4/7), NOT a "Council" (this card previously said "Council
+  // 4/7", disagreeing with the Risk State tab's canonical hierarchy cards and
+  // the Security/Architecture tabs).
   { name: "Constitutional", icon: Crown, authority: "Multi-Sig 7/7", timelock: "90 days", scope: "Immutable parameters · core architecture · envelopes · hard floors · liquidation staging", tone: "gold" as const },
   { name: "Monetary DAO",   icon: Landmark, authority: "DAO Vote 51%", timelock: "48 hours", scope: "RR target · fee structure · smoothing parameters", tone: "emerald" as const },
   { name: "Risk Council",   icon: ShieldIcon, authority: "Council 4/7", timelock: "24 hours", scope: "Haircuts · thresholds · eject parameters · LCR targets", tone: "amber" as const },
-  { name: "Emergency Council", icon: AlertTriangle, authority: "Council 4/7", timelock: "instant", scope: "Pause operations · force rebalance · emergency eject", tone: "rose" as const },
+  { name: "Emergency Council", icon: AlertTriangle, authority: "Multi-Sig 4/7", timelock: "instant", scope: "Pause operations · force rebalance · emergency eject", tone: "rose" as const },
 ];
 
 function GovernanceSection() {
@@ -1022,6 +1059,16 @@ function GovernanceSection() {
 
 const SECTION_KEY = "mtqs.section";
 
+/* T47 consolidation — sections removed from the registry live on under their
+   merged parents. Any stale persisted id (sessionStorage written before the
+   consolidation, or an old launch link) is redirected to its new home BEFORE
+   the ALL_SECTIONS validation, so no visitor can ever restore a dead section. */
+const LEGACY_SECTION_REDIRECT: Record<string, SectionId> = {
+  networks: "contracts",
+  architecture: "docs",
+  pitch: "investors",
+};
+
 export function PilotCommandCenter({ onExit }: { onExit?: () => void }) {
   // Restore the last visited section (session persistence) so launching from
   // the landing page or refreshing keeps the user where they were.
@@ -1029,8 +1076,9 @@ export function PilotCommandCenter({ onExit }: { onExit?: () => void }) {
     if (typeof window === "undefined") return "overview";
     try {
       const saved = window.sessionStorage.getItem(SECTION_KEY);
-      if (saved && ALL_SECTIONS.some((s) => s.id === saved)) {
-        return saved as SectionId;
+      const mapped = saved ? LEGACY_SECTION_REDIRECT[saved] ?? saved : null;
+      if (mapped && ALL_SECTIONS.some((s) => s.id === mapped)) {
+        return mapped as SectionId;
       }
     } catch {
       /* storage unavailable — fall back to overview */
@@ -1202,7 +1250,6 @@ export function PilotCommandCenter({ onExit }: { onExit?: () => void }) {
                   {section === "validation" && (
                     <div className="space-y-10">
                       <ValidationResearchSection onNavigate={handleNavigate} snapshot={snapshot} />
-                      <MandateCompliance />
                       <TestsSection onNavigate={handleNavigate} />
                     </div>
                   )}
@@ -1256,17 +1303,37 @@ export function PilotCommandCenter({ onExit }: { onExit?: () => void }) {
                   {section === "issuance" && (
                     <IssuanceSection onNavigate={handleNavigate} snapshot={snapshot} />
                   )}
-                  {section === "architecture" && (
-                    <ArchitectureSection onNavigate={handleNavigate} snapshot={snapshot} />
-                  )}
                   {section === "docs" && (
-                    <DocsSection onNavigate={handleNavigate} snapshot={snapshot} />
+                    <div className="space-y-10">
+                      {/* T47: the former Architecture tab (Blueprint v2.0 Ch 26 +
+                          appendices — final declarations, two-engine hierarchy,
+                          Four Weight States, deployment checklist, glossary)
+                          renders under the Docs reference — one blueprint tab. */}
+                      <DocsSection onNavigate={handleNavigate} snapshot={snapshot} />
+                      <ArchitectureSection onNavigate={handleNavigate} snapshot={snapshot} />
+                    </div>
                   )}
                   {section === "security" && <SecuritySection onNavigate={handleNavigate} />}
-                  {section === "contracts" && <ContractsSection onNavigate={handleNavigate} />}
-                  {section === "authorization" && <AuthorizationAuditSection />}
-                  {section === "networks" && (
-                    <NetworksSection onNavigate={handleNavigate} snapshot={snapshot} />
+                  {section === "authorization" && (
+                    <div className="space-y-10">
+                      {/* T47: MandateCompliance moved here from Validation — its
+                          OD-35 Safe custody evidence, role/authorization register
+                          and OD/C/T registers belong with the authorization audit
+                          (its OD-34 oracle content complements Contracts & Chains). */}
+                      <AuthorizationAuditSection />
+                      <MandateCompliance />
+                    </div>
+                  )}
+                  {section === "contracts" && (
+                    <div className="space-y-10">
+                      {/* T47: the former Networks tab renders under the contract
+                          registry — chain metadata (RPC / explorer / deployer /
+                          canonical addresses) renders once in the registry above;
+                          the OD-34 oracle deployment registry, chain policy notes
+                          and §1.7 verification banner render below. */}
+                      <ContractsSection onNavigate={handleNavigate} />
+                      <NetworksSection onNavigate={handleNavigate} snapshot={snapshot} />
+                    </div>
                   )}
                   {section === "faucet" && (
                     <div className="space-y-10">
@@ -1349,9 +1416,12 @@ export function PilotCommandCenter({ onExit }: { onExit?: () => void }) {
                         <InstitutionalDashboard />
                       </section>
                       <InvestorSection onNavigate={handleNavigate} snapshot={snapshot} />
+                      {/* T47: the restricted Pitch Deck renders here — a
+                          fundraising deck is not pilot functionality, but stays
+                          reachable on the investors surface for owner demos. */}
+                      <PitchSection onNavigate={handleNavigate} />
                     </div>
                   )}
-                  {section === "pitch" && <PitchSection onNavigate={handleNavigate} />}
 
                 </motion.div>
               </AnimatePresence>

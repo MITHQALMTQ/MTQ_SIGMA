@@ -24,6 +24,7 @@ import { useState, useRef, useEffect, useCallback } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Send, BookOpen, Sparkles, AlertCircle } from "lucide-react";
 import { Panel, Reveal, Pill, GlowDot, Skeleton } from "./primitives";
+import { ConsensusBadge, type ConsensusMeta } from "./ConsensusBadge";
 
 /* ---------- API shape contract (must match P1-A backend) ---------- */
 interface QaResponse {
@@ -31,6 +32,7 @@ interface QaResponse {
   citations: string[];
   model: string;
   disclaimer: string;
+  consensus?: ConsensusMeta;
 }
 
 interface QaItem {
@@ -62,6 +64,7 @@ export function BlueprintQA({ className = "" }: { className?: string }) {
   const [citations, setCitations] = useState<string[]>([]);
   const [model, setModel] = useState<string | null>(null);
   const [disclaimer, setDisclaimer] = useState<string | null>(null);
+  const [consensus, setConsensus] = useState<ConsensusMeta | null>(null);
   const [loading, setLoading] = useState<boolean>(false);
   const [error, setError] = useState<string | null>(null);
   const [history, setHistory] = useState<QaItem[]>([]);
@@ -87,6 +90,7 @@ export function BlueprintQA({ className = "" }: { className?: string }) {
     setCitations([]);
     setModel(null);
     setDisclaimer(null);
+    setConsensus(null);
 
     try {
       const res = await fetch("/api/ai/qa", {
@@ -110,6 +114,7 @@ export function BlueprintQA({ className = "" }: { className?: string }) {
         setCitations(json.citations ?? []);
         setModel(json.model ?? null);
         setDisclaimer(json.disclaimer ?? null);
+        setConsensus(json.consensus ?? null);
         // Prepend to history, keep last 5.
         setHistory((prev) => {
           const next = [
@@ -229,6 +234,9 @@ export function BlueprintQA({ className = "" }: { className?: string }) {
               {disclaimer}
             </p>
           )}
+          <div className="pt-2 border-t border-[#E3EAE6]">
+            <ConsensusBadge consensus={consensus} />
+          </div>
         </>
       ) : null}
     </div>
@@ -250,12 +258,12 @@ export function BlueprintQA({ className = "" }: { className?: string }) {
               Ask the Blueprint
             </h3>
             <p className="text-[0.72rem] text-[#33544C] leading-relaxed">
-              {/* 24-e-2: provider-neutral — Gemini is only the 4th provider in the
-                  fallback chain; with no key set the pilot serves deterministic
-                  fallback rules (see the model badge). */}
-              AI Q&amp;A over the v1.0 Master Blueprint constants — served by the configured
-              provider when a key is set, otherwise deterministic fallback rules (see the model
-              badge). Informational only.
+              {/* 24-e-2: provider-neutral — served by the cross-vendor consensus
+                  (see the provenance chips under each answer). With no member
+                  answering, the pilot serves deterministic fallback rules. */}
+              AI Q&amp;A over the v1.0 Master Blueprint constants — answered by the
+              cross-vendor AI consensus (provenance under each answer; fallback:
+              deterministic rules). Informational only.
             </p>
           </div>
           <Pill tone={tone} className="font-mono shrink-0">

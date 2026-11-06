@@ -35,6 +35,15 @@ interface BriefingResponse {
   model: string;
   sources: string[];
   disclaimer: string;
+  consensus?: {
+    status: string;
+    votersOk: number;
+    votersAsked: number;
+    agreement: number | null;
+    winner?: string;
+    runId?: string;
+    votes: Array<{ provider: string; model: string; role: string; ok: boolean; latencyMs: number; error?: string }>;
+  };
 }
 
 /* ---------- Model badge tone: gold / muted / rose ---------- */
@@ -185,7 +194,8 @@ export function AIPolicyBriefing({ className = "" }: { className?: string }) {
               Monetary Policy Briefing
             </h3>
             <p className="text-[0.72rem] text-[#33544C] leading-relaxed">
-              Generated from the live snapshot by the configured model (fallback: deterministic rules).
+              Generated from the live snapshot by a 3-voter multi-provider consensus panel
+              (NVIDIA + OpenRouter — free tier; fallback: deterministic rules).
               Informational only — not financial advice.
             </p>
           </div>
@@ -247,7 +257,7 @@ export function AIPolicyBriefing({ className = "" }: { className?: string }) {
           )}
         </div>
 
-        {/* ---------- Footer: generated-at · sources · disclaimer ---------- */}
+        {/* ---------- Footer: generated-at · consensus · sources · disclaimer ---------- */}
         {data && !error && data.model !== "disabled" && (
           <div className="mt-4 pt-3 border-t border-[#E3EAE6] space-y-1">
             <div className="flex flex-wrap items-center gap-x-2 gap-y-1 text-[0.68rem] font-mono tabular-nums text-[#33544C]">
@@ -255,6 +265,15 @@ export function AIPolicyBriefing({ className = "" }: { className?: string }) {
               <span>
                 Generated {fmtAgo(data.generatedAt)}
               </span>
+              {data.consensus && (
+                <>
+                  <span className="text-[#7A8C86]">·</span>
+                  <span title={data.consensus.votes.map((v) => `${v.provider}/${v.model}: ${v.ok ? "ok" : (v.error ?? "failed")} ${v.latencyMs}ms`).join("\n")}>
+                    consensus {data.consensus.status.toLowerCase()} · {data.consensus.votersOk}/{data.consensus.votersAsked} voters
+                    {data.consensus.agreement !== null && ` · agreement ${(data.consensus.agreement * 100).toFixed(0)}%`}
+                  </span>
+                </>
+              )}
               {data.sources && data.sources.length > 0 && (
                 <>
                   <span className="text-[#7A8C86]">·</span>
@@ -264,6 +283,18 @@ export function AIPolicyBriefing({ className = "" }: { className?: string }) {
                 </>
               )}
             </div>
+            {data.consensus && data.consensus.votes.length > 0 && (
+              <div className="flex flex-wrap gap-x-3 gap-y-0.5 text-[0.6rem] font-mono text-[#7A8C86]">
+                {data.consensus.votes.map((v) => (
+                  <span key={`${v.provider}/${v.model}`} className="inline-flex items-center gap-1">
+                    <GlowDot color={v.ok ? "gold" : "rose"} size="h-1 w-1" />
+                    <span className="truncate max-w-[11rem]" title={`${v.provider}/${v.model} — ${v.latencyMs}ms${v.error ? ` · ${v.error.slice(0, 60)}` : ""}`}>
+                      {v.model.split("/").pop()}
+                    </span>
+                  </span>
+                ))}
+              </div>
+            )}
             {data.disclaimer && (
               <p className="text-[0.62rem] text-[#5B6E68] leading-relaxed">
                 {data.disclaimer}

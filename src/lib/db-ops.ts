@@ -66,6 +66,31 @@ export const SENTINEL_PATH = join(DB_DIR, "ALLOW-GENESIS-RESET");
 export const CHAIN_MIN_HEIGHT = 500;
 export const CUSTOM_MIN_ROWS = 4000;
 
+// F-47-2 (incident #8 — prune-vs-restore kill loop): the audit-trail
+// retention prune (pruneAuditTrail: MAX_REBALANCING_DECISIONS 10k ·
+// MAX_DAILY_STATE_VECTORS 5k · MAX_ORACLE_SAMPLES 5k, batches of 1000)
+// legitimately DELETES rows at runtime, so a live custom row count a few
+// rows BELOW the dump tip is NOT a wipe regression. A real regression leaves
+// a stub (incident #7: 221KB, < CUSTOM_MIN_ROWS rows) — a ≥10% deficit.
+// Tolerating sub-10% deficits keeps every real regression detected (stub at
+// ~5-25% of dump → far below the 90% line) while ending the false-positive
+// loop: prune → "live behind dump" → kill → restore resurrects pruned rows →
+// prune again → kill every 60s. Shared by selfHealDatabases(),
+// cloudSyncRefresh() and scripts/db-cloud-sync.ts so all three sites apply
+// the SAME semantics.
+const PRUNE_TOLERANCE_RATIO = 0.90;
+
+/** True when the live custom row count is MATERIALLY behind the dump tip
+ *  (wipe/regression signature), tolerating legitimate retention prune churn.
+ *  `liveRows` 0 covers the missing/unreadable probe case. */
+export function customBehindDump(liveRows: number, dumpRows: number): boolean {
+  const materialFloor = Math.max(
+    CUSTOM_MIN_ROWS,
+    Math.floor(dumpRows * PRUNE_TOLERANCE_RATIO),
+  );
+  return liveRows < materialFloor;
+}
+
 // Cloud-sync write-behind thresholds: refresh a dump once the live DB has
 // moved this far past the dump tip (chain ~1 block/3-5s idle → 60 blocks ≈
 // 3-5 min worst-case loss; custom telemetry grows slower, 400 rows ≈ tens
@@ -439,7 +464,7 @@ export async function selfHealDatabases(opts: { log?: (s: string) => void } = {}
   report.custom.dump = customTip
     ? `${customTip.v2 ? "v2" : "v1"} ${customTip.rows} rows`
     : "none";
-  if (customTip && customTip.rows > liveCustomRows) {
+  if (customTip && customBehindDump(liveCustomRows, customTip.rows)) {
     try {
       await restoreDbFromDump({ kind: "custom", dbPath: CUSTOM_DB, dumpPath: CUSTOM_DUMP, expectRows: customTip.rows, log });
       report.custom.action = "restored";
@@ -511,8 +536,8 @@ export async function cloudSyncRefresh(opts: { log?: (s: string) => void } = {})
   const xt = readDumpTip(CUSTOM_DUMP);
   if (!xp.ok) {
     out.custom.detail = `live ${xp.reason} — dump suppressed (self-heal territory)`;
-  } else if (xt && xt.rows > xp.rows) {
-    out.custom.detail = `live ${xp.rows} rows BEHIND dump ${xt.rows} — refresh suppressed (regression signature)`;
+  } else if (xt && customBehindDump(xp.rows, xt.rows)) {
+    out.custom.detail = `live ${xp.rows} rows BEHIND dump ${xt.rows} (material deficit) — refresh suppressed (regression signature)`;
     log(`[cloud-sync] REGRESSION SIGNATURE — ${out.custom.detail}`);
   } else if (!xt || !xt.v2) {
     const info = await dumpDatabase(CUSTOM_DB, CUSTOM_DUMP);

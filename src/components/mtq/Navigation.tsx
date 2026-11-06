@@ -1,19 +1,28 @@
 // MTQΣ — Institutional Terminal section registry
 //
-// CLEANUP (2026-10-24): this file previously also carried a ~300-line
-// <Navigation /> horizontal-bar component that was superseded by the
-// sidebar-based layout (see Sidebar.tsx) and rendered NOWHERE — dead code
-// since the sidebar reorg. It has been removed; only the canonical section
-// registry (SectionId + ALL_SECTIONS) remains, which is everything any
-// consumer imports (PCC uses ALL_SECTIONS for the sessionStorage restore
-// validation; labels for lookups). SECTIONS is an internal helper for
-// ALL_SECTIONS; NAV_GROUPS was dead (never imported) and was removed in the
-// 16c-013 dead-export sweep.
+// T47 CONSOLIDATION (2026-11-06, owner directive "delete wrong or not needed
+// tabs · one UI design"): three confusing tabs were merged into their natural
+// parents and their ids REMOVED from the union:
+//   networks     → folded into "contracts" (Contracts & Chains: the chain-card
+//                  grid duplicated the contract registry; the OD-34 oracle
+//                  deployment registry + policy notes + §1.7 banner render
+//                  under the contracts tab now — also kills the one-letter
+//                  "network NOC" vs "networks" collision)
+//   architecture → folded into "docs" (both are static blueprint reference;
+//                  the Four-Weight-States table was rendered in both)
+//   pitch        → folded into "investors" (a fundraising deck is not pilot
+//                  functionality; it renders under the restricted investors
+//                  tab)
+// "portfolio" was RELABELLED "Dashboard" — the tab renders DashboardSection
+// (the full legacy protocol grid, zero personal-position data) and every
+// cross-link in the app already called it "Dashboard".
+// The PCC restore logic maps stale sessionStorage ids (networks/architecture/
+// pitch) to their new homes, so no visitor ever lands on a dead section.
 //
-// Legacy section IDs (home / dashboard / trial / tests) were removed from the
-// union: every internal onNavigate("…") call site now targets the modern
-// equivalents (overview / portfolio / activity / validation). "investors" and
-// "pitch" remain as real (restricted) surfaces.
+// Legacy section IDs (home / dashboard / trial / tests) were removed earlier:
+// every internal onNavigate("…") call site targets the modern equivalents
+// (overview / portfolio / activity / validation). "investors" remains as a
+// real (restricted) surface.
 
 export type SectionId =
   // PRIMARY
@@ -34,22 +43,19 @@ export type SectionId =
   | "redeem"
   | "wallet" // 40-c: devnet wallet (client-side signing)
   | "staking" // 40-c: staking + on-chain governance
-  | "portfolio"
+  | "portfolio" // renders DashboardSection — relabelled "Dashboard" (T47)
   | "activity"
   // SUPPORTING
   | "simulation"
   | "constituency"
   | "issuance"
-  | "architecture"
-  | "docs"
+  | "docs" // T47: docs + architecture merged (Blueprint & Docs)
   | "security"
-  | "contracts"
+  | "contracts" // T47: contracts + networks merged (Contracts & Chains)
   | "authorization"
-  | "networks"
   | "faucet"
   // RESTRICTED
-  | "investors"
-  | "pitch";
+  | "investors"; // T47: investors + pitch merged
 
 export type SectionDef = {
   id: SectionId;
@@ -80,30 +86,25 @@ const USER_OPS: SectionDef[] = [
   { id: "redeem", label: "Redeem" },
   { id: "wallet", label: "Wallet" },
   { id: "staking", label: "Staking" },
-  { id: "portfolio", label: "Portfolio" },
+  { id: "portfolio", label: "Dashboard" },
   { id: "activity", label: "Activity" },
 ];
 
-// SUPPORTING — labs, constituency, issuance lab, architecture, docs, security,
-// contracts, authorization audit, networks, faucet (10)
+// SUPPORTING — labs, constituency, issuance lab, docs(+architecture),
+// security, contracts(+chains), authorization audit, faucet (8)
 const SUPPORTING: SectionDef[] = [
   { id: "simulation", label: "Simulation Lab" },
   { id: "constituency", label: "Constituency" },
   { id: "issuance", label: "Issuance Lab" },
-  { id: "architecture", label: "Architecture" },
-  { id: "docs", label: "Documentation" },
+  { id: "docs", label: "Blueprint & Docs" },
   { id: "security", label: "Security" },
-  { id: "contracts", label: "Contracts" },
+  { id: "contracts", label: "Contracts & Chains" },
   { id: "authorization", label: "Authorization Audit" },
-  { id: "networks", label: "Networks" },
   { id: "faucet", label: "Faucet" },
 ];
 
 // RESTRICTED — surfaced via the sidebar's restricted group only.
-const SECONDARY: SectionDef[] = [
-  { id: "investors", label: "Investors" },
-  { id: "pitch", label: "Pitch" },
-];
+const SECONDARY: SectionDef[] = [{ id: "investors", label: "Investors" }];
 
 // Flat list of all primary-surface sections (PRIMARY + USER OPS + SUPPORTING).
 // 16c-013: NAV_GROUPS was dead (exported, never imported) — removed; the
