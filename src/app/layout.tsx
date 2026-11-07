@@ -70,15 +70,20 @@ export const metadata: Metadata = {
   ],
   authors: [{ name: "MTQΣ Protocol" }],
   icons: {
+    // 2026 vector-first icon system — canonical mark (public/brand/mtqs-mark.svg)
+    // rasterized at every standard size. Vector is preferred (crisp at any DPR);
+    // PNG fallbacks cover legacy UAs. Fixes the pixelated-favicon class of bugs
+    // at the root: previously a 784×1168 JPEG photo masqueraded as the
+    // .png/.svg icons (check-brand-assets.ts now guards the format contract).
     icon: [
-      // The official brand-board emblem (hexagonal Σ shield + globe + orbits).
-      { url: "/brand/mtqs-emblem-v3.png", type: "image/png", sizes: "32x32" },
-      { url: "/brand/mtqs-emblem-v3.png", type: "image/png", sizes: "96x96" },
       { url: "/brand/favicon.svg", type: "image/svg+xml" },
+      { url: "/brand/favicon-32.png", type: "image/png", sizes: "32x32" },
+      { url: "/brand/favicon-96.png", type: "image/png", sizes: "96x96" },
     ],
-    apple: "/brand/mtqs-emblem-v3.png",
+    apple: "/brand/apple-touch-icon.png",
     other: [
-      { rel: "icon", url: "/brand/favicon.svg", type: "image/svg+xml" },
+      { rel: "icon", url: "/brand/favicon-16.png", type: "image/png", sizes: "16x16" },
+      { rel: "apple-touch-icon", url: "/brand/apple-touch-icon.png", sizes: "180x180" },
     ],
   },
   openGraph: {

@@ -89,9 +89,20 @@ const POLL_MS = 4000;
 // full-page blur(12px) on EVERY nav switch blanked the screen and was GPU-heavy
 // on large sections; now 0.28s with a light 6px blur (still cinematic, far
 // snappier and cheaper).
+//
+// F-56-1 (2026-11-08, text-fuzziness root cause): `animate` previously ended
+// at `filter: "blur(0px)"` and Framer Motion KEEPS that inline style after the
+// animation completes. A non-none filter forces the ENTIRE section subtree
+// into a GPU rasterization layer — the browser rasterizes all text once as a
+// bitmap texture, then resamples it during scroll at fractional offsets →
+// progressively fuzzy/pixelated text in every dashboard (the reported defect).
+// `transitionEnd: { filter: "none" }` applies after the entrance finishes,
+// de-promoting the layer so text re-rasterizes crisply at native resolution.
+// This is the canonical pattern for ANY filter-animated entrance (see also
+// InstitutionalHero.tsx). Guarded by scripts/check-brand-assets.ts.
 const sectionVariants = {
   initial: { opacity: 0, scale: 0.985, filter: "blur(6px)" },
-  animate: { opacity: 1, scale: 1, filter: "blur(0px)" },
+  animate: { opacity: 1, scale: 1, filter: "blur(0px)", transitionEnd: { filter: "none" } as const },
   exit: { opacity: 0, scale: 1.015, filter: "blur(4px)" },
 };
 

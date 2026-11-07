@@ -159,16 +159,21 @@ export const LOGO_MARK_DESCRIPTION =
   "indigo → violet — over a midnight-blue field with luminous bloom.";
 
 // === Asset paths ===
-// logoCanonical is the single source of truth — the official emblem from the
-// brand identity board (hexagon + champagne Σ + globe + orbital rings),
-// cropped and trimmed from the master board PNG.
+// 2026 vector-first logo system: the canonical mark is now the standalone
+// vector SVG (public/brand/mtqs-mark.svg — a 1:1 replica of BrandMark.tsx).
+// Vector assets are resolution-independent: crisp at 16px favicon through
+// 4K hero on every DPR (1x/2x/3x). The 452×396 mtqs-emblem-v3.png raster
+// (upscaled → pixelation on retina) and the JPEG-masquerade icon files are
+// both retired from active duty. check-brand-assets.ts guards the format
+// contract (extension ↔ magic byte) so a mislabeled raster can never ship
+// as a "vector" logo again.
 export const BRAND_ASSETS = {
-  logoCanonical: "/brand/mtqs-emblem-v3.png",
-  logoMark: "/brand/mtqs-emblem-v3.png",
-  emblem: "/brand/mtqs-emblem-v3.png",
+  logoCanonical: "/brand/mtqs-mark.svg",
+  logoMark: "/brand/mtqs-mark.svg",
+  emblem: "/brand/mtqs-mark.svg",
   wordmark: "/brand/mtqs-wordmark-v3.png",
   brandBoard: "/brand/mtqs-brand-board.png",
-  hero: "/brand/mtqs-emblem-v3.png",
+  hero: "/brand/mtqs-mark.svg",
   pattern: "/brand/mtqs-pattern.png",
   governanceCrests: "/brand/mtqs-governance-crests.png",
   favicon: "/brand/favicon.svg",

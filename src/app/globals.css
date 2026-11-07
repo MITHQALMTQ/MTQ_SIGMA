@@ -213,13 +213,18 @@ html { scrollbar-gutter: stable; }
 
 /* ---------- Interaction refinements (hover-capable pointers only) ---------- */
 @media (hover: hover) and (prefers-reduced-motion: no-preference) {
-  /* Spring-lift micro-interaction for interactive cards */
+  /* Spring-lift micro-interaction for interactive cards.
+     F-56-2 (2026-11-08): permanent `will-change: transform` REMOVED — it
+     pinned every card into its own GPU compositor layer forever, so the
+     browser rasterized card text once as a texture and resampled it during
+     scroll (fuzzy text defect). opacity/transform transitions are compositor-
+     accelerated on demand WITHOUT the hint; the hint is only useful when set
+     just-before animating and removed after (never as a resting style). */
   .mtqs-lift {
     transition:
       transform 0.32s var(--ease-spring),
       box-shadow 0.32s var(--ease-cinematic),
       border-color 0.32s var(--ease-cinematic);
-    will-change: transform;
   }
   .mtqs-lift:hover {
     transform: translateY(-3px);
@@ -646,7 +651,7 @@ body {
   transition: transform 0.3s var(--ease-spring),
               box-shadow 0.3s var(--ease-cinematic),
               border-color 0.3s var(--ease-cinematic);
-  will-change: transform;
+  /* F-56-2: no permanent will-change — see .mtqs-lift note */
 }
 .mtqs-card-hover:hover {
   transform: translateY(-2px);
@@ -667,13 +672,16 @@ body {
   100% { transform: none; }
 }
 
-/* Section fade-in on scroll (gentle) */
+/* Section fade-in on scroll (gentle).
+   F-56-2: no permanent will-change — a resting `will-change: opacity,
+   transform` on every scroll-fade section kept the whole section subtree
+   composited (text rasterized as texture → fuzzy while scrolling). The
+   transition itself is compositor-driven without the hint. */
 .mtqs-section-fade {
   opacity: 0;
   transform: translateY(12px);
   transition: opacity 0.5s var(--ease-cinematic),
               transform 0.5s var(--ease-cinematic);
-  will-change: opacity, transform;
 }
 .mtqs-section-fade.is-visible {
   opacity: 1;

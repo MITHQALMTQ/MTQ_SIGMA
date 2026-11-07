@@ -205,10 +205,13 @@ export function InstitutionalHero({
 
         {/* Hero centerpiece: brand emblem + wordmark + subtitle */}
         <div className="relative px-5 sm:px-7 lg:px-8 pt-6 sm:pt-10 pb-8 sm:pb-12 flex flex-col items-center text-center">
-          {/* Coin-badge BrandMark — large, glowing, platform-unified */}
+          {/* Coin-badge BrandMark — large, glowing, platform-unified.
+              F-56-1: transitionEnd clears the filter after the entrance so the
+              224px vector mark rasterizes at native device resolution — the
+              lingering blur(0px) GPU layer was softening the logo edges. */}
           <motion.div
             initial={{ opacity: 0, scale: 0.85, filter: "blur(16px)" }}
-            animate={{ opacity: 1, scale: 1, filter: "blur(0px)" }}
+            animate={{ opacity: 1, scale: 1, filter: "blur(0px)", transitionEnd: { filter: "none" } as const }}
             transition={{ duration: 0.6, ease: [0.16, 1, 0.3, 1] }}
             className="relative mb-6"
           >
@@ -221,10 +224,12 @@ export function InstitutionalHero({
             </span>
           </motion.div>
 
-          {/* Massive cyan-gradient wordmark */}
+          {/* Massive cyan-gradient wordmark — F-56-1: transitionEnd clears
+              the filter post-entrance (persistent blur(0px) layer = fuzzy
+              display text during scroll). */}
           <motion.h1
             initial={{ opacity: 0, y: 12, filter: "blur(10px)" }}
-            animate={{ opacity: 1, y: 0, filter: "blur(0px)" }}
+            animate={{ opacity: 1, y: 0, filter: "blur(0px)", transitionEnd: { filter: "none" } as const }}
             transition={{ duration: 0.6, delay: 0.15, ease: [0.16, 1, 0.3, 1] }}
             className="mtqs-display mtqs-gold-gradient-text font-semibold leading-none"
             style={{ fontSize: "clamp(3.5rem, 12vw, 9rem)" }}

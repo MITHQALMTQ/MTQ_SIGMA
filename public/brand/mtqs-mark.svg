@@ -1,0 +1,60 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  MTQΣ — Canonical Brand Mark (2026 vector system)
+  Vector source of truth — a 1:1 replica of src/components/landing/BrandMark.tsx
+  (the fresh light teal coin-badge). Infinitely scalable: crisp from 16px
+  favicon to billboard. No raster fallbacks needed on any DPR (1x/2x/3x/4x).
+
+  Design: dark glass disc (radial ink ramp) + faceted M (two overlapping
+  teal chevrons, four crystalline facets #5EEAD4 → #115E59) + teal ring.
+-->
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 48 48" width="48" height="48" role="img" aria-labelledby="mtqs-mark-title">
+  <title id="mtqs-mark-title">MTQΣ — The Global Digital Asset</title>
+  <defs>
+    <radialGradient id="mtqs-disc" cx="42%" cy="32%" r="78%">
+      <stop offset="0" stop-color="#17382F"/>
+      <stop offset="0.55" stop-color="#122822"/>
+      <stop offset="1" stop-color="#0E1F1B"/>
+    </radialGradient>
+    <linearGradient id="mtqs-f1" x1="8" y1="9" x2="29" y2="40" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#5EEAD4"/>
+      <stop offset="1" stop-color="#14B8A6"/>
+    </linearGradient>
+    <linearGradient id="mtqs-f2" x1="18" y1="9" x2="40" y2="40" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#2DD4BF"/>
+      <stop offset="1" stop-color="#0D9488"/>
+    </linearGradient>
+    <linearGradient id="mtqs-f3" x1="18" y1="9" x2="40" y2="40" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#14B8A6"/>
+      <stop offset="1" stop-color="#0F766E"/>
+    </linearGradient>
+    <linearGradient id="mtqs-f4" x1="29" y1="9" x2="41" y2="40" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#0D9488"/>
+      <stop offset="1" stop-color="#115E59"/>
+    </linearGradient>
+  </defs>
+
+  <!-- badge disc -->
+  <circle cx="24" cy="24" r="21.4" fill="url(#mtqs-disc)"/>
+  <ellipse cx="19.5" cy="15.5" rx="13" ry="8" fill="rgba(94,234,212,0.10)"/>
+
+  <!-- faceted M — drop shadow copy -->
+  <g transform="translate(0 2.6)" opacity="0.9">
+    <path d="M7.5 37.5 L18.5 9 L18.5 15 L7.5 40 Z" fill="#0B1B16"/>
+    <path d="M18.5 9 L29.5 37.5 L29.5 40 L18.5 15 Z" fill="#0F241E"/>
+    <path d="M18.5 37.5 L29.5 9 L29.5 15 L18.5 40 Z" fill="#122B24"/>
+    <path d="M29.5 9 L40.5 37.5 L40.5 40 L29.5 15 Z" fill="#1B0F2E"/>
+  </g>
+
+  <!-- faceted M — two overlapping teal chevrons, four crystalline facets -->
+  <g>
+    <path d="M7.5 37.5 L18.5 9 L18.5 15 L7.5 40 Z" fill="url(#mtqs-f1)"/>
+    <path d="M18.5 9 L29.5 37.5 L29.5 40 L18.5 15 Z" fill="url(#mtqs-f2)"/>
+    <path d="M18.5 37.5 L29.5 9 L29.5 15 L18.5 40 Z" fill="url(#mtqs-f3)"/>
+    <path d="M29.5 9 L40.5 37.5 L40.5 40 L29.5 15 Z" fill="url(#mtqs-f4)"/>
+  </g>
+
+  <!-- teal ring + inner hairline -->
+  <circle cx="24" cy="24" r="22.2" fill="none" stroke="#0D9488" stroke-width="2.3"/>
+  <circle cx="24" cy="24" r="20" fill="none" stroke="rgba(255,255,255,0.10)" stroke-width="0.9"/>
+</svg>
