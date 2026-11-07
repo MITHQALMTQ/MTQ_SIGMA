@@ -392,7 +392,7 @@ export function AIConsensusPanel({ className = "" }: { className?: string }) {
                     initial={{ opacity: 0, y: 4 }}
                     animate={{ opacity: 1, y: 0 }}
                     exit={{ opacity: 0, y: -4 }}
-                    className="mt-3 rounded-md border border-mtqs-rose/40 bg-mtqs-rose/5 p-3 text-[0.7rem] text-mtqs-rose"
+                    className="mt-3 rounded-md border border-mtqs-rose/40 bg-mtqs-rose/5 p-3 text-[0.7rem] text-rose-800"
                   >
                     {runError}
                   </motion.div>

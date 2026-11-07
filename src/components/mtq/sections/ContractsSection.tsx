@@ -44,7 +44,7 @@ function CopyButton({ value, label }: { value: string; label: string }) {
         if (ok) toast.success(`Copied ${label}`, { description: shortAddr(value) });
         else toast.error("Copy failed");
       }}
-      className="text-[0.65rem] font-mono text-mtqs-gold hover:text-mtqs-gold transition px-1.5 py-0.5 rounded border border-transparent hover:border-mtqs-amber/30"
+      className="text-[0.65rem] font-mono text-teal-800 hover:text-teal-800 transition px-1.5 py-0.5 rounded border border-transparent hover:border-mtqs-amber/30"
       aria-label={`Copy ${label}`}
     >
       copy
@@ -78,7 +78,7 @@ function ChainTab({ chain, active, onClick }: { chain: ChainInfo; active: boolea
     >
       {chain.label}
       {pending && (
-        <span className="ml-1.5 rounded-full border border-mtqs-amber/30 bg-mtqs-amber/10 px-1.5 py-0.5 align-middle font-mono text-[0.52rem] uppercase tracking-wider text-mtqs-amber">
+        <span className="ml-1.5 rounded-full border border-mtqs-amber/30 bg-mtqs-amber/10 px-1.5 py-0.5 align-middle font-mono text-[0.625rem] uppercase tracking-wider text-amber-800">
           mainnet · pending deploy
         </span>
       )}
@@ -100,7 +100,7 @@ function CanonicalCard({ chainId }: { chainId: string }) {
     <Panel className="p-5 sm:p-6 mtqs-glow">
       <div className="flex items-start justify-between gap-3 mb-3">
         <div>
-          <div className="text-[0.6rem] uppercase tracking-[0.22em] text-mtqs-gold">
+          <div className="text-[0.6rem] uppercase tracking-[0.22em] text-teal-800">
             Source of Truth · {info.chain}
           </div>
           <h3 className="mtqs-display mtqs-gold-text text-2xl font-semibold mt-1">
@@ -128,7 +128,7 @@ function CanonicalCard({ chainId }: { chainId: string }) {
         </div>
       </div>
       <div className="mt-3 rounded-md border border-mtqs-gold/25 bg-mtqs-gold/[0.05] p-3">
-        <div className="text-[0.6rem] uppercase tracking-[0.22em] text-mtqs-gold mb-1">
+        <div className="text-[0.6rem] uppercase tracking-[0.22em] text-teal-800 mb-1">
           Contract address
         </div>
         <div className="flex items-center justify-between gap-3 flex-wrap">
@@ -302,7 +302,7 @@ function RoleMatrixPanel() {
     <Panel className="p-4 sm:p-6">
       <div className="flex flex-wrap items-start justify-between gap-3 mb-4">
         <div>
-          <div className="text-[0.6rem] uppercase tracking-[0.22em] text-mtqs-gold flex items-center gap-1.5">
+          <div className="text-[0.6rem] uppercase tracking-[0.22em] text-teal-800 flex items-center gap-1.5">
             <ShieldCheck className="h-3 w-3" aria-hidden="true" /> AccessControl · Role Matrix
           </div>
           <h3 className="mtqs-display text-lg font-semibold text-[#0E1F1B] mt-1">Live Role Verification</h3>
@@ -332,7 +332,7 @@ function RoleMatrixPanel() {
       </div>
 
       {data?.status === "DEGRADED" && (
-        <div className="mb-4 rounded-md border border-mtqs-amber/30 bg-mtqs-amber/[0.06] p-2.5 text-[0.68rem] text-mtqs-amber">
+        <div className="mb-4 rounded-md border border-mtqs-amber/30 bg-mtqs-amber/[0.06] p-2.5 text-[0.68rem] text-amber-800">
           LIVE CHECK FAILED — {data.reason} Displaying the last VERIFIED snapshot (block-height evidence below); live state
           is UNVERIFIED until the RPCs answer.
         </div>
@@ -340,7 +340,7 @@ function RoleMatrixPanel() {
 
       {/* Owner reference verification */}
       <div className="rounded-md border border-mtqs-gold/25 bg-mtqs-gold/[0.05] p-3 mb-4">
-        <div className="text-[0.6rem] uppercase tracking-[0.22em] text-mtqs-gold mb-2">
+        <div className="text-[0.6rem] uppercase tracking-[0.22em] text-teal-800 mb-2">
           Owner reference — “Click Query → Should return true” (MTQ.sol · deployer account)
         </div>
         <div className="space-y-1.5">
@@ -373,7 +373,7 @@ function RoleMatrixPanel() {
             aria-selected={c.id === chainId}
             onClick={() => setChainId(c.id as "monad" | "arc")}
             className={`mtqs-focus rounded-md px-3 py-1.5 text-[0.72rem] transition ${
-              c.id === chainId ? "bg-mtqs-gold/15 text-mtqs-gold" : "text-[#5B6E68] hover:text-[#0E1F1B]"
+              c.id === chainId ? "bg-mtqs-gold/15 text-teal-800" : "text-[#5B6E68] hover:text-[#0E1F1B]"
             }`}
           >
             {c.name}

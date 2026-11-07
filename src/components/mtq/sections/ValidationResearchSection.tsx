@@ -512,7 +512,7 @@ export function ValidationResearchSection({
               <span className="font-mono text-[#0E1F1B]">5.21% annualized volatility</span> and a
               maximum drawdown of{" "}
               <span className="font-mono text-[#0E1F1B]">−4.1%</span> — must{" "}
-              <span className="text-rose-600 font-medium">not be presented as evidence for MTQΣ</span>,
+              <span className="text-rose-700 font-medium">not be presented as evidence for MTQΣ</span>,
               because they were calculated under the prior architecture: a fixed-quantity basket with
               a fixed gold percentage and a single-AMM gold price. That engine shared none of the
               live machinery of v2.0 — no constituency engine, no MASE multi-model ensemble, no
@@ -587,12 +587,12 @@ export function ValidationResearchSection({
             {error ? (
               <div className="p-4 rounded-lg border border-rose-200 bg-rose-50">
                 <div className="flex items-center gap-2 mb-1">
-                  <ShieldAlert className="h-4 w-4 text-rose-600" aria-hidden="true" />
+                  <ShieldAlert className="h-4 w-4 text-rose-700" aria-hidden="true" />
                   <span className="text-[0.8rem] font-semibold text-rose-700">
                     §23 stress matrix unavailable
                   </span>
                 </div>
-                <p className="text-[0.72rem] text-rose-600 mb-3">
+                <p className="text-[0.72rem] text-rose-700 mb-3">
                   /api/validation did not respond ({error}). No stress data is fabricated — the
                   blueprint program above remains the specification, and the matrix will render
                   once the stress engine endpoint is available.
@@ -640,7 +640,7 @@ export function ValidationResearchSection({
                                 {r.description}
                               </div>
                               {r.breachCount > 0 && (
-                                <div className="text-[0.6rem] font-mono text-rose-600 mt-0.5">
+                                <div className="text-[0.6rem] font-mono text-rose-700 mt-0.5">
                                   {r.breachCount} breach run{r.breachCount === 1 ? "" : "s"} · worst state {r.worstStatus}
                                 </div>
                               )}
@@ -843,13 +843,13 @@ export function ValidationResearchSection({
         <Reveal delay={0.1}>
           <div className="mt-4 rounded-lg border border-mtqs-rose/25 bg-mtqs-rose/[0.05] p-4">
             <p className="text-[0.72rem] text-rose-700 leading-relaxed">
-              <span className="font-semibold text-rose-600">Why this matters enormously:</span> MTQΣ
+              <span className="font-semibold text-rose-700">Why this matters enormously:</span> MTQΣ
               is intended to govern a monetary reference methodology [COO-24]. A leaked validation
               record does not merely flatter a trading strategy — it silently changes what is claimed
               about a <em>unit of account</em>. Every out-of-sample number in the evidence base
               inherits its credibility from this section, and any methodology version that cannot
               demonstrate purge and embargo discipline in its validation logs is{" "}
-              <span className="font-semibold text-rose-600">inadmissible at the gates of §23.12</span>.
+              <span className="font-semibold text-rose-700">inadmissible at the gates of §23.12</span>.
             </p>
           </div>
         </Reveal>
@@ -878,7 +878,7 @@ export function ValidationResearchSection({
             </div>
 
             {error ? (
-              <div className="p-3 rounded-lg border border-rose-200 bg-rose-50 text-[0.7rem] text-rose-600 leading-relaxed">
+              <div className="p-3 rounded-lg border border-rose-200 bg-rose-50 text-[0.7rem] text-rose-800 leading-relaxed">
                 The §23.3/§23.4 run record is unavailable — /api/validation did not respond ({error}).
                 No walk-forward or purged-CV number is fabricated here; the retry control in the
                 stress matrix above re-fetches the full payload, and this panel renders once the
@@ -1211,7 +1211,7 @@ export function ValidationResearchSection({
             </p>
             <button
               onClick={() => onNavigate("evidence")}
-              className="inline-flex items-center gap-1.5 px-4 py-2.5 rounded-lg border border-mtqs-gold/30 bg-mtqs-gold/10 text-mtqs-gold text-[0.75rem] font-semibold hover:bg-mtqs-gold/20 transition-colors mtqs-focus"
+              className="inline-flex items-center gap-1.5 px-4 py-2.5 rounded-lg border border-mtqs-gold/30 bg-mtqs-gold/10 text-teal-800 text-[0.75rem] font-semibold hover:bg-mtqs-gold/20 transition-colors mtqs-focus"
             >
               <ClipboardCheck className="h-4 w-4" aria-hidden="true" />
               Open Evidence Package

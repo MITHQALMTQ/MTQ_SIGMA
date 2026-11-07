@@ -337,7 +337,7 @@ export function InvestorSection({
                             <RoleChip label="MINT" ok={data.roles.minter} />
                             <RoleChip label="PAUSE" ok={data.roles.pauser} />
                             {data.roles.paused === true && (
-                              <span className="inline-flex items-center gap-1 rounded border border-mtqs-rose/40 bg-mtqs-rose/10 text-mtqs-rose px-1.5 py-0.5 font-mono text-[0.6rem]">
+                              <span className="inline-flex items-center gap-1 rounded border border-mtqs-rose/40 bg-mtqs-rose/10 text-rose-800 px-1.5 py-0.5 font-mono text-[0.6rem]">
                                 paused
                               </span>
                             )}
@@ -644,7 +644,7 @@ function RoleChip({ label, ok }: { label: string; ok: boolean | null }) {
     <span
       className={`inline-flex items-center gap-1 rounded border px-1.5 py-0.5 font-mono text-[0.6rem] ${
         ok
-          ? "border-mtqs-emerald/40 bg-mtqs-emerald/10 text-mtqs-emerald"
+          ? "border-mtqs-emerald/40 bg-mtqs-emerald/10 text-emerald-800"
           : "border-[#D3DED8] bg-[#F6FAF8] text-[#33544C]"
       }`}
     >

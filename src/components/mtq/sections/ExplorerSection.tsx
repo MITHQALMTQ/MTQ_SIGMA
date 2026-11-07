@@ -120,14 +120,14 @@ function txCounterparty(raw: TxRowDto["raw"]): string | null {
 function proposalStatusBadge(status: GovProposalDto["status"]): string {
   switch (status) {
     case "VOTING":
-      return "border-mtqs-amber/40 bg-mtqs-amber/10 text-mtqs-amber";
+      return "border-mtqs-amber/40 bg-mtqs-amber/10 text-amber-800";
     case "PASSED":
-      return "border-mtqs-emerald/40 bg-mtqs-emerald/10 text-mtqs-emerald";
+      return "border-mtqs-emerald/40 bg-mtqs-emerald/10 text-emerald-800";
     case "EXECUTED":
       return "border-mtqs-emerald bg-mtqs-emerald text-white";
     case "REJECTED":
     case "FAILED_EXECUTION":
-      return "border-mtqs-rose/40 bg-mtqs-rose/10 text-mtqs-rose";
+      return "border-mtqs-rose/40 bg-mtqs-rose/10 text-rose-800";
     case "EXECUTION_QUEUED":
       return "border-slate-300 bg-slate-100 text-slate-600";
     default:
@@ -296,7 +296,7 @@ export function ExplorerSection() {
             {account.error && !account.data ? (
               <div className="flex items-start gap-3 rounded-lg border border-rose-200 bg-rose-50 px-3 py-3">
                 <ShieldAlert className="mt-0.5 h-4 w-4 shrink-0 text-mtqs-rose" aria-hidden="true" />
-                <p className="text-[0.72rem] text-rose-600">
+                <p className="text-[0.72rem] text-rose-700">
                   Account lookup failed ({account.error}) — no balances are shown rather than
                   fabricated values.
                 </p>
@@ -348,7 +348,7 @@ export function ExplorerSection() {
               ) : !blocks.data && blocks.error ? (
                 <div className="flex items-start gap-3 rounded-lg border border-rose-200 bg-rose-50 px-3 py-3">
                   <ShieldAlert className="mt-0.5 h-4 w-4 shrink-0 text-mtqs-rose" aria-hidden="true" />
-                  <p className="text-[0.72rem] text-rose-600">
+                  <p className="text-[0.72rem] text-rose-700">
                     Block list unavailable ({blocks.error}) — no blocks are shown rather than stale
                     or fabricated rows.
                   </p>
@@ -435,7 +435,7 @@ export function ExplorerSection() {
               ) : !recentTxs.data && recentTxs.error ? (
                 <div className="flex items-start gap-3 rounded-lg border border-rose-200 bg-rose-50 px-3 py-3">
                   <ShieldAlert className="mt-0.5 h-4 w-4 shrink-0 text-mtqs-rose" aria-hidden="true" />
-                  <p className="text-[0.72rem] text-rose-600">
+                  <p className="text-[0.72rem] text-rose-700">
                     Transaction feed unavailable ({recentTxs.error}).
                   </p>
                 </div>
@@ -704,7 +704,7 @@ function BlockDetailDialog({
         ) : error ? (
           <div className="flex items-start gap-3 rounded-lg border border-rose-200 bg-rose-50 px-3 py-3">
             <ShieldAlert className="mt-0.5 h-4 w-4 shrink-0 text-mtqs-rose" aria-hidden="true" />
-            <p className="text-[0.72rem] text-rose-600">
+            <p className="text-[0.72rem] text-rose-700">
               Block not found or node unreachable ({error}).
             </p>
           </div>
@@ -858,7 +858,7 @@ function BlockDetailDialog({
                         </ul>
                       ) : null}
                       {t.result.error ? (
-                        <p className="mt-2 rounded-md border border-rose-200 bg-rose-50 px-2 py-1.5 font-mono text-[0.6rem] leading-relaxed text-rose-600">
+                        <p className="mt-2 rounded-md border border-rose-200 bg-rose-50 px-2 py-1.5 font-mono text-[0.6rem] leading-relaxed text-rose-800">
                           error: {t.result.error}
                         </p>
                       ) : null}
@@ -939,7 +939,7 @@ function TxDetailDialog({
         ) : error ? (
           <div className="flex items-start gap-3 rounded-lg border border-rose-200 bg-rose-50 px-3 py-3">
             <ShieldAlert className="mt-0.5 h-4 w-4 shrink-0 text-mtqs-rose" aria-hidden="true" />
-            <p className="text-[0.72rem] text-rose-600">Transaction not found ({error}).</p>
+            <p className="text-[0.72rem] text-rose-700">Transaction not found ({error}).</p>
           </div>
         ) : detail ? (
           <div className="space-y-4">
@@ -1019,7 +1019,7 @@ function TxDetailDialog({
                 <p className="mb-1.5 text-[0.6rem] uppercase tracking-[0.18em] text-mtqs-rose">
                   Failure
                 </p>
-                <p className="rounded-lg border border-rose-200 bg-rose-50 p-3 font-mono text-[0.64rem] leading-relaxed text-rose-600">
+                <p className="rounded-lg border border-rose-200 bg-rose-50 p-3 font-mono text-[0.64rem] leading-relaxed text-rose-800">
                   {detail.result.error}
                 </p>
               </div>

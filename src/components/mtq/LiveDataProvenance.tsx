@@ -290,13 +290,13 @@ export function LiveDataProvenance() {
               ))}
             </div>
           ) : error ? (
-            <div className="rounded-md border border-mtqs-rose/30 bg-mtqs-rose/10 p-4 text-[0.78rem] text-rose-600">
+            <div className="rounded-md border border-mtqs-rose/30 bg-mtqs-rose/10 p-4 text-[0.78rem] text-rose-800">
               <p className="font-medium">Unable to fetch /api/fx</p>
               <p className="mt-1 text-rose-700 font-mono">{error}</p>
               <button
                 type="button"
                 onClick={() => fetchFx(true)}
-                className="mt-3 inline-flex items-center gap-1.5 rounded-md border border-mtqs-rose/40 bg-mtqs-rose/10 px-2.5 py-1.5 text-[0.7rem] text-rose-700 transition hover:bg-mtqs-rose/20"
+                className="mt-3 inline-flex items-center gap-1.5 rounded-md border border-mtqs-rose/40 bg-mtqs-rose/10 px-2.5 py-1.5 text-[0.7rem] text-rose-800 transition hover:bg-mtqs-rose/20"
               >
                 <RefreshCw className="h-3.5 w-3.5" aria-hidden="true" />
                 Retry

@@ -125,7 +125,7 @@ export function EvidencePackageSection() {
   if (error) {
     return (
       <Panel className="p-6 border-rose-200">
-        <div className="flex items-center gap-3 text-rose-600">
+        <div className="flex items-center gap-3 text-rose-700">
           <ShieldAlert className="h-5 w-5" />
           <span>Evidence package unavailable: {error}</span>
         </div>
@@ -155,7 +155,7 @@ export function EvidencePackageSection() {
         <Panel className="p-5 sm:p-6 border-rose-200" >
           <div className="flex flex-col gap-4">
             <div className="flex flex-wrap items-center gap-3">
-              <ShieldBan className="h-6 w-6 text-rose-600 shrink-0" aria-hidden />
+              <ShieldBan className="h-6 w-6 text-rose-700 shrink-0" aria-hidden />
               <span className="text-base sm:text-lg font-semibold tracking-wide text-rose-700">
                 {m.status} — Controlled Verification Phase
               </span>
@@ -177,7 +177,7 @@ export function EvidencePackageSection() {
           <Stat label="Baseline commit (verified at)" value={short(m.baselineCommit)} valueClass="font-mono text-amber-700" />
           <Stat label="Runtime HEAD (request time)" value={m.runtimeHead ? short(m.runtimeHead) : "n/a"} valueClass="font-mono text-amber-700" />
           <Stat label="Fresh read anchors (M/A)" value={`${m.freshAnchors.monadBlocks.length}× Monad · ${m.freshAnchors.arcBlocks.length}× Arc`} valueClass="text-amber-700" />
-          <Stat label="Git remote" value={m.remote || "NONE"} valueClass={m.remote ? "text-amber-700" : "text-rose-600"} />
+          <Stat label="Git remote" value={m.remote || "NONE"} valueClass={m.remote ? "text-amber-700" : "text-rose-700"} />
         </div>
         <Panel className="p-4 mt-3">
           <div className="grid gap-2 text-[11px] font-mono text-[#5B6E68] break-all">
@@ -245,7 +245,7 @@ export function EvidencePackageSection() {
       {/* ── 3. Findings register ──────────────────────────────────────── */}
       <Reveal>
         <h2 className="flex items-center gap-2 text-lg font-semibold text-[#0E1F1B]">
-          <FileWarning className="h-5 w-5 text-rose-600" aria-hidden /> Findings register — severities preserved (C-040 … C-049)
+          <FileWarning className="h-5 w-5 text-rose-700" aria-hidden /> Findings register — severities preserved (C-040 … C-049)
         </h2>
         <Panel className="p-0 mt-3 overflow-hidden">
           <div className="max-h-96 overflow-y-auto mtqs-scroll">
@@ -296,7 +296,7 @@ export function EvidencePackageSection() {
                 {data.rerunResults.map((s) => (
                   <tr key={s.suite} className="hover:bg-[#F0F7F4]">
                     <td className="px-3 py-2.5 text-[#0E1F1B] whitespace-nowrap">{s.suite}</td>
-                    <td className={`px-3 py-2.5 font-mono whitespace-nowrap ${s.result.includes("CRITICAL") ? "text-rose-600" : "text-emerald-700"}`}>{s.result}</td>
+                    <td className={`px-3 py-2.5 font-mono whitespace-nowrap ${s.result.includes("CRITICAL") ? "text-rose-700" : "text-emerald-700"}`}>{s.result}</td>
                     <td className="px-3 py-2.5 hidden lg:table-cell font-mono text-[10px] text-[#5B6E68] break-all">{s.command}</td>
                     <td className="px-3 py-2.5 text-[11px] text-amber-700">{s.note ?? "—"}</td>
                   </tr>
@@ -330,7 +330,7 @@ export function EvidencePackageSection() {
                     <td className="px-3 py-2.5 text-[#0E1F1B]">{c.source}{c.note ? <span className="block text-[10px] text-amber-700">{c.note}</span> : null}</td>
                     <td className="px-3 py-2.5 font-mono text-[10px] text-[#5B6E68] whitespace-nowrap">{c.evm} / {c.runs} / {c.viaIr ? "IR" : "no-IR"}</td>
                     <td className="px-3 py-2.5 text-right font-mono text-[#0E1F1B]">{c.runtime.toLocaleString()}</td>
-                    <td className={`px-3 py-2.5 text-right font-mono ${c.over > 0 ? "text-rose-600" : "text-emerald-700"}`}>{c.over > 0 ? `+${c.over.toLocaleString()}` : "within"}</td>
+                    <td className={`px-3 py-2.5 text-right font-mono ${c.over > 0 ? "text-rose-700" : "text-emerald-700"}`}>{c.over > 0 ? `+${c.over.toLocaleString()}` : "within"}</td>
                     <td className="px-3 py-2.5 hidden md:table-cell font-mono text-[10px] text-[#5B6E68]">{c.keccak}</td>
                   </tr>
                 ))}
@@ -367,7 +367,7 @@ export function EvidencePackageSection() {
                     <td className="px-3 py-2.5 font-mono text-[10px] text-[#5B6E68] whitespace-nowrap">{c.chain}</td>
                     <td className="px-3 py-2.5 text-[#0E1F1B] font-mono text-[10px]">{c.asset}</td>
                     <td className="px-3 py-2.5 text-right font-mono text-[#33544C]">{c.supply}</td>
-                    <td className="px-3 py-2.5 text-right font-mono text-rose-600">{c.deployerShare}</td>
+                    <td className="px-3 py-2.5 text-right font-mono text-rose-700">{c.deployerShare}</td>
                     <td className="px-3 py-2.5 text-right font-mono text-[#5B6E68]">{c.safeShare}</td>
                     <td className="px-3 py-2.5 hidden md:table-cell text-[11px] text-amber-700">{c.note}</td>
                   </tr>
@@ -400,7 +400,7 @@ export function EvidencePackageSection() {
                 {data.gates.map((g) => (
                   <tr key={g.gate} className="hover:bg-[#F0F7F4]">
                     <td className="px-3 py-2.5 text-[#0E1F1B] whitespace-nowrap">{g.gate}</td>
-                    <td className={`px-3 py-2.5 font-mono text-[10px] whitespace-nowrap ${g.status.includes("BLOCKED") || g.status.includes("NOT") ? "text-rose-600" : "text-amber-700"}`}>{g.status}</td>
+                    <td className={`px-3 py-2.5 font-mono text-[10px] whitespace-nowrap ${g.status.includes("BLOCKED") || g.status.includes("NOT") ? "text-rose-700" : "text-amber-700"}`}>{g.status}</td>
                     <td className="px-3 py-2.5 text-[11px] text-[#5B6E68]">{g.blockers}</td>
                   </tr>
                 ))}
@@ -437,7 +437,7 @@ export function EvidencePackageSection() {
                     <td className="px-3 py-2.5 hidden lg:table-cell text-[11px] text-[#5B6E68]">{d.implemented}</td>
                     <td className="px-3 py-2.5 hidden lg:table-cell text-[11px] text-[#5B6E68]">{d.verified}</td>
                     <td className={`px-3 py-2.5 text-[11px] ${d.approved.includes("OPEN") || d.approved.includes("pending") ? "text-amber-700" : "text-[#5B6E68]"}`}>{d.approved}</td>
-                    <td className="px-3 py-2.5 text-[11px] text-rose-600 whitespace-nowrap">{d.authorized}</td>
+                    <td className="px-3 py-2.5 text-[11px] text-rose-700 whitespace-nowrap">{d.authorized}</td>
                   </tr>
                 ))}
               </tbody>
@@ -467,14 +467,14 @@ export function EvidencePackageSection() {
       {/* ── 9. Stop conditions + remediation ──────────────────────────── */}
       <Reveal>
         <h2 className="flex items-center gap-2 text-lg font-semibold text-[#0E1F1B]">
-          <ShieldAlert className="h-5 w-5 text-rose-600" aria-hidden /> §7 Stop conditions — {triggeredCount}/{stopTotal} triggered, all reported
+          <ShieldAlert className="h-5 w-5 text-rose-700" aria-hidden /> §7 Stop conditions — {triggeredCount}/{stopTotal} triggered, all reported
         </h2>
         <div className="grid md:grid-cols-2 gap-3 mt-3">
           <Panel className="p-4">
             <ul className="space-y-3">
               {data.stopConditions.map((s) => (
                 <li key={s.condition} className="flex gap-3">
-                  <Ban className="h-4 w-4 text-rose-600 mt-0.5 shrink-0" aria-hidden />
+                  <Ban className="h-4 w-4 text-rose-700 mt-0.5 shrink-0" aria-hidden />
                   <div>
                     <div className="text-xs font-medium text-[#0E1F1B]">{s.condition}</div>
                     <div className="text-[11px] text-[#5B6E68] mt-0.5">{s.disposition}</div>
@@ -488,14 +488,14 @@ export function EvidencePackageSection() {
             <ul className="space-y-3">
               {data.remediationTop.map((r) => (
                 <li key={r.id} className="flex gap-3">
-                  <span className={`font-mono text-[11px] mt-0.5 shrink-0 ${r.onChain ? "text-rose-600" : "text-emerald-700"}`}>{r.id}</span>
+                  <span className={`font-mono text-[11px] mt-0.5 shrink-0 ${r.onChain ? "text-rose-700" : "text-emerald-700"}`}>{r.id}</span>
                   <div className="text-[11px] text-[#33544C]">{r.text}{r.onChain ? <span className="text-rose-700"> — ON-CHAIN (plan first)</span> : null}</div>
                 </li>
               ))}
             </ul>
             <div className="mt-4 grid grid-cols-3 gap-2">
-              <Stat label="Unresolved claims (D-6)" value={String(data.claimCounts.total)} valueClass="text-rose-600" />
-              <Stat label="Critical" value={String(data.claimCounts.critical)} valueClass="text-rose-600" />
+              <Stat label="Unresolved claims (D-6)" value={String(data.claimCounts.total)} valueClass="text-rose-700" />
+              <Stat label="Critical" value={String(data.claimCounts.critical)} valueClass="text-rose-700" />
               <Stat label="Resolved this round" value={String(data.claimCounts.resolvedThisRound)} valueClass="text-emerald-700" />
             </div>
           </Panel>

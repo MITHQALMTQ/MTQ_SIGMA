@@ -538,7 +538,7 @@ export function EventExplorer({ limit = 60 }: { limit?: number }) {
               onClick={fetchTrials}
               disabled={loading}
               aria-label="Refresh event explorer"
-              className="mtqs-focus inline-flex items-center gap-1.5 rounded-md border border-mtqs-amber/30 bg-mtqs-amber/5 px-2.5 py-1.5 text-xs text-mtqs-gold hover:bg-amber-100 transition disabled:opacity-50"
+              className="mtqs-focus inline-flex items-center gap-1.5 rounded-md border border-mtqs-amber/30 bg-mtqs-amber/5 px-2.5 py-1.5 text-xs text-teal-800 hover:bg-amber-100 transition disabled:opacity-50"
             >
               <RefreshCw className={`h-3 w-3 ${loading ? "animate-spin" : ""}`} />
               <span className="hidden sm:inline">refresh</span>
@@ -548,7 +548,7 @@ export function EventExplorer({ limit = 60 }: { limit?: number }) {
 
         {/* 16c-010: honest footnote when the live /api/trials feed failed */}
         {fetchError && !loading && (
-          <div className="mb-3 rounded-md border border-mtqs-rose/30 bg-mtqs-rose/5 px-3 py-2 text-[0.68rem] leading-relaxed text-mtqs-rose">
+          <div className="mb-3 rounded-md border border-mtqs-rose/30 bg-mtqs-rose/5 px-3 py-2 text-[0.68rem] leading-relaxed text-rose-800">
             Live feed unavailable — the rows below are the last recorded trials plus synthetic events;
             nothing below is a live read. Use refresh to retry.
           </div>
@@ -598,12 +598,12 @@ export function EventExplorer({ limit = 60 }: { limit?: number }) {
                 className={`mtqs-focus inline-flex items-center gap-1.5 rounded-full border px-2.5 py-1 text-[0.7rem] font-medium transition ${
                   active
                     ? tone === "emerald"
-                      ? "border-mtqs-emerald/40 bg-mtqs-emerald/15 text-mtqs-emerald"
+                      ? "border-mtqs-emerald/40 bg-mtqs-emerald/15 text-emerald-800"
                       : tone === "amber"
-                      ? "border-mtqs-amber/40 bg-mtqs-amber/15 text-mtqs-amber"
+                      ? "border-mtqs-amber/40 bg-mtqs-amber/15 text-amber-800"
                       : tone === "rose"
-                      ? "border-mtqs-rose/40 bg-mtqs-rose/15 text-mtqs-rose"
-                      : "border-mtqs-gold/40 bg-mtqs-gold/15 text-mtqs-gold"
+                      ? "border-mtqs-rose/40 bg-mtqs-rose/15 text-rose-800"
+                      : "border-mtqs-gold/40 bg-mtqs-gold/15 text-teal-800"
                     : "border-[#E3EAE6] bg-[#F7FAF8] text-[#5B6E68] hover:border-[#BEE3DD] hover:text-[#0E1F1B]"
                 }`}
               >

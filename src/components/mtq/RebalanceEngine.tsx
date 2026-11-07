@@ -214,7 +214,7 @@ export function RebalanceEngine({ snapshot }: { snapshot: MetricsSnapshot | null
               onClick={() => setTab("legacy")}
               className={`px-3 py-1.5 text-[0.72rem] font-medium rounded-[5px] transition-colors ${
                 tab === "legacy"
-                  ? "bg-mtqs-emerald/15 text-mtqs-emerald border border-mtqs-emerald/30"
+                  ? "bg-mtqs-emerald/15 text-emerald-800 border border-mtqs-emerald/30"
                   : "text-[#5B6E68] hover:text-[#0E1F1B] border border-transparent"
               }`}
               aria-pressed={tab === "legacy"}
@@ -226,7 +226,7 @@ export function RebalanceEngine({ snapshot }: { snapshot: MetricsSnapshot | null
               onClick={() => setTab("marp")}
               className={`px-3 py-1.5 text-[0.72rem] font-medium rounded-[5px] transition-colors ${
                 tab === "marp"
-                  ? "bg-mtqs-gold/15 text-mtqs-gold border border-mtqs-gold/30"
+                  ? "bg-mtqs-gold/15 text-teal-800 border border-mtqs-gold/30"
                   : "text-[#5B6E68] hover:text-[#0E1F1B] border border-transparent"
               }`}
               aria-pressed={tab === "marp"}
@@ -586,7 +586,7 @@ export function RebalanceEngine({ snapshot }: { snapshot: MetricsSnapshot | null
                   <div className="grid grid-cols-3 gap-2 text-[0.72rem]">
                     <div>
                       <div className="text-[#5B6E68]">LCR (stablecoin-only §13.4.1)</div>
-                      <div className={`font-mono font-semibold ${lcrBreach ? "text-rose-600" : "text-mtqs-emerald"}`}>
+                      <div className={`font-mono font-semibold ${lcrBreach ? "text-rose-700" : "text-mtqs-emerald"}`}>
                         {Number.isFinite(lcr) ? `${lcr.toFixed(3)}` : "∞ — no liability"}
                       </div>
                     </div>

@@ -15,9 +15,9 @@ import type { OracleBoard, OracleFeed, OracleConsensus as OracleConsensusType } 
 import type { MetricsSnapshot } from "@/lib/mtq/engine";
 
 const FEED_COLORS: Record<string, { dot: string; text: string; border: string; bg: string; label: string }> = {
-  CHAINLINK: { dot: "bg-amber-500", text: "text-mtqs-gold", border: "border-mtqs-amber/40", bg: "bg-mtqs-amber/5", label: "Chainlink" },
-  PYTH: { dot: "bg-emerald-500", text: "text-mtqs-emerald", border: "border-mtqs-emerald/40", bg: "bg-mtqs-emerald/5", label: "Pyth" },
-  CHRONICLE: { dot: "bg-rose-500", text: "text-rose-600", border: "border-rose-200", bg: "bg-mtqs-rose/5", label: "Chronicle" },
+  CHAINLINK: { dot: "bg-amber-500", text: "text-teal-800", border: "border-mtqs-amber/40", bg: "bg-mtqs-amber/5", label: "Chainlink" },
+  PYTH: { dot: "bg-emerald-500", text: "text-emerald-800", border: "border-mtqs-emerald/40", bg: "bg-mtqs-emerald/5", label: "Pyth" },
+  CHRONICLE: { dot: "bg-rose-500", text: "text-rose-800", border: "border-rose-200", bg: "bg-mtqs-rose/5", label: "Chronicle" },
 };
 
 function FeedChip({ feed, now }: { feed: OracleFeed; now: number }) {
@@ -191,7 +191,7 @@ export function OracleConsensus({
             <div className="flex items-start gap-3">
               <GlowDot color="rose" size="h-3 w-3" className="mt-1" />
               <div>
-                <div className="text-sm font-semibold text-rose-600 mb-1">
+                <div className="text-sm font-semibold text-rose-700 mb-1">
                   {failed
                     ? "ORACLE PAUSED — all operations paused (§17.7)"
                     : "ORACLE PAUSED — minting & rebalancing suspended (§9.3)"}

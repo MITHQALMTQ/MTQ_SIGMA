@@ -25,7 +25,7 @@ export function Hero({ onLaunch }: { onLaunch?: () => void }) {
         {/* left — copy */}
         <div className="lp-rise">
           <span className="lp-badge">
-            <Sparkles className="size-3.5 text-[#0D9488]" aria-hidden />
+            <Sparkles className="size-3.5 text-[#0F766E]" aria-hidden />
             {HERO.badge}
           </span>
           <h1 id="hero-heading" className="lp-h1">

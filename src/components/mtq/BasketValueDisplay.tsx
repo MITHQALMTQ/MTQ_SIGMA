@@ -35,7 +35,7 @@ const ASSET_META = [
   { code: "EUR", unit: "EUR", symbol: "€", name: "Euro", token: "EURC (Circle)", color: "#00E5FF", textColor: "#0E7490", key: "eur" as const },
   { code: "JPY", unit: "JPY", symbol: "¥", name: "Japanese Yen", token: "JPY₿ (registry-resolved)", color: "#3882F6", textColor: "#1D4ED8", key: "jpy" as const },
   { code: "GBP", unit: "GBP", symbol: "£", name: "British Pound", token: "GBP₿ (registry-resolved)", color: "#8B5CF6", textColor: "#6D28D9", key: "gbp" as const },
-  { code: "CNH", unit: "CNH", symbol: "", name: "Offshore Yuan", token: "CNH₿ (offshore)", color: "#FF8C42", textColor: "#C2410C", key: "cny" as const },
+  { code: "CNH", unit: "CNH", symbol: "", name: "Offshore Yuan", token: "CNH₿ (offshore)", color: "#FF8C42", textColor: "#9A3412", key: "cny" /* F-61c: orange-800 — 700-level measured 4.44 on the warm /8 asset-card tint */ as const },
   { code: "CHF", unit: "CHF", symbol: "", name: "Swiss Franc", token: "CHF₿ (registry-resolved)", color: "#FF4D6D", textColor: "#BE123C", key: "chf" as const },
 ] as const;
 
@@ -126,7 +126,7 @@ export function BasketValueDisplay({ snapshot }: BasketValueProps) {
               {gold.value}
             </motion.span>
             <span className="text-sm text-[#33544C]">of gold <span className="text-[#5B6E68]">· {gold.unit}</span></span>
-            <span className="ml-auto inline-flex items-center gap-1.5 rounded-full border border-mtqs-gold/30 bg-mtqs-gold/10 px-2.5 py-1 text-[0.6rem] uppercase tracking-[0.18em] text-mtqs-gold">
+            <span className="ml-auto inline-flex items-center gap-1.5 rounded-full border border-mtqs-gold/30 bg-mtqs-gold/10 px-2.5 py-1 text-[0.6rem] uppercase tracking-[0.18em] text-teal-800">
               <span aria-hidden="true">🥇</span> the anchor
             </span>
           </div>
@@ -161,7 +161,7 @@ export function BasketValueDisplay({ snapshot }: BasketValueProps) {
                   <div className="w-2 h-2 rounded-full" style={{ backgroundColor: a.color, boxShadow: `0 0 6px ${a.color}80` }} />
                   <span className="text-[0.6rem] uppercase tracking-wider text-[#33544C]">{a.code}</span>
                   {share != null && (
-                    <span className="text-[0.625rem] text-mtqs-gold ml-auto font-medium">
+                    <span className="text-[0.625rem] text-teal-800 ml-auto font-medium">
                       {(share * 100).toFixed(1)}%
                     </span>
                   )}
@@ -195,7 +195,7 @@ export function BasketValueDisplay({ snapshot }: BasketValueProps) {
                 <span className="text-[0.6rem] uppercase tracking-wider text-amber-700">Gold (XAU)</span>
                 {navShares && <span className="text-[0.625rem] text-mtqs-gold ml-auto font-medium">{(navShares.gold * 100).toFixed(1)}%</span>}
               </div>
-              <div className="font-mono text-sm font-semibold text-mtqs-gold tabular-nums">
+              <div className="font-mono text-sm font-semibold text-teal-800 tabular-nums">
                 {goldOz != null ? (
                   <>
                     {goldOz.toExponential(3)} <span className="text-[0.6rem] text-[#5B6E68]">oz / MTQΣ</span>

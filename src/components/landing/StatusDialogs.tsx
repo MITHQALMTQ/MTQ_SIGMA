@@ -22,7 +22,7 @@ const STATUS_ICON = {
 const STATUS_COLOR: Record<string, string> = {
   cyan: "text-teal-700",
   amber: "text-amber-700",
-  rose: "text-rose-600",
+  rose: "text-rose-700",
   violet: "text-violet-600",
   slate: "text-[#5B6E68]",
 };
@@ -55,7 +55,7 @@ const ROW_ICON = {
 const ROW_COLOR = {
   ok: "text-emerald-700",
   warn: "text-amber-700",
-  fail: "text-rose-600",
+  fail: "text-rose-700",
 } as const;
 
 function useDialog() {

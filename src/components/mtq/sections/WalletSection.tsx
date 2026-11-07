@@ -296,7 +296,7 @@ export function WalletSection({ onNavigate }: { onNavigate: (id: SectionId) => v
                     onClick={handleImport}
                     disabled={importSeed.trim().length === 0}
                     variant="outline"
-                    className="h-11 border-mtqs-gold/40 text-[0.78rem] text-mtqs-gold hover:bg-mtqs-gold/10"
+                    className="h-11 border-mtqs-gold/40 text-[0.78rem] text-teal-800 hover:bg-mtqs-gold/10"
                   >
                     Import
                   </Button>
@@ -370,7 +370,7 @@ export function WalletSection({ onNavigate }: { onNavigate: (id: SectionId) => v
                       <Button
                         variant="outline"
                         size="sm"
-                        className="h-9 border-rose-200 text-[0.7rem] text-rose-600 hover:bg-rose-50"
+                        className="h-9 border-rose-200 text-[0.7rem] text-rose-800 hover:bg-rose-50"
                       >
                         <Trash2 className="h-3.5 w-3.5" aria-hidden="true" />
                         Forget key
@@ -503,7 +503,7 @@ export function WalletSection({ onNavigate }: { onNavigate: (id: SectionId) => v
                     className={`mt-3 rounded-lg border px-3 py-2 text-[0.66rem] leading-relaxed ${
                       faucetResult.ok
                         ? "border-mtqs-emerald/30 bg-mtqs-emerald/[0.06] text-[#33544C]"
-                        : "border-rose-200 bg-rose-50 text-rose-600"
+                        : "border-rose-200 bg-rose-50 text-rose-800"
                     }`}
                   >
                     {faucetResult.ok ? (
@@ -625,7 +625,7 @@ export function WalletSection({ onNavigate }: { onNavigate: (id: SectionId) => v
                       className={`rounded-lg border px-3 py-2.5 text-[0.68rem] leading-relaxed ${
                         sendResult.ok
                           ? "border-mtqs-emerald/30 bg-mtqs-emerald/[0.06] text-[#33544C]"
-                          : "border-rose-200 bg-rose-50 text-rose-600"
+                          : "border-rose-200 bg-rose-50 text-rose-800"
                       }`}
                     >
                       {sendResult.ok ? (
@@ -640,7 +640,7 @@ export function WalletSection({ onNavigate }: { onNavigate: (id: SectionId) => v
                             variant="outline"
                             size="sm"
                             onClick={() => onNavigate("explorer")}
-                            className="h-7 border-mtqs-gold/40 px-2 text-[0.62rem] text-mtqs-gold hover:bg-mtqs-gold/10"
+                            className="h-7 border-mtqs-gold/40 px-2 text-[0.62rem] text-teal-800 hover:bg-mtqs-gold/10"
                           >
                             View in Explorer
                             <ArrowRight className="h-3 w-3" aria-hidden="true" />

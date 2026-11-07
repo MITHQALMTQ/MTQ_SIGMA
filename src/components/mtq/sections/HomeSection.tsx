@@ -82,7 +82,7 @@ function TokenMarketHero({ snapshot, token }: { snapshot: MetricsSnapshot | null
   const premium = market != null && mark ? (market / mark - 1) * 100 : null;
   return (
     <>
-      <div className="text-[0.6rem] uppercase tracking-[0.18em] text-[#5B6E68]">
+      <div className="text-[0.6rem] uppercase tracking-[0.18em] text-[#47594F]">
         {live ? `Live market rate · Yahoo ${token}-USD` : `Market rate · ${token} feed unavailable — XAU/USD reference shown`}
       </div>
       <div className="text-2xl font-mono mtqs-gold-text">
@@ -91,22 +91,22 @@ function TokenMarketHero({ snapshot, token }: { snapshot: MetricsSnapshot | null
             reference, honestly labeled above — never a fabricated token rate. */}
         {market != null ? `$${fmtFixed(market, 2)}` : mark != null ? `$${fmtFixed(mark, 2)}` : "—"}
       </div>
-      <div className="text-[0.7rem] text-mtqs-gold mt-1">
+      <div className="text-[0.7rem] text-teal-800 mt-1">
         {premium != null ? (
-          <span className={premium >= 0 ? "text-mtqs-emerald" : "text-rose-500"}>
+          <span className={premium >= 0 ? "text-emerald-800" : "text-rose-700"}>
             {premium >= 0 ? "+" : ""}{premium.toFixed(2)}%{" "}
-            <span className="text-mtqs-gold">vs XAU/USD reference ${mark ? fmtFixed(mark, 0) : "—"}/oz</span>
+            <span className="text-teal-800">vs XAU/USD reference ${mark ? fmtFixed(mark, 0) : "—"}/oz</span>
           </span>
         ) : (
           <span className="text-mtqs-gold">XAU/USD reference mark (§4.1) — not a live {token} quote</span>
         )}
       </div>
-      <div className="text-[0.7rem] text-mtqs-gold mt-1">
+      <div className="text-[0.7rem] text-teal-800 mt-1">
         Pilot-ledger sleeve (§5.6) ·{" "}
-        <span className="font-semibold text-mtqs-gold">{sleeve != null ? fmtUsdCompact(sleeve) : "—"}</span>
+        <span className="font-semibold text-teal-800">{sleeve != null ? fmtUsdCompact(sleeve) : "—"}</span>
         {" "}net of 1.0% haircut
       </div>
-      <div className="text-[0.7rem] text-mtqs-gold mt-1">
+      <div className="text-[0.7rem] text-teal-800 mt-1">
         Ledger mark (§4.1) · XAU/USD · {mark ? `$${fmtFixed(mark, 0)}` : "—"}/oz
       </div>
     </>
@@ -227,7 +227,7 @@ function LiveStatsBand({ snapshot }: { snapshot: MetricsSnapshot | null }) {
       : snapshot.reserveRatio >= 1.1
       ? "text-mtqs-emerald"
       : snapshot.reserveRatio >= 1.05
-      ? "text-mtqs-amber"
+      ? "text-amber-800"
       : "text-mtqs-rose";
 
   const stats: { label: string; value: string | null; tone: string; hint?: string }[] = [
@@ -425,19 +425,19 @@ export function HomeSection({
                     <span className="text-lg">🥇</span>
                   </div>
                   <div>
-                    <div className="text-sm font-bold text-amber-700">PAXG</div>
-                    <div className="text-[0.65rem] text-mtqs-gold">Paxos Gold</div>
+                    <div className="text-sm font-bold text-amber-800">PAXG</div>
+                    <div className="text-[0.65rem] text-teal-800">Paxos Gold</div>
                   </div>
-                  <span className="ml-auto rounded-full border border-mtqs-gold/30 bg-mtqs-gold/10 px-2 py-0.5 text-[0.6rem] uppercase tracking-[0.14em] text-mtqs-gold">
+                  <span className="ml-auto rounded-full border border-mtqs-gold/30 bg-mtqs-gold/10 px-2 py-0.5 text-[0.6rem] uppercase tracking-[0.14em] text-teal-800">
                     Index · §3.2
                   </span>
                 </div>
-                <div className="text-[0.7rem] text-mtqs-gold mt-1">
+                <div className="text-[0.7rem] text-teal-800 mt-1">
                   1 PAXG = 1 troy oz gold · {snapshot?.holdings ? `${fmtNum(snapshot.holdings.paxgOz, 3)} oz held` : "—"}
                   {snapshot?.holdings?.goldOz ? ` · ${((snapshot.holdings.paxgOz / snapshot.holdings.goldOz) * 100).toFixed(1)}% of ledger gold` : ""}
                 </div>
                 <TokenMarketHero snapshot={snapshot} token="PAXG" />
-                <div className="mt-2 text-[0.7rem] text-mtqs-gold">
+                <div className="mt-2 text-[0.7rem] text-teal-800">
                   Haircut: 1.0% (§14.1.1) · Issuer: Paxos (NYDFS-regulated)
                 </div>
               </div>
@@ -450,19 +450,19 @@ export function HomeSection({
                     <span className="text-lg">🥇</span>
                   </div>
                   <div>
-                    <div className="text-sm font-bold text-amber-700">XAUT</div>
-                    <div className="text-[0.65rem] text-mtqs-gold">Tether Gold</div>
+                    <div className="text-sm font-bold text-amber-800">XAUT</div>
+                    <div className="text-[0.65rem] text-teal-800">Tether Gold</div>
                   </div>
-                  <span className="ml-auto rounded-full border border-mtqs-gold/30 bg-mtqs-gold/10 px-2 py-0.5 text-[0.6rem] uppercase tracking-[0.14em] text-mtqs-gold">
+                  <span className="ml-auto rounded-full border border-mtqs-gold/30 bg-mtqs-gold/10 px-2 py-0.5 text-[0.6rem] uppercase tracking-[0.14em] text-teal-800">
                     Index · §3.2
                   </span>
                 </div>
-                <div className="text-[0.7rem] text-mtqs-gold mt-1">
+                <div className="text-[0.7rem] text-teal-800 mt-1">
                   1 XAUT = 1 troy oz gold · {snapshot?.holdings ? `${fmtNum(snapshot.holdings.xautOz, 3)} oz held` : "—"}
                   {snapshot?.holdings?.goldOz ? ` · ${((snapshot.holdings.xautOz / snapshot.holdings.goldOz) * 100).toFixed(1)}% of ledger gold` : ""}
                 </div>
                 <TokenMarketHero snapshot={snapshot} token="XAUT" />
-                <div className="mt-2 text-[0.7rem] text-mtqs-gold">
+                <div className="mt-2 text-[0.7rem] text-teal-800">
                   Haircut: 1.0% (§14.1.1) · Issuer: Tether
                 </div>
               </div>
@@ -530,8 +530,8 @@ export function HomeSection({
             </Reveal>
           </div>
           {/* Why the two sleeves print identical values — by design, not a stale copy */}
-          <div className="mt-3 rounded-lg border border-mtqs-amber/25 bg-amber-50 px-4 py-3 text-[0.7rem] leading-relaxed text-[#5B6E68]">
-            <span className="font-semibold text-mtqs-amber">Why PAXG and XAUT show identical values — by design.</span>{" "}
+          <div className="mt-3 rounded-lg border border-mtqs-amber/25 bg-amber-50 px-4 py-3 text-[0.7rem] leading-relaxed text-[#47594F]">
+            <span className="font-semibold text-amber-800">Why PAXG and XAUT show identical values — by design.</span>{" "}
             The §5.6 issuer-concentration rule water-fills gold 50/50 across two independent custodial
             issuers (Paxos / Tether) so neither approaches the 25% issuer checkpoint; both tokens are
             marked at the same live XAU/USD oracle price (the conservative min of reference vs executable)

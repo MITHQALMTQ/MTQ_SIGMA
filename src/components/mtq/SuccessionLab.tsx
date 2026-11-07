@@ -175,7 +175,7 @@ export function SuccessionLab() {
                   aria-pressed={ejected === c}
                   className={`px-2.5 py-1.5 rounded-md text-[0.7rem] font-mono border transition ${
                     ejected === c
-                      ? "border-rose-200 bg-rose-50 text-rose-600"
+                      ? "border-rose-200 bg-rose-50 text-rose-800"
                       : "border-[#E3EAE6] bg-[#F7FAF8] text-[#5B6E68] hover:text-[#0E1F1B] hover:border-[#0D9488]"
                   }`}
                 >
@@ -188,7 +188,7 @@ export function SuccessionLab() {
           <div className="lg:col-span-3 p-3 rounded-lg border border-[#E3EAE6] bg-[#F7FAF8]">
             <div className="flex items-baseline justify-between mb-2">
               <span className="text-[0.6rem] uppercase tracking-[0.22em] text-[#5B6E68]">Power loss</span>
-              <span className="font-mono text-[0.8rem] text-rose-600">−{shockPct}%</span>
+              <span className="font-mono text-[0.8rem] text-rose-700">−{shockPct}%</span>
             </div>
             <input
               type="range"
@@ -227,7 +227,7 @@ export function SuccessionLab() {
             <button
               onClick={run}
               disabled={running}
-              className="w-full rounded-lg border border-rose-200 bg-rose-50 hover:bg-rose-100 disabled:opacity-50 disabled:cursor-not-allowed transition px-4 py-3 inline-flex items-center justify-center gap-2 text-[0.78rem] font-semibold text-rose-600"
+              className="w-full rounded-lg border border-rose-200 bg-rose-50 hover:bg-rose-100 disabled:opacity-50 disabled:cursor-not-allowed transition px-4 py-3 inline-flex items-center justify-center gap-2 text-[0.78rem] font-semibold text-rose-800"
             >
               {running ? (
                 <>
@@ -261,7 +261,7 @@ export function SuccessionLab() {
               </p>
             </motion.div>
           ) : !result.ok ? (
-            <motion.div key="err" initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="p-4 rounded-lg border border-rose-200 bg-rose-50 text-[0.78rem] text-rose-600">
+            <motion.div key="err" initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="p-4 rounded-lg border border-rose-200 bg-rose-50 text-[0.78rem] text-rose-800">
               {result.error}
             </motion.div>
           ) : (
@@ -281,7 +281,7 @@ export function SuccessionLab() {
                     verdictPass ? (
                       <ShieldCheck className="h-4 w-4 text-mtqs-emerald" aria-hidden="true" />
                     ) : (
-                      <ShieldAlert className="h-4 w-4 text-rose-600" aria-hidden="true" />
+                      <ShieldAlert className="h-4 w-4 text-rose-700" aria-hidden="true" />
                     )
                   ) : (
                     <History className="h-4 w-4 text-amber-700" aria-hidden="true" />
@@ -308,7 +308,7 @@ export function SuccessionLab() {
                   </div>
                   <div className="p-2 rounded-lg bg-[#F7FAF8]">
                     <div className="text-[#5B6E68] text-[0.6rem] uppercase tracking-wider">Honest loss accrued</div>
-                    <div className="font-mono text-rose-600">−{result.continuity.accruedLossPct.toFixed(3)}%</div>
+                    <div className="font-mono text-rose-700">−{result.continuity.accruedLossPct.toFixed(3)}%</div>
                   </div>
                   <div className="p-2 rounded-lg bg-[#F7FAF8]">
                     <div className="text-[#5B6E68] text-[0.6rem] uppercase tracking-wider">Chain factor G_t</div>
@@ -321,7 +321,7 @@ export function SuccessionLab() {
                     <span className="font-mono text-mtqs-emerald">{result.successorSanity.actualIndexMovePct.toFixed(4)}%</span>{" "}
                     (expected {result.successorSanity.expectedIndexMovePct.toFixed(4)}% = seed weight {((result.successor?.seedWeight ?? 0) * 100).toFixed(1)}% ×{" "}
                     {result.successorSanity.movePct}%) —{" "}
-                    {result.successorSanity.pass ? <span className="text-mtqs-emerald">PASS</span> : <span className="text-rose-600">FAIL</span>}
+                    {result.successorSanity.pass ? <span className="text-mtqs-emerald">PASS</span> : <span className="text-rose-700">FAIL</span>}
                   </p>
                 )}
               </div>
@@ -420,7 +420,7 @@ export function SuccessionLab() {
                         <span className="w-12 text-right font-mono text-[0.65rem] text-[#5B6E68]">{(w.weight * 100).toFixed(2)}%</span>
                         <span
                           className={`w-6 text-[0.6rem] ${
-                            w.inEnvelope == null ? "text-[#5B6E68]" : w.inEnvelope ? "text-mtqs-emerald" : "text-rose-600"
+                            w.inEnvelope == null ? "text-[#5B6E68]" : w.inEnvelope ? "text-mtqs-emerald" : "text-rose-700"
                           }`}
                           title={w.envelope ? `envelope ${(w.envelope.lower * 100).toFixed(0)}–${(w.envelope.upper * 100).toFixed(0)}%` : "no envelope"}
                         >
@@ -437,7 +437,7 @@ export function SuccessionLab() {
               {result.reserveFlow && (
                 <div className="p-3 rounded-lg border border-[#E3EAE6] bg-[#F7FAF8]">
                   <div className="flex flex-wrap items-center gap-2 mb-2">
-                    <ShieldAlert className="h-3.5 w-3.5 text-rose-600" aria-hidden="true" />
+                    <ShieldAlert className="h-3.5 w-3.5 text-rose-700" aria-hidden="true" />
                     <span className="text-[0.62rem] uppercase tracking-[0.22em] text-[#5B6E68]">
                       Reserve defence — staged liquidation of the {result.ejected} sleeve
                     </span>
@@ -480,7 +480,7 @@ export function SuccessionLab() {
                     </div>
                     <div className="p-2 rounded-lg bg-[#F7FAF8]">
                       <div className="text-[#5B6E68] text-[0.6rem] uppercase tracking-wider">If held to the end</div>
-                      <div className="font-mono text-rose-600">{result.reserveFlow.finalMarkUsdPerMtq.toPrecision(4)}</div>
+                      <div className="font-mono text-rose-700">{result.reserveFlow.finalMarkUsdPerMtq.toPrecision(4)}</div>
                     </div>
                     <div className="p-2 rounded-lg bg-[#F7FAF8]">
                       <div className="text-[#5B6E68] text-[0.6rem] uppercase tracking-wider">Saved by acting</div>
@@ -510,7 +510,7 @@ export function SuccessionLab() {
 
         {/* Loading meta skeleton / honest fetch-error state */}
         {metaError ? (
-          <div className="mt-3 flex items-start gap-2 rounded-lg border border-rose-200 bg-rose-50 p-3 text-[0.68rem] leading-relaxed text-rose-600">
+          <div className="mt-3 flex items-start gap-2 rounded-lg border border-rose-200 bg-rose-50 p-3 text-[0.68rem] leading-relaxed text-rose-800">
             <ShieldAlert className="h-3.5 w-3.5 mt-0.5 shrink-0" aria-hidden="true" />
             <div>
               <span className="font-semibold">Succession metadata unavailable — </span>

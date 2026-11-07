@@ -59,7 +59,7 @@ export function TrialLog({
           <button
             onClick={handleRefresh}
             disabled={refreshing}
-            className="mtqs-focus inline-flex items-center gap-1.5 rounded-md border border-mtqs-amber/30 bg-mtqs-amber/5 px-3 py-1.5 text-xs text-mtqs-gold hover:bg-amber-100 transition disabled:opacity-50"
+            className="mtqs-focus inline-flex items-center gap-1.5 rounded-md border border-mtqs-amber/30 bg-mtqs-amber/5 px-3 py-1.5 text-xs text-teal-800 hover:bg-amber-100 transition disabled:opacity-50"
             aria-label="Refresh trial log"
           >
             <motion.span

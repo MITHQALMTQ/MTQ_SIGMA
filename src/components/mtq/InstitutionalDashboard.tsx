@@ -857,7 +857,7 @@ export function InstitutionalDashboard({ className = "" }: { className?: string 
         <Tabs value={tab} onValueChange={setTab} className="w-full">
           <TabsList className="bg-[#F7FAF8] border border-[#E3EAE6] h-auto p-1 flex flex-wrap gap-1">
             {TABS.map((t) => (
-              <TabsTrigger key={t.id} value={t.id} className="data-[state=active]:bg-mtqs-gold/15 data-[state=active]:text-mtqs-gold text-[0.7rem] font-mono">
+              <TabsTrigger key={t.id} value={t.id} className="data-[state=active]:bg-mtqs-gold/15 data-[state=active]:text-teal-800 text-[0.7rem] font-mono">
                 <t.icon className="h-3 w-3" />{t.label}
               </TabsTrigger>
             ))}

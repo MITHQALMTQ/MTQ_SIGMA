@@ -60,7 +60,7 @@ function WeightCell({ value, isTarget }: { value: number; isTarget?: boolean }) 
   const opacity = 0.06 + (pct / 100) * 0.32; // 0.06 → 0.38
   return (
     <td
-      className={`px-2 py-1.5 text-right font-mono tabular-nums ${isTarget ? "text-mtqs-gold font-semibold" : "text-[#0E1F1B]"}`}
+      className={`px-2 py-1.5 text-right font-mono tabular-nums ${isTarget ? "text-teal-800 font-semibold" : "text-[#0E1F1B]"}`}
       style={{ backgroundColor: isTarget ? `rgba(13,148,136,${opacity + 0.06})` : `rgba(13,148,136,${opacity})` }}
     >
       {(value * 100).toFixed(2)}%
@@ -424,7 +424,7 @@ export function MaseEngine({ snapshot }: { snapshot: MetricsSnapshot | null }) {
                           {i.available ? `${(i.evidence * 100).toFixed(0)}%` : "no feed"}
                         </span>
                       </div>
-                      <div className="text-[0.52rem] text-[#5B6E68]">w = {(i.weight * 100).toFixed(0)}%</div>
+                      <div className="text-[0.625rem] text-[#5B6E68]">w = {(i.weight * 100).toFixed(0)}%</div>
                     </div>
                   ))}
                 </div>
@@ -495,7 +495,7 @@ export function MaseEngine({ snapshot }: { snapshot: MetricsSnapshot | null }) {
                         <td className="px-2 py-2 text-right font-mono tabular-nums text-[#5B6E68]">{(prior * 100).toFixed(2)}%</td>
                         <td className="px-2 py-2 text-right font-mono tabular-nums text-mtqs-gold">{(target * 100).toFixed(2)}%</td>
                         <td className="px-2 py-2 text-right font-mono tabular-nums text-mtqs-emerald">{(smoothed * 100).toFixed(2)}%</td>
-                        <td className="px-2 py-2 text-right font-mono tabular-nums text-rose-600">{(execution * 100).toFixed(2)}%</td>
+                        <td className="px-2 py-2 text-right font-mono tabular-nums text-rose-700">{(execution * 100).toFixed(2)}%</td>
                         <td className={`px-2 py-2 text-right font-mono tabular-nums ${Math.abs(dev) >= 0.005 ? (dev > 0 ? "text-mtqs-rose" : "text-mtqs-emerald") : "text-[#5B6E68]"}`}>
                           {dev > 0 ? "+" : ""}{(dev * 100).toFixed(2)}%
                         </td>
@@ -674,7 +674,7 @@ export function MaseEngine({ snapshot }: { snapshot: MetricsSnapshot | null }) {
                                 style={{ backgroundColor: bg }}
                                 title={`ρ(${rowC},${colC}) = ${rho.toFixed(4)}`}
                               >
-                                <span className={i === j ? "text-mtqs-gold" : rho >= 0 ? "text-amber-700" : "text-emerald-700"}>
+                                <span className={i === j ? "text-teal-800" : rho >= 0 ? "text-amber-800" : "text-emerald-800"}>
                                   {rho.toFixed(2)}
                                 </span>
                               </td>
@@ -890,7 +890,7 @@ export function MaseEngine({ snapshot }: { snapshot: MetricsSnapshot | null }) {
             <span>→</span>
             <span className="font-mono text-mtqs-emerald">EMA smooth (λ={(SMOOTHING_LAMBDA * 100).toFixed(0)}%)</span>
             <span>→</span>
-            <span className="font-mono text-rose-600">MARP per-component decision</span>
+            <span className="font-mono text-rose-700">MARP per-component decision</span>
             <span>→</span>
             <span className="font-mono text-[#0E1F1B]">execution (published)</span>
           </div>

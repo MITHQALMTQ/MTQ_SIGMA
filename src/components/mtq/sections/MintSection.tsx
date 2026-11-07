@@ -304,7 +304,7 @@ export function MintSection({
               <ol className="space-y-3 max-h-96 overflow-y-auto mtqs-scroll pr-1">
                 {MINT_STEPS.map((step, i) => (
                   <li key={step.title} className="flex gap-3">
-                    <span className="h-6 w-6 shrink-0 rounded-full border border-mtqs-gold/30 bg-mtqs-gold/5 flex items-center justify-center text-[0.68rem] font-mono font-semibold text-mtqs-gold">
+                    <span className="h-6 w-6 shrink-0 rounded-full border border-mtqs-gold/30 bg-mtqs-gold/5 flex items-center justify-center text-[0.68rem] font-mono font-semibold text-teal-800">
                       {i + 1}
                     </span>
                     <div className="min-w-0">

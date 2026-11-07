@@ -335,7 +335,7 @@ export function FaucetPanel() {
                     aria-pressed={active}
                     className={`mtqs-focus inline-flex items-center gap-1.5 rounded-md border px-2.5 py-1.5 text-[0.72rem] font-medium transition ${
                       active
-                        ? "border-mtqs-gold/40 bg-mtqs-gold/10 text-mtqs-gold"
+                        ? "border-mtqs-gold/40 bg-mtqs-gold/10 text-teal-800"
                         : "border-[#E3EAE6] bg-white text-[#5B6E68] hover:border-mtqs-gold/25 hover:text-[#0E1F1B]"
                     }`}
                   >
@@ -381,7 +381,7 @@ export function FaucetPanel() {
                     aria-pressed={active}
                     className={`mtqs-focus inline-flex items-center gap-1.5 rounded-md border px-2.5 py-1.5 text-[0.72rem] font-medium transition ${
                       active
-                        ? "border-mtqs-emerald/40 bg-mtqs-emerald/10 text-mtqs-emerald"
+                        ? "border-mtqs-emerald/40 bg-mtqs-emerald/10 text-emerald-800"
                         : "border-[#E3EAE6] bg-white text-[#5B6E68] hover:border-mtqs-emerald/25 hover:text-[#0E1F1B]"
                     }`}
                   >
@@ -494,7 +494,7 @@ export function FaucetPanel() {
             aria-busy={pending}
             className={`mtqs-focus inline-flex items-center justify-center gap-2 rounded-md border px-5 py-2.5 text-sm font-semibold transition w-full sm:w-auto ${
               canClaim
-                ? "border-mtqs-gold/40 bg-mtqs-gold/10 text-mtqs-gold hover:bg-mtqs-gold/20 hover:border-mtqs-gold/60"
+                ? "border-mtqs-gold/40 bg-mtqs-gold/10 text-teal-800 hover:bg-mtqs-gold/20 hover:border-mtqs-gold/60"
                 : "border-[#E3EAE6] bg-[#F7FAF8] text-[#5B6E68] cursor-not-allowed"
             }`}
           >

@@ -162,7 +162,7 @@ function BorderedTable({
 /* ---------- Formula line styling ---------- */
 function Formula({ children }: { children: React.ReactNode }) {
   return (
-    <code className="block font-mono text-[0.78rem] sm:text-[0.85rem] text-mtqs-gold bg-[#F2F7F5] border border-[#E3EAE6] rounded-md px-4 py-3 overflow-x-auto whitespace-nowrap">
+    <code className="block font-mono text-[0.78rem] sm:text-[0.85rem] text-teal-800 bg-[#F2F7F5] border border-[#E3EAE6] rounded-md px-4 py-3 overflow-x-auto whitespace-nowrap">
       {children}
     </code>
   );
@@ -263,7 +263,7 @@ export function TransparencySection({
             <span className="font-mono text-[0.72rem] font-semibold tracking-widest text-mtqs-amber">
               TESTNET ONLY
             </span>
-            <span className="text-[#B5C6C0]">·</span>
+            <span className="text-[#5B6E68]">·</span>
             <span className="text-[0.72rem] text-amber-700">
               everything published on this page is pilot output
             </span>
@@ -979,7 +979,7 @@ export function TransparencySection({
                     </p>
                     <button
                       onClick={() => onNavigate("evidence")}
-                      className="inline-flex items-center gap-1.5 px-3 py-2 rounded-lg border border-mtqs-gold/30 bg-mtqs-gold/10 text-mtqs-gold text-[0.72rem] font-medium hover:bg-mtqs-gold/20 transition-colors mtqs-focus"
+                      className="inline-flex items-center gap-1.5 px-3 py-2 rounded-lg border border-mtqs-gold/30 bg-mtqs-gold/10 text-teal-800 text-[0.72rem] font-medium hover:bg-mtqs-gold/20 transition-colors mtqs-focus"
                     >
                       <FileText className="h-3.5 w-3.5" aria-hidden="true" />
                       Open Evidence Package
@@ -1045,7 +1045,7 @@ export function TransparencySection({
                   <div className="text-[0.6rem] uppercase tracking-[0.2em] text-mtqs-gold mb-1.5">
                     Step {s.step}
                   </div>
-                  <code className="block font-mono text-[0.72rem] text-mtqs-gold bg-[#F2F7F5] border border-[#EDF2EF] rounded px-3 py-2 overflow-x-auto whitespace-nowrap mb-2">
+                  <code className="block font-mono text-[0.72rem] text-teal-800 bg-[#F2F7F5] border border-[#EDF2EF] rounded px-3 py-2 overflow-x-auto whitespace-nowrap mb-2">
                     {s.formula}
                   </code>
                   <p className="text-[0.68rem] text-[#5B6E68] leading-relaxed">{s.text}</p>

@@ -246,7 +246,7 @@ export function TestsSection({ onNavigate: _onNavigate }: { onNavigate: (id: Sec
                 <button
                   onClick={handleRerun}
                   disabled={rerunning}
-                  className="mt-3 inline-flex items-center gap-1.5 rounded-md border border-mtqs-gold/40 bg-mtqs-gold/10 px-3 py-1.5 text-[0.72rem] font-medium text-mtqs-gold hover:bg-mtqs-gold/20 transition disabled:opacity-50"
+                  className="mt-3 inline-flex items-center gap-1.5 rounded-md border border-mtqs-gold/40 bg-mtqs-gold/10 px-3 py-1.5 text-[0.72rem] font-medium text-teal-800 hover:bg-mtqs-gold/20 transition disabled:opacity-50"
                 >
                   <RefreshCw className={`h-3 w-3 ${rerunning ? "animate-spin" : ""}`} aria-hidden="true" />
                   {rerunning ? "Re-running…" : "Re-run suite"}
@@ -310,7 +310,7 @@ export function TestsSection({ onNavigate: _onNavigate }: { onNavigate: (id: Sec
                 <button
                   onClick={handleRerun}
                   disabled={rerunning}
-                  className="inline-flex items-center gap-1.5 rounded-md border border-mtqs-gold/40 bg-mtqs-gold/10 px-3.5 py-2 text-[0.74rem] font-medium text-mtqs-gold hover:bg-mtqs-gold/20 hover:border-mtqs-gold/60 transition disabled:opacity-50 disabled:cursor-not-allowed"
+                  className="inline-flex items-center gap-1.5 rounded-md border border-mtqs-gold/40 bg-mtqs-gold/10 px-3.5 py-2 text-[0.74rem] font-medium text-teal-800 hover:bg-mtqs-gold/20 hover:border-mtqs-gold/60 transition disabled:opacity-50 disabled:cursor-not-allowed"
                 >
                   <RefreshCw
                     className={`h-3.5 w-3.5 ${rerunning ? "animate-spin" : ""}`}
@@ -434,7 +434,7 @@ export function TestsSection({ onNavigate: _onNavigate }: { onNavigate: (id: Sec
                         initial={{ opacity: 0, y: 4 }}
                         animate={{ opacity: 1, y: 0 }}
                         transition={{ duration: 0.25, delay: i * 0.03 }}
-                        className="inline-flex items-center gap-1.5 rounded-full border border-mtqs-emerald/30 bg-mtqs-emerald/5 px-3 py-1.5 text-[0.7rem] font-mono text-mtqs-emerald"
+                        className="inline-flex items-center gap-1.5 rounded-full border border-mtqs-emerald/30 bg-mtqs-emerald/5 px-3 py-1.5 text-[0.7rem] font-mono text-emerald-800"
                       >
                         <CheckCircle2 className="h-3 w-3" aria-hidden="true" />
                         {inv}

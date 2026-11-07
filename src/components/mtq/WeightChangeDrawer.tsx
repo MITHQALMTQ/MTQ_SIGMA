@@ -387,7 +387,7 @@ export function WeightChangeDrawer({
                     <td className="px-3 py-2 text-right font-mono tabular-nums text-mtqs-emerald">
                       {(smoothed * 100).toFixed(2)}%
                     </td>
-                    <td className="px-3 py-2 text-right font-mono tabular-nums text-rose-600">
+                    <td className="px-3 py-2 text-right font-mono tabular-nums text-rose-700">
                       {(execution * 100).toFixed(2)}%
                     </td>
                     <td className="px-3 py-2 text-right font-mono tabular-nums text-[#0E1F1B]">
@@ -470,10 +470,10 @@ export function WeightChangeDrawer({
                 </div>
                 <div className="grid grid-cols-5 gap-2 text-center">
                   {[
-                    { label: "Prior", value: explanation.weights.prior, color: "#7A8C86" },
-                    { label: "Target", value: explanation.weights.target, color: "#0D9488" },
-                    { label: "Smoothed", value: explanation.weights.smoothed, color: "#14B8A6" },
-                    { label: "Execution", value: explanation.weights.execution, color: "#E11D48" },
+                    { label: "Prior", value: explanation.weights.prior, color: "#47594F" },
+                    { label: "Target", value: explanation.weights.target, color: "#0F766E" },
+                    { label: "Smoothed", value: explanation.weights.smoothed, color: "#0F766E" },
+                    { label: "Execution", value: explanation.weights.execution, color: "#BE123C" },
                     { label: "Live", value: explanation.weights.live, color: "#0E1F1B" },
                   ].map((w) => (
                     <div
@@ -592,8 +592,8 @@ export function WeightChangeDrawer({
                           explanation.urgency >= 0.5
                             ? "#E11D48"
                             : explanation.urgency >= 0.2
-                            ? "#D97706"
-                            : "#14B8A6",
+                            ? "#B45309"
+                            : "#0F766E",
                       }}
                     />
                   </div>

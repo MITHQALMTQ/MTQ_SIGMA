@@ -265,7 +265,7 @@ export function ReferenceChart({
             onClick={() => setRange(r.label)}
             className={`px-2.5 sm:px-3 py-1 text-[0.7rem] font-mono tabular-nums rounded-full transition-colors mtqs-focus ${
               active
-                ? "bg-mtqs-gold/20 text-mtqs-gold border border-mtqs-gold/30"
+                ? "bg-mtqs-gold/20 text-teal-800 border border-mtqs-gold/30"
                 : "text-[#5B6E68] hover:text-[#0E1F1B] border border-transparent"
             }`}
           >

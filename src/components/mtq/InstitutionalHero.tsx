@@ -101,16 +101,16 @@ function LivePill({
 }) {
   const toneCls =
     tone === "gold"
-      ? "text-mtqs-gold border-mtqs-gold/30 bg-mtqs-gold/[0.08]"
+      ? "text-teal-800 border-mtqs-gold/30 bg-mtqs-gold/[0.08]"
       : tone === "emerald"
-      ? "text-mtqs-emerald border-mtqs-emerald/30 bg-mtqs-emerald/[0.08]"
+      ? "text-emerald-800 border-mtqs-emerald/30 bg-mtqs-emerald/[0.08]"
       : tone === "rose"
-      ? "text-mtqs-rose border-mtqs-rose/30 bg-mtqs-rose/[0.08]"
+      ? "text-rose-800 border-mtqs-rose/30 bg-mtqs-rose/[0.08]"
       : tone === "amber"
-      ? "text-mtqs-amber border-mtqs-amber/30 bg-mtqs-amber/[0.08]"
+      ? "text-amber-800 border-mtqs-amber/30 bg-mtqs-amber/[0.08]"
       : "text-[#0E1F1B] border-[#E3EAE6] bg-[#F7FAF8]";
   const dotColor =
-    tone === "gold" ? "#0D9488" : tone === "emerald" ? "#14B8A6" : tone === "rose" ? "#E11D48" : tone === "amber" ? "#D97706" : "#5B6E68";
+    tone === "gold" ? "#0F766E" : tone === "emerald" ? "#047857" : tone === "rose" ? "#BE123C" : tone === "amber" ? "#B45309" : "#5B6E68";
   return (
     <span
       className={`inline-flex items-center gap-1.5 rounded-full border px-3 py-1 text-[0.7rem] font-mono tabular-nums ${toneCls}`}

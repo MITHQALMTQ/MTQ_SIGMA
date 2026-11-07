@@ -294,10 +294,14 @@ export function Pill({
 }) {
   const tones: Record<string, string> = {
     default: "border-[#E3EAE6] bg-[#F7FAF8] text-[#5B6E68]",
-    gold: "border-mtqs-gold/30 bg-mtqs-gold/10 text-mtqs-gold",
-    emerald: "border-mtqs-emerald/30 bg-mtqs-emerald/10 text-mtqs-emerald",
-    rose: "border-mtqs-rose/30 bg-mtqs-rose/10 text-mtqs-rose",
-    amber: "border-mtqs-amber/30 bg-mtqs-amber/10 text-mtqs-amber",
+    // F-61c: 700-level token text on its own /10 tint measured 4.26–4.49:1
+    // (normal-size chips) — on-tint text deepened one step to the 800 level
+    // of the same hue: emerald-800 ≥5.9 · teal-800 ≥5.3 · amber-800 ≥5.5 ·
+    // rose-800 ≥5.9 on their /10 tints. Hue preserved; only value deepened.
+    gold: "border-mtqs-gold/30 bg-mtqs-gold/10 text-teal-800",
+    emerald: "border-mtqs-emerald/30 bg-mtqs-emerald/10 text-emerald-800",
+    rose: "border-mtqs-rose/30 bg-mtqs-rose/10 text-rose-800",
+    amber: "border-mtqs-amber/30 bg-mtqs-amber/10 text-amber-800",
     muted: "border-[#E3EAE6] bg-[#FAFCFA] text-[#5B6E68]",
   };
   return (

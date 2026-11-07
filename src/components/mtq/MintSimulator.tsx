@@ -94,7 +94,7 @@ export function MintSimulator({
 
       {oraclePaused && (
         <div className="rounded-md border border-mtqs-rose/30 bg-mtqs-rose/5 px-3 py-2.5">
-          <div className="flex items-center gap-2 text-rose-600">
+          <div className="flex items-center gap-2 text-rose-700">
             <GlowDot color="rose" size="h-2 w-2" />
             <span className="text-sm font-medium">Minting suspended — oracle consensus paused (§9.3)</span>
           </div>

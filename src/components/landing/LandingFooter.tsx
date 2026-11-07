@@ -83,7 +83,7 @@ export function LandingFooter({
                   aria-label={`Open ${l.label} in the Pilot Command Center`}
                 >
                   {l.label}
-                  <ArrowUpRight className="size-3 text-[#0D9488]" aria-hidden />
+                  <ArrowUpRight className="size-3 text-[#0F766E]" aria-hidden />
                 </button>
               ))
             : null}

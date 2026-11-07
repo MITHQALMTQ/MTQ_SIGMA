@@ -19,11 +19,11 @@ type Node = {
 };
 
 const NODES: Record<string, Node> = {
-  gfb:   { id: "gfb",   label: "Reference Index",     x: 80,  y: 200, accent: "#0D9488", glyph: "G" },
-  price: { id: "price", label: "Reference Value",     x: 320, y: 80,  accent: "#14B8A6", glyph: "P" },
-  liab:  { id: "liab",  label: "Liability",      x: 620, y: 200, accent: "#9fb0a3", glyph: "L" },
-  nav:   { id: "nav",   label: "Reserve NAV",    x: 320, y: 320, accent: "#F59E0B", glyph: "V" },
-  mint:  { id: "mint",  label: "Mint / Redeem",   x: 460, y: 200, accent: "#D97706", glyph: "↻" },
+  gfb:   { id: "gfb",   label: "Reference Index",     x: 80,  y: 200, accent: "#115E59", glyph: "G" },
+  price: { id: "price", label: "Reference Value",     x: 320, y: 80,  accent: "#0F766E", glyph: "P" },
+  liab:  { id: "liab",  label: "Liability",      x: 620, y: 200, accent: "#47594F", glyph: "L" },
+  nav:   { id: "nav",   label: "Reserve NAV",    x: 320, y: 320, accent: "#B45309", glyph: "V" },
+  mint:  { id: "mint",  label: "Mint / Redeem",   x: 460, y: 200, accent: "#92400E", glyph: "↻" },
 };
 
 const EDGES: Array<{ from: string; to: string; label: string; dash?: "fast" | "slow"; reverse?: boolean }> = [
@@ -139,8 +139,8 @@ export function ClosedLoopMap({ snapshot }: { snapshot: MetricsSnapshot | null }
                   x={midX}
                   y={midY + 11}
                   textAnchor="middle"
-                  fontSize="6"
-                  fill="#7A8C86"
+                  fontSize="9"
+                  fill="#47594F"
                   fontFamily="var(--font-geist-sans), sans-serif"
                   letterSpacing="1.2"
                 >

@@ -129,13 +129,13 @@ interface MandateResp {
 type RegTab = "od" | "conflicts" | "tests";
 
 function statusTone(status: string): string {
-  if (status === "OPEN" || status === "not-demonstrated") return "text-amber-700 border-amber-200 bg-amber-50";
+  if (status === "OPEN" || status === "not-demonstrated") return "text-amber-800 border-amber-200 bg-amber-50";
   if (status === "VERIFICATION-PENDING") return "text-orange-600 border-orange-200 bg-orange-50";
-  if (status === "VERIFIED-FAILED" || status === "demonstrated-failed") return "text-rose-600 border-rose-200 bg-rose-50";
+  if (status === "VERIFIED-FAILED" || status === "demonstrated-failed") return "text-rose-800 border-rose-200 bg-rose-50";
   if (status.startsWith("deferred")) return "text-[#33544C] border-[#E3EAE6] bg-[#F7FAF8]";
-  if (status === "implemented+unit-tested") return "text-emerald-700 border-emerald-200 bg-emerald-50";
+  if (status === "implemented+unit-tested") return "text-emerald-800 border-emerald-200 bg-emerald-50";
   if (status === "shadow-observed") return "text-[#0F766E] border-[#BEE3DD] bg-[#E7F4F1]";
-  return "text-emerald-700 border-emerald-200 bg-emerald-50";
+  return "text-emerald-800 border-emerald-200 bg-emerald-50";
 }
 
 export function MandateCompliance() {
@@ -193,7 +193,7 @@ export function MandateCompliance() {
           right={
             <button
               onClick={fetchIt}
-              className="inline-flex items-center gap-2 rounded-full border border-emerald-200 bg-emerald-50 px-4 py-2 text-xs font-medium text-emerald-700 transition hover:bg-emerald-100"
+              className="inline-flex items-center gap-2 rounded-full border border-emerald-200 bg-emerald-50 px-4 py-2 text-xs font-medium text-emerald-800 transition hover:bg-emerald-100"
               aria-label="Retry mandate fetch"
             >
               <RefreshCw className={`h-3.5 w-3.5 ${loading ? "animate-spin" : ""}`} />
@@ -204,7 +204,7 @@ export function MandateCompliance() {
         <Reveal>
           <Panel variant="rose" className="p-4 sm:p-6">
             <div className="flex items-start gap-3">
-              <ShieldAlert className="h-5 w-5 text-rose-600 mt-0.5 shrink-0" aria-hidden="true" />
+              <ShieldAlert className="h-5 w-5 text-rose-700 mt-0.5 shrink-0" aria-hidden="true" />
               <div>
                 <div className="text-sm font-semibold text-[#0E1F1B] mb-1">
                   Mandate compliance data unavailable — /api/mandate fetch failed
@@ -232,7 +232,7 @@ export function MandateCompliance() {
         right={
           <button
             onClick={fetchIt}
-            className="inline-flex items-center gap-2 rounded-full border border-emerald-200 bg-emerald-50 px-4 py-2 text-xs font-medium text-emerald-700 transition hover:bg-emerald-100"
+            className="inline-flex items-center gap-2 rounded-full border border-emerald-200 bg-emerald-50 px-4 py-2 text-xs font-medium text-emerald-800 transition hover:bg-emerald-100"
             aria-label="Re-run mandate self-tests"
           >
             <RefreshCw className={`h-3.5 w-3.5 ${loading ? "animate-spin" : ""}`} />
@@ -245,7 +245,7 @@ export function MandateCompliance() {
       {fetchError && data ? (
         <Reveal>
           <Panel variant="rose" className="p-3">
-            <div className="flex flex-wrap items-center gap-2 text-[11px] text-rose-600">
+            <div className="flex flex-wrap items-center gap-2 text-[11px] text-rose-700">
               <ShieldAlert className="h-3.5 w-3.5 shrink-0" aria-hidden="true" />
               <span>
                 Last /api/mandate refresh failed ({fetchError}) — showing the previously fetched
@@ -323,7 +323,7 @@ export function MandateCompliance() {
                       <td className="px-2 py-1.5 font-mono text-[#5B6E68]">{t.expected}</td>
                       <td className="px-2 py-1.5 font-mono text-[#5B6E68]">{t.actual}</td>
                       <td className="px-2 py-1.5 text-right">
-                        {t.pass ? <CheckCircle2 className="ml-auto h-4 w-4 text-emerald-700" aria-label="pass" /> : <XCircle className="ml-auto h-4 w-4 text-rose-600" aria-label="fail" />}
+                        {t.pass ? <CheckCircle2 className="ml-auto h-4 w-4 text-emerald-700" aria-label="pass" /> : <XCircle className="ml-auto h-4 w-4 text-rose-700" aria-label="fail" />}
                       </td>
                     </tr>
                   ))}
@@ -386,7 +386,7 @@ export function MandateCompliance() {
             </div>
             <div className="mb-4 flex flex-wrap gap-1.5">
               {data.genesis.basket.map((b) => (
-                <span key={b.component} className="rounded-full border border-emerald-200 bg-emerald-50 px-2.5 py-1 text-[11px] text-emerald-700">
+                <span key={b.component} className="rounded-full border border-emerald-200 bg-emerald-50 px-2.5 py-1 text-[11px] text-emerald-800">
                   {b.component} {b.weightPct}% · ${(b.usdAmount / 1000).toFixed(0)}k
                 </span>
               ))}
@@ -403,7 +403,7 @@ export function MandateCompliance() {
                 </div>
               ))}
             </div>
-            <p className="mt-3 text-[11px] text-[#5B6E68]">{data.genesis.verifyIndexBaseNote} Genesis Reserve Safe: <span className="font-mono text-[#5B6E68]">{data.genesis.safe}</span> — on-chain verified 2026-10-19: Safe v1.4.1 but <strong className="text-rose-600">1/1 deployer-controlled, not the mandated 4/7</strong> (OD-35 critical finding; see verification panel below).</p>
+            <p className="mt-3 text-[11px] text-[#5B6E68]">{data.genesis.verifyIndexBaseNote} Genesis Reserve Safe: <span className="font-mono text-[#5B6E68]">{data.genesis.safe}</span> — on-chain verified 2026-10-19: Safe v1.4.1 but <strong className="text-rose-700">1/1 deployer-controlled, not the mandated 4/7</strong> (OD-35 critical finding; see verification panel below).</p>
           </Panel>
         </Reveal>
       )}
@@ -413,7 +413,7 @@ export function MandateCompliance() {
         <Reveal delay={0.17}>
           <Panel className="border-rose-200 p-4 sm:p-6">
             <div className="mb-4 flex flex-wrap items-center gap-2">
-              <ShieldAlert className="h-4 w-4 text-rose-600" />
+              <ShieldAlert className="h-4 w-4 text-rose-700" />
               <h3 className="text-sm font-semibold tracking-wide text-[#0E1F1B]">Genesis Reserve Safe — On-Chain Verification (OD-35 / T-87 / Ext-3 A.5)</h3>
               {data.safeVerification ? (
                 <Pill tone="rose">CRITICAL FINDING — 1/1 deployer-controlled, NOT 4/7</Pill>
@@ -437,8 +437,8 @@ export function MandateCompliance() {
                       </div>
                       <table className="w-full text-left text-[11px]">
                         <tbody>
-                          <tr className="border-t border-[#E3EAE6]"><td className="py-1 pr-2 text-[#5B6E68]">getThreshold()</td><td className="py-1 text-right font-mono text-rose-600">{c.findings.threshold} <span className="text-[#5B6E68]">(expected 4)</span></td></tr>
-                          <tr className="border-t border-[#E3EAE6]"><td className="py-1 pr-2 text-[#5B6E68]">getOwners()</td><td className="py-1 text-right font-mono text-rose-600">{c.findings.ownersCount} <span className="text-[#5B6E68]">(expected 7)</span></td></tr>
+                          <tr className="border-t border-[#E3EAE6]"><td className="py-1 pr-2 text-[#5B6E68]">getThreshold()</td><td className="py-1 text-right font-mono text-rose-700">{c.findings.threshold} <span className="text-[#5B6E68]">(expected 4)</span></td></tr>
+                          <tr className="border-t border-[#E3EAE6]"><td className="py-1 pr-2 text-[#5B6E68]">getOwners()</td><td className="py-1 text-right font-mono text-rose-700">{c.findings.ownersCount} <span className="text-[#5B6E68]">(expected 7)</span></td></tr>
                           <tr className="border-t border-[#E3EAE6]"><td className="py-1 pr-2 text-[#5B6E68]">sole owner</td><td className="py-1 text-right font-mono text-[10px] text-[#33544C]">{c.findings.owners[0]}</td></tr>
                           <tr className="border-t border-[#E3EAE6]"><td className="py-1 pr-2 text-[#5B6E68]">VERSION()</td><td className="py-1 text-right font-mono text-[#33544C]">{c.findings.version} <span className="text-[#5B6E68]">(Safe proxy, {c.findings.codeBytes} B)</span></td></tr>
                           <tr className="border-t border-[#E3EAE6]"><td className="py-1 pr-2 text-[#5B6E68]">nonce()</td><td className="py-1 text-right font-mono text-[#33544C]">{c.findings.nonce} <span className="text-[#5B6E68]">(never executed)</span></td></tr>
@@ -502,8 +502,8 @@ export function MandateCompliance() {
                         <td className="py-1.5 pr-2 font-mono text-[10px] text-[#5B6E68]">{c.onChainOracle ?? "—"}</td>
                         <td className="py-1.5 text-right">
                           <span className={`inline-block rounded-full border px-2 py-0.5 text-[10px] font-medium ${
-                            c.codeStatus === "verified-present" ? "text-emerald-700 border-emerald-200 bg-emerald-50"
-                              : c.codeStatus === "existence-unverified" ? "text-amber-700 border-amber-200 bg-amber-50"
+                            c.codeStatus === "verified-present" ? "text-emerald-800 border-emerald-200 bg-emerald-50"
+                              : c.codeStatus === "existence-unverified" ? "text-amber-800 border-amber-200 bg-amber-50"
                               : "text-[#33544C] border-[#E3EAE6] bg-[#F7FAF8]"}`}>
                             {c.codeStatus}
                           </span>
@@ -547,7 +547,7 @@ export function MandateCompliance() {
                 <strong className="text-[#0E1F1B]">Posture (Ext-3 A.7)</strong>
                 <p className="mt-1 text-[#5B6E68]">Transfer restrictions: {data.tokenStandard.posture.transferRestrictions}. Supply cap: {data.tokenStandard.posture.supplyCap}. Upgradeability: {data.tokenStandard.posture.upgradeability}.</p>
               </div>
-              <div className="rounded-xl border border-amber-200 bg-amber-50 p-3 text-[11px] leading-relaxed text-amber-700">
+              <div className="rounded-xl border border-amber-200 bg-amber-50 p-3 text-[11px] leading-relaxed text-amber-800">
                 <strong className="flex items-center gap-1 text-amber-700"><FileWarning className="h-3 w-3" /> EIP-170 size flag</strong>
                 <p className="mt-1 text-amber-700">Runtime {data.tokenStandard.eip170.runtimeBytes.toLocaleString("en-US")} B &gt; {data.tokenStandard.eip170.limitBytes.toLocaleString("en-US")} B limit. {data.tokenStandard.eip170.note}</p>
               </div>

@@ -55,10 +55,10 @@ function IssuerBreakdown({ snapshot }: { snapshot: MetricsSnapshot }) {
       {reports.map((r) => {
         const tone =
           r.status === "breach"
-            ? "border-mtqs-rose/40 bg-mtqs-rose/5 text-mtqs-rose"
+            ? "border-mtqs-rose/40 bg-mtqs-rose/5 text-rose-800"
             : r.status === "warn"
-            ? "border-mtqs-amber/40 bg-mtqs-amber/5 text-mtqs-amber"
-            : "border-mtqs-emerald/40 bg-mtqs-emerald/5 text-mtqs-emerald";
+            ? "border-mtqs-amber/40 bg-mtqs-amber/5 text-amber-800"
+            : "border-mtqs-emerald/40 bg-mtqs-emerald/5 text-emerald-800";
         return (
           <div key={r.issuer} className={`rounded-md border px-2.5 py-1.5 ${tone}`}>
             <div className="flex items-center justify-between">

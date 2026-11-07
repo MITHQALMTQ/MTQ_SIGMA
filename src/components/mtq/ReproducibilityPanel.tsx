@@ -95,7 +95,7 @@ export function ReproducibilityPanel({ snapshot }: { snapshot: MetricsSnapshot |
         <button
           onClick={handleReproduce}
           disabled={reproducing || !snapshot}
-          className="flex items-center gap-2 px-4 py-2 rounded-lg border border-mtqs-gold/30 bg-mtqs-gold/10 text-mtqs-gold text-sm font-medium hover:bg-mtqs-gold/20 transition-colors disabled:opacity-50 mtqs-focus"
+          className="flex items-center gap-2 px-4 py-2 rounded-lg border border-mtqs-gold/30 bg-mtqs-gold/10 text-teal-800 text-sm font-medium hover:bg-mtqs-gold/20 transition-colors disabled:opacity-50 mtqs-focus"
           aria-label="Reproduce calculation"
         >
           <RefreshCw className={`h-4 w-4 ${reproducing ? "animate-spin" : ""}`} />
@@ -104,7 +104,7 @@ export function ReproducibilityPanel({ snapshot }: { snapshot: MetricsSnapshot |
 
         {/* Result */}
         {reproError && (
-          <div className="mt-3 rounded-md border border-mtqs-amber/25 bg-amber-50 px-3 py-2 text-[0.7rem] leading-relaxed text-mtqs-amber">
+          <div className="mt-3 rounded-md border border-mtqs-amber/25 bg-amber-50 px-3 py-2 text-[0.7rem] leading-relaxed text-amber-800">
             {reproError}
           </div>
         )}

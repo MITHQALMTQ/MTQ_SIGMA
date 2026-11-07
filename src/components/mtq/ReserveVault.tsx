@@ -172,15 +172,15 @@ function VaultDiagram({ snapshot }: { snapshot: MetricsSnapshot }) {
         animate={{ opacity: 1 }}
         transition={{ duration: 0.4, delay: 0.3 }}
       />
-      <text x="160" y="125" textAnchor="middle" fontSize="8" fill="#14B8A6" fontFamily="var(--font-geist-sans), sans-serif" letterSpacing="1.5">
+      <text x="160" y="125" textAnchor="middle" fontSize="9" fill="#0F766E" fontFamily="var(--font-geist-sans), sans-serif" letterSpacing="1.5">
         BUFFER · {(BUFFER_SIZE * 100).toFixed(0)}%
       </text>
-      <text x="160" y="137" textAnchor="middle" fontSize="9" fill="#14B8A6" fontFamily="var(--font-geist-mono), monospace">
+      <text x="160" y="137" textAnchor="middle" fontSize="9" fill="#0F766E" fontFamily="var(--font-geist-mono), monospace">
         {(bufferGoldRatio * 100).toFixed(1)}% Au
       </text>
 
       {/* Core label */}
-      <text x="160" y="172" textAnchor="middle" fontSize="8" fill="#5B6E68" fontFamily="var(--font-geist-sans), sans-serif" letterSpacing="1.5">
+      <text x="160" y="172" textAnchor="middle" fontSize="9" fill="#5B6E68" fontFamily="var(--font-geist-sans), sans-serif" letterSpacing="1.5">
         CORE · {(coreFrac * 100).toFixed(0)}%
       </text>
       <text x="160" y="184" textAnchor="middle" fontSize="9" fill="#0E1F1B" fontFamily="var(--font-geist-mono), monospace">
@@ -188,15 +188,15 @@ function VaultDiagram({ snapshot }: { snapshot: MetricsSnapshot }) {
       </text>
 
       {/* Center NAV readout */}
-      <text x="160" y="208" textAnchor="middle" fontSize="7.5" fill="rgba(13,148,136,0.7)" fontFamily="var(--font-geist-sans), sans-serif" letterSpacing="2">
+      <text x="160" y="208" textAnchor="middle" fontSize="9" fill="#0F766E" fontFamily="var(--font-geist-sans), sans-serif" letterSpacing="2">
         NET ASSET VALUE
       </text>
-      <text x="160" y="222" textAnchor="middle" fontSize="11" fill="#0D9488" fontFamily="var(--font-geist-mono), monospace" fontWeight="700">
+      <text x="160" y="222" textAnchor="middle" fontSize="11" fill="#0F766E" fontFamily="var(--font-geist-mono), monospace" fontWeight="700">
         {fmtUsdCompact(nav)}
       </text>
 
       {/* Buffer state pill (visual) */}
-      <text x="160" y="245" textAnchor="middle" fontSize="9" fill={snapshot.bufferState === "EMERGENCY" ? "#E11D48" : snapshot.bufferState === "STRESS" ? "#D97706" : "#14B8A6"} fontFamily="var(--font-geist-mono), monospace" letterSpacing="2" fontWeight="600">
+      <text x="160" y="245" textAnchor="middle" fontSize="9" fill={snapshot.bufferState === "EMERGENCY" ? "#BE123C" : snapshot.bufferState === "STRESS" ? "#B45309" : "#0F766E"} fontFamily="var(--font-geist-mono), monospace" letterSpacing="2" fontWeight="600">
         {snapshot.bufferState}
       </text>
     </svg>

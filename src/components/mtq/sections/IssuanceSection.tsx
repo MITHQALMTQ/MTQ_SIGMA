@@ -278,11 +278,11 @@ function StateChip({ state, highlight }: { state: string; highlight?: boolean })
   const tone = stateTone(state);
   const base =
     tone === "emerald"
-      ? "border-mtqs-emerald/40 bg-mtqs-emerald/10 text-mtqs-emerald"
+      ? "border-mtqs-emerald/40 bg-mtqs-emerald/10 text-emerald-800"
       : tone === "rose"
-        ? "border-rose-200 bg-rose-50 text-rose-600"
+        ? "border-rose-200 bg-rose-50 text-rose-800"
         : tone === "amber"
-          ? "border-mtqs-amber/40 bg-mtqs-amber/10 text-mtqs-amber"
+          ? "border-mtqs-amber/40 bg-mtqs-amber/10 text-amber-800"
           : "border-[#E3EAE6] bg-[#F7FAF8] text-[#5B6E68]";
   return (
     <span
@@ -300,7 +300,7 @@ function CheckMark({ ok }: { ok: boolean | null }) {
   return ok ? (
     <CheckCircle2 className="h-3.5 w-3.5 text-mtqs-emerald" aria-label="matches expected" />
   ) : (
-    <XCircle className="h-3.5 w-3.5 text-rose-600" aria-label="does not match expected" />
+    <XCircle className="h-3.5 w-3.5 text-rose-700" aria-label="does not match expected" />
   );
 }
 
@@ -495,10 +495,10 @@ export function IssuanceSection({
             {snapError ? (
               <div className="p-4 rounded-lg border border-rose-200 bg-rose-50">
                 <div className="flex items-center gap-2 mb-1">
-                  <ShieldAlert className="h-4 w-4 text-rose-600" aria-hidden="true" />
+                  <ShieldAlert className="h-4 w-4 text-rose-700" aria-hidden="true" />
                   <span className="text-[0.8rem] font-semibold text-rose-700">Registry snapshot unavailable</span>
                 </div>
-                <p className="text-[0.72rem] text-rose-600 mb-2">/api/issuance did not respond ({snapError}).</p>
+                <p className="text-[0.72rem] text-rose-700 mb-2">/api/issuance did not respond ({snapError}).</p>
                 <button
                   onClick={loadSnapshot}
                   className="mt-1 inline-flex items-center gap-1.5 rounded-md border border-[#E3EAE6] bg-white px-2.5 py-1.5 text-[0.72rem] text-[#33544C] hover:bg-[#F0F7F4] transition-colors"
@@ -686,10 +686,10 @@ export function IssuanceSection({
             {runError ? (
               <div className="mb-4 p-3 rounded-lg border border-rose-200 bg-rose-50">
                 <div className="flex items-center gap-2">
-                  <AlertTriangle className="h-4 w-4 text-rose-600" aria-hidden="true" />
+                  <AlertTriangle className="h-4 w-4 text-rose-700" aria-hidden="true" />
                   <span className="text-[0.76rem] font-semibold text-rose-700">Scenario run failed</span>
                 </div>
-                <p className="text-[0.68rem] text-rose-600 mt-1">{runError}</p>
+                <p className="text-[0.68rem] text-rose-700 mt-1">{runError}</p>
               </div>
             ) : null}
 
@@ -739,7 +739,7 @@ export function IssuanceSection({
                     </p>
                   ) : null}
                   {run.run.suspensionReasons.length > 0 ? (
-                    <p className="mt-1 text-[0.66rem] text-rose-600">
+                    <p className="mt-1 text-[0.66rem] text-rose-700">
                       suspension reasons: {run.run.suspensionReasons.join(" · ")}
                     </p>
                   ) : null}
@@ -854,7 +854,7 @@ export function IssuanceSection({
                       <ul className="text-[0.66rem] text-[#5B6E68] space-y-1.5 max-h-40 overflow-y-auto mtqs-scroll pr-1">
                         {run.run.exceptions.map((e) => (
                           <li key={e.exceptionId} className="font-mono leading-relaxed">
-                            <span className={e.status === "OPEN" ? "text-rose-600" : "text-mtqs-emerald"}>
+                            <span className={e.status === "OPEN" ? "text-rose-700" : "text-mtqs-emerald"}>
                               {e.exceptionId} [{e.status}]
                             </span>{" "}
                             {e.taxonomyClass} — {e.reasonCode}
@@ -889,7 +889,7 @@ export function IssuanceSection({
                           {c.passed ? (
                             <CheckCircle2 className="h-3 w-3 mt-0.5 text-mtqs-emerald shrink-0" aria-hidden="true" />
                           ) : (
-                            <XCircle className="h-3 w-3 mt-0.5 text-rose-600 shrink-0" aria-hidden="true" />
+                            <XCircle className="h-3 w-3 mt-0.5 text-rose-700 shrink-0" aria-hidden="true" />
                           )}
                           <span>
                             {c.check} — <span className="text-[#5B6E68]">{c.detail}</span>
@@ -991,7 +991,7 @@ export function IssuanceSection({
                   <p className="text-[0.62rem] text-[#5B6E68] mt-1.5 leading-relaxed">
                     Persistence: {run.run.persistence.disclosed}
                     {run.run.persistence.error ? (
-                      <span className="text-rose-600"> (error: {run.run.persistence.error})</span>
+                      <span className="text-rose-700"> (error: {run.run.persistence.error})</span>
                     ) : null}
                   </p>
                 </div>

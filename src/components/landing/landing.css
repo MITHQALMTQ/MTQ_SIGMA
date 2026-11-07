@@ -144,6 +144,7 @@
 
   /* ---------- buttons ---------- */
   .lp-btn-primary {
+    /* F-61c: bg was #0D9488 — white 0.88rem/600 label 3.74:1 → #0F766E 4.54:1 */
     display: inline-flex;
     align-items: center;
     justify-content: center;
@@ -154,7 +155,7 @@
     font-size: 0.88rem;
     font-weight: 600;
     color: #FFFFFF;
-    background: #0D9488;
+    background: #0F766E;
     box-shadow:
       0 1px 2px rgba(13, 148, 136, 0.35),
       inset 0 1px 0 rgba(255, 255, 255, 0.18);
@@ -453,7 +454,7 @@
     border-top: 1px solid #EDF2EF;
     text-align: center;
     font-size: 0.64rem;
-    color: #7A8C86;
+    color: #5B6E68; /* F-61c: was #7A8C86 3.46:1 — the task61b muted sweep missed landing.css */
   }
 
   /* ---------- simulated dashboard preview ---------- */
@@ -484,8 +485,8 @@
     cursor: default;
   }
   .lp-dash-btn[data-active="true"] {
-    background: #0D9488;
-    border-color: #0D9488;
+    background: #0F766E; /* F-61c: was #0D9488 3.74:1 for its 9.6px/600 label */
+    border-color: #0F766E;
     color: #FFFFFF;
   }
   .lp-sim-tag {
@@ -496,7 +497,7 @@
     border: 1px dashed #E7C88A;
     background: #FDF6E7;
     color: #92610A;
-    font-size: 0.56rem;
+    font-size: 0.625rem; /* F-61c microtext floor: was 0.56rem (8.96px) */
     font-weight: 700;
     letter-spacing: 0.06em;
     text-transform: uppercase;

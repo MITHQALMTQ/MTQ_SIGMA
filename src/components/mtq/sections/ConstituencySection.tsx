@@ -603,7 +603,7 @@ function ScoringComponentRow({ c }: { c: ScoringComponentDto }) {
             <span
               key={g.gate}
               title={`${g.gate} gate: ${g.value.toFixed(3)} ${cmpGlyph(g.comparator)} ${g.threshold} — PASS`}
-              className="inline-flex items-center rounded-full border border-mtqs-emerald/30 bg-mtqs-emerald/10 px-2 py-0.5 font-mono text-[0.6rem] font-medium text-mtqs-emerald"
+              className="inline-flex items-center rounded-full border border-mtqs-emerald/30 bg-mtqs-emerald/10 px-2 py-0.5 font-mono text-[0.6rem] font-medium text-emerald-800"
             >
               ✓ {g.gate}
             </span>
@@ -611,7 +611,7 @@ function ScoringComponentRow({ c }: { c: ScoringComponentDto }) {
             <span
               key={g.gate}
               title={`${g.gate} gate: observed ${g.value.toFixed(3)} vs required ${g.comparator} ${g.threshold} — FAIL`}
-              className="inline-flex items-center rounded-full border border-mtqs-rose/30 bg-mtqs-rose/10 px-2 py-0.5 font-mono text-[0.6rem] font-medium text-mtqs-rose"
+              className="inline-flex items-center rounded-full border border-mtqs-rose/30 bg-mtqs-rose/10 px-2 py-0.5 font-mono text-[0.6rem] font-medium text-rose-800"
             >
               ✗ {g.gate} {g.value.toFixed(2)}{cmpGlyph(g.comparator)}{g.threshold.toFixed(2)}
             </span>
@@ -621,7 +621,7 @@ function ScoringComponentRow({ c }: { c: ScoringComponentDto }) {
       {c.notes.length > 0 ? (
         <ul className="mt-2 space-y-1">
           {c.notes.map((n, i) => (
-            <li key={i} className="text-[0.62rem] text-mtqs-amber leading-relaxed">— {n}</li>
+            <li key={i} className="text-[0.62rem] text-amber-800 leading-relaxed">— {n}</li>
           ))}
         </ul>
       ) : null}
@@ -819,13 +819,13 @@ function ApprovalCard({ entry }: { entry: ApprovalLedgerEntryDto }) {
           </ul>
         </div>
         <div>
-          <h5 className="mb-1.5 text-[0.6rem] uppercase tracking-[0.18em] text-mtqs-amber">
+          <h5 className="mb-1.5 text-[0.6rem] uppercase tracking-[0.18em] text-amber-800">
             Residual opens (stay with Gate-C)
           </h5>
           <ul className="space-y-1">
             {entry.residualOpens.map((ro, i) => (
-              <li key={i} className="flex gap-1.5 text-[0.64rem] leading-relaxed text-amber-700">
-                <span className="text-mtqs-amber" aria-hidden="true">▸</span>
+              <li key={i} className="flex gap-1.5 text-[0.64rem] leading-relaxed text-amber-800">
+                <span className="text-amber-800" aria-hidden="true">▸</span>
                 <span>{ro}</span>
               </li>
             ))}
@@ -835,12 +835,12 @@ function ApprovalCard({ entry }: { entry: ApprovalLedgerEntryDto }) {
 
       {entry.calibrationNotes.length > 0 ? (
         <div className="mt-3 rounded-md border border-mtqs-amber/25 bg-mtqs-amber/[0.06] p-3">
-          <h5 className="mb-1.5 text-[0.6rem] uppercase tracking-[0.18em] text-mtqs-amber">
+          <h5 className="mb-1.5 text-[0.6rem] uppercase tracking-[0.18em] text-amber-800">
             Calibration notes
           </h5>
           <ul className="space-y-1.5">
             {entry.calibrationNotes.map((cn, i) => (
-              <li key={i} className="text-[0.64rem] leading-relaxed text-amber-700">
+              <li key={i} className="text-[0.64rem] leading-relaxed text-amber-800">
                 {cn}
               </li>
             ))}
@@ -987,8 +987,8 @@ function ShadowCaseCard({ c }: { c: ShadowCaseDto }) {
           <span
             className={`inline-flex items-center rounded-full border px-2 py-0.5 font-mono text-[0.6rem] font-semibold ${
               expectsPass
-                ? "border-mtqs-emerald/30 bg-mtqs-emerald/10 text-mtqs-emerald"
-                : "border-mtqs-rose/30 bg-mtqs-rose/10 text-mtqs-rose"
+                ? "border-mtqs-emerald/30 bg-mtqs-emerald/10 text-emerald-800"
+                : "border-mtqs-rose/30 bg-mtqs-rose/10 text-rose-800"
             }`}
           >
             CASE {c.caseId} · expects {c.expected}
@@ -1017,7 +1017,7 @@ function ShadowCaseCard({ c }: { c: ShadowCaseDto }) {
             className={`inline-flex items-center gap-1 rounded-md border px-1.5 py-0.5 font-mono text-[0.6rem] ${
               s.status === "ACTIVE"
                 ? "border-[#E3EAE6] bg-[#FAFCFA] text-[#33544C]"
-                : "border-mtqs-amber/30 bg-mtqs-amber/[0.08] text-mtqs-amber"
+                : "border-mtqs-amber/30 bg-mtqs-amber/[0.08] text-amber-800"
             }`}
           >
             <span className="font-semibold">{s.code}</span>
@@ -1062,10 +1062,10 @@ function DossierUnavailable({ label, error }: { label: string; error: string | n
   return (
     <div className="rounded-lg border border-rose-200 bg-rose-50 p-4">
       <div className="mb-1 flex items-center gap-2">
-        <ShieldAlert className="h-4 w-4 text-rose-600" aria-hidden="true" />
+        <ShieldAlert className="h-4 w-4 text-rose-700" aria-hidden="true" />
         <span className="text-[0.78rem] font-semibold text-rose-700">{label} unavailable</span>
       </div>
-      <p className="text-[0.7rem] text-rose-600">
+      <p className="text-[0.7rem] text-rose-700">
         /api/constituency did not respond{error ? ` (${error})` : ""}. Nothing is fabricated —
         the blueprint reference above remains the specification.
       </p>
@@ -1410,10 +1410,10 @@ export function ConstituencySection({
                 {machineryStale && machineryError ? (
                   <div className="mb-4 flex items-center gap-2 rounded-lg border border-rose-200 bg-rose-50 px-3 py-2">
                     <ShieldAlert
-                      className="h-3.5 w-3.5 shrink-0 text-rose-600"
+                      className="h-3.5 w-3.5 shrink-0 text-rose-700"
                       aria-hidden="true"
                     />
-                    <span className="text-[0.66rem] leading-snug text-rose-600">
+                    <span className="text-[0.66rem] leading-snug text-rose-700">
                       Last /api/constituency refresh failed ({machineryError}) — serving the
                       previously fetched dossier. Leg witnesses and feed statuses may be stale.
                     </span>
@@ -1430,12 +1430,12 @@ export function ConstituencySection({
                 {/* Calibration findings (honest flags — amber) */}
                 {machinery.scoringDossier.findings.length > 0 ? (
                   <div className="mt-4 rounded-lg border border-mtqs-amber/25 bg-mtqs-amber/[0.06] p-4">
-                    <h4 className="mb-2 text-[0.66rem] uppercase tracking-[0.18em] text-mtqs-amber">
+                    <h4 className="mb-2 text-[0.66rem] uppercase tracking-[0.18em] text-amber-800">
                       Calibration findings
                     </h4>
                     <ul className="space-y-1.5">
                       {machinery.scoringDossier.findings.map((f, i) => (
-                        <li key={i} className="text-[0.66rem] leading-relaxed text-amber-700">
+                        <li key={i} className="text-[0.66rem] leading-relaxed text-amber-800">
                           {f}
                         </li>
                       ))}
@@ -1450,7 +1450,7 @@ export function ConstituencySection({
                   </h4>
                   <ul className="space-y-1.5">
                     {machinery.scoringDossier.residualLimits.map((r, i) => (
-                      <li key={i} className="text-[0.66rem] leading-relaxed text-rose-600">
+                      <li key={i} className="text-[0.66rem] leading-relaxed text-rose-700">
                         {r}
                       </li>
                     ))}
@@ -1570,8 +1570,8 @@ export function ConstituencySection({
           <div className="mt-4 rounded-lg border border-mtqs-amber/25 bg-mtqs-amber/[0.06] p-4">
             <div className="flex items-start gap-3">
               <ShieldAlert className="h-4 w-4 text-mtqs-amber mt-0.5 shrink-0" aria-hidden="true" />
-              <p className="text-[0.74rem] text-amber-700 leading-relaxed">
-                <span className="font-semibold text-mtqs-amber">These figures are INPUTS, never weights.</span>{" "}
+              <p className="text-[0.74rem] text-amber-800 leading-relaxed">
+                <span className="font-semibold text-amber-800">These figures are INPUTS, never weights.</span>{" "}
                 COFER and BIS turnover shares feed R_i, L_i and T_i through the scoring model of
                 §4.2 — the published weight of any currency is set by the MASE pipeline (§24.5),
                 never copied from a survey share. Data-source governance: eligible providers are
@@ -1615,12 +1615,12 @@ export function ConstituencySection({
             {error ? (
               <div className="p-4 rounded-lg border border-rose-200 bg-rose-50">
                 <div className="flex items-center gap-2 mb-1">
-                  <ShieldAlert className="h-4 w-4 text-rose-600" aria-hidden="true" />
+                  <ShieldAlert className="h-4 w-4 text-rose-700" aria-hidden="true" />
                   <span className="text-[0.8rem] font-semibold text-rose-700">
                     Candidate universe unavailable
                   </span>
                 </div>
-                <p className="text-[0.72rem] text-rose-600">
+                <p className="text-[0.72rem] text-rose-700">
                   /api/succession did not respond ({error}). Live admission state is not fabricated —
                   the blueprint reference on this page remains the specification. Retry from the
                   Succession Lab, or check /api/health.
@@ -1912,7 +1912,7 @@ export function ConstituencySection({
                 parameters clause is now PILOT-APPROVED, owner directive 2026-11-03) */}
             {machinery ? (
               <div className="rounded-lg border border-mtqs-amber/25 bg-mtqs-amber/[0.06] px-4 py-2.5 mb-4 text-center">
-                <p className="font-mono text-[0.62rem] uppercase tracking-[0.14em] leading-relaxed text-mtqs-amber">
+                <p className="font-mono text-[0.62rem] uppercase tracking-[0.14em] leading-relaxed text-amber-800">
                   {machinery.banner}
                 </p>
               </div>
@@ -1922,8 +1922,8 @@ export function ConstituencySection({
             <div className="rounded-lg border border-mtqs-amber/25 bg-mtqs-amber/[0.06] p-4 mb-4">
               <div className="flex items-start gap-3">
                 <ShieldAlert className="h-4 w-4 text-mtqs-amber mt-0.5 shrink-0" aria-hidden="true" />
-                <p className="text-[0.74rem] text-amber-700 leading-relaxed">
-                  <span className="font-semibold text-mtqs-amber">QUIESCENT — {machinery?.quiescent.disclosure ??
+                <p className="text-[0.74rem] text-amber-800 leading-relaxed">
+                  <span className="font-semibold text-amber-800">QUIESCENT — {machinery?.quiescent.disclosure ??
                     "NO transition has ever run — the ACTIVE basket remains the 7-component genesis set at strategic-prior weights; transitions fire only on governance directives with valid rule evidence, and none exists."}</span>
                 </p>
               </div>
@@ -1932,10 +1932,10 @@ export function ConstituencySection({
             {machineryError && !machinery ? (
               <div className="p-4 rounded-lg border border-rose-200 bg-rose-50">
                 <div className="flex items-center gap-2 mb-1">
-                  <ShieldAlert className="h-4 w-4 text-rose-600" aria-hidden="true" />
+                  <ShieldAlert className="h-4 w-4 text-rose-700" aria-hidden="true" />
                   <span className="text-[0.8rem] font-semibold text-rose-700">Machinery snapshot unavailable</span>
                 </div>
-                <p className="text-[0.72rem] text-rose-600">
+                <p className="text-[0.72rem] text-rose-700">
                   /api/constituency did not respond ({machineryError}). Nothing is fabricated — the registry
                   reference above remains the specification.
                 </p>
@@ -2004,7 +2004,7 @@ export function ConstituencySection({
                             title={l.role}
                             className={`rounded-md border px-1.5 py-0.5 font-mono text-[0.62rem] ${
                               l.state === "ACTIVE"
-                                ? "border-mtqs-emerald/40 bg-mtqs-emerald/10 text-mtqs-emerald"
+                                ? "border-mtqs-emerald/40 bg-mtqs-emerald/10 text-emerald-800"
                                 : "border-[#E3EAE6] bg-[#F7FAF8] text-[#5B6E68]"
                             }`}
                           >
@@ -2019,7 +2019,7 @@ export function ConstituencySection({
                       ))}
                   </div>
                   <p className="text-[0.66rem] text-[#5B6E68] leading-relaxed">
-                    <span className="font-mono text-mtqs-amber">EMERGENCY-SUSPENDED</span> is a distinct OVERLAY
+                    <span className="font-mono text-amber-800">EMERGENCY-SUSPENDED</span> is a distinct OVERLAY
                     path (T7 — immediate freeze + fail-closed leg-pin), not a normal-retirement state. ELIGIBLE is a
                     queue state — admission is not yet weight-bearing. Weight-bearing states: ACTIVE, WATCH,
                     RETIRING (decaying) and EMERGENCY-SUSPENDED (frozen at the suspension value); all others hold
@@ -2063,10 +2063,10 @@ export function ConstituencySection({
                     contract layer implemented at source, undeployed) */}
                 <div className="mt-5 rounded-lg border border-rose-200 bg-rose-50 p-4">
                   <div className="flex items-start gap-3">
-                    <ShieldAlert className="h-4 w-4 text-rose-600 mt-0.5 shrink-0" aria-hidden="true" />
+                    <ShieldAlert className="h-4 w-4 text-rose-700 mt-0.5 shrink-0" aria-hidden="true" />
                     <div>
                       <h4 className="text-[0.76rem] font-semibold text-rose-700 mb-1">Honest limits of this machinery</h4>
-                      <p className="text-[0.7rem] text-rose-600 leading-relaxed">
+                      <p className="text-[0.7rem] text-rose-700 leading-relaxed">
                         {machinery.honestLimits.line}
                       </p>
                       <p className="text-[0.64rem] text-[#5B6E68] mt-2 leading-relaxed">
@@ -2270,7 +2270,7 @@ export function ConstituencySection({
                     {machinery.contractLayerV4.status.deterministicRepro}
                   </FactCell>
                   <FactCell label="Deployment posture">
-                    <span className="text-mtqs-amber">
+                    <span className="text-amber-800">
                       {machinery.contractLayerV4.status.deploymentPosture}
                     </span>
                   </FactCell>

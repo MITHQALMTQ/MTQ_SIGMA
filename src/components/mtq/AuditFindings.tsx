@@ -376,12 +376,12 @@ export function AuditFindings() {
           {validationError ? (
             <div className="p-4 rounded-lg border border-rose-200 bg-rose-50">
               <div className="flex items-center gap-2 mb-1">
-                <ShieldAlert className="h-4 w-4 text-rose-600" aria-hidden="true" />
+                <ShieldAlert className="h-4 w-4 text-rose-700" aria-hidden="true" />
                 <span className="text-[0.8rem] font-semibold text-rose-700">
                   §23 stress matrix unavailable
                 </span>
               </div>
-              <p className="text-[0.72rem] text-rose-600 mb-3">
+              <p className="text-[0.72rem] text-rose-700 mb-3">
                 /api/validation did not respond ({validationError}). No stress data is fabricated here —
                 the live matrix renders in the Validation section once the endpoint is available.
               </p>

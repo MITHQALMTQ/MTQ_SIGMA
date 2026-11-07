@@ -79,14 +79,14 @@ const GOV_DEPOSIT_U = 100_000; // fixed minimum governance deposit (state.ts)
 function proposalStatusBadge(status: GovProposalDto["status"]): string {
   switch (status) {
     case "VOTING":
-      return "border-mtqs-amber/40 bg-mtqs-amber/10 text-mtqs-amber";
+      return "border-mtqs-amber/40 bg-mtqs-amber/10 text-amber-800";
     case "PASSED":
-      return "border-mtqs-emerald/40 bg-mtqs-emerald/10 text-mtqs-emerald";
+      return "border-mtqs-emerald/40 bg-mtqs-emerald/10 text-emerald-800";
     case "EXECUTED":
       return "border-mtqs-emerald bg-mtqs-emerald text-white";
     case "REJECTED":
     case "FAILED_EXECUTION":
-      return "border-mtqs-rose/40 bg-mtqs-rose/10 text-mtqs-rose";
+      return "border-mtqs-rose/40 bg-mtqs-rose/10 text-rose-800";
     case "EXECUTION_QUEUED":
       return "border-slate-300 bg-slate-100 text-slate-600";
     default:
@@ -271,7 +271,7 @@ export function StakingSection({ onNavigate }: { onNavigate: (id: SectionId) => 
                 ))}
               </div>
             ) : !validators.data && validators.error ? (
-              <p className="rounded-lg border border-rose-200 bg-rose-50 px-3 py-3 text-[0.72rem] text-rose-600">
+              <p className="rounded-lg border border-rose-200 bg-rose-50 px-3 py-3 text-[0.72rem] text-rose-800">
                 Validator set unavailable ({validators.error}).
               </p>
             ) : (
@@ -516,7 +516,7 @@ export function StakingSection({ onNavigate }: { onNavigate: (id: SectionId) => 
                     onClick={handleUndelegate}
                     disabled={!undelVal || undelAmountU == null || submitting}
                     variant="outline"
-                    className="h-11 w-full border-mtqs-gold/40 font-medium text-mtqs-gold hover:bg-mtqs-gold/10 sm:w-auto sm:px-6"
+                    className="h-11 w-full border-mtqs-gold/40 font-medium text-teal-800 hover:bg-mtqs-gold/10 sm:w-auto sm:px-6"
                   >
                     {submitting ? "Signing + submitting…" : "Sign & undelegate"}
                   </Button>
@@ -610,7 +610,7 @@ export function StakingSection({ onNavigate }: { onNavigate: (id: SectionId) => 
                 ))}
               </div>
             ) : !gov.data && gov.error ? (
-              <p className="rounded-lg border border-rose-200 bg-rose-50 px-3 py-3 text-[0.72rem] text-rose-600">
+              <p className="rounded-lg border border-rose-200 bg-rose-50 px-3 py-3 text-[0.72rem] text-rose-800">
                 Governance view unavailable ({gov.error}).
               </p>
             ) : gov.data && gov.data.proposals.length === 0 ? (
@@ -748,7 +748,7 @@ function OutcomeLine({ outcome }: { outcome: SubmitOutcomeDto | null }) {
   return (
     <p
       className={`text-[0.66rem] leading-relaxed ${
-        outcome.ok ? "text-mtqs-emerald" : "text-rose-600"
+        outcome.ok ? "text-mtqs-emerald" : "text-rose-700"
       }`}
     >
       {outcome.ok
@@ -974,7 +974,7 @@ function ProposalCard({
                 variant="outline"
                 size="sm"
                 onClick={() => onNavigate("wallet")}
-                className="h-8 border-mtqs-gold/40 text-[0.68rem] text-mtqs-gold hover:bg-mtqs-gold/10"
+                className="h-8 border-mtqs-gold/40 text-[0.68rem] text-teal-800 hover:bg-mtqs-gold/10"
               >
                 Go to Wallet
                 <ArrowRight className="h-3 w-3" aria-hidden="true" />
@@ -996,7 +996,7 @@ function ProposalCard({
                   variant="outline"
                   disabled={!hasWallet || myPower <= 0 || busy}
                   onClick={() => onVote("NO")}
-                  className="h-9 border-mtqs-rose/40 px-4 text-[0.7rem] font-semibold text-mtqs-rose hover:bg-mtqs-rose/10"
+                  className="h-9 border-mtqs-rose/40 px-4 text-[0.7rem] font-semibold text-rose-800 hover:bg-mtqs-rose/10"
                 >
                   Vote NO
                 </Button>
@@ -1134,7 +1134,7 @@ function SubmitProposalForm({
           = {fmtMicro(GOV_DEPOSIT_U)} MTQD, charged on submission).
         </p>
         <CollapsibleTrigger asChild>
-          <Button variant="outline" className="h-9 border-mtqs-gold/40 text-[0.72rem] text-mtqs-gold hover:bg-mtqs-gold/10">
+          <Button variant="outline" className="h-9 border-mtqs-gold/40 text-[0.72rem] text-teal-800 hover:bg-mtqs-gold/10">
             <FileText className="h-3.5 w-3.5" aria-hidden="true" />
             {open ? "Close form" : "Open form"}
             <ChevronDown

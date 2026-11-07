@@ -232,7 +232,7 @@ export function LandingNav({
                         <span className="min-w-0">
                           <span className="flex items-center gap-1.5 text-[0.8rem] font-semibold text-[#0E1F1B]">
                             {item.label}
-                            <ArrowUpRight className="size-3 shrink-0 text-[#0D9488]" aria-hidden />
+                            <ArrowUpRight className="size-3 shrink-0 text-[#0F766E]" aria-hidden />
                           </span>
                           <span className="mt-0.5 block truncate text-[0.66rem] text-[#5B6E68]">
                             {item.hint}
@@ -252,7 +252,7 @@ export function LandingNav({
                       >
                         <span className="min-w-0">
                           <span className="flex items-center gap-1.5 text-[0.8rem] font-semibold text-[#0E1F1B]">
-                            <ClipboardCheck className="size-3.5 shrink-0 text-[#0D9488]" aria-hidden />
+                            <ClipboardCheck className="size-3.5 shrink-0 text-[#0F766E]" aria-hidden />
                             {item.label}
                           </span>
                           <span className="mt-0.5 block truncate text-[0.66rem] text-[#5B6E68]">
@@ -339,7 +339,7 @@ export function LandingNav({
                     <span className="min-w-0">
                       <span className="flex items-center gap-1.5 text-[0.8rem] font-semibold text-[#0E1F1B]">
                         Open Contracts &amp; Chains in the terminal
-                        <ArrowUpRight className="size-3 shrink-0 text-[#0D9488]" aria-hidden />
+                        <ArrowUpRight className="size-3 shrink-0 text-[#0F766E]" aria-hidden />
                       </span>
                       <span className="mt-0.5 block truncate text-[0.66rem] text-[#5B6E68]">
                         Full registry: 3 testnets (Monad · Arc · Solana devnet) + oracle deployments
@@ -501,7 +501,7 @@ function MobileMenuGroup({
               >
                 <span className="flex items-center gap-1.5">
                   {item.label}
-                  <ArrowUpRight className="size-3 shrink-0 text-[#0D9488]" aria-hidden />
+                  <ArrowUpRight className="size-3 shrink-0 text-[#0F766E]" aria-hidden />
                 </span>
                 <span className="mt-0.5 block text-[0.64rem] text-[#5B6E68]">{item.hint}</span>
               </button>
@@ -513,7 +513,7 @@ function MobileMenuGroup({
                 onClick={() => onOpenDialog(item.which)}
               >
                 <span className="flex items-center gap-1.5">
-                  <ClipboardCheck className="size-3.5 shrink-0 text-[#0D9488]" aria-hidden />
+                  <ClipboardCheck className="size-3.5 shrink-0 text-[#0F766E]" aria-hidden />
                   {item.label}
                 </span>
                 <span className="mt-0.5 block text-[0.64rem] text-[#5B6E68]">{item.hint}</span>

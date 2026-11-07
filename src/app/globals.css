@@ -343,7 +343,10 @@ body {
 }
 
 .mtqs-gold-text {
-  color: #0D9488;
+  /* F-61c: was #0D9488 (teal-600, 3.74:1) — the task61b #0D9488 sweep missed
+     this CSS class. #115E59 (teal-800): 6.4:1 white · ≥5.2 on /10 tints —
+     normal-text AA everywhere the value figures render. */
+  color: #115E59;
 }
 
 /* ============================================================
@@ -462,7 +465,7 @@ body {
 
 .mtqs-badge-gold {
   background: #E7F4F1;
-  color: #0F766E;
+  color: #115E59;
   border: 1px solid #BEE3DD;
 }
 
@@ -523,7 +526,10 @@ body {
    Tick Flash (number update — soft, no glow text)
    ============================================================ */
 @keyframes mtqs-tick-flash {
-  0% { color: #0D9488; }
+  /* F-61c: flash endpoint was #0D9488 (3.74:1) — transient emphasis color;
+     resting color stays `inherit`. Darkened to keep even the mid-flash
+     state near AA. */
+  0% { color: #0F766E; }
   100% { color: inherit; }
 }
 .mtqs-tick-flash { animation: mtqs-tick-flash 0.6s ease-out; }
@@ -1020,7 +1026,7 @@ body {
   color: var(--sb-ink);
 }
 .mtqs-sb-brand-tag {
-  font-size: 0.55rem;
+  font-size: 0.625rem; /* F-61c microtext floor: was 0.55rem (8.8px) */
   font-weight: 600;
   letter-spacing: 0.16em;
   text-transform: uppercase;
@@ -1031,7 +1037,7 @@ body {
 }
 .mtqs-sb-brand-ver {
   font-family: var(--font-mono), monospace;
-  font-size: 0.55rem;
+  font-size: 0.625rem; /* F-61c microtext floor: was 0.55rem (8.8px) */
   font-weight: 600;
   color: var(--sb-accent-ink);
   background: var(--sb-accent-tint);
@@ -1125,7 +1131,7 @@ body {
   font-weight: 500;
 }
 .mtqs-sb-status-metrics .sep {
-  color: #C6D3CE;
+  color: #5B6E68; /* F-61c: was #C6D3CE 1.47:1 */
 }
 
 /* ── Nav body (scroll + fade masks) ─────────────────────────── */
@@ -1161,12 +1167,12 @@ body {
 .mtqs-sb-group-count {
   margin-left: auto;
   font-family: var(--font-mono), monospace;
-  font-size: 0.55rem;
+  font-size: 0.625rem; /* F-61c: was 0.55rem (8.8px) + #C4D1CB 1.54:1 */
   font-weight: 400;
-  color: #C4D1CB;
+  color: #5B6E68;
 }
 .mtqs-sb-group-lock {
-  color: #B3C2BB;
+  color: #5B6E68; /* F-61c: was #B3C2BB */
 }
 
 /* ── Nav item ───────────────────────────────────────────────── */

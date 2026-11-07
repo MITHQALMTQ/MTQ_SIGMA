@@ -849,7 +849,7 @@ export function StaleStrip({ error, source }: { error: string; source: string })
   return (
     <div className="mb-4 flex items-start gap-2 rounded-lg border border-rose-200 bg-rose-50 px-3 py-2">
       <span className="mt-0.5 h-2 w-2 shrink-0 rounded-full bg-rose-500" aria-hidden="true" />
-      <span className="text-[0.66rem] leading-snug text-rose-600">
+      <span className="text-[0.66rem] leading-snug text-rose-700">
         Last {source} refresh failed ({error}) — serving the previously fetched snapshot. Values may
         be stale.
       </span>

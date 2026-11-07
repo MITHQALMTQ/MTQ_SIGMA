@@ -80,7 +80,7 @@ export function DynamicBuffer({ snapshot }: { snapshot: MetricsSnapshot | null }
                       : "border-[#E3EAE6] bg-[#F7FAF8]"
                   }`}
                 >
-                  <div className={`text-[0.7rem] font-semibold ${isActive ? (s.tone === "emerald" ? "text-mtqs-emerald" : s.tone === "amber" ? "text-mtqs-gold" : "text-rose-600") : "text-[#5B6E68]"}`}>
+                  <div className={`text-[0.7rem] font-semibold ${isActive ? (s.tone === "emerald" ? "text-mtqs-emerald" : s.tone === "amber" ? "text-mtqs-gold" : "text-rose-700") : "text-[#5B6E68]"}`}>
                     {s.label}
                   </div>
                   <div className="mt-1 font-mono text-lg text-mtqs-gold">{(s.gold * 100).toFixed(1)}%</div>

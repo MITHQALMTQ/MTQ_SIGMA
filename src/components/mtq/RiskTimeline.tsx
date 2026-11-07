@@ -66,6 +66,17 @@ const STATE_TONE: Record<RiskStateName, "emerald" | "amber" | "rose" | "gold"> =
   RECOVERY: "emerald",
 };
 
+// F-61c: chip TEXT deepened to the 800 level of each state hue for AA on
+// the chip's own /12 tint (dot + border stay at the canonical §14.1 hex —
+// non-text indicators ≥3:1 pass at 700-level).
+const STATE_TEXT_HEX: Record<RiskStateName, string> = {
+  NORMAL: "#065F46",
+  CAUTION: "#92400E",
+  STRESS: "#9A3412",
+  DEFENSIVE: "#92400E",
+  EMERGENCY: "#9F1239",
+  RECOVERY: "#065F46",
+};
 const STATE_HEX: Record<RiskStateName, string> = {
   NORMAL: STATUS_COLORS.NORMAL.color,
   CAUTION: STATUS_COLORS.CAUTION.color,
@@ -460,7 +471,7 @@ function FragmentRow({
           <span
             className="inline-flex items-center gap-1.5 rounded-full px-2 py-0.5 text-[0.66rem] font-mono uppercase tracking-wider"
             style={{
-              color: hex,
+              color: STATE_TEXT_HEX[t.toState] ?? hex,
               backgroundColor: `${hex}1f`,
               border: `1px solid ${hex}55`,
             }}
@@ -471,7 +482,7 @@ function FragmentRow({
             />
             {t.toState}
             {t.fromState !== t.toState && (
-              <span className="text-[#5B6E68] font-normal normal-case tracking-normal">
+              <span className="text-[#47594F] font-normal normal-case tracking-normal">
                 ← {t.fromState}
               </span>
             )}

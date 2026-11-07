@@ -160,7 +160,7 @@ export function AIPolicyBriefing({ className = "" }: { className?: string }) {
         <button
           onClick={fetchBriefing}
           disabled={loading}
-          className="shrink-0 inline-flex items-center gap-1.5 rounded-md border border-mtqs-rose/30 bg-mtqs-rose/5 px-2.5 py-1.5 text-[0.7rem] font-medium text-rose-600 hover:bg-mtqs-rose/[0.12] transition disabled:opacity-50"
+          className="shrink-0 inline-flex items-center gap-1.5 rounded-md border border-mtqs-rose/30 bg-mtqs-rose/5 px-2.5 py-1.5 text-[0.7rem] font-medium text-rose-800 hover:bg-mtqs-rose/[0.12] transition disabled:opacity-50"
         >
           <RefreshCw className={`h-3 w-3 ${loading ? "animate-spin" : ""}`} aria-hidden="true" />
           Retry

@@ -204,7 +204,7 @@ export function NetworksSection({
                   </div>
 
                   <div className="mt-2.5 rounded-md border border-mtqs-amber/25 bg-mtqs-amber/[0.05] p-2.5">
-                    <div className="text-[0.6rem] uppercase tracking-[0.16em] text-mtqs-amber">
+                    <div className="text-[0.6rem] uppercase tracking-[0.16em] text-amber-800">
                       Honest feed determination (Ext-3 A.4)
                     </div>
                     <p className="mt-0.5 text-[0.66rem] leading-relaxed text-[#5B6E68]">
@@ -218,7 +218,7 @@ export function NetworksSection({
             {/* Registry limitations — verbatim from getOracleFeedSummary() */}
             <div className="mt-4">
               <div className="mb-2 flex items-center gap-2 text-[0.72rem] font-semibold text-[#0E1F1B]">
-                <ShieldAlert className="h-3.5 w-3.5 text-mtqs-amber" aria-hidden="true" />
+                <ShieldAlert className="h-3.5 w-3.5 text-amber-800" aria-hidden="true" />
                 Registry limitations (getOracleFeedSummary · OD-34)
               </div>
               <ul className="max-h-96 overflow-y-auto mtqs-scroll space-y-1.5 pr-2">
@@ -227,7 +227,7 @@ export function NetworksSection({
                     key={i}
                     className="flex items-start gap-2 text-[0.66rem] leading-relaxed text-[#5B6E68]"
                   >
-                    <span className="mt-px w-4 shrink-0 text-right font-mono text-[0.6rem] text-mtqs-amber">
+                    <span className="mt-px w-4 shrink-0 text-right font-mono text-[0.6rem] text-amber-800">
                       {i + 1}.
                     </span>
                     <span>{l}</span>
@@ -312,7 +312,7 @@ export function NetworksSection({
           <Panel className="border-mtqs-amber/30 bg-mtqs-amber/[0.05] p-5">
             <div className="flex flex-col sm:flex-row sm:items-center gap-3 sm:gap-6">
               <div className="flex-1">
-                <div className="text-[0.6rem] uppercase tracking-[0.22em] text-mtqs-amber">
+                <div className="text-[0.6rem] uppercase tracking-[0.22em] text-amber-800">
                   §1.7 · independent verification required
                 </div>
                 <p className="mt-1 text-[0.72rem] leading-relaxed text-[#5B6E68]">

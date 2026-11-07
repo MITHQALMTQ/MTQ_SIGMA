@@ -58,8 +58,8 @@ function CriteriaGrid({ rec }: { rec: AssetRecord }) {
           title={`${c.label} — ${c.desc}`}
           className={`group relative flex items-center justify-center rounded-md border h-8 text-[0.65rem] font-medium ${
             c.ok
-              ? "border-mtqs-emerald/30 bg-mtqs-emerald/5 text-mtqs-emerald"
-              : "border-mtqs-rose/30 bg-mtqs-rose/5 text-mtqs-rose"
+              ? "border-mtqs-emerald/30 bg-mtqs-emerald/5 text-emerald-800"
+              : "border-mtqs-rose/30 bg-mtqs-rose/5 text-rose-800"
           }`}
         >
           {c.ok ? "✓" : "✗"}

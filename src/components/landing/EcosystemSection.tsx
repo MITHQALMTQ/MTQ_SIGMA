@@ -12,7 +12,7 @@ import { BrandMark } from "./BrandMark";
 function TokenGlyph({ kind }: { kind: "m" | "usdc" | "eth" | "sol" }) {
   if (kind === "m")
     return (
-      <span className="grid size-7 place-items-center rounded-full bg-[#0D9488] text-[0.62rem] font-extrabold text-white">
+      <span className="grid size-7 place-items-center rounded-full bg-[#0F766E] text-[0.62rem] font-extrabold text-white">
         M
       </span>
     );
@@ -80,7 +80,7 @@ function PortfolioChart() {
           <circle key={i} cx={i * step} cy={y(p)} r={i === pts.length - 1 ? 3.4 : 2} fill={i === pts.length - 1 ? "#0F766E" : "#5EEAD4"} stroke="rgba(255,255,255,0.7)" strokeWidth="1" />
         ))}
       </svg>
-      <div className="flex justify-between px-0.5 text-[0.54rem] font-medium text-[#5B6E68]">
+      <div className="flex justify-between px-0.5 text-[0.625rem] font-medium text-[#5B6E68]">
         {DASHBOARD_MOCK.welcome.chartX.map((m) => (
           <span key={m}>{m}</span>
         ))}
@@ -116,7 +116,7 @@ function DashboardPreview() {
             {m.address}
             <ChevronDown className="size-3 text-[#5B6E68]" aria-hidden />
           </span>
-          <span className="grid size-6 place-items-center rounded-full bg-[#0D9488] text-[0.6rem] font-bold text-white">
+          <span className="grid size-6 place-items-center rounded-full bg-[#0F766E] text-[0.6rem] font-bold text-white">
             A
           </span>
         </div>
@@ -133,7 +133,7 @@ function DashboardPreview() {
                 key={t}
                                className={`flex items-center gap-2 rounded-lg px-2.5 py-2 text-[0.62rem] font-semibold ${
                   i === 0
-                    ? "bg-[#0D9488] text-white"
+                    ? "bg-[#0F766E] text-white"
                     : "text-[#5B6E68]"
                 }`}
               >
@@ -199,12 +199,12 @@ function DashboardPreview() {
                   <TokenGlyph kind={a.icon} />
                   <span>
                     <b className="block text-[0.7rem] font-bold leading-tight text-[#0E1F1B]">{a.symbol}</b>
-                    <span className="block text-[0.56rem] leading-tight text-[#5B6E68]">{a.tag}</span>
+                    <span className="block text-[0.625rem] leading-tight text-[#5B6E68]">{a.tag}</span>
                   </span>
                 </span>
                 <span className="text-right">
                   <b className="block text-[0.7rem] font-bold leading-tight text-[#0E1F1B]">{a.amount}</b>
-                  <span className="block text-[0.56rem] leading-tight text-[#5B6E68]">{a.value}</span>
+                  <span className="block text-[0.625rem] leading-tight text-[#5B6E68]">{a.value}</span>
                 </span>
               </li>
             ))}
@@ -229,7 +229,7 @@ function DashboardPreview() {
                   </span>
                   <span>
                     <b className="block text-[0.68rem] font-semibold leading-tight text-[#0E1F1B]">{r.title}</b>
-                    {r.detail && <span className="block text-[0.56rem] leading-tight text-emerald-700">{r.detail}</span>}
+                    {r.detail && <span className="block text-[0.625rem] leading-tight text-emerald-700">{r.detail}</span>}
                     {r.value && (
                       <span className="block text-[0.62rem] font-bold leading-tight text-emerald-700">{r.value}</span>
                     )}
@@ -274,7 +274,7 @@ export function EcosystemSection({ onLaunch }: { onLaunch?: () => void }) {
           <span className="lp-eco-pill">
             <span className="grid size-4 place-items-center">
               <span
-                className="text-[0.7rem] font-extrabold text-[#0D9488]"
+                className="text-[0.7rem] font-extrabold text-[#0F766E]"
                 style={{ fontFamily: "var(--font-mtqs-display), Montserrat, sans-serif" }}
                 aria-hidden
               >

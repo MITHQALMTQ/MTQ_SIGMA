@@ -45,7 +45,7 @@ function ReintegrationGauge({ score, size = 80 }: { score: number; size?: number
   const dash = pct * circ;
   const thresholdDash = threshold * circ;
 
-  const tone = pct >= threshold ? "#0D9488" : pct >= threshold * 0.6 ? "#D97706" : "#E11D48";
+  const tone = pct >= threshold ? "#0F766E" : pct >= threshold * 0.6 ? "#B45309" : "#BE123C";
 
   return (
     <svg
@@ -85,7 +85,7 @@ function ReintegrationGauge({ score, size = 80 }: { score: number; size?: number
       <text x={cx} y={cy - 1} textAnchor="middle" fontSize="14" fill={tone} fontFamily="var(--font-geist-mono), monospace" fontWeight="700">
         {pct.toFixed(2)}
       </text>
-      <text x={cx} y={cy + 12} textAnchor="middle" fontSize="6.5" fill="rgba(91,110,104,0.9)" fontFamily="var(--font-geist-sans), sans-serif" letterSpacing="1">
+      <text x={cx} y={cy + 12} textAnchor="middle" fontSize="9" fill="#47594F" fontFamily="var(--font-geist-sans), sans-serif" letterSpacing="1">
         R_SCORE
       </text>
     </svg>

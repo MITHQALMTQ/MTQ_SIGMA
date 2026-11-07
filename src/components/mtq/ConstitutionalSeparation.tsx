@@ -25,6 +25,18 @@ export function ConstitutionalSeparation({
   // Brand STATUS_COLORS keep the palette tight (no orange): emerald / amber /
   // light-rose / rose.
   const reserveTone = (STATUS_COLORS[status] ?? STATUS_COLORS.NORMAL).color;
+  // F-61c: SVG text fills need the 800-level variant of each status hue for
+  // normal-size AA (the canonical 700 hex lands 3.5–4.4 as text at fs 10–14;
+  // ring stroke/dots keep the canonical §14.1 hex — non-text ≥3:1).
+  const reserveTextTone: Record<string, string> = {
+    NORMAL: "#065F46",
+    CAUTION: "#92400E",
+    STRESS: "#9A3412",
+    DEFENSIVE: "#92400E",
+    EMERGENCY: "#9F1239",
+    RECOVERY: "#065F46",
+  };
+  const reserveText = reserveTextTone[status] ?? "#065F46";
 
   return (
     <div className={`relative aspect-square w-full max-w-[520px] mx-auto ${className}`}>
@@ -224,21 +236,21 @@ export function ConstitutionalSeparation({
           <text x="260" y="32" textAnchor="middle" fontSize="11" fill="#B45309" fontFamily="var(--font-geist-sans), sans-serif" letterSpacing="3">
             A · REFERENCE INDEX
           </text>
-          <text x="260" y="70" textAnchor="middle" fontSize="14" fill="#D97706" fontFamily="var(--font-geist-mono), monospace" fontWeight="600">
+          <text x="260" y="70" textAnchor="middle" fontSize="14" fill="#B45309" fontFamily="var(--font-geist-mono), monospace" fontWeight="600">
             {snapshot ? fmtFixed(snapshot.gfbIndex, 4) : "—"}
           </text>
         </g>
 
         {/* B — MTQΣ Token (left side) */}
         <g>
-          <circle cx="50" cy="260" r="4" fill="#14B8A6" />
+          <circle cx="50" cy="260" r="4" fill="#0F766E" />
           <text x="36" y="248" textAnchor="middle" fontSize="11" fill="#0F766E" fontFamily="var(--font-geist-sans), sans-serif" letterSpacing="3">
             B
           </text>
-          <text x="36" y="266" textAnchor="middle" fontSize="10" fill="#14B8A6" fontFamily="var(--font-geist-sans), sans-serif" letterSpacing="2">
+          <text x="36" y="266" textAnchor="middle" fontSize="10" fill="#0F766E" fontFamily="var(--font-geist-sans), sans-serif" letterSpacing="2">
             MTQΣ
           </text>
-          <text x="36" y="282" textAnchor="middle" fontSize="11" fill="#14B8A6" fontFamily="var(--font-geist-mono), monospace" fontWeight="600">
+          <text x="36" y="282" textAnchor="middle" fontSize="11" fill="#0F766E" fontFamily="var(--font-geist-mono), monospace" fontWeight="600">
             {snapshot ? fmtFixed(snapshot.mtqPrice, 4) : "—"}
           </text>
         </g>
@@ -246,20 +258,20 @@ export function ConstitutionalSeparation({
         {/* C — Reserve (right side) */}
         <g>
           <circle cx="470" cy="260" r="4" fill={reserveTone} />
-          <text x="486" y="248" textAnchor="middle" fontSize="11" fill={reserveTone} fontFamily="var(--font-geist-sans), sans-serif" letterSpacing="3">
+          <text x="486" y="248" textAnchor="middle" fontSize="11" fill={reserveText} fontFamily="var(--font-geist-sans), sans-serif" letterSpacing="3">
             C
           </text>
-          <text x="486" y="266" textAnchor="middle" fontSize="10" fill={reserveTone} fontFamily="var(--font-geist-sans), sans-serif" letterSpacing="2">
+          <text x="486" y="266" textAnchor="middle" fontSize="10" fill={reserveText} fontFamily="var(--font-geist-sans), sans-serif" letterSpacing="2">
             RESERVE
           </text>
-          <text x="486" y="282" textAnchor="middle" fontSize="11" fill={reserveTone} fontFamily="var(--font-geist-mono), monospace" fontWeight="600">
+          <text x="486" y="282" textAnchor="middle" fontSize="11" fill={reserveText} fontFamily="var(--font-geist-mono), monospace" fontWeight="600">
             {snapshot ? fmtUsdCompact(snapshot.nav) : "—"}
           </text>
         </g>
 
         {/* Bottom — RR readout */}
         <g>
-          <text x="260" y="488" textAnchor="middle" fontSize="10" fill="#7A8C86" fontFamily="var(--font-geist-sans), sans-serif" letterSpacing="3">
+          <text x="260" y="488" textAnchor="middle" fontSize="10" fill="#47594F" fontFamily="var(--font-geist-sans), sans-serif" letterSpacing="3">
             RESERVE RATIO
           </text>
           <text
@@ -267,7 +279,7 @@ export function ConstitutionalSeparation({
             y="506"
             textAnchor="middle"
             fontSize="14"
-            fill={reserveTone}
+            fill={reserveText}
             fontFamily="var(--font-geist-mono), monospace"
             fontWeight="700"
           >
@@ -283,7 +295,7 @@ export function ConstitutionalSeparation({
       {/* Side readout card overlay (desktop) */}
       <div className="hidden md:block absolute top-1/2 -translate-y-1/2 -left-2 -translate-x-full pr-4 text-right">
         <div className="text-[0.6rem] uppercase tracking-[0.25em] text-[#5B6E68] mb-1">Active Ring</div>
-        <div className="font-mono text-sm" style={{ color: reserveTone }}>
+        <div className="font-mono text-sm" style={{ color: reserveText }}>
           {status === "NORMAL" ? "C · steady" : `${status} · ${status === "EMERGENCY" ? "C · drain" : "C · elevated"}`}
         </div>
       </div>

@@ -175,7 +175,7 @@ function PriorityPill({ p }: { p: string }) {
 /** TRANSACTION PLAN ONLY badge — every on-chain remediation row carries it. */
 function TransactionPlanOnlyBadge() {
   return (
-    <span className="mt-1.5 inline-flex items-center gap-1.5 rounded-full border border-mtqs-rose/40 bg-mtqs-rose/10 px-2.5 py-0.5 text-[0.6rem] font-medium text-mtqs-rose">
+    <span className="mt-1.5 inline-flex items-center gap-1.5 rounded-full border border-mtqs-rose/40 bg-mtqs-rose/10 px-2.5 py-0.5 text-[0.6rem] font-medium text-rose-800">
       <AlertTriangle className="h-3 w-3" aria-hidden="true" />
       TRANSACTION PLAN ONLY — awaiting explicit owner approval (§1)
     </span>
@@ -307,7 +307,7 @@ export function AuthorizationAuditSection() {
                       <dd className="min-w-0 text-[#5B6E68]">{k.window}</dd>
                     </div>
                   </dl>
-                  <p className="mt-2.5 rounded-md border border-mtqs-rose/40 bg-mtqs-rose/10 px-2.5 py-1.5 font-mono text-[0.62rem] text-mtqs-rose">
+                  <p className="mt-2.5 rounded-md border border-mtqs-rose/40 bg-mtqs-rose/10 px-2.5 py-1.5 font-mono text-[0.62rem] text-rose-800">
                     {k.status}
                   </p>
                 </div>
@@ -430,7 +430,7 @@ export function AuthorizationAuditSection() {
                       <td className="px-3 py-2.5 font-mono text-[#0E1F1B]">{r.chain}</td>
                       <td className="px-3 py-2.5 text-[#5B6E68]">{r.intended}</td>
                       <td className="px-3 py-2.5 text-[#5B6E68]">{r.actual}</td>
-                      <td className="px-3 py-2.5 text-mtqs-amber">{r.gap}</td>
+                      <td className="px-3 py-2.5 text-amber-800">{r.gap}</td>
                     </tr>
                   ))}
                 </tbody>
@@ -522,7 +522,7 @@ export function AuthorizationAuditSection() {
                 {TASK9_META.recommendation}
               </span>
             </div>
-            <p className="mt-3 text-[0.74rem] sm:text-[0.8rem] leading-relaxed text-[#5B6E68]">
+            <p className="mt-3 text-[0.74rem] sm:text-[0.8rem] leading-relaxed text-[#47594F]">
               {TASK9_META.recommendationNote}
             </p>
           </div>
@@ -540,7 +540,7 @@ export function AuthorizationAuditSection() {
         />
         <Reveal>
           <Panel className="p-4 sm:p-6">
-            <p className="mb-4 rounded-md border border-mtqs-amber/30 bg-mtqs-amber/[0.05] px-3 py-2.5 text-[0.72rem] leading-relaxed text-mtqs-amber">
+            <p className="mb-4 rounded-md border border-mtqs-amber/30 bg-mtqs-amber/[0.05] px-3 py-2.5 text-[0.72rem] leading-relaxed text-amber-800">
               Software status is reported separately from release status. No software test result
               may automatically advance a release gate.
             </p>
@@ -655,7 +655,7 @@ export function AuthorizationAuditSection() {
               onClick={() => setChainFilter("all")}
               className={`mtqs-focus rounded-md px-3 py-1.5 text-[0.72rem] transition ${
                 chainFilter === "all"
-                  ? "bg-mtqs-gold/15 text-mtqs-gold"
+                  ? "bg-mtqs-gold/15 text-teal-800"
                   : "text-[#5B6E68] hover:text-[#0E1F1B]"
               }`}
             >
@@ -670,7 +670,7 @@ export function AuthorizationAuditSection() {
                 onClick={() => setChainFilter(c)}
                 className={`mtqs-focus rounded-md px-3 py-1.5 text-[0.72rem] transition ${
                   chainFilter === c
-                    ? "bg-mtqs-gold/15 text-mtqs-gold"
+                    ? "bg-mtqs-gold/15 text-teal-800"
                     : "text-[#5B6E68] hover:text-[#0E1F1B]"
                 }`}
               >
@@ -904,7 +904,7 @@ export function AuthorizationAuditSection() {
                       <td className="whitespace-nowrap px-3 py-2.5">
                         <SafeVerdictPill v={r.verdict} />
                       </td>
-                      <td className="max-w-[20rem] px-3 py-2.5 text-[0.66rem] text-[#5B6E68]">
+                      <td className="max-w-[20rem] px-3 py-2.5 text-[0.66rem] text-[#47594F]">
                         {r.note}
                       </td>
                     </tr>
@@ -954,7 +954,7 @@ export function AuthorizationAuditSection() {
                       <td className="whitespace-nowrap px-3 py-2.5 font-mono text-[#33544C]">
                         {r.supply}
                       </td>
-                      <td className="max-w-[20rem] px-3 py-2.5 text-[0.66rem] text-[#5B6E68]">
+                      <td className="max-w-[20rem] px-3 py-2.5 text-[0.66rem] text-[#47594F]">
                         {r.holders}
                       </td>
                       <td className="whitespace-nowrap px-3 py-2.5">
