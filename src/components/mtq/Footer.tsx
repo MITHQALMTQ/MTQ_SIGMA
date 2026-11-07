@@ -161,8 +161,13 @@ export function Footer({ onExit }: { onExit?: () => void }) {
                 Back to landing site
               </button>
             ) : null}
+            {/* TASK-58 — full canonical stack line: every claim below is
+                verifiable in package.json (Next 16.4.5 · React 19.3.1 ·
+                Tailwind 4.3.5 after the task55 upscale) — never an
+                aspirational stack. */}
             <span className="font-mono text-[#7A8C86]">
-              Built on Next.js 16 · Real-time engine in-process · 4s poll
+              Built on Next.js 16 · React 19 · TypeScript 5 · Tailwind CSS 4 ·
+              shadcn/ui · Prisma · SSE live stream · in-process engine · 4s poll
             </span>
           </div>
         </div>

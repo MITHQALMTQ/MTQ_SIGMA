@@ -102,6 +102,11 @@ export function LandingFooter({
         <p className="max-w-3xl text-center text-[0.66rem] leading-relaxed text-[#7A8C86]">
           {FOOTER.disclaimer}
         </p>
+        {/* TASK-58 — canonical stack line: the actual, verifiable dependency
+            stack (package.json), mirroring the terminal footer's stack line. */}
+        <p className="text-center text-[0.62rem] font-mono tracking-wide text-[#9AA9A3]">
+          {FOOTER.stack}
+        </p>
         <p className="text-[0.66rem] text-[#9AA9A3]">{FOOTER.copyright}</p>
       </div>
     </footer>

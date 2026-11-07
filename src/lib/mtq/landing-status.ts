@@ -159,22 +159,26 @@ export const PROTOCOL_CARDS = [
 // bar, directly under the feature cards). The reference shows marketing
 // figures ($2.4B+ TVL / 12 chains / 250K+ members / 99.9% uptime); those
 // are NOT true for this pilot, so per the standing no-fabrication mandate
-// the same design carries values that ARE true and were re-verified
-// read-only from the live testnets this session (see contracts.ts).
+// the same design carries values that ARE true.
+//
+// TASK-58 — the four values are now LIVE telemetry streamed from the
+// reference engine's canonical snapshot (GET /api/landing-stats, 4s poll —
+// the same source that drives the Pilot Command Center), replacing the
+// 2026-10-24 point-in-time constants. The registry facts that occupied the
+// four slots until now (19 contracts / 3 testnets / 253/253 invariants /
+// 0/7 gates) are preserved verbatim in the footnote, dated — they are
+// verified constants, not time-series telemetry, so they live in prose.
 // ---------------------------------------------------------------------------
-export const PROTOCOL_STATS = {
-  // Honest tag: these four values are point-in-time verified constants (true
-  // against the live registry / evidence register as of the dated baseline),
-  // NOT live reads — live values are served in the Pilot Command Center.
-  tag: "STATUS AT HEAD · 2026-10-24 · READ-ONLY VERIFIED",
+export const LIVE_STATS = {
+  tag: "LIVE TELEMETRY · 4s POLL · TESTNET PILOT",
   items: [
-    { value: "19", label: "Contracts Verified On-Chain" },
-    { value: "3", label: "Testnets Deployed" },
-    { value: "253/253", label: "Canonical Invariant Tests Passing" },
-    { value: "0/7", label: "Release Gates (Evidence Register) Closed — Production Not Authorized" },
+    { label: "Reference Index Iₜ" },
+    { label: "Net Asset Value (USD)" },
+    { label: "EUR/USD Oracle Consensus" },
+    { label: "Oracle Feeds Valid" },
   ],
   footnote:
-    "Point-in-time verified values, not live reads (live values are served in the Pilot Command Center terminal). 19 = 9 Monad Testnet (10143) + 9 Arc Testnet (5042002) contracts + 1 Solana devnet SPL mint, each code/account verified by read-only RPC probe. 3 = Monad, Arc testnets + Solana devnet (the 2026-10-24 owner-directed registry cleanup removed the Robinhood Chain suite and the Base/Arbitrum placeholders from the registry). 253/253 = canonical invariant suite green at the 2026-10-23 baseline: deterministic Layers 1-6+8 re-run fresh 246/246 + Layer-7 7/7 carried from the recorded chunked evidence (six D-13.26 stale-assertion re-pins applied under the owner directive, +3 new invariant assertions; code-quality evidence only — no release authority). 0/7 = the evidence register's release gates (D-5) — a different register from the terminal's §25.5 validation gates (0/11). The reference design's TVL / user-count / uptime figures are not reproduced: they are not real for a shadow-mode testnet pilot.",
+    "Live values streamed from the reference engine's canonical snapshot — the same source as the Pilot Command Center terminal; the oracle consensus recomputes on every 4-second poll. Registry facts, point-in-time verified read-only 2026-10-24: 19 contracts verified on-chain (9 Monad Testnet 10143 + 9 Arc Testnet 5042002 + 1 Solana devnet SPL mint, each code/account verified by read-only RPC probe) · 3 testnets deployed (Monad, Arc, Solana devnet — the 2026-10-24 owner-directed registry cleanup removed the Robinhood Chain suite and the Base/Arbitrum placeholders) · 253/253 canonical invariant tests passing at the 2026-10-23 baseline (deterministic Layers 1-6+8 re-run fresh 246/246 + Layer-7 7/7 carried from the recorded chunked evidence; code-quality evidence only — no release authority) · 0/7 evidence-register release gates closed — production not authorized (a different register from the terminal's §25.5 validation gates, 0/11). The reference design's TVL / user-count / uptime figures are not reproduced: they are not real for a shadow-mode testnet pilot.",
 } as const;
 
 // ---------------------------------------------------------------------------
@@ -260,6 +264,12 @@ export const FOOTER = {
   disclaimer:
     "MTQΣ is a monetary architecture protocol in development. Nothing on this page constitutes an offer, a live product, or an authorization to transact.",
   copyright: "© 2026 MTQΣ Labs. All rights reserved.",
+  // TASK-58 — the landing footer now carries the same canonical stack line
+  // as the terminal footer: the actual, verifiable dependency stack of this
+  // app (package.json — Next 16.4.5 · React 19.3.1 · TS 5 · Tailwind 4.3.5
+  // after the task55 35-package upscale), never an aspirational one.
+  stack:
+    "Built on Next.js 16 · React 19 · TypeScript 5 · Tailwind CSS 4 · shadcn/ui · live engine in-process",
 } as const;
 
 // ---------------------------------------------------------------------------
