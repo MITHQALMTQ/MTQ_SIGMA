@@ -75,19 +75,32 @@ local stale HEAD. Nothing fetched origin and compared.
   plane (auto-heal at session-open).
 - Sentinel: `db/ALLOW-GIT-REALIGN` (expiry + reason; ≤168h).
 
-### Safety proofs (harness-tested, 6/6 PASS)
+### Safety proofs (harness-tested, 10/10 PASS)
 
 | Scenario | Setup | Guard action | Exit |
 |---|---|---|---|
 | A synced | local == origin | none | 0 |
 | B behind (pure stale snapshot) | clean tree, 0 local commits | `merge --ff-only` | 42 |
+| B′ behind + WRITE-BEHIND dirty dump | unstaged `latest-*.sql` refresh (the cloud-sync steady state) | archive freshest dump bytes → discard mod → `merge --ff-only` | 42 |
 | C diverged amend-drift (THIS incident's signature) | derivable + ancestor-blob + deleted-origin-wins paths | archive → `reset --hard` | 42 |
+| C″ diverged amend + write-behind dirty dump | C + unstaged dump refresh | archive (incl. freshest dump) → `reset --hard` | 42 |
 | D diverged + genuinely new code | unique local file | **BLOCK** | 1 |
-| E dirty tracked tree | unstaged edits | **BLOCK** | 1 |
+| E dirty tracked tree (code edits) | unstaged src edits | **BLOCK** | 1 |
 | F sentinel | `db/ALLOW-GIT-REALIGN` | stand down | 0 |
 
 Plus: gitignored `db/*.db` proven byte-stable across every realign operation
 (the guard never touches untracked/ignored paths by construction).
+
+**Bug found & fixed during harness testing (why you test root-cause fixes):**
+(1) the cloud-sync write-behind keeps `latest-*.sql` perpetually modified in
+the working tree — a naive dirty-tree check would BLOCK every auto-realign
+and silently defeat the guard; unstaged dump modifications are now the
+documented exception (archived + discarded; re-derived from the live DB by
+the next sync tick ≤60s), while STAGED dump changes still block. (2) the git
+helper's `.trim()` corrupted porcelain `-z` records — an unstaged record
+`"XY path"` has a LEADING SPACE as part of its data; trimming shifted every
+field left by one (status codes misread, paths lost their first character).
+Porcelain is now read raw (no-trim), mirroring `source-integrity.ts`.
 
 ## 6. Honest limits
 

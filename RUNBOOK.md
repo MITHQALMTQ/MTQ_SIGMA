@@ -217,6 +217,11 @@ Operational summary:
     `mtq-sigma-backups/selfheal-archive/gitdrift-<ts>/`) → `git reset --hard
     origin/main`. Genuinely NEW local code → **BLOCK** (loud, human decides).
   - The LIVE DATABASES are gitignored — never touched by a realign.
+  - **Write-behind steady state:** the cloud-sync loop keeps
+    `backups/db-snapshots/latest-*.sql` perpetually modified between commits;
+    those UNSTAGED modifications never block a realign (their freshest bytes
+    are archived first, then the next sync tick re-dumps from the live DB
+    ≤60s later). STAGED dump changes still block — staging is explicit intent.
   - Runtime layer: if `package.json`/`bun.lock`/`prisma/schema.prisma` changed
     across the realign, the CLI refreshes deps (`bun install` + `prisma
     generate`) so the server never boots against a stale client.

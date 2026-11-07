@@ -113,6 +113,26 @@ function git(args: string, opts: { timeout?: number } = {}): string | null {
   }
 }
 
+/** Porcelain v1 (-z) records MUST NOT be trimmed: an unstaged record is
+ *  `"XY path"` with X = ' ' — a leading space that is PART OF THE DATA.
+ *  .trim() would shift every field left by one (status codes misread, paths
+ *  lose their first character — the write-behind regex would never match and
+ *  every unstaged modification would misclassify). Mirrors the no-trim read
+ *  in src/lib/boot/source-integrity.ts listUnstagedDeletions(). */
+function gitRaw(args: string, opts: { timeout?: number } = {}): string | null {
+  try {
+    return execSync(`git ${args}`, {
+      cwd: ROOT,
+      encoding: "utf8",
+      maxBuffer: 64 * 1024 * 1024,
+      timeout: opts.timeout ?? 20_000,
+      stdio: ["ignore", "pipe", "pipe"],
+    });
+  } catch {
+    return null;
+  }
+}
+
 function gitOk(args: string, opts: { timeout?: number } = {}): boolean {
   try {
     execSync(`git ${args}`, {
@@ -128,12 +148,49 @@ function gitOk(args: string, opts: { timeout?: number } = {}): boolean {
   }
 }
 
+/** Paths whose UNSTAGED MODIFICATIONS never block a realign: the cloud-sync
+ *  write-behind loop (task42/47) keeps latest-*.sql perpetually modified in
+ *  the working tree between commits — that is the DESIGNED steady state, not
+ *  mid-work edits. Their on-disk bytes are archived before any destructive
+ *  step and re-derived from the live DB by the next sync tick (≤60s); a
+ *  realign may safely reset them to origin's version. STAGED changes to these
+ *  paths still block (staging is explicit intent). */
+const WRITE_BEHIND_DUMP_RE = /^backups\/db-snapshots\/latest-[a-z]+\.sql$/;
+
+/** Unstaged write-behind dump modifications currently in the tree (to archive
+ *  + discard before a fast-forward merge; reset --hard discards them itself). */
+function writeBehindDirtyDumps(): string[] {
+  const out = gitRaw("status --porcelain -z --no-renames -uno");
+  if (out === null) return [];
+  const paths: string[] = [];
+  for (const rec of out.split("\0")) {
+    if (rec.length < 3) continue;
+    const x = rec[0];
+    const y = rec[1];
+    const path = rec.slice(3);
+    if (x === " " && y === "M" && WRITE_BEHIND_DUMP_RE.test(path)) paths.push(path);
+  }
+  return paths;
+}
+
 /** True when tracked files have staged OR unstaged modifications/deletions
- *  (untracked files — like fresh screenshots — never block a realign). */
+ *  (untracked files — like fresh screenshots — never block a realign).
+ *  EXCEPTION: unstaged modifications of the write-behind dump files are the
+ *  cloud-sync loop's designed steady state and do NOT block (see
+ *  WRITE_BEHIND_DUMP_RE) — without this exception the perpetual dump refresh
+ *  would BLOCK every auto-realign and defeat the guard entirely. */
 function trackedTreeDirty(): boolean {
-  const out = git("status --porcelain -z --no-renames -uno");
+  const out = gitRaw("status --porcelain -z --no-renames -uno");
   if (out === null) return true; // cannot determine → treat as dirty (safe)
-  return out.length > 0;
+  for (const rec of out.split("\0")) {
+    if (rec.length < 3) continue;
+    const x = rec[0];
+    const y = rec[1];
+    const path = rec.slice(3);
+    if (x === " " && y === "M" && WRITE_BEHIND_DUMP_RE.test(path)) continue; // designed steady state
+    return true;
+  }
+  return false;
 }
 
 // ─── classification ─────────────────────────────────────────────────────────
@@ -294,9 +351,14 @@ function archiveDrift(status: GitDriftStatus, subsumption: SubsumptionReport | n
     // 1. Full bundle of the local line (complete history incl. local-only commits).
     const bundle = join(dir, "local-line.bundle");
     gitOk(`bundle create ${JSON.stringify(bundle)} --all`);
-    // 2. Byte copies of every local-side changed path (git-independent recovery).
+    // 2. Byte copies of every local-side changed path (git-independent recovery) —
+    //    PLUS the write-behind dump files' current on-disk bytes (their unstaged
+    //    modifications are the freshest data snapshot; reset --hard/checkout
+    //    discards them, so the archive keeps the only copy).
     const filesDir = join(dir, "files");
-    for (const { path: p } of subsumption?.paths ?? []) {
+    const archivePaths = new Set<string>((subsumption?.paths ?? []).map((x) => x.path));
+    for (const p of writeBehindDirtyDumps()) archivePaths.add(p);
+    for (const p of archivePaths) {
       const src = join(ROOT, p);
       if (!existsSync(src)) continue; // deleted-locally paths have no file to copy
       const dest = join(filesDir, p);
@@ -304,6 +366,7 @@ function archiveDrift(status: GitDriftStatus, subsumption: SubsumptionReport | n
       if (statSync(src).isFile()) copyFileSync(src, dest);
     }
     // 3. Manifest.
+    const dirtyDumps = writeBehindDirtyDumps();
     const manifest = [
       `# git-drift realignment archive (task60)`,
       `archivedAt: ${new Date().toISOString()}`,
@@ -318,9 +381,12 @@ function archiveDrift(status: GitDriftStatus, subsumption: SubsumptionReport | n
       `## local-side changed paths`,
       ...(subsumption?.paths.map((x) => `${x.verdict.padEnd(20)} ${x.path}`) ?? ["(n/a)"]),
       ``,
+      `## write-behind dump snapshots archived (unstaged cloud-sync refresh)`,
+      ...(dirtyDumps.length === 0 ? ["(none)"] : dirtyDumps),
+      ``,
       `## recovery`,
       `git clone local-line.bundle <dir>   # full pre-realign history`,
-      `files/                              # byte copies of every changed path`,
+      `files/                              # byte copies of every changed path (+ freshest dump bytes)`,
     ].join("\n");
     writeFileSync(join(dir, "MANIFEST.txt"), manifest);
     log(`[git-drift] archived local line → ${dir}`);
@@ -425,16 +491,26 @@ export function guardGitDrift(
         return { action: "blocked", status, note: "dirty tree" };
       }
       // Fast-forward only: provably lossless (local has zero local-only commits).
+      // The write-behind dump files carry unstaged modifications (the cloud-sync
+      // steady state): archive their fresher bytes FIRST, then discard the
+      // modification so the FF merge cannot be refused over it.
+      const dirtyDumps = writeBehindDirtyDumps();
+      const archiveDirFF = archiveDrift(status, null, log) ?? undefined;
+      for (const p of dirtyDumps) {
+        // Discard the unstaged dump modification so the FF merge cannot be
+        // refused over it; the next cloud-sync tick (≤60s) re-dumps from the
+        // LIVE DB (the source of truth, untouched by any realign).
+        gitOk(`checkout -- ${JSON.stringify(p)}`);
+      }
       if (!gitOk(`merge --ff-only ${status.origin}`)) {
         log("[git-drift] BLOCKED: fast-forward merge failed (run by hand: git merge --ff-only origin/main).");
         return { action: "blocked", status, note: "ff merge failed" };
       }
-      archiveDrift(status, null, log); // evidence-only (no local-only commits to lose)
       if (runtimeRefresh) refreshRuntimeLayer(status.head, status.origin, log);
       else log("[git-drift] runtime-layer refresh SKIPPED (in-process call) — reboot will pick up dependency changes.");
       writeFileSync(REALIGN_MARKER_PATH, `${new Date().toISOString()} ff ${status.head} ${status.origin}\n`);
       log(`[git-drift] FAST-FORWARDED to origin/main ${status.origin.slice(0, 12)} — server restart advised (marker written).`);
-      return { action: "fast-forwarded", status };
+      return { action: "fast-forwarded", status, archiveDir: archiveDirFF };
     }
 
     case "diverged": {
