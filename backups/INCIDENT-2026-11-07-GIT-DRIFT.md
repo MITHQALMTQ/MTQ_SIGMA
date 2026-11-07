@@ -122,3 +122,82 @@ Porcelain is now read raw (no-trim), mirroring `source-integrity.ts`.
    guard will archive-and-realign it, but pushing first avoids the class).
 3. The session-open battery is the trust gate for ANY session start — it now
    includes the drift plane.
+
+---
+
+# ADDENDUM — Incident #9 (recurrence of the #8 class), 2026-11-07 ~18:18Z
+
+**Class:** sandbox re-image → stale `.git` + stale dev server + regressed DBs (6th route-deletion geometry)
+**Detected:** 2026-11-07 18:22Z (session-open: `git fetch` + drift-guard `--status`, before any user-facing work)
+**Resolved:** 2026-11-07 18:26Z (forward-only realignment + boot self-heal, zero data loss)
+
+## What happened
+
+The sandbox re-imaged AGAIN to the same mid-task46-era snapshot (~Nov 6 13:54
+state): local `main` @ `9c3ead3` (the amended task46 — the exact object from
+incident #8), **1 ahead / 30 behind** `origin/main` @ `4e25318` (task60-fix —
+which contains the git-drift guard itself). The re-image also regressed the
+data layer (chain h3,813-era resumed to h4,001; custom 10 tables/12,570 rows)
+and re-deleted `/api/constituency/upload/route.ts` (6th deletion). The task42
+boot self-heal restored the DBs from the LOCAL stale dumps (h3,813) — correct
+against local HEAD, but local HEAD was itself stale; the dev server served
+30-commits-old code (missing task55–60: the 2026 upscale, F-59 fuzziness
+closure, live landing stats, the guard) unalarmed. **This is the known honest
+limit of §6: the guard cannot run from a tree that does not contain it.**
+
+## Detection & recovery (used the task60 machinery, exactly as designed)
+
+1. `git fetch` at session-open exposed 1-ahead/30-behind; guard `--status`
+   (materialized from origin) classified **diverged** with the local-side
+   path table: 4 ancestor-blobs · 2 derivable dumps · 1 deleted-origin-wins
+   (the route) · 10 unique-content (owner evidence screenshots) →
+   **subsumption safe: false → BLOCKED** — the guard demanding a human call.
+2. Operator decision: unique content = irreplaceable owner evidence →
+   pre-realign vault `mtq-sigma-backups/selfheal-archive/gitdrift-20261107-182315/`
+   (432MB full-history bundle incl. the amend + `backup-incident9-amend`
+   branch + physical pre-realign DBs + complete upload/ archive 31 files +
+   SHA-256 manifest + MANIFEST.md) → `git reset --hard origin/main`.
+3. Runtime layer refreshed per guard policy: `bun install` (216 pkgs —
+   package.json/bun.lock/schema.prisma changed across the realign) +
+   `prisma generate`.
+4. Dev reboot THROUGH watchdog v4 boot chain (order verified live):
+   drift OK → source-integrity OK → **DB self-heal: chain h4,001 → h13,387
+   from the git-tracked cloud layer (+9,386 blocks), custom 10 → 13 tables
+   (AiModelCatalog:101 · ConsensusRun:50 · ConsensusVote:146 restored) →
+   chain RESUMED advancing (no re-seed)**.
+5. One post-realign casualty handled: stale `.next` from the old tree
+   panicked Turbopack ("missing VAR_MODULE_GLOBAL_ERROR") — cleared,
+   clean reboot, no further panics. (Watchdog's kill-reboot loop rides
+   this automatically; operator cleared the cache once.)
+
+## Verification (this session, on the realigned tree)
+
+- Session battery **8/8 PASS at 4e25318** (incl. drift plane + DB
+  regression floors h13,399/17,136 rows).
+- Round-trip dumps **PASS** (chain h13,450 → restores to exact tip,
+  integrity ok; custom 17,273 rows exact).
+- Browser E2E: landing + PCC (27 sections) render, live telemetry proven
+  changing over 30s (Index 1.184150→1.184334 · NAV $1,111→$1,112 ·
+  EUR/USD 1.116640→1.116778; video v20-task61), NOC height 13,418→13,421
+  (+3/12s), mobile 390 scrollWidth 380 ≤ 390, sticky footer both cases,
+  ZERO console/page errors.
+- VLM fuzziness audit on the realigned UI: **CRISP** (PCC overview, PCC
+  Reference Index, landing hero) vs the owner's original complaint
+  screenshot (fuzzy: pale NORMAL pill · washed tagline · ghost ticker —
+  exactly the F-59-C/D defects, now fixed and rendering readable).
+- tsc 0 · lint 0 errors (24 pre-existing warnings) · secret-scan via
+  pre-commit gate.
+
+## Root-cause-of-the-root-cause (the remaining honest gap, now closed)
+
+The #8 remediation (in-repo guard + watchdog + instrumentation) cannot act
+when the re-image wipes the very code that contains it — the first boot
+after a re-image always runs STALE code. Layers added by task61:
+
+- **Plane 5 — orchestration-level cron backstop** (gateway cron, OUTSIDE
+  the sandbox, survives re-images): recurring check that runs the drift
+  guard + battery on the project; on drift → realign via the documented
+  operator path. This closes the geometry "re-image → stale boot → nobody
+  notices for hours" even when every in-sandbox guard is wiped.
+- Standing rule reaffirmed: session-open battery ALWAYS runs before any
+  user-facing work (this session is the proof: drift caught at minute 4).
