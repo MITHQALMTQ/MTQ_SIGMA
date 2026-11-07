@@ -45,7 +45,10 @@ export function Header({
 
   return (
     <header
-      className="sticky top-7 z-50 border-b border-[#E3EAE6] bg-white/95 shadow-[0_1px_12px_rgba(14,31,27,0.05)]"
+      /* F-57: sticky pinning moved to the single wrapper in PCC — this
+         element is now a plain flow child (its old `sticky top-7 z-50`
+         is owned by the wrapper, which can never mis-stack). */
+      className="border-b border-[#E3EAE6] bg-white/95 shadow-[0_1px_12px_rgba(14,31,27,0.05)]"
       role="banner"
     >
 
@@ -129,7 +132,7 @@ export function LiveTicker({ snapshot }: { snapshot: MetricsSnapshot | null }) {
   if (!snapshot) {
     return (
       <div
-        className="sticky top-[85px] sm:top-[97px] z-40 border-b border-[#E3EAE6] mtqs-glass"
+        className="border-b border-[#E3EAE6] mtqs-glass"
         aria-hidden="true"
       >
         <div className="mx-auto max-w-[1400px] px-4 sm:px-6 lg:px-8 py-2 flex items-center gap-4 overflow-hidden">
@@ -194,7 +197,10 @@ export function LiveTicker({ snapshot }: { snapshot: MetricsSnapshot | null }) {
 
   return (
     <div
-      className="sticky top-[85px] sm:top-[97px] z-40 border-b border-[#E3EAE6] mtqs-glass"
+      /* F-57: sticky pinning owned by the PCC wrapper (see task57) — the
+         old hardcoded top-[85px]/sm:top-[97px] offsets are the ROOT CAUSE
+         of the fuzzy-ticker defect (they assumed a 69px header). */
+      className="border-b border-[#E3EAE6] mtqs-glass"
       role="region"
       aria-label="Live monetary ticker"
     >

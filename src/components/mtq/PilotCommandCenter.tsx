@@ -1219,18 +1219,33 @@ export function PilotCommandCenter({ onExit }: { onExit?: () => void }) {
             className="mtqs-main-with-sidebar relative z-10 flex flex-col flex-1 min-w-0"
             data-sidebar-mode={sidebarMode}
           >
-            {/* Top status bar (single instance) */}
-            <TestnetStatusBar snapshot={snapshot} />
+            {/* ─── STICKY CHROME STACK (F-57 structural fix) ───
+                ROOT CAUSE of the "fuzzy text on scroll" defect: the three
+                chrome bars each used their OWN position:sticky with HARDCODED
+                top offsets (top-0 / top-7 / top-[85px] sm:top-[97px]). The
+                ticker's offsets assumed a 69px header, but the real header is
+                ~93px (desktop) / ~90px (mobile) — so once scrolled, the ticker
+                pinned 24–34px TOO HIGH, sliding UNDER the opaque header:
+                its text row was clipped mid-glyph at a fractional subpixel
+                boundary (70% of glyph height cut at 121.39px) → the
+                "fuzzy/double-imaged" text the owner reported in the ticker.
+                THE FIX (measurement-free, drift-proof): ONE sticky wrapper
+                owns the pinning; the three bars are plain flow children that
+                can never mis-stack regardless of their future heights. */}
+            <div className="sticky top-0 z-50">
+              {/* Top status bar (single instance) */}
+              <TestnetStatusBar snapshot={snapshot} />
 
-            {/* PAR1D Header — brand + status pill + NetworkSelector */}
-            <Header
-              snapshot={snapshot}
-              error={error}
-              onExit={onExit}
-            />
+              {/* PAR1D Header — brand + status pill + NetworkSelector */}
+              <Header
+                snapshot={snapshot}
+                error={error}
+                onExit={onExit}
+              />
 
-            {/* Live ticker strip */}
-            <LiveTicker snapshot={snapshot} />
+              {/* Live ticker strip */}
+              <LiveTicker snapshot={snapshot} />
+            </div>
 
             {/* Main content with cinematic transitions */}
             <main

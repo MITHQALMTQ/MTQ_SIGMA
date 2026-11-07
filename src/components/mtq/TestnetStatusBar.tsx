@@ -12,8 +12,10 @@ import type { MetricsSnapshot } from "@/lib/mtq/engine";
 // (once on mount + on tab focus regain) and degrades to "—/—" (never a
 // fabricated number) if the API cannot be reached.
 //
-// The bar has a deterministic fixed height (h-7 = 28px) so the sticky Header
-// below it can offset by exactly top-7 without overlap.
+// The bar keeps a deterministic fixed height (h-7 = 28px). Since task57 the
+// sticky pinning of the whole chrome stack (status bar + Header + ticker)
+// is owned by ONE wrapper in the PilotCommandCenter — no element offsets
+// against another's height, so this height is layout-only, not stacking.
 
 type HonestStatusLite = {
   validationGates?: Array<{ id: string; passed: boolean }>;
@@ -62,7 +64,11 @@ export function TestnetStatusBar({ snapshot }: { snapshot: MetricsSnapshot | nul
   const riskState = snapshot?.riskState ?? snapshot?.status ?? "NORMAL";
 
   return (
-    <div className="sticky top-0 z-30 h-7 border-b border-[#E3EAE6] bg-white">
+    /* F-57 (task57): sticky pinning is owned by the single wrapper in the
+       PilotCommandCenter — this bar is a plain flow child now (its old
+       `sticky top-0 z-30` was part of the hardcoded-offset chrome stack
+       that clipped the ticker mid-glyph → fuzzy text on scroll). */
+    <div className="h-7 border-b border-[#E3EAE6] bg-white">
       <div className="mx-auto flex h-full max-w-[1400px] items-center pl-14 pr-4 sm:pr-6 md:px-6 lg:px-8">
         <div className="flex items-center gap-4 text-[0.65rem] overflow-x-auto mtqs-no-scrollbar">
           {/* TESTNET badge */}

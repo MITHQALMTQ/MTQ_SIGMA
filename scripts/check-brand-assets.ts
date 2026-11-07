@@ -123,6 +123,38 @@ for (const f of cssFiles) {
   }
 }
 
+// ── F-57: hardcoded sticky offsets in the PCC chrome stack ──
+// The chrome (status bar + Header + ticker) must pin via the SINGLE sticky
+// wrapper in PilotCommandCenter.tsx. Any element carrying its own sticky
+// top with an arbitrary pixel offset (top-[85px], top-[97px], …) re-opens
+// the mid-glyph clipping defect (ticker under header → fuzzy text).
+console.log("[render-quality] PCC chrome stack owns one sticky wrapper");
+const chromeFiles = [
+  "src/components/mtq/Header.tsx",
+  "src/components/mtq/TestnetStatusBar.tsx",
+];
+for (const f of chromeFiles) {
+  const file = Bun.file(f);
+  if (!(await file.exists())) continue;
+  const text = await file.text();
+  const code = text.replace(/\/\*[\s\S]*?\*\//g, "").replace(/\/\/[^\n]*/g, "");
+  if (/sticky\s+top-\[/.test(code) || /top-\[\d{2,}px\]/.test(code)) {
+    fail(`${f}: hardcoded sticky pixel offset detected — F-57 class (chrome must pin via the single PCC wrapper, never own offsets)`);
+  } else {
+    console.log(`  ok   ${f} (no hardcoded sticky offsets)`);
+  }
+}
+const pccFile = Bun.file("src/components/mtq/PilotCommandCenter.tsx");
+if (await pccFile.exists()) {
+  const pcc = await pccFile.text();
+  const code = pcc.replace(/\/\*[\s\S]*?\*\//g, "").replace(/\/\/[^\n]*/g, "");
+  if (!/className="sticky top-0 z-50"/.test(code)) {
+    fail("src/components/mtq/PilotCommandCenter.tsx: single sticky chrome wrapper (`sticky top-0 z-50`) missing — F-57 structural fix reverted?");
+  } else {
+    console.log("  ok   PilotCommandCenter.tsx (single sticky wrapper present)");
+  }
+}
+
 if (failures > 0) {
   console.error(`[brand-assets] FAIL — ${failures} defect(s)`);
   process.exit(1);
