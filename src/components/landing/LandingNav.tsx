@@ -314,7 +314,7 @@ export function LandingNav({
             </button>
             {chainOpen && (
               <div className="lp-nav-menu" role="menu" aria-label="Pilot environments">
-                <p className="px-3.5 pt-3 text-[0.62rem] font-bold uppercase tracking-[0.16em] text-[#7A8C86]">
+                <p className="px-3.5 pt-3 text-[0.62rem] font-bold uppercase tracking-[0.16em] text-[#5B6E68]">
                   Live pilot testnets · read-only verified
                 </p>
                 {TESTNETS.map((t) => (
@@ -427,7 +427,7 @@ export function LandingNav({
                       Launch Pilot Command Center
                     </button>
                   ) : null}
-                  <p className="mb-2 px-3 text-[0.62rem] font-bold uppercase tracking-[0.18em] text-[#7A8C86]">
+                  <p className="mb-2 px-3 text-[0.62rem] font-bold uppercase tracking-[0.18em] text-[#5B6E68]">
                     Operational status
                   </p>
                   <ul className="flex flex-col gap-2 px-3">
@@ -503,7 +503,7 @@ function MobileMenuGroup({
                   {item.label}
                   <ArrowUpRight className="size-3 shrink-0 text-[#0D9488]" aria-hidden />
                 </span>
-                <span className="mt-0.5 block text-[0.64rem] text-[#7A8C86]">{item.hint}</span>
+                <span className="mt-0.5 block text-[0.64rem] text-[#5B6E68]">{item.hint}</span>
               </button>
             ) : (
               <button
@@ -516,7 +516,7 @@ function MobileMenuGroup({
                   <ClipboardCheck className="size-3.5 shrink-0 text-[#0D9488]" aria-hidden />
                   {item.label}
                 </span>
-                <span className="mt-0.5 block text-[0.64rem] text-[#7A8C86]">{item.hint}</span>
+                <span className="mt-0.5 block text-[0.64rem] text-[#5B6E68]">{item.hint}</span>
               </button>
             ),
           )}

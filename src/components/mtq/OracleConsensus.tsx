@@ -39,12 +39,12 @@ function FeedChip({ feed, now }: { feed: OracleFeed; now: number }) {
         <span className={`text-[0.625rem] font-semibold tracking-wider ${valid ? c.text : "text-mtqs-rose"}`}>
           {feed.source}
         </span>
-        {!valid && <span className="text-[0.55rem] text-mtqs-rose/80">discarded</span>}
+        {!valid && <span className="text-[0.6rem] text-mtqs-rose">discarded</span>}
       </div>
-      <div className={`font-mono tabular-nums text-[0.75rem] ${valid ? "text-[#0E1F1B]" : "text-mtqs-rose/60 line-through"}`}>
+      <div className={`font-mono tabular-nums text-[0.75rem] ${valid ? "text-[#0E1F1B]" : "text-mtqs-rose line-through"}`}>
         {feed.price < 0.01 ? feed.price.toFixed(6) : feed.price < 10 ? feed.price.toFixed(5) : feed.price.toFixed(2)}
       </div>
-      <div className="text-[0.55rem] text-[#5B6E68] font-mono">
+      <div className="text-[0.6rem] text-[#5B6E68] font-mono">
         ±{confPct.toFixed(2)}% · {(ageMs / 1000).toFixed(0)}s
       </div>
     </div>
@@ -85,19 +85,19 @@ function PairRow({ pair, index }: { pair: OracleConsensusType; index: number }) 
         {/* Right — method, final, spread */}
         <div className="lg:w-64 shrink-0 grid grid-cols-3 gap-2 lg:text-right">
           <div>
-            <div className="text-[0.55rem] uppercase tracking-[0.2em] text-[#5B6E68]">Method</div>
+            <div className="text-[0.6rem] uppercase tracking-[0.2em] text-[#5B6E68]">Method</div>
             <Pill tone={methodTone as "rose" | "emerald" | "amber" | "muted"} className="mt-0.5">
               {pair.method}
             </Pill>
           </div>
           <div>
-            <div className="text-[0.55rem] uppercase tracking-[0.2em] text-[#5B6E68]">Final</div>
+            <div className="text-[0.6rem] uppercase tracking-[0.2em] text-[#5B6E68]">Final</div>
             <div className={`mt-0.5 font-mono tabular-nums text-sm font-semibold ${finalTone === "gold" ? "mtqs-gold-text" : "text-mtqs-rose"}`}>
               {pair.paused ? "—" : fmtPrice(pair.finalPrice)}
             </div>
           </div>
           <div>
-            <div className="text-[0.55rem] uppercase tracking-[0.2em] text-[#5B6E68]">Spread</div>
+            <div className="text-[0.6rem] uppercase tracking-[0.2em] text-[#5B6E68]">Spread</div>
             <div className="mt-0.5 font-mono tabular-nums text-sm text-mtqs-gold">
               {pair.spreadBps > 0 ? `${pair.spreadBps} bps` : "—"}
             </div>
@@ -196,7 +196,7 @@ export function OracleConsensus({
                     ? "ORACLE PAUSED — all operations paused (§17.7)"
                     : "ORACLE PAUSED — minting & rebalancing suspended (§9.3)"}
                 </div>
-                <div className="text-[0.75rem] text-rose-600/80">
+                <div className="text-[0.75rem] text-rose-700">
                   {failed ? (
                     "All operations paused — quorum lost (§17.7)."
                   ) : (

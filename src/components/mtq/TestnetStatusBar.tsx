@@ -76,29 +76,29 @@ export function TestnetStatusBar({ snapshot }: { snapshot: MetricsSnapshot | nul
         <div className="flex items-center gap-4 text-[0.7rem] font-medium overflow-x-auto mtqs-no-scrollbar">
           {/* TESTNET badge */}
           <span className="font-semibold text-mtqs-gold uppercase tracking-wider whitespace-nowrap">MTQΣ TESTNET</span>
-          <span className="text-[#7A8C86]">·</span>
+          <span className="text-[#5B6E68]">·</span>
           <span className="text-[#5B6E68] whitespace-nowrap">Candidate for public testing</span>
-          <span className="text-[#7A8C86] hidden sm:inline">·</span>
+          <span className="text-[#5B6E68] hidden sm:inline">·</span>
           <span className="text-mtqs-rose whitespace-nowrap hidden sm:inline">Not production-authorized</span>
 
           {/* Secondary status */}
-          <span className="text-[#7A8C86] hidden md:inline">·</span>
+          <span className="text-[#5B6E68] hidden md:inline">·</span>
           <span className="text-[#5B6E68] whitespace-nowrap hidden md:inline">
             Oracles: <span className={snapshot?.oracleFailed ? "text-mtqs-rose" : snapshot?.oracleDegraded ? "text-mtqs-amber" : "text-mtqs-emerald"}>{oracleStatus}</span>
           </span>
-          <span className="text-[#7A8C86] hidden md:inline">·</span>
+          <span className="text-[#5B6E68] hidden md:inline">·</span>
           <span className="text-[#5B6E68] whitespace-nowrap hidden md:inline">
             Assets: <span className="text-mtqs-amber">TESTNET</span>
           </span>
-          <span className="text-[#7A8C86] hidden lg:inline">·</span>
+          <span className="text-[#5B6E68] hidden lg:inline">·</span>
           <span className="text-[#5B6E68] whitespace-nowrap hidden lg:inline">
             Validation Gates: <span className={gates && gates.passed > 0 ? "text-mtqs-emerald" : "text-mtqs-gold"}>{gates ? `${gates.passed}/${gates.total}` : "—"}</span>
           </span>
-          <span className="text-[#7A8C86] hidden lg:inline">·</span>
+          <span className="text-[#5B6E68] hidden lg:inline">·</span>
           <span className="text-[#5B6E68] whitespace-nowrap hidden lg:inline">
             Production: <span className="text-mtqs-rose font-semibold">NO</span>
           </span>
-          <span className="text-[#7A8C86] hidden lg:inline">·</span>
+          <span className="text-[#5B6E68] hidden lg:inline">·</span>
           <span className="text-[#5B6E68] whitespace-nowrap hidden lg:inline">
             Risk: <span className={riskState === "NORMAL" ? "text-mtqs-emerald" : "text-mtqs-amber"}>{riskState}</span>
           </span>

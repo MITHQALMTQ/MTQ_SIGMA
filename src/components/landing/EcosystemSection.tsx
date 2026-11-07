@@ -80,7 +80,7 @@ function PortfolioChart() {
           <circle key={i} cx={i * step} cy={y(p)} r={i === pts.length - 1 ? 3.4 : 2} fill={i === pts.length - 1 ? "#0F766E" : "#5EEAD4"} stroke="rgba(255,255,255,0.7)" strokeWidth="1" />
         ))}
       </svg>
-      <div className="flex justify-between px-0.5 text-[0.54rem] font-medium text-[#7A8C86]">
+      <div className="flex justify-between px-0.5 text-[0.54rem] font-medium text-[#5B6E68]">
         {DASHBOARD_MOCK.welcome.chartX.map((m) => (
           <span key={m}>{m}</span>
         ))}
@@ -114,9 +114,9 @@ function DashboardPreview() {
           </span>
           <span className="inline-flex items-center gap-1 rounded-full border border-[#E3EAE6] bg-white px-2 py-1 text-[0.6rem] font-medium text-[#5B6E68]">
             {m.address}
-            <ChevronDown className="size-3 text-[#7A8C86]" aria-hidden />
+            <ChevronDown className="size-3 text-[#5B6E68]" aria-hidden />
           </span>
-          <span className="grid size-6 place-items-center rounded-full bg-[#0D9488] text-[0.55rem] font-bold text-white">
+          <span className="grid size-6 place-items-center rounded-full bg-[#0D9488] text-[0.6rem] font-bold text-white">
             A
           </span>
         </div>
@@ -169,7 +169,7 @@ function DashboardPreview() {
           <div className="mt-4 flex items-end justify-between gap-3">
             <p className="text-[1.55rem] font-extrabold leading-none text-[#0E1F1B]">
               {m.welcome.value}
-              <span className="ml-2 align-middle text-[0.62rem] font-bold text-emerald-600">
+              <span className="ml-2 align-middle text-[0.62rem] font-bold text-emerald-700">
                 ▲ {m.welcome.change}
               </span>
             </p>
@@ -177,7 +177,7 @@ function DashboardPreview() {
               {m.welcome.tokens.map((t) => (
                 <span
                   key={t.symbol}
-                  className="inline-flex items-center gap-1.5 rounded-full border border-[#E3EAE6] bg-white px-2 py-0.5 text-[0.58rem] text-[#5B6E68]"
+                  className="inline-flex items-center gap-1.5 rounded-full border border-[#E3EAE6] bg-white px-2 py-0.5 text-[0.6rem] text-[#5B6E68]"
                 >
                   <TokenGlyph kind={t.symbol.toLowerCase() as "eth" | "sol"} />
                   <b className="text-[#0E1F1B]">{t.amount}</b>
@@ -199,12 +199,12 @@ function DashboardPreview() {
                   <TokenGlyph kind={a.icon} />
                   <span>
                     <b className="block text-[0.7rem] font-bold leading-tight text-[#0E1F1B]">{a.symbol}</b>
-                    <span className="block text-[0.56rem] leading-tight text-[#7A8C86]">{a.tag}</span>
+                    <span className="block text-[0.56rem] leading-tight text-[#5B6E68]">{a.tag}</span>
                   </span>
                 </span>
                 <span className="text-right">
                   <b className="block text-[0.7rem] font-bold leading-tight text-[#0E1F1B]">{a.amount}</b>
-                  <span className="block text-[0.56rem] leading-tight text-[#7A8C86]">{a.value}</span>
+                  <span className="block text-[0.56rem] leading-tight text-[#5B6E68]">{a.value}</span>
                 </span>
               </li>
             ))}
@@ -224,16 +224,16 @@ function DashboardPreview() {
                     ) : r.icon === "swap" ? (
                       <ArrowDownUp className="size-3 text-[#0F766E]" aria-hidden />
                     ) : (
-                      <span className="text-[0.5rem] font-extrabold text-[#0F766E]">M</span>
+                      <span className="text-[0.625rem] font-extrabold text-[#0F766E]">M</span>
                     )}
                   </span>
                   <span>
                     <b className="block text-[0.68rem] font-semibold leading-tight text-[#0E1F1B]">{r.title}</b>
-                    {r.detail && <span className="block text-[0.56rem] leading-tight text-emerald-600">{r.detail}</span>}
+                    {r.detail && <span className="block text-[0.56rem] leading-tight text-emerald-700">{r.detail}</span>}
                     {r.value && (
-                      <span className="block text-[0.62rem] font-bold leading-tight text-emerald-600">{r.value}</span>
+                      <span className="block text-[0.62rem] font-bold leading-tight text-emerald-700">{r.value}</span>
                     )}
-                    <span className="block text-[0.55rem] leading-tight text-[#7A8C86]">{r.when}</span>
+                    <span className="block text-[0.6rem] leading-tight text-[#5B6E68]">{r.when}</span>
                   </span>
                 </span>
               </li>
@@ -251,7 +251,7 @@ function DashboardPreview() {
                   <span className="size-4 rounded-full" style={{ background: n.color }} aria-hidden />
                   <b className="text-[0.68rem] font-semibold text-[#0E1F1B]">{n.name}</b>
                 </span>
-                <span className="flex items-center gap-1.5 text-[0.62rem] font-semibold text-emerald-600">
+                <span className="flex items-center gap-1.5 text-[0.62rem] font-semibold text-emerald-700">
                   <span className="size-1.5 rounded-full bg-emerald-500" aria-hidden />
                   {n.status}
                 </span>
@@ -315,7 +315,7 @@ export function EcosystemSection({ onLaunch }: { onLaunch?: () => void }) {
         <div className="lp-rise relative" style={{ animationDelay: "0.12s" }}>
           <div className="pointer-events-none absolute -inset-10 -z-10 bg-[radial-gradient(50%_50%_at_50%_50%,rgba(13,148,136,0.08),transparent_75%)]" aria-hidden />
           <DashboardPreview />
-          <p className="mt-2.5 flex items-center justify-center gap-1.5 text-center text-[0.6rem] text-[#7A8C86]">
+          <p className="mt-2.5 flex items-center justify-center gap-1.5 text-center text-[0.6rem] text-[#5B6E68]">
             <ShieldCheck className="size-3 shrink-0" aria-hidden />
             {SIMULATION_NOTE}
           </p>

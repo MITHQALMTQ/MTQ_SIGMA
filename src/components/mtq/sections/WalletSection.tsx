@@ -344,7 +344,7 @@ export function WalletSection({ onNavigate }: { onNavigate: (id: SectionId) => v
                       <Copy className="h-3.5 w-3.5" aria-hidden="true" />
                     </button>
                   </div>
-                  <div className="font-mono text-[0.64rem] text-[#7A8C86]" title={wallet.pub}>
+                  <div className="font-mono text-[0.64rem] text-[#5B6E68]" title={wallet.pub}>
                     pub {shortAddr(wallet.pub, 16, 8)} · created{" "}
                     {new Date(wallet.created_at).toLocaleString("en-US")}
                   </div>
@@ -467,7 +467,7 @@ export function WalletSection({ onNavigate }: { onNavigate: (id: SectionId) => v
               />
             </div>
           </Reveal>
-          <p className="-mt-4 text-[0.66rem] text-[#7A8C86]">
+          <p className="-mt-4 text-[0.66rem] text-[#5B6E68]">
             MTQD is a testnet-only fee credit · PMTQ is a non-canonical pilot ledger mirror.
           </p>
 
@@ -493,7 +493,7 @@ export function WalletSection({ onNavigate }: { onNavigate: (id: SectionId) => v
                   {faucetBusy ? "Dripping…" : "Request drip"}
                 </Button>
                 {acct != null && acct.fee_u > 0 ? (
-                  <p className="mt-2 text-[0.66rem] text-[#7A8C86]">
+                  <p className="mt-2 text-[0.66rem] text-[#5B6E68]">
                     Disabled — this address already holds {fmtMicro(acct.fee_u)} MTQD (the faucet
                     drips once per address with a zero balance).
                   </p>
@@ -614,7 +614,7 @@ export function WalletSection({ onNavigate }: { onNavigate: (id: SectionId) => v
                   >
                     {submitting ? "Signing + submitting…" : "Sign & send"}
                   </Button>
-                  <p className="text-[0.62rem] leading-relaxed text-[#7A8C86]">
+                  <p className="text-[0.62rem] leading-relaxed text-[#5B6E68]">
                     Signed in this browser with ed25519 over the canonical tx bytes; the node
                     re-verifies before consensus. A FAILED receipt (e.g. insufficient balance)
                     still consumes the nonce and fee — exactly like a reverted EVM tx.
@@ -701,7 +701,7 @@ export function WalletSection({ onNavigate }: { onNavigate: (id: SectionId) => v
                           #{t.height.toLocaleString("en-US")}·{t.idx}
                         </span>
                         <TxResultBadge ok={t.result.ok} error={t.result.error} />
-                        <span className="ml-auto text-[0.62rem] text-[#7A8C86]">
+                        <span className="ml-auto text-[0.62rem] text-[#5B6E68]">
                           {fmtAgo(t.time_ms)}
                         </span>
                       </li>

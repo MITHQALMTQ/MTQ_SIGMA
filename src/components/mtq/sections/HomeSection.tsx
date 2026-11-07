@@ -82,7 +82,7 @@ function TokenMarketHero({ snapshot, token }: { snapshot: MetricsSnapshot | null
   const premium = market != null && mark ? (market / mark - 1) * 100 : null;
   return (
     <>
-      <div className="text-[0.6rem] uppercase tracking-[0.18em] text-[#7A8C86]">
+      <div className="text-[0.6rem] uppercase tracking-[0.18em] text-[#5B6E68]">
         {live ? `Live market rate · Yahoo ${token}-USD` : `Market rate · ${token} feed unavailable — XAU/USD reference shown`}
       </div>
       <div className="text-2xl font-mono mtqs-gold-text">
@@ -91,22 +91,22 @@ function TokenMarketHero({ snapshot, token }: { snapshot: MetricsSnapshot | null
             reference, honestly labeled above — never a fabricated token rate. */}
         {market != null ? `$${fmtFixed(market, 2)}` : mark != null ? `$${fmtFixed(mark, 2)}` : "—"}
       </div>
-      <div className="text-[0.7rem] text-mtqs-gold/60 mt-1">
+      <div className="text-[0.7rem] text-mtqs-gold mt-1">
         {premium != null ? (
           <span className={premium >= 0 ? "text-mtqs-emerald" : "text-rose-500"}>
             {premium >= 0 ? "+" : ""}{premium.toFixed(2)}%{" "}
-            <span className="text-mtqs-gold/50">vs XAU/USD reference ${mark ? fmtFixed(mark, 0) : "—"}/oz</span>
+            <span className="text-mtqs-gold">vs XAU/USD reference ${mark ? fmtFixed(mark, 0) : "—"}/oz</span>
           </span>
         ) : (
-          <span className="text-mtqs-gold/50">XAU/USD reference mark (§4.1) — not a live {token} quote</span>
+          <span className="text-mtqs-gold">XAU/USD reference mark (§4.1) — not a live {token} quote</span>
         )}
       </div>
-      <div className="text-[0.7rem] text-mtqs-gold/60 mt-1">
+      <div className="text-[0.7rem] text-mtqs-gold mt-1">
         Pilot-ledger sleeve (§5.6) ·{" "}
         <span className="font-semibold text-mtqs-gold">{sleeve != null ? fmtUsdCompact(sleeve) : "—"}</span>
         {" "}net of 1.0% haircut
       </div>
-      <div className="text-[0.7rem] text-mtqs-gold/60 mt-1">
+      <div className="text-[0.7rem] text-mtqs-gold mt-1">
         Ledger mark (§4.1) · XAU/USD · {mark ? `$${fmtFixed(mark, 0)}` : "—"}/oz
       </div>
     </>
@@ -265,7 +265,7 @@ function LiveStatsBand({ snapshot }: { snapshot: MetricsSnapshot | null }) {
             <Skeleton className="h-7 w-24" />
           )}
           {s.value && s.hint ? (
-            <div className="mt-0.5 text-[0.6rem] leading-tight text-[#7A8C86]">{s.hint}</div>
+            <div className="mt-0.5 text-[0.6rem] leading-tight text-[#5B6E68]">{s.hint}</div>
           ) : null}
         </Panel>
       ))}
@@ -304,7 +304,7 @@ function TestnetCards() {
                 if (ok) toast.success(`Copied ${info.chain} MTQΣ address`, { description: shortAddr(info.address, 8, 6) });
                 else toast.error("Copy failed");
               }}
-              className="text-[0.65rem] font-mono text-mtqs-gold/70 hover:text-mtqs-gold transition"
+              className="text-[0.65rem] font-mono text-mtqs-gold hover:text-mtqs-gold transition"
             >
               copy
             </button>
@@ -312,7 +312,7 @@ function TestnetCards() {
               href={info.explorer}
               target="_blank"
               rel="noopener noreferrer"
-              className="text-[0.65rem] text-mtqs-emerald/80 hover:text-mtqs-emerald transition"
+              className="text-[0.65rem] text-mtqs-emerald hover:text-mtqs-emerald transition"
             >
               explorer ↗
             </a>
@@ -395,7 +395,7 @@ export function HomeSection({
                       <div className="inline-flex items-center justify-center rounded-md border border-mtqs-gold/25 bg-mtqs-gold/10 p-2">
                         <Icon className="h-4 w-4 text-mtqs-gold" aria-hidden="true" />
                       </div>
-                      <span className="text-[0.6rem] uppercase tracking-[0.22em] text-mtqs-gold/75">
+                      <span className="text-[0.6rem] uppercase tracking-[0.22em] text-mtqs-gold">
                         {c.eyebrow}
                       </span>
                     </div>
@@ -426,18 +426,18 @@ export function HomeSection({
                   </div>
                   <div>
                     <div className="text-sm font-bold text-amber-700">PAXG</div>
-                    <div className="text-[0.65rem] text-mtqs-gold/60">Paxos Gold</div>
+                    <div className="text-[0.65rem] text-mtqs-gold">Paxos Gold</div>
                   </div>
-                  <span className="ml-auto rounded-full border border-mtqs-gold/30 bg-mtqs-gold/10 px-2 py-0.5 text-[0.55rem] uppercase tracking-[0.14em] text-mtqs-gold/80">
+                  <span className="ml-auto rounded-full border border-mtqs-gold/30 bg-mtqs-gold/10 px-2 py-0.5 text-[0.6rem] uppercase tracking-[0.14em] text-mtqs-gold">
                     Index · §3.2
                   </span>
                 </div>
-                <div className="text-[0.7rem] text-mtqs-gold/60 mt-1">
+                <div className="text-[0.7rem] text-mtqs-gold mt-1">
                   1 PAXG = 1 troy oz gold · {snapshot?.holdings ? `${fmtNum(snapshot.holdings.paxgOz, 3)} oz held` : "—"}
                   {snapshot?.holdings?.goldOz ? ` · ${((snapshot.holdings.paxgOz / snapshot.holdings.goldOz) * 100).toFixed(1)}% of ledger gold` : ""}
                 </div>
                 <TokenMarketHero snapshot={snapshot} token="PAXG" />
-                <div className="mt-2 text-[0.7rem] text-mtqs-gold/50">
+                <div className="mt-2 text-[0.7rem] text-mtqs-gold">
                   Haircut: 1.0% (§14.1.1) · Issuer: Paxos (NYDFS-regulated)
                 </div>
               </div>
@@ -451,18 +451,18 @@ export function HomeSection({
                   </div>
                   <div>
                     <div className="text-sm font-bold text-amber-700">XAUT</div>
-                    <div className="text-[0.65rem] text-mtqs-gold/60">Tether Gold</div>
+                    <div className="text-[0.65rem] text-mtqs-gold">Tether Gold</div>
                   </div>
-                  <span className="ml-auto rounded-full border border-mtqs-gold/30 bg-mtqs-gold/10 px-2 py-0.5 text-[0.55rem] uppercase tracking-[0.14em] text-mtqs-gold/80">
+                  <span className="ml-auto rounded-full border border-mtqs-gold/30 bg-mtqs-gold/10 px-2 py-0.5 text-[0.6rem] uppercase tracking-[0.14em] text-mtqs-gold">
                     Index · §3.2
                   </span>
                 </div>
-                <div className="text-[0.7rem] text-mtqs-gold/60 mt-1">
+                <div className="text-[0.7rem] text-mtqs-gold mt-1">
                   1 XAUT = 1 troy oz gold · {snapshot?.holdings ? `${fmtNum(snapshot.holdings.xautOz, 3)} oz held` : "—"}
                   {snapshot?.holdings?.goldOz ? ` · ${((snapshot.holdings.xautOz / snapshot.holdings.goldOz) * 100).toFixed(1)}% of ledger gold` : ""}
                 </div>
                 <TokenMarketHero snapshot={snapshot} token="XAUT" />
-                <div className="mt-2 text-[0.7rem] text-mtqs-gold/50">
+                <div className="mt-2 text-[0.7rem] text-mtqs-gold">
                   Haircut: 1.0% (§14.1.1) · Issuer: Tether
                 </div>
               </div>
@@ -485,7 +485,7 @@ export function HomeSection({
                   </div>
                   <div>
                     <div className="text-[0.65rem] text-[#5B6E68]">Smoothed (next period)</div>
-                    <div className="text-sm font-mono text-mtqs-emerald/90">{snapshot?.weightStates?.smoothed?.Gold != null ? `${(snapshot.weightStates.smoothed.Gold * 100).toFixed(2)}%` : "—"}</div>
+                    <div className="text-sm font-mono text-mtqs-emerald">{snapshot?.weightStates?.smoothed?.Gold != null ? `${(snapshot.weightStates.smoothed.Gold * 100).toFixed(2)}%` : "—"}</div>
                   </div>
                   <div>
                     <div className="text-[0.65rem] text-[#5B6E68]">Admissibility Envelope</div>
@@ -515,7 +515,7 @@ export function HomeSection({
                   <span>32% envelope ceiling</span>
                 </div>
                 <div className="mt-3 rounded-md border border-[#E3EAE6] bg-[#F7FAF8] px-2.5 py-2 text-[0.62rem] leading-relaxed text-[#5B6E68]">
-                  <span className="uppercase tracking-[0.14em] text-[#7A8C86]">Legacy pilot buffer path (v1/v2):</span>{" "}
+                  <span className="uppercase tracking-[0.14em] text-[#5B6E68]">Legacy pilot buffer path (v1/v2):</span>{" "}
                   Observed ledger share{" "}
                   <span className="font-mono text-mtqs-gold">{snapshot ? `${(snapshot.observedGoldWeight * 100).toFixed(2)}%` : "—"}</span>{" "}
                   · Target{" "}
@@ -652,7 +652,7 @@ export function HomeSection({
             right={
               <button
                 onClick={() => onNavigate("contracts")}
-                className="inline-flex items-center gap-1.5 text-[0.72rem] text-mtqs-gold/80 hover:text-mtqs-gold transition"
+                className="inline-flex items-center gap-1.5 text-[0.72rem] text-mtqs-gold hover:text-mtqs-gold transition"
               >
                 Full registry
                 <ArrowRight className="h-3.5 w-3.5" aria-hidden="true" />

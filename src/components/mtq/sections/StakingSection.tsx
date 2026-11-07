@@ -305,7 +305,7 @@ export function StakingSection({ onNavigate }: { onNavigate: (id: SectionId) => 
                               </span>
                             </div>
                             <span
-                              className="mt-0.5 block font-mono text-[0.6rem] text-[#7A8C86]"
+                              className="mt-0.5 block font-mono text-[0.6rem] text-[#5B6E68]"
                               title={v.address}
                             >
                               {shortAddr(v.address, 12, 6)}
@@ -340,7 +340,7 @@ export function StakingSection({ onNavigate }: { onNavigate: (id: SectionId) => 
                           </TableCell>
                           <TableCell className="py-2.5 font-mono tabular-nums text-[0.72rem] text-[#33544C]">
                             {(v.commission_bp / 100).toFixed(2)}%
-                            <span className="ml-1 text-[0.6rem] text-[#7A8C86]">
+                            <span className="ml-1 text-[0.6rem] text-[#5B6E68]">
                               ({v.commission_bp} bp)
                             </span>
                           </TableCell>
@@ -351,7 +351,7 @@ export function StakingSection({ onNavigate }: { onNavigate: (id: SectionId) => 
                 </Table>
               </div>
             )}
-            <p className="mt-3 text-[0.62rem] text-[#7A8C86]">
+            <p className="mt-3 text-[0.62rem] text-[#5B6E68]">
               Power recomputes every block from bonded amounts (0.1 MTQD = 1 power). Commission is
               informational — no reward stream exists (see note above).
             </p>
@@ -504,7 +504,7 @@ export function StakingSection({ onNavigate }: { onNavigate: (id: SectionId) => 
                         {undelVal ? fmtMicro(bondedToUndelVal) : "—"}
                       </span>
                     </span>
-                    <span className="text-[#7A8C86]">
+                    <span className="text-[#5B6E68]">
                       {gov.data
                         ? gov.data.params.unbonding_s > 0
                           ? `power drops now · funds queue ${gov.data.params.unbonding_s}s (unbonding_s param) then auto-release`
@@ -575,7 +575,7 @@ export function StakingSection({ onNavigate }: { onNavigate: (id: SectionId) => 
                   ))}
                 </ul>
               </div>
-              <p className="mt-3 text-[0.62rem] text-[#7A8C86]">
+              <p className="mt-3 text-[0.62rem] text-[#5B6E68]">
                 Undelegated bond sits in a time-locked queue (unbonding_s network param — current{" "}
                 <span className="font-mono">{gov.data ? `${gov.data.params.unbonding_s}s` : "…"}</span>). Voting power already dropped at
                 undelegate; funds return to your balance automatically at the next block after maturity.
@@ -764,7 +764,7 @@ function StakeRow({ s }: { s: StakeRowDto }) {
       <span className="font-semibold text-[#0E1F1B]">{s.validator_moniker}</span>
       <ValidatorStatusPill status={s.validator_status} />
       <span className="font-mono tabular-nums text-[#33544C]">{fmtMicro(s.amount_u)} MTQD</span>
-      <span className="ml-auto text-[0.62rem] text-[#7A8C86]">
+      <span className="ml-auto text-[0.62rem] text-[#5B6E68]">
         bonded at #{s.created_height.toLocaleString("en-US")} ·{" "}
         <span className="font-mono" title={s.validator}>
           {shortAddr(s.validator, 10, 6)}
@@ -783,10 +783,10 @@ function UnbondingRow({ u, now }: { u: UnbondingRowDto; now: number }) {
         {left > 0 ? "unbonding" : "mature"}
       </Pill>
       <span className="font-mono tabular-nums text-[#33544C]">{fmtMicro(u.amount_u)} MTQD</span>
-      <span className="font-mono text-[0.62rem] text-[#7A8C86]">
+      <span className="font-mono text-[0.62rem] text-[#5B6E68]">
         {left > 0 ? `releases in ${fmtDuration(left)}` : "releases at next block"}
       </span>
-      <span className="ml-auto text-[0.62rem] text-[#7A8C86]">
+      <span className="ml-auto text-[0.62rem] text-[#5B6E68]">
         queued at #{u.created_height.toLocaleString("en-US")} ·{" "}
         <span className="font-mono" title={u.validator}>
           {shortAddr(u.validator, 10, 6)}
@@ -842,7 +842,7 @@ function ProposalCard({
         >
           {p.status}
         </span>
-        <span className="ml-auto font-mono text-[0.62rem] text-[#7A8C86]" title={p.proposer}>
+        <span className="ml-auto font-mono text-[0.62rem] text-[#5B6E68]" title={p.proposer}>
           proposer {monikerByAddr.get(p.proposer) ?? shortAddr(p.proposer, 8, 5)}
         </span>
       </div>
@@ -902,7 +902,7 @@ function ProposalCard({
           <span className="text-mtqs-emerald">YES {fmtPower(p.yes_power)}</span>
           <span className="text-mtqs-rose">NO {fmtPower(p.no_power)}</span>
           <span className="text-[#5B6E68]">ABSTAIN {fmtPower(p.abstain_power)}</span>
-          <span className="ml-auto text-[#7A8C86]">
+          <span className="ml-auto text-[#5B6E68]">
             deposit {fmtMicro(p.deposit)} MTQD · submitted #{p.submitted_height.toLocaleString("en-US")}
           </span>
         </div>
@@ -952,7 +952,7 @@ function ProposalCard({
                   <span className="font-mono tabular-nums text-[#5B6E68]">
                     +{fmtPower(v.power)}
                   </span>
-                  <span className="ml-auto text-[0.6rem] text-[#7A8C86]">
+                  <span className="ml-auto text-[0.6rem] text-[#5B6E68]">
                     #{v.height.toLocaleString("en-US")}
                   </span>
                 </li>
@@ -1228,7 +1228,7 @@ function SubmitProposalForm({
                     </SelectContent>
                   </Select>
                   {allow ? (
-                    <p className="mt-1 text-[0.6rem] text-[#7A8C86]">
+                    <p className="mt-1 text-[0.6rem] text-[#5B6E68]">
                       {allow.note} · bounds [{allow.min.toLocaleString("en-US")}, {" "}
                       {allow.max.toLocaleString("en-US")}]
                     </p>

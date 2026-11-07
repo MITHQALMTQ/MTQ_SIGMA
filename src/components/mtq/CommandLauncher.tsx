@@ -117,7 +117,7 @@ export function CommandLauncher({ onNavigate }: { onNavigate: (id: SectionId) =>
           >
             {/* Search input */}
             <div className="flex items-center gap-3 px-4 py-3 border-b border-[#E3EAE6]">
-              <Search className="h-4 w-4 text-[#7A8C86]" />
+              <Search className="h-4 w-4 text-[#5B6E68]" />
               <input
                 type="text"
                 value={query}
@@ -127,13 +127,13 @@ export function CommandLauncher({ onNavigate }: { onNavigate: (id: SectionId) =>
                 className="flex-1 bg-transparent text-sm text-[#0E1F1B] placeholder-[#7A8C86] outline-none"
                 autoFocus
               />
-              <kbd className="text-[0.6rem] text-[#7A8C86] font-mono px-1.5 py-0.5 rounded border border-[#E3EAE6]">ESC</kbd>
+              <kbd className="text-[0.6rem] text-[#5B6E68] font-mono px-1.5 py-0.5 rounded border border-[#E3EAE6]">ESC</kbd>
             </div>
 
             {/* Results */}
             <div className="max-h-[50vh] overflow-y-auto mtqs-scroll">
               {filtered.length === 0 ? (
-                <div className="px-4 py-8 text-center text-sm text-[#7A8C86]">No commands found</div>
+                <div className="px-4 py-8 text-center text-sm text-[#5B6E68]">No commands found</div>
               ) : (
                 filtered.map((cmd, i) => (
                   <button
@@ -144,7 +144,7 @@ export function CommandLauncher({ onNavigate }: { onNavigate: (id: SectionId) =>
                       i === selectedIndex ? "bg-mtqs-gold/10" : "hover:bg-[#F0F7F4]"
                     }`}
                   >
-                    <span className={`text-[0.6rem] uppercase tracking-wider ${i === selectedIndex ? "text-mtqs-gold" : "text-[#7A8C86]"} w-20`}>{cmd.category}</span>
+                    <span className={`text-[0.6rem] uppercase tracking-wider ${i === selectedIndex ? "text-mtqs-gold" : "text-[#5B6E68]"} w-20`}>{cmd.category}</span>
                     <span className={`flex-1 text-sm ${i === selectedIndex ? "text-mtqs-gold" : "text-[#5B6E68]"}`}>{cmd.label}</span>
                     {i === selectedIndex && <ArrowRight className="h-3 w-3 text-mtqs-gold" />}
                   </button>

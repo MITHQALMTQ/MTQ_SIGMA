@@ -40,7 +40,7 @@ function CopyButton({ value, label }: { value: string; label: string }) {
         if (ok) toast.success(`Copied ${label}`, { description: shortAddr(value) });
         else toast.error("Copy failed");
       }}
-      className="text-[0.65rem] font-mono text-mtqs-gold/70 hover:text-mtqs-gold transition px-1.5 py-0.5 rounded border border-transparent hover:border-mtqs-amber/30"
+      className="text-[0.65rem] font-mono text-mtqs-gold hover:text-mtqs-gold transition px-1.5 py-0.5 rounded border border-transparent hover:border-mtqs-amber/30"
       aria-label={`Copy ${label}`}
     >
       copy
@@ -186,7 +186,7 @@ export function NetworksSection({
                       )}
                       <div className="mt-1 text-[0.6rem] text-[#5B6E68]">
                         {dep.oracleContract ?? "no protocol-owner on-chain oracle"} · ABI status:{" "}
-                        <span className="text-amber-700/85">{dep.abiStatus}</span>
+                        <span className="text-amber-700">{dep.abiStatus}</span>
                       </div>
                     </div>
                     <div className="rounded-md border border-[#E3EAE6] bg-[#F7FAF8] p-2.5 min-w-0">
@@ -204,7 +204,7 @@ export function NetworksSection({
                   </div>
 
                   <div className="mt-2.5 rounded-md border border-mtqs-amber/25 bg-mtqs-amber/[0.05] p-2.5">
-                    <div className="text-[0.6rem] uppercase tracking-[0.16em] text-mtqs-amber/80">
+                    <div className="text-[0.6rem] uppercase tracking-[0.16em] text-mtqs-amber">
                       Honest feed determination (Ext-3 A.4)
                     </div>
                     <p className="mt-0.5 text-[0.66rem] leading-relaxed text-[#5B6E68]">
@@ -218,7 +218,7 @@ export function NetworksSection({
             {/* Registry limitations — verbatim from getOracleFeedSummary() */}
             <div className="mt-4">
               <div className="mb-2 flex items-center gap-2 text-[0.72rem] font-semibold text-[#0E1F1B]">
-                <ShieldAlert className="h-3.5 w-3.5 text-mtqs-amber/80" aria-hidden="true" />
+                <ShieldAlert className="h-3.5 w-3.5 text-mtqs-amber" aria-hidden="true" />
                 Registry limitations (getOracleFeedSummary · OD-34)
               </div>
               <ul className="max-h-96 overflow-y-auto mtqs-scroll space-y-1.5 pr-2">
@@ -227,7 +227,7 @@ export function NetworksSection({
                     key={i}
                     className="flex items-start gap-2 text-[0.66rem] leading-relaxed text-[#5B6E68]"
                   >
-                    <span className="mt-px w-4 shrink-0 text-right font-mono text-[0.6rem] text-mtqs-amber/70">
+                    <span className="mt-px w-4 shrink-0 text-right font-mono text-[0.6rem] text-mtqs-amber">
                       {i + 1}.
                     </span>
                     <span>{l}</span>
@@ -294,7 +294,7 @@ export function NetworksSection({
             </div>
             {constructNote ? (
               <div className="mt-3 rounded-md border border-[#E3EAE6] bg-[#F7FAF8] p-3">
-                <div className="text-[0.6rem] uppercase tracking-[0.16em] text-mtqs-gold/75">
+                <div className="text-[0.6rem] uppercase tracking-[0.16em] text-mtqs-gold">
                   USDC/USD — construct pair
                 </div>
                 <p className="mt-0.5 text-[0.66rem] leading-relaxed text-[#5B6E68]">
@@ -312,7 +312,7 @@ export function NetworksSection({
           <Panel className="border-mtqs-amber/30 bg-mtqs-amber/[0.05] p-5">
             <div className="flex flex-col sm:flex-row sm:items-center gap-3 sm:gap-6">
               <div className="flex-1">
-                <div className="text-[0.6rem] uppercase tracking-[0.22em] text-mtqs-amber/80">
+                <div className="text-[0.6rem] uppercase tracking-[0.22em] text-mtqs-amber">
                   §1.7 · independent verification required
                 </div>
                 <p className="mt-1 text-[0.72rem] leading-relaxed text-[#5B6E68]">
@@ -329,7 +329,7 @@ export function NetworksSection({
                 </p>
               </div>
               <div className="shrink-0 rounded-md border border-mtqs-gold/25 bg-mtqs-gold/[0.05] p-3">
-                <div className="text-[0.6rem] uppercase tracking-[0.16em] text-mtqs-gold/75">
+                <div className="text-[0.6rem] uppercase tracking-[0.16em] text-mtqs-gold">
                   Deployer wallet (contracts.ts)
                 </div>
                 <div className="mt-1 flex items-center gap-1.5 flex-wrap">

@@ -347,7 +347,7 @@ function StatusBadge({ color, status }: { color: StatusColor; status: string }) 
 /* ---------- Category icon helper ---------- */
 
 function CategoryIcon({ category }: { category: Subsystem["category"] }) {
-  const cls = "h-4 w-4 text-mtqs-gold/75 shrink-0";
+  const cls = "h-4 w-4 text-mtqs-gold shrink-0";
   switch (category) {
     case "Architecture":
       return <ShieldCheck className={cls} aria-hidden="true" />;
@@ -388,9 +388,9 @@ export function ProductionReadinessDashboard() {
         {/* Header */}
         <div className="mb-5">
           <div className="flex items-start gap-3 mb-2">
-            <ShieldCheck className="h-5 w-5 text-mtqs-gold/80 mt-0.5 shrink-0" aria-hidden="true" />
+            <ShieldCheck className="h-5 w-5 text-mtqs-gold mt-0.5 shrink-0" aria-hidden="true" />
             <div>
-              <div className="text-[0.6rem] uppercase tracking-[0.22em] text-mtqs-gold/75">
+              <div className="text-[0.6rem] uppercase tracking-[0.22em] text-mtqs-gold">
                 §39J · Production Readiness Dashboard
               </div>
               <h3 className="mt-1 text-base font-semibold text-[#0E1F1B]">
@@ -402,7 +402,7 @@ export function ProductionReadinessDashboard() {
             Per Master Prompt §39J, every subsystem is rated with its production-readiness color
             and the evidence that backs the verdict. The dashboard is the single source of truth
             for the protocol&apos;s production-readiness state.{" "}
-            <span className="text-mtqs-rose/90 font-medium">Final verdict: NOT PRODUCTION-AUTHORIZED — Candidate for Public Testing.</span>
+            <span className="text-mtqs-rose font-medium">Final verdict: NOT PRODUCTION-AUTHORIZED — Candidate for Public Testing.</span>
           </p>
         </div>
 
@@ -504,7 +504,7 @@ export function ProductionReadinessDashboard() {
             All 5 gates must pass before any mainnet deployment approval. Gates 1–3 (chain-linking,
             P0 fixes, §23 validation) are complete; Gates 4–5 (independent audit, genesis +
             governance) are not started. The protocol is honestly a strong pilot — but{" "}
-            <span className="text-mtqs-rose/90 font-medium">NOT production-authorized</span>.
+            <span className="text-mtqs-rose font-medium">NOT production-authorized</span>.
           </p>
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
             {GATES.map((g) => {
@@ -523,7 +523,7 @@ export function ProductionReadinessDashboard() {
               return (
                 <Panel key={g.number} className="p-4">
                   <div className="flex items-start gap-2 mb-1.5">
-                    <span className="font-mono text-[0.7rem] text-mtqs-gold/80 font-semibold shrink-0 mt-0.5">
+                    <span className="font-mono text-[0.7rem] text-mtqs-gold font-semibold shrink-0 mt-0.5">
                       Gate {g.number}
                     </span>
                     <div className="flex-1">
@@ -548,15 +548,15 @@ export function ProductionReadinessDashboard() {
         {/* Final verdict */}
         <div className="mt-6 rounded-md border border-mtqs-rose/30 bg-mtqs-rose/[0.05] p-4">
           <div className="flex items-start gap-2.5">
-            <XCircle className="h-5 w-5 text-mtqs-rose/85 mt-0.5 shrink-0" aria-hidden="true" />
+            <XCircle className="h-5 w-5 text-mtqs-rose mt-0.5 shrink-0" aria-hidden="true" />
             <div className="space-y-1.5">
               <div className="text-sm font-semibold text-[#0E1F1B]">
                 Final verdict: NOT PRODUCTION-AUTHORIZED — Candidate for Public Testing
               </div>
               <p className="text-[0.74rem] text-[#0E1F1B] leading-relaxed">
                 Per Master §38 stop conditions, the protocol may proceed to public testnet
-                testing but <span className="text-mtqs-rose/90 font-medium">MUST NOT be deployed to mainnet</span> until
-                all 5 production-readiness gates pass. <span className="text-mtqs-emerald/90 font-medium">3 of 5 gates now PASS</span>:
+                testing but <span className="text-mtqs-rose font-medium">MUST NOT be deployed to mainnet</span> until
+                all 5 production-readiness gates pass. <span className="text-mtqs-emerald font-medium">3 of 5 gates now PASS</span>:
                 Gate 1 (chain-linking), Gate 2 (P0 fixes — V3 contract source-ready), Gate 3 (§23 validation — canonical
                 Layer 1-8 suite 253/253 green incl. corrected-engine §23 re-run; the un-massaged §23 register at
                 /api/validation stays published as-is). The remaining gates require:
@@ -584,22 +584,22 @@ export function ProductionReadinessDashboard() {
         {/* Footer — link to the test suite + audit reports */}
         <div className="mt-4 rounded-md border border-mtqs-gold/25 bg-mtqs-gold/5 p-3.5">
           <div className="flex items-start gap-2.5">
-            <ClipboardCheck className="h-4 w-4 text-mtqs-gold/80 mt-0.5 shrink-0" aria-hidden="true" />
+            <ClipboardCheck className="h-4 w-4 text-mtqs-gold mt-0.5 shrink-0" aria-hidden="true" />
             <div className="text-[0.74rem] text-[#0E1F1B] leading-relaxed space-y-1">
               <p>
-                <span className="text-mtqs-gold/90 font-medium">Evidence package — </span>
+                <span className="text-mtqs-gold font-medium">Evidence package — </span>
                 The canonical invariants suite (Layers 1-8; 253/253 green at the 2026-10-23 baseline — deterministic Layers 1-6+8 re-run fresh 246/246 + Layer-7 7/7 carried) is at{" "}
                 <span className="font-mono text-mtqs-gold">src/lib/mtq/__tests__/canonical-invariants.ts</span>{" "}
                 (run via <span className="font-mono text-mtqs-gold">bun src/lib/mtq/__tests__/canonical-invariants.ts</span>).
               </p>
               <p>
-                <span className="text-mtqs-gold/90 font-medium">Test report — </span>
+                <span className="text-mtqs-gold font-medium">Test report — </span>
                 The full Layer 1-7 test report is at{" "}
                 <span className="font-mono text-mtqs-gold">audit-work/DELIVERABLE-G-test-suite.md</span>{" "}
                 (253/253 pass; corrected-engine §23 re-run: S5 survival 100%, S6 survival 100%, S3 survival 80.4%).
               </p>
               <p className="pt-1">
-                <span className="text-mtqs-gold/90 font-medium">COO verdict — </span>
+                <span className="text-mtqs-gold font-medium">COO verdict — </span>
                 3 of 5 gates PASS (chain-linking + P0 fixes + §23 validation all complete). The protocol owner must now:
                 deploy V3 to testnet (Gate 5), engage an independent audit firm (Gate 4), and complete the
                 genesis ceremony with 7/7 Constitutional Multi-Sig signers. Do not sign off on mainnet until all 5 gates pass.

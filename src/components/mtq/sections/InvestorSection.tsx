@@ -67,7 +67,7 @@ function CopyEndpointButton({ value, label }: { value: string; label: string }) 
         if (ok) toast.success(`Copied ${label}`, { description: value });
         else toast.error("Copy failed");
       }}
-      className="text-[0.65rem] font-mono text-mtqs-gold/70 hover:text-mtqs-gold transition px-1.5 py-0.5 rounded border border-transparent hover:border-mtqs-amber/30"
+      className="text-[0.65rem] font-mono text-mtqs-gold hover:text-mtqs-gold transition px-1.5 py-0.5 rounded border border-transparent hover:border-mtqs-amber/30"
       aria-label={`Copy ${label}`}
     >
       copy
@@ -233,7 +233,7 @@ export function InvestorSection({
       <Reveal>
         <Panel className="p-5">
           <div className="flex items-start gap-3">
-            <TrendingUp className="h-5 w-5 text-mtqs-gold/80 mt-0.5 shrink-0" aria-hidden="true" />
+            <TrendingUp className="h-5 w-5 text-mtqs-gold mt-0.5 shrink-0" aria-hidden="true" />
             <p className="text-[0.82rem] text-[#33544C] leading-relaxed">
               This page is the investor diligence surface. Every cell is fetched live from the
               protocol&apos;s own API. Verify the canonical token contract on each chain, read the
@@ -249,7 +249,7 @@ export function InvestorSection({
       <section>
         <div className="flex items-end justify-between gap-4 mb-4">
           <div>
-            <div className="text-[0.6rem] uppercase tracking-[0.22em] text-mtqs-gold/75">§deployments · live</div>
+            <div className="text-[0.6rem] uppercase tracking-[0.22em] text-mtqs-gold">§deployments · live</div>
             <h3 className="mt-2 text-base font-semibold text-[#0E1F1B]">On-Chain Verification</h3>
           </div>
         </div>
@@ -301,7 +301,7 @@ export function InvestorSection({
                       <div className="h-3 w-2/3 animate-pulse rounded bg-[#EFF5F2]" />
                     </div>
                   ) : hasError ? (
-                    <div className="text-[0.68rem] text-mtqs-rose/80 leading-relaxed font-mono">
+                    <div className="text-[0.68rem] text-mtqs-rose leading-relaxed font-mono">
                       {data?.error}
                     </div>
                   ) : (
@@ -313,7 +313,7 @@ export function InvestorSection({
                         <div className="font-mono text-mtqs-gold">
                           {data?.contract?.name ?? "—"} · {data?.contract?.symbol ?? "—"}
                           {data?.contract?.nameHasSigma && (
-                            <span className="ml-1 text-mtqs-emerald/85" title="name() returns Σ">
+                            <span className="ml-1 text-mtqs-emerald" title="name() returns Σ">
                               Σ
                             </span>
                           )}
@@ -362,7 +362,7 @@ export function InvestorSection({
       <section>
         <div className="flex items-end justify-between gap-4 mb-4">
           <div>
-            <div className="text-[0.6rem] uppercase tracking-[0.22em] text-mtqs-gold/75">§2-§8 · live snapshot</div>
+            <div className="text-[0.6rem] uppercase tracking-[0.22em] text-mtqs-gold">§2-§8 · live snapshot</div>
             <h3 className="mt-2 text-base font-semibold text-[#0E1F1B]">Protocol Health</h3>
           </div>
           <Pill tone={snapshot?.oraclePaused ? "rose" : "emerald"}>
@@ -411,7 +411,7 @@ export function InvestorSection({
       <section>
         <div className="flex items-end justify-between gap-4 mb-4">
           <div>
-            <div className="text-[0.6rem] uppercase tracking-[0.22em] text-mtqs-gold/75">v1.2 · reconciliation</div>
+            <div className="text-[0.6rem] uppercase tracking-[0.22em] text-mtqs-gold">v1.2 · reconciliation</div>
             <h3 className="mt-2 text-base font-semibold text-[#0E1F1B]">Honest Findings</h3>
           </div>
           <Pill
@@ -462,7 +462,7 @@ export function InvestorSection({
                     </p>
                     {f.resolution && (
                       <p className="mt-2 text-[0.72rem] text-[#33544C] leading-relaxed">
-                        <span className="text-mtqs-gold/80 uppercase tracking-[0.18em] text-[0.6rem] font-medium mr-1">
+                        <span className="text-mtqs-gold uppercase tracking-[0.18em] text-[0.6rem] font-medium mr-1">
                           Resolution
                         </span>
                         {f.resolution}
@@ -473,15 +473,15 @@ export function InvestorSection({
               </div>
             )}
             <div className="mt-4 text-[0.72rem] text-[#33544C] leading-relaxed">
-              <span className="text-mtqs-emerald/85 font-medium">F1</span> — the §12.2 vs §3.4.2
+              <span className="text-mtqs-emerald font-medium">F1</span> — the §12.2 vs §3.4.2
               redemption price contradiction is reconciled (§3.4.2 canonical, §12.2 informational).
-              <span className="text-mtqs-emerald/85 font-medium"> F2</span> — the §5.6 Circle
+              <span className="text-mtqs-emerald font-medium"> F2</span> — the §5.6 Circle
               concentration breach redesign is implemented: USD and gold now split across 3 + 2
               issuers with a 30% hard limit. Live truth:{" "}
               {concentration && concentration.length > 0 ? (
                 <>
                   the top {concentration.length} issuers each hold{" "}
-                  <span className="font-mono text-mtqs-amber/90">
+                  <span className="font-mono text-mtqs-amber">
                     {(Math.max(...concentration.map((c) => c.sharePct)) * 100).toFixed(2)}%
                   </span>{" "}
                   of NAV — at/above the 25% warn threshold ({concentration.filter((c) => c.status === "warn").length}{" "}
@@ -501,7 +501,7 @@ export function InvestorSection({
       <section>
         <div className="flex items-end justify-between gap-4 mb-4">
           <div>
-            <div className="text-[0.6rem] uppercase tracking-[0.22em] text-mtqs-gold/75">pilot traction</div>
+            <div className="text-[0.6rem] uppercase tracking-[0.22em] text-mtqs-gold">pilot traction</div>
             <h3 className="mt-2 text-base font-semibold text-[#0E1F1B]">Trial Traction</h3>
           </div>
           <Pill tone="gold">
@@ -551,7 +551,7 @@ export function InvestorSection({
       <section>
         <div className="flex items-end justify-between gap-4 mb-4">
           <div>
-            <div className="text-[0.6rem] uppercase tracking-[0.22em] text-mtqs-gold/75">due diligence · api</div>
+            <div className="text-[0.6rem] uppercase tracking-[0.22em] text-mtqs-gold">due diligence · api</div>
             <h3 className="mt-2 text-base font-semibold text-[#0E1F1B]">Investor Endpoints</h3>
           </div>
           <Pill tone="muted">all paths relative · GET only</Pill>

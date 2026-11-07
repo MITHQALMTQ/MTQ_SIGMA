@@ -284,7 +284,7 @@ export function OnChainMatrix() {
         {/* Header + summary chip */}
         <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between mb-4">
           <div className="space-y-1 min-w-0">
-            <div className="text-[0.6rem] uppercase tracking-[0.22em] text-mtqs-gold/75">
+            <div className="text-[0.6rem] uppercase tracking-[0.22em] text-mtqs-gold">
               Honest · On-chain vs Off-chain
             </div>
             <h3 className="text-base font-semibold text-[#0E1F1B]">
@@ -408,13 +408,13 @@ export function OnChainMatrix() {
                     </div>
                     <div className="grid grid-cols-1 gap-2 pl-5">
                       <div className="space-y-1">
-                        <div className="text-[0.55rem] uppercase tracking-[0.18em] text-[#5B6E68]">
+                        <div className="text-[0.6rem] uppercase tracking-[0.18em] text-[#5B6E68]">
                           On-Chain
                         </div>
                         <StatusBadge status={row.onChain.status} text={row.onChain.text} />
                       </div>
                       <div className="space-y-1">
-                        <div className="text-[0.55rem] uppercase tracking-[0.18em] text-[#5B6E68]">
+                        <div className="text-[0.6rem] uppercase tracking-[0.18em] text-[#5B6E68]">
                           TS Engine
                         </div>
                         <StatusBadge status={row.tsEngine.status} text={row.tsEngine.text} />

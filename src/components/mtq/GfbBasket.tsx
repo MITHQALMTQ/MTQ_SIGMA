@@ -71,7 +71,7 @@ export function GfbBasket() {
             </table>
           </div>
           <p className="mt-3 text-[0.7rem] text-[#5B6E68] leading-relaxed">
-            <span className="text-mtqs-gold/80 font-mono">W<sup>Prior</sup> ≠ W<sup>Target</sup> ≠ W<sup>Smooth</sup> ≠ W<sup>Execution</sup></span>.
+            <span className="text-mtqs-gold font-mono">W<sup>Prior</sup> ≠ W<sup>Target</sup> ≠ W<sup>Smooth</sup> ≠ W<sup>Execution</sup></span>.
             The prior is a soft anchor — deviation is penalised, not enforced. Live weights are computed
             by the MASE ensemble (§7) under per-component admissibility envelopes (§8.1).
           </p>
@@ -91,7 +91,7 @@ export function GfbBasket() {
             ))}
           </div>
           <div className="rounded-md border border-mtqs-amber/30 bg-mtqs-amber/5 p-3">
-            <div className="text-[0.65rem] uppercase tracking-[0.18em] text-mtqs-gold/80 mb-1">GFB Base Denominator (chain-linked)</div>
+            <div className="text-[0.65rem] uppercase tracking-[0.18em] text-mtqs-gold mb-1">GFB Base Denominator (chain-linked)</div>
             <div className="font-mono text-base text-mtqs-gold">{GFB_BASE_DENOMINATOR.toFixed(4)}</div>
             <div className="mt-2 text-[0.65rem] text-[#5B6E68] font-mono leading-relaxed break-words">
               = W<sub>USD</sub>·1.00 + W<sub>EUR</sub>·{fmtFixing(BASE_FIXINGS.EUR_USD)} + W<sub>JPY</sub>·{fmtFixing(BASE_FIXINGS.JPY_USD)} + W<sub>GBP</sub>·{fmtFixing(BASE_FIXINGS.GBP_USD)} + W<sub>CNY</sub>·{fmtFixing(BASE_FIXINGS.CNY_USD)} + W<sub>CHF</sub>·{fmtFixing(BASE_FIXINGS.CHF_USD)} + W<sub>Au</sub>·{BASE_FIXINGS.XAU_USD.toFixed(0)}
@@ -100,21 +100,21 @@ export function GfbBasket() {
           {/* AUDIT-FIX F-1 — the canonical chain-linked recursion (Master §9.2, form B)
               replaces the deprecated Laspeyres fixed-basket display. */}
           <div className="mt-3 rounded-md border border-mtqs-emerald/20 bg-mtqs-emerald/5 p-3">
-            <div className="text-[0.65rem] uppercase tracking-[0.18em] text-mtqs-emerald/80 mb-1">
+            <div className="text-[0.65rem] uppercase tracking-[0.18em] text-mtqs-emerald mb-1">
               Chain-Linked Index Recursion (§9.2 — canonical)
             </div>
             <div className="font-mono text-sm text-mtqs-emerald leading-relaxed break-words">
               I<sub>t</sub> = I<sub>t−1</sub> × Σ<sub>i</sub> W<sub>i,t−1</sub> × ( P<sub>i,t</sub> / P<sub>i,t−1</sub> )
             </div>
             <div className="mt-1.5 font-mono text-[0.75rem] text-[#0E1F1B] leading-relaxed">
-              P<sub>MTQ</sub> = I<sub>t</sub> × PAR <span className="text-[#7A8C86]">·</span> PAR = 1 basket-unit
+              P<sub>MTQ</sub> = I<sub>t</sub> × PAR <span className="text-[#5B6E68]">·</span> PAR = 1 basket-unit
             </div>
             <div className="mt-2 text-[0.65rem] text-[#5B6E68] leading-relaxed">
               Weight updates apply the divisor{" "}
-              <span className="font-mono text-mtqs-emerald/90">D<sub>t</sub> = B<sub>t</sub><sup>−</sup> / B<sub>t</sub><sup>+</sup></span> — zero
+              <span className="font-mono text-mtqs-emerald">D<sub>t</sub> = B<sub>t</sub><sup>−</sup> / B<sub>t</sub><sup>+</sup></span> — zero
               artificial return (§9.3). Start-of-period weights W<sub>i,t−1</sub> make the §9.4 contributions exact.
               I<sub>0</sub> = 1.00 at the base date; drift reflects currency + gold moves. Gold is{" "}
-              <span className="text-mtqs-gold/80">a first-class index component</span> (P<sub>Au,t</sub> = XAU/USD).
+              <span className="text-mtqs-gold">a first-class index component</span> (P<sub>Au,t</sub> = XAU/USD).
             </div>
           </div>
         </Panel>
@@ -139,20 +139,20 @@ export function GoldInReserve({ snapshot }: { snapshot?: import("@/lib/mtq/engin
   const perIssuer = snapshot.perIssuer;
   return (
     <div className="mt-4 rounded-lg border border-mtqs-amber/20 bg-amber-50 p-4">
-      <div className="text-[0.625rem] uppercase tracking-[0.25em] text-mtqs-amber/80 mb-3">
+      <div className="text-[0.625rem] uppercase tracking-[0.25em] text-mtqs-amber mb-3">
         §3.2 + §14.1 · Gold — First-Class Index Component (holdings: legacy v1/v2 pilot-ledger path)
       </div>
       <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
         <div>
           <div className="text-[0.7rem] text-[#5B6E68]">PAXG (Paxos) · sleeve</div>
           <div className="text-lg font-mono text-mtqs-gold">{fmtUsdCompact(perIssuer?.paxgUsd ?? r.goldNet / 2)}</div>
-          <div className="text-[0.6rem] font-mono text-[#7A8C86]">
+          <div className="text-[0.6rem] font-mono text-[#5B6E68]">
             {snapshot.holdings
               ? `${snapshot.holdings.paxgOz.toFixed(3)} oz · ${((snapshot.holdings.paxgOz / snapshot.holdings.goldOz) * 100).toFixed(1)}% of gold`
               : "net of 1.0% haircut"}
           </div>
           {/* TASK-28 — PAXG's OWN live market rate (different instrument from XAUT) */}
-          <div className="text-[0.6rem] font-mono text-mtqs-gold/80">
+          <div className="text-[0.6rem] font-mono text-mtqs-gold">
             {snapshot.fx.paxgMarketUsd != null
               ? `live ${fmtFixed(snapshot.fx.paxgMarketUsd, 2)}/token (Yahoo)`
               : "live token rate — feed unavailable"}
@@ -161,13 +161,13 @@ export function GoldInReserve({ snapshot }: { snapshot?: import("@/lib/mtq/engin
         <div>
           <div className="text-[0.7rem] text-[#5B6E68]">XAUT (Tether) · sleeve</div>
           <div className="text-lg font-mono text-mtqs-gold">{fmtUsdCompact(perIssuer?.xautUsd ?? r.goldNet / 2)}</div>
-          <div className="text-[0.6rem] font-mono text-[#7A8C86]">
+          <div className="text-[0.6rem] font-mono text-[#5B6E68]">
             {snapshot.holdings
               ? `${snapshot.holdings.xautOz.toFixed(3)} oz · ${((snapshot.holdings.xautOz / snapshot.holdings.goldOz) * 100).toFixed(1)}% of gold`
               : "net of 1.0% haircut"}
           </div>
           {/* TASK-28 — XAUT's OWN live market rate (different instrument from PAXG) */}
-          <div className="text-[0.6rem] font-mono text-mtqs-gold/80">
+          <div className="text-[0.6rem] font-mono text-mtqs-gold">
             {snapshot.fx.xautMarketUsd != null
               ? `live ${fmtFixed(snapshot.fx.xautMarketUsd, 2)}/token (Yahoo)`
               : "live token rate — feed unavailable"}

@@ -105,7 +105,7 @@ export function MintSimulator({
         <label className="block">
           <span className="text-[0.625rem] uppercase tracking-[0.22em] text-[#5B6E68]">
             Input · USDC
-            <span className="ml-2 normal-case tracking-normal text-[#7A8C86]">min {MIN_MINT_MTQ} MTQΣ · τ {(DEFAULT_USER_SLIPPAGE * 100).toFixed(1)}% · deadline {TRADE_DEADLINE_MINUTES}m (§19.7)</span>
+            <span className="ml-2 normal-case tracking-normal text-[#5B6E68]">min {MIN_MINT_MTQ} MTQΣ · τ {(DEFAULT_USER_SLIPPAGE * 100).toFixed(1)}% · deadline {TRADE_DEADLINE_MINUTES}m (§19.7)</span>
           </span>
           <div className="mt-1 flex items-center rounded-md border border-[#E3EAE6] bg-[#F7FAF8] focus-within:border-mtqs-amber/40 transition">
             <span className="pl-3 text-mtqs-gold font-mono text-sm">$</span>
@@ -148,7 +148,7 @@ export function MintSimulator({
               onChange={(e) => setWallet(e.target.value)}
               disabled={pending}
               placeholder="0x…"
-              className="mt-1 w-full rounded-md border border-[#E3EAE6] bg-[#F7FAF8] px-2.5 py-2 text-xs font-mono text-[#0E1F1B] outline-none focus:border-mtqs-amber/40 placeholder:text-[#7A8C86] disabled:opacity-50"
+              className="mt-1 w-full rounded-md border border-[#E3EAE6] bg-[#F7FAF8] px-2.5 py-2 text-xs font-mono text-[#0E1F1B] outline-none focus:border-mtqs-amber/40 placeholder:text-[#5B6E68] disabled:opacity-50"
               aria-label="Optional pilot wallet address"
             />
           </label>
@@ -180,7 +180,7 @@ export function MintSimulator({
                 {result.ok ? <Pill tone="emerald"><GlowDot color="emerald" size="h-1.5 w-1.5" /> ok</Pill> : <Pill tone="rose"><GlowDot color="rose" size="h-1.5 w-1.5" /> rejected</Pill>}
               </div>
               {result.reason && (
-                <div className="mb-2 text-[0.75rem] text-rose-600/90">{result.reason}</div>
+                <div className="mb-2 text-[0.75rem] text-rose-700">{result.reason}</div>
               )}
               <div className="grid grid-cols-2 gap-2.5 text-[0.75rem]">
                 <Row label="Input" value={fmtUsd(result.inputUsd)} />
@@ -191,7 +191,7 @@ export function MintSimulator({
                 <Row label="New RR" value={Number.isFinite(result.newReserveRatio) ? fmtRatio(result.newReserveRatio) : "∞"} />
               </div>
               <div className="mt-3 rounded-md border border-mtqs-amber/30 bg-amber-500/[0.08] p-3">
-                <div className="text-[0.625rem] uppercase tracking-[0.22em] text-mtqs-gold/80">MTQΣ Minted</div>
+                <div className="text-[0.625rem] uppercase tracking-[0.22em] text-mtqs-gold">MTQΣ Minted</div>
                 <TickNumber
                   value={result.mtqMinted}
                   format={(n) => fmtNum(n, 4)}

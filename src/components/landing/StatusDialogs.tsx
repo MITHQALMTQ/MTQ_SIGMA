@@ -20,8 +20,8 @@ const STATUS_ICON = {
 } as const;
 
 const STATUS_COLOR: Record<string, string> = {
-  cyan: "text-teal-600",
-  amber: "text-amber-600",
+  cyan: "text-teal-700",
+  amber: "text-amber-700",
   rose: "text-rose-600",
   violet: "text-violet-600",
   slate: "text-[#5B6E68]",
@@ -53,8 +53,8 @@ const ROW_ICON = {
 } as const;
 
 const ROW_COLOR = {
-  ok: "text-emerald-600",
-  warn: "text-amber-600",
+  ok: "text-emerald-700",
+  warn: "text-amber-700",
   fail: "text-rose-600",
 } as const;
 
@@ -80,7 +80,7 @@ export function WalletDialog({ open, onOpenChange }: { open: boolean; onOpenChan
           </DialogDescription>
         </DialogHeader>
         <StatusList />
-        <p className="mt-3 text-[0.68rem] leading-relaxed text-[#7A8C86]">
+        <p className="mt-3 text-[0.68rem] leading-relaxed text-[#5B6E68]">
           No wallet SDK is loaded anywhere on this page. No signer is exposed. No transaction is constructed,
           signed, or broadcast.
         </p>
@@ -149,7 +149,7 @@ export function InfoDialog({
             );
           })}
         </ul>
-        <p className="mt-3 flex items-center gap-1.5 text-[0.68rem] text-[#7A8C86]">
+        <p className="mt-3 flex items-center gap-1.5 text-[0.68rem] text-[#5B6E68]">
           <TrendingUp className="size-3.5 shrink-0" aria-hidden />
           {info.footnote}
         </p>

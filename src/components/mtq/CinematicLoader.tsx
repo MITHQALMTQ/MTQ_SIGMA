@@ -56,7 +56,7 @@ export function CinematicLoader() {
 
         {/* Tagline */}
         <div className="text-center">
-          <div className="text-xs text-[#7A8C86] uppercase tracking-[0.3em] mt-2">The Global Digital Asset</div>
+          <div className="text-xs text-[#5B6E68] uppercase tracking-[0.3em] mt-2">The Global Digital Asset</div>
         </div>
       </div>
     </div>

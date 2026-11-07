@@ -180,7 +180,7 @@ export function MintSection({
           that would override the amber border/background utilities. */}
       <Reveal>
         <TruthBanner>
-          <p className="text-[0.75rem] text-amber-700/90 leading-relaxed">
+          <p className="text-[0.75rem] text-amber-700 leading-relaxed">
             This mint page runs the <strong className="text-amber-800">simulated pilot engine</strong> —
             no on-chain broadcast, no real value. The simulator posts to the pilot&apos;s
             /api/simulate/mint endpoint, which applies the §19.2 quote and the §19.7 guards against
@@ -236,7 +236,7 @@ export function MintSection({
         <Reveal>
           <Panel className="p-4 sm:p-5">
             <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 mb-4">
-              <div className="text-[0.6rem] uppercase tracking-[0.22em] text-mtqs-gold/75">
+              <div className="text-[0.6rem] uppercase tracking-[0.22em] text-mtqs-gold">
                 §12.1 · reconciled with §19.2
               </div>
               <Pill tone="emerald">
@@ -252,7 +252,7 @@ export function MintSection({
               setWallet={setWallet}
               onAfterTrial={onAfterTrial}
             />
-            <p className="mt-3 text-[0.65rem] text-[#7A8C86] leading-relaxed">
+            <p className="mt-3 text-[0.65rem] text-[#5B6E68] leading-relaxed">
               Every run is recorded in the pilot trial ledger (SQLite). No wallet signature is ever
               requested — the pilot engine does not broadcast transactions. Oracle pause (§9.3) or an
               elevated risk state (§21.3) suspends the mint path exactly as the contract would.
@@ -280,7 +280,7 @@ export function MintSection({
             </div>
             {/* §19.2.1 user inputs */}
             <div>
-              <div className="text-[0.6rem] uppercase tracking-[0.22em] text-mtqs-gold/75 mb-2">
+              <div className="text-[0.6rem] uppercase tracking-[0.22em] text-mtqs-gold mb-2">
                 §19.2.1 · user inputs
               </div>
               <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
@@ -298,7 +298,7 @@ export function MintSection({
 
             {/* §19.2.2 steps */}
             <div>
-              <div className="text-[0.6rem] uppercase tracking-[0.22em] text-mtqs-gold/75 mb-2">
+              <div className="text-[0.6rem] uppercase tracking-[0.22em] text-mtqs-gold mb-2">
                 §19.2.2 · the seven-step on-chain sequence
               </div>
               <ol className="space-y-3 max-h-96 overflow-y-auto mtqs-scroll pr-1">
@@ -319,7 +319,7 @@ export function MintSection({
                   </li>
                 ))}
               </ol>
-              <p className="mt-3 text-[0.68rem] text-[#7A8C86] leading-relaxed">
+              <p className="mt-3 text-[0.68rem] text-[#5B6E68] leading-relaxed">
                 On success the operation emits <code className="font-mono text-[0.65rem] text-mtqs-gold">Minted(user, tokenIn, amountIn, mtqMinted, mtqPrice)</code>,
                 and <code className="font-mono text-[0.65rem] text-mtqs-gold">SlippageWarning</code> whenever
                 a guard binds — both events feed the transparency and audit layer (§24.4). Reference
@@ -341,7 +341,7 @@ export function MintSection({
           <Panel className="p-4 sm:p-5 space-y-4">
             <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
               <div className="rounded-md border border-[#E3EAE6] bg-[#F7FAF8] px-3 py-2.5">
-                <div className="text-[0.6rem] uppercase tracking-[0.22em] text-[#7A8C86] mb-1.5">
+                <div className="text-[0.6rem] uppercase tracking-[0.22em] text-[#5B6E68] mb-1.5">
                   revert condition
                 </div>
                 <code className="font-mono text-[0.78rem] text-mtqs-gold">
@@ -353,7 +353,7 @@ export function MintSection({
                 </p>
               </div>
               <div className="rounded-md border border-[#E3EAE6] bg-[#F7FAF8] px-3 py-2.5">
-                <div className="text-[0.6rem] uppercase tracking-[0.22em] text-[#7A8C86] mb-1.5">
+                <div className="text-[0.6rem] uppercase tracking-[0.22em] text-[#5B6E68] mb-1.5">
                   default guard from the quote
                 </div>
                 <code className="font-mono text-[0.78rem] text-mtqs-gold">
@@ -459,7 +459,7 @@ export function MintSection({
                 sub="chain-linked reference index · §9.8 + Ch 17 aggregator"
               />
             </div>
-            <p className="mt-4 text-[0.68rem] text-[#7A8C86] leading-relaxed">
+            <p className="mt-4 text-[0.68rem] text-[#5B6E68] leading-relaxed">
               F_mint is state-independent — 0.10% in every risk state (§19.7); Chapter 21 governs
               whether minting is allowed, throttled or paused, and the parameter itself is tunable
               only through the governance process of §19.7 (parameter registry §22.3 is the

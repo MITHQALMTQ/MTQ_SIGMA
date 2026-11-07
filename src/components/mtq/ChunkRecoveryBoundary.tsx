@@ -159,7 +159,7 @@ export class ChunkRecoveryBoundary extends Component<
               ? "This page was loaded against an earlier development build whose assets have since been replaced. A fresh reload restores the current build and returns you to where you were."
               : "The error has been contained to this view. You can retry the view or reload the terminal; the audit trail and persisted state are unaffected."}
           </p>
-          <p className="font-mono text-[0.62rem] leading-relaxed text-[#7A8C86]">
+          <p className="font-mono text-[0.62rem] leading-relaxed text-[#5B6E68]">
             {error.name || "Error"}: {error.message || "unknown"}
           </p>
         </div>
@@ -168,7 +168,7 @@ export class ChunkRecoveryBoundary extends Component<
             <button
               type="button"
               onClick={this.manualReload}
-              className="rounded-lg bg-[#0D9488] px-5 py-2.5 text-sm font-semibold text-white transition hover:bg-[#0F766E] focus-visible:outline focus-visible:outline-2 focus-visible:outline-[#0D9488]"
+              className="rounded-lg bg-[#0F766E] px-5 py-2.5 text-sm font-semibold text-white transition hover:bg-[#0F766E] focus-visible:outline focus-visible:outline-2 focus-visible:outline-[#0F766E]"
             >
               Reload terminal
             </button>
@@ -177,21 +177,21 @@ export class ChunkRecoveryBoundary extends Component<
               <button
                 type="button"
                 onClick={this.reset}
-                className="rounded-lg bg-[#0D9488] px-5 py-2.5 text-sm font-semibold text-white transition hover:bg-[#0F766E] focus-visible:outline focus-visible:outline-2 focus-visible:outline-[#0D9488]"
+                className="rounded-lg bg-[#0F766E] px-5 py-2.5 text-sm font-semibold text-white transition hover:bg-[#0F766E] focus-visible:outline focus-visible:outline-2 focus-visible:outline-[#0F766E]"
               >
                 Retry view
               </button>
               <button
                 type="button"
                 onClick={this.manualReload}
-                className="rounded-lg border border-[#DCE5E0] px-5 py-2.5 text-sm font-semibold text-[#33544C] transition hover:border-[#0D9488] hover:text-[#0F766E] focus-visible:outline focus-visible:outline-2 focus-visible:outline-[#0D9488]"
+                className="rounded-lg border border-[#DCE5E0] px-5 py-2.5 text-sm font-semibold text-[#33544C] transition hover:border-[#0D9488] hover:text-[#0F766E] focus-visible:outline focus-visible:outline-2 focus-visible:outline-[#0F766E]"
               >
                 Reload terminal
               </button>
             </>
           )}
         </div>
-        <span className="text-[0.6rem] text-[#7A8C86]">
+        <span className="text-[0.6rem] text-[#5B6E68]">
           TESTNET ONLY · SHADOW MODE ENFORCED · RESERVE TRADING NOT AUTHORIZED
         </span>
       </div>

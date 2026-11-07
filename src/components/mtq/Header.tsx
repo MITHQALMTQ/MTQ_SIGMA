@@ -188,7 +188,7 @@ export function LiveTicker({ snapshot }: { snapshot: MetricsSnapshot | null }) {
     tickerItem("MTQ", (
       <span className="flex items-center gap-1">
         <TickNumber value={snapshot.mtqPrice} format={(n) => fmtFixed(n, 4)} className={toneByPrice === "emerald" ? "text-mtqs-emerald" : "text-mtqs-rose"} />
-        <span className={`text-[0.6rem] font-medium ${snapshot.priceInBand ? "text-mtqs-emerald/90" : "text-mtqs-rose/90"}`}>
+        <span className={`text-[0.6rem] font-medium ${snapshot.priceInBand ? "text-mtqs-emerald" : "text-mtqs-rose"}`}>
           {snapshot.priceInBand ? "in-band" : "BREAKER"}
         </span>
       </span>

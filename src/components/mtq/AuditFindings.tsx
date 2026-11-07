@@ -213,9 +213,9 @@ export function AuditFindings() {
         {/* Header */}
         <div className="mb-5">
           <div className="flex items-start gap-3 mb-2">
-            <ShieldAlert className="h-5 w-5 text-mtqs-rose/80 mt-0.5 shrink-0" aria-hidden="true" />
+            <ShieldAlert className="h-5 w-5 text-mtqs-rose mt-0.5 shrink-0" aria-hidden="true" />
             <div>
-              <div className="text-[0.6rem] uppercase tracking-[0.22em] text-mtqs-rose/75">
+              <div className="text-[0.6rem] uppercase tracking-[0.22em] text-mtqs-rose">
                 Honest · Top-Tier Audit Findings
               </div>
               <h3 className="mt-1 text-base font-semibold text-[#0E1F1B]">
@@ -226,12 +226,12 @@ export function AuditFindings() {
           <p className="text-[0.78rem] text-[#5B6E68] leading-relaxed pl-8">
             The audit was conducted in 4 parallel streams (static code, smart contract, stress tests, tokenomics) —
             3,111 lines across 5 reports. After the Master Reconciliation Prompt (39 sections), all 4 P0 findings were
-            fixed in the reference engine and the V3 contract (compiled, <span className="text-mtqs-amber/90 font-medium">NOT DEPLOYED</span>):
+            fixed in the reference engine and the V3 contract (compiled, <span className="text-mtqs-amber font-medium">NOT DEPLOYED</span>):
             chain-linked index (Listing 3), NAV-based redemption (§19.3.2), 6-state risk machine (Listing 13), 4 governance
             layers (Listing 14). Two honest caveats: the 0x7FF bit verdicts below describe the V3 contract code, not the
             live pilot (live authorization state: Honest Status panel below); and the current §23 reference-engine stress
             verdict is rendered live from <span className="font-mono text-mtqs-gold">/api/validation</span> — it is
-            {" "}<span className="text-mtqs-rose/90 font-medium">NOT all-green</span> (see the stress table). The canonical
+            {" "}<span className="text-mtqs-rose font-medium">NOT all-green</span> (see the stress table). The canonical
             invariant suite is <span className="text-mtqs-gold font-medium">253/253 green at the 2026-10-23 baseline</span>.
             The protocol remains <span className="text-mtqs-gold font-medium">NOT production-authorized</span> until
             independent audit + §23 validation + external gates pass. The full audit + 9 deliverables (A-I) are at{" "}
@@ -263,7 +263,7 @@ export function AuditFindings() {
         {/* P0 findings list */}
         <div className="mb-5">
           <div className="mb-2 flex items-center gap-2">
-            <FileWarning className="h-4 w-4 text-mtqs-rose/80" aria-hidden="true" />
+            <FileWarning className="h-4 w-4 text-mtqs-rose" aria-hidden="true" />
             <h4 className="text-sm font-semibold text-[#0E1F1B]">P0 findings — must fix before mainnet</h4>
           </div>
           <div className="space-y-2.5">
@@ -277,14 +277,14 @@ export function AuditFindings() {
               >
                 <div className="flex items-start justify-between gap-2 mb-1">
                   <div className="flex items-start gap-2">
-                    <span className="font-mono text-xs text-mtqs-emerald/90 font-semibold shrink-0 mt-0.5">
+                    <span className="font-mono text-xs text-mtqs-emerald font-semibold shrink-0 mt-0.5">
                       {f.id}
                     </span>
                     <div className="text-[0.82rem] font-semibold text-[#0E1F1B] leading-snug">
                       {f.title}
                     </div>
                   </div>
-                  <Pill tone="emerald" className="shrink-0 text-[0.55rem]">
+                  <Pill tone="emerald" className="shrink-0 text-[0.6rem]">
                     fixed (V3)
                   </Pill>
                 </div>
@@ -293,10 +293,10 @@ export function AuditFindings() {
                 </p>
                 <div className="flex flex-wrap gap-x-4 gap-y-1 text-[0.65rem] text-[#5B6E68] font-mono">
                   <span>
-                    <span className="text-mtqs-gold/80">owner:</span> {f.owner}
+                    <span className="text-mtqs-gold">owner:</span> {f.owner}
                   </span>
                   <span>
-                    <span className="text-mtqs-gold/80">deadline:</span> {f.deadline}
+                    <span className="text-mtqs-gold">deadline:</span> {f.deadline}
                   </span>
                 </div>
               </motion.div>
@@ -314,7 +314,7 @@ export function AuditFindings() {
           </div>
           <p className="text-[0.72rem] text-[#5B6E68] mb-2 leading-relaxed">
             V3 contract code claims <span className="font-mono text-mtqs-gold">{CLAIMED_MASK}</span> (all 11 bits). After the Master Reconciliation implementation, the V3 code{" "}
-            <span className="text-mtqs-emerald/90 font-medium">TRUTHFULLY EARNS</span> <span className="font-mono text-mtqs-emerald/90">{HONEST_MASK}</span> ({honestCount} of 11 bits verified) — in the contract source. Caveat: the V3 contract is compiled but <span className="text-mtqs-amber/90 font-medium">NOT DEPLOYED</span>; the live pilot reports implementedMask <span className="font-mono">0xFFF</span> with authorizedMask <span className="font-mono">0x0</span> and 0 of 11 §25.5 gates passed (live Honest Status panel below). Status: <span className="text-mtqs-gold font-medium">VALIDATED IN CODE, NOT PRODUCTION_AUTHORIZED</span> (per §25.4).
+            <span className="text-mtqs-emerald font-medium">TRUTHFULLY EARNS</span> <span className="font-mono text-mtqs-emerald">{HONEST_MASK}</span> ({honestCount} of 11 bits verified) — in the contract source. Caveat: the V3 contract is compiled but <span className="text-mtqs-amber font-medium">NOT DEPLOYED</span>; the live pilot reports implementedMask <span className="font-mono">0xFFF</span> with authorizedMask <span className="font-mono">0x0</span> and 0 of 11 §25.5 gates passed (live Honest Status panel below). Status: <span className="text-mtqs-gold font-medium">VALIDATED IN CODE, NOT PRODUCTION_AUTHORIZED</span> (per §25.4).
           </p>
           <div className="overflow-hidden rounded-md border border-[#E3EAE6]">
             <div className="hidden sm:grid grid-cols-[44px_minmax(0,1.5fr)_minmax(0,2fr)_80px] gap-2 px-3 py-2 bg-[#F7FAF8] text-[0.6rem] uppercase tracking-[0.18em] text-[#5B6E68]">
@@ -339,9 +339,9 @@ export function AuditFindings() {
                     <div className="text-[0.68rem] text-[#5B6E68] leading-snug">{b.note}</div>
                     <div>
                       {b.honest ? (
-                        <Pill tone="emerald" className="text-[0.55rem]">honest</Pill>
+                        <Pill tone="emerald" className="text-[0.6rem]">honest</Pill>
                       ) : (
-                        <Pill tone="rose" className="text-[0.55rem]">overstated</Pill>
+                        <Pill tone="rose" className="text-[0.6rem]">overstated</Pill>
                       )}
                     </div>
                   </div>
@@ -351,9 +351,9 @@ export function AuditFindings() {
                       <span className="font-mono text-[0.65rem] text-[#5B6E68]">bit {b.bit}</span>
                       <span className="font-mono text-[0.72rem] text-[#0E1F1B]">{b.name}</span>
                       {b.honest ? (
-                        <Pill tone="emerald" className="text-[0.5rem] ml-auto">honest</Pill>
+                        <Pill tone="emerald" className="text-[0.625rem] ml-auto">honest</Pill>
                       ) : (
-                        <Pill tone="rose" className="text-[0.5rem] ml-auto">overstated</Pill>
+                        <Pill tone="rose" className="text-[0.625rem] ml-auto">overstated</Pill>
                       )}
                     </div>
                     <div className="text-[0.68rem] text-[#5B6E68] leading-snug">{b.note}</div>
@@ -395,7 +395,7 @@ export function AuditFindings() {
             </div>
           ) : !validation ? (
             <div className="space-y-2">
-              <div className="flex items-center gap-2 text-[0.68rem] text-[#7A8C86] mb-1">
+              <div className="flex items-center gap-2 text-[0.68rem] text-[#5B6E68] mb-1">
                 <Skeleton className="h-3 w-3 rounded-full" />
                 Loading the live §23 scenario battery…
               </div>
@@ -436,7 +436,7 @@ export function AuditFindings() {
                           <div className="text-[0.74rem] text-[#0E1F1B] leading-snug">
                             {name}
                             {r.breachCount > 0 && (
-                              <div className="text-[0.58rem] font-mono text-rose-600/80 mt-0.5">
+                              <div className="text-[0.6rem] font-mono text-rose-700 mt-0.5">
                                 {r.breachCount} breach run{r.breachCount === 1 ? "" : "s"} · worst state {r.worstStatus}
                               </div>
                             )}
@@ -448,7 +448,7 @@ export function AuditFindings() {
                             {targetFor(r)}
                           </div>
                           <div>
-                            <Pill tone={tone} className="text-[0.55rem]">
+                            <Pill tone={tone} className="text-[0.6rem]">
                               {severity || "—"}
                             </Pill>
                           </div>
@@ -458,7 +458,7 @@ export function AuditFindings() {
                           <div className="flex items-center gap-2">
                             <span className="font-mono text-[0.65rem] text-[#5B6E68]">{id}</span>
                             <span className="text-[0.74rem] text-[#0E1F1B] leading-snug flex-1">{name}</span>
-                            <Pill tone={tone} className="text-[0.5rem]">
+                            <Pill tone={tone} className="text-[0.625rem]">
                               {severity || "—"}
                             </Pill>
                           </div>
@@ -471,7 +471,7 @@ export function AuditFindings() {
                   })}
                 </div>
               </div>
-              <p className="text-[0.6rem] text-[#7A8C86] mt-2">
+              <p className="text-[0.6rem] text-[#5B6E68] mt-2">
                 Live reference-engine results (deterministic seeds, synthetic paths — reproducible, not live
                 market data). Verdict thresholds: PASS ≥ 99% survival · WARN ≥ 90% · FAIL &lt; 90%. Failing
                 scenarios are honestly shown — the §23 program is a production precondition, not a marketing
@@ -484,12 +484,12 @@ export function AuditFindings() {
         {/* Footer with link to full report */}
         <div className="rounded-md border border-mtqs-gold/25 bg-mtqs-gold/5 p-3.5">
           <div className="flex items-start gap-2.5">
-            <FileText className="h-4 w-4 text-mtqs-gold/80 mt-0.5 shrink-0" aria-hidden="true" />
+            <FileText className="h-4 w-4 text-mtqs-gold mt-0.5 shrink-0" aria-hidden="true" />
             <div className="text-[0.74rem] text-[#0E1F1B] leading-relaxed space-y-1">
               <p>
-                <span className="text-mtqs-gold/90 font-medium">Full audit report</span> — 5 documents, 3,111 lines:
+                <span className="text-mtqs-gold font-medium">Full audit report</span> — 5 documents, 3,111 lines:
               </p>
-              <ul className="ml-4 space-y-0.5 font-mono text-[0.68rem] text-mtqs-gold/80">
+              <ul className="ml-4 space-y-0.5 font-mono text-[0.68rem] text-mtqs-gold">
                 <li>audit-work/FINAL-TOP-TIER-AUDIT-REPORT.md (347 lines, synthesis)</li>
                 <li>audit-work/audit-a-static-code.md (453 lines, engine vs blueprint)</li>
                 <li>audit-work/audit-b-smart-contract.md (1198 lines, MTQSigmaV2.sol)</li>
@@ -498,7 +498,7 @@ export function AuditFindings() {
                 <li>audit-work/COO-RECOMMENDATIONS.md (COO action plan)</li>
               </ul>
               <p className="pt-1.5">
-                <span className="text-mtqs-gold/90 font-medium">COO verdict:</span> Fix the 4 P0 findings in the next 30 days,
+                <span className="text-mtqs-gold font-medium">COO verdict:</span> Fix the 4 P0 findings in the next 30 days,
                 re-run §23 in the next 90 days, engage an independent audit firm in parallel. Do not sign off on mainnet
                 until all 5 production-readiness gates pass. The protocol is honestly a strong pilot, and the audit is
                 the cheapest insurance we will ever buy.

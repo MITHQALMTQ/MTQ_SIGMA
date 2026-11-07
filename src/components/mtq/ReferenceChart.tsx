@@ -519,7 +519,7 @@ export function ReferenceChart({
                       <div className="text-[#5B6E68] uppercase tracking-wider">Rebal.</div>
                       <div className="font-mono tabular-nums text-[#5B6E68]">
                         0.000pp
-                        <span className="text-[#7A8C86]"> · §9.3</span>
+                        <span className="text-[#5B6E68]"> · §9.3</span>
                       </div>
                     </div>
                   </div>
@@ -557,13 +557,13 @@ export function ReferenceChart({
                       </div>
                     ))}
                   </div>
-                  <div className="mt-1.5 text-[0.6rem] text-[#7A8C86] leading-snug">
+                  <div className="mt-1.5 text-[0.6rem] text-[#5B6E68] leading-snug">
                     Price = Σ component moves (§9.4) · Alloc. = weight-vs-prior effect (§9.5) · Rebal. = 0
                     (divisor-neutralized, §9.3).
                   </div>
                 </div>
               ) : (
-                <div className="mt-2 pt-2 border-t border-[#E3EAE6] text-[0.62rem] italic text-[#7A8C86]">
+                <div className="mt-2 pt-2 border-t border-[#E3EAE6] text-[0.62rem] italic text-[#5B6E68]">
                   attribution pending first index step
                 </div>
               )}
@@ -624,7 +624,7 @@ export function ReferenceChart({
       </div>
 
       {/* AUDIT-FIX F-1 — honest attribution footnote */}
-      <div className="mt-1.5 text-[0.62rem] text-[#7A8C86]">
+      <div className="mt-1.5 text-[0.62rem] text-[#5B6E68]">
         Live attribution: §9.4 contributions from the chain index (synthetic history shape).{" "}
         {attribution
           ? `Last step sampled ${new Date(attribution.sampledAt).toLocaleTimeString("en-US", {

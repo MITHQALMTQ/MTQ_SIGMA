@@ -413,7 +413,7 @@ export function DashboardSection({
                   Open Mint simulator →
                 </button>
               ) : (
-                <span className="mt-auto text-[0.72rem] text-[#7A8C86]">Terminal → Operations → Mint Simulator</span>
+                <span className="mt-auto text-[0.72rem] text-[#5B6E68]">Terminal → Operations → Mint Simulator</span>
               )}
             </Panel>
           </Reveal>
@@ -439,7 +439,7 @@ export function DashboardSection({
                   Open Redeem simulator →
                 </button>
               ) : (
-                <span className="mt-auto text-[0.72rem] text-[#7A8C86]">Terminal → Operations → Redeem Simulator</span>
+                <span className="mt-auto text-[0.72rem] text-[#5B6E68]">Terminal → Operations → Redeem Simulator</span>
               )}
             </Panel>
           </Reveal>
@@ -498,7 +498,7 @@ export function DashboardSection({
                   <span aria-hidden="true">→</span>
                 </button>
               ) : (
-                <span className="shrink-0 text-[0.7rem] text-[#7A8C86]">
+                <span className="shrink-0 text-[0.7rem] text-[#5B6E68]">
                   Full registry: Contracts section
                 </span>
               )}

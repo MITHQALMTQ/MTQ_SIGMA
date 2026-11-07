@@ -185,8 +185,8 @@ export function AIPolicyBriefing({ className = "" }: { className?: string }) {
         <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between mb-4">
           <div className="space-y-1.5 min-w-0">
             <div className="flex items-center gap-2">
-              <Sparkles className="h-3.5 w-3.5 text-mtqs-gold/85" aria-hidden="true" />
-              <span className="text-[0.6rem] uppercase tracking-[0.22em] text-mtqs-gold/85">
+              <Sparkles className="h-3.5 w-3.5 text-mtqs-gold" aria-hidden="true" />
+              <span className="text-[0.6rem] uppercase tracking-[0.22em] text-mtqs-gold">
                 AI · COO Briefing
               </span>
             </div>
@@ -267,7 +267,7 @@ export function AIPolicyBriefing({ className = "" }: { className?: string }) {
               </span>
               {data.consensus && (
                 <>
-                  <span className="text-[#7A8C86]">·</span>
+                  <span className="text-[#5B6E68]">·</span>
                   <span title={data.consensus.votes.map((v) => `${v.provider}/${v.model}: ${v.ok ? "ok" : (v.error ?? "failed")} ${v.latencyMs}ms`).join("\n")}>
                     consensus {data.consensus.status.toLowerCase()} · {data.consensus.votersOk}/{data.consensus.votersAsked} voters
                     {data.consensus.agreement !== null && ` · agreement ${(data.consensus.agreement * 100).toFixed(0)}%`}
@@ -276,7 +276,7 @@ export function AIPolicyBriefing({ className = "" }: { className?: string }) {
               )}
               {data.sources && data.sources.length > 0 && (
                 <>
-                  <span className="text-[#7A8C86]">·</span>
+                  <span className="text-[#5B6E68]">·</span>
                   <span>
                     Sources: {data.sources.join(", ")}
                   </span>
@@ -284,7 +284,7 @@ export function AIPolicyBriefing({ className = "" }: { className?: string }) {
               )}
             </div>
             {data.consensus && data.consensus.votes.length > 0 && (
-              <div className="flex flex-wrap gap-x-3 gap-y-0.5 text-[0.6rem] font-mono text-[#7A8C86]">
+              <div className="flex flex-wrap gap-x-3 gap-y-0.5 text-[0.6rem] font-mono text-[#5B6E68]">
                 {data.consensus.votes.map((v) => (
                   <span key={`${v.provider}/${v.model}`} className="inline-flex items-center gap-1">
                     <GlowDot color={v.ok ? "gold" : "rose"} size="h-1 w-1" />

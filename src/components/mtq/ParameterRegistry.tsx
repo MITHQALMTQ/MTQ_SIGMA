@@ -37,10 +37,10 @@ const PARAMS: ParamRow[] = [
 ];
 
 const LAYER_COLORS: Record<string, string> = {
-  Constitutional: "#0D9488",
-  Monetary: "#14B8A6",
-  Risk: "#EA580C",
-  Emergency: "#E11D48",
+  Constitutional: "#0F766E", /* F-61: 700-level — AA as value/label text (was teal-600 3.74:1) */
+  Monetary: "#115E59", /* was teal-500 #14B8A6 — 2.49:1, near-invisible class */
+  Risk: "#C2410C", /* was orange-600 #EA580C — 3.19:1 */
+  Emergency: "#BE123C", /* was rose-600 #E11D48 — 3.77:1 */
 };
 
 export function ParameterRegistry() {
@@ -86,9 +86,9 @@ export function ParameterRegistry() {
                   <td className="py-2.5 px-3 text-[#5B6E68] hidden lg:table-cell font-mono">{p.timelock}</td>
                   <td className="py-2.5 px-3 text-center">
                     {p.status === "IMMUTABLE" ? (
-                      <Pill tone="gold" className="text-[0.55rem]"><Lock className="h-2.5 w-2.5" />IMMUTABLE</Pill>
+                      <Pill tone="gold" className="text-[0.6rem]"><Lock className="h-2.5 w-2.5" />IMMUTABLE</Pill>
                     ) : (
-                      <Pill tone="emerald" className="text-[0.55rem]"><Shield className="h-2.5 w-2.5" />GOVERNED</Pill>
+                      <Pill tone="emerald" className="text-[0.6rem]"><Shield className="h-2.5 w-2.5" />GOVERNED</Pill>
                     )}
                   </td>
                 </motion.tr>
@@ -97,7 +97,7 @@ export function ParameterRegistry() {
           </table>
         </div>
 
-        <p className="mt-3 text-[0.7rem] text-[#7A8C86]">
+        <p className="mt-3 text-[0.7rem] text-[#5B6E68]">
           Immutable parameters require 7/7 Constitutional Multi-Sig + 90-day timelock. Governed parameters follow their respective layer's authority and timelock.
         </p>
       </Panel>

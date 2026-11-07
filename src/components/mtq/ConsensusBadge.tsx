@@ -70,7 +70,7 @@ export function ConsensusBadge({
         className="flex flex-wrap items-center gap-x-2 gap-y-0.5 text-[0.62rem] font-mono text-[#5B6E68]"
         title={tooltip || undefined}
       >
-        <span className="uppercase tracking-[0.16em] text-[#7A8C86]">
+        <span className="uppercase tracking-[0.16em] text-[#5B6E68]">
           Consensus
         </span>
         <span className={TONE_TEXT[tone]}>
@@ -96,7 +96,7 @@ export function ConsensusBadge({
         )}
       </div>
       {consensus.votes.length > 0 && (
-        <div className="flex flex-wrap gap-x-3 gap-y-0.5 text-[0.6rem] font-mono text-[#7A8C86]">
+        <div className="flex flex-wrap gap-x-3 gap-y-0.5 text-[0.6rem] font-mono text-[#5B6E68]">
           {consensus.votes.map((v) => (
             <span
               key={`${v.provider}/${v.model}`}

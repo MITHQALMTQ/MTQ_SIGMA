@@ -311,7 +311,7 @@ function SubsystemCard({ row }: { row: SubsystemRow }) {
       <div className="flex items-start justify-between gap-3">
         <div className="flex items-center gap-2 min-w-0">
           <Icon
-            className="h-4 w-4 text-mtqs-gold/80 shrink-0"
+            className="h-4 w-4 text-mtqs-gold shrink-0"
             aria-hidden="true"
           />
           <span className="text-[0.7rem] uppercase tracking-[0.18em] text-[#0E1F1B] leading-snug break-words">
@@ -443,7 +443,7 @@ export function SystemHealth({ snapshot: parentSnapshot }: { snapshot?: MetricsS
               aria-label="Force refresh the metrics snapshot"
             >
               <RefreshCw
-                className={`h-3.5 w-3.5 text-mtqs-gold/85 ${refreshing ? "animate-spin" : ""}`}
+                className={`h-3.5 w-3.5 text-mtqs-gold ${refreshing ? "animate-spin" : ""}`}
                 aria-hidden="true"
               />
               <span>{refreshing ? "Refreshing…" : "Force refresh"}</span>
@@ -457,17 +457,17 @@ export function SystemHealth({ snapshot: parentSnapshot }: { snapshot?: MetricsS
           {/* Summary banner */}
           <div className="mb-5 flex flex-wrap items-center justify-between gap-3">
             <div className="flex items-center gap-2">
-              <Database className="h-4 w-4 text-mtqs-gold/80" aria-hidden="true" />
+              <Database className="h-4 w-4 text-mtqs-gold" aria-hidden="true" />
               <span className="text-[0.7rem] uppercase tracking-[0.22em] text-[#5B6E68]">
                 All 8 subsystems · {parentSnapshot ? "live shared snapshot (4s)" : "refreshed every 5s"}
               </span>
             </div>
             <div className="flex items-center gap-2 text-[0.72rem] font-mono tabular-nums">
-              <span className="text-mtqs-emerald/90">{healthyCount} healthy</span>
-              <span className="text-[#7A8C86]">·</span>
-              <span className="text-mtqs-amber/90">{warnCount} warn</span>
-              <span className="text-[#7A8C86]">·</span>
-              <span className="text-mtqs-rose/90">{degradedCount} degraded</span>
+              <span className="text-mtqs-emerald">{healthyCount} healthy</span>
+              <span className="text-[#5B6E68]">·</span>
+              <span className="text-mtqs-amber">{warnCount} warn</span>
+              <span className="text-[#5B6E68]">·</span>
+              <span className="text-mtqs-rose">{degradedCount} degraded</span>
             </div>
           </div>
 
@@ -481,10 +481,10 @@ export function SystemHealth({ snapshot: parentSnapshot }: { snapshot?: MetricsS
           ) : error ? (
             <div className="rounded-md border border-mtqs-rose/30 bg-mtqs-rose/10 p-4 text-[0.78rem] text-rose-600">
               <p className="flex items-start gap-2">
-                <AlertTriangle className="h-4 w-4 text-mtqs-rose/80 mt-0.5 shrink-0" aria-hidden="true" />
+                <AlertTriangle className="h-4 w-4 text-mtqs-rose mt-0.5 shrink-0" aria-hidden="true" />
                 <span>
                   <span className="font-medium">Unable to fetch /api/metrics.</span>{" "}
-                  <span className="text-rose-600/85 font-mono">{error}</span>
+                  <span className="text-rose-700 font-mono">{error}</span>
                 </span>
               </p>
               <button
@@ -508,7 +508,7 @@ export function SystemHealth({ snapshot: parentSnapshot }: { snapshot?: MetricsS
               {/* Honest summary line */}
               <div className="mt-5 rounded-md border border-[#E3EAE6] bg-[#F7FAF8] p-3 text-[0.72rem] text-[#5B6E68] leading-relaxed">
                 <p className="flex items-start gap-2">
-                  <ShieldCheck className="h-4 w-4 text-mtqs-emerald/80 mt-0.5 shrink-0" aria-hidden="true" />
+                  <ShieldCheck className="h-4 w-4 text-mtqs-emerald mt-0.5 shrink-0" aria-hidden="true" />
                   <span>
                     <span className="text-[#0E1F1B]">Honest note.</span>{" "}
                     This panel reflects the live engine state at{" "}

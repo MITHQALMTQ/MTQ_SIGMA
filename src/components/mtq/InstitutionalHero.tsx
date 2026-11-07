@@ -64,14 +64,14 @@ function TerminalStrip({ snapshot }: { snapshot: MetricsSnapshot | null }) {
         <GlowDot color={oracleOk ? "emerald" : "rose"} size="h-1.5 w-1.5" />
         <span className="text-[#0E1F1B]">testnet · live</span>
       </span>
-      <span className="text-[#9AA9A3]">·</span>
+      <span className="text-[#5B6E68]">·</span>
       <span className="inline-flex items-center gap-1.5">
         <GlowDot color={oracleOk ? "emerald" : "rose"} size="h-1.5 w-1.5" />
         <span>
           oracle {oracleValidCount != null && oracleTotal != null ? `${oracleValidCount}/${oracleTotal}` : oracleOk ? "ok" : "paused"}
         </span>
       </span>
-      <span className="text-[#9AA9A3]">·</span>
+      <span className="text-[#5B6E68]">·</span>
       <span className="inline-flex items-center gap-1.5" style={{ color: sb.color }}>
         <span
           className="h-1.5 w-1.5 rounded-full"
@@ -80,7 +80,7 @@ function TerminalStrip({ snapshot }: { snapshot: MetricsSnapshot | null }) {
         />
         <span>{sb.label}</span>
       </span>
-      <span className="text-[#9AA9A3] ml-auto hidden sm:inline">·</span>
+      <span className="text-[#5B6E68] ml-auto hidden sm:inline">·</span>
       <span className="ml-auto sm:ml-0 inline-flex items-center gap-1.5 tabular-nums">
         <Clock className="h-3 w-3" aria-hidden="true" />
         <span>{now != null ? fmtTime(now) : "—"}</span>
@@ -251,7 +251,7 @@ export function InstitutionalHero({
             initial={{ opacity: 0, y: 8 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.5, delay: 0.35 }}
-            className="mt-2 text-[0.72rem] sm:text-[0.8rem] text-[#7A8C86] tracking-[0.22em] uppercase"
+            className="mt-2 text-[0.72rem] sm:text-[0.8rem] text-[#5B6E68] tracking-[0.22em] uppercase"
           >
             Asset-Referencing Basket · No-Conventional-Reserve Design · Transparent Methodology
           </motion.p>
@@ -312,9 +312,9 @@ export function InstitutionalHero({
         </div>
 
         {/* Footer disclaimer — institutional tone */}
-        <div className="relative px-5 sm:px-7 lg:px-8 pb-5 sm:pb-6 flex flex-wrap items-center justify-between gap-2 border-t border-[#E3EAE6] pt-3 text-[0.66rem] text-[#7A8C86]">
+        <div className="relative px-5 sm:px-7 lg:px-8 pb-5 sm:pb-6 flex flex-wrap items-center justify-between gap-2 border-t border-[#E3EAE6] pt-3 text-[0.66rem] text-[#5B6E68]">
           <span className="inline-flex items-center gap-1.5">
-            <Activity className="h-3 w-3 text-mtqs-gold/70" aria-hidden="true" />
+            <Activity className="h-3 w-3 text-mtqs-gold" aria-hidden="true" />
             {BRAND_VOICE.statusDeclaration}
           </span>
           <span className="font-mono">
@@ -334,7 +334,7 @@ export function InstitutionalHero({
         <PremiumCard className="p-4" style={{ borderColor: "rgba(13,148,136,0.25)" }}>
           <div className="flex items-center gap-1.5 mb-2">
             <span aria-hidden="true" className="text-sm">🥇</span>
-            <span className="text-[0.62rem] uppercase tracking-[0.22em] text-mtqs-gold/80">
+            <span className="text-[0.62rem] uppercase tracking-[0.22em] text-mtqs-gold">
               Gold Anchor
             </span>
           </div>
@@ -354,7 +354,7 @@ export function InstitutionalHero({
         <PremiumCard className="p-4">
           <div className="flex items-center gap-1.5 mb-2">
             <GlowDot color="gold" size="h-1.5 w-1.5" />
-            <span className="text-[0.62rem] uppercase tracking-[0.22em] text-mtqs-gold/80">
+            <span className="text-[0.62rem] uppercase tracking-[0.22em] text-mtqs-gold">
               Reference Index
             </span>
           </div>
@@ -372,7 +372,7 @@ export function InstitutionalHero({
         <PremiumCard className="p-4">
           <div className="flex items-center gap-1.5 mb-2">
             <GlowDot color="emerald" size="h-1.5 w-1.5" />
-            <span className="text-[0.62rem] uppercase tracking-[0.22em] text-mtqs-emerald/80">
+            <span className="text-[0.62rem] uppercase tracking-[0.22em] text-mtqs-emerald">
               Reference Value
             </span>
           </div>
@@ -396,7 +396,7 @@ export function InstitutionalHero({
         <PremiumCard className="p-4">
           <div className="flex items-center gap-1.5 mb-2">
             <GlowDot color="gold" size="h-1.5 w-1.5" />
-            <span className="text-[0.62rem] uppercase tracking-[0.22em] text-mtqs-gold/80">
+            <span className="text-[0.62rem] uppercase tracking-[0.22em] text-mtqs-gold">
               Pilot Ledger NAV
             </span>
           </div>
@@ -414,7 +414,7 @@ export function InstitutionalHero({
         <PremiumCard className="p-4">
           <div className="flex items-center gap-1.5 mb-2">
             <GlowDot color="emerald" size="h-1.5 w-1.5" />
-            <span className="text-[0.62rem] uppercase tracking-[0.22em] text-mtqs-emerald/80">
+            <span className="text-[0.62rem] uppercase tracking-[0.22em] text-mtqs-emerald">
               Par
             </span>
           </div>

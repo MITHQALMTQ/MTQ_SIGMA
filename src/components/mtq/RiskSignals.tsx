@@ -263,8 +263,8 @@ export function RiskSignals({ className = "" }: { className?: string }) {
         <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between mb-4">
           <div className="space-y-1.5 min-w-0">
             <div className="flex items-center gap-2">
-              <Activity className="h-3.5 w-3.5 text-mtqs-gold/85" aria-hidden="true" />
-              <span className="text-[0.6rem] uppercase tracking-[0.22em] text-mtqs-gold/85">
+              <Activity className="h-3.5 w-3.5 text-mtqs-gold" aria-hidden="true" />
+              <span className="text-[0.6rem] uppercase tracking-[0.22em] text-mtqs-gold">
                 AI · Risk Signals
               </span>
             </div>
@@ -336,14 +336,14 @@ export function RiskSignals({ className = "" }: { className?: string }) {
               </span>
               {data.consensus && (
                 <>
-                  <span className="text-[#7A8C86]">·</span>
+                  <span className="text-[#5B6E68]">·</span>
                   <span title={data.consensus.votes.map((v) => `${v.provider}/${v.model}: ${v.ok ? "ok" : (v.error ?? "failed")} ${v.latencyMs}ms`).join("\n")}>
                     consensus {data.consensus.status.toLowerCase()} · {data.consensus.votersOk}/{data.consensus.votersAsked} voters
                     {data.consensus.agreement !== null && ` · agreement ${(data.consensus.agreement * 100).toFixed(0)}%`}
                   </span>
                 </>
               )}
-              <span className="text-[#7A8C86]">·</span>
+              <span className="text-[#5B6E68]">·</span>
               <span>{signals.length} signals</span>
             </div>
             <p className="text-[0.62rem] text-[#5B6E68] leading-relaxed">

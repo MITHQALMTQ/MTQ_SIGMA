@@ -85,7 +85,7 @@ export function SimulationSection({
       {/* Amber truth banner (shared component) */}
       <Reveal>
         <TruthBanner>
-          <p className="text-[0.75rem] text-amber-700/90 leading-relaxed">
+          <p className="text-[0.75rem] text-amber-700 leading-relaxed">
             Every lab on this page runs the <strong className="text-amber-800">simulated pilot
             engine</strong> on a state-clone — no on-chain broadcast, no real value, no mutation of
             pilot state. The labs exercise real blueprint mechanics (§3.3, §9.2, §21.5) against live
@@ -174,7 +174,7 @@ export function SimulationSection({
               <ul className="space-y-2.5 max-h-96 overflow-y-auto mtqs-scroll pr-1">
                 {LABS_PROVE.map((item) => (
                   <li key={item} className="flex gap-2 text-[0.72rem] text-[#5B6E68] leading-relaxed">
-                    <CheckCircle2 className="h-3.5 w-3.5 text-mtqs-emerald/70 shrink-0 mt-0.5" aria-hidden="true" />
+                    <CheckCircle2 className="h-3.5 w-3.5 text-mtqs-emerald shrink-0 mt-0.5" aria-hidden="true" />
                     <span>{item}</span>
                   </li>
                 ))}
@@ -191,7 +191,7 @@ export function SimulationSection({
               <ul className="space-y-2.5 max-h-96 overflow-y-auto mtqs-scroll pr-1">
                 {LABS_DO_NOT.map((item) => (
                   <li key={item} className="flex gap-2 text-[0.72rem] text-[#5B6E68] leading-relaxed">
-                    <XCircle className="h-3.5 w-3.5 text-mtqs-rose/70 shrink-0 mt-0.5" aria-hidden="true" />
+                    <XCircle className="h-3.5 w-3.5 text-mtqs-rose shrink-0 mt-0.5" aria-hidden="true" />
                     <span>{item}</span>
                   </li>
                 ))}

@@ -59,7 +59,7 @@ html {
   --color-card-foreground: oklch(0.208 0.014 185);
   --color-popover: oklch(1 0 0);
   --color-popover-foreground: oklch(0.208 0.014 185);
-  --color-primary: oklch(0.6 0.104 180.72);
+  --color-primary: oklch(0.52 0.096 180.72); /* F-61: aligned with mtqs-gold darkening — white-on-primary 5.4:1 */
   --color-primary-foreground: oklch(1 0 0);
   --color-secondary: oklch(0.965 0.006 180);
   --color-secondary-foreground: oklch(0.437 0.05 180);
@@ -78,11 +78,11 @@ html {
      fresh spring-teal accent, emerald to green, etc. Semantic status
      colors (amber warnings, rose errors, emerald OK, violet secondary)
      remain distinct so every honest-status banner keeps its meaning. */
-  --color-mtqs-gold: oklch(0.6 0.104 180.72);
+  --color-mtqs-gold: oklch(0.52 0.096 180.72); /* F-61 readability root-cause: was oklch(0.6 0.104 180.72) ≈ teal-600 (3.74:1 on white) — the brand accent carried ~1.5k sub-AA text instances (§refs, labels, buttons, table heads); deepened one step to the §14.1 canonical family (#0F766E-class, ≈5.4:1). Hue unchanged; gradients/wordmark render ~13% richer. */
   --color-mtqs-gold-light: oklch(0.845 0.098 180.72);
-  --color-mtqs-emerald: oklch(0.696 0.17 162.48);
-  --color-mtqs-rose: oklch(0.586 0.253 17.585);
-  --color-mtqs-amber: oklch(0.666 0.179 58.318);
+  --color-mtqs-emerald: oklch(0.508 0.118 165.612); /* emerald-700 — §14.1 ladder: positive text ≥5.2:1 on white (was emerald-500, 2.5:1 — F-61 readability closure) */
+  --color-mtqs-rose: oklch(0.514 0.222 16.435); /* rose-700 — §14.1 EMERGENCY #9F1239-class (was rose-600, 3.8:1) */
+  --color-mtqs-amber: oklch(0.555 0.1648 47.13); /* amber-700 — §14.1 CAUTION #B45309 (was amber-600, 3.0:1) */
   --color-mtqs-violet: oklch(0.541 0.281 293.009);
   --color-mtqs-cyan: oklch(0.511 0.096 186.391);
   --color-mtqs-obsidian: oklch(0.208 0.014 185);
@@ -104,6 +104,13 @@ html {
   /* === Animations === */
   --ease-cinematic: cubic-bezier(0.16, 1, 0.3, 1);
   --ease-spring: cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+/* Typographic subscript floor — formula indices (I_t etc.) must never
+   render below 9px (F-61: 6.6px subscripts flagged in Transparency §3.2). */
+sub,
+sup {
+  font-size: max(0.7em, 9px);
 }
 
 /* ============================================================
@@ -810,17 +817,17 @@ body {
   font-weight: 600;
   font-size: 0.9rem;
   color: #FFFFFF;
-  background: #0D9488;
-  border: 1px solid #0D9488;
-  box-shadow: 0 2px 8px rgba(13, 148, 136, 0.28);
+  background: #0F766E; /* §14.1 teal-700 — white label 5.9:1 (was teal-600 #0D9488, 3.74:1 — F-61) */
+  border: 1px solid #0F766E;
+  box-shadow: 0 2px 8px rgba(15, 118, 110, 0.28);
   transition: all 0.2s var(--ease-cinematic);
   cursor: pointer;
 }
 .mtqs-cta-gold:hover {
   color: #FFFFFF;
-  background: #0F766E;
-  border-color: #0F766E;
-  box-shadow: 0 6px 20px rgba(13, 148, 136, 0.32);
+  background: #115E59;
+  border-color: #115E59;
+  box-shadow: 0 6px 20px rgba(15, 118, 110, 0.32);
   transform: translateY(-1px);
 }
 .mtqs-cta-outline {
@@ -963,8 +970,8 @@ body {
   --sb-rail: 80px;
   --sb-ink: #0E1F1B;
   --sb-ink-2: #4A5C56;
-  --sb-ink-3: #6B7F78;
-  --sb-ink-4: #8CA099;
+  --sb-ink-3: #5B6E68; /* was #6B7F78 (4.26:1) — AA floor for sidebar labels (F-61) */
+  --sb-ink-4: #5B6E68; /* was #8CA099 (2.63:1) — vitals/metrics labels AA (F-61) */
   --sb-ink-5: #5B6E68;
   --sb-line: #E3EAE6;
   --sb-line-soft: #EEF3F0;

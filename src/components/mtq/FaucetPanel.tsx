@@ -298,12 +298,12 @@ export function FaucetPanel() {
           {/* Hard honesty banner */}
           <div
             role="note"
-            className="flex items-start gap-2 rounded-md border border-mtqs-amber/30 bg-mtqs-amber/[0.06] px-3 py-2 text-[0.72rem] text-mtqs-amber/95"
+            className="flex items-start gap-2 rounded-md border border-mtqs-amber/30 bg-mtqs-amber/[0.06] px-3 py-2 text-[0.72rem] text-mtqs-amber"
           >
             <AlertTriangle className="h-3.5 w-3.5 mt-0.5 shrink-0" />
             <div>
               <span className="font-semibold uppercase tracking-wider">TESTNET</span>
-              <span className="mx-1.5 text-mtqs-amber/60">·</span>
+              <span className="mx-1.5 text-mtqs-amber">·</span>
               All assets are simulated. No real value. Claims mint MTQ against
               the live pilot engine — fees + reserve ratio are real state changes.
               The asset picker is display-only: every claim is processed as a
@@ -350,11 +350,11 @@ export function FaucetPanel() {
             </div>
             {/* Chain meta row */}
             <div className="text-[0.65rem] text-[#5B6E68] mt-1 flex items-center gap-2 flex-wrap">
-              <span className="font-mono text-mtqs-gold/70">
+              <span className="font-mono text-mtqs-gold">
                 RPC {chain.rpcUrl.replace(/^https?:\/\//, "")}
               </span>
               {canonicalAddr && (
-                <span className="font-mono text-mtqs-gold/60">
+                <span className="font-mono text-mtqs-gold">
                   · MTQΣ {shortAddr(canonicalAddr, 6, 6)}
                 </span>
               )}
@@ -398,7 +398,7 @@ export function FaucetPanel() {
             )}
             {/* Display-only disclosure — the engine mints against a USD-equivalent
                 deposit regardless of the picked asset (see route + header note). */}
-            <div className="text-[0.6rem] text-mtqs-amber/80 mt-1">
+            <div className="text-[0.6rem] text-mtqs-amber mt-1">
               Selector is display-only — every claim is processed as a
               USD-equivalent test deposit (mint path), regardless of asset.
             </div>
@@ -413,7 +413,7 @@ export function FaucetPanel() {
               Wallet Address
             </label>
             <div className="relative">
-              <Wallet className="absolute left-3 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-[#7A8C86]" />
+              <Wallet className="absolute left-3 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-[#5B6E68]" />
               <input
                 id="faucet-wallet"
                 type="text"
@@ -427,7 +427,7 @@ export function FaucetPanel() {
                 spellCheck={false}
                 autoComplete="off"
                 aria-invalid={wallet.length > 0 && !walletValid}
-                className={`mtqs-focus w-full rounded-md border bg-white pl-9 pr-3 py-2 font-mono text-xs text-[#0E1F1B] placeholder:text-[#7A8C86] transition ${
+                className={`mtqs-focus w-full rounded-md border bg-white pl-9 pr-3 py-2 font-mono text-xs text-[#0E1F1B] placeholder:text-[#5B6E68] transition ${
                   wallet.length === 0
                     ? "border-[#E3EAE6]"
                     : walletValid
@@ -478,7 +478,7 @@ export function FaucetPanel() {
                 ))}
               </div>
             </div>
-            <div className="text-[0.62rem] text-[#7A8C86]">
+            <div className="text-[0.62rem] text-[#5B6E68]">
               Max {MAX_CLAIM_AMOUNT.toLocaleString()} {asset?.symbol ?? ""} per claim ·
               cooldown {COOLDOWN_SECONDS}s after each successful claim
             </div>
@@ -495,7 +495,7 @@ export function FaucetPanel() {
             className={`mtqs-focus inline-flex items-center justify-center gap-2 rounded-md border px-5 py-2.5 text-sm font-semibold transition w-full sm:w-auto ${
               canClaim
                 ? "border-mtqs-gold/40 bg-mtqs-gold/10 text-mtqs-gold hover:bg-mtqs-gold/20 hover:border-mtqs-gold/60"
-                : "border-[#E3EAE6] bg-[#F7FAF8] text-[#7A8C86] cursor-not-allowed"
+                : "border-[#E3EAE6] bg-[#F7FAF8] text-[#5B6E68] cursor-not-allowed"
             }`}
           >
             {pending ? (
@@ -577,7 +577,7 @@ export function FaucetPanel() {
                           else toast.error("Copy failed");
                         }}
                         aria-label="Copy tx hash"
-                        className="mtqs-focus text-mtqs-gold/70 hover:text-mtqs-gold transition shrink-0"
+                        className="mtqs-focus text-mtqs-gold hover:text-mtqs-gold transition shrink-0"
                       >
                         <Copy className="h-3 w-3" />
                       </button>
@@ -586,7 +586,7 @@ export function FaucetPanel() {
                         target="_blank"
                         rel="noopener noreferrer"
                         aria-label="Open simulated tx on explorer (will not exist)"
-                        className="mtqs-focus text-mtqs-gold/70 hover:text-mtqs-gold transition shrink-0 inline-flex items-center gap-1"
+                        className="mtqs-focus text-mtqs-gold hover:text-mtqs-gold transition shrink-0 inline-flex items-center gap-1"
                       >
                         <ExternalLink className="h-3 w-3" />
                         {/* 24-e-2: visible qualifier — the (will not exist) note
@@ -600,14 +600,14 @@ export function FaucetPanel() {
                     {/* Engine response row */}
                     <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 mt-3 text-[0.7rem]">
                       <div>
-                        <div className="uppercase tracking-[0.18em] text-[#7A8C86]">Asset</div>
+                        <div className="uppercase tracking-[0.18em] text-[#5B6E68]">Asset</div>
                         <div className="font-mono tabular-nums text-[#0E1F1B]">
                           {fmtNum(lastTx.amount, 2)} {lastTx.assetSymbol}
                         </div>
                       </div>
                       {Number.isFinite(lastTx.mtqMinted) && (
                         <div>
-                          <div className="uppercase tracking-[0.18em] text-[#7A8C86]">MTQ Minted</div>
+                          <div className="uppercase tracking-[0.18em] text-[#5B6E68]">MTQ Minted</div>
                           <div className="font-mono tabular-nums text-mtqs-gold">
                             {fmtNum(lastTx.mtqMinted, 4)}
                           </div>
@@ -615,8 +615,8 @@ export function FaucetPanel() {
                       )}
                       {Number.isFinite(lastTx.mtqPrice) && (
                         <div>
-                          <div className="uppercase tracking-[0.18em] text-[#7A8C86]">MTQ Price</div>
-                          <div className="font-mono tabular-nums text-mtqs-gold/80">
+                          <div className="uppercase tracking-[0.18em] text-[#5B6E68]">MTQ Price</div>
+                          <div className="font-mono tabular-nums text-mtqs-gold">
                             {fmtFixed(lastTx.mtqPrice, 4)}
                           </div>
                         </div>
@@ -625,7 +625,7 @@ export function FaucetPanel() {
                         const rr = lastTx.reserveRatio ?? 0;
                         return (
                           <div>
-                            <div className="uppercase tracking-[0.18em] text-[#7A8C86]">RR post</div>
+                            <div className="uppercase tracking-[0.18em] text-[#5B6E68]">RR post</div>
                             <div className={`font-mono tabular-nums ${rr >= 1.05 ? "text-mtqs-emerald" : "text-mtqs-amber"}`}>
                               {(rr * 100).toFixed(2)}%
                             </div>
@@ -633,7 +633,7 @@ export function FaucetPanel() {
                         );
                       })()}
                     </div>
-                    <div className="mt-3 text-[0.62rem] text-[#7A8C86] italic">
+                    <div className="mt-3 text-[0.62rem] text-[#5B6E68] italic">
                       Simulated transaction · hash is deterministic per claim · no
                       on-chain broadcast. The mint path through the engine is real —
                       the asset picker is display-only (claims are USD-equivalent test
@@ -641,7 +641,7 @@ export function FaucetPanel() {
                     </div>
                   </>
                 ) : (
-                  <div className="text-[0.72rem] text-mtqs-rose/90">
+                  <div className="text-[0.72rem] text-mtqs-rose">
                     <span className="font-semibold">Reason:</span> {lastTx.reason ?? "Engine rejected the claim"}
                   </div>
                 )}

@@ -59,7 +59,7 @@ export function Footer({ onExit }: { onExit?: () => void }) {
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6 py-6">
           {/* Protocol */}
           <div className="space-y-2">
-            <div className="text-[0.62rem] uppercase tracking-[0.22em] text-mtqs-gold/70 font-semibold">
+            <div className="text-[0.62rem] uppercase tracking-[0.22em] text-mtqs-gold font-semibold">
               Protocol
             </div>
             <ul className="space-y-1.5 text-[0.78rem] text-[#33544C]">
@@ -69,7 +69,7 @@ export function Footer({ onExit }: { onExit?: () => void }) {
               </li>
               <li>
                 <span className="text-[#5B6E68]">Design: </span>
-                <span className="text-mtqs-emerald/85">{BRAND_VOICE.designConstraint}</span>
+                <span className="text-mtqs-emerald">{BRAND_VOICE.designConstraint}</span>
               </li>
               <li>
                 <span className="text-[#5B6E68]">Objective: </span>
@@ -80,7 +80,7 @@ export function Footer({ onExit }: { onExit?: () => void }) {
 
           {/* Resources */}
           <div className="space-y-2">
-            <div className="text-[0.62rem] uppercase tracking-[0.22em] text-mtqs-gold/70 font-semibold">
+            <div className="text-[0.62rem] uppercase tracking-[0.22em] text-mtqs-gold font-semibold">
               Resources
             </div>
             <div className="text-[0.7rem] text-[#5B6E68] uppercase tracking-[0.18em] mb-1.5">
@@ -99,14 +99,14 @@ export function Footer({ onExit }: { onExit?: () => void }) {
                 </a>
               ))}
             </div>
-            <div className="mt-2 text-[0.62rem] text-[#7A8C86]">
+            <div className="mt-2 text-[0.62rem] text-[#5B6E68]">
               3 testnets live (Monad · Arc · Solana devnet) — TESTNET-ONLY pilot; mainnet
               deployment not authorized. (Robinhood Chain + Base/Arbitrum placeholders removed
               from the registry 2026-10-24 per the owner's directive.)
             </div>
             <div className="mt-2 text-[0.7rem] text-[#5B6E68]">
               Deployer wallet:{" "}
-              <span className="font-mono text-mtqs-gold/85">
+              <span className="font-mono text-mtqs-gold">
                 {shortAddr(DEPLOYER_WALLET, 8, 6)}
               </span>
             </div>
@@ -114,7 +114,7 @@ export function Footer({ onExit }: { onExit?: () => void }) {
 
           {/* Status */}
           <div className="space-y-2">
-            <div className="text-[0.62rem] uppercase tracking-[0.22em] text-mtqs-gold/70 font-semibold">
+            <div className="text-[0.62rem] uppercase tracking-[0.22em] text-mtqs-gold font-semibold">
               Status
             </div>
             <div className="flex items-start gap-2">
@@ -133,7 +133,7 @@ export function Footer({ onExit }: { onExit?: () => void }) {
                 candidate · testnet
               </GlowBadge>
             </div>
-            <div className="text-[0.66rem] text-[#7A8C86] leading-relaxed pt-1">
+            <div className="text-[0.66rem] text-[#5B6E68] leading-relaxed pt-1">
               Core metrics are computed live by the reference engine and reconciled against
               the blueprint; illustrative and synthetic panels are labeled as such.
             </div>
@@ -146,7 +146,7 @@ export function Footer({ onExit }: { onExit?: () => void }) {
         >
           <div className="flex flex-wrap items-center justify-center gap-2">
             <span>© {year} MTQΣ Protocol</span>
-            <span className="text-[#9AA9A3]">·</span>
+            <span className="text-[#5B6E68]">·</span>
             <span>Global Digital Asset</span>
           </div>
           <div className="flex flex-wrap items-center justify-center gap-3">
@@ -165,7 +165,7 @@ export function Footer({ onExit }: { onExit?: () => void }) {
                 verifiable in package.json (Next 16.4.5 · React 19.3.1 ·
                 Tailwind 4.3.5 after the task55 upscale) — never an
                 aspirational stack. */}
-            <span className="font-mono text-[#7A8C86]">
+            <span className="font-mono text-[#5B6E68]">
               Built on Next.js 16 · React 19 · TypeScript 5 · Tailwind CSS 4 ·
               shadcn/ui · Prisma · SSE live stream · in-process engine · 4s poll
             </span>

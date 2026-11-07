@@ -176,7 +176,7 @@ export function TestsSection({ onNavigate: _onNavigate }: { onNavigate: (id: Sec
       <Reveal>
         <Panel className="p-5">
           <div className="flex items-start gap-3 mb-3">
-            <TestTube className="h-5 w-5 text-mtqs-gold/80 mt-0.5 shrink-0" aria-hidden="true" />
+            <TestTube className="h-5 w-5 text-mtqs-gold mt-0.5 shrink-0" aria-hidden="true" />
             <p className="text-[0.82rem] text-[#5B6E68] leading-relaxed">
               The Monte Carlo audit runs {totalRuns > 0 ? `${totalRuns.toLocaleString()} ` : ""}survival
               simulations across {suites.length > 0 ? `${suites.length} ` : ""}stress suites. Each
@@ -188,27 +188,27 @@ export function TestsSection({ onNavigate: _onNavigate }: { onNavigate: (id: Sec
             </p>
           </div>
           <div className="rounded-md border border-[#E3EAE6] bg-[#F7FAF8] p-3 text-[0.7rem] text-[#5B6E68] leading-relaxed">
-            <div className="text-[0.6rem] uppercase tracking-[0.22em] text-mtqs-gold/75 mb-1">
+            <div className="text-[0.6rem] uppercase tracking-[0.22em] text-mtqs-gold mb-1">
               Methodology disclosure
             </div>
             <ul className="space-y-1.5">
               <li>
-                <span className="text-mtqs-gold/70 font-mono">·</span> Each suite runs N independent
+                <span className="text-mtqs-gold font-mono">·</span> Each suite runs N independent
                 Monte Carlo simulations; results are aggregated into a survival rate, mean and
                 worst-case minimum RR, mean days in stress, and mean time to recover.
               </li>
               <li>
-                <span className="text-mtqs-gold/70 font-mono">·</span> Simulations use stochastic FX,
+                <span className="text-mtqs-gold font-mono">·</span> Simulations use stochastic FX,
                 VIX, DXY, and depeg processes consistent with the blueprint §6 / §11 ranges. F3
                 (VIX/DXY simulated, not real-market) is an honest informational finding.
               </li>
               <li>
-                <span className="text-mtqs-gold/70 font-mono">·</span> A run is &ldquo;failed&rdquo; if RR
+                <span className="text-mtqs-gold font-mono">·</span> A run is &ldquo;failed&rdquo; if RR
                 drops below 1.00 at any tick. The 110% buffer is designed to absorb all tested
                 shocks without breaching the hard floor.
               </li>
               <li>
-                <span className="text-mtqs-gold/70 font-mono">·</span>{" "}
+                <span className="text-mtqs-gold font-mono">·</span>{" "}
                 {forceNote
                   ? "Re-runs are disabled on this host — the re-run button re-fetches the last recorded run instead of executing the suite live."
                   : "The audit is cached in src/lib/mtq/test-results.json. Use the re-run button below to execute the full suite live."}
@@ -242,7 +242,7 @@ export function TestsSection({ onNavigate: _onNavigate }: { onNavigate: (id: Sec
                 <div className="text-sm font-semibold text-[#0E1F1B] mb-1">
                   Failed to load tests
                 </div>
-                <div className="font-mono text-[0.72rem] text-mtqs-rose/80">{data.error}</div>
+                <div className="font-mono text-[0.72rem] text-mtqs-rose">{data.error}</div>
                 <button
                   onClick={handleRerun}
                   disabled={rerunning}
@@ -302,7 +302,7 @@ export function TestsSection({ onNavigate: _onNavigate }: { onNavigate: (id: Sec
                 <div className="text-[0.68rem] text-[#5B6E68]">
                   {forceNote ? (
                     // 16c-001 — honest note when the backend declined the force re-run
-                    <span className="text-mtqs-amber/90">{forceNote}</span>
+                    <span className="text-mtqs-amber">{forceNote}</span>
                   ) : data?.cached
                     ? `Showing cached results. Re-run to execute the full ${totalRuns > 0 ? `${totalRuns.toLocaleString()}-run ` : ""}suite live.`
                     : "Showing fresh results from the live Monte Carlo run."}
@@ -326,7 +326,7 @@ export function TestsSection({ onNavigate: _onNavigate }: { onNavigate: (id: Sec
           <section>
             <div className="flex items-end justify-between gap-4 mb-4">
               <div>
-                <div className="text-[0.6rem] uppercase tracking-[0.22em] text-mtqs-gold/75">suites</div>
+                <div className="text-[0.6rem] uppercase tracking-[0.22em] text-mtqs-gold">suites</div>
                 <h3 className="mt-2 text-base font-semibold text-[#0E1F1B]">Stress Suite Results</h3>
               </div>
               <Pill tone="muted">{suites.length} suites</Pill>
@@ -365,7 +365,7 @@ export function TestsSection({ onNavigate: _onNavigate }: { onNavigate: (id: Sec
                       </div>
                       <div className="mt-1 grid grid-cols-2 gap-2 text-[0.7rem]">
                         <div className="rounded-md border border-[#E3EAE6] bg-[#F7FAF8] p-2">
-                          <div className="text-[0.55rem] uppercase tracking-[0.18em] text-[#5B6E68]">
+                          <div className="text-[0.6rem] uppercase tracking-[0.18em] text-[#5B6E68]">
                             Survival
                           </div>
                           <div
@@ -381,7 +381,7 @@ export function TestsSection({ onNavigate: _onNavigate }: { onNavigate: (id: Sec
                           </div>
                         </div>
                         <div className="rounded-md border border-[#E3EAE6] bg-[#F7FAF8] p-2">
-                          <div className="text-[0.55rem] uppercase tracking-[0.18em] text-[#5B6E68]">
+                          <div className="text-[0.6rem] uppercase tracking-[0.18em] text-[#5B6E68]">
                             Worst min RR
                           </div>
                           <div
@@ -412,7 +412,7 @@ export function TestsSection({ onNavigate: _onNavigate }: { onNavigate: (id: Sec
           <section>
             <div className="flex items-end justify-between gap-4 mb-4">
               <div>
-                <div className="text-[0.6rem] uppercase tracking-[0.22em] text-mtqs-gold/75">invariants</div>
+                <div className="text-[0.6rem] uppercase tracking-[0.22em] text-mtqs-gold">invariants</div>
                 <h3 className="mt-2 text-base font-semibold text-[#0E1F1B]">Invariants Tested</h3>
               </div>
               <Pill tone="emerald">
@@ -450,7 +450,7 @@ export function TestsSection({ onNavigate: _onNavigate }: { onNavigate: (id: Sec
           <section>
             <div className="flex items-end justify-between gap-4 mb-4">
               <div>
-                <div className="text-[0.6rem] uppercase tracking-[0.22em] text-mtqs-gold/75">findings</div>
+                <div className="text-[0.6rem] uppercase tracking-[0.22em] text-mtqs-gold">findings</div>
                 <h3 className="mt-2 text-base font-semibold text-[#0E1F1B]">Audit Findings</h3>
               </div>
               <Pill tone="emerald">

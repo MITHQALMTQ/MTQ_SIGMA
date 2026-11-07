@@ -124,7 +124,7 @@ export function StatsRow() {
               {LIVE_STATS.tag}
             </span>
             <span
-              className="text-center text-[0.62rem] font-mono tabular-nums text-[#7A8C86] sm:ml-auto sm:self-center sm:text-right"
+              className="text-center text-[0.62rem] font-mono tabular-nums text-[#5B6E68] sm:ml-auto sm:self-center sm:text-right"
               aria-live="off"
             >
               {degraded

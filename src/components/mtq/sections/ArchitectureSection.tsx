@@ -370,7 +370,7 @@ function FlowNode({
           {chips.map((c) => (
             <span
               key={c}
-              className="rounded-full border border-[#E3EAE6] bg-white px-1.5 py-0.5 text-[0.58rem] uppercase tracking-[0.14em] text-[#5B6E68]"
+              className="rounded-full border border-[#E3EAE6] bg-white px-1.5 py-0.5 text-[0.6rem] uppercase tracking-[0.14em] text-[#5B6E68]"
             >
               {c}
             </span>
@@ -385,7 +385,7 @@ function FlowNode({
 function FlowDown({ className = "" }: { className?: string }) {
   return (
     <div className={`flex justify-center py-0.5 ${className}`} aria-hidden="true">
-      <ArrowDown className="h-3.5 w-3.5 text-mtqs-gold/50" />
+      <ArrowDown className="h-3.5 w-3.5 text-mtqs-gold" />
     </div>
   );
 }
@@ -394,7 +394,7 @@ function FlowDown({ className = "" }: { className?: string }) {
 function CheckRow({ text }: { text: string }) {
   return (
     <li className="flex items-start gap-2 text-[0.7rem] leading-relaxed text-[#5B6E68]">
-      <span className="mt-[3px] inline-flex h-3 w-3 shrink-0 items-center justify-center rounded-[2px] border border-[#BEE3DD] text-[0.55rem] text-[#7A8C86]" aria-hidden="true">
+      <span className="mt-[3px] inline-flex h-3 w-3 shrink-0 items-center justify-center rounded-[2px] border border-[#BEE3DD] text-[0.6rem] text-[#5B6E68]" aria-hidden="true">
         □
       </span>
       <span>{text}</span>
@@ -477,7 +477,7 @@ export function ArchitectureSection({
               one place — fixed-quantity references replaced by methodology references under
               invariant I3.
             </p>
-            <p className="mb-4 text-[0.7rem] leading-relaxed text-mtqs-amber/80">
+            <p className="mb-4 text-[0.7rem] leading-relaxed text-mtqs-amber">
               v3.0 supersession note: the &ldquo;collateralized&rdquo; obligation above is v2.0
               doctrine, reproduced verbatim. Under the v3.0 no-conventional-reserve objective
               (Gate B, D-13.3–D-13.7 open) MTQΣ is issued against settled payment and references
@@ -490,7 +490,7 @@ export function ArchitectureSection({
                   <GlowDot color="gold" size="h-1.5 w-1.5" className="mt-[7px] shrink-0" />
                   <div className="min-w-0">
                     <span className="text-[0.78rem] leading-relaxed text-[#0E1F1B]">{p.text}</span>{" "}
-                    <span className="ml-1 whitespace-nowrap font-mono text-[0.62rem] text-mtqs-gold/70">
+                    <span className="ml-1 whitespace-nowrap font-mono text-[0.62rem] text-mtqs-gold">
                       [{p.ref}]
                     </span>
                   </div>
@@ -512,7 +512,7 @@ export function ArchitectureSection({
         {/* §26.7 one-sentence definition */}
         <Reveal delay={0.05}>
           <Panel className="mt-4 border-mtqs-gold/25 bg-mtqs-gold/[0.04] p-5">
-            <div className="text-[0.6rem] uppercase tracking-[0.22em] text-mtqs-gold/75">
+            <div className="text-[0.6rem] uppercase tracking-[0.22em] text-mtqs-gold">
               §26.7 · the final one-sentence definition
             </div>
             <p className="mtqs-display mt-2 text-base sm:text-lg font-medium leading-relaxed text-mtqs-gold">
@@ -532,7 +532,7 @@ export function ArchitectureSection({
         <Reveal delay={0.1}>
           <Panel className="mt-4 p-5">
             <div className="mb-3 flex items-center justify-between gap-3 flex-wrap">
-              <div className="text-[0.6rem] uppercase tracking-[0.22em] text-mtqs-gold/75">
+              <div className="text-[0.6rem] uppercase tracking-[0.22em] text-mtqs-gold">
                 §26.8.2 · Final honest status declaration
               </div>
               <Pill tone="amber">
@@ -589,7 +589,7 @@ export function ArchitectureSection({
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-6">
               {/* REFERENCE INDEX branch */}
               <div className="rounded-xl border border-[#E3EAE6] bg-[#F7FAF8] p-3 sm:p-4">
-                <div className="mb-3 text-center text-[0.62rem] font-semibold uppercase tracking-[0.26em] text-mtqs-gold/80">
+                <div className="mb-3 text-center text-[0.62rem] font-semibold uppercase tracking-[0.26em] text-mtqs-gold">
                   Reference Index
                 </div>
                 <div className="space-y-0.5">
@@ -604,7 +604,7 @@ export function ArchitectureSection({
 
               {/* RESERVE branch */}
               <div className="rounded-xl border border-[#E3EAE6] bg-[#F7FAF8] p-3 sm:p-4">
-                <div className="mb-3 text-center text-[0.62rem] font-semibold uppercase tracking-[0.26em] text-mtqs-gold/80">
+                <div className="mb-3 text-center text-[0.62rem] font-semibold uppercase tracking-[0.26em] text-mtqs-gold">
                   Reserve
                 </div>
                 <FlowNode label="Reserve Engine" />
@@ -659,11 +659,11 @@ export function ArchitectureSection({
             </div>
             <div className="flex flex-wrap items-center justify-center gap-x-2 gap-y-2">
               <FlowNode label="Cost-Benefit Gate" tone="gold" />
-              <ArrowRight className="hidden sm:block h-3.5 w-3.5 text-mtqs-gold/50" aria-hidden="true" />
+              <ArrowRight className="hidden sm:block h-3.5 w-3.5 text-mtqs-gold" aria-hidden="true" />
               <FlowNode label="Partial Execution" />
-              <ArrowRight className="hidden sm:block h-3.5 w-3.5 text-mtqs-gold/50" aria-hidden="true" />
+              <ArrowRight className="hidden sm:block h-3.5 w-3.5 text-mtqs-gold" aria-hidden="true" />
               <FlowNode label="Verification" />
-              <ArrowRight className="hidden sm:block h-3.5 w-3.5 text-mtqs-gold/50" aria-hidden="true" />
+              <ArrowRight className="hidden sm:block h-3.5 w-3.5 text-mtqs-gold" aria-hidden="true" />
               <FlowNode label="Audit / Publication" />
             </div>
 
@@ -761,13 +761,13 @@ export function ArchitectureSection({
                 <h3 className="text-[0.8rem] font-semibold text-[#0E1F1B] leading-snug">{ex.title}</h3>
                 <div className="mt-2.5 space-y-2 flex-1">
                   <div>
-                    <div className="text-[0.58rem] uppercase tracking-[0.18em] text-[#5B6E68]">
+                    <div className="text-[0.6rem] uppercase tracking-[0.18em] text-[#5B6E68]">
                       Scenario
                     </div>
                     <p className="text-[0.68rem] leading-relaxed text-[#5B6E68]">{ex.scenario}</p>
                   </div>
                   <div>
-                    <div className="text-[0.58rem] uppercase tracking-[0.18em] text-[#5B6E68]">
+                    <div className="text-[0.6rem] uppercase tracking-[0.18em] text-[#5B6E68]">
                       Math
                     </div>
                     <div className="mt-1 space-y-1">
@@ -782,7 +782,7 @@ export function ArchitectureSection({
                     </div>
                   </div>
                   <div>
-                    <div className="text-[0.58rem] uppercase tracking-[0.18em] text-[#5B6E68]">
+                    <div className="text-[0.6rem] uppercase tracking-[0.18em] text-[#5B6E68]">
                       Decision outcome
                     </div>
                     <p className="text-[0.68rem] leading-relaxed text-[#5B6E68]">{ex.outcome}</p>
@@ -810,7 +810,7 @@ export function ArchitectureSection({
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <Panel className="p-4">
               <div className="mb-3 flex items-center gap-2">
-                <Lock className="h-3.5 w-3.5 text-mtqs-emerald/80" aria-hidden="true" />
+                <Lock className="h-3.5 w-3.5 text-mtqs-emerald" aria-hidden="true" />
                 <span className="text-[0.72rem] font-semibold text-[#0E1F1B]">
                   Locked concepts (constitutional)
                 </span>
@@ -819,7 +819,7 @@ export function ArchitectureSection({
               <ol className="max-h-96 overflow-y-auto mtqs-scroll space-y-1.5 pr-2">
                 {LOCKED_CONCEPTS.map((c, i) => (
                   <li key={c} className="flex items-start gap-2 text-[0.68rem] leading-relaxed text-[#5B6E68]">
-                    <span className="mt-px w-5 shrink-0 text-right font-mono text-[0.6rem] text-mtqs-emerald/70">
+                    <span className="mt-px w-5 shrink-0 text-right font-mono text-[0.6rem] text-mtqs-emerald">
                       {i + 1}.
                     </span>
                     <span>{c}</span>
@@ -829,7 +829,7 @@ export function ArchitectureSection({
             </Panel>
             <Panel className="p-4">
               <div className="mb-3 flex items-center gap-2">
-                <FlaskConical className="h-3.5 w-3.5 text-mtqs-amber/80" aria-hidden="true" />
+                <FlaskConical className="h-3.5 w-3.5 text-mtqs-amber" aria-hidden="true" />
                 <span className="text-[0.72rem] font-semibold text-[#0E1F1B]">
                   Not locked — must be quantitatively validated
                 </span>
@@ -838,7 +838,7 @@ export function ArchitectureSection({
               <ol className="max-h-96 overflow-y-auto mtqs-scroll space-y-1.5 pr-2">
                 {NOT_LOCKED.map((c, i) => (
                   <li key={c} className="flex items-start gap-2 text-[0.68rem] leading-relaxed text-[#5B6E68]">
-                    <span className="mt-px w-5 shrink-0 text-right font-mono text-[0.6rem] text-mtqs-amber/70">
+                    <span className="mt-px w-5 shrink-0 text-right font-mono text-[0.6rem] text-mtqs-amber">
                       {i + 1}.
                     </span>
                     <span>{c}</span>
@@ -902,7 +902,7 @@ export function ArchitectureSection({
                 {ph.phase === "Phase 1" ? (
                   <p className="mt-2 text-[0.6rem] text-[#5B6E68]">
                     Reported Genesis Reserve Safe (contracts.ts):{" "}
-                    <span className="font-mono text-mtqs-gold/80">{genesisReserveSafe}</span>
+                    <span className="font-mono text-mtqs-gold">{genesisReserveSafe}</span>
                   </p>
                 ) : null}
                 {ph.phase === "Phase 5" ? (
@@ -1009,13 +1009,13 @@ export function ArchitectureSection({
         {/* §1.8 binding consolidation order */}
         <Reveal delay={0.05}>
           <Panel className="mt-4 p-5">
-            <div className="mb-2 text-[0.6rem] uppercase tracking-[0.22em] text-mtqs-gold/75">
+            <div className="mb-2 text-[0.6rem] uppercase tracking-[0.22em] text-mtqs-gold">
               §1.8 · Binding consolidation order &amp; source precedence
             </div>
             <ol className="space-y-1">
               {CONSOLIDATION_ORDER.map((o, i) => (
                 <li key={o} className="flex items-start gap-2 text-[0.7rem] leading-relaxed text-[#5B6E68]">
-                  <span className="mt-px w-4 shrink-0 text-right font-mono text-[0.62rem] text-mtqs-gold/70">
+                  <span className="mt-px w-4 shrink-0 text-right font-mono text-[0.62rem] text-mtqs-gold">
                     {i + 1}.
                   </span>
                   <span>{o}</span>
@@ -1036,7 +1036,7 @@ export function ArchitectureSection({
         {/* §1.7 status declaration */}
         <Reveal delay={0.1}>
           <Panel className="mt-4 border-mtqs-amber/25 bg-mtqs-amber/[0.04] p-5">
-            <div className="mb-2 text-[0.6rem] uppercase tracking-[0.22em] text-mtqs-amber/80">
+            <div className="mb-2 text-[0.6rem] uppercase tracking-[0.22em] text-mtqs-amber">
               §1.7 · Status declaration (binds every reader of this specification)
             </div>
             <p className="text-[0.72rem] leading-relaxed text-[#5B6E68]">

@@ -191,8 +191,8 @@ export function AIConsensusPanel({ className = "" }: { className?: string }) {
         <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between mb-4">
           <div className="space-y-1.5 min-w-0">
             <div className="flex items-center gap-2">
-              <Network className="h-3.5 w-3.5 text-mtqs-gold/85" aria-hidden="true" />
-              <span className="text-[0.6rem] uppercase tracking-[0.22em] text-mtqs-gold/85">
+              <Network className="h-3.5 w-3.5 text-mtqs-gold" aria-hidden="true" />
+              <span className="text-[0.6rem] uppercase tracking-[0.22em] text-mtqs-gold">
                 AI · Multi-Model Consensus
               </span>
             </div>
@@ -236,7 +236,7 @@ export function AIConsensusPanel({ className = "" }: { className?: string }) {
             {/* ---------- Providers ---------- */}
             <div>
               <div className="flex items-center gap-2 mb-2">
-                <Layers className="h-3 w-3 text-mtqs-gold/70" aria-hidden="true" />
+                <Layers className="h-3 w-3 text-mtqs-gold" aria-hidden="true" />
                 <span className="text-[0.62rem] uppercase tracking-[0.18em] text-[#5B6E68]">
                   Providers (validated 2026-11-06 · Gemini re-audited 2026-11-08)
                 </span>
@@ -250,18 +250,18 @@ export function AIConsensusPanel({ className = "" }: { className?: string }) {
                     <div className="flex items-center gap-2 min-w-0">
                       {p.keyPresent ? (
                         <CheckCircle2
-                          className={`h-3.5 w-3.5 shrink-0 ${GEO_GATED_PROVIDERS.has(p.provider) ? "text-amber-500" : "text-emerald-600"}`}
+                          className={`h-3.5 w-3.5 shrink-0 ${GEO_GATED_PROVIDERS.has(p.provider) ? "text-amber-700" : "text-emerald-700"}`}
                           aria-hidden="true"
                         />
                       ) : (
                         <XCircle className="h-3.5 w-3.5 text-mtqs-rose shrink-0" aria-hidden="true" />
                       )}
                       <span className="text-[0.75rem] font-medium text-[#0E1F1B] capitalize truncate">{p.provider}</span>
-                      <span className="text-[0.65rem] font-mono text-[#7A8C86]">{p.rosterModels} models</span>
+                      <span className="text-[0.65rem] font-mono text-[#5B6E68]">{p.rosterModels} models</span>
                     </div>
                     <span
                       className={`text-[0.62rem] font-mono whitespace-nowrap ${
-                        p.keyPresent ? (GEO_GATED_PROVIDERS.has(p.provider) ? "text-amber-600" : "text-emerald-700") : "text-mtqs-rose"
+                        p.keyPresent ? (GEO_GATED_PROVIDERS.has(p.provider) ? "text-amber-700" : "text-emerald-700") : "text-mtqs-rose"
                       }`}
                     >
                       {p.keyPresent
@@ -275,7 +275,7 @@ export function AIConsensusPanel({ className = "" }: { className?: string }) {
               </div>
               <div className="mt-2 flex flex-wrap gap-x-3 gap-y-1">
                 {REMOVED_PROVIDERS.map((rp) => (
-                  <span key={rp.name} className="text-[0.6rem] text-[#7A8C86] font-mono">
+                  <span key={rp.name} className="text-[0.6rem] text-[#5B6E68] font-mono">
                     <span className="line-through">{rp.name}</span> — {rp.reason}
                   </span>
                 ))}
@@ -285,7 +285,7 @@ export function AIConsensusPanel({ className = "" }: { className?: string }) {
             {/* ---------- Roster ---------- */}
             <div>
               <div className="flex items-center gap-2 mb-2">
-                <ShieldCheck className="h-3 w-3 text-mtqs-gold/70" aria-hidden="true" />
+                <ShieldCheck className="h-3 w-3 text-mtqs-gold" aria-hidden="true" />
                 <span className="text-[0.62rem] uppercase tracking-[0.18em] text-[#5B6E68]">
                   Voter roster — best model per task
                 </span>
@@ -293,7 +293,7 @@ export function AIConsensusPanel({ className = "" }: { className?: string }) {
               <div className="overflow-x-auto">
                 <table className="w-full text-[0.7rem]">
                   <thead>
-                    <tr className="text-left text-[#7A8C86] border-b border-[#E3EAE6]">
+                    <tr className="text-left text-[#5B6E68] border-b border-[#E3EAE6]">
                       <th className="py-1.5 pr-3 font-medium">Model</th>
                       <th className="py-1.5 pr-3 font-medium">Role</th>
                       <th className="py-1.5 pr-3 font-medium text-right">Probe</th>
@@ -304,11 +304,11 @@ export function AIConsensusPanel({ className = "" }: { className?: string }) {
                     {roster.map((r) => (
                       <tr key={`${r.provider}/${r.model}`} className="text-[#0E1F1B]">
                         <td className="py-1.5 pr-3 font-mono text-[0.65rem] max-w-[12rem] truncate" title={`${r.provider}/${r.model}`}>
-                          <span className="text-[#7A8C86]">{r.provider}/</span>
+                          <span className="text-[#5B6E68]">{r.provider}/</span>
                           {r.model}
                         </td>
                         <td className="py-1.5 pr-3">
-                          <Pill tone={roleTone(r.role)} className="text-[0.55rem] uppercase tracking-wider">{r.role}</Pill>
+                          <Pill tone={roleTone(r.role)} className="text-[0.6rem] uppercase tracking-wider">{r.role}</Pill>
                         </td>
                         <td className="py-1.5 pr-3 text-right font-mono tabular-nums text-[#33544C] whitespace-nowrap">
                           {r.probeLatencyMs > 0
@@ -325,7 +325,7 @@ export function AIConsensusPanel({ className = "" }: { className?: string }) {
                   </tbody>
                 </table>
               </div>
-              <p className="mt-2 text-[0.6rem] text-[#7A8C86] font-mono">
+              <p className="mt-2 text-[0.6rem] text-[#5B6E68] font-mono">
                 Default panel: anchor + verifier + fast (2 providers) · {status?.defaults.quorumRule}
               </p>
             </div>
@@ -334,7 +334,7 @@ export function AIConsensusPanel({ className = "" }: { className?: string }) {
             <div className="rounded-md border border-[#E3EAE6] bg-[#F7FAF8] p-3">
               <div className="flex items-center justify-between gap-2 flex-wrap">
                 <div className="flex items-center gap-2 min-w-0">
-                  <Database className="h-3.5 w-3.5 text-mtqs-gold/70 shrink-0" aria-hidden="true" />
+                  <Database className="h-3.5 w-3.5 text-mtqs-gold shrink-0" aria-hidden="true" />
                   <span className="text-[0.72rem] font-medium text-[#0E1F1B]">Model-catalog databases</span>
                   {catalog ? (
                     <span className="text-[0.65rem] font-mono text-[#33544C]">
@@ -342,7 +342,7 @@ export function AIConsensusPanel({ className = "" }: { className?: string }) {
                       {Object.entries(catalog.byProvider).map(([p, n]) => ` · ${p}:${n}`).join("")}
                     </span>
                   ) : (
-                    <span className="text-[0.65rem] font-mono text-[#7A8C86]">not synced yet</span>
+                    <span className="text-[0.65rem] font-mono text-[#5B6E68]">not synced yet</span>
                   )}
                 </div>
                 <button
@@ -358,7 +358,7 @@ export function AIConsensusPanel({ className = "" }: { className?: string }) {
             {/* ---------- Live consensus check ---------- */}
             <div>
               <div className="flex items-center gap-2 mb-2">
-                <Send className="h-3 w-3 text-mtqs-gold/70" aria-hidden="true" />
+                <Send className="h-3 w-3 text-mtqs-gold" aria-hidden="true" />
                 <span className="text-[0.62rem] uppercase tracking-[0.18em] text-[#5B6E68]">
                   Live consensus check (voter panel · field-majority)
                 </span>
@@ -373,7 +373,7 @@ export function AIConsensusPanel({ className = "" }: { className?: string }) {
                   }}
                   placeholder="Ask the voter panel anything (max 500 chars)…"
                   aria-label="Consensus question"
-                  className="flex-1 rounded-md border border-[#E3EAE6] bg-white px-3 py-2 text-[0.78rem] text-[#0E1F1B] placeholder:text-[#7A8C86] focus:outline-none focus:ring-1 focus:ring-mtqs-gold/40 focus:border-mtqs-gold/40 transition"
+                  className="flex-1 rounded-md border border-[#E3EAE6] bg-white px-3 py-2 text-[0.78rem] text-[#0E1F1B] placeholder:text-[#5B6E68] focus:outline-none focus:ring-1 focus:ring-mtqs-gold/40 focus:border-mtqs-gold/40 transition"
                 />
                 <button
                   onClick={runConsensusCheck}
@@ -421,7 +421,7 @@ export function AIConsensusPanel({ className = "" }: { className?: string }) {
                       <p className="text-[0.82rem] leading-relaxed text-[#0E1F1B] whitespace-pre-wrap">
                         {runResult.result.answer}
                         {runResult.result.confidence && (
-                          <span className="ml-2 text-[0.62rem] font-mono text-[#7A8C86]">[{runResult.result.confidence}]</span>
+                          <span className="ml-2 text-[0.62rem] font-mono text-[#5B6E68]">[{runResult.result.confidence}]</span>
                         )}
                       </p>
                     )}
@@ -433,7 +433,7 @@ export function AIConsensusPanel({ className = "" }: { className?: string }) {
                         <div key={`${v.provider}/${v.model}`} className="flex items-center justify-between gap-2 text-[0.62rem] font-mono">
                           <span className="flex items-center gap-1.5 min-w-0">
                             <GlowDot color={v.ok && v.parsed ? "gold" : "rose"} size="h-1 w-1" />
-                            <span className="text-[#7A8C86] truncate">{v.provider}/{v.model}</span>
+                            <span className="text-[#5B6E68] truncate">{v.provider}/{v.model}</span>
                           </span>
                           <span className="text-[#33544C] whitespace-nowrap">
                             {v.ok && v.parsed ? `${v.latencyMs}ms${v.fieldAgreement !== undefined ? ` · agree ${(v.fieldAgreement * 100).toFixed(0)}%` : ""}` : (v.error?.slice(0, 40) ?? "failed")}
@@ -441,7 +441,7 @@ export function AIConsensusPanel({ className = "" }: { className?: string }) {
                         </div>
                       ))}
                     </div>
-                    <p className="text-[0.6rem] text-[#7A8C86]">{runResult.disclaimer}</p>
+                    <p className="text-[0.6rem] text-[#5B6E68]">{runResult.disclaimer}</p>
                   </motion.div>
                 )}
               </AnimatePresence>
@@ -451,7 +451,7 @@ export function AIConsensusPanel({ className = "" }: { className?: string }) {
             {recentRuns.length > 0 && (
               <div>
                 <div className="flex items-center gap-2 mb-2">
-                  <Network className="h-3 w-3 text-mtqs-gold/70" aria-hidden="true" />
+                  <Network className="h-3 w-3 text-mtqs-gold" aria-hidden="true" />
                   <span className="text-[0.62rem] uppercase tracking-[0.18em] text-[#5B6E68]">
                     Recent consensus runs (persisted attestations)
                   </span>
@@ -462,7 +462,7 @@ export function AIConsensusPanel({ className = "" }: { className?: string }) {
                       <div className="flex items-center gap-2 min-w-0">
                         <GlowDot color={r.quorum ? "gold" : "amber"} size="h-1 w-1" />
                         <span className="text-[0.7rem] font-medium text-[#0E1F1B]">{r.taskType}</span>
-                        <span className="text-[0.6rem] font-mono text-[#7A8C86]">{r.id}</span>
+                        <span className="text-[0.6rem] font-mono text-[#5B6E68]">{r.id}</span>
                       </div>
                       <div className="flex items-center gap-2 text-[0.6rem] font-mono text-[#33544C]">
                         <span>{r.votersOk}/{r.votersAsked}</span>

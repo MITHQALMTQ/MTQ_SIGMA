@@ -154,7 +154,7 @@ export function MacroEngine({ snapshot }: { snapshot: MetricsSnapshot | null }) 
               </div>
             </div>
             <div className="rounded-md border border-mtqs-emerald/20 bg-mtqs-emerald/5 p-3">
-              <div className="text-[0.65rem] uppercase tracking-[0.2em] text-mtqs-emerald/80">EMA-smoothed Target</div>
+              <div className="text-[0.65rem] uppercase tracking-[0.2em] text-mtqs-emerald">EMA-smoothed Target</div>
               <TickNumber value={m.smoothedTarget} format={(n) => `${(n * 100).toFixed(2)}%`} className="text-xl font-semibold text-mtqs-emerald" />
               <div className="text-[0.65rem] text-[#5B6E68] mt-1">
                 λ = {(SMOOTHING_LAMBDA * 100).toFixed(0)}% · {ROLLING_WINDOW_DAYS}d window

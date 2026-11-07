@@ -210,7 +210,7 @@ export function MaseEngine({ snapshot }: { snapshot: MetricsSnapshot | null }) {
               {/* AUDIT-FIX F-5 — honest regime classifier label (v2.0 update):
                 the §5.4 six-regime probability model is now LIVE (below); the
                 hard 4-state classifier is retained for state decisions only. */}
-              <span className="max-w-[16rem] text-right text-[0.6rem] leading-snug text-[#7A8C86]">
+              <span className="max-w-[16rem] text-right text-[0.6rem] leading-snug text-[#5B6E68]">
                 State badge: 4-state classifier (state decisions only) — the §5.4
                 six-regime probability model + CrisisScore are live below
               </span>
@@ -268,7 +268,7 @@ export function MaseEngine({ snapshot }: { snapshot: MetricsSnapshot | null }) {
                     <td className="px-2 py-2">
                       <div className="flex flex-col">
                         <span className="font-semibold text-mtqs-gold">Ensemble Target</span>
-                        <span className="text-[0.62rem] text-mtqs-gold/70 font-mono">W<sup>Target</sup> · pre-envelope</span>
+                        <span className="text-[0.62rem] text-mtqs-gold font-mono">W<sup>Target</sup> · pre-envelope</span>
                       </div>
                     </td>
                     {COMPONENTS.map((c) => (
@@ -304,7 +304,7 @@ export function MaseEngine({ snapshot }: { snapshot: MetricsSnapshot | null }) {
                   </span>
                 ))}
               </div>
-              <p className="mt-2 text-[0.6rem] leading-snug text-[#7A8C86]">
+              <p className="mt-2 text-[0.6rem] leading-snug text-[#5B6E68]">
                 C-036 separation: this is the MASE portfolio objective — NOT the MARP trade-gate J(s) of v5.0 §3.5
                 (candidate, OD-1 open). λ base is the disclosed uniform placeholder (1/8, OD-1/OD-31 calibration
                 pending); λ<sub>CVaR,t</sub> = λ<sub>0</sub>·(1 + k·CrisisScore<sub>t</sub>) is regime-scaled per §5.5 — applied CVaR λ
@@ -367,7 +367,7 @@ export function MaseEngine({ snapshot }: { snapshot: MetricsSnapshot | null }) {
                     </tbody>
                   </table>
                 </div>
-                <p className="mt-2 text-[0.6rem] leading-snug text-[#7A8C86]">
+                <p className="mt-2 text-[0.6rem] leading-snug text-[#5B6E68]">
                   Data window (disclosed): {risk.dataWindow.disclosure} The ω<sub>h</sub> vector is the
                   published pilot initialization (§23.6 perturbation candidates — NOT canonical).
                 </p>
@@ -392,7 +392,7 @@ export function MaseEngine({ snapshot }: { snapshot: MetricsSnapshot | null }) {
                     </div>
                   ))}
                 </div>
-                <p className="mt-2 text-[0.6rem] leading-snug text-[#7A8C86]">
+                <p className="mt-2 text-[0.6rem] leading-snug text-[#5B6E68]">
                   W<sup>Regime</sup> = Σ<sub>r</sub> P(r|X<sub>t</sub>)·W<sup>(r)</sup> — §8.1-projected before ensemble entry (the
                   Regime-Adaptive row in the candidate table above). {risk.regime6.disclosure}
                 </p>
@@ -419,16 +419,16 @@ export function MaseEngine({ snapshot }: { snapshot: MetricsSnapshot | null }) {
                       className={`rounded-md border p-1.5 ${i.available ? "border-[#E3EAE6] bg-[#F7FAF8]" : "border-[#E3EAE6] bg-[#F7FAF8] opacity-60"}`}
                     >
                       <div className="flex items-baseline justify-between gap-1">
-                        <span className="text-[0.58rem] text-[#5B6E68]">{i.name}</span>
-                        <span className="font-mono text-[0.58rem] tabular-nums text-[#0E1F1B]">
+                        <span className="text-[0.6rem] text-[#5B6E68]">{i.name}</span>
+                        <span className="font-mono text-[0.6rem] tabular-nums text-[#0E1F1B]">
                           {i.available ? `${(i.evidence * 100).toFixed(0)}%` : "no feed"}
                         </span>
                       </div>
-                      <div className="text-[0.52rem] text-[#7A8C86]">w = {(i.weight * 100).toFixed(0)}%</div>
+                      <div className="text-[0.52rem] text-[#5B6E68]">w = {(i.weight * 100).toFixed(0)}%</div>
                     </div>
                   ))}
                 </div>
-                <p className="mt-2 text-[0.6rem] leading-snug text-[#7A8C86]">
+                <p className="mt-2 text-[0.6rem] leading-snug text-[#5B6E68]">
                   λ<sub>CVaR,t</sub> scales the §7.4 tail-risk term live (applied λ shown in the objective box).
                   {risk.crisis.disclosure}
                 </p>
@@ -469,11 +469,11 @@ export function MaseEngine({ snapshot }: { snapshot: MetricsSnapshot | null }) {
                       <div className="text-[0.6rem] text-[#5B6E68] font-normal">MASE + envelope</div>
                     </th>
                     <th className="text-right px-2 py-2 font-medium">
-                      <span className="font-mono text-mtqs-emerald/90">W<sup>Smooth</sup></span>
+                      <span className="font-mono text-mtqs-emerald">W<sup>Smooth</sup></span>
                       <div className="text-[0.6rem] text-[#5B6E68] font-normal">ρ = 0.50 / 0.75 stress-adaptive (§8.4)</div>
                     </th>
                     <th className="text-right px-2 py-2 font-medium">
-                      <span className="font-mono text-mtqs-rose/90">W<sup>Execution</sup></span>
+                      <span className="font-mono text-mtqs-rose">W<sup>Execution</sup></span>
                       <div className="text-[0.6rem] text-[#5B6E68] font-normal">observed</div>
                     </th>
                     <th className="text-right px-2 py-2 font-medium">
@@ -515,7 +515,7 @@ export function MaseEngine({ snapshot }: { snapshot: MetricsSnapshot | null }) {
               <div key={row.state} className="rounded-md border border-[#E3EAE6] bg-[#F7FAF8] p-2.5">
                 <div className="flex items-baseline justify-between gap-2 mb-1">
                   <span className="font-mono font-semibold text-[0.72rem] text-mtqs-gold">{row.state}</span>
-                  <span className="font-mono text-[0.66rem] text-mtqs-emerald/80">{row.symbol}</span>
+                  <span className="font-mono text-[0.66rem] text-mtqs-emerald">{row.symbol}</span>
                 </div>
                 <div className="text-[0.66rem] text-[#5B6E68] leading-snug">{row.meaning}</div>
               </div>
@@ -611,7 +611,7 @@ export function MaseEngine({ snapshot }: { snapshot: MetricsSnapshot | null }) {
           <p className="mt-3 text-[0.68rem] text-[#5B6E68] leading-relaxed">
             Each bar shows the execution weight's position within the per-component admissibility envelope. The gold tick marks
             the strategic prior. <span className="text-mtqs-gold font-medium">Near-edge</span> = within 10% of the band width;
-            <span className="text-mtqs-rose/90 font-medium"> breach</span> = outside the envelope (would require governance override
+            <span className="text-mtqs-rose font-medium"> breach</span> = outside the envelope (would require governance override
             to persist — MASE constrains the target so this should never happen for the smoothed weight).
           </p>
         </Panel>
@@ -674,7 +674,7 @@ export function MaseEngine({ snapshot }: { snapshot: MetricsSnapshot | null }) {
                                 style={{ backgroundColor: bg }}
                                 title={`ρ(${rowC},${colC}) = ${rho.toFixed(4)}`}
                               >
-                                <span className={i === j ? "text-mtqs-gold" : rho >= 0 ? "text-amber-600" : "text-emerald-600"}>
+                                <span className={i === j ? "text-mtqs-gold" : rho >= 0 ? "text-amber-700" : "text-emerald-700"}>
                                   {rho.toFixed(2)}
                                 </span>
                               </td>
@@ -685,7 +685,7 @@ export function MaseEngine({ snapshot }: { snapshot: MetricsSnapshot | null }) {
                     </tbody>
                   </table>
                 </div>
-                <p className="mt-2 text-[0.6rem] leading-snug text-[#7A8C86]">
+                <p className="mt-2 text-[0.6rem] leading-snug text-[#5B6E68]">
                   {risk.correlation.horizonBlend}. Positive ρ → amber, negative ρ → emerald, diagonal = 1. Every
                   candidate solver and the §7.4 Risk term read Σ<sub>robust</sub> <span className="text-[#5B6E68]">directly</span> — this
                   matrix is its correlation view. §5.1 σ<sup>MH</sup> governs the standalone vols (max-div numerator,
@@ -713,7 +713,7 @@ export function MaseEngine({ snapshot }: { snapshot: MetricsSnapshot | null }) {
                   ) : (
                     <div className="text-[0.7rem] text-[#5B6E68]">Tail figures pending the first scoring window.</div>
                   )}
-                  <p className="mt-2 text-[0.6rem] leading-snug text-[#7A8C86]">
+                  <p className="mt-2 text-[0.6rem] leading-snug text-[#5B6E68]">
                     {tail ? tail.convention : ""} — the engine minimizes CVaR<sub>95</sub> and monitors CVaR<sub>99</sub> per §6.6.
                   </p>
                 </div>
@@ -728,7 +728,7 @@ export function MaseEngine({ snapshot }: { snapshot: MetricsSnapshot | null }) {
                     <Stat label="MDD (simulated window)" value={tail ? `${(tail.mdd * 100).toFixed(2)}%` : "—"} sub="minₜ DDₜ over the window" />
                     <Stat label="Window" value={tail ? `${tail.windowDays}d` : "—"} sub="simulated-historical profile" />
                   </div>
-                  <p className="mt-2 text-[0.6rem] leading-snug text-[#7A8C86]">
+                  <p className="mt-2 text-[0.6rem] leading-snug text-[#5B6E68]">
                     Constitutional MDD envelope VALUE: not published in the blueprint (the §23.7 model-selection
                     criterion weights MDD) and Monte-Carlo drawdown profiles are not run in the pilot — envelope
                     enforcement is surfacing-only, disclosed.
@@ -746,7 +746,7 @@ export function MaseEngine({ snapshot }: { snapshot: MetricsSnapshot | null }) {
                 </div>
                 <div className="font-mono text-[0.66rem] text-[#0E1F1B]">{risk.gpp.formula}</div>
                 <div className="font-mono text-[0.62rem] text-[#5B6E68] mt-1">{risk.gpp.objective}</div>
-                <p className="mt-1.5 text-[0.6rem] leading-snug text-[#7A8C86]">{risk.gpp.status}</p>
+                <p className="mt-1.5 text-[0.6rem] leading-snug text-[#5B6E68]">{risk.gpp.status}</p>
               </div>
             </div>
           ) : (
@@ -790,7 +790,7 @@ export function MaseEngine({ snapshot }: { snapshot: MetricsSnapshot | null }) {
                     {/* AUDIT-FIX §10.7 — measured natural-flow ledger CF_{i,t} */}
                     <th className="text-right px-2 py-2 font-medium">
                       CF netted
-                      <div className="text-[0.58rem] font-normal text-[#5B6E68]">§10.7 · USD</div>
+                      <div className="text-[0.6rem] font-normal text-[#5B6E68]">§10.7 · USD</div>
                     </th>
                     <th className="text-left px-2 py-2 font-medium w-32">Urgency</th>
                     <th className="text-left px-2 py-2 font-medium">Level</th>
@@ -877,7 +877,7 @@ export function MaseEngine({ snapshot }: { snapshot: MetricsSnapshot | null }) {
       <Reveal>
         <Panel className="p-4">
           <div className="flex flex-wrap items-center gap-x-3 gap-y-1 text-[0.66rem] text-[#5B6E68]">
-            <span className="text-[0.6rem] uppercase tracking-[0.22em] text-mtqs-gold/80">lineage</span>
+            <span className="text-[0.6rem] uppercase tracking-[0.22em] text-mtqs-gold">lineage</span>
             <span className="font-mono text-mtqs-gold">prices: P<sub>i,t</sub>/P<sub>i,0</sub></span>
             <span>→</span>
             <span className="font-mono text-mtqs-gold">§5.1 σ^MH blend</span>
@@ -888,7 +888,7 @@ export function MaseEngine({ snapshot }: { snapshot: MetricsSnapshot | null }) {
             <span>→</span>
             <span className="font-mono text-mtqs-gold">§8.1 envelopes</span>
             <span>→</span>
-            <span className="font-mono text-mtqs-emerald/90">EMA smooth (λ={(SMOOTHING_LAMBDA * 100).toFixed(0)}%)</span>
+            <span className="font-mono text-mtqs-emerald">EMA smooth (λ={(SMOOTHING_LAMBDA * 100).toFixed(0)}%)</span>
             <span>→</span>
             <span className="font-mono text-rose-600">MARP per-component decision</span>
             <span>→</span>

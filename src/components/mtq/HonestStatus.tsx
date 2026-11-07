@@ -111,7 +111,7 @@ function FindingCard({ finding, index, snapshot }: { finding: ReconciliationFind
       </p>
       {finding.resolution && (
         <p className="mt-2 text-[0.72rem] text-[#5B6E68] leading-relaxed">
-          <span className="text-mtqs-gold/80 uppercase tracking-[0.18em] text-[0.6rem] font-medium mr-1">
+          <span className="text-mtqs-gold uppercase tracking-[0.18em] text-[0.6rem] font-medium mr-1">
             Resolution
           </span>
           {finding.resolution}
@@ -202,7 +202,7 @@ export function HonestStatus({ snapshot }: { snapshot: MetricsSnapshot | null })
           {/* Redemption policy reconciliation block */}
           {snapshot?.redemptionPolicy && (
             <div className="mt-4 rounded-md border border-mtqs-emerald/30 bg-mtqs-emerald/5 p-3">
-              <div className="text-[0.6rem] uppercase tracking-[0.22em] text-mtqs-emerald/80 mb-1">
+              <div className="text-[0.6rem] uppercase tracking-[0.22em] text-mtqs-emerald mb-1">
                 §12.2 vs §3.4.2 — Redemption Policy (Reconciled)
               </div>
               <div className="font-mono text-sm text-mtqs-emerald">
@@ -256,7 +256,7 @@ export function HonestStatus({ snapshot }: { snapshot: MetricsSnapshot | null })
                     className={`border-t border-[#E3EAE6] ${i % 2 ? "bg-[#FAFCFA]" : ""}`}
                   >
                     <td className="px-3 py-2.5">
-                      <span className="line-through text-mtqs-rose/70 font-mono">{row.claim}</span>
+                      <span className="line-through text-mtqs-rose font-mono">{row.claim}</span>
                     </td>
                     <td className="px-3 py-2.5">
                       <span className="text-[#5B6E68]">{row.reason}</span>

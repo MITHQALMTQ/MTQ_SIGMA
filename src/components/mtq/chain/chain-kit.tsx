@@ -725,7 +725,7 @@ export function CopyMono({
           if (ok) toast.success(`Copied ${label}`, { description: shortAddr(value) });
           else toast.error("Copy failed");
         }}
-        className="shrink-0 rounded border border-transparent px-1 py-0.5 text-[0.6rem] text-mtqs-gold/70 transition hover:border-mtqs-amber/30 hover:text-mtqs-gold"
+        className="shrink-0 rounded border border-transparent px-1 py-0.5 text-[0.6rem] text-mtqs-gold transition hover:border-mtqs-amber/30 hover:text-mtqs-gold"
         aria-label={`Copy ${label}: ${value}`}
       >
         copy

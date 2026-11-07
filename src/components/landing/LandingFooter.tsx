@@ -99,15 +99,15 @@ export function LandingFooter({
             </button>
           ) : null}
         </nav>
-        <p className="max-w-3xl text-center text-[0.66rem] leading-relaxed text-[#7A8C86]">
+        <p className="max-w-3xl text-center text-[0.66rem] leading-relaxed text-[#5B6E68]">
           {FOOTER.disclaimer}
         </p>
         {/* TASK-58 — canonical stack line: the actual, verifiable dependency
             stack (package.json), mirroring the terminal footer's stack line. */}
-        <p className="text-center text-[0.62rem] font-mono tracking-wide text-[#9AA9A3]">
+        <p className="text-center text-[0.62rem] font-mono tracking-wide text-[#5B6E68]">
           {FOOTER.stack}
         </p>
-        <p className="text-[0.66rem] text-[#9AA9A3]">{FOOTER.copyright}</p>
+        <p className="text-[0.66rem] text-[#5B6E68]">{FOOTER.copyright}</p>
       </div>
     </footer>
   );

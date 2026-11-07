@@ -59,7 +59,7 @@ function CriteriaGrid({ rec }: { rec: AssetRecord }) {
           className={`group relative flex items-center justify-center rounded-md border h-8 text-[0.65rem] font-medium ${
             c.ok
               ? "border-mtqs-emerald/30 bg-mtqs-emerald/5 text-mtqs-emerald"
-              : "border-mtqs-rose/30 bg-mtqs-rose/5 text-mtqs-rose/80"
+              : "border-mtqs-rose/30 bg-mtqs-rose/5 text-mtqs-rose"
           }`}
         >
           {c.ok ? "✓" : "✗"}
@@ -129,7 +129,7 @@ function AssetCard({ rec, index }: { rec: AssetRecord; index: number }) {
           const ok = rec.criteria[c.id as keyof typeof rec.criteria];
           return (
             <div key={c.id} className="flex items-center gap-1 text-[0.6rem] text-[#5B6E68]">
-              <span className={ok ? "text-mtqs-emerald" : "text-mtqs-rose/80"}>{ok ? "✓" : "✗"}</span>
+              <span className={ok ? "text-mtqs-emerald" : "text-mtqs-rose"}>{ok ? "✓" : "✗"}</span>
               <span>{c.label}</span>
             </div>
           );

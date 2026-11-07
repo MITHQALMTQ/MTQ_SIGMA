@@ -66,25 +66,25 @@ export function ReproducibilityPanel({ snapshot }: { snapshot: MetricsSnapshot |
             strings contradicted the live values rendered beside this panel. */}
         <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 mb-4">
           <div className="p-2.5 rounded-lg border border-[#E3EAE6] bg-[#F7FAF8]">
-            <div className="text-[0.55rem] uppercase tracking-wider text-[#7A8C86]">Data Version</div>
+            <div className="text-[0.6rem] uppercase tracking-wider text-[#5B6E68]">Data Version</div>
             <div className="font-mono text-[0.66rem] text-[#5B6E68] mt-1 break-words" title={snapshot?.source ?? undefined}>
               {snapshot?.source ?? "—"}
             </div>
           </div>
           <div className="p-2.5 rounded-lg border border-[#E3EAE6] bg-[#F7FAF8]">
-            <div className="text-[0.55rem] uppercase tracking-wider text-[#7A8C86]">Model Version</div>
+            <div className="text-[0.6rem] uppercase tracking-wider text-[#5B6E68]">Model Version</div>
             <div className="font-mono text-[0.66rem] text-[#5B6E68] mt-1 break-words">
               {snapshot?.mase?.objectiveVersion ?? "—"}
             </div>
           </div>
           <div className="p-2.5 rounded-lg border border-[#E3EAE6] bg-[#F7FAF8]">
-            <div className="text-[0.55rem] uppercase tracking-wider text-[#7A8C86]">Param Version</div>
+            <div className="text-[0.6rem] uppercase tracking-wider text-[#5B6E68]">Param Version</div>
             <div className="font-mono text-[0.66rem] text-[#5B6E68] mt-1 break-words">
               BLUEPRINT-v2.0 · §22.4 registry (pilot)
             </div>
           </div>
           <div className="p-2.5 rounded-lg border border-[#E3EAE6] bg-[#F7FAF8]">
-            <div className="text-[0.55rem] uppercase tracking-wider text-[#7A8C86]">Oracle Version</div>
+            <div className="text-[0.6rem] uppercase tracking-wider text-[#5B6E68]">Oracle Version</div>
             <div className="font-mono text-[0.66rem] text-[#5B6E68] mt-1 break-words">
               {snapshot?.oracle ? `3-source board · aggregate ${snapshot.oracle.aggregateState}` : "—"}
             </div>
@@ -104,7 +104,7 @@ export function ReproducibilityPanel({ snapshot }: { snapshot: MetricsSnapshot |
 
         {/* Result */}
         {reproError && (
-          <div className="mt-3 rounded-md border border-mtqs-amber/25 bg-amber-50 px-3 py-2 text-[0.7rem] leading-relaxed text-mtqs-amber/90">
+          <div className="mt-3 rounded-md border border-mtqs-amber/25 bg-amber-50 px-3 py-2 text-[0.7rem] leading-relaxed text-mtqs-amber">
             {reproError}
           </div>
         )}
@@ -129,7 +129,7 @@ export function ReproducibilityPanel({ snapshot }: { snapshot: MetricsSnapshot |
           </div>
         )}
 
-        <p className="mt-3 text-[0.7rem] text-[#7A8C86]">
+        <p className="mt-3 text-[0.7rem] text-[#5B6E68]">
           {/* 24-e-2: the Param Version row above is a hardcoded static register —
               only Data/Model/Oracle are live snapshot fields. */}
           Data/Model/Oracle versions are live; the param register is the static pilot §22.4 registry

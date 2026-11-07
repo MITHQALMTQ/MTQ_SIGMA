@@ -233,7 +233,7 @@ export function ExplorerSection() {
           <form onSubmit={runSearch} className="flex flex-col gap-2 sm:flex-row">
             <div className="relative grow">
               <Search
-                className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-[#7A8C86]"
+                className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-[#5B6E68]"
                 aria-hidden="true"
               />
               <Input
@@ -241,7 +241,7 @@ export function ExplorerSection() {
                 onChange={(e) => setSearchInput(e.target.value)}
                 placeholder="Search height · blk_… · tx_… · mtq1…"
                 aria-label="Search block height, block hash, transaction hash, or account address"
-                className="h-11 border-[#E3EAE6] bg-white pl-9 font-mono text-[0.78rem] text-[#0E1F1B] placeholder:font-sans placeholder:text-[#7A8C86]"
+                className="h-11 border-[#E3EAE6] bg-white pl-9 font-mono text-[0.78rem] text-[#0E1F1B] placeholder:font-sans placeholder:text-[#5B6E68]"
               />
             </div>
             <Button
@@ -256,7 +256,7 @@ export function ExplorerSection() {
               {searchError}
             </p>
           ) : null}
-          <p className="mt-2 text-[0.64rem] text-[#7A8C86]">
+          <p className="mt-2 text-[0.64rem] text-[#5B6E68]">
             Blocks, transactions and accounts are read live from the reference node&apos;s ledger —
             FAILED receipts are displayed as failures.
           </p>
@@ -471,7 +471,7 @@ export function ExplorerSection() {
                   </Table>
                 </div>
               ) : null}
-              <p className="mt-3 text-[0.62rem] text-[#7A8C86]">
+              <p className="mt-3 text-[0.62rem] text-[#5B6E68]">
                 Latest 25 committed transactions (GET /api/chain/tx?recent=1), newest first.
               </p>
             </Panel>
@@ -599,13 +599,13 @@ function TxRow({
       </TableCell>
       <TableCell className="py-2.5 font-mono text-[0.68rem] text-[#33544C]">
         <span title={t.raw.from}>{shortAddr(t.raw.from, 8, 5)}</span>
-        <span className="mx-1 text-[#7A8C86]" aria-hidden="true">→</span>
+        <span className="mx-1 text-[#5B6E68]" aria-hidden="true">→</span>
         {counterparty ? (
           counterparty.startsWith("mtq1") ? (
             <span title={counterparty}>
               {shortAddr(counterparty, 8, 5)}
               {monikerByAddr.has(counterparty) ? (
-                <span className="ml-1 font-sans text-[0.6rem] text-[#7A8C86]">
+                <span className="ml-1 font-sans text-[0.6rem] text-[#5B6E68]">
                   ({monikerByAddr.get(counterparty)})
                 </span>
               ) : null}
@@ -614,11 +614,11 @@ function TxRow({
             <span>{counterparty}</span>
           )
         ) : (
-          <span className="text-[#7A8C86]">—</span>
+          <span className="text-[#5B6E68]">—</span>
         )}
       </TableCell>
       <TableCell className="py-2.5 font-mono tabular-nums text-[0.72rem] text-[#33544C]">
-        {amountU != null ? `${fmtMicro(amountU)} ${asset}` : <span className="text-[#7A8C86]">—</span>}
+        {amountU != null ? `${fmtMicro(amountU)} ${asset}` : <span className="text-[#5B6E68]">—</span>}
       </TableCell>
       <TableCell className="py-2.5 font-mono tabular-nums text-[0.68rem] text-[#5B6E68]">
         {fmtMicro(t.raw.fee, 3)}
@@ -719,13 +719,13 @@ function BlockDetailDialog({
               <FieldCell label="Round" mono>R{detail.header.round}</FieldCell>
               <FieldCell label="Time">
                 {fmtTime(detail.header.time_ms)}{" "}
-                <span className="text-[#7A8C86]">({fmtAgo(detail.header.time_ms)})</span>
+                <span className="text-[#5B6E68]">({fmtAgo(detail.header.time_ms)})</span>
               </FieldCell>
               <FieldCell label="Txs" mono>{detail.num_txs}</FieldCell>
               <FieldCell label="Consensus" mono>{detail.consensus_ms} ms</FieldCell>
               <FieldCell label="Proposer">
                 {monikerByAddr.get(detail.header.proposer) ?? "validator"}{" "}
-                <span className="font-mono text-[0.62rem] text-[#7A8C86]">
+                <span className="font-mono text-[0.62rem] text-[#5B6E68]">
                   {shortAddr(detail.header.proposer, 10, 6)}
                 </span>
               </FieldCell>
@@ -791,7 +791,7 @@ function BlockDetailDialog({
                         power {fmtPower(pc.power)}
                       </span>
                       <span
-                        className="font-mono text-[0.58rem] text-[#7A8C86]"
+                        className="font-mono text-[0.6rem] text-[#5B6E68]"
                         title={pc.sig}
                       >
                         sig {shortAddr(pc.sig, 8, 6)}
@@ -955,7 +955,7 @@ function TxDetailDialog({
                 #{detail.height.toLocaleString("en-US")} · {detail.idx}
               </FieldCell>
               <FieldCell label="Time">
-                {fmtTime(detail.time_ms)} <span className="text-[#7A8C86]">({fmtAgo(detail.time_ms)})</span>
+                {fmtTime(detail.time_ms)} <span className="text-[#5B6E68]">({fmtAgo(detail.time_ms)})</span>
               </FieldCell>
               <FieldCell label="Signer (from)" mono>
                 <span title={detail.raw.from}>
@@ -985,7 +985,7 @@ function TxDetailDialog({
                     </li>
                   ))}
                   {Object.keys(detail.raw.payload).length === 0 ? (
-                    <li className="text-[0.66rem] text-[#7A8C86]">(empty payload)</li>
+                    <li className="text-[0.66rem] text-[#5B6E68]">(empty payload)</li>
                   ) : null}
                 </ul>
               </div>
@@ -1081,7 +1081,7 @@ function AccountView({
             if (ok) toast.success("Copied address", { description: shortAddr(account.address) });
             else toast.error("Copy failed");
           }}
-          className="rounded border border-transparent px-1.5 py-0.5 font-mono text-[0.6rem] text-mtqs-gold/70 transition hover:border-mtqs-amber/30 hover:text-mtqs-gold"
+          className="rounded border border-transparent px-1.5 py-0.5 font-mono text-[0.6rem] text-mtqs-gold transition hover:border-mtqs-amber/30 hover:text-mtqs-gold"
           aria-label="Copy full account address"
         >
           copy
@@ -1103,7 +1103,7 @@ function AccountView({
       {/* Unknown-account state — honest zeros, never invented history */}
       {!account.exists ? (
         <div className="flex items-start gap-2.5 rounded-lg border border-[#E3EAE6] bg-[#FAFCFA] px-3 py-2.5">
-          <UserRound className="mt-0.5 h-4 w-4 shrink-0 text-[#7A8C86]" aria-hidden="true" />
+          <UserRound className="mt-0.5 h-4 w-4 shrink-0 text-[#5B6E68]" aria-hidden="true" />
           <p className="text-[0.7rem] leading-relaxed text-[#5B6E68]">
             Account not found on-chain (no nonce, no balance, no history) — the address is valid
             mtq1 form, but the chain has recorded no activity for it. The blocks below read zero
@@ -1118,22 +1118,22 @@ function AccountView({
         <div className="grid grid-cols-2 gap-2 sm:grid-cols-4">
           <FieldCell label="MTQD · testnet credit" mono>
             {fmtMicro(account.fee_u, 3)}{" "}
-            <span className="text-[0.6rem] text-[#7A8C86]">MTQD</span>
+            <span className="text-[0.6rem] text-[#5B6E68]">MTQD</span>
           </FieldCell>
           <FieldCell label="PMTQ · non-canonical mirror" mono>
             {fmtMicro(account.pmtq_u, 3)}{" "}
-            <span className="text-[0.6rem] text-[#7A8C86]">PMTQ</span>
+            <span className="text-[0.6rem] text-[#5B6E68]">PMTQ</span>
           </FieldCell>
           <FieldCell label="Bonded (staked)" mono>
             {fmtMicro(account.bonded_u)}{" "}
-            <span className="text-[0.6rem] text-[#7A8C86]">MTQD</span>
+            <span className="text-[0.6rem] text-[#5B6E68]">MTQD</span>
           </FieldCell>
           <FieldCell label="Unbonding (queued)" mono>
             {fmtMicro(account.unbonding_u)}{" "}
-            <span className="text-[0.6rem] text-[#7A8C86]">MTQD</span>
+            <span className="text-[0.6rem] text-[#5B6E68]">MTQD</span>
           </FieldCell>
         </div>
-        <p className="text-[0.62rem] text-[#7A8C86]">
+        <p className="text-[0.62rem] text-[#5B6E68]">
           MTQD is devnet uMTQD — a testnet-only fee credit · PMTQ is a NON-CANONICAL pilot
           ledger mirror; canonical MTQΣ supply accounting stays in the monetary protocol
           engine.
@@ -1181,7 +1181,7 @@ function AccountView({
             No governance votes cast by this address.
           </p>
         )}
-        <p className="text-[0.62rem] text-[#7A8C86]">
+        <p className="text-[0.62rem] text-[#5B6E68]">
           Ballots across the 50 most recent proposals (bounded lookup — ballots on older
           proposals are not shown here).
         </p>
@@ -1219,7 +1219,7 @@ function AccountView({
                 <span className="font-mono tabular-nums text-[#33544C]">
                   {(account.validator.commission_bp / 100).toFixed(2)}%
                 </span>{" "}
-                <span className="text-[#7A8C86]">
+                <span className="text-[#5B6E68]">
                   (informational — no reward stream by default)
                 </span>
               </span>
@@ -1269,7 +1269,7 @@ function AccountView({
                     #{t.height.toLocaleString("en-US")}
                   </button>
                   <span
-                    className="ml-auto text-[0.62rem] text-[#7A8C86]"
+                    className="ml-auto text-[0.62rem] text-[#5B6E68]"
                     title={fmtTime(t.time_ms)}
                   >
                     {fmtTime(t.time_ms)} ({fmtAgo(t.time_ms)})
@@ -1279,7 +1279,7 @@ function AccountView({
             </ul>
           </div>
         )}
-        <p className="text-[0.62rem] text-[#7A8C86]">
+        <p className="text-[0.62rem] text-[#5B6E68]">
           Last 25 committed transactions touching this address (from or to) — FAILED receipts
           render as failures, never hidden.
         </p>
@@ -1364,7 +1364,7 @@ function AccountUnbondingsTable({
                     <Pill tone={left > 0 ? "amber" : "emerald"}>
                       {left > 0 ? "unbonding" : "mature"}
                     </Pill>
-                    <span className="font-mono text-[0.62rem] text-[#7A8C86]">
+                    <span className="font-mono text-[0.62rem] text-[#5B6E68]">
                       {left > 0 ? `releases in ${fmtDuration(left)}` : "releases at next block"}
                     </span>
                   </span>

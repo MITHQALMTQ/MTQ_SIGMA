@@ -296,7 +296,7 @@ function StateChip({ state, highlight }: { state: string; highlight?: boolean })
 }
 
 function CheckMark({ ok }: { ok: boolean | null }) {
-  if (ok === null) return <span className="text-[#7A8C86]" aria-label="not applicable">—</span>;
+  if (ok === null) return <span className="text-[#5B6E68]" aria-label="not applicable">—</span>;
   return ok ? (
     <CheckCircle2 className="h-3.5 w-3.5 text-mtqs-emerald" aria-label="matches expected" />
   ) : (
@@ -414,7 +414,7 @@ export function IssuanceSection({
       <Reveal>
         <Panel className="p-5 sm:p-6">
           <div className="flex items-start gap-3 mb-4">
-            <Coins className="h-5 w-5 text-mtqs-gold/80 mt-0.5 shrink-0" aria-hidden="true" />
+            <Coins className="h-5 w-5 text-mtqs-gold mt-0.5 shrink-0" aria-hidden="true" />
             <div className="min-w-0">
               <h3 className="text-sm font-semibold text-[#0E1F1B] mb-1">
                 Payment-Funded Primary Issuance — Pilot (spec §14.4 12-step workflow / §14.6 8-stage controlled process)
@@ -457,12 +457,12 @@ export function IssuanceSection({
           </div>
 
           {/* Machine label */}
-          <p className="mt-4 text-[0.68rem] text-[#7A8C86] leading-relaxed">
+          <p className="mt-4 text-[0.68rem] text-[#5B6E68] leading-relaxed">
             {snap?.labels.machineLabel ??
               "PAYMENT-FUNDED PRIMARY ISSUANCE STATE MACHINE — TEST LEDGER ONLY · NEVER ON-CHAIN · ISSUED = LEDGER RECORD ONLY."}
           </p>
           {snap?.labels.d1327Status ? (
-            <p className="mt-2 text-[0.66rem] text-[#7A8C86] leading-relaxed">
+            <p className="mt-2 text-[0.66rem] text-[#5B6E68] leading-relaxed">
               D-13.27 — {snap.labels.d1327Status}
             </p>
           ) : null}
@@ -530,28 +530,28 @@ export function IssuanceSection({
                           TEST-ONLY
                         </Pill>
                       </div>
-                      <span className="text-[0.62rem] font-mono text-[#7A8C86]">{r.instrumentId}</span>
+                      <span className="text-[0.62rem] font-mono text-[#5B6E68]">{r.instrumentId}</span>
                     </div>
                     <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-x-4 gap-y-2 text-[0.68rem]">
                       <div>
-                        <span className="text-[#7A8C86]">issuer: </span>
+                        <span className="text-[#5B6E68]">issuer: </span>
                         <span className="text-[#33544C]">{r.issuer.legalName}</span>
                       </div>
                       <div>
-                        <span className="text-[#7A8C86]">jurisdiction: </span>
+                        <span className="text-[#5B6E68]">jurisdiction: </span>
                         <span className="text-[#33544C]">{r.issuer.jurisdiction}</span>
                       </div>
                       <div>
-                        <span className="text-[#7A8C86]">finality: </span>
+                        <span className="text-[#5B6E68]">finality: </span>
                         <span className="text-[#33544C]">{r.confirmation.kind}</span>
                       </div>
                       <div>
-                        <span className="text-[#7A8C86]">conversion: </span>
+                        <span className="text-[#5B6E68]">conversion: </span>
                         <span className="font-mono text-[#33544C]">{r.valuation.pricePerUnit}</span>
-                        <span className="text-[#7A8C86]"> TU/unit</span>
+                        <span className="text-[#5B6E68]"> TU/unit</span>
                       </div>
                     </div>
-                    <p className="mt-2 text-[0.64rem] text-[#7A8C86] leading-relaxed">{r.statusLabel}</p>
+                    <p className="mt-2 text-[0.64rem] text-[#5B6E68] leading-relaxed">{r.statusLabel}</p>
                   </div>
                 ))}
 
@@ -576,11 +576,11 @@ export function IssuanceSection({
                         <span className="text-[0.64rem] text-[#5B6E68]">@ {r.network}</span>
                         <Pill tone="muted">{r.state}</Pill>
                         <Pill tone="amber">{r.honestyState}</Pill>
-                        <span className="text-[0.6rem] text-[#7A8C86] font-mono">{r.instrumentId}</span>
+                        <span className="text-[0.6rem] text-[#5B6E68] font-mono">{r.instrumentId}</span>
                       </div>
                     ))}
                   </div>
-                  <p className="mt-3 text-[0.66rem] text-amber-600 leading-relaxed">
+                  <p className="mt-3 text-[0.66rem] text-amber-700 leading-relaxed">
                     A CBDC row may leave NOT_CONNECTED only via (i) a verified authorized interface and (ii) a
                     recorded end-to-end test — <span className="font-medium text-mtqs-amber">NEITHER EXISTS</span>.
                     The cbdc-simulated scenario below runs in labeled SIMULATION MODE only: the registry row stays
@@ -591,7 +591,7 @@ export function IssuanceSection({
                 {/* SEP separation strip */}
                 <div className="rounded-xl border border-[#E3EAE6] bg-[#F7FAF8] p-4">
                   <div className="flex flex-wrap items-center gap-2 mb-2">
-                    <Scale className="h-4 w-4 text-mtqs-gold/70" aria-hidden="true" />
+                    <Scale className="h-4 w-4 text-mtqs-gold" aria-hidden="true" />
                     <h4 className="text-[0.76rem] font-semibold text-[#0E1F1B]">
                       Separation invariant (spec §2) — payment volume never changes weights
                     </h4>
@@ -614,7 +614,7 @@ export function IssuanceSection({
                       ))}
                     </div>
                   ) : null}
-                  <p className="text-[0.64rem] text-[#7A8C86] leading-relaxed">
+                  <p className="text-[0.64rem] text-[#5B6E68] leading-relaxed">
                     {snap?.separation.label ??
                       "SEPARATION INVARIANT CHECK — canonical basket/constituency snapshot captured READ-ONLY."}{" "}
                     Every scenario run below re-captures this snapshot before and after and proves byte-identity.
@@ -674,7 +674,7 @@ export function IssuanceSection({
                       {isRunning ? (
                         <Loader2 className="h-3.5 w-3.5 animate-spin text-mtqs-gold" aria-label="running" />
                       ) : (
-                        <Play className="h-3 w-3 text-[#7A8C86]" aria-hidden="true" />
+                        <Play className="h-3 w-3 text-[#5B6E68]" aria-hidden="true" />
                       )}
                     </div>
                     <p className="text-[0.62rem] text-[#5B6E68] leading-relaxed">{s.blurb}</p>
@@ -772,7 +772,7 @@ export function IssuanceSection({
                     <Stat label="issued (tokens)" value={observed?.issued ?? "—"} sub={<CheckMark ok={checks?.issued ?? null} />} />
                     <Stat label="supply after" value={observed?.supplyAfter ?? "—"} sub={<CheckMark ok={checks?.supplyAfter ?? null} />} />
                   </div>
-                  <p className="mt-3 text-[0.62rem] text-[#7A8C86] leading-relaxed">
+                  <p className="mt-3 text-[0.62rem] text-[#5B6E68] leading-relaxed">
                     Expected happy-path chain: gross 10,000.000000 TEST-USDC-X → fee 10.000000 (0.10% ILLUSTRATIVE,
                     D-13.8 OPEN) → net 9,990.000000 → issued 4,995.000000 at 2.000000 TU/token (§14.5 FORM adopted,
                     derivation OPEN). Checks marked “—” are not applicable to this scenario (the flow ended before
@@ -783,7 +783,7 @@ export function IssuanceSection({
                 {/* SEP separation proof */}
                 <div className="rounded-xl border border-mtqs-emerald/25 bg-mtqs-emerald/[0.04] p-4">
                   <div className="flex flex-wrap items-center gap-2 mb-1">
-                    <Scale className="h-4 w-4 text-mtqs-emerald/80" aria-hidden="true" />
+                    <Scale className="h-4 w-4 text-mtqs-emerald" aria-hidden="true" />
                     <span className="text-[0.72rem] font-semibold text-emerald-700">
                       SEP separation proof — spec §2 invariant
                     </span>
@@ -811,7 +811,7 @@ export function IssuanceSection({
                   {run.run.mintRecord ? (
                     <div className="rounded-xl border border-mtqs-emerald/30 bg-mtqs-emerald/[0.05] p-4">
                       <div className="flex items-center gap-2 mb-2">
-                        <Landmark className="h-4 w-4 text-mtqs-emerald/80" aria-hidden="true" />
+                        <Landmark className="h-4 w-4 text-mtqs-emerald" aria-hidden="true" />
                         <span className="text-[0.74rem] font-semibold text-[#0E1F1B]">Mint record (LEDGER ONLY)</span>
                       </div>
                       <div className="text-[0.68rem] font-mono text-[#5B6E68] space-y-1">
@@ -822,17 +822,17 @@ export function IssuanceSection({
                         </div>
                         <div>program: {run.run.mintRecord.programId}</div>
                       </div>
-                      <p className="mt-2 text-[0.62rem] text-mtqs-emerald/80 font-medium">
+                      <p className="mt-2 text-[0.62rem] text-mtqs-emerald font-medium">
                         {run.run.mintRecord.recordOnlyLabel}
                       </p>
                     </div>
                   ) : (
                     <div className="rounded-xl border border-[#E3EAE6] bg-[#F7FAF8] p-4">
                       <div className="flex items-center gap-2 mb-2">
-                        <Ban className="h-4 w-4 text-[#7A8C86]" aria-hidden="true" />
+                        <Ban className="h-4 w-4 text-[#5B6E68]" aria-hidden="true" />
                         <span className="text-[0.74rem] font-semibold text-[#5B6E68]">No mint record</span>
                       </div>
-                      <p className="text-[0.66rem] text-[#7A8C86] leading-relaxed">
+                      <p className="text-[0.66rem] text-[#5B6E68] leading-relaxed">
                         This scenario never reaches step 10 — no ledger mint record exists for it. Issuance requires
                         settlement finality AND an applicable unrevoked ALT-4 authorization program (INV-A).
                       </p>
@@ -841,13 +841,13 @@ export function IssuanceSection({
 
                   <div className="rounded-xl border border-[#E3EAE6] bg-[#F7FAF8] p-4">
                     <div className="flex items-center gap-2 mb-2">
-                      <AlertTriangle className="h-4 w-4 text-mtqs-amber/80" aria-hidden="true" />
+                      <AlertTriangle className="h-4 w-4 text-mtqs-amber" aria-hidden="true" />
                       <span className="text-[0.74rem] font-semibold text-[#0E1F1B]">
                         Exceptions ({run.run.exceptions.length}) · Refunds ({run.run.refundQueue.length})
                       </span>
                     </div>
                     {run.run.exceptions.length === 0 && run.run.refundQueue.length === 0 ? (
-                      <p className="text-[0.66rem] text-[#7A8C86]">
+                      <p className="text-[0.66rem] text-[#5B6E68]">
                         None — the run completed with no open exception and no queued refund.
                       </p>
                     ) : (
@@ -875,7 +875,7 @@ export function IssuanceSection({
                 {run.run.ledgerView.mints.length > 0 ? (
                   <div className="rounded-xl border border-[#E3EAE6] bg-[#F7FAF8] p-4">
                     <div className="flex items-center gap-2 mb-2">
-                      <ListOrdered className="h-4 w-4 text-mtqs-gold/70" aria-hidden="true" />
+                      <ListOrdered className="h-4 w-4 text-mtqs-gold" aria-hidden="true" />
                       <span className="text-[0.74rem] font-semibold text-[#0E1F1B]">
                         Three-book reconciliation (spec §6.5 — C1–C4)
                       </span>
@@ -892,7 +892,7 @@ export function IssuanceSection({
                             <XCircle className="h-3 w-3 mt-0.5 text-rose-600 shrink-0" aria-hidden="true" />
                           )}
                           <span>
-                            {c.check} — <span className="text-[#7A8C86]">{c.detail}</span>
+                            {c.check} — <span className="text-[#5B6E68]">{c.detail}</span>
                           </span>
                         </li>
                       ))}
@@ -904,12 +904,12 @@ export function IssuanceSection({
                 <div className="rounded-xl border border-[#E3EAE6] bg-[#F7FAF8] p-4">
                   <div className="flex flex-wrap items-center justify-between gap-2 mb-3">
                     <div className="flex items-center gap-2">
-                      <ListOrdered className="h-4 w-4 text-mtqs-gold/70" aria-hidden="true" />
+                      <ListOrdered className="h-4 w-4 text-mtqs-gold" aria-hidden="true" />
                       <span className="text-[0.74rem] font-semibold text-[#0E1F1B]">
                         Step trace — {run.run.events.length} events (§14.4 step mapping)
                       </span>
                     </div>
-                    <span className="text-[0.6rem] font-mono text-[#7A8C86]">
+                    <span className="text-[0.6rem] font-mono text-[#5B6E68]">
                       machine {run.run.machineId} · request {run.run.finalRequestId}
                     </span>
                   </div>
@@ -931,49 +931,49 @@ export function IssuanceSection({
                             aria-hidden="true"
                           />
                           <div className="flex flex-wrap items-center gap-1.5 mb-0.5">
-                            <span className="font-mono text-[0.58rem] text-[#7A8C86]">
+                            <span className="font-mono text-[0.6rem] text-[#5B6E68]">
                               #{String(e.seq).padStart(2, "0")} · {fmtClock(e.atMs)}
                             </span>
                             {e.from ? <StateChip state={e.from} /> : null}
                             {e.from || e.to ? (
-                              <span className="text-[#7A8C86] text-[0.6rem]" aria-hidden="true">
+                              <span className="text-[#5B6E68] text-[0.6rem]" aria-hidden="true">
                                 →
                               </span>
                             ) : null}
                             {e.to ? <StateChip state={e.to} /> : <Pill tone="muted">machine-level</Pill>}
                           </div>
-                          <div className="font-mono text-[0.66rem] text-mtqs-gold/90">{e.reasonCode}</div>
+                          <div className="font-mono text-[0.66rem] text-mtqs-gold">{e.reasonCode}</div>
                           <p className="text-[0.66rem] text-[#5B6E68] leading-relaxed mt-0.5">{e.detail}</p>
-                          <p className="text-[0.58rem] text-[#7A8C86] mt-0.5">{e.stepRef}</p>
+                          <p className="text-[0.6rem] text-[#5B6E68] mt-0.5">{e.stepRef}</p>
                           {(e.econ.grossAmount || e.econ.feeAmount || e.econ.netAmount || e.econ.issuedAmount) && (
                             <div className="flex flex-wrap gap-1.5 mt-1">
                               {e.econ.grossAmount ? (
-                                <span className="rounded border border-[#E3EAE6] bg-white px-1.5 py-0.5 font-mono text-[0.58rem] text-[#5B6E68]">
+                                <span className="rounded border border-[#E3EAE6] bg-white px-1.5 py-0.5 font-mono text-[0.6rem] text-[#5B6E68]">
                                   gross {e.econ.grossAmount}
                                 </span>
                               ) : null}
                               {e.econ.feeAmount ? (
-                                <span className="rounded border border-[#E3EAE6] bg-white px-1.5 py-0.5 font-mono text-[0.58rem] text-[#5B6E68]">
+                                <span className="rounded border border-[#E3EAE6] bg-white px-1.5 py-0.5 font-mono text-[0.6rem] text-[#5B6E68]">
                                   fee {e.econ.feeAmount}
                                 </span>
                               ) : null}
                               {e.econ.netAmount ? (
-                                <span className="rounded border border-[#E3EAE6] bg-white px-1.5 py-0.5 font-mono text-[0.58rem] text-[#5B6E68]">
+                                <span className="rounded border border-[#E3EAE6] bg-white px-1.5 py-0.5 font-mono text-[0.6rem] text-[#5B6E68]">
                                   net {e.econ.netAmount}
                                 </span>
                               ) : null}
                               {e.econ.quote ? (
-                                <span className="rounded border border-[#E3EAE6] bg-white px-1.5 py-0.5 font-mono text-[0.58rem] text-[#5B6E68]">
+                                <span className="rounded border border-[#E3EAE6] bg-white px-1.5 py-0.5 font-mono text-[0.6rem] text-[#5B6E68]">
                                   quote {e.econ.quote}
                                 </span>
                               ) : null}
                               {e.econ.issuedAmount ? (
-                                <span className="rounded border border-mtqs-emerald/25 bg-mtqs-emerald/[0.07] px-1.5 py-0.5 font-mono text-[0.58rem] text-mtqs-emerald">
+                                <span className="rounded border border-mtqs-emerald/25 bg-mtqs-emerald/[0.07] px-1.5 py-0.5 font-mono text-[0.6rem] text-mtqs-emerald">
                                   issued {e.econ.issuedAmount}
                                 </span>
                               ) : null}
                               {e.econ.supplyAfter ? (
-                                <span className="rounded border border-[#E3EAE6] bg-white px-1.5 py-0.5 font-mono text-[0.58rem] text-[#5B6E68]">
+                                <span className="rounded border border-[#E3EAE6] bg-white px-1.5 py-0.5 font-mono text-[0.6rem] text-[#5B6E68]">
                                   supply {e.econ.supplyAfter}
                                 </span>
                               ) : null}
@@ -988,7 +988,7 @@ export function IssuanceSection({
                 {/* demo disclaimer + persistence disclosure */}
                 <div className="rounded-lg border border-mtqs-amber/25 bg-mtqs-amber/[0.05] px-4 py-3">
                   <p className="text-[0.66rem] text-amber-700 leading-relaxed">{run.demoDisclaimer}</p>
-                  <p className="text-[0.62rem] text-[#7A8C86] mt-1.5 leading-relaxed">
+                  <p className="text-[0.62rem] text-[#5B6E68] mt-1.5 leading-relaxed">
                     Persistence: {run.run.persistence.disclosed}
                     {run.run.persistence.error ? (
                       <span className="text-rose-600"> (error: {run.run.persistence.error})</span>
@@ -1030,9 +1030,9 @@ export function IssuanceSection({
                   {/* Live from the API payload (economics.fee.rateBps, bps → %)
                       with the same fallback string the sibling panels use. */}
                   {snap ? `${(Number(snap.economics.fee.rateBps) / 100).toFixed(2)}%` : "0.10%"}
-                  <span className="text-sm text-[#7A8C86]"> flat</span>
+                  <span className="text-sm text-[#5B6E68]"> flat</span>
                 </div>
-                <p className="text-[0.62rem] text-[#7A8C86] leading-relaxed">
+                <p className="text-[0.62rem] text-[#5B6E68] leading-relaxed">
                   {snap?.economics.fee.label ??
                     "ILLUSTRATIVE — D-13.8 OPEN: 0.10% flat named default. FORM adopted (delegated) 2026-10-23 pending owner ratification."}
                 </p>
@@ -1045,9 +1045,9 @@ export function IssuanceSection({
                 </div>
                 <div className="font-mono text-xl text-mtqs-gold mb-1">
                   {snap?.economics.quote.tuPerToken ?? "2.000000"}
-                  <span className="text-sm text-[#7A8C86]"> TU/token</span>
+                  <span className="text-sm text-[#5B6E68]"> TU/token</span>
                 </div>
-                <p className="text-[0.62rem] text-[#7A8C86] leading-relaxed">
+                <p className="text-[0.62rem] text-[#5B6E68] leading-relaxed">
                   §14.5 FORM adopted (issued = net accepted payment value ÷ issuance quote); the quote-derivation
                   policy publication remains OPEN. Validity window{" "}
                   {snap?.economics.quote.validityWindowMinutes ?? 15} min (ILLUSTRATIVE, D-13.19). An index-derived
@@ -1074,13 +1074,13 @@ export function IssuanceSection({
                     <span className="font-mono text-[#0E1F1B]">{snap?.economics.supply.globalMax ?? "10000000.000000"}</span>
                   </div>
                 </div>
-                <p className="text-[0.62rem] text-[#7A8C86] leading-relaxed">
+                <p className="text-[0.62rem] text-[#5B6E68] leading-relaxed">
                   D-13.6 supply-cap numbers are deferred to owner approval; every cap check is fail-closed (an
                   issuance that would exceed any cap is rejected and never minted).
                 </p>
               </div>
             </div>
-            <p className="mt-4 text-[0.62rem] text-[#7A8C86] leading-relaxed">
+            <p className="mt-4 text-[0.62rem] text-[#5B6E68] leading-relaxed">
               Rounding: {snap?.economics.roundingRule ?? "ROUND_HALF_TO_EVEN @ 6 decimals (PROPOSED — UNAPPROVED)"}.
               Money math is exact 6-decimal fixed point on BigInt — no floating point anywhere in the pipeline.
             </p>
@@ -1112,7 +1112,7 @@ export function IssuanceSection({
                 <span key={s} className="flex items-center gap-1.5">
                   <StateChip state={s} highlight={visitedStates.has(s)} />
                   {i < (snap?.states.happyPath.length ?? 0) - 1 ? (
-                    <span className="text-[#9AA9A3] text-[0.6rem]" aria-hidden="true">
+                    <span className="text-[#5B6E68] text-[0.6rem]" aria-hidden="true">
                       →
                     </span>
                   ) : null}
@@ -1129,7 +1129,7 @@ export function IssuanceSection({
               ))}
             </div>
 
-            <p className="mt-4 text-[0.64rem] text-[#7A8C86] leading-relaxed">
+            <p className="mt-4 text-[0.64rem] text-[#5B6E68] leading-relaxed">
               The transition table is EXPLICIT (no skipping): the machine enforces INV-A as a hard guard inside the
               ISSUED transition — settlement finality AND an applicable unrevoked ALT-4 authorization record AND
               SUPPLY_CHECKED AND a non-suspended pipeline are ALL required. Gold-highlighted chips mark the states
@@ -1174,7 +1174,7 @@ export function IssuanceSection({
         <Reveal>
           <Panel className="p-5">
             <div className="flex items-start gap-3 mb-3">
-              <History className="h-4 w-4 text-mtqs-gold/70 mt-0.5 shrink-0" aria-hidden="true" />
+              <History className="h-4 w-4 text-mtqs-gold mt-0.5 shrink-0" aria-hidden="true" />
               <div>
                 <h3 id="issuance-audit-h" className="text-sm font-semibold text-[#0E1F1B] mb-1">
                   Last 50 IssuanceEvent rows (Prisma durability mirror)
@@ -1203,11 +1203,11 @@ export function IssuanceSection({
               </div>
             ) : (snap?.events.rows.length ?? 0) === 0 ? (
               <div className="rounded-lg border border-[#E3EAE6] bg-[#F7FAF8] px-4 py-8 text-center">
-                <Database className="h-5 w-5 text-[#7A8C86] mx-auto mb-2" aria-hidden="true" />
+                <Database className="h-5 w-5 text-[#5B6E68] mx-auto mb-2" aria-hidden="true" />
                 <p className="text-[0.74rem] text-[#5B6E68]">
                   No issuance events persisted yet — run a scenario above and the audit trail will fill in.
                 </p>
-                <p className="text-[0.62rem] text-[#7A8C86] mt-1">
+                <p className="text-[0.62rem] text-[#5B6E68] mt-1">
                   Every scenario run persists its full event log here (fail-soft-disclosed).
                 </p>
               </div>
@@ -1234,22 +1234,22 @@ export function IssuanceSection({
                     <tbody>
                       {(snap?.events.rows ?? []).map((r, i) => (
                         <tr key={r.id} className={`border-t border-[#E3EAE6] ${i % 2 ? "bg-[#F7FAF8]" : ""}`}>
-                          <td className="px-2.5 py-1.5 font-mono text-[#7A8C86] whitespace-nowrap">
+                          <td className="px-2.5 py-1.5 font-mono text-[#5B6E68] whitespace-nowrap">
                             {new Date(r.createdAt).toISOString().slice(11, 19)}
                           </td>
                           <td className="px-2.5 py-1.5 font-mono text-[#5B6E68]">{r.requestId || "—"}</td>
                           <td className="px-2.5 py-1.5">
-                            <span className="rounded border border-[#E3EAE6] bg-[#F7FAF8] px-1 py-0.5 font-mono text-[0.6rem] text-mtqs-gold/80">
+                            <span className="rounded border border-[#E3EAE6] bg-[#F7FAF8] px-1 py-0.5 font-mono text-[0.6rem] text-mtqs-gold">
                               {r.kind}
                             </span>
                           </td>
                           <td className="px-2.5 py-1.5">
-                            {r.state ? <StateChip state={r.state} /> : <span className="text-[#7A8C86]">—</span>}
+                            {r.state ? <StateChip state={r.state} /> : <span className="text-[#5B6E68]">—</span>}
                           </td>
                           <td className="px-2.5 py-1.5 text-right font-mono text-[#5B6E68]">{r.grossAmount || "—"}</td>
                           <td className="px-2.5 py-1.5 text-right font-mono text-[#5B6E68]">{r.feeAmount || "—"}</td>
                           <td className="px-2.5 py-1.5 text-right font-mono text-[#5B6E68]">{r.netAmount || "—"}</td>
-                          <td className="px-2.5 py-1.5 text-right font-mono text-mtqs-emerald/90">{r.issuedAmount || "—"}</td>
+                          <td className="px-2.5 py-1.5 text-right font-mono text-mtqs-emerald">{r.issuedAmount || "—"}</td>
                           <td className="px-2.5 py-1.5 text-right font-mono text-[#5B6E68]">{r.supplyAfter || "—"}</td>
                         </tr>
                       ))}
@@ -1258,7 +1258,7 @@ export function IssuanceSection({
                 </div>
               </div>
             )}
-            <p className="mt-3 text-[0.6rem] text-[#7A8C86] leading-relaxed">
+            <p className="mt-3 text-[0.6rem] text-[#5B6E68] leading-relaxed">
               Rows are the flat IssuanceEvent persistence docs (requestId · kind · state · instrument · exact
               6-decimal amounts · supply-after · JSON payload). The machine&apos;s synchronous in-memory event log —
               shown per-run in the Scenario Runner — is the AUTHORITATIVE record; this table is the durability mirror.

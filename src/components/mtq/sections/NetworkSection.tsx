@@ -442,7 +442,7 @@ export function NetworkSection() {
                     <div className="mt-1 font-mono tabular-nums text-[0.85rem] text-[#0E1F1B]">
                       {value}
                     </div>
-                    <div className="mt-0.5 text-[0.6rem] text-[#7A8C86]">{sub}</div>
+                    <div className="mt-0.5 text-[0.6rem] text-[#5B6E68]">{sub}</div>
                   </div>
                 ))}
               </div>
@@ -682,7 +682,7 @@ function OracleConsensusCard({ poll }: { poll: ChainPollState<OracleViewDto> }) 
                         </tr>
                         <tr className="border-b border-[#EDF2EF] bg-[#FAFCFA]">
                           <td colSpan={7} className="px-1.5 py-2">
-                            <span className="mr-2 align-baseline text-[0.58rem] uppercase tracking-[0.18em] text-[#5B6E68]">
+                            <span className="mr-2 align-baseline text-[0.6rem] uppercase tracking-[0.18em] text-[#5B6E68]">
                               family medians
                             </span>
                             <OracleFamilyMedians medians={p.family_medians} />

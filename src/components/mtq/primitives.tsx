@@ -324,9 +324,9 @@ export function BrandPrinciples({ className = "" }: { className?: string }) {
     >
       {principles.map((p, i) => (
         <span key={p} className="inline-flex items-center gap-x-3">
-          <span className="text-mtqs-gold/85">{p}</span>
+          <span className="text-mtqs-gold">{p}</span>
           {i < principles.length - 1 && (
-            <span className="text-mtqs-gold/30" aria-hidden="true">·</span>
+            <span className="text-mtqs-gold" aria-hidden="true">·</span>
           )}
         </span>
       ))}

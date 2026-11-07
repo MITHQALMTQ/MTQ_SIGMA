@@ -171,7 +171,7 @@ export function LiveMonetaryState({ snapshot }: { snapshot: MetricsSnapshot | nu
                 format={(n) => fmtRatio(n)}
                 className={`text-3xl font-semibold ${rrColor(rr)}`}
               />
-              {!rrFin && <span className="text-base text-mtqs-emerald/80">∞ — no liability</span>}
+              {!rrFin && <span className="text-base text-mtqs-emerald">∞ — no liability</span>}
             </div>
             <div className="mt-3 flex flex-wrap gap-1.5">
               <Pill tone={rrFin && rr >= RR_TARGET ? "emerald" : "muted"}>TGT {(RR_TARGET * 100).toFixed(0)}%</Pill>
@@ -195,7 +195,7 @@ export function LiveMonetaryState({ snapshot }: { snapshot: MetricsSnapshot | nu
                 format={(n) => fmtRatio(n)}
                 className={`text-3xl font-semibold ${lcrColor(lcr)}`}
               />
-              {!lcrFin && <span className="text-base text-mtqs-emerald/80">∞ — no liability</span>}
+              {!lcrFin && <span className="text-base text-mtqs-emerald">∞ — no liability</span>}
             </div>
             <p className="mt-2 text-[0.7rem] text-[#5B6E68]">
               LCR = liquid-fiat / (S · P_MTQ · 25%) · target ≥ 100%
@@ -321,7 +321,7 @@ export function LiveMonetaryState({ snapshot }: { snapshot: MetricsSnapshot | nu
                   <div className="font-mono text-[#0E1F1B]">{fmtNum(snapshot.genesisReserve, 0)} MTQ</div>
                 </div>
               </div>
-              <p className="text-[0.62rem] text-[#7A8C86]">
+              <p className="text-[0.62rem] text-[#5B6E68]">
                 engine ledger (simulated) — on-chain supplies: see Contracts
               </p>
             </div>
@@ -371,7 +371,7 @@ export function LiveMonetaryState({ snapshot }: { snapshot: MetricsSnapshot | nu
             >
               <div
                 className={`text-[0.6rem] uppercase tracking-[0.2em] ${
-                  snapshot.fx.liveVix ? "text-mtqs-emerald/80" : "text-mtqs-amber/80"
+                  snapshot.fx.liveVix ? "text-mtqs-emerald" : "text-mtqs-amber"
                 }`}
               >
                 VIX · {snapshot.fx.liveVix ? "live" : "sim"}
@@ -394,7 +394,7 @@ export function LiveMonetaryState({ snapshot }: { snapshot: MetricsSnapshot | nu
             >
               <div
                 className={`text-[0.6rem] uppercase tracking-[0.2em] ${
-                  snapshot.fx.liveDxy ? "text-mtqs-emerald/80" : "text-mtqs-amber/80"
+                  snapshot.fx.liveDxy ? "text-mtqs-emerald" : "text-mtqs-amber"
                 }`}
               >
                 DXY · {snapshot.fx.liveDxy ? "live" : "sim"}
@@ -411,14 +411,14 @@ export function LiveMonetaryState({ snapshot }: { snapshot: MetricsSnapshot | nu
           <p className="mt-3 text-[0.7rem] text-[#5B6E68]">
             {snapshot.fx.liveVix && snapshot.fx.liveDxy ? (
               <>
-                VIX &amp; DXY are <span className="text-mtqs-emerald/90">live from Yahoo Finance</span> (CBOE ^VIX + ICE
+                VIX &amp; DXY are <span className="text-mtqs-emerald">live from Yahoo Finance</span> (CBOE ^VIX + ICE
                 DX-Y.NYB), with Frankfurter self-calc (official geometric DXY formula) + seeded OU walk as honest
                 fallbacks.
               </>
             ) : (
               <>
                 VIX &amp; DXY sources: Yahoo Finance (CBOE ^VIX + ICE DX-Y.NYB) when reachable, else the{" "}
-                <span className="text-mtqs-amber/90">seeded OU-walk fallback</span> — see each chip&apos;s live/sim state.
+                <span className="text-mtqs-amber">seeded OU-walk fallback</span> — see each chip&apos;s live/sim state.
               </>
             )}{" "}
             FX (EUR/GBP/JPY/CNY/CHF) sourced from Frankfurter (ECB) + gold from gold-api.com. CHF is a

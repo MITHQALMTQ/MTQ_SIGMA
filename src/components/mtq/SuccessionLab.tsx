@@ -200,7 +200,7 @@ export function SuccessionLab() {
               aria-label="Purchasing power loss magnitude"
               className="w-full accent-rose-500"
             />
-            <div className="text-[0.55rem] text-[#7A8C86] mt-1">purchasing-power collapse vs the basket</div>
+            <div className="text-[0.6rem] text-[#5B6E68] mt-1">purchasing-power collapse vs the basket</div>
           </div>
           {/* Successor */}
           <div className="lg:col-span-3 p-3 rounded-lg border border-[#E3EAE6] bg-[#F7FAF8]">
@@ -218,7 +218,7 @@ export function SuccessionLab() {
                 </option>
               ))}
             </select>
-            <div className="text-[0.55rem] text-[#7A8C86] mt-1">
+            <div className="text-[0.6rem] text-[#5B6E68] mt-1">
               quotes: {meta ? (meta.quotes.live ? "live ECB/Frankfurter" : "fixture fallback") : "…"}
             </div>
           </div>
@@ -254,8 +254,8 @@ export function SuccessionLab() {
               exit={{ opacity: 0 }}
               className="p-6 rounded-xl border border-dashed border-[#E3EAE6] text-center"
             >
-              <ShieldAlert className="h-6 w-6 text-[#7A8C86] mx-auto mb-2" aria-hidden="true" />
-              <p className="text-[0.75rem] text-[#7A8C86] max-w-xl mx-auto">
+              <ShieldAlert className="h-6 w-6 text-[#5B6E68] mx-auto mb-2" aria-hidden="true" />
+              <p className="text-[0.75rem] text-[#5B6E68] max-w-xl mx-auto">
                 Pick a failing currency, a loss magnitude, and a successor — then run the drill. The simulation runs on a
                 clone of the live index and live reserve holdings; nothing on the pilot is mutated.
               </p>
@@ -284,7 +284,7 @@ export function SuccessionLab() {
                       <ShieldAlert className="h-4 w-4 text-rose-600" aria-hidden="true" />
                     )
                   ) : (
-                    <History className="h-4 w-4 text-amber-600" aria-hidden="true" />
+                    <History className="h-4 w-4 text-amber-700" aria-hidden="true" />
                   )}
                   <span className="text-[0.85rem] font-semibold text-[#0E1F1B]">
                     {result.ejectedFromBasket
@@ -299,24 +299,24 @@ export function SuccessionLab() {
                 </div>
                 <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 text-[0.7rem]">
                   <div className="p-2 rounded-lg bg-[#F7FAF8]">
-                    <div className="text-[#7A8C86] text-[0.55rem] uppercase tracking-wider">P_MTQ before</div>
+                    <div className="text-[#5B6E68] text-[0.6rem] uppercase tracking-wider">P_MTQ before</div>
                     <div className="font-mono text-[#0E1F1B]">{fmtFixed(result.baseline.iLevel, 6)}</div>
                   </div>
                   <div className="p-2 rounded-lg bg-[#F7FAF8]">
-                    <div className="text-[#7A8C86] text-[0.55rem] uppercase tracking-wider">P_MTQ after</div>
+                    <div className="text-[#5B6E68] text-[0.6rem] uppercase tracking-wider">P_MTQ after</div>
                     <div className="font-mono text-[#0E1F1B]">{fmtFixed(result.after.iLevel, 6)}</div>
                   </div>
                   <div className="p-2 rounded-lg bg-[#F7FAF8]">
-                    <div className="text-[#7A8C86] text-[0.55rem] uppercase tracking-wider">Honest loss accrued</div>
+                    <div className="text-[#5B6E68] text-[0.6rem] uppercase tracking-wider">Honest loss accrued</div>
                     <div className="font-mono text-rose-600">−{result.continuity.accruedLossPct.toFixed(3)}%</div>
                   </div>
                   <div className="p-2 rounded-lg bg-[#F7FAF8]">
-                    <div className="text-[#7A8C86] text-[0.55rem] uppercase tracking-wider">Chain factor G_t</div>
+                    <div className="text-[#5B6E68] text-[0.6rem] uppercase tracking-wider">Chain factor G_t</div>
                     <div className="font-mono text-[#0E1F1B]">{fmtFixed(result.after.gFactor, 6)}</div>
                   </div>
                 </div>
                 {result.successorSanity && (
-                  <p className="mt-2 text-[0.62rem] text-[#7A8C86]">
+                  <p className="mt-2 text-[0.62rem] text-[#5B6E68]">
                     Successor slot check: a +{result.successorSanity.movePct}% move in {result.successor?.code} moves P_MTQ by{" "}
                     <span className="font-mono text-mtqs-emerald">{result.successorSanity.actualIndexMovePct.toFixed(4)}%</span>{" "}
                     (expected {result.successorSanity.expectedIndexMovePct.toFixed(4)}% = seed weight {((result.successor?.seedWeight ?? 0) * 100).toFixed(1)}% ×{" "}
@@ -329,7 +329,7 @@ export function SuccessionLab() {
               {/* Timeline */}
               <div>
                 <div className="flex items-center gap-2 mb-2">
-                  <Landmark className="h-3.5 w-3.5 text-mtqs-gold/70" aria-hidden="true" />
+                  <Landmark className="h-3.5 w-3.5 text-mtqs-gold" aria-hidden="true" />
                   <span className="text-[0.62rem] uppercase tracking-[0.22em] text-[#5B6E68]">Crisis timeline</span>
                 </div>
                 <ol className="relative border-l border-[#E3EAE6] ml-2 space-y-0 max-h-96 overflow-y-auto custom-scroll pr-2">
@@ -354,20 +354,20 @@ export function SuccessionLab() {
                           aria-hidden="true"
                         />
                         <div className="flex flex-wrap items-center gap-2">
-                          <span className="font-mono text-[0.6rem] text-[#7A8C86]">h+{s.t}</span>
-                          <Pill tone={pm.tone} className="text-[0.55rem]">{pm.label}</Pill>
+                          <span className="font-mono text-[0.6rem] text-[#5B6E68]">h+{s.t}</span>
+                          <Pill tone={pm.tone} className="text-[0.6rem]">{pm.label}</Pill>
                           {s.ejectStage > 0 && (
-                            <span className="text-[0.55rem] font-mono text-rose-600/80 border border-rose-200 rounded px-1.5 py-0.5">
+                            <span className="text-[0.6rem] font-mono text-rose-700 border border-rose-200 rounded px-1.5 py-0.5">
                               stage {s.ejectStage}
                             </span>
                           )}
-                          <span className="font-mono text-[0.68rem] text-mtqs-gold/80">I_t {fmtFixed(s.iLevel, 6)}</span>
+                          <span className="font-mono text-[0.68rem] text-mtqs-gold">I_t {fmtFixed(s.iLevel, 6)}</span>
                           {s.divisor != null && (
-                            <span className="font-mono text-[0.58rem] text-[#7A8C86]">D {s.divisor.toPrecision(5)}</span>
+                            <span className="font-mono text-[0.6rem] text-[#5B6E68]">D {s.divisor.toPrecision(5)}</span>
                           )}
                         </div>
                         <div className="text-[0.75rem] text-[#0E1F1B] mt-0.5">{s.label}</div>
-                        <p className="text-[0.62rem] text-[#7A8C86] mt-0.5 max-w-3xl leading-relaxed">{s.note}</p>
+                        <p className="text-[0.62rem] text-[#5B6E68] mt-0.5 max-w-3xl leading-relaxed">{s.note}</p>
                       </motion.li>
                     );
                   })}
@@ -401,7 +401,7 @@ export function SuccessionLab() {
                   <ul className="space-y-1.5">
                     {result.after.weights.map((w) => (
                       <li key={w.component} className="flex items-center gap-2">
-                        <span className={`w-10 text-[0.65rem] font-mono ${w.component === result.ejected ? "text-[#9AA9A3] line-through" : w.component === result.successor?.code ? "text-mtqs-emerald" : "text-[#5B6E68]"}`}>
+                        <span className={`w-10 text-[0.65rem] font-mono ${w.component === result.ejected ? "text-[#5B6E68] line-through" : w.component === result.successor?.code ? "text-mtqs-emerald" : "text-[#5B6E68]"}`}>
                           {w.component}
                         </span>
                         <div className="flex-1 h-1.5 rounded-full bg-[#E3EAE6] overflow-hidden relative">
@@ -419,8 +419,8 @@ export function SuccessionLab() {
                         </div>
                         <span className="w-12 text-right font-mono text-[0.65rem] text-[#5B6E68]">{(w.weight * 100).toFixed(2)}%</span>
                         <span
-                          className={`w-6 text-[0.55rem] ${
-                            w.inEnvelope == null ? "text-[#9AA9A3]" : w.inEnvelope ? "text-mtqs-emerald" : "text-rose-600"
+                          className={`w-6 text-[0.6rem] ${
+                            w.inEnvelope == null ? "text-[#5B6E68]" : w.inEnvelope ? "text-mtqs-emerald" : "text-rose-600"
                           }`}
                           title={w.envelope ? `envelope ${(w.envelope.lower * 100).toFixed(0)}–${(w.envelope.upper * 100).toFixed(0)}%` : "no envelope"}
                         >
@@ -429,7 +429,7 @@ export function SuccessionLab() {
                       </li>
                     ))}
                   </ul>
-                  <div className="text-[0.55rem] text-[#7A8C86] mt-1.5">✓ in envelope · ! outside (MASE re-asserts, velocity-capped §8.3)</div>
+                  <div className="text-[0.6rem] text-[#5B6E68] mt-1.5">✓ in envelope · ! outside (MASE re-asserts, velocity-capped §8.3)</div>
                 </div>
               </div>
 
@@ -441,14 +441,14 @@ export function SuccessionLab() {
                     <span className="text-[0.62rem] uppercase tracking-[0.22em] text-[#5B6E68]">
                       Reserve defence — staged liquidation of the {result.ejected} sleeve
                     </span>
-                    <span className="ml-auto text-[0.55rem] font-mono text-[#7A8C86]">
+                    <span className="ml-auto text-[0.6rem] font-mono text-[#5B6E68]">
                       holding {result.reserveFlow.ejectedHoldingNativePerMtq.toPrecision(4)} {result.ejected}/MTQΣ
                     </span>
                   </div>
                   <div className="overflow-x-auto">
                     <table className="w-full text-[0.68rem]">
                       <thead>
-                        <tr className="text-[#7A8C86] text-left">
+                        <tr className="text-[#5B6E68] text-left">
                           <th className="py-1 pr-3 font-normal">Stage</th>
                           <th className="py-1 pr-3 font-normal">Hour</th>
                           <th className="py-1 pr-3 font-normal">Sell (incr.)</th>
@@ -459,7 +459,7 @@ export function SuccessionLab() {
                       <tbody className="font-mono text-[#33544C]">
                         {result.reserveFlow.ladder.map((l) => (
                           <tr key={l.stage} className="border-t border-[#E3EAE6]">
-                            <td className="py-1 pr-3 text-rose-600/90">{l.stage}</td>
+                            <td className="py-1 pr-3 text-rose-700">{l.stage}</td>
                             <td className="py-1 pr-3">h+{l.triggerHour}</td>
                             <td className="py-1 pr-3">{(l.sellPct * 100).toFixed(0)}%</td>
                             <td className="py-1 pr-3">{l.priceUsd.toPrecision(4)}</td>
@@ -471,23 +471,23 @@ export function SuccessionLab() {
                   </div>
                   <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 mt-3 text-[0.65rem]">
                     <div className="p-2 rounded-lg bg-[#F7FAF8]">
-                      <div className="text-[#7A8C86] text-[0.55rem] uppercase tracking-wider">Initial exposure</div>
+                      <div className="text-[#5B6E68] text-[0.6rem] uppercase tracking-wider">Initial exposure</div>
                       <div className="font-mono text-[#0E1F1B]">{result.reserveFlow.initialExposureUsdPerMtq.toPrecision(4)}</div>
                     </div>
                     <div className="p-2 rounded-lg bg-[#F7FAF8]">
-                      <div className="text-[#7A8C86] text-[0.55rem] uppercase tracking-wider">Realized (ladder)</div>
+                      <div className="text-[#5B6E68] text-[0.6rem] uppercase tracking-wider">Realized (ladder)</div>
                       <div className="font-mono text-mtqs-emerald">{result.reserveFlow.realizedUsdPerMtq.toPrecision(4)}</div>
                     </div>
                     <div className="p-2 rounded-lg bg-[#F7FAF8]">
-                      <div className="text-[#7A8C86] text-[0.55rem] uppercase tracking-wider">If held to the end</div>
+                      <div className="text-[#5B6E68] text-[0.6rem] uppercase tracking-wider">If held to the end</div>
                       <div className="font-mono text-rose-600">{result.reserveFlow.finalMarkUsdPerMtq.toPrecision(4)}</div>
                     </div>
                     <div className="p-2 rounded-lg bg-[#F7FAF8]">
-                      <div className="text-[#7A8C86] text-[0.55rem] uppercase tracking-wider">Saved by acting</div>
+                      <div className="text-[#5B6E68] text-[0.6rem] uppercase tracking-wider">Saved by acting</div>
                       <div className="font-mono text-mtqs-gold">+{result.reserveFlow.savedByActingUsdPerMtq.toPrecision(3)}</div>
                     </div>
                   </div>
-                  <p className="mt-2 text-[0.6rem] text-[#7A8C86]">
+                  <p className="mt-2 text-[0.6rem] text-[#5B6E68]">
                     Proceeds reallocate to the post-succession basket per its weights (USD sleeve → USDC/USDP/USDT ⅓ each ·
                     gold sleeve → PAXG/XAUT 50/50, §15.6). USD figures here are reporting numeraires for the flow plan only.
                   </p>
@@ -496,7 +496,7 @@ export function SuccessionLab() {
 
               {/* Reintegration */}
               <div className="flex items-start gap-2 p-3 rounded-lg border border-[#E3EAE6] bg-[#F7FAF8]">
-                <RotateCcw className="h-3.5 w-3.5 text-[#7A8C86] mt-0.5 shrink-0" aria-hidden="true" />
+                <RotateCcw className="h-3.5 w-3.5 text-[#5B6E68] mt-0.5 shrink-0" aria-hidden="true" />
                 <div>
                   <div className="text-[0.62rem] uppercase tracking-[0.22em] text-[#5B6E68] mb-1">
                     Can the ejected currency come back?
@@ -526,7 +526,7 @@ export function SuccessionLab() {
             </div>
           </div>
         ) : !meta ? (
-          <div className="mt-3 flex items-center gap-2 text-[0.65rem] text-[#7A8C86]">
+          <div className="mt-3 flex items-center gap-2 text-[0.65rem] text-[#5B6E68]">
             <Skeleton className="h-3 w-3 rounded-full" />
             Loading candidate universe + live quotes…
           </div>

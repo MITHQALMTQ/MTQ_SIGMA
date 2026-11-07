@@ -146,7 +146,7 @@ export function NetworkSelector({
         >
           <DropdownMenuLabel className="flex items-center justify-between gap-2 px-3 py-2 text-[0.65rem] uppercase tracking-[0.2em] text-[#5B6E68]">
             <span>Select Network</span>
-            <span className="font-mono tabular-nums text-mtqs-gold/80">
+            <span className="font-mono tabular-nums text-mtqs-gold">
               {ALL_CHAINS.length} chains
             </span>
           </DropdownMenuLabel>
@@ -184,11 +184,11 @@ export function NetworkSelector({
                       <span className="font-mono tabular-nums text-[#5B6E68]">
                         Chain {String(chain.chainId)}
                       </span>
-                      <span className="text-[#7A8C86]">·</span>
+                      <span className="text-[#5B6E68]">·</span>
                       <span className={tone.tone === "emerald" ? "text-mtqs-emerald" : tone.tone === "amber" ? "text-mtqs-amber" : "text-mtqs-gold"}>
                         {tone.label}
                       </span>
-                      <span className="text-[#7A8C86]">·</span>
+                      <span className="text-[#5B6E68]">·</span>
                       <span className="text-[#5B6E68]">
                         {chain.isEvm ? "EVM" : "non-EVM"}
                       </span>
@@ -221,7 +221,7 @@ export function NetworkSelector({
               else toast.error("Copy failed");
             }}
             aria-label="Copy MTQΣ address"
-            className="mtqs-focus text-mtqs-gold/70 hover:text-mtqs-gold transition"
+            className="mtqs-focus text-mtqs-gold hover:text-mtqs-gold transition"
           >
             <Copy className="h-3 w-3" />
           </button>
@@ -230,7 +230,7 @@ export function NetworkSelector({
             target="_blank"
             rel="noopener noreferrer"
             aria-label={`Open MTQΣ on ${selected.label} explorer`}
-            className="ml-auto mtqs-focus text-mtqs-gold/70 hover:text-mtqs-gold transition inline-flex items-center gap-1"
+            className="ml-auto mtqs-focus text-mtqs-gold hover:text-mtqs-gold transition inline-flex items-center gap-1"
           >
             <ExternalLink className="h-3 w-3" />
             <span className="hidden sm:inline">explorer</span>

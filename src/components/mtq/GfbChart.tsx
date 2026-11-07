@@ -129,7 +129,7 @@ export function GfbChart({ snapshot, height = 200 }: GfbChartProps) {
       {/* 16f-007: the trajectory is a synthetic illustration — only the endpoint
           is the live value. Unconditional label (sibling ReferenceChart got the
           same treatment in Task 14). */}
-      <div className="absolute bottom-1 left-2 text-[0.55rem] uppercase tracking-[0.16em] text-[#7A8C86] pointer-events-none">
+      <div className="absolute bottom-1 left-2 text-[0.6rem] uppercase tracking-[0.16em] text-[#5B6E68] pointer-events-none">
         Illustrative — synthetic trajectory · endpoint live
       </div>
     </div>

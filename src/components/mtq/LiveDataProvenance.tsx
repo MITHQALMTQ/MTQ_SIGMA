@@ -257,7 +257,7 @@ export function LiveDataProvenance() {
           {/* Header row: live tally + freshness + force refresh */}
           <div className="mb-4 flex flex-wrap items-center justify-between gap-3">
             <div className="flex items-center gap-2">
-              <Radio className="h-4 w-4 text-mtqs-gold/80" aria-hidden="true" />
+              <Radio className="h-4 w-4 text-mtqs-gold" aria-hidden="true" />
               <span className="text-[0.7rem] uppercase tracking-[0.22em] text-[#5B6E68]">
                 Independent verification of the 8/8 live claim
               </span>
@@ -274,7 +274,7 @@ export function LiveDataProvenance() {
                 aria-label="Force refresh the live FX snapshot"
               >
                 <RefreshCw
-                  className={`h-3.5 w-3.5 text-mtqs-gold/85 ${refreshing ? "animate-spin" : ""}`}
+                  className={`h-3.5 w-3.5 text-mtqs-gold ${refreshing ? "animate-spin" : ""}`}
                   aria-hidden="true"
                 />
                 <span>{refreshing ? "Refreshing…" : "Force refresh"}</span>
@@ -292,7 +292,7 @@ export function LiveDataProvenance() {
           ) : error ? (
             <div className="rounded-md border border-mtqs-rose/30 bg-mtqs-rose/10 p-4 text-[0.78rem] text-rose-600">
               <p className="font-medium">Unable to fetch /api/fx</p>
-              <p className="mt-1 text-rose-600/80 font-mono">{error}</p>
+              <p className="mt-1 text-rose-700 font-mono">{error}</p>
               <button
                 type="button"
                 onClick={() => fetchFx(true)}
@@ -334,7 +334,7 @@ export function LiveDataProvenance() {
                           </td>
                           <td className="py-2.5 px-3 text-[#5B6E68]">
                             <span className="inline-flex items-center gap-1.5">
-                              <Database className="h-3 w-3 text-mtqs-gold/70" aria-hidden="true" />
+                              <Database className="h-3 w-3 text-mtqs-gold" aria-hidden="true" />
                               {source}
                             </span>
                           </td>
@@ -377,13 +377,13 @@ export function LiveDataProvenance() {
               {/* Honest note */}
               <div className="mt-4 rounded-md border border-[#E3EAE6] bg-[#F7FAF8] p-3 text-[0.72rem] text-[#5B6E68] leading-relaxed">
                 <p className="flex items-start gap-2">
-                  <ShieldCheck className="h-4 w-4 text-mtqs-emerald/80 mt-0.5 shrink-0" aria-hidden="true" />
+                  <ShieldCheck className="h-4 w-4 text-mtqs-emerald mt-0.5 shrink-0" aria-hidden="true" />
                   <span>
                     <span className="text-[#0E1F1B]">Honest note.</span>{" "}
                     VIX from Yahoo Finance <span className="font-mono text-mtqs-gold">^VIX</span> (CBOE).
                     DXY from Yahoo Finance <span className="font-mono text-mtqs-gold">DX-Y.NYB</span> (ICE US Dollar Index).
                     Fallback: Frankfurter self-calc using the official geometric weighted formula, then
-                    seeded OU walk. All 8 signals should be <span className="text-mtqs-emerald/90">LIVE</span> when markets are open.
+                    seeded OU walk. All 8 signals should be <span className="text-mtqs-emerald">LIVE</span> when markets are open.
                   </span>
                 </p>
               </div>

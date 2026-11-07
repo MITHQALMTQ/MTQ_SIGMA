@@ -232,7 +232,7 @@ export function ConstitutionalSeparation({
         {/* B — MTQΣ Token (left side) */}
         <g>
           <circle cx="50" cy="260" r="4" fill="#14B8A6" />
-          <text x="36" y="248" textAnchor="middle" fontSize="11" fill="#0D9488" fontFamily="var(--font-geist-sans), sans-serif" letterSpacing="3">
+          <text x="36" y="248" textAnchor="middle" fontSize="11" fill="#0F766E" fontFamily="var(--font-geist-sans), sans-serif" letterSpacing="3">
             B
           </text>
           <text x="36" y="266" textAnchor="middle" fontSize="10" fill="#14B8A6" fontFamily="var(--font-geist-sans), sans-serif" letterSpacing="2">

@@ -96,7 +96,7 @@ function CommandCenterBoot() {
       <span className="mt-2 h-1 w-40 overflow-hidden rounded-full bg-[#E3EAE6]">
         <span className="block h-full w-1/3 animate-pulse rounded-full bg-[#0D9488]" />
       </span>
-      <span className="text-[0.6rem] text-[#7A8C86]">
+      <span className="text-[0.6rem] text-[#5B6E68]">
         TESTNET ONLY · SHADOW MODE ENFORCED · RESERVE TRADING NOT AUTHORIZED
       </span>
     </div>

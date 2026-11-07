@@ -83,7 +83,7 @@ function CopyBtn({ value, label }: { value: string; label: string }) {
         if (ok) toast.success(`Copied ${label}`, { description: shortAddr(value) });
         else toast.error("Copy failed");
       }}
-      className="ml-1 text-[0.62rem] font-mono text-mtqs-gold/70 hover:text-mtqs-gold transition px-1 py-0.5 rounded border border-transparent hover:border-mtqs-amber/30 mtqs-focus"
+      className="ml-1 text-[0.62rem] font-mono text-mtqs-gold hover:text-mtqs-gold transition px-1 py-0.5 rounded border border-transparent hover:border-mtqs-amber/30 mtqs-focus"
       aria-label={`Copy ${label}`}
     >
       copy
@@ -108,7 +108,7 @@ function BlockHead({
   return (
     <div className="flex flex-wrap items-end justify-between gap-4 mb-4">
       <div className="min-w-0">
-        <div className="text-[0.6rem] uppercase tracking-[0.22em] text-mtqs-gold/75">
+        <div className="text-[0.6rem] uppercase tracking-[0.22em] text-mtqs-gold">
           {n} · {eyebrow}
         </div>
         <h3 id={id} className="mt-2 text-base font-semibold text-[#0E1F1B]">
@@ -237,7 +237,7 @@ export function AuthorizationAuditSection() {
           <p className="mt-1.5 font-mono text-[0.66rem] leading-relaxed text-[#5B6E68]">
             Task 10 re-probe {TASK10_META.probedAt} · Monad block {TASK10_META.monadBlock} · Arc block{" "}
             {TASK10_META.arcBlock} · Robinhood block {TASK10_META.robinhoodBlock.split(" ")[0]}{" "}
-            <span className="text-[#7A8C86]">
+            <span className="text-[#5B6E68]">
               (network removed from the estate 2026-10-24 — historical probe record only)
             </span>{" "}
             · transactions sent:{" "}
@@ -287,23 +287,23 @@ export function AuthorizationAuditSection() {
                   </div>
                   <dl className="mt-2.5 space-y-1.5 text-[0.66rem] leading-relaxed">
                     <div className="flex gap-2">
-                      <dt className="w-20 shrink-0 text-[#7A8C86]">fingerprint</dt>
-                      <dd className="font-mono text-mtqs-gold/85">{k.fingerprint}</dd>
+                      <dt className="w-20 shrink-0 text-[#5B6E68]">fingerprint</dt>
+                      <dd className="font-mono text-mtqs-gold">{k.fingerprint}</dd>
                     </div>
                     <div className="flex gap-2">
-                      <dt className="w-20 shrink-0 text-[#7A8C86]">derives to</dt>
+                      <dt className="w-20 shrink-0 text-[#5B6E68]">derives to</dt>
                       <dd className="min-w-0 font-mono break-all text-[#0E1F1B]">{k.derivesTo}</dd>
                     </div>
                     <div className="flex gap-2">
-                      <dt className="w-20 shrink-0 text-[#7A8C86]">controls</dt>
+                      <dt className="w-20 shrink-0 text-[#5B6E68]">controls</dt>
                       <dd className="min-w-0 text-[#5B6E68]">{k.controls}</dd>
                     </div>
                     <div className="flex gap-2">
-                      <dt className="w-20 shrink-0 text-[#7A8C86]">copies</dt>
+                      <dt className="w-20 shrink-0 text-[#5B6E68]">copies</dt>
                       <dd className="min-w-0 text-[#5B6E68]">{k.copies}</dd>
                     </div>
                     <div className="flex gap-2">
-                      <dt className="w-20 shrink-0 text-[#7A8C86]">window</dt>
+                      <dt className="w-20 shrink-0 text-[#5B6E68]">window</dt>
                       <dd className="min-w-0 text-[#5B6E68]">{k.window}</dd>
                     </div>
                   </dl>
@@ -321,7 +321,7 @@ export function AuthorizationAuditSection() {
           <Panel className="mt-4 p-0 overflow-hidden">
             <div className="border-b border-[#E3EAE6] px-4 py-3">
               <div className="flex items-center gap-2">
-                <FileSearch className="h-4 w-4 text-mtqs-gold/80" aria-hidden="true" />
+                <FileSearch className="h-4 w-4 text-mtqs-gold" aria-hidden="true" />
                 <span className="text-[0.78rem] font-medium text-[#0E1F1B]">
                   Exposure census — where the material exists (and does not)
                 </span>
@@ -342,7 +342,7 @@ export function AuthorizationAuditSection() {
         <Reveal>
           <Panel className="mt-4 p-4 sm:p-5">
             <div className="flex items-center gap-2">
-              <History className="h-4 w-4 text-mtqs-gold/80" aria-hidden="true" />
+              <History className="h-4 w-4 text-mtqs-gold" aria-hidden="true" />
               <span className="text-[0.78rem] font-medium text-[#0E1F1B]">
                 Corrections register — evidence-preserving (prior claim → verified truth → action)
               </span>
@@ -352,12 +352,12 @@ export function AuthorizationAuditSection() {
                 <li key={c.id} className="rounded-md border border-[#E3EAE6] bg-[#F7FAF8] p-3">
                   <div className="flex flex-wrap items-center gap-2">
                     <Pill tone="gold">{c.id}</Pill>
-                    <span className="font-mono text-[0.64rem] text-[#7A8C86] line-through decoration-mtqs-rose/60">
+                    <span className="font-mono text-[0.64rem] text-[#5B6E68] line-through decoration-mtqs-rose/60">
                       {c.prior}
                     </span>
                   </div>
                   <p className="mt-1.5 text-[0.68rem] leading-relaxed text-[#5B6E68]">{c.truth}</p>
-                  <p className="mt-1 text-[0.64rem] leading-relaxed text-mtqs-gold/75">Action: {c.action}</p>
+                  <p className="mt-1 text-[0.64rem] leading-relaxed text-mtqs-gold">Action: {c.action}</p>
                 </li>
               ))}
             </ul>
@@ -369,7 +369,7 @@ export function AuthorizationAuditSection() {
           <Panel className="mt-4 p-0 overflow-hidden">
             <div className="border-b border-[#E3EAE6] px-4 py-3">
               <div className="flex items-center gap-2">
-                <Network className="h-4 w-4 text-mtqs-gold/80" aria-hidden="true" />
+                <Network className="h-4 w-4 text-mtqs-gold" aria-hidden="true" />
                 <span className="text-[0.78rem] font-medium text-[#0E1F1B]">
                   State stability — Task 9 (2026-10-21) vs Task 10 (2026-10-22) fresh anchors
                 </span>
@@ -405,7 +405,7 @@ export function AuthorizationAuditSection() {
           <Panel className="mt-4 p-0 overflow-hidden">
             <div className="border-b border-[#E3EAE6] px-4 py-3">
               <div className="flex items-center gap-2">
-                <Vault className="h-4 w-4 text-mtqs-gold/80" aria-hidden="true" />
+                <Vault className="h-4 w-4 text-mtqs-gold" aria-hidden="true" />
                 <span className="text-[0.78rem] font-medium text-[#0E1F1B]">
                   Supply & genesis reconciliation — mandate §20.1 vs live estate
                 </span>
@@ -436,7 +436,7 @@ export function AuthorizationAuditSection() {
                 </tbody>
               </table>
             </div>
-            <p className="border-t border-[#E3EAE6] px-4 py-2.5 text-[0.64rem] leading-relaxed text-[#7A8C86]">
+            <p className="border-t border-[#E3EAE6] px-4 py-2.5 text-[0.64rem] leading-relaxed text-[#5B6E68]">
               Custody is NOT declared closed because balances happen to sum to supply: every balance sits either in
               the deployer EOA, a self-custodying token contract (gen-A/C), or a single-key Solana wallet — none in
               the mandated 4/7 Genesis Safe. C-041/C-043/C-046/C-047 remain OPEN.
@@ -449,7 +449,7 @@ export function AuthorizationAuditSection() {
           <Panel className="mt-4 p-0 overflow-hidden">
             <div className="border-b border-[#E3EAE6] px-4 py-3">
               <div className="flex items-center gap-2">
-                <Wrench className="h-4 w-4 text-mtqs-gold/80" aria-hidden="true" />
+                <Wrench className="h-4 w-4 text-mtqs-gold" aria-hidden="true" />
                 <span className="text-[0.78rem] font-medium text-[#0E1F1B]">
                   Transaction-free containment plan — dependencies, risks, required approvals
                 </span>
@@ -463,11 +463,11 @@ export function AuthorizationAuditSection() {
                     <Pill tone={s.kind === "ON-CHAIN (PLAN ONLY)" ? "rose" : s.kind === "REPO" ? "gold" : "muted"}>
                       {s.id}
                     </Pill>
-                    <span className="font-mono text-[0.62rem] text-[#7A8C86]">{s.kind}</span>
+                    <span className="font-mono text-[0.62rem] text-[#5B6E68]">{s.kind}</span>
                   </div>
                   <p className="mt-1 text-[0.7rem] leading-relaxed text-[#0E1F1B]">{s.step}</p>
                   <p className="mt-1 text-[0.62rem] leading-relaxed text-[#5B6E68]">Risk: {s.risk}</p>
-                  <p className="text-[0.62rem] leading-relaxed text-mtqs-gold/75">Approval authority: {s.approval}</p>
+                  <p className="text-[0.62rem] leading-relaxed text-mtqs-gold">Approval authority: {s.approval}</p>
                 </li>
               ))}
             </ul>
@@ -478,7 +478,7 @@ export function AuthorizationAuditSection() {
         <Reveal>
           <Panel className="mt-4 p-4 sm:p-5">
             <div className="mb-3 flex flex-wrap items-center gap-2">
-              <ClipboardCheck className="h-4 w-4 text-mtqs-gold/80" aria-hidden="true" />
+              <ClipboardCheck className="h-4 w-4 text-mtqs-gold" aria-hidden="true" />
               <span className="text-[0.78rem] font-medium text-[#0E1F1B]">
                 Task 10 release-gate re-verification — statuses unchanged
               </span>
@@ -487,7 +487,7 @@ export function AuthorizationAuditSection() {
             <ul className="space-y-1.5">
               {TASK10_RELEASE_GATES.map((g) => (
                 <li key={g.n} className="flex flex-wrap items-center gap-2 text-[0.7rem]">
-                  <span className="w-6 shrink-0 font-mono text-[#7A8C86]">{String(g.n).padStart(2, "0")}</span>
+                  <span className="w-6 shrink-0 font-mono text-[#5B6E68]">{String(g.n).padStart(2, "0")}</span>
                   <span className="text-[#0E1F1B]">{g.name}</span>
                   <GatePill status={g.status} kind={g.n === 1 ? "warn" : "fail"} />
                   {"note" in g && g.note ? (
@@ -496,7 +496,7 @@ export function AuthorizationAuditSection() {
                 </li>
               ))}
             </ul>
-            <p className="mt-3 rounded-md border border-mtqs-rose/30 bg-mtqs-rose/[0.06] px-3 py-2 text-[0.68rem] leading-relaxed text-mtqs-rose/90">
+            <p className="mt-3 rounded-md border border-mtqs-rose/30 bg-mtqs-rose/[0.06] px-3 py-2 text-[0.68rem] leading-relaxed text-mtqs-rose">
               {TASK10_FINAL.note}
             </p>
           </Panel>
@@ -512,7 +512,7 @@ export function AuthorizationAuditSection() {
           >
             <div
               id="task9-recommendation-h"
-              className="text-[0.6rem] uppercase tracking-[0.22em] text-mtqs-rose/80"
+              className="text-[0.6rem] uppercase tracking-[0.22em] text-mtqs-rose"
             >
               Final recommendation (G.8) — evidence-based
             </div>
@@ -540,7 +540,7 @@ export function AuthorizationAuditSection() {
         />
         <Reveal>
           <Panel className="p-4 sm:p-6">
-            <p className="mb-4 rounded-md border border-mtqs-amber/30 bg-mtqs-amber/[0.05] px-3 py-2.5 text-[0.72rem] leading-relaxed text-mtqs-amber/90">
+            <p className="mb-4 rounded-md border border-mtqs-amber/30 bg-mtqs-amber/[0.05] px-3 py-2.5 text-[0.72rem] leading-relaxed text-mtqs-amber">
               Software status is reported separately from release status. No software test result
               may automatically advance a release gate.
             </p>
@@ -551,7 +551,7 @@ export function AuthorizationAuditSection() {
                   className="flex flex-col gap-1.5 rounded-md border border-[#E3EAE6] bg-[#F7FAF8] p-3 sm:flex-row sm:items-start sm:gap-3"
                 >
                   <span
-                    className="shrink-0 font-mono text-[0.65rem] text-[#7A8C86] sm:pt-1"
+                    className="shrink-0 font-mono text-[0.65rem] text-[#5B6E68] sm:pt-1"
                     aria-hidden="true"
                   >
                     {String(g.n).padStart(2, "0")}
@@ -600,7 +600,7 @@ export function AuthorizationAuditSection() {
                   {TASK9_OWNER_REFERENCE.map((r) => (
                     <tr key={r.role} className="border-t border-[#E3EAE6]">
                       <td className="px-3 py-2.5 font-mono text-[#0E1F1B]">{r.role}</td>
-                      <td className="px-3 py-2.5 font-mono text-mtqs-gold/80">{r.hash}</td>
+                      <td className="px-3 py-2.5 font-mono text-mtqs-gold">{r.hash}</td>
                       <td className="px-3 py-2.5 font-mono text-mtqs-emerald">{r.monad}</td>
                       <td className="px-3 py-2.5 font-mono text-mtqs-emerald">{r.arc}</td>
                       <td className="px-3 py-2.5">
@@ -1018,7 +1018,7 @@ export function AuthorizationAuditSection() {
                         <span className="inline-flex items-center gap-1">
                           {r.address}
                           <Copy
-                            className="h-3 w-3 text-mtqs-gold/50"
+                            className="h-3 w-3 text-mtqs-gold"
                             aria-hidden="true"
                           />
                           <span className="sr-only">address recorded in evidence</span>
@@ -1096,7 +1096,7 @@ export function AuthorizationAuditSection() {
               </Panel>
             ))}
           </div>
-          <p className="mt-2 text-[0.62rem] text-[#7A8C86]">
+          <p className="mt-2 text-[0.62rem] text-[#5B6E68]">
             App-layer status strip — software status only; no software result advances a release
             gate.
           </p>
@@ -1125,7 +1125,7 @@ export function AuthorizationAuditSection() {
                   key={r.item}
                   className="grid gap-1.5 rounded-md border border-[#E3EAE6] bg-[#F7FAF8] px-3 py-2.5 sm:grid-cols-[150px_1fr] sm:gap-4"
                 >
-                  <dt className="pt-0.5 text-[0.6rem] uppercase tracking-[0.18em] text-mtqs-gold/75">
+                  <dt className="pt-0.5 text-[0.6rem] uppercase tracking-[0.18em] text-mtqs-gold">
                     {r.item}
                   </dt>
                   <dd className="text-[0.68rem] leading-relaxed text-[#5B6E68]">{r.detail}</dd>
@@ -1192,7 +1192,7 @@ export function AuthorizationAuditSection() {
               </table>
             </div>
           </div>
-          <p className="mt-2 text-[0.66rem] leading-relaxed text-mtqs-rose/85">
+          <p className="mt-2 text-[0.66rem] leading-relaxed text-mtqs-rose">
             Every on-chain step requires an approved transaction plan; none was executed under
             §1. Nothing on this surface implies that any on-chain action has been executed.
           </p>
@@ -1203,7 +1203,7 @@ export function AuthorizationAuditSection() {
       <Reveal>
         <Panel className="p-4 sm:p-6">
           <div className="flex items-start gap-3">
-            <ClipboardCheck className="mt-0.5 h-5 w-5 shrink-0 text-mtqs-gold/80" aria-hidden="true" />
+            <ClipboardCheck className="mt-0.5 h-5 w-5 shrink-0 text-mtqs-gold" aria-hidden="true" />
             <div className="space-y-1.5 text-[0.72rem] leading-relaxed text-[#5B6E68]">
               <p>
                 Preserved findings{" "}
@@ -1216,7 +1216,7 @@ export function AuthorizationAuditSection() {
                 transactions were sent; no role was granted or revoked; no contract was deployed
                 or upgraded; no key material is exposed on this surface.
               </p>
-              <p className="break-all font-mono text-[0.65rem] text-[#7A8C86]">
+              <p className="break-all font-mono text-[0.65rem] text-[#5B6E68]">
                 Evidence: {TASK9_META.evidencePath} — raw request/response log, per-chain
                 inventory JSONs, creation receipts, scan states. This surface is a verification
                 artifact: no address, role, supply, or configuration was altered.

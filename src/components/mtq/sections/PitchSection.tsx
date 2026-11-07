@@ -168,7 +168,7 @@ export function PitchSection({ onNavigate: _onNavigate }: { onNavigate: (id: Sec
       <Reveal>
         <Panel className="p-5">
           <div className="flex items-start gap-3">
-            <Sparkles className="h-5 w-5 text-mtqs-gold/80 mt-0.5 shrink-0" aria-hidden="true" />
+            <Sparkles className="h-5 w-5 text-mtqs-gold mt-0.5 shrink-0" aria-hidden="true" />
             <p className="text-[0.82rem] text-[#5B6E68] leading-relaxed">
               {BRAND_VOICE.coreObjective} {BRAND_VOICE.designConstraint}. {BRAND_VOICE.statusDeclaration}.
               The six panels below are the full investor pitch — Problem, Solution, Market, Business
@@ -234,7 +234,7 @@ export function PitchSection({ onNavigate: _onNavigate }: { onNavigate: (id: Sec
                       aria-hidden="true"
                     />
                   </div>
-                  <span className="text-[0.6rem] uppercase tracking-[0.22em] text-mtqs-gold/75">
+                  <span className="text-[0.6rem] uppercase tracking-[0.22em] text-mtqs-gold">
                     {p.eyebrow}
                   </span>
                   <div className="ml-auto">
@@ -254,7 +254,7 @@ export function PitchSection({ onNavigate: _onNavigate }: { onNavigate: (id: Sec
                       transition={{ duration: 0.3, delay: j * 0.04 }}
                       className="flex gap-2 text-[0.78rem] text-[#5B6E68] leading-relaxed"
                     >
-                      <span className="text-mtqs-gold/70 shrink-0 mt-0.5">·</span>
+                      <span className="text-mtqs-gold shrink-0 mt-0.5">·</span>
                       <span>{line}</span>
                     </motion.li>
                   ))}

@@ -503,7 +503,7 @@ function FragmentRow({
             <td colSpan={8} className="px-4 pb-4 pt-1">
               <div className="ml-6 rounded-md border border-[#E3EAE6] bg-white p-3 space-y-3">
                 <div>
-                  <div className="text-[0.62rem] uppercase tracking-[0.18em] text-mtqs-gold/80 mb-1">
+                  <div className="text-[0.62rem] uppercase tracking-[0.18em] text-mtqs-gold mb-1">
                     Cause Attribution
                   </div>
                   <div className="text-[0.74rem] text-[#0E1F1B] leading-relaxed">

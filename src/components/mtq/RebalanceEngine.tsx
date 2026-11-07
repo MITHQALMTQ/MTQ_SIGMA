@@ -119,7 +119,7 @@ function MarpLevelBadge({ level, shouldTrade, hierarchy }: { level: number; shou
         {level === 8 && !shouldTrade ? "L8 · direction-lock hold" : labels[level] ?? `L${level}`}
       </Pill>
       {hierarchy ? (
-        <span className="text-[0.58rem] uppercase tracking-wider text-[#7A8C86]">{hierarchy}</span>
+        <span className="text-[0.6rem] uppercase tracking-wider text-[#5B6E68]">{hierarchy}</span>
       ) : null}
     </span>
   );
@@ -198,7 +198,7 @@ export function RebalanceEngine({ snapshot }: { snapshot: MetricsSnapshot | null
                   Gold target: {targetSource === "mase-envelope" ? `MASE envelope ${(goldEnv.lower * 100).toFixed(0)}–${(goldEnv.upper * 100).toFixed(0)}%` : "legacy buffer (§8)"}
                 </Pill>
               </div>
-              <span className="text-right text-[0.6rem] leading-snug text-[#7A8C86]">
+              <span className="text-right text-[0.6rem] leading-snug text-[#5B6E68]">
                 Legacy profitability gate: NetBenefit &gt; ε = ${MIN_PROFITABILITY_USD} — HISTORICAL candidate (Appendix F.5:
                 the $10 minimum vs the legacy 1% margin CONFLICT under OD-2, which is OPEN; normal-mode economic
                 execution stays DISABLED until the Committee approves the threshold policy. The controlling
@@ -440,12 +440,12 @@ export function RebalanceEngine({ snapshot }: { snapshot: MetricsSnapshot | null
               {/* §14.1 — index/reserve gold split summary */}
               <div className="mb-4 grid grid-cols-2 sm:grid-cols-3 gap-2">
                 <div className="rounded-md border border-mtqs-gold/20 bg-mtqs-gold/5 p-2.5">
-                  <div className="text-[0.65rem] uppercase tracking-[0.18em] text-mtqs-gold/80">Index gold (locked)</div>
+                  <div className="text-[0.65rem] uppercase tracking-[0.18em] text-mtqs-gold">Index gold (locked)</div>
                   <TickNumber value={indexGoldNet} format={fmtUsdCompact} className="text-base font-semibold text-mtqs-gold" />
                   <div className="text-[0.62rem] text-[#5B6E68] mt-0.5">backs 26% Strategic Prior Gold weight</div>
                 </div>
                 <div className="rounded-md border border-mtqs-emerald/20 bg-mtqs-emerald/5 p-2.5">
-                  <div className="text-[0.65rem] uppercase tracking-[0.18em] text-mtqs-emerald/80">Reserve gold (MARP buffer)</div>
+                  <div className="text-[0.65rem] uppercase tracking-[0.18em] text-mtqs-emerald">Reserve gold (MARP buffer)</div>
                   <TickNumber value={reserveGoldNet} format={fmtUsdCompact} className="text-base font-semibold text-mtqs-emerald" />
                   <div className="text-[0.62rem] text-[#5B6E68] mt-0.5">rebalanced by MARP per-component</div>
                 </div>
@@ -621,7 +621,7 @@ export function RebalanceEngine({ snapshot }: { snapshot: MetricsSnapshot | null
                   </div>
                   <table className="w-full text-[0.64rem]">
                     <thead>
-                      <tr className="text-[#7A8C86] border-b border-[#E3EAE6]">
+                      <tr className="text-[#5B6E68] border-b border-[#E3EAE6]">
                         <th className="text-left py-1 font-medium">Parameter</th>
                         <th className="text-left py-1 font-medium">Normal</th>
                         <th className="text-left py-1 font-medium">Crisis</th>
@@ -737,8 +737,8 @@ export function RebalanceEngine({ snapshot }: { snapshot: MetricsSnapshot | null
                   ].map((e) => (
                     <div key={e.name} className="rounded border border-[#E3EAE6] bg-[#F7FAF8] px-2 py-1.5">
                       <div className="font-mono text-mtqs-gold">{e.name}</div>
-                      <div className="text-[#7A8C86] mt-0.5">{e.payload}</div>
-                      <div className="text-[#7A8C86] mt-0.5">{e.src}</div>
+                      <div className="text-[#5B6E68] mt-0.5">{e.payload}</div>
+                      <div className="text-[#5B6E68] mt-0.5">{e.src}</div>
                     </div>
                   ))}
                 </div>

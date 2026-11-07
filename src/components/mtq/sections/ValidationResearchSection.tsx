@@ -212,16 +212,16 @@ function wfFoldRows(program: WfProgramDto | undefined): React.ReactNode[][] {
       ] as React.ReactNode[]);
     rows.push([
       summaryCell("mean"),
-      <span key="train" className="font-mono text-[0.62rem] text-[#7A8C86]">—</span>,
-      <span key="test" className="font-mono text-[0.62rem] text-[#7A8C86]">
+      <span key="train" className="font-mono text-[0.62rem] text-[#5B6E68]">—</span>,
+      <span key="test" className="font-mono text-[0.62rem] text-[#5B6E68]">
         {agg.oosDaysScored != null ? `${agg.oosDaysScored} d scored` : "—"}
       </span>,
       ...metricCells(agg.mean, true),
     ]);
     rows.push([
       summaryCell("median"),
-      <span key="train" className="font-mono text-[0.62rem] text-[#7A8C86]">—</span>,
-      <span key="test" className="font-mono text-[0.62rem] text-[#7A8C86]">—</span>,
+      <span key="train" className="font-mono text-[0.62rem] text-[#5B6E68]">—</span>,
+      <span key="test" className="font-mono text-[0.62rem] text-[#5B6E68]">—</span>,
       ...metricCells(agg.median, false),
     ]);
   }
@@ -232,10 +232,10 @@ function wfFoldRows(program: WfProgramDto | undefined): React.ReactNode[][] {
 function WfStatChip({ label, value, sub }: { label: string; value: string; sub?: string }) {
   return (
     <div className="p-2 rounded-lg bg-[#F7FAF8]">
-      <div className="text-[#7A8C86] text-[0.55rem] uppercase tracking-wider">{label}</div>
+      <div className="text-[#5B6E68] text-[0.6rem] uppercase tracking-wider">{label}</div>
       <div className="font-mono text-[#33544C]">{value}</div>
       {sub && (
-        <div className="text-[0.55rem] text-[#7A8C86] font-mono mt-0.5">{sub}</div>
+        <div className="text-[0.6rem] text-[#5B6E68] font-mono mt-0.5">{sub}</div>
       )}
     </div>
   );
@@ -521,8 +521,8 @@ export function ValidationResearchSection({
             </p>
             <Formula>Perf(old architecture) ⇏ Perf(MTQΣ)</Formula>
             <div className="mt-4 flex flex-wrap items-center gap-1.5 text-[0.62rem]">
-              <GitBranch className="h-3.5 w-3.5 text-mtqs-gold/70" aria-hidden="true" />
-              <span className="uppercase tracking-[0.18em] text-[#7A8C86] mr-1">program structure</span>
+              <GitBranch className="h-3.5 w-3.5 text-mtqs-gold" aria-hidden="true" />
+              <span className="uppercase tracking-[0.18em] text-[#5B6E68] mr-1">program structure</span>
               {[
                 "backtest §23.2",
                 "walk-forward §23.3",
@@ -537,11 +537,11 @@ export function ValidationResearchSection({
                   <span className="px-2 py-0.5 rounded-full border border-[#E3EAE6] bg-[#F7FAF8] font-mono text-[#5B6E68]">
                     {s}
                   </span>
-                  {i < 7 && <span className="text-mtqs-gold/50" aria-hidden="true">→</span>}
+                  {i < 7 && <span className="text-mtqs-gold" aria-hidden="true">→</span>}
                 </span>
               ))}
             </div>
-            <p className="text-[0.68rem] text-[#7A8C86] mt-3">
+            <p className="text-[0.68rem] text-[#5B6E68] mt-3">
               Historical evidence comes from the backtest (§23.2) and walk-forward validation (§23.3),
               both executed under the leakage-control discipline of §23.4. Synthetic evidence comes
               from Monte Carlo testing (§23.5). Robustness evidence from the parameter perturbation
@@ -607,7 +607,7 @@ export function ValidationResearchSection({
               </div>
             ) : !data ? (
               <div className="space-y-2">
-                <div className="flex items-center gap-2 text-[0.68rem] text-[#7A8C86] mb-1">
+                <div className="flex items-center gap-2 text-[0.68rem] text-[#5B6E68] mb-1">
                   <Skeleton className="h-3 w-3 rounded-full" />
                   Running / loading the deterministic §23 scenario battery…
                 </div>
@@ -636,16 +636,16 @@ export function ValidationResearchSection({
                           <tr key={`${r.scenario}-${i}`} className="border-t border-[#E3EAE6]">
                             <td className="px-3 py-2.5">
                               <div className="font-semibold text-[#0E1F1B]">{r.scenario}</div>
-                              <div className="text-[0.6rem] text-[#7A8C86] max-w-md leading-snug">
+                              <div className="text-[0.6rem] text-[#5B6E68] max-w-md leading-snug">
                                 {r.description}
                               </div>
                               {r.breachCount > 0 && (
-                                <div className="text-[0.58rem] font-mono text-rose-600 mt-0.5">
+                                <div className="text-[0.6rem] font-mono text-rose-600 mt-0.5">
                                   {r.breachCount} breach run{r.breachCount === 1 ? "" : "s"} · worst state {r.worstStatus}
                                 </div>
                               )}
                             </td>
-                            <td className="px-3 py-2.5 font-mono text-[0.62rem] text-mtqs-gold/80 whitespace-nowrap">
+                            <td className="px-3 py-2.5 font-mono text-[0.62rem] text-mtqs-gold whitespace-nowrap">
                               {sectionFor(r.scenario) ?? "—"}
                             </td>
                             <td className="px-3 py-2.5 text-right font-mono text-[#5B6E68]">{r.runs}</td>
@@ -687,7 +687,7 @@ export function ValidationResearchSection({
                 {/* Run meta */}
                 <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 mt-3 text-[0.66rem]">
                   <div className="p-2 rounded-lg bg-[#F7FAF8]">
-                    <div className="text-[#7A8C86] text-[0.55rem] uppercase tracking-wider">Generated at</div>
+                    <div className="text-[#5B6E68] text-[0.6rem] uppercase tracking-wider">Generated at</div>
                     <div className="font-mono text-[#33544C]">
                       {data.generatedAt != null
                         ? new Date(data.generatedAt).toISOString()
@@ -695,17 +695,17 @@ export function ValidationResearchSection({
                     </div>
                   </div>
                   <div className="p-2 rounded-lg bg-[#F7FAF8]">
-                    <div className="text-[#7A8C86] text-[0.55rem] uppercase tracking-wider">Total runtime</div>
+                    <div className="text-[#5B6E68] text-[0.6rem] uppercase tracking-wider">Total runtime</div>
                     <div className="font-mono text-[#33544C]">
                       {Number.isFinite(data.totalRuntimeMs) ? `${(data.totalRuntimeMs / 1000).toFixed(1)}s` : "—"}
                     </div>
                   </div>
                   <div className="p-2 rounded-lg bg-[#F7FAF8]">
-                    <div className="text-[#7A8C86] text-[0.55rem] uppercase tracking-wider">Cache</div>
+                    <div className="text-[#5B6E68] text-[0.6rem] uppercase tracking-wider">Cache</div>
                     <div className="font-mono text-[#33544C]">{data.cached ? "cached" : "fresh"}</div>
                   </div>
                   <div className="p-2 rounded-lg bg-[#F7FAF8]">
-                    <div className="text-[#7A8C86] text-[0.55rem] uppercase tracking-wider">Scenarios</div>
+                    <div className="text-[#5B6E68] text-[0.6rem] uppercase tracking-wider">Scenarios</div>
                     <div className="font-mono text-[#33544C]">{data.results.length}</div>
                   </div>
                 </div>
@@ -714,7 +714,7 @@ export function ValidationResearchSection({
                 {data.audit && (
                   <div className="mt-3 p-4 rounded-lg border border-[#E3EAE6] bg-[#F7FAF8]">
                     <div className="flex flex-wrap items-center gap-2 mb-2">
-                      <ClipboardCheck className="h-4 w-4 text-mtqs-gold/80" aria-hidden="true" />
+                      <ClipboardCheck className="h-4 w-4 text-mtqs-gold" aria-hidden="true" />
                       <span className="text-[0.66rem] uppercase tracking-[0.18em] text-[#5B6E68]">
                         Audit verdict — verbatim
                       </span>
@@ -729,7 +729,7 @@ export function ValidationResearchSection({
                   </div>
                 )}
 
-                <p className="text-[0.6rem] text-[#7A8C86] mt-3">
+                <p className="text-[0.6rem] text-[#5B6E68] mt-3">
                   cached deterministic seeds · re-runs available via{" "}
                   <span className="font-mono text-[#5B6E68]">?force=1</span> on the API. Survival =
                   fraction of runs with reserve ratio ≥ RR_HARD; worst min RR = the lowest reserve
@@ -764,10 +764,10 @@ export function ValidationResearchSection({
               rows={MC_FAMILIES.map((f) => [
                 <span key="f" className="text-[#0E1F1B]">{f.family}</span>,
                 <span key="g" className="text-[#5B6E68]">{f.generator}</span>,
-                <span key="a" className="text-mtqs-amber/90">{f.attacks}</span>,
+                <span key="a" className="text-mtqs-amber">{f.attacks}</span>,
               ])}
             />
-            <p className="text-[0.68rem] text-[#7A8C86] mt-3">
+            <p className="text-[0.68rem] text-[#5B6E68] mt-3">
               For each family the program reports the dispersion of the weight trajectories, the
               distribution of turnover and execution cost, the drawdown distribution against the
               constitutional MDD envelope, and the reserve coverage distribution (§23.11). The
@@ -793,7 +793,7 @@ export function ValidationResearchSection({
           <Reveal>
             <Panel className="p-5 h-full">
               <div className="flex items-center gap-2 mb-2">
-                <Lock className="h-4 w-4 text-mtqs-gold/70" aria-hidden="true" />
+                <Lock className="h-4 w-4 text-mtqs-gold" aria-hidden="true" />
                 <h3 className="text-sm font-semibold text-[#0E1F1B]">The binding rule</h3>
               </div>
               <blockquote className="text-[0.72rem] text-[#5B6E68] leading-relaxed border-l-2 border-mtqs-rose/40 pl-3 mb-3" id="validation-leakage-h">
@@ -816,7 +816,7 @@ export function ValidationResearchSection({
           <Reveal delay={0.05}>
             <Panel className="p-5 h-full">
               <div className="flex items-center gap-2 mb-3">
-                <ShieldAlert className="h-4 w-4 text-mtqs-gold/70" aria-hidden="true" />
+                <ShieldAlert className="h-4 w-4 text-mtqs-gold" aria-hidden="true" />
                 <h3 className="text-sm font-semibold text-[#0E1F1B]">Purging + embargo</h3>
               </div>
               <p className="text-[0.68rem] text-[#5B6E68] mb-2">
@@ -832,7 +832,7 @@ export function ValidationResearchSection({
                 correlation lets information cross the boundary even without literal overlap:
               </p>
               <Formula>Embargo: τ ∈ (t+h_test, t+h_test+h_embargo) excluded</Formula>
-              <p className="text-[0.66rem] text-[#7A8C86] mt-3">
+              <p className="text-[0.66rem] text-[#5B6E68] mt-3">
                 h_embargo is set at least as long as the longest autocorrelation in the return and
                 signal series — by default the <span className="font-mono">30-day</span> horizon —
                 and is itself a published methodology parameter.
@@ -859,7 +859,7 @@ export function ValidationResearchSection({
           <Panel className="p-5 mt-4">
             <div className="flex flex-wrap items-center justify-between gap-2 mb-3">
               <div className="flex items-center gap-2">
-                <Beaker className="h-4 w-4 text-mtqs-gold/70" aria-hidden="true" />
+                <Beaker className="h-4 w-4 text-mtqs-gold" aria-hidden="true" />
                 <h3 className="text-sm font-semibold text-[#0E1F1B]">
                   §23.3 / §23.4 — Run Record (Pilot-Scale)
                 </h3>
@@ -886,7 +886,7 @@ export function ValidationResearchSection({
               </div>
             ) : !data ? (
               <div className="space-y-2">
-                <div className="flex items-center gap-2 text-[0.68rem] text-[#7A8C86] mb-1">
+                <div className="flex items-center gap-2 text-[0.68rem] text-[#5B6E68] mb-1">
                   <Skeleton className="h-3 w-3 rounded-full" />
                   Loading the §23.3/§23.4 pilot-scale run record…
                 </div>
@@ -955,7 +955,7 @@ export function ValidationResearchSection({
                 {/* Fold tables — both programs */}
                 <div className="space-y-3">
                   <div>
-                    <div className="text-[0.62rem] uppercase tracking-[0.18em] text-[#7A8C86] mb-1.5">
+                    <div className="text-[0.62rem] uppercase tracking-[0.18em] text-[#5B6E68] mb-1.5">
                       §23.3 · rolling walk-forward — {wf.walkForward?.aggregate?.folds ?? "—"} folds ·{" "}
                       {wf.walkForward?.aggregate?.oosDaysScored ?? "—"} OOS days scored
                     </div>
@@ -966,7 +966,7 @@ export function ValidationResearchSection({
                     />
                   </div>
                   <div>
-                    <div className="text-[0.62rem] uppercase tracking-[0.18em] text-[#7A8C86] mb-1.5">
+                    <div className="text-[0.62rem] uppercase tracking-[0.18em] text-[#5B6E68] mb-1.5">
                       §23.4 · purged + embargoed K-fold — K={pkc?.k ?? 5} ·{" "}
                       {wf.purgedKfold?.aggregate?.folds ?? "—"} folds ·{" "}
                       {wf.purgedKfold?.aggregate?.oosDaysScored ?? "—"} OOS days scored
@@ -980,7 +980,7 @@ export function ValidationResearchSection({
                 </div>
 
                 {/* Purge/embargo parameters + estimator note */}
-                <p className="text-[0.66rem] text-[#7A8C86] mt-3 leading-relaxed">
+                <p className="text-[0.66rem] text-[#5B6E68] mt-3 leading-relaxed">
                   Parameters: <span className="font-mono text-[#5B6E68]">{pkc?.purgeDays ?? 21}d purge</span>{" "}
                   (the OOS label horizon used in scoring) ·{" "}
                   <span className="font-mono text-[#5B6E68]">{pkc?.embargoDays ?? 10}d embargo</span> ·{" "}
@@ -1002,7 +1002,7 @@ export function ValidationResearchSection({
                 {/* Run-record disclosure — verbatim */}
                 <div className="mt-3 p-4 rounded-lg border border-[#E3EAE6] bg-[#F7FAF8]">
                   <div className="flex items-center gap-2 mb-2">
-                    <ClipboardCheck className="h-4 w-4 text-mtqs-gold/80" aria-hidden="true" />
+                    <ClipboardCheck className="h-4 w-4 text-mtqs-gold" aria-hidden="true" />
                     <span className="text-[0.66rem] uppercase tracking-[0.18em] text-[#5B6E68]">
                       Run-record disclosure — verbatim
                     </span>
@@ -1015,23 +1015,23 @@ export function ValidationResearchSection({
                 {/* Run meta */}
                 <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 mt-3 text-[0.66rem]">
                   <div className="p-2 rounded-lg bg-[#F7FAF8]">
-                    <div className="text-[#7A8C86] text-[0.55rem] uppercase tracking-wider">Program</div>
+                    <div className="text-[#5B6E68] text-[0.6rem] uppercase tracking-wider">Program</div>
                     <div className="font-mono text-[#33544C] text-[0.6rem] leading-tight">{wf.program || "—"}</div>
                   </div>
                   <div className="p-2 rounded-lg bg-[#F7FAF8]">
-                    <div className="text-[#7A8C86] text-[0.55rem] uppercase tracking-wider">Generated at</div>
+                    <div className="text-[#5B6E68] text-[0.6rem] uppercase tracking-wider">Generated at</div>
                     <div className="font-mono text-[#33544C]">
                       {wf.generatedAt != null ? new Date(wf.generatedAt).toISOString() : "—"}
                     </div>
                   </div>
                   <div className="p-2 rounded-lg bg-[#F7FAF8]">
-                    <div className="text-[#7A8C86] text-[0.55rem] uppercase tracking-wider">Runtime</div>
+                    <div className="text-[#5B6E68] text-[0.6rem] uppercase tracking-wider">Runtime</div>
                     <div className="font-mono text-[#33544C]">
                       {typeof wf.runtimeMs === "number" ? `${(wf.runtimeMs / 1000).toFixed(1)}s` : "—"}
                     </div>
                   </div>
                   <div className="p-2 rounded-lg bg-[#F7FAF8]">
-                    <div className="text-[#7A8C86] text-[0.55rem] uppercase tracking-wider">Source</div>
+                    <div className="text-[#5B6E68] text-[0.6rem] uppercase tracking-wider">Source</div>
                     <div className="font-mono text-[#33544C]">{data.walkForwardSource ?? "—"}</div>
                   </div>
                 </div>
@@ -1061,7 +1061,7 @@ export function ValidationResearchSection({
             </Formula>
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 mt-4">
               <div className="p-3 rounded-lg border border-[#E3EAE6] bg-[#F7FAF8]">
-                <div className="text-[0.62rem] uppercase tracking-[0.18em] text-[#7A8C86] mb-1">
+                <div className="text-[0.62rem] uppercase tracking-[0.18em] text-[#5B6E68] mb-1">
                   Every term oriented so higher is more stable
                 </div>
                 <p className="text-[0.68rem] text-[#5B6E68] leading-relaxed">
@@ -1073,7 +1073,7 @@ export function ValidationResearchSection({
                 </p>
               </div>
               <div className="p-3 rounded-lg border border-[#E3EAE6] bg-[#F7FAF8]">
-                <div className="text-[0.62rem] uppercase tracking-[0.18em] text-[#7A8C86] mb-1">
+                <div className="text-[0.62rem] uppercase tracking-[0.18em] text-[#5B6E68] mb-1">
                   Two terms deserve emphasis
                 </div>
                 <p className="text-[0.68rem] text-[#5B6E68] leading-relaxed">
@@ -1090,7 +1090,7 @@ export function ValidationResearchSection({
                 </p>
               </div>
             </div>
-            <p className="text-[0.68rem] text-[#7A8C86] mt-3">
+            <p className="text-[0.68rem] text-[#5B6E68] mt-3">
               The criterion operates at three levels: choosing among candidate models inside the
               ensemble (feeding the adaptive weights of §7.6), choosing the ensemble architecture
               itself, and promoting a new methodology version through the §23.12 gates. At every
@@ -1196,7 +1196,7 @@ export function ValidationResearchSection({
                   </span>
                 </li>
               </ul>
-              <p className="text-[0.66rem] text-[#7A8C86] mt-3">
+              <p className="text-[0.66rem] text-[#5B6E68] mt-3">
                 Failure at a gate does not end the program — it routes back to the implicated
                 architecture layer, and the affected version re-enters validation.
               </p>

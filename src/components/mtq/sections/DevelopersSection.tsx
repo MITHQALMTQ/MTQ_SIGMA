@@ -216,7 +216,7 @@ function CopyButton({ value, label }: { value: string; label: string }) {
         if (ok) toast.success(`Copied ${label}`, { description: shortAddr(value) });
         else toast.error("Copy failed");
       }}
-      className="text-[0.65rem] font-mono text-mtqs-gold/70 hover:text-mtqs-gold transition px-1.5 py-0.5 rounded border border-transparent hover:border-mtqs-amber/30"
+      className="text-[0.65rem] font-mono text-mtqs-gold hover:text-mtqs-gold transition px-1.5 py-0.5 rounded border border-transparent hover:border-mtqs-amber/30"
       aria-label={`Copy ${label}`}
     >
       copy
@@ -336,7 +336,7 @@ cast call --rpc-url "$RPC" "$SAFE" "getGuard()(address)"`;
                     <Fragment key={g.group}>
                       <tr className="border-t border-[#E3EAE6] bg-[#F7FAF8]">
                         <td colSpan={3} className="px-3 py-1.5">
-                          <span className="text-[0.6rem] uppercase tracking-[0.2em] text-mtqs-gold/80">
+                          <span className="text-[0.6rem] uppercase tracking-[0.2em] text-mtqs-gold">
                             {g.group}
                           </span>
                         </td>
@@ -360,7 +360,7 @@ cast call --rpc-url "$RPC" "$SAFE" "getGuard()(address)"`;
                             </span>
                             {r.rateLimited ? (
                               <span
-                                className="ml-1.5 text-[0.58rem] text-mtqs-amber/85"
+                                className="ml-1.5 text-[0.6rem] text-mtqs-amber"
                                 title="rate-limited per client IP"
                               >
                                 ● rate-limited

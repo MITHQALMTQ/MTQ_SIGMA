@@ -407,7 +407,7 @@ export function WeightChangeDrawer({
                           hold
                         </span>
                       )}
-                      <span className="ml-2 text-mtqs-gold/70 text-[0.62rem]">→</span>
+                      <span className="ml-2 text-mtqs-gold text-[0.62rem]">→</span>
                     </td>
                   </tr>
                 );
@@ -423,7 +423,7 @@ export function WeightChangeDrawer({
           {snapshot && snapshot.weightStates && (
             <tfoot className="bg-mtqs-amber/5">
               <tr>
-                <td className="px-3 py-2 font-mono text-mtqs-gold/80 text-[0.66rem]" colSpan={8}>
+                <td className="px-3 py-2 font-mono text-mtqs-gold text-[0.66rem]" colSpan={8}>
                   Tip: rows are keyboard-focusable (Tab) and open on Enter / Space.
                 </td>
               </tr>
@@ -457,7 +457,7 @@ export function WeightChangeDrawer({
             <div className="px-4 pb-6 space-y-4">
               {/* Summary paragraph */}
               <div className="rounded-md border border-mtqs-gold/20 bg-mtqs-gold/5 p-3">
-                <div className="text-[0.62rem] uppercase tracking-[0.18em] text-mtqs-gold/80 mb-1">
+                <div className="text-[0.62rem] uppercase tracking-[0.18em] text-mtqs-gold mb-1">
                   Human-readable summary
                 </div>
                 <p className="text-[0.78rem] text-[#0E1F1B] leading-relaxed">{explanation.summary}</p>
@@ -657,7 +657,7 @@ export function WeightChangeDrawer({
                     sub="no weight change committed in this process lifetime — a record is published on every accepted change only"
                   />
                 )}
-                <p className="text-[0.62rem] text-[#7A8C86] leading-relaxed mt-2">
+                <p className="text-[0.62rem] text-[#5B6E68] leading-relaxed mt-2">
                   D_t is recorded-not-applied: the weight change contributes ZERO artificial return
                   — the published level moves only with the §9.2 recursion. B<sup>±</sup> are valued
                   BASE-RELATIVE, Σ W × (P<sub>i,t</sub>/P<sub>i,0</sub>) against the immutable genesis
@@ -671,17 +671,17 @@ export function WeightChangeDrawer({
 
               {/* Technical details */}
               <details className="rounded-md border border-[#E3EAE6] bg-[#F7FAF8] p-3">
-                <summary className="cursor-pointer text-[0.7rem] text-mtqs-gold/80 hover:text-mtqs-gold transition list-none flex items-center gap-1.5">
+                <summary className="cursor-pointer text-[0.7rem] text-mtqs-gold hover:text-mtqs-gold transition list-none flex items-center gap-1.5">
                   <span aria-hidden="true">▸</span>
                   Technical details (chain index lineage)
                 </summary>
                 <div className="mt-2 space-y-1 text-[0.66rem] text-[#5B6E68] leading-relaxed font-mono">
                   <div>
-                    <span className="text-mtqs-gold/80">I_t</span> = {snapshot.chainIndex.I_t.toFixed(6)} ·{" "}
-                    <span className="text-mtqs-gold/80">G_t</span> = {snapshot.chainIndex.G_t.toFixed(6)}
+                    <span className="text-mtqs-gold">I_t</span> = {snapshot.chainIndex.I_t.toFixed(6)} ·{" "}
+                    <span className="text-mtqs-gold">G_t</span> = {snapshot.chainIndex.G_t.toFixed(6)}
                   </div>
                   <div>
-                    <span className="text-mtqs-gold/80">baseDenominator</span> = {snapshot.chainIndex.baseDenominator.toFixed(4)}
+                    <span className="text-mtqs-gold">baseDenominator</span> = {snapshot.chainIndex.baseDenominator.toFixed(4)}
                   </div>
                   <div>
                     W<sup>Prior</sup> = {STRATEGIC_PRIOR[active].toFixed(4)} · W<sup>Target</sup> = {explanation.weights.target.toFixed(4)} · W<sup>Smooth</sup> = {explanation.weights.smoothed.toFixed(4)} · W<sup>Exec</sup> = {explanation.weights.execution.toFixed(4)}

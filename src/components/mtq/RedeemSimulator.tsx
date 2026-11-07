@@ -142,7 +142,7 @@ export function RedeemSimulator({
               onChange={(e) => setWallet(e.target.value)}
               disabled={pending}
               placeholder="0x…"
-              className="mt-1 w-full rounded-md border border-[#E3EAE6] bg-[#F7FAF8] px-2.5 py-2 text-xs font-mono text-[#0E1F1B] outline-none focus:border-mtqs-gold/40 placeholder:text-[#7A8C86] disabled:opacity-50"
+              className="mt-1 w-full rounded-md border border-[#E3EAE6] bg-[#F7FAF8] px-2.5 py-2 text-xs font-mono text-[#0E1F1B] outline-none focus:border-mtqs-gold/40 placeholder:text-[#5B6E68] disabled:opacity-50"
               aria-label="Optional pilot wallet address"
             />
           </label>
@@ -174,7 +174,7 @@ export function RedeemSimulator({
                 {result.ok ? <Pill tone="emerald"><GlowDot color="emerald" size="h-1.5 w-1.5" /> ok</Pill> : <Pill tone="rose"><GlowDot color="rose" size="h-1.5 w-1.5" /> rejected</Pill>}
               </div>
               {result.reason && (
-                <div className="mb-2 text-[0.75rem] text-mtqs-rose/90">{result.reason}</div>
+                <div className="mb-2 text-[0.75rem] text-mtqs-rose">{result.reason}</div>
               )}
 
               <div className="grid grid-cols-2 gap-2.5 text-[0.75rem]">
@@ -257,7 +257,7 @@ export function RedeemSimulator({
                   risk-state machine (fees, throttles, §21.4 pause) governs the extraction rate.
                 </p>
                 <details className="mt-2 text-[0.68rem] text-[#5B6E68]">
-                  <summary className="cursor-pointer text-mtqs-emerald/85">Full audit note</summary>
+                  <summary className="cursor-pointer text-mtqs-emerald">Full audit note</summary>
                   <p className="mt-1 leading-relaxed">{result.auditNote}</p>
                 </details>
               </div>

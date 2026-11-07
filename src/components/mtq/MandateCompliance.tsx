@@ -129,13 +129,13 @@ interface MandateResp {
 type RegTab = "od" | "conflicts" | "tests";
 
 function statusTone(status: string): string {
-  if (status === "OPEN" || status === "not-demonstrated") return "text-amber-600 border-amber-200 bg-amber-50";
+  if (status === "OPEN" || status === "not-demonstrated") return "text-amber-700 border-amber-200 bg-amber-50";
   if (status === "VERIFICATION-PENDING") return "text-orange-600 border-orange-200 bg-orange-50";
   if (status === "VERIFIED-FAILED" || status === "demonstrated-failed") return "text-rose-600 border-rose-200 bg-rose-50";
   if (status.startsWith("deferred")) return "text-[#33544C] border-[#E3EAE6] bg-[#F7FAF8]";
-  if (status === "implemented+unit-tested") return "text-emerald-600 border-emerald-200 bg-emerald-50";
-  if (status === "shadow-observed") return "text-[#0D9488] border-[#BEE3DD] bg-[#E7F4F1]";
-  return "text-emerald-600 border-emerald-200 bg-emerald-50";
+  if (status === "implemented+unit-tested") return "text-emerald-700 border-emerald-200 bg-emerald-50";
+  if (status === "shadow-observed") return "text-[#0F766E] border-[#BEE3DD] bg-[#E7F4F1]";
+  return "text-emerald-700 border-emerald-200 bg-emerald-50";
 }
 
 export function MandateCompliance() {
@@ -193,7 +193,7 @@ export function MandateCompliance() {
           right={
             <button
               onClick={fetchIt}
-              className="inline-flex items-center gap-2 rounded-full border border-emerald-200 bg-emerald-50 px-4 py-2 text-xs font-medium text-emerald-600 transition hover:bg-emerald-100"
+              className="inline-flex items-center gap-2 rounded-full border border-emerald-200 bg-emerald-50 px-4 py-2 text-xs font-medium text-emerald-700 transition hover:bg-emerald-100"
               aria-label="Retry mandate fetch"
             >
               <RefreshCw className={`h-3.5 w-3.5 ${loading ? "animate-spin" : ""}`} />
@@ -209,7 +209,7 @@ export function MandateCompliance() {
                 <div className="text-sm font-semibold text-[#0E1F1B] mb-1">
                   Mandate compliance data unavailable — /api/mandate fetch failed
                 </div>
-                <div className="font-mono text-xs text-rose-600/90 break-all">{fetchError}</div>
+                <div className="font-mono text-xs text-rose-700 break-all">{fetchError}</div>
                 <p className="mt-2 text-xs leading-relaxed text-[#5B6E68]">
                   Nothing is fabricated here: the authorization banner, self-tests, pipeline demo,
                   and registers are hidden because the live mandate report could not be loaded.
@@ -232,7 +232,7 @@ export function MandateCompliance() {
         right={
           <button
             onClick={fetchIt}
-            className="inline-flex items-center gap-2 rounded-full border border-emerald-200 bg-emerald-50 px-4 py-2 text-xs font-medium text-emerald-600 transition hover:bg-emerald-100"
+            className="inline-flex items-center gap-2 rounded-full border border-emerald-200 bg-emerald-50 px-4 py-2 text-xs font-medium text-emerald-700 transition hover:bg-emerald-100"
             aria-label="Re-run mandate self-tests"
           >
             <RefreshCw className={`h-3.5 w-3.5 ${loading ? "animate-spin" : ""}`} />
@@ -269,8 +269,8 @@ export function MandateCompliance() {
               <p className="text-sm leading-relaxed text-[#33544C]">
                 The corrected MARP execution layer (Listings C-1…C-10) runs in <strong className="text-[#0E1F1B]">shadow mode</strong>:
                 economic eligibility stays disabled until the Quantitative Committee approves the J(s) objective
-                (<span className="text-amber-600">OD-1</span>) and the threshold policy
-                (<span className="text-amber-600">OD-2</span>). A live pilot requires Gate 5 + separate written
+                (<span className="text-amber-700">OD-1</span>) and the threshold policy
+                (<span className="text-amber-700">OD-2</span>). A live pilot requires Gate 5 + separate written
                 approval; production requires Gate 6.
               </p>
               <p className="text-xs leading-relaxed text-[#5B6E68]">
@@ -293,7 +293,7 @@ export function MandateCompliance() {
       <Reveal delay={0.05}>
         <Panel className="p-4 sm:p-6">
           <div className="mb-4 flex items-center gap-2">
-            <FlaskConical className="h-4 w-4 text-emerald-600" />
+            <FlaskConical className="h-4 w-4 text-emerald-700" />
             <h3 className="text-sm font-semibold tracking-wide text-[#0E1F1B]">Listing Self-Tests — corrected arithmetic, run live</h3>
             {data && (
               <Pill tone={data.selfTestsSummary.failed === 0 ? "emerald" : "rose"}>
@@ -318,12 +318,12 @@ export function MandateCompliance() {
                 <tbody>
                   {(data?.selfTests ?? []).map((t) => (
                     <tr key={t.id} className="border-t border-[#E3EAE6]">
-                      <td className="px-2 py-1.5 font-mono text-emerald-600">{t.id}</td>
+                      <td className="px-2 py-1.5 font-mono text-emerald-700">{t.id}</td>
                       <td className="px-2 py-1.5 text-[#0E1F1B]">{t.name}</td>
                       <td className="px-2 py-1.5 font-mono text-[#5B6E68]">{t.expected}</td>
                       <td className="px-2 py-1.5 font-mono text-[#5B6E68]">{t.actual}</td>
                       <td className="px-2 py-1.5 text-right">
-                        {t.pass ? <CheckCircle2 className="ml-auto h-4 w-4 text-emerald-600" aria-label="pass" /> : <XCircle className="ml-auto h-4 w-4 text-rose-600" aria-label="fail" />}
+                        {t.pass ? <CheckCircle2 className="ml-auto h-4 w-4 text-emerald-700" aria-label="pass" /> : <XCircle className="ml-auto h-4 w-4 text-rose-600" aria-label="fail" />}
                       </td>
                     </tr>
                   ))}
@@ -331,7 +331,7 @@ export function MandateCompliance() {
               </table>
             </div>
           )}
-          <p className="mt-3 text-[11px] text-[#7A8C86]">
+          <p className="mt-3 text-[11px] text-[#5B6E68]">
             Status label: <strong>unit-tested</strong> — these are reference-implementation vectors, not chain-deployed
             evidence and not governance approvals (v5.0 Part 10.2 label discipline).
           </p>
@@ -343,7 +343,7 @@ export function MandateCompliance() {
         <Reveal delay={0.1}>
           <Panel className="p-4 sm:p-6">
             <div className="mb-4 flex flex-wrap items-center gap-2">
-              <Scale className="h-4 w-4 text-emerald-600" />
+              <Scale className="h-4 w-4 text-emerald-700" />
               <h3 className="text-sm font-semibold tracking-wide text-[#0E1F1B]">Corrected 21-Step Execution Pipeline — Shadow Demo</h3>
               <Pill tone="gold">decision: {data.pipelineDemo.decision.toUpperCase()}</Pill>
               <Pill tone="emerald">oracle: {data.pipelineDemo.oracleHealth}</Pill>
@@ -362,12 +362,12 @@ export function MandateCompliance() {
               <ol className="space-y-1.5">
                 {data.pipelineDemo.steps.map((s, i) => (
                   <li key={i} className="font-mono text-[11px] leading-relaxed text-[#33544C]">
-                    <span className="text-emerald-600/70">▸ </span>{s}
+                    <span className="text-emerald-700">▸ </span>{s}
                   </li>
                 ))}
               </ol>
             </div>
-            <p className="mt-3 text-[11px] leading-relaxed text-amber-600/90">
+            <p className="mt-3 text-[11px] leading-relaxed text-amber-700">
               {data.pipelineDemo.reason}
             </p>
           </Panel>
@@ -379,14 +379,14 @@ export function MandateCompliance() {
         <Reveal delay={0.15}>
           <Panel className="p-4 sm:p-6">
             <div className="mb-4 flex flex-wrap items-center gap-2">
-              <Landmark className="h-4 w-4 text-emerald-600" />
+              <Landmark className="h-4 w-4 text-emerald-700" />
               <h3 className="text-sm font-semibold tracking-wide text-[#0E1F1B]">Genesis — Seven-Step Sequence (OD-33)</h3>
               <Pill tone={data.genesis.ok ? "emerald" : "rose"}>{data.genesis.ok ? "SEQUENCE VALID" : "FAILED"}</Pill>
               <Pill tone="default">I_base = {data.genesis.indexBaseDenominator.toFixed(4)}</Pill>
             </div>
             <div className="mb-4 flex flex-wrap gap-1.5">
               {data.genesis.basket.map((b) => (
-                <span key={b.component} className="rounded-full border border-emerald-200 bg-emerald-50 px-2.5 py-1 text-[11px] text-emerald-600">
+                <span key={b.component} className="rounded-full border border-emerald-200 bg-emerald-50 px-2.5 py-1 text-[11px] text-emerald-700">
                   {b.component} {b.weightPct}% · ${(b.usdAmount / 1000).toFixed(0)}k
                 </span>
               ))}
@@ -395,7 +395,7 @@ export function MandateCompliance() {
               {data.genesis.steps.map((s) => (
                 <div key={s.step} className="rounded-lg border border-[#E3EAE6] bg-[#F7FAF8] px-3 py-2">
                   <div className="flex items-center gap-2">
-                    <span className="flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-emerald-100 text-[10px] font-bold text-emerald-600">{s.step}</span>
+                    <span className="flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-emerald-100 text-[10px] font-bold text-emerald-700">{s.step}</span>
                     <span className="text-xs font-medium text-[#0E1F1B]">{s.name}</span>
                     {s.event && <Pill tone="emerald">{s.event}</Pill>}
                   </div>
@@ -403,7 +403,7 @@ export function MandateCompliance() {
                 </div>
               ))}
             </div>
-            <p className="mt-3 text-[11px] text-[#7A8C86]">{data.genesis.verifyIndexBaseNote} Genesis Reserve Safe: <span className="font-mono text-[#5B6E68]">{data.genesis.safe}</span> — on-chain verified 2026-10-19: Safe v1.4.1 but <strong className="text-rose-600">1/1 deployer-controlled, not the mandated 4/7</strong> (OD-35 critical finding; see verification panel below).</p>
+            <p className="mt-3 text-[11px] text-[#5B6E68]">{data.genesis.verifyIndexBaseNote} Genesis Reserve Safe: <span className="font-mono text-[#5B6E68]">{data.genesis.safe}</span> — on-chain verified 2026-10-19: Safe v1.4.1 but <strong className="text-rose-600">1/1 deployer-controlled, not the mandated 4/7</strong> (OD-35 critical finding; see verification panel below).</p>
           </Panel>
         </Reveal>
       )}
@@ -433,29 +433,29 @@ export function MandateCompliance() {
                       <div className="mb-2 flex flex-wrap items-center gap-2">
                         <span className="text-xs font-semibold text-[#0E1F1B]">{c.name}</span>
                         <Pill tone={c.verdict === "CRITICAL FINDING" ? "rose" : "amber"}>{c.verdict}</Pill>
-                        <span className="font-mono text-[10px] text-[#7A8C86]">block {c.blockNumber.toLocaleString("en-US")}</span>
+                        <span className="font-mono text-[10px] text-[#5B6E68]">block {c.blockNumber.toLocaleString("en-US")}</span>
                       </div>
                       <table className="w-full text-left text-[11px]">
                         <tbody>
-                          <tr className="border-t border-[#E3EAE6]"><td className="py-1 pr-2 text-[#5B6E68]">getThreshold()</td><td className="py-1 text-right font-mono text-rose-600">{c.findings.threshold} <span className="text-[#7A8C86]">(expected 4)</span></td></tr>
-                          <tr className="border-t border-[#E3EAE6]"><td className="py-1 pr-2 text-[#5B6E68]">getOwners()</td><td className="py-1 text-right font-mono text-rose-600">{c.findings.ownersCount} <span className="text-[#7A8C86]">(expected 7)</span></td></tr>
+                          <tr className="border-t border-[#E3EAE6]"><td className="py-1 pr-2 text-[#5B6E68]">getThreshold()</td><td className="py-1 text-right font-mono text-rose-600">{c.findings.threshold} <span className="text-[#5B6E68]">(expected 4)</span></td></tr>
+                          <tr className="border-t border-[#E3EAE6]"><td className="py-1 pr-2 text-[#5B6E68]">getOwners()</td><td className="py-1 text-right font-mono text-rose-600">{c.findings.ownersCount} <span className="text-[#5B6E68]">(expected 7)</span></td></tr>
                           <tr className="border-t border-[#E3EAE6]"><td className="py-1 pr-2 text-[#5B6E68]">sole owner</td><td className="py-1 text-right font-mono text-[10px] text-[#33544C]">{c.findings.owners[0]}</td></tr>
-                          <tr className="border-t border-[#E3EAE6]"><td className="py-1 pr-2 text-[#5B6E68]">VERSION()</td><td className="py-1 text-right font-mono text-[#33544C]">{c.findings.version} <span className="text-[#7A8C86]">(Safe proxy, {c.findings.codeBytes} B)</span></td></tr>
-                          <tr className="border-t border-[#E3EAE6]"><td className="py-1 pr-2 text-[#5B6E68]">nonce()</td><td className="py-1 text-right font-mono text-[#33544C]">{c.findings.nonce} <span className="text-[#7A8C86]">(never executed)</span></td></tr>
+                          <tr className="border-t border-[#E3EAE6]"><td className="py-1 pr-2 text-[#5B6E68]">VERSION()</td><td className="py-1 text-right font-mono text-[#33544C]">{c.findings.version} <span className="text-[#5B6E68]">(Safe proxy, {c.findings.codeBytes} B)</span></td></tr>
+                          <tr className="border-t border-[#E3EAE6]"><td className="py-1 pr-2 text-[#5B6E68]">nonce()</td><td className="py-1 text-right font-mono text-[#33544C]">{c.findings.nonce} <span className="text-[#5B6E68]">(never executed)</span></td></tr>
                           <tr className="border-t border-[#E3EAE6]"><td className="py-1 pr-2 text-[#5B6E68]">modules / guard</td><td className="py-1 text-right font-mono text-[#33544C]">{c.findings.modulesCount} / {c.findings.guardIsZero ? "address(0)" : "set"}</td></tr>
                         </tbody>
                       </table>
                     </div>
                   ))}
                 </div>
-                <p className="mt-3 text-[11px] leading-relaxed text-rose-600/90">
+                <p className="mt-3 text-[11px] leading-relaxed text-rose-700">
                   Corrective action before Gate 5: constitute the 7 Constitutional signers, set threshold 4, then re-run{" "}
                   <span className="font-mono">scripts/verify-safe.ts</span> for the VERIFIED 4/7 milestone. The sole owner is the deployer EOA —
                   the repo&rsquo;s “reported 4/7” posture is disproven on-chain. Supplemental: three live MTQ token contracts per chain (C-041) +
                   Ecosystem-JSON “Safes” are not Safes (C-042) + the Safe has NEVER held any asset — the full 1,000,000 genesis supply of the
                   cross-chain “MTQΣ” token sits in the deployer EOA (C-043, balance re-verification 2026-10-19).
                 </p>
-                <p className="mt-2 text-[10px] text-[#7A8C86]">Evidence: {data.safeVerification.evidence}</p>
+                <p className="mt-2 text-[10px] text-[#5B6E68]">Evidence: {data.safeVerification.evidence}</p>
               </>
             ) : (
               <p className="text-xs text-[#5B6E68]">The live verification evidence file is not present in this environment.</p>
@@ -469,7 +469,7 @@ export function MandateCompliance() {
         <Reveal delay={0.18}>
           <Panel className="p-4 sm:p-6">
             <div className="mb-4 flex flex-wrap items-center gap-2">
-              <Radar className="h-4 w-4 text-emerald-600" />
+              <Radar className="h-4 w-4 text-emerald-700" />
               <h3 className="text-sm font-semibold tracking-wide text-[#0E1F1B]">Per-Chain Oracle Feed Configuration (OD-34 / T-86 / Ext-3 A.4)</h3>
               <Pill tone="emerald">{data.oracleFeeds.counts.section1710Pairs} §17.10 pairs</Pill>
               <Pill tone="gold">≥{data.oracleFeeds.counts.requiredIndependentFamiliesPerPair} families/pair</Pill>
@@ -483,12 +483,12 @@ export function MandateCompliance() {
                       <tr key={i} className="border-t border-[#E3EAE6]">
                         <td className="py-1 pr-2 font-mono text-[#33544C]">{s.feedClass ?? "construct"}</td>
                         <td className="py-1 text-[#5B6E68]">{s.stalenessSeconds != null ? `${s.stalenessSeconds}s` : "n/a"}</td>
-                        <td className="py-1 text-right font-mono text-[10px] text-[#7A8C86]">{s.pairs.join(", ")}</td>
+                        <td className="py-1 text-right font-mono text-[10px] text-[#5B6E68]">{s.pairs.join(", ")}</td>
                       </tr>
                     ))}
                   </tbody>
                 </table>
-                <p className="mt-2 text-[10px] leading-relaxed text-[#7A8C86]">
+                <p className="mt-2 text-[10px] leading-relaxed text-[#5B6E68]">
                   Deviation breaker {data.oracleFeeds.validation.deviationBreakerPct}% · correlation warning {data.oracleFeeds.validation.correlationThresholdPct}% after {data.oracleFeeds.validation.correlationWarningAfterUpdates} updates (§17.9).
                 </p>
               </div>
@@ -502,8 +502,8 @@ export function MandateCompliance() {
                         <td className="py-1.5 pr-2 font-mono text-[10px] text-[#5B6E68]">{c.onChainOracle ?? "—"}</td>
                         <td className="py-1.5 text-right">
                           <span className={`inline-block rounded-full border px-2 py-0.5 text-[10px] font-medium ${
-                            c.codeStatus === "verified-present" ? "text-emerald-600 border-emerald-200 bg-emerald-50"
-                              : c.codeStatus === "existence-unverified" ? "text-amber-600 border-amber-200 bg-amber-50"
+                            c.codeStatus === "verified-present" ? "text-emerald-700 border-emerald-200 bg-emerald-50"
+                              : c.codeStatus === "existence-unverified" ? "text-amber-700 border-amber-200 bg-amber-50"
                               : "text-[#33544C] border-[#E3EAE6] bg-[#F7FAF8]"}`}>
                             {c.codeStatus}
                           </span>
@@ -512,7 +512,7 @@ export function MandateCompliance() {
                     ))}
                   </tbody>
                 </table>
-                <p className="mt-2 text-[10px] leading-relaxed text-[#7A8C86]">
+                <p className="mt-2 text-[10px] leading-relaxed text-[#5B6E68]">
                   ABI unpublished → real-vs-mock feed contents UNDETERMINED; adapter families compiled, not deployed. Arc: USDC/USD = 1.0 by construction (native gas).
                 </p>
               </div>
@@ -520,7 +520,7 @@ export function MandateCompliance() {
             <div className="mt-3 max-h-24 overflow-y-auto mtqs-scroll rounded-xl border border-[#E3EAE6] bg-[#F7FAF8] p-2">
               <ul className="space-y-0.5">
                 {data.oracleFeeds.limitations.slice(0, 4).map((l, i) => (
-                  <li key={i} className="text-[10px] leading-relaxed text-[#7A8C86]">• {l}</li>
+                  <li key={i} className="text-[10px] leading-relaxed text-[#5B6E68]">• {l}</li>
                 ))}
               </ul>
             </div>
@@ -533,7 +533,7 @@ export function MandateCompliance() {
         <Reveal delay={0.19}>
           <Panel className="p-4 sm:p-6">
             <div className="mb-4 flex flex-wrap items-center gap-2">
-              <Coins className="h-4 w-4 text-emerald-600" />
+              <Coins className="h-4 w-4 text-emerald-700" />
               <h3 className="text-sm font-semibold tracking-wide text-[#0E1F1B]">MTQ Token Standard (OD-37 / T-88 / Ext-3 A.7)</h3>
               <Pill tone="emerald">{data.tokenStandard.standard}</Pill>
               {data.tokenStandard.compile.zeroErrors && <Pill tone="emerald">compiled · 0 errors</Pill>}
@@ -547,12 +547,12 @@ export function MandateCompliance() {
                 <strong className="text-[#0E1F1B]">Posture (Ext-3 A.7)</strong>
                 <p className="mt-1 text-[#5B6E68]">Transfer restrictions: {data.tokenStandard.posture.transferRestrictions}. Supply cap: {data.tokenStandard.posture.supplyCap}. Upgradeability: {data.tokenStandard.posture.upgradeability}.</p>
               </div>
-              <div className="rounded-xl border border-amber-200 bg-amber-50 p-3 text-[11px] leading-relaxed text-amber-600">
+              <div className="rounded-xl border border-amber-200 bg-amber-50 p-3 text-[11px] leading-relaxed text-amber-700">
                 <strong className="flex items-center gap-1 text-amber-700"><FileWarning className="h-3 w-3" /> EIP-170 size flag</strong>
-                <p className="mt-1 text-amber-600/80">Runtime {data.tokenStandard.eip170.runtimeBytes.toLocaleString("en-US")} B &gt; {data.tokenStandard.eip170.limitBytes.toLocaleString("en-US")} B limit. {data.tokenStandard.eip170.note}</p>
+                <p className="mt-1 text-amber-700">Runtime {data.tokenStandard.eip170.runtimeBytes.toLocaleString("en-US")} B &gt; {data.tokenStandard.eip170.limitBytes.toLocaleString("en-US")} B limit. {data.tokenStandard.eip170.note}</p>
               </div>
             </div>
-            <p className="mt-3 text-[11px] text-[#7A8C86]">
+            <p className="mt-3 text-[11px] text-[#5B6E68]">
               Compile: {data.tokenStandard.compile.compiler}, optimizer runs {data.tokenStandard.compile.optimizerRuns}, zero errors; storage layout unchanged ({data.tokenStandard.compile.appendedSlots} appended slots). NOT deployed on-chain — deployment + third-party audit pending. Doc: <span className="font-mono text-[#5B6E68]">{data.tokenStandard.doc}</span>.
             </p>
           </Panel>
@@ -564,14 +564,14 @@ export function MandateCompliance() {
         <Reveal delay={0.2}>
           <Panel className="p-4 sm:p-6">
             <div className="mb-4 flex flex-wrap items-center gap-2">
-              <ScrollText className="h-4 w-4 text-emerald-600" />
+              <ScrollText className="h-4 w-4 text-emerald-700" />
               <h3 className="text-sm font-semibold tracking-wide text-[#0E1F1B]">Consolidated Registers</h3>
               <div className="ml-auto flex gap-1 rounded-full border border-[#E3EAE6] bg-[#F7FAF8] p-1">
                 {([["od", "Open Decisions", Gavel], ["conflicts", "Conflicts", AlertTriangle], ["tests", "Test Matrix", ListChecks]] as const).map(([id, label, Icon]) => (
                   <button
                     key={id}
                     onClick={() => setTab(id)}
-                    className={`flex items-center gap-1.5 rounded-full px-3 py-1.5 text-[11px] font-medium transition ${tab === id ? "bg-emerald-100 text-emerald-600" : "text-[#5B6E68] hover:text-[#0E1F1B]"}`}
+                    className={`flex items-center gap-1.5 rounded-full px-3 py-1.5 text-[11px] font-medium transition ${tab === id ? "bg-emerald-100 text-emerald-700" : "text-[#5B6E68] hover:text-[#0E1F1B]"}`}
                     aria-pressed={tab === id}
                   >
                     <Icon className="h-3 w-3" /> {label}
@@ -590,10 +590,10 @@ export function MandateCompliance() {
                     <tbody>
                       {data.registers.openDecisions.map((od) => (
                         <tr key={od.id} className="border-t border-[#E3EAE6] align-top">
-                          <td className="px-2 py-1.5 font-mono text-amber-600">{od.id}</td>
+                          <td className="px-2 py-1.5 font-mono text-amber-700">{od.id}</td>
                           <td className="px-2 py-1.5 text-[#0E1F1B]">
                             {od.decision}
-                            <div className="mt-0.5 text-[11px] leading-snug text-[#7A8C86]">{od.note}{od.codeRef ? <span className="font-mono text-[#9AA9A3]"> · {od.codeRef}</span> : null}</div>
+                            <div className="mt-0.5 text-[11px] leading-snug text-[#5B6E68]">{od.note}{od.codeRef ? <span className="font-mono text-[#5B6E68]"> · {od.codeRef}</span> : null}</div>
                           </td>
                           <td className="px-2 py-1.5 text-[#5B6E68]">{od.owner}</td>
                           <td className="px-2 py-1.5 text-[#5B6E68]">{od.blocks}</td>
@@ -611,10 +611,10 @@ export function MandateCompliance() {
                     <tbody>
                       {data.registers.conflicts.map((c) => (
                         <tr key={c.id} className="border-t border-[#E3EAE6] align-top">
-                          <td className="px-2 py-1.5 font-mono text-amber-600">{c.id}</td>
+                          <td className="px-2 py-1.5 font-mono text-amber-700">{c.id}</td>
                           <td className="px-2 py-1.5 text-[#0E1F1B]">{c.conflict}</td>
                           <td className="px-2 py-1.5 text-[#5B6E68]">{c.resolution}</td>
-                          <td className="px-2 py-1.5 font-mono text-[10px] text-[#7A8C86]">{c.codeRef ?? "—"}</td>
+                          <td className="px-2 py-1.5 font-mono text-[10px] text-[#5B6E68]">{c.codeRef ?? "—"}</td>
                         </tr>
                       ))}
                     </tbody>
@@ -628,10 +628,10 @@ export function MandateCompliance() {
                     <tbody>
                       {data.registers.tests.map((t) => (
                         <tr key={t.id} className="border-t border-[#E3EAE6] align-top">
-                          <td className="px-2 py-1.5 font-mono text-amber-600">{t.id}</td>
+                          <td className="px-2 py-1.5 font-mono text-amber-700">{t.id}</td>
                           <td className="px-2 py-1.5 text-[#0E1F1B]">
                             {t.test}
-                            {t.codeRef ? <div className="mt-0.5 font-mono text-[10px] text-[#9AA9A3]">{t.codeRef}</div> : null}
+                            {t.codeRef ? <div className="mt-0.5 font-mono text-[10px] text-[#5B6E68]">{t.codeRef}</div> : null}
                           </td>
                           <td className="px-2 py-1.5 text-[#5B6E68]">{t.expected}</td>
                           <td className="px-2 py-1.5"><span className={`inline-block rounded-full border px-2 py-0.5 text-[10px] font-medium ${statusTone(t.status)}`}>{t.status}</span></td>
@@ -657,8 +657,8 @@ export function MandateCompliance() {
       )}
 
       <Reveal delay={0.25}>
-        <p className="flex items-start gap-2 text-[11px] leading-relaxed text-[#7A8C86]">
-          <ShieldCheck className="mt-0.5 h-3.5 w-3.5 shrink-0 text-emerald-600/70" />
+        <p className="flex items-start gap-2 text-[11px] leading-relaxed text-[#5B6E68]">
+          <ShieldCheck className="mt-0.5 h-3.5 w-3.5 shrink-0 text-emerald-700" />
           Honest status (v5.0 §0.4): testnet deployments, simulated trades, and passing unit vectors are NOT evidence of
           production readiness. The path to production runs Gate 1 → Gate 6 in order, with Committee approvals and
           governance signatures at each gate.

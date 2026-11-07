@@ -183,7 +183,7 @@ export function BlueprintQA({ className = "" }: { className?: string }) {
   /* ---------- Current answer panel ---------- */
   const renderCurrentAnswer = () => (
     <div className="rounded-md border border-mtqs-gold/25 bg-mtqs-gold/5 p-4 space-y-3">
-      <div className="flex items-center gap-2 text-[0.6rem] uppercase tracking-[0.22em] text-mtqs-gold/85">
+      <div className="flex items-center gap-2 text-[0.6rem] uppercase tracking-[0.22em] text-mtqs-gold">
         <Sparkles className="h-3 w-3" aria-hidden="true" />
         Answer
       </div>
@@ -249,8 +249,8 @@ export function BlueprintQA({ className = "" }: { className?: string }) {
         <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between mb-4">
           <div className="space-y-1.5 min-w-0">
             <div className="flex items-center gap-2">
-              <BookOpen className="h-3.5 w-3.5 text-mtqs-gold/85" aria-hidden="true" />
-              <span className="text-[0.6rem] uppercase tracking-[0.22em] text-mtqs-gold/85">
+              <BookOpen className="h-3.5 w-3.5 text-mtqs-gold" aria-hidden="true" />
+              <span className="text-[0.6rem] uppercase tracking-[0.22em] text-mtqs-gold">
                 AI · Blueprint Q&amp;A
               </span>
             </div>
@@ -330,7 +330,7 @@ export function BlueprintQA({ className = "" }: { className?: string }) {
               placeholder="Ask about the v1.0 Master Blueprint…"
               rows={2}
               aria-label="Question"
-              className="flex-1 resize-none rounded-md border border-[#E3EAE6] bg-[#F7FAF8] px-3 py-2 text-[0.8rem] text-[#0E1F1B] placeholder:text-[#7A8C86] focus:outline-none focus:border-mtqs-gold/40 focus:bg-white transition"
+              className="flex-1 resize-none rounded-md border border-[#E3EAE6] bg-[#F7FAF8] px-3 py-2 text-[0.8rem] text-[#0E1F1B] placeholder:text-[#5B6E68] focus:outline-none focus:border-mtqs-gold/40 focus:bg-white transition"
             />
             <button
               onClick={() => submit()}

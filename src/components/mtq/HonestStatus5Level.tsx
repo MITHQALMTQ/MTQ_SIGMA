@@ -401,9 +401,9 @@ function Status5Pill({ status }: { status: HonestStatus5Level }) {
 
 function KindIcon({ kind }: { kind: "feature" | "gate" }) {
   return kind === "feature" ? (
-    <CheckCircle2 className="h-3.5 w-3.5 text-mtqs-emerald/80" aria-hidden="true" />
+    <CheckCircle2 className="h-3.5 w-3.5 text-mtqs-emerald" aria-hidden="true" />
   ) : (
-    <Lock className="h-3.5 w-3.5 text-mtqs-gold/70" aria-hidden="true" />
+    <Lock className="h-3.5 w-3.5 text-mtqs-gold" aria-hidden="true" />
   );
 }
 
@@ -432,7 +432,7 @@ function HonestRowView({ row, index }: { row: HonestRow; index: number }) {
         </div>
       </td>
       <td className="px-3 py-2.5 align-top">
-        <span className="font-mono text-[0.66rem] text-mtqs-gold/75 break-all">
+        <span className="font-mono text-[0.66rem] text-mtqs-gold break-all">
           {row.sourceSection}
         </span>
       </td>
@@ -453,7 +453,7 @@ function HonestRowView({ row, index }: { row: HonestRow; index: number }) {
         </span>
       </td>
       <td className="px-3 py-2.5 align-top">
-        <span className="font-mono text-[0.64rem] text-mtqs-gold/60 break-all">
+        <span className="font-mono text-[0.64rem] text-mtqs-gold break-all">
           {row.evidenceHash}
         </span>
       </td>
@@ -487,9 +487,9 @@ function SummaryFooter({ rows }: { rows: HonestRow[] }) {
   return (
     <div className="mt-4 rounded-md border border-mtqs-gold/25 bg-mtqs-gold/5 p-4 mtqs-glow">
       <div className="flex items-start gap-2 mb-3">
-        <Award className="h-4 w-4 text-mtqs-gold/85 mt-0.5 shrink-0" aria-hidden="true" />
+        <Award className="h-4 w-4 text-mtqs-gold mt-0.5 shrink-0" aria-hidden="true" />
         <div>
-          <div className="text-[0.6rem] uppercase tracking-[0.22em] text-mtqs-gold/85 mb-0.5">
+          <div className="text-[0.6rem] uppercase tracking-[0.22em] text-mtqs-gold mb-0.5">
             5-Level Honest Status Summary
           </div>
           <div className="text-[0.72rem] text-[#5B6E68] leading-snug">
@@ -512,7 +512,7 @@ function SummaryFooter({ rows }: { rows: HonestRow[] }) {
             >
               <div className="flex items-center gap-1.5 mb-1">
                 <GlowDot color={meta.dot} size="h-1.5 w-1.5" />
-                <span className="font-mono uppercase tracking-[0.08em] text-[0.58rem] text-[#0E1F1B]">
+                <span className="font-mono uppercase tracking-[0.08em] text-[0.6rem] text-[#0E1F1B]">
                   {meta.label}
                 </span>
               </div>
@@ -533,9 +533,9 @@ function SummaryFooter({ rows }: { rows: HonestRow[] }) {
       {/* Final verdict */}
       <div className="rounded-md border border-mtqs-emerald/30 bg-mtqs-emerald/5 p-3 mb-2">
         <div className="flex items-start gap-2">
-          <ShieldCheck className="h-4 w-4 text-mtqs-emerald/80 mt-0.5 shrink-0" aria-hidden="true" />
+          <ShieldCheck className="h-4 w-4 text-mtqs-emerald mt-0.5 shrink-0" aria-hidden="true" />
           <div className="min-w-0">
-            <div className="text-[0.62rem] uppercase tracking-[0.2em] text-mtqs-emerald/85 mb-0.5">
+            <div className="text-[0.62rem] uppercase tracking-[0.2em] text-mtqs-emerald mb-0.5">
               Final System Status
             </div>
             <div className="font-mono text-sm text-mtqs-emerald mb-1">
@@ -556,13 +556,13 @@ function SummaryFooter({ rows }: { rows: HonestRow[] }) {
 
       {/* Counts */}
       <div className="text-[0.66rem] text-[#5B6E68] leading-relaxed">
-        <span className="font-mono text-mtqs-emerald/85">11 features at VALIDATED</span>
+        <span className="font-mono text-mtqs-emerald">11 features at VALIDATED</span>
         {" · "}
-        <span className="font-mono text-mtqs-amber/85">1 gate at PARTIAL</span>
+        <span className="font-mono text-mtqs-amber">1 gate at PARTIAL</span>
         {" · "}
         <span className="font-mono text-[#5B6E68]">10 gates at SPECIFIED_ONLY</span>
         {" · "}
-        <span className="font-mono text-mtqs-gold/85">0 gates at PRODUCTION_AUTHORIZED</span>
+        <span className="font-mono text-mtqs-gold">0 gates at PRODUCTION_AUTHORIZED</span>
       </div>
     </div>
   );
@@ -584,7 +584,7 @@ function Status5Legend() {
         const meta = STATUS5_META[lvl];
         return (
           <div key={lvl} className="flex items-center gap-1.5">
-            <span className="font-mono text-[0.55rem] text-[#5B6E68] mr-0.5">
+            <span className="font-mono text-[0.6rem] text-[#5B6E68] mr-0.5">
               {i + 1}.
             </span>
             <GlowDot color={meta.dot} size="h-1.5 w-1.5" />
@@ -592,7 +592,7 @@ function Status5Legend() {
               {meta.label}
             </span>
             {i < levels.length - 1 && (
-              <ChevronRight className="h-3 w-3 text-[#7A8C86] ml-1" aria-hidden="true" />
+              <ChevronRight className="h-3 w-3 text-[#5B6E68] ml-1" aria-hidden="true" />
             )}
           </div>
         );
@@ -649,10 +649,10 @@ export function HonestStatus5Level() {
           <div className="flex items-start justify-between gap-3 mb-3 flex-wrap">
             <div className="flex items-start gap-3">
               <div className="rounded-full bg-mtqs-gold/15 border border-mtqs-gold/30 p-2 mt-0.5">
-                <FileText className="h-5 w-5 text-mtqs-gold/85" aria-hidden="true" />
+                <FileText className="h-5 w-5 text-mtqs-gold" aria-hidden="true" />
               </div>
               <div>
-                <div className="text-[0.6rem] uppercase tracking-[0.22em] text-mtqs-gold/75 mb-1">
+                <div className="text-[0.6rem] uppercase tracking-[0.22em] text-mtqs-gold mb-1">
                   §22 + §23 + §25 · 5-Level Honest Status
                 </div>
                 <div className="text-base font-semibold text-[#0E1F1B]">
@@ -685,7 +685,7 @@ export function HonestStatus5Level() {
 
           {/* Live status strip (from /api/honest-status) */}
           {honestError ? (
-            <div className="mb-3 rounded-md border border-mtqs-amber/30 bg-mtqs-amber/[0.05] px-3 py-2 text-[0.68rem] text-mtqs-amber/90">
+            <div className="mb-3 rounded-md border border-mtqs-amber/30 bg-mtqs-amber/[0.05] px-3 py-2 text-[0.68rem] text-mtqs-amber">
               Live honest-status unavailable ({honestError}) — no live mask or gate numbers are shown below; the
               static methodology table remains as the register snapshot.{" "}
               <button
@@ -698,19 +698,19 @@ export function HonestStatus5Level() {
           ) : honest ? (
             <div className="mb-3 grid grid-cols-2 sm:grid-cols-4 gap-2">
               <div className="rounded-md border border-[#E3EAE6] bg-[#F7FAF8] p-2.5">
-                <div className="text-[0.55rem] uppercase tracking-wider text-[#7A8C86]">implementedMask (live)</div>
+                <div className="text-[0.6rem] uppercase tracking-wider text-[#5B6E68]">implementedMask (live)</div>
                 <div className="font-mono text-sm text-mtqs-gold mt-0.5">0x{honest.implementedMask.toString(16).toUpperCase()}</div>
               </div>
               <div className="rounded-md border border-[#E3EAE6] bg-[#F7FAF8] p-2.5">
-                <div className="text-[0.55rem] uppercase tracking-wider text-[#7A8C86]">authorizedMask (live)</div>
+                <div className="text-[0.6rem] uppercase tracking-wider text-[#5B6E68]">authorizedMask (live)</div>
                 <div className="font-mono text-sm text-mtqs-rose mt-0.5">0x{honest.authorizedMask.toString(16).toUpperCase()}</div>
               </div>
               <div className="rounded-md border border-[#E3EAE6] bg-[#F7FAF8] p-2.5">
-                <div className="text-[0.55rem] uppercase tracking-wider text-[#7A8C86]">gates passed (live)</div>
+                <div className="text-[0.6rem] uppercase tracking-wider text-[#5B6E68]">gates passed (live)</div>
                 <div className="font-mono text-sm text-mtqs-rose mt-0.5">{liveGatesPassed}/{liveGatesTotal}</div>
               </div>
               <div className="rounded-md border border-[#E3EAE6] bg-[#F7FAF8] p-2.5">
-                <div className="text-[0.55rem] uppercase tracking-wider text-[#7A8C86]">version (live)</div>
+                <div className="text-[0.6rem] uppercase tracking-wider text-[#5B6E68]">version (live)</div>
                 <div className="font-mono text-[0.72rem] text-[#0E1F1B] mt-1">{honest.version}</div>
               </div>
             </div>
@@ -756,7 +756,7 @@ export function HonestStatus5Level() {
                   <tr className="bg-mtqs-emerald/[0.03] border-t border-mtqs-emerald/20">
                     <td
                       colSpan={6}
-                      className="px-3 py-1.5 text-[0.6rem] uppercase tracking-[0.22em] text-mtqs-emerald/80"
+                      className="px-3 py-1.5 text-[0.6rem] uppercase tracking-[0.22em] text-mtqs-emerald"
                     >
                       <CheckCircle2 className="inline h-3 w-3 mr-1.5 align-text-bottom" aria-hidden="true" />
                       11 Honest-Status Bits (all VALIDATED — implemented + tested by {CANONICAL_SUITE})
@@ -769,7 +769,7 @@ export function HonestStatus5Level() {
                   <tr className="bg-mtqs-gold/[0.03] border-t border-mtqs-gold/20">
                     <td
                       colSpan={6}
-                      className="px-3 py-1.5 text-[0.6rem] uppercase tracking-[0.22em] text-mtqs-gold/80"
+                      className="px-3 py-1.5 text-[0.6rem] uppercase tracking-[0.22em] text-mtqs-gold"
                     >
                       <Lock className="inline h-3 w-3 mr-1.5 align-text-bottom" aria-hidden="true" />
                       11 §25.5 Validation Gates (1 PARTIAL · 10 SPECIFIED_ONLY · 0 PRODUCTION_AUTHORIZED
@@ -789,7 +789,7 @@ export function HonestStatus5Level() {
 
           {/* Footnote */}
           <div className="mt-3 flex items-start gap-2">
-            <AlertCircle className="h-3.5 w-3.5 text-mtqs-amber/80 mt-0.5 shrink-0" aria-hidden="true" />
+            <AlertCircle className="h-3.5 w-3.5 text-mtqs-amber mt-0.5 shrink-0" aria-hidden="true" />
             <p className="text-[0.66rem] text-[#33544C] leading-relaxed">
               The 11 honest-status bits are VALIDATED (implemented + tested by
               {" "}{CANONICAL_SUITE} — see Deliverable G + Deliverable
@@ -800,9 +800,9 @@ export function HonestStatus5Level() {
               /api/honest-status; this 22-row table is the 5-level methodology
               register (snapshot) — the canonical live gate register is rendered
               in the Transparency section. The artifact version is{" "}
-              <span className="font-mono text-mtqs-gold/85">v3-source-ready</span>{" "}
+              <span className="font-mono text-mtqs-gold">v3-source-ready</span>{" "}
               (the V3 contract source — compiled, NOT DEPLOYED; the deployed artifact will be tagged{" "}
-              <span className="font-mono text-mtqs-gold/85">v3-deployed-arc</span>{" "}
+              <span className="font-mono text-mtqs-gold">v3-deployed-arc</span>{" "}
               after deployment). The evidence hash is a deterministic
               fingerprint placeholder per Deliverable I — production will
               replace it with a cryptographic SHA-256 of the deployed

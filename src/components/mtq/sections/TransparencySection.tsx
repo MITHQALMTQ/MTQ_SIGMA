@@ -171,7 +171,7 @@ function Formula({ children }: { children: React.ReactNode }) {
 /* ---------- One weight-state cell: MiniBar + mono % ---------- */
 function WeightCell({ w }: { w: number | undefined | null }) {
   if (w == null || !Number.isFinite(w)) {
-    return <span className="font-mono text-[#A3B5AF]">—</span>;
+    return <span className="font-mono text-[#5B6E68]">—</span>;
   }
   return (
     <div className="flex items-center gap-2">
@@ -306,7 +306,7 @@ export function TransparencySection({
                 <li>• No computation depends on wall-clock time, network latency or environment state.</li>
                 <li>• Software versions recorded; input data snapshotted immutably under its DataVersion.</li>
               </ul>
-              <p className="text-[0.68rem] text-[#7A8C86] mt-3">
+              <p className="text-[0.68rem] text-[#5B6E68] mt-3">
                 A re-run that diverges in even one weight at one timestamp is a defect that blocks
                 the G7 reproducibility gate of §23.12.
               </p>
@@ -371,12 +371,12 @@ export function TransparencySection({
               ).map((v) => (
                 <div key={v.name} className="p-4 rounded-xl border border-[#E3EAE6] bg-[#F6FAF8]">
                   <div className="flex items-center gap-2 mb-1.5">
-                    <Layers className="h-3.5 w-3.5 text-mtqs-gold/80" aria-hidden="true" />
+                    <Layers className="h-3.5 w-3.5 text-mtqs-gold" aria-hidden="true" />
                     <span className="font-mono text-[0.8rem] font-semibold text-mtqs-gold">{v.name}</span>
                   </div>
                   <p className="text-[0.68rem] text-[#5B6E68] leading-relaxed mb-2">{v.meaning}</p>
                   <div className="pt-2 border-t border-[#EDF2EF]">
-                    <div className="text-[0.55rem] uppercase tracking-wider text-[#7A8C86] mb-0.5">
+                    <div className="text-[0.6rem] uppercase tracking-wider text-[#5B6E68] mb-0.5">
                       {v.liveLabel}
                     </div>
                     <div className="font-mono text-[0.66rem] text-[#33544C] break-words">
@@ -529,12 +529,12 @@ export function TransparencySection({
                   </div>
                 </div>
               ) : (
-                <p className="text-[0.72rem] text-[#7A8C86]">
+                <p className="text-[0.72rem] text-[#5B6E68]">
                   Live weight states unavailable from the snapshot and /api/gfb — nothing is
                   fabricated; the four-state definition is published via /api/evidence.
                 </p>
               )}
-              <p className="text-[0.6rem] text-[#7A8C86] mt-2">
+              <p className="text-[0.6rem] text-[#5B6E68] mt-2">
                 Mini-bars are scaled to a common 0–35% range for cross-state comparability. “—” =
                 state not exposed by the pilot snapshot at this tick.
               </p>
@@ -578,19 +578,19 @@ export function TransparencySection({
                     </Formula>
                     <div className="mt-2 grid grid-cols-2 sm:grid-cols-4 gap-2 text-[0.66rem]">
                       <div className="p-2 rounded bg-[#F2F7F5]">
-                        <div className="text-[#7A8C86] text-[0.55rem] uppercase tracking-wider">
+                        <div className="text-[#5B6E68] text-[0.6rem] uppercase tracking-wider">
                           G<sub>t</sub> (implied = I<sub>t</sub>/NAV)
                         </div>
                         <div className="font-mono text-mtqs-gold">{navForm.gImplied.toFixed(9)}</div>
                       </div>
                       <div className="p-2 rounded bg-[#F2F7F5]">
-                        <div className="text-[#7A8C86] text-[0.55rem] uppercase tracking-wider">
+                        <div className="text-[#5B6E68] text-[0.6rem] uppercase tracking-wider">
                           Σ term (Listing 3 getNavForm)
                         </div>
                         <div className="font-mono text-[#0E1F1B]">{navForm.navRaw.toFixed(9)}</div>
                       </div>
                       <div className="p-2 rounded bg-[#F2F7F5]">
-                        <div className="text-[#7A8C86] text-[0.55rem] uppercase tracking-wider">
+                        <div className="text-[#5B6E68] text-[0.6rem] uppercase tracking-wider">
                           NAV<sub>t</sub> (= published I<sub>t</sub>)
                         </div>
                         <div className="font-mono text-mtqs-emerald">
@@ -598,7 +598,7 @@ export function TransparencySection({
                         </div>
                       </div>
                       <div className="p-2 rounded bg-[#F2F7F5]">
-                        <div className="text-[#7A8C86] text-[0.55rem] uppercase tracking-wider">
+                        <div className="text-[#5B6E68] text-[0.6rem] uppercase tracking-wider">
                           §9.1 equation closes
                         </div>
                         <div
@@ -646,18 +646,18 @@ export function TransparencySection({
 
                   {/* the two G senses — the COO-17 reconciliation disclosure */}
                   <div className="p-3 rounded-lg border border-mtqs-amber/20 bg-mtqs-amber/[0.04]">
-                    <div className="text-[0.65rem] uppercase tracking-[0.18em] text-mtqs-amber/90 mb-2">
+                    <div className="text-[0.65rem] uppercase tracking-[0.18em] text-mtqs-amber mb-2">
                       COO-17 · the two G senses (published, not merged)
                     </div>
                     <div className="grid grid-cols-1 sm:grid-cols-3 gap-2 text-[0.66rem]">
                       <div className="p-2 rounded bg-[#F2F7F5]">
-                        <div className="text-[#7A8C86] text-[0.55rem] uppercase tracking-wider">
+                        <div className="text-[#5B6E68] text-[0.6rem] uppercase tracking-wider">
                           G<sub>t</sub> recorded = Π D<sub>s</sub> (§9.3 functional form)
                         </div>
                         <div className="font-mono text-[#0E1F1B]">{navForm.gRecorded.toFixed(9)}</div>
                       </div>
                       <div className="p-2 rounded bg-[#F2F7F5]">
-                        <div className="text-[#7A8C86] text-[0.55rem] uppercase tracking-wider">
+                        <div className="text-[#5B6E68] text-[0.6rem] uppercase tracking-wider">
                           §9.1 aggregate with recorded G
                         </div>
                         <div className="font-mono text-[#0E1F1B]">
@@ -665,7 +665,7 @@ export function TransparencySection({
                         </div>
                       </div>
                       <div className="p-2 rounded bg-[#F2F7F5]">
-                        <div className="text-[#7A8C86] text-[0.55rem] uppercase tracking-wider">
+                        <div className="text-[#5B6E68] text-[0.6rem] uppercase tracking-wider">
                           residual (implied − recorded)
                         </div>
                         <div
@@ -696,7 +696,7 @@ export function TransparencySection({
                       <div className="text-[0.65rem] uppercase tracking-[0.18em] text-[#33544C]">
                         §9.3 · applied divisor records (ChainLinkAdjusted-equivalent)
                       </div>
-                      <span className="font-mono text-[0.6rem] text-[#7A8C86]">
+                      <span className="font-mono text-[0.6rem] text-[#5B6E68]">
                         retained {navForm.history.length} of {navForm.totalDivisorCommits} · window
                         50{navForm.historyTruncated ? " (older dropped — disclosed)" : ""}
                       </span>
@@ -733,7 +733,7 @@ export function TransparencySection({
                       />
                     )}
                     {navForm.history.some((r) => r.kind === "carry-forward") ? (
-                      <p className="text-[0.62rem] text-mtqs-amber/90 mt-2 leading-relaxed">
+                      <p className="text-[0.62rem] text-mtqs-amber mt-2 leading-relaxed">
                         The amber carry-forward row is the PRE-SWITCH era summary: this pilot process
                         started under the superseded raw-USD basis, and that era kept no per-update
                         D<sub>t</sub> records — its accumulated G is carried as one labeled factor
@@ -776,7 +776,7 @@ export function TransparencySection({
                       <sub>t</sub> series for the same history, so the series was NOT silently
                       re-based: the switch is published here and in honest-status.
                     </p>
-                    <p className="text-[0.66rem] text-amber-600 leading-relaxed mt-2">
+                    <p className="text-[0.66rem] text-amber-700 leading-relaxed mt-2">
                       TESTNET ONLY · SHADOW MODE: this is the app&apos;s shadow-mode chain-link
                       history (testnet simulation data held in the pilot&apos;s process memory) —
                       NOT on-chain ChainLinkAdjusted events. The V3 contract is not deployed here,
@@ -831,7 +831,7 @@ export function TransparencySection({
                     <GlowDot color={snapshot?.rebalancePath === "marp" ? "emerald" : "amber"} size="h-1.5 w-1.5" />
                     {snapshot?.rebalancePath === "marp" ? "MARP path active" : snapshot ? "legacy §7 path active" : "…"}
                   </Pill>
-                  <span className="font-mono text-[0.6rem] text-[#7A8C86]">
+                  <span className="font-mono text-[0.6rem] text-[#5B6E68]">
                     tick {snapshot ? new Date(snapshot.fetchedAt).toISOString() : "—"}
                   </span>
                 </div>
@@ -858,36 +858,36 @@ export function TransparencySection({
                       </div>
                       <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-2 text-[0.68rem]">
                         <div className="p-2 rounded bg-[#F2F7F5]">
-                          <div className="text-[#7A8C86] text-[0.55rem] uppercase tracking-wider">Direction</div>
+                          <div className="text-[#5B6E68] text-[0.6rem] uppercase tracking-wider">Direction</div>
                           <div className="font-mono text-[#0E1F1B]">{dirLabel(rebalance.direction)}</div>
                         </div>
                         <div className="p-2 rounded bg-[#F2F7F5]">
-                          <div className="text-[#7A8C86] text-[0.55rem] uppercase tracking-wider">Observed gold</div>
+                          <div className="text-[#5B6E68] text-[0.6rem] uppercase tracking-wider">Observed gold</div>
                           <div className="font-mono text-[#0E1F1B]">{(rebalance.observedGoldWeight * 100).toFixed(2)}%</div>
                         </div>
                         <div className="p-2 rounded bg-[#F2F7F5]">
-                          <div className="text-[#7A8C86] text-[0.55rem] uppercase tracking-wider">Target gold</div>
+                          <div className="text-[#5B6E68] text-[0.6rem] uppercase tracking-wider">Target gold</div>
                           <div className="font-mono text-[#0E1F1B]">{(rebalance.targetGoldWeight * 100).toFixed(2)}%</div>
                         </div>
                         <div className="p-2 rounded bg-[#F2F7F5]">
-                          <div className="text-[#7A8C86] text-[0.55rem] uppercase tracking-wider">Deviation</div>
+                          <div className="text-[#5B6E68] text-[0.6rem] uppercase tracking-wider">Deviation</div>
                           <div className={`font-mono ${(rebalance.deviation >= 0 ? "text-mtqs-gold" : "text-mtqs-emerald")}`}>
                             {(rebalance.deviation * 100).toFixed(2)}pp
                           </div>
                         </div>
                         <div className="p-2 rounded bg-[#F2F7F5]">
-                          <div className="text-[#7A8C86] text-[0.55rem] uppercase tracking-wider">Trade size</div>
+                          <div className="text-[#5B6E68] text-[0.6rem] uppercase tracking-wider">Trade size</div>
                           <div className="font-mono text-[#0E1F1B]">{fmtUsd(rebalance.tradeUsd)}</div>
                         </div>
                         <div className="p-2 rounded bg-[#F2F7F5]">
-                          <div className="text-[#7A8C86] text-[0.55rem] uppercase tracking-wider">No-trade zone ½θ</div>
-                          <div className="font-mono text-[#0E1F1B]">0.75% <span className="text-[#7A8C86]">(crisis 1.5%)</span></div>
+                          <div className="text-[#5B6E68] text-[0.6rem] uppercase tracking-wider">No-trade zone ½θ</div>
+                          <div className="font-mono text-[#0E1F1B]">0.75% <span className="text-[#5B6E68]">(crisis 1.5%)</span></div>
                         </div>
                       </div>
                       <p className="text-[0.66rem] text-[#5B6E68] mt-2 font-mono">{rebalance.reason}</p>
                     </div>
                   ) : (
-                    <p className="text-[0.72rem] text-[#7A8C86]">
+                    <p className="text-[0.72rem] text-[#5B6E68]">
                       Rebalance decision not exposed on this snapshot — published via /api/evidence.
                     </p>
                   )}
@@ -924,7 +924,7 @@ export function TransparencySection({
                                 <tr key={`${d.component}-${i}`} className="border-t border-[#EDF2EF]">
                                   <td className="px-2.5 py-1.5 text-mtqs-gold">{d.component}</td>
                                   <td className="px-2.5 py-1.5">
-                                    <span className={d.shouldTrade ? "text-mtqs-emerald" : "text-[#7A8C86]"}>
+                                    <span className={d.shouldTrade ? "text-mtqs-emerald" : "text-[#5B6E68]"}>
                                       {dirLabel(d.direction)}
                                     </span>
                                   </td>
@@ -941,19 +941,19 @@ export function TransparencySection({
                       {firstMandate ? (
                         <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 mt-3 text-[0.66rem]">
                           <div className="p-2 rounded bg-[#F2F7F5]">
-                            <div className="text-[#7A8C86] text-[0.55rem] uppercase tracking-wider">Expected benefit</div>
+                            <div className="text-[#5B6E68] text-[0.6rem] uppercase tracking-wider">Expected benefit</div>
                             <div className="font-mono text-mtqs-emerald">{fmtUsd(firstMandate.grossBenefitUsd)}</div>
                           </div>
                           <div className="p-2 rounded bg-[#F2F7F5]">
-                            <div className="text-[#7A8C86] text-[0.55rem] uppercase tracking-wider">Expected cost</div>
+                            <div className="text-[#5B6E68] text-[0.6rem] uppercase tracking-wider">Expected cost</div>
                             <div className="font-mono text-mtqs-rose">{fmtUsd(firstMandate.costUsd)}</div>
                           </div>
                           <div className="p-2 rounded bg-[#F2F7F5]">
-                            <div className="text-[#7A8C86] text-[0.55rem] uppercase tracking-wider">Net benefit</div>
+                            <div className="text-[#5B6E68] text-[0.6rem] uppercase tracking-wider">Net benefit</div>
                             <div className="font-mono text-[#0E1F1B]">{fmtUsd(firstMandate.netBenefitUsd)}</div>
                           </div>
                           <div className="p-2 rounded bg-[#F2F7F5]">
-                            <div className="text-[#7A8C86] text-[0.55rem] uppercase tracking-wider">Mandate</div>
+                            <div className="text-[#5B6E68] text-[0.6rem] uppercase tracking-wider">Mandate</div>
                             <div className="font-mono text-[#33544C]">
                               {firstMandate.netBenefitEligible ? "eligible" : "blocked"} · shadow
                             </div>
@@ -962,7 +962,7 @@ export function TransparencySection({
                       ) : null}
                     </div>
                   ) : (
-                    <p className="text-[0.72rem] text-[#7A8C86]">
+                    <p className="text-[0.72rem] text-[#5B6E68]">
                       MARP decisions not exposed on this snapshot — published via /api/evidence.
                     </p>
                   )}
@@ -1042,7 +1042,7 @@ export function TransparencySection({
                 },
               ].map((s) => (
                 <div key={s.step} className="p-3.5 rounded-lg border border-[#E3EAE6] bg-[#F6FAF8]">
-                  <div className="text-[0.6rem] uppercase tracking-[0.2em] text-mtqs-gold/80 mb-1.5">
+                  <div className="text-[0.6rem] uppercase tracking-[0.2em] text-mtqs-gold mb-1.5">
                     Step {s.step}
                   </div>
                   <code className="block font-mono text-[0.72rem] text-mtqs-gold bg-[#F2F7F5] border border-[#EDF2EF] rounded px-3 py-2 overflow-x-auto whitespace-nowrap mb-2">

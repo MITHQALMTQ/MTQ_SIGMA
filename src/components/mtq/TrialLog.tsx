@@ -121,7 +121,7 @@ export function TrialLog({
                         <span className="text-mtqs-gold">{fmtNum(t.outputAmount, 4)} {t.outputSymbol}</span>
                       </td>
                       <td className="px-3 py-2 text-right font-mono text-[#5B6E68]">{fmtFixed(t.gfbIndex, 4)}</td>
-                      <td className="px-3 py-2 text-right font-mono text-mtqs-gold/80">{fmtFixed(t.mtqPrice, 4)}</td>
+                      <td className="px-3 py-2 text-right font-mono text-mtqs-gold">{fmtFixed(t.mtqPrice, 4)}</td>
                       <td className="px-3 py-2 text-right font-mono text-[#5B6E68]">{fmtUsd(t.nav)}</td>
                       <td className="px-3 py-2 text-right font-mono">
                         <span className={t.reserveRatio >= 1.1 ? "text-mtqs-emerald" : t.reserveRatio >= 1.05 ? "text-mtqs-amber" : "text-mtqs-rose"}>

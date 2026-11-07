@@ -265,7 +265,7 @@ function ReferenceSection() {
         <Reveal delay={0.05}>
           <Panel className="p-5">
             <div className="flex items-center gap-2 mb-4">
-              <BookOpen className="h-4 w-4 text-mtqs-gold/80" aria-hidden="true" />
+              <BookOpen className="h-4 w-4 text-mtqs-gold" aria-hidden="true" />
               <h3 className="text-sm font-semibold text-[#0E1F1B]">7-Component Basket · Strategic Prior (§3.2)</h3>
               {/* TASK-38 — visible liveness: pulsing dot + poll cadence + last-read
                   clock so a user can SEE the board stream instead of inferring it. */}
@@ -308,7 +308,7 @@ function ReferenceSection() {
                       {liveW != null ? (
                         <MiniBar value={liveW} max={ENVELOPE_BAR_MAX} colorClass="bg-mtqs-emerald" className="mb-1" />
                       ) : (
-                        <div className="mb-1 text-[0.6rem] font-mono text-[#7A8C86]">live —</div>
+                        <div className="mb-1 text-[0.6rem] font-mono text-[#5B6E68]">live —</div>
                       )}
                     </div>
                     <div className="font-mono text-[0.68rem] text-[#33544C]">
@@ -322,7 +322,7 @@ function ReferenceSection() {
                           )}
                         </>
                       ) : (
-                        <span className="text-[#7A8C86]">live W^Smooth —</span>
+                        <span className="text-[#5B6E68]">live W^Smooth —</span>
                       )}
                     </div>
                     <div className="mt-1 font-mono text-[0.72rem] text-[#33544C]">
@@ -333,8 +333,8 @@ function ReferenceSection() {
               })}
             </div>
             <div className="mt-4 text-[0.65rem] text-[#5B6E68] leading-relaxed">
-              <span className="text-mtqs-gold/80">P</span> = W<sup>Prior</sup> · the genesis soft-anchor (§3.2) — deviation is
-              penalized, never enforced. <span className="text-mtqs-emerald/90">L</span> = live W<sup>Smooth</sup> · the MASE
+              <span className="text-mtqs-gold">P</span> = W<sup>Prior</sup> · the genesis soft-anchor (§3.2) — deviation is
+              penalized, never enforced. <span className="text-mtqs-emerald">L</span> = live W<sup>Smooth</sup> · the MASE
               ensemble output (§7). Methodology is fixed; weights are <span className="text-[#33544C]">ADAPTIVE</span> (Invariant I3).
               Live weights are published in the 4-state table (MASE section) and via /api/gfb. Sum of prior weights = 100%
               (USD 27 · EUR 20 · Gold 26 · JPY 9 · GBP 8 · CNY 5 · CHF 5). Live weights are constitutionally
@@ -506,7 +506,7 @@ function ReserveSection({ snapshot }: { snapshot: MetricsSnapshot | null }) {
         <Reveal delay={0.05}>
           <Panel className="p-5">
             <div className="flex items-center gap-2 mb-4">
-              <VaultIcon className="h-4 w-4 text-mtqs-gold/80" aria-hidden="true" />
+              <VaultIcon className="h-4 w-4 text-mtqs-gold" aria-hidden="true" />
               <h3 className="text-sm font-semibold text-[#0E1F1B]">Reserve Breakdown · 7 Asset Classes</h3>
             </div>
             {!r ? (
@@ -526,19 +526,19 @@ function ReserveSection({ snapshot }: { snapshot: MetricsSnapshot | null }) {
             )}
             <div className="mt-4 grid grid-cols-2 gap-3 text-[0.65rem] text-[#5B6E68]">
               <div className="rounded-md border border-[#E3EAE6] bg-[#F7FAF8] px-3 py-2">
-                <span className="text-[#7A8C86]">Fiat net:</span>{" "}
+                <span className="text-[#5B6E68]">Fiat net:</span>{" "}
                 <span className="font-mono text-[#33544C]">{r ? fmtUsd(r.fiatNet) : "—"}</span>
               </div>
               <div className="rounded-md border border-[#E3EAE6] bg-[#F7FAF8] px-3 py-2">
-                <span className="text-[#7A8C86]">Gold price (XAU):</span>{" "}
+                <span className="text-[#5B6E68]">Gold price (XAU):</span>{" "}
                 <span className="font-mono text-[#33544C]">{r ? `$${r.goldPrice.toFixed(2)}` : "—"}</span>
               </div>
               <div className="rounded-md border border-[#E3EAE6] bg-[#F7FAF8] px-3 py-2">
-                <span className="text-[#7A8C86]">Index gold (locked):</span>{" "}
+                <span className="text-[#5B6E68]">Index gold (locked):</span>{" "}
                 <span className="font-mono text-[#33544C]">{r ? fmtUsd(r.indexGoldNet) : "—"}</span>
               </div>
               <div className="rounded-md border border-[#E3EAE6] bg-[#F7FAF8] px-3 py-2">
-                <span className="text-[#7A8C86]">Reserve gold (MARP):</span>{" "}
+                <span className="text-[#5B6E68]">Reserve gold (MARP):</span>{" "}
                 <span className="font-mono text-[#33544C]">{r ? fmtUsd(r.reserveGoldNet) : "—"}</span>
               </div>
             </div>
@@ -600,7 +600,7 @@ function RiskSection({ snapshot }: { snapshot: MetricsSnapshot | null }) {
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
             <Panel className="p-5">
               <Stat label="Current State" value={
-                <span className={`text-2xl font-mono tabular-nums ${tone === "emerald" ? "text-emerald-600" : tone === "amber" ? "text-mtqs-amber" : "text-mtqs-rose"}`}>
+                <span className={`text-2xl font-mono tabular-nums ${tone === "emerald" ? "text-emerald-700" : tone === "amber" ? "text-mtqs-amber" : "text-mtqs-rose"}`}>
                   {state}
                 </span>
               } sub={snapshot ? `entered: ${new Date(snapshot.riskStateEnteredAt).toLocaleTimeString()}` : "—"} />
@@ -631,7 +631,7 @@ function RiskSection({ snapshot }: { snapshot: MetricsSnapshot | null }) {
         <Reveal delay={0.05}>
           <Panel className="p-5">
             <div className="flex items-center gap-2 mb-4">
-              <ShieldIcon className="h-4 w-4 text-mtqs-gold/80" aria-hidden="true" />
+              <ShieldIcon className="h-4 w-4 text-mtqs-gold" aria-hidden="true" />
               <h3 className="text-sm font-semibold text-[#0E1F1B]">State Ladder · RR &amp; LCR Bands</h3>
             </div>
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-2.5">
@@ -652,7 +652,7 @@ function RiskSection({ snapshot }: { snapshot: MetricsSnapshot | null }) {
                     }`}
                   >
                     <div className="flex items-center justify-between mb-1.5">
-                      <span className={`font-mono text-[0.82rem] font-semibold ${isActive ? (t === "emerald" ? "text-emerald-600" : t === "amber" ? "text-mtqs-amber" : "text-mtqs-rose") : "text-[#33544C]"}`}>
+                      <span className={`font-mono text-[0.82rem] font-semibold ${isActive ? (t === "emerald" ? "text-emerald-700" : t === "amber" ? "text-mtqs-amber" : "text-mtqs-rose") : "text-[#33544C]"}`}>
                         {b.state}
                       </span>
                       {isActive && <GlowDot color={t} size="h-1.5 w-1.5" />}
@@ -670,14 +670,14 @@ function RiskSection({ snapshot }: { snapshot: MetricsSnapshot | null }) {
         <Reveal delay={0.1}>
           <Panel className="p-5">
             <div className="flex items-center gap-2 mb-4">
-              <AlertTriangle className="h-4 w-4 text-mtqs-gold/80" aria-hidden="true" />
+              <AlertTriangle className="h-4 w-4 text-mtqs-gold" aria-hidden="true" />
               <h3 className="text-sm font-semibold text-[#0E1F1B]">Active Policy Diagnostics</h3>
             </div>
             <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3 text-[0.7rem]">
               <div className="rounded-md border border-[#E3EAE6] bg-[#F7FAF8] p-3">
                 <div className="text-[0.6rem] uppercase tracking-widest text-[#5B6E68]">Mint Capacity</div>
                 <div className="font-mono text-[#0E1F1B] mt-1">{snapshot ? fmtPct(snapshot.mintThrottle) : "—"}</div>
-                <div className="text-[0.55rem] text-[#7A8C86] mt-0.5">100% = unthrottled · 0% = paused</div>
+                <div className="text-[0.6rem] text-[#5B6E68] mt-0.5">100% = unthrottled · 0% = paused</div>
               </div>
               <div className="rounded-md border border-[#E3EAE6] bg-[#F7FAF8] p-3">
                 <div className="text-[0.6rem] uppercase tracking-widest text-[#5B6E68]">Redeem Fee</div>
@@ -689,13 +689,13 @@ function RiskSection({ snapshot }: { snapshot: MetricsSnapshot | null }) {
               </div>
               <div className="rounded-md border border-[#E3EAE6] bg-[#F7FAF8] p-3">
                 <div className="text-[0.6rem] uppercase tracking-widest text-[#5B6E68]">Minting</div>
-                <div className={`font-mono mt-1 ${snapshot?.mintingAllowed ? "text-emerald-600" : "text-mtqs-rose"}`}>
+                <div className={`font-mono mt-1 ${snapshot?.mintingAllowed ? "text-emerald-700" : "text-mtqs-rose"}`}>
                   {snapshot ? (snapshot.mintingAllowed ? "ALLOWED" : "HALTED") : "—"}
                 </div>
               </div>
               <div className="rounded-md border border-[#E3EAE6] bg-[#F7FAF8] p-3">
                 <div className="text-[0.6rem] uppercase tracking-widest text-[#5B6E68]">Redemption</div>
-                <div className={`font-mono mt-1 ${snapshot?.redemptionAllowed ? "text-emerald-600" : "text-mtqs-rose"}`}>
+                <div className={`font-mono mt-1 ${snapshot?.redemptionAllowed ? "text-emerald-700" : "text-mtqs-rose"}`}>
                   {snapshot ? (snapshot.redemptionAllowed ? "ALLOWED" : "HALTED") : "—"}
                 </div>
               </div>
@@ -739,7 +739,7 @@ function RebalancingSection({ snapshot }: { snapshot: MetricsSnapshot | null }) 
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
             <Panel className="p-5">
               <Stat label="Direction" value={
-                <span className={`text-xl font-mono ${d?.direction === 1 ? "text-emerald-600" : d?.direction === -1 ? "text-mtqs-rose" : "text-[#33544C]"}`}>
+                <span className={`text-xl font-mono ${d?.direction === 1 ? "text-emerald-700" : d?.direction === -1 ? "text-mtqs-rose" : "text-[#33544C]"}`}>
                   {dirLabel}
                 </span>
               } sub={d?.shouldRebalance ? "should execute" : "no-trade zone"} />
@@ -770,7 +770,7 @@ function RebalancingSection({ snapshot }: { snapshot: MetricsSnapshot | null }) 
         <Reveal delay={0.05}>
           <Panel className="p-5">
             <div className="flex items-center gap-2 mb-3">
-              <RefreshCw className="h-4 w-4 text-mtqs-gold/80" aria-hidden="true" />
+              <RefreshCw className="h-4 w-4 text-mtqs-gold" aria-hidden="true" />
               <h3 className="text-sm font-semibold text-[#0E1F1B]">Decision Reason</h3>
             </div>
             <div className="rounded-md border border-[#E3EAE6] bg-[#F7FAF8] p-4 font-mono text-[0.78rem] text-[#33544C] leading-relaxed">
@@ -785,7 +785,7 @@ function RebalancingSection({ snapshot }: { snapshot: MetricsSnapshot | null }) 
                 <span>
                   eligible this tick: <span className="font-mono text-[#33544C]">{snapshot.marpExecution.appliedCount}</span>
                   {" · "}Σ approved: <span className="font-mono text-[#33544C]">{fmtUsd(snapshot.marpExecution.totalTradeUsd)}</span>
-                  <span className="text-[#7A8C86]"> (pre-execution projection)</span>
+                  <span className="text-[#5B6E68]"> (pre-execution projection)</span>
                 </span>
               )}
             </div>
@@ -795,7 +795,7 @@ function RebalancingSection({ snapshot }: { snapshot: MetricsSnapshot | null }) 
                 data-testid="marp-last-pass"
                 className="mt-2 rounded-md border border-[#E3EAE6] bg-[#F7FAF8] px-3 py-2 text-[0.65rem] text-[#5B6E68] leading-relaxed"
               >
-                <span className="uppercase tracking-[0.16em] text-[#7A8C86]">Last execution pass</span>
+                <span className="uppercase tracking-[0.16em] text-[#5B6E68]">Last execution pass</span>
                 {" · "}
                 {snapshot.marpExecution.lastPass.heldBy ? (
                   <span className="text-mtqs-amber">held — {snapshot.marpExecution.lastPass.heldBy}</span>
@@ -811,7 +811,7 @@ function RebalancingSection({ snapshot }: { snapshot: MetricsSnapshot | null }) 
                     )}
                   </>
                 )}
-                {" · "}<span className="text-[#7A8C86]">{new Date(snapshot.marpExecution.lastPass.at).toLocaleTimeString()}</span>
+                {" · "}<span className="text-[#5B6E68]">{new Date(snapshot.marpExecution.lastPass.at).toLocaleTimeString()}</span>
               </div>
             )}
           </Panel>
@@ -820,7 +820,7 @@ function RebalancingSection({ snapshot }: { snapshot: MetricsSnapshot | null }) 
           <Reveal delay={0.1}>
             <Panel className="p-5">
               <div className="flex items-center gap-2 mb-3">
-                <CircuitBoard className="h-4 w-4 text-mtqs-gold/80" aria-hidden="true" />
+                <CircuitBoard className="h-4 w-4 text-mtqs-gold" aria-hidden="true" />
                 <h3 className="text-sm font-semibold text-[#0E1F1B]">MARP Per-Component Projection (§10)</h3>
               </div>
               <div className="overflow-x-auto">
@@ -936,7 +936,7 @@ function GovernanceSection() {
                 "border-mtqs-rose/30 bg-mtqs-rose/[0.05]";
               const iconCls =
                 c.tone === "gold" ? "text-mtqs-gold" :
-                c.tone === "emerald" ? "text-emerald-600" :
+                c.tone === "emerald" ? "text-emerald-700" :
                 c.tone === "amber" ? "text-mtqs-amber" :
                 "text-mtqs-rose";
               return (
@@ -973,7 +973,7 @@ function GovernanceSection() {
         <Reveal delay={0.05}>
           <Panel className="p-5">
             <div className="flex items-center gap-2 mb-3">
-              <Users className="h-4 w-4 text-mtqs-gold/80" aria-hidden="true" />
+              <Users className="h-4 w-4 text-mtqs-gold" aria-hidden="true" />
               <h3 className="text-sm font-semibold text-[#0E1F1B]">Authority Hierarchy</h3>
             </div>
             <div className="text-[0.72rem] text-[#33544C] leading-relaxed">
@@ -1012,7 +1012,7 @@ function GovernanceSection() {
                 <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
                   <div className="rounded-md border border-[#E3EAE6] bg-[#F7FAF8] p-3">
                     <div className="text-[0.6rem] uppercase tracking-widest text-[#5B6E68]">Production Ready</div>
-                    <div className={`font-mono text-base mt-1 ${honest.isProductionAuthorized ? "text-emerald-600" : "text-mtqs-rose"}`}>
+                    <div className={`font-mono text-base mt-1 ${honest.isProductionAuthorized ? "text-emerald-700" : "text-mtqs-rose"}`}>
                       {honest.isProductionAuthorized ? "YES" : "NO"}
                     </div>
                   </div>
@@ -1036,14 +1036,14 @@ function GovernanceSection() {
                     <div className="max-h-72 overflow-y-auto mtqs-scroll">
                       {honest.validationGates.map((g, i) => (
                         <div key={g.id} className={`flex items-start gap-3 px-3 py-2.5 ${i % 2 ? "bg-[#FAFCFA]" : ""} border-t border-[#E3EAE6] first:border-t-0`}>
-                          {g.passed ? <CheckCircle2 className="h-4 w-4 text-emerald-600 shrink-0 mt-0.5" /> : <XCircle className="h-4 w-4 text-mtqs-rose shrink-0 mt-0.5" />}
+                          {g.passed ? <CheckCircle2 className="h-4 w-4 text-emerald-700 shrink-0 mt-0.5" /> : <XCircle className="h-4 w-4 text-mtqs-rose shrink-0 mt-0.5" />}
                           <div className="flex-1 min-w-0">
                             <div className="flex items-center gap-2">
-                              <span className="font-mono text-[0.7rem] text-mtqs-gold/85">{g.id}</span>
+                              <span className="font-mono text-[0.7rem] text-mtqs-gold">{g.id}</span>
                               <span className="text-[0.78rem] text-[#0E1F1B] font-medium">{g.name}</span>
                             </div>
                             <div className="text-[0.7rem] text-[#5B6E68] mt-0.5">{g.description}</div>
-                            {g.evidence && <div className="text-[0.65rem] text-[#7A8C86] mt-1 font-mono">{g.evidence}</div>}
+                            {g.evidence && <div className="text-[0.65rem] text-[#5B6E68] mt-1 font-mono">{g.evidence}</div>}
                           </div>
                         </div>
                       ))}
@@ -1054,7 +1054,7 @@ function GovernanceSection() {
                   <span className="text-mtqs-amber font-medium">Disclaimer: </span>
                   {honest.disclaimer ?? "MTQΣ testnet honest status — NOT PRODUCTION-AUTHORIZED."}
                 </div>
-                <div className="text-[0.62rem] text-[#7A8C86] font-mono">
+                <div className="text-[0.62rem] text-[#5B6E68] font-mono">
                   version: {honest.version} · computed: {honest.computedAt}
                 </div>
               </div>

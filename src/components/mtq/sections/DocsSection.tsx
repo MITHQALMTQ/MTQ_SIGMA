@@ -187,7 +187,7 @@ export function DocsSection({
       <Reveal>
         <Panel className="p-5">
           <div className="flex items-start gap-3">
-            <BookOpen className="h-5 w-5 text-mtqs-gold/80 mt-0.5 shrink-0" aria-hidden="true" />
+            <BookOpen className="h-5 w-5 text-mtqs-gold mt-0.5 shrink-0" aria-hidden="true" />
             <p className="text-[0.82rem] text-[#5B6E68] leading-relaxed">
               The MTQΣ Master Monetary Architecture v1.0 is the source of truth for the closed-loop
               monetary architecture. This section surfaces the 7-component Strategic Prior, per-component
@@ -205,7 +205,7 @@ export function DocsSection({
       <section>
         <div className="flex items-end justify-between gap-4 mb-4">
           <div>
-            <div className="text-[0.6rem] uppercase tracking-[0.22em] text-mtqs-gold/75">§3.2 · Strategic Prior</div>
+            <div className="text-[0.6rem] uppercase tracking-[0.22em] text-mtqs-gold">§3.2 · Strategic Prior</div>
             <h3 className="mt-2 text-base font-semibold text-[#0E1F1B]">Adaptive Reference Basket — 7-Component Strategic Prior</h3>
           </div>
         </div>
@@ -235,7 +235,7 @@ export function DocsSection({
       <section>
         <div className="flex items-end justify-between gap-4 mb-4">
           <div>
-            <div className="text-[0.6rem] uppercase tracking-[0.22em] text-mtqs-gold/75">§8.1 · Admissibility</div>
+            <div className="text-[0.6rem] uppercase tracking-[0.22em] text-mtqs-gold">§8.1 · Admissibility</div>
             <h3 className="mt-2 text-base font-semibold text-[#0E1F1B]">Per-Component Admissibility Envelopes</h3>
           </div>
           <div className="flex items-center gap-2">
@@ -253,9 +253,9 @@ export function DocsSection({
             headers={["Component", "Lower Bound", "Upper Bound", "Strategic Prior"]}
             rows={ENVELOPES_TABLE.map((row) => [
               <span key="component" className="font-mono text-mtqs-gold">{row.component}</span>,
-              <span key="lower" className="font-mono text-mtqs-rose/90">{row.lower}</span>,
-              <span key="upper" className="font-mono text-mtqs-rose/90">{row.upper}</span>,
-              <span key="prior" className="font-mono text-mtqs-emerald/90">{row.prior}</span>,
+              <span key="lower" className="font-mono text-mtqs-rose">{row.lower}</span>,
+              <span key="upper" className="font-mono text-mtqs-rose">{row.upper}</span>,
+              <span key="prior" className="font-mono text-mtqs-emerald">{row.prior}</span>,
             ])}
           />
         </Reveal>
@@ -265,7 +265,7 @@ export function DocsSection({
       <section>
         <div className="flex items-end justify-between gap-4 mb-4">
           <div>
-            <div className="text-[0.6rem] uppercase tracking-[0.22em] text-mtqs-gold/75">§2.3 · Weight States</div>
+            <div className="text-[0.6rem] uppercase tracking-[0.22em] text-mtqs-gold">§2.3 · Weight States</div>
             <h3 className="mt-2 text-base font-semibold text-[#0E1F1B]">Four-State Weight Distinction</h3>
           </div>
           <div className="flex items-center gap-2">
@@ -283,7 +283,7 @@ export function DocsSection({
             headers={["State", "Symbol", "Meaning", "Produced By"]}
             rows={WEIGHT_STATE_DESCRIPTIONS.map((row) => [
               <span key="state" className="font-mono font-semibold text-mtqs-gold">{row.state}</span>,
-              <span key="symbol" className="font-mono text-mtqs-emerald/90">{row.symbol}</span>,
+              <span key="symbol" className="font-mono text-mtqs-emerald">{row.symbol}</span>,
               <span key="meaning" className="text-[#5B6E68]">{row.meaning}</span>,
               <span key="producedBy" className="text-[#5B6E68]">{row.producedBy}</span>,
             ])}
@@ -295,7 +295,7 @@ export function DocsSection({
       <section>
         <div className="flex items-end justify-between gap-4 mb-4">
           <div>
-            <div className="text-[0.6rem] uppercase tracking-[0.22em] text-mtqs-gold/75">§6 / §7 · MASE</div>
+            <div className="text-[0.6rem] uppercase tracking-[0.22em] text-mtqs-gold">§6 / §7 · MASE</div>
             <h3 className="mt-2 text-base font-semibold text-[#0E1F1B]">MASE Candidate Models</h3>
           </div>
           <div className="flex items-center gap-2">
@@ -322,13 +322,13 @@ export function DocsSection({
           <div className="mt-4">
             <Panel className="p-4 border-mtqs-emerald/20">
               <div className="flex items-start gap-3">
-                <ArrowRight className="h-4 w-4 text-mtqs-emerald/80 mt-0.5 shrink-0" aria-hidden="true" />
+                <ArrowRight className="h-4 w-4 text-mtqs-emerald mt-0.5 shrink-0" aria-hidden="true" />
                 <div>
                   <div className="text-sm font-semibold text-[#0E1F1B] mb-1">Live MASE data now in the Dashboard</div>
                   <p className="text-[0.78rem] text-[#5B6E68] leading-relaxed">
                     The <button
                       onClick={() => _onNavigate("portfolio")}
-                      className="font-mono text-mtqs-emerald/90 hover:text-mtqs-emerald underline-offset-2 hover:underline"
+                      className="font-mono text-mtqs-emerald hover:text-mtqs-emerald underline-offset-2 hover:underline"
                     >
                       Dashboard
                     </button> now renders a dedicated <span className="text-mtqs-gold font-medium">MASE Ensemble + 4-State Weights + MARP</span> section
@@ -349,7 +349,7 @@ export function DocsSection({
       <section>
         <div className="flex items-end justify-between gap-4 mb-4">
           <div>
-            <div className="text-[0.6rem] uppercase tracking-[0.22em] text-mtqs-gold/75">§2.6 · Hard Rules</div>
+            <div className="text-[0.6rem] uppercase tracking-[0.22em] text-mtqs-gold">§2.6 · Hard Rules</div>
             <h3 className="mt-2 text-base font-semibold text-[#0E1F1B]">Constitutional Invariants</h3>
           </div>
           <Pill tone="gold">I1–I12</Pill>
@@ -362,7 +362,7 @@ export function DocsSection({
             rows={CONSTITUTIONAL_INVARIANTS.map((row) => [
               <span key="id" className="font-mono text-mtqs-gold">{row.id}</span>,
               <span key="description" className="text-[#5B6E68]">{row.description}</span>,
-              <span key="enforcedBy" className="font-mono text-mtqs-emerald/80">{row.enforcedBy}</span>,
+              <span key="enforcedBy" className="font-mono text-mtqs-emerald">{row.enforcedBy}</span>,
             ])}
           />
         </Reveal>
@@ -372,7 +372,7 @@ export function DocsSection({
       <section>
         <div className="flex items-end justify-between gap-4 mb-4">
           <div>
-            <div className="text-[0.6rem] uppercase tracking-[0.22em] text-mtqs-gold/75">§14.1 · Risk</div>
+            <div className="text-[0.6rem] uppercase tracking-[0.22em] text-mtqs-gold">§14.1 · Risk</div>
             <h3 className="mt-2 text-base font-semibold text-[#0E1F1B]">Risk State Machine &amp; Governance</h3>
           </div>
         </div>
@@ -422,7 +422,7 @@ export function DocsSection({
       <section>
         <div className="flex items-end justify-between gap-4 mb-4">
           <div>
-            <div className="text-[0.6rem] uppercase tracking-[0.22em] text-mtqs-gold/75">§14.2 · Authority</div>
+            <div className="text-[0.6rem] uppercase tracking-[0.22em] text-mtqs-gold">§14.2 · Authority</div>
             <h3 className="mt-2 text-base font-semibold text-[#0E1F1B]">Governance Hierarchy</h3>
           </div>
         </div>
@@ -472,7 +472,7 @@ export function DocsSection({
       <section>
         <div className="flex items-end justify-between gap-4 mb-4">
           <div>
-            <div className="text-[0.6rem] uppercase tracking-[0.22em] text-mtqs-gold/75">§25 · Honesty</div>
+            <div className="text-[0.6rem] uppercase tracking-[0.22em] text-mtqs-gold">§25 · Honesty</div>
             <h3 className="mt-2 text-base font-semibold text-[#0E1F1B]">Honest Status Declaration</h3>
           </div>
         </div>
@@ -498,7 +498,7 @@ export function DocsSection({
       <section>
         <div className="flex items-end justify-between gap-4 mb-4">
           <div>
-            <div className="text-[0.6rem] uppercase tracking-[0.22em] text-mtqs-gold/75">§25.3 · Transparency</div>
+            <div className="text-[0.6rem] uppercase tracking-[0.22em] text-mtqs-gold">§25.3 · Transparency</div>
             <h3 className="mt-2 text-base font-semibold text-[#0E1F1B]">Claims NOT Supported</h3>
           </div>
           <Pill tone="amber">v1.0 adds 3 new</Pill>
@@ -509,7 +509,7 @@ export function DocsSection({
             subtitle="v1.0 added: 'Fixed composition', 'Guaranteed outcomes', 'Final optimal percentages'. The legacy v1.2 REMOVED_CLAIMS table is SUPERSEDED — see the reconciliation block below."
             headers={["Claim", "Reason NOT Supported"]}
             rows={UNSUPPORTED_CLAIMS.map((row) => [
-              <span key="claim" className="line-through text-mtqs-rose/70 font-mono">{row.claim}</span>,
+              <span key="claim" className="line-through text-mtqs-rose font-mono">{row.claim}</span>,
               <span key="reason" className="text-[#5B6E68]">{row.reason}</span>,
             ])}
           />
@@ -520,7 +520,7 @@ export function DocsSection({
       <section>
         <div className="flex items-end justify-between gap-4 mb-4">
           <div>
-            <div className="text-[0.6rem] uppercase tracking-[0.22em] text-mtqs-gold/75">v1.2 → v1.0</div>
+            <div className="text-[0.6rem] uppercase tracking-[0.22em] text-mtqs-gold">v1.2 → v1.0</div>
             <h3 className="mt-2 text-base font-semibold text-[#0E1F1B]">Reconciliation — v1.2 (superseded) vs Master v1.0</h3>
           </div>
           <Pill tone="gold">11 areas</Pill>
@@ -533,7 +533,7 @@ export function DocsSection({
             rows={RECONCILIATION_CHANGES.map((row) => [
               <span key="area" className="font-semibold text-mtqs-gold">{row.area}</span>,
               <span key="v1_2" className="text-[#5B6E68] line-through">{row.v1_2}</span>,
-              <span key="v1_0" className="text-mtqs-emerald/90">{row.v1_0}</span>,
+              <span key="v1_0" className="text-mtqs-emerald">{row.v1_0}</span>,
             ])}
           />
         </Reveal>
@@ -543,7 +543,7 @@ export function DocsSection({
       <section>
         <div className="flex items-end justify-between gap-4 mb-4">
           <div>
-            <div className="text-[0.6rem] uppercase tracking-[0.22em] text-mtqs-gold/75">Live · Honest Audit</div>
+            <div className="text-[0.6rem] uppercase tracking-[0.22em] text-mtqs-gold">Live · Honest Audit</div>
             <h3 className="mt-2 text-base font-semibold text-[#0E1F1B]">Reconciliation Findings (Live)</h3>
           </div>
           <Pill tone={findings.length ? "emerald" : "muted"}>
@@ -591,7 +591,7 @@ export function DocsSection({
                       </p>
                       {f.resolution && (
                         <p className="mt-2 text-[0.72rem] text-[#5B6E68] leading-relaxed">
-                          <span className="text-mtqs-gold/80 uppercase tracking-[0.18em] text-[0.6rem] font-medium mr-1">
+                          <span className="text-mtqs-gold uppercase tracking-[0.18em] text-[0.6rem] font-medium mr-1">
                             Resolution
                           </span>
                           {f.resolution}

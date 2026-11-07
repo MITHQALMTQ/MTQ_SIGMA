@@ -546,7 +546,7 @@ function ScoringComponentRow({ c }: { c: ScoringComponentDto }) {
         <div className="flex items-baseline gap-2 min-w-0">
           <span className="font-mono text-sm font-semibold text-mtqs-gold">{c.code}</span>
           <span className="text-[0.68rem] text-[#33544C]">{c.name}</span>
-          <span className="font-mono text-[0.55rem] uppercase tracking-wider text-[#9AA9A3]">
+          <span className="font-mono text-[0.6rem] uppercase tracking-wider text-[#5B6E68]">
             {c.componentType}
           </span>
         </div>
@@ -581,7 +581,7 @@ function ScoringComponentRow({ c }: { c: ScoringComponentDto }) {
             >
               <div className="flex items-center gap-1">
                 <FeedStatusDot status={status} />
-                <span className="font-mono text-[0.55rem] uppercase tracking-wider text-[#7A8C86]">
+                <span className="font-mono text-[0.6rem] uppercase tracking-wider text-[#5B6E68]">
                   {SCORING_INPUT_LABELS[k]}
                 </span>
               </div>
@@ -595,7 +595,7 @@ function ScoringComponentRow({ c }: { c: ScoringComponentDto }) {
 
       {/* Hard gates — pass ticks emerald; fails rose with observed vs threshold */}
       <div className="flex flex-wrap items-center gap-1.5 mt-2.5">
-        <span className="mr-0.5 text-[0.55rem] uppercase tracking-[0.18em] text-[#9AA9A3]">
+        <span className="mr-0.5 text-[0.6rem] uppercase tracking-[0.18em] text-[#5B6E68]">
           hard gates
         </span>
         {c.hardGates.map((g) =>
@@ -628,17 +628,17 @@ function ScoringComponentRow({ c }: { c: ScoringComponentDto }) {
 
       {/* Expandable per-input provenance (keyboard-reachable <details>) */}
       <details className="mt-2.5">
-        <summary className="cursor-pointer select-none text-[0.6rem] uppercase tracking-[0.16em] text-[#7A8C86] hover:text-mtqs-gold">
+        <summary className="cursor-pointer select-none text-[0.6rem] uppercase tracking-[0.16em] text-[#5B6E68] hover:text-mtqs-gold">
           input provenance detail
         </summary>
         <dl className="mt-2 grid grid-cols-1 md:grid-cols-2 gap-x-4 gap-y-1.5">
           {SCORING_INPUT_KEYS.map((k) => (
             <div key={k} className="flex gap-2 min-w-0">
-              <dt className="w-7 shrink-0 pt-0.5 font-mono text-[0.58rem] text-mtqs-gold">
+              <dt className="w-7 shrink-0 pt-0.5 font-mono text-[0.6rem] text-mtqs-gold">
                 {SCORING_INPUT_LABELS[k]}
               </dt>
               <dd className="min-w-0 text-[0.6rem] leading-relaxed text-[#5B6E68]">
-                <span className="font-mono text-[0.55rem] text-[#7A8C86]">
+                <span className="font-mono text-[0.6rem] text-[#5B6E68]">
                   {c.inputStatus[k] || "—"}
                 </span>{" "}
                 — {c.inputDetail[k] || "—"}
@@ -682,7 +682,7 @@ function LegWitnessTable({ witnesses }: { witnesses: ScoringLegWitnessDto[] }) {
                       <FeedStatusDot status={f.live ? "LIVE" : "CONSTRUCTION"} />
                       <span className="text-[#33544C]">{f.family}</span>
                       <span className="tabular-nums text-[#0E1F1B]">{f.priceUsd.toFixed(4)}</span>
-                      <span className="tabular-nums text-[0.6rem] text-[#9AA9A3]">
+                      <span className="tabular-nums text-[0.6rem] text-[#5B6E68]">
                         {fmtAsOf(f.asOf)}
                       </span>
                     </li>
@@ -764,7 +764,7 @@ function SourceReachabilityList({
           </span>
           <div className="min-w-0">
             <div className="text-[0.66rem] font-medium leading-tight text-[#33544C]">{s.source}</div>
-            <div className="text-[0.6rem] leading-snug text-[#7A8C86]">{s.detail}</div>
+            <div className="text-[0.6rem] leading-snug text-[#5B6E68]">{s.detail}</div>
           </div>
         </div>
       ))}
@@ -788,7 +788,7 @@ function ApprovalCard({ entry }: { entry: ApprovalLedgerEntryDto }) {
           <Pill tone="muted">{entry.scope}</Pill>
         </div>
       </div>
-      <div className="mt-2 flex flex-wrap gap-x-4 gap-y-1 font-mono text-[0.58rem] text-[#7A8C86]">
+      <div className="mt-2 flex flex-wrap gap-x-4 gap-y-1 font-mono text-[0.6rem] text-[#5B6E68]">
         <span>{entry.authority}</span>
         <span>approved {entry.approvedAt.slice(0, 10)}</span>
         <span className="min-w-0" title={entry.channel}>
@@ -849,7 +849,7 @@ function ApprovalCard({ entry }: { entry: ApprovalLedgerEntryDto }) {
       ) : null}
 
       <details className="mt-3">
-        <summary className="cursor-pointer select-none text-[0.6rem] uppercase tracking-[0.16em] text-[#7A8C86] hover:text-mtqs-gold">
+        <summary className="cursor-pointer select-none text-[0.6rem] uppercase tracking-[0.16em] text-[#5B6E68] hover:text-mtqs-gold">
           directive verbatim ({entry.directiveVerbatim.length} chars)
         </summary>
         <blockquote className="mt-2 border-l-2 border-mtqs-gold/40 pl-3 text-[0.64rem] italic leading-relaxed text-[#5B6E68]">
@@ -901,7 +901,7 @@ function CalibrationExplorer({ components }: { components: ScoringComponentDto[]
     <article className="rounded-xl border border-[#E3EAE6] bg-[#F7FAF8] p-4">
       <div className="mb-1.5 flex flex-wrap items-center justify-between gap-2">
         <h4 className="text-[0.78rem] font-semibold text-[#0E1F1B]">L-gate threshold explorer (what-if)</h4>
-        <span className="font-mono text-[0.6rem] text-[#7A8C86]">
+        <span className="font-mono text-[0.6rem] text-[#5B6E68]">
           engine gate today: L ≥ {engineThreshold.toFixed(2)} (§4.1 normalized)
         </span>
       </div>
@@ -946,7 +946,7 @@ function CalibrationExplorer({ components }: { components: ScoringComponentDto[]
       <div className="overflow-x-auto">
         <table className="w-full min-w-[34rem] border-collapse text-[0.64rem]">
           <thead>
-            <tr className="border-b border-[#E3EAE6] text-left text-[0.58rem] uppercase tracking-[0.14em] text-[#7A8C86]">
+            <tr className="border-b border-[#E3EAE6] text-left text-[0.6rem] uppercase tracking-[0.14em] text-[#5B6E68]">
               <th className="py-1.5 pr-3 font-medium">member</th>
               <th className="py-1.5 pr-3 font-medium text-right">BIS share</th>
               <th className="py-1.5 pr-3 font-medium text-right">L (§4.1 norm)</th>
@@ -969,7 +969,7 @@ function CalibrationExplorer({ components }: { components: ScoringComponentDto[]
           </tbody>
         </table>
       </div>
-      <p className="mt-2.5 text-[0.6rem] leading-relaxed text-[#7A8C86]">
+      <p className="mt-2.5 text-[0.6rem] leading-relaxed text-[#5B6E68]">
         {CAL_XAU_NOTE} Published shares: BIS Triennial 2022 (instrument share of global FX turnover, two-sided of 200%;
         bis.org/statistics/rpfx22_fx.htm). Observed dossier values (not shown here) additionally carry feed statuses.
       </p>
@@ -1014,14 +1014,14 @@ function ShadowCaseCard({ c }: { c: ShadowCaseDto }) {
           <span
             key={`${s.code}-${s.status}`}
             title={`${s.code} — ${s.status} — ${s.weightBp.toLocaleString("en-US")} bp`}
-            className={`inline-flex items-center gap-1 rounded-md border px-1.5 py-0.5 font-mono text-[0.58rem] ${
+            className={`inline-flex items-center gap-1 rounded-md border px-1.5 py-0.5 font-mono text-[0.6rem] ${
               s.status === "ACTIVE"
                 ? "border-[#E3EAE6] bg-[#FAFCFA] text-[#33544C]"
                 : "border-mtqs-amber/30 bg-mtqs-amber/[0.08] text-mtqs-amber"
             }`}
           >
             <span className="font-semibold">{s.code}</span>
-            <span className="text-[#9AA9A3]">{s.status === "ACTIVE" ? "ACT" : s.status.slice(0, 3)}</span>
+            <span className="text-[#5B6E68]">{s.status === "ACTIVE" ? "ACT" : s.status.slice(0, 3)}</span>
             <span className="tabular-nums">{s.weightBp.toLocaleString("en-US")}bp</span>
           </span>
         ))}
@@ -1038,7 +1038,7 @@ function ShadowCaseCard({ c }: { c: ShadowCaseDto }) {
               <span className="font-mono text-[0.6rem] font-semibold text-mtqs-rose">
                 rule {v.rule} · {v.error}
               </span>
-              <span className="mt-0.5 block font-mono text-[0.58rem] leading-relaxed text-[#5B6E68]">
+              <span className="mt-0.5 block font-mono text-[0.6rem] leading-relaxed text-[#5B6E68]">
                 {v.detail}
               </span>
             </li>
@@ -1049,7 +1049,7 @@ function ShadowCaseCard({ c }: { c: ShadowCaseDto }) {
           no violations — submission accepted
         </p>
       )}
-      <p className="mt-2 font-mono text-[0.58rem] tabular-nums text-[#9AA9A3]">
+      <p className="mt-2 font-mono text-[0.6rem] tabular-nums text-[#5B6E68]">
         submissions {c.result.checked.submissionCount} · active covered{" "}
         {c.result.checked.activeCovered}/{c.result.checked.activeTotal}
       </p>
@@ -1090,7 +1090,7 @@ function FactCell({
       className={`min-w-0 rounded-md border border-[#E3EAE6] bg-[#F7FAF8] px-3 py-2 ${oneLine ? "overflow-hidden" : ""}`}
       title={title}
     >
-      <div className="mb-1 text-[0.55rem] uppercase tracking-[0.2em] text-[#7A8C86]">{label}</div>
+      <div className="mb-1 text-[0.6rem] uppercase tracking-[0.2em] text-[#5B6E68]">{label}</div>
       <div
         className={`font-mono text-[0.64rem] leading-snug text-[#33544C] ${
           oneLine ? "truncate whitespace-nowrap" : "break-words"
@@ -1209,7 +1209,7 @@ export function ConstituencySection({
       <Reveal>
         <Panel className="p-5">
           <div className="flex items-start gap-3">
-            <Landmark className="h-5 w-5 text-mtqs-gold/80 mt-0.5 shrink-0" aria-hidden="true" />
+            <Landmark className="h-5 w-5 text-mtqs-gold mt-0.5 shrink-0" aria-hidden="true" />
             <p className="text-[0.82rem] text-[#5B6E68] leading-relaxed">
               The Constituency Engine is Layer 1 of the three-layer architecture (§2.2). MTQΣ
               maintains an eligible universe and <span className="text-[#0E1F1B]">independently decides</span> which
@@ -1265,7 +1265,7 @@ export function ConstituencySection({
           <Reveal delay={0.05}>
             <Panel className="p-5">
               <div className="flex items-center gap-2 mb-3">
-                <Scale className="h-4 w-4 text-mtqs-gold/70" aria-hidden="true" />
+                <Scale className="h-4 w-4 text-mtqs-gold" aria-hidden="true" />
                 <h3 className="text-sm font-semibold text-[#0E1F1B]">Score normalization — §4.2.1</h3>
               </div>
               <p className="text-[0.78rem] text-[#5B6E68] mb-3">
@@ -1278,7 +1278,7 @@ export function ConstituencySection({
                 the published methodology version (§24.1).
               </p>
               <Formula>Q̃_i = (Q_i − Q_min) / (Q_max − Q_min)</Formula>
-              <p className="text-[0.7rem] text-[#7A8C86] mt-3">
+              <p className="text-[0.7rem] text-[#5B6E68] mt-3">
                 The coefficients a_k and the threshold Q_min are methodology parameters — fixed per
                 published methodology version; any change requires Risk Council approval through
                 the parameter-registry process (§22.3). The coefficients are themselves subject to
@@ -1292,7 +1292,7 @@ export function ConstituencySection({
           <Reveal delay={0.1}>
             <Panel className="p-5">
               <div className="flex items-center gap-2 mb-3">
-                <Scale className="h-4 w-4 text-mtqs-gold/70" aria-hidden="true" />
+                <Scale className="h-4 w-4 text-mtqs-gold" aria-hidden="true" />
                 <h3 className="text-sm font-semibold text-[#0E1F1B]">Structural score construction — §4.5</h3>
               </div>
               <p className="text-[0.78rem] text-[#5B6E68] mb-3">
@@ -1307,7 +1307,7 @@ export function ConstituencySection({
                 single outlier would dominate the z-score. The composite structural score is then:
               </p>
               <Formula>S_i^Structural = ∑_k a_k · z_i,k</Formula>
-              <p className="text-[0.7rem] text-[#7A8C86] mt-3">
+              <p className="text-[0.7rem] text-[#5B6E68] mt-3">
                 The aggregation weights a_k are themselves subject to methodology validation: the
                 sensitivity of the final basket to each a_k is tested by parameter perturbation
                 (§23.6), and unstable coefficients are re-derived or the input is re-transformed.
@@ -1345,7 +1345,7 @@ export function ConstituencySection({
         <Reveal>
           <Panel className="p-5">
             <div className="flex items-center gap-2 mb-2">
-              <Gauge className="h-4 w-4 text-mtqs-gold/80" aria-hidden="true" />
+              <Gauge className="h-4 w-4 text-mtqs-gold" aria-hidden="true" />
               <h3
                 id="constituency-scoring-live-h"
                 className="text-sm font-semibold text-[#0E1F1B]"
@@ -1397,12 +1397,12 @@ export function ConstituencySection({
                   </Pill>
                 </div>
                 <p
-                  className="text-[0.6rem] text-[#7A8C86] leading-relaxed mb-1"
+                  className="text-[0.6rem] text-[#5B6E68] leading-relaxed mb-1"
                   title={machinery.scoringDossier.precondition.required}
                 >
                   {machinery.scoringDossier.precondition.note}
                 </p>
-                <p className="text-[0.6rem] text-[#7A8C86] leading-relaxed mb-4">
+                <p className="text-[0.6rem] text-[#5B6E68] leading-relaxed mb-4">
                   {machinery.scoringDossier.parametersDigestNote}
                 </p>
 
@@ -1460,13 +1460,13 @@ export function ConstituencySection({
                 {/* Index-leg witness layer */}
                 <div className="mt-5">
                   <div className="flex flex-wrap items-center gap-2 mb-2">
-                    <Globe2 className="h-4 w-4 text-mtqs-gold/70" aria-hidden="true" />
+                    <Globe2 className="h-4 w-4 text-mtqs-gold" aria-hidden="true" />
                     <h4 className="text-[0.78rem] font-semibold text-[#0E1F1B]">
                       Index-leg witness layer — ≥2 independent source families per leg
                     </h4>
                   </div>
                   <LegWitnessTable witnesses={machinery.scoringDossier.legWitnesses} />
-                  <p className="mt-2 text-[0.6rem] text-[#7A8C86] leading-relaxed">
+                  <p className="mt-2 text-[0.6rem] text-[#5B6E68] leading-relaxed">
                     {machinery.scoringDossier.precondition.required} — met at the pilot&apos;s
                     off-chain witness layer; §17.10&apos;s three-family ON-CHAIN requirement
                     remains a separate, still-open production gate.
@@ -1476,7 +1476,7 @@ export function ConstituencySection({
                 {/* Input feed matrix */}
                 <div className="mt-5">
                   <div className="flex flex-wrap items-center gap-2 mb-2">
-                    <Database className="h-4 w-4 text-mtqs-gold/70" aria-hidden="true" />
+                    <Database className="h-4 w-4 text-mtqs-gold" aria-hidden="true" />
                     <h4 className="text-[0.78rem] font-semibold text-[#0E1F1B]">
                       Input feed matrix — provenance &amp; tier
                     </h4>
@@ -1487,7 +1487,7 @@ export function ConstituencySection({
                 {/* Source reachability */}
                 <div className="mt-5">
                   <div className="flex flex-wrap items-center gap-2 mb-2">
-                    <Globe2 className="h-4 w-4 text-mtqs-gold/70" aria-hidden="true" />
+                    <Globe2 className="h-4 w-4 text-mtqs-gold" aria-hidden="true" />
                     <h4 className="text-[0.78rem] font-semibold text-[#0E1F1B]">
                       Source reachability (last dossier build)
                     </h4>
@@ -1517,7 +1517,7 @@ export function ConstituencySection({
           <Reveal>
             <Panel className="p-5 h-full">
               <div className="flex items-center gap-2 mb-2">
-                <Database className="h-4 w-4 text-mtqs-gold/80" aria-hidden="true" />
+                <Database className="h-4 w-4 text-mtqs-gold" aria-hidden="true" />
                 <h3 className="text-sm font-semibold text-[#0E1F1B]">IMF COFER — reserve relevance (R_i)</h3>
               </div>
               <p className="text-[0.76rem] text-[#5B6E68] leading-relaxed" id="constituency-sources-h">
@@ -1536,7 +1536,7 @@ export function ConstituencySection({
           <Reveal delay={0.05}>
             <Panel className="p-5 h-full">
               <div className="flex items-center gap-2 mb-2">
-                <Globe2 className="h-4 w-4 text-mtqs-gold/80" aria-hidden="true" />
+                <Globe2 className="h-4 w-4 text-mtqs-gold" aria-hidden="true" />
                 <h3 className="text-sm font-semibold text-[#0E1F1B]">
                   BIS Triennial Survey 2025 — liquidity &amp; trade (L_i, T_i)
                 </h3>
@@ -1557,7 +1557,7 @@ export function ConstituencySection({
                   </li>
                 ))}
               </ul>
-              <p className="text-[0.68rem] text-[#7A8C86] leading-relaxed">
+              <p className="text-[0.68rem] text-[#5B6E68] leading-relaxed">
                 Share of one side of FX turnovers. CHF became the sixth-most-traded currency while
                 sterling&apos;s share declined. Because the survey is triennial, interim estimates are
                 interpolated from higher-frequency turnover oracles where available, and
@@ -1649,7 +1649,7 @@ export function ConstituencySection({
                           <span className="text-[0.66rem] text-[#5B6E68] text-right">{c.name}</span>
                         </div>
                         <div className="flex items-baseline justify-between mb-1">
-                          <span className="text-[0.55rem] uppercase tracking-[0.18em] text-[#7A8C86]">
+                          <span className="text-[0.6rem] uppercase tracking-[0.18em] text-[#5B6E68]">
                             seed weight
                           </span>
                           <span className="font-mono text-[0.78rem] text-[#0E1F1B]">
@@ -1662,21 +1662,21 @@ export function ConstituencySection({
                           max={c.envelope.upper}
                           colorClass="bg-mtqs-gold/70"
                         />
-                        <div className="flex justify-between mt-1 text-[0.55rem] font-mono text-[#7A8C86]">
+                        <div className="flex justify-between mt-1 text-[0.6rem] font-mono text-[#5B6E68]">
                           <span>lower {(c.envelope.lower * 100).toFixed(0)}%</span>
                           <span>envelope ±{(band * 50).toFixed(1)}pp</span>
                           <span>upper {(c.envelope.upper * 100).toFixed(0)}%</span>
                         </div>
-                        <p className="text-[0.62rem] text-[#7A8C86] mt-2 leading-relaxed">{c.note}</p>
+                        <p className="text-[0.62rem] text-[#5B6E68] mt-2 leading-relaxed">{c.note}</p>
                         <div className="mt-2 pt-2 border-t border-[#E3EAE6] flex items-center justify-between">
-                          <span className="text-[0.55rem] uppercase tracking-wider text-[#7A8C86]">
+                          <span className="text-[0.6rem] uppercase tracking-wider text-[#5B6E68]">
                             live USD quote
                           </span>
                           <span className="font-mono text-[0.66rem] text-[#5B6E68]">
                             {quote != null ? `$${quote.toFixed(4)}` : "—"}
                           </span>
                         </div>
-                        <div className="text-[0.5rem] text-[#9AA9A3] mt-0.5 font-mono">
+                        <div className="text-[0.625rem] text-[#5B6E68] mt-0.5 font-mono">
                           seed = band mid {(seedPct * 100).toFixed(1)}% · governed admission
                         </div>
                       </div>
@@ -1695,7 +1695,7 @@ export function ConstituencySection({
                       I_t {data.live.iLevel.toFixed(6)}
                     </Pill>
                     {data.live.basis && (
-                      <span className="text-[0.55rem] font-mono text-[#7A8C86]">
+                      <span className="text-[0.6rem] font-mono text-[#5B6E68]">
                         holdings basis: {data.live.basis}
                       </span>
                     )}
@@ -1720,7 +1720,7 @@ export function ConstituencySection({
                                   {w != null ? (
                                     <MiniBar value={w} max={ENVELOPE_BAR_MAX} colorClass="bg-mtqs-gold/60" />
                                   ) : (
-                                    <span className="text-[#7A8C86]">—</span>
+                                    <span className="text-[#5B6E68]">—</span>
                                   )}
                                 </td>
                                 <td className="px-3 py-2 text-right font-mono text-[#33544C]">
@@ -1733,12 +1733,12 @@ export function ConstituencySection({
                       </table>
                     </div>
                   ) : (
-                    <p className="text-[0.7rem] text-[#7A8C86]">
+                    <p className="text-[0.7rem] text-[#5B6E68]">
                       Live weights unavailable from the engine (genesis state) — shown as &ldquo;—&rdquo;.
                       The strategic prior (§3.2) is published on the Reference tab.
                     </p>
                   )}
-                  <p className="text-[0.6rem] text-[#7A8C86] mt-2">
+                  <p className="text-[0.6rem] text-[#5B6E68] mt-2">
                     Source: /api/succession · the engine&apos;s live smoothed weights over the canonical
                     7-component basket. Gold is the constitutional anchor (I3) and is never subject
                     to constituency retirement.
@@ -1762,7 +1762,7 @@ export function ConstituencySection({
           <Reveal>
             <Panel className="p-5 h-full">
               <div className="flex items-center gap-2 mb-2">
-                <RefreshCw className="h-4 w-4 text-mtqs-gold/70" aria-hidden="true" />
+                <RefreshCw className="h-4 w-4 text-mtqs-gold" aria-hidden="true" />
                 <h3 className="text-sm font-semibold text-[#0E1F1B]">Gradual transitions — §4.6</h3>
               </div>
               <p className="text-[0.76rem] text-[#5B6E68] mb-3" id="constituency-transitions-h">
@@ -1791,7 +1791,7 @@ export function ConstituencySection({
           <Reveal delay={0.05}>
             <Panel className="p-5 h-full">
               <div className="flex items-center gap-2 mb-2">
-                <Shuffle className="h-4 w-4 text-mtqs-gold/70" aria-hidden="true" />
+                <Shuffle className="h-4 w-4 text-mtqs-gold" aria-hidden="true" />
                 <h3 className="text-sm font-semibold text-[#0E1F1B]">Two-threshold dead band — §4.7</h3>
               </div>
               <div className="space-y-2 mb-3">
@@ -1842,7 +1842,7 @@ export function ConstituencySection({
                 <span key="m" className="text-[#5B6E68]">{c.meaning}</span>,
               ])}
             />
-            <p className="text-[0.7rem] text-[#7A8C86] mt-3">
+            <p className="text-[0.7rem] text-[#5B6E68] mt-3">
               The same neutrality applies to the incumbent six: eligibility is{" "}
               <span className="text-[#0E1F1B]">re-tested on every review</span>, and a currency whose Q_i
               falls below the exit threshold enters the retirement path (§4.6) with the same gradual
@@ -1950,7 +1950,7 @@ export function ConstituencySection({
               <>
                 {/* The 7 genesis registry entries */}
                 <div className="flex flex-wrap items-center gap-2 mb-2">
-                  <Database className="h-4 w-4 text-mtqs-gold/70" aria-hidden="true" />
+                  <Database className="h-4 w-4 text-mtqs-gold" aria-hidden="true" />
                   <h4 className="text-[0.78rem] font-semibold text-[#0E1F1B]">
                     DEFAULT_REGISTRY — the genesis 7 ({machinery.genesisRegistry.genesisWeightSumBp.toLocaleString("en-US")} bp = 100.00%)
                   </h4>
@@ -1964,7 +1964,7 @@ export function ConstituencySection({
                   rows={machinery.genesisRegistry.entries.map((e) => [
                     <span key="c" className="font-mono font-semibold text-mtqs-gold">
                       {e.code}
-                      <span className="text-[#7A8C86] font-normal"> · {e.id}</span>
+                      <span className="text-[#5B6E68] font-normal"> · {e.id}</span>
                     </span>,
                     <span key="t" className="text-[#5B6E68] font-mono text-[0.68rem]">{e.componentType}</span>,
                     <span key="w" className="inline-flex flex-col gap-1 min-w-[7.5rem]">
@@ -1983,7 +1983,7 @@ export function ConstituencySection({
                     <Pill key="s" tone={e.lifecycleState === "ACTIVE" ? "emerald" : "muted"}>{e.lifecycleState}</Pill>,
                   ])}
                 />
-                <p className="text-[0.62rem] text-[#7A8C86] mt-2 leading-relaxed">
+                <p className="text-[0.62rem] text-[#5B6E68] mt-2 leading-relaxed">
                   Dossier: {machinery.genesisRegistry.dossierRef}. Registry IDs and stable string IDs are never
                   recycled or reused; registration of any non-genesis component requires a provenance dossier
                   reference (spec §3 T1 evidence row). No GPP_LEG record is registered today.
@@ -1992,7 +1992,7 @@ export function ConstituencySection({
                 {/* Lifecycle legend */}
                 <div className="mt-5">
                   <div className="flex flex-wrap items-center gap-2 mb-2">
-                    <RefreshCw className="h-4 w-4 text-mtqs-gold/70" aria-hidden="true" />
+                    <RefreshCw className="h-4 w-4 text-mtqs-gold" aria-hidden="true" />
                     <h4 className="text-[0.78rem] font-semibold text-[#0E1F1B]">Lifecycle states (spec §3)</h4>
                   </div>
                   <div className="flex flex-wrap items-center gap-1.5 mb-2">
@@ -2011,7 +2011,7 @@ export function ConstituencySection({
                             {l.state}
                           </span>
                           {i < arr.length - 1 ? (
-                            <span className="text-[#9AA9A3] text-[0.6rem]" aria-hidden="true">
+                            <span className="text-[#5B6E68] text-[0.6rem]" aria-hidden="true">
                               →
                             </span>
                           ) : null}
@@ -2030,7 +2030,7 @@ export function ConstituencySection({
                 {/* T1–T9 directive list */}
                 <div className="mt-5">
                   <div className="flex flex-wrap items-center gap-2 mb-2">
-                    <Shuffle className="h-4 w-4 text-mtqs-gold/70" aria-hidden="true" />
+                    <Shuffle className="h-4 w-4 text-mtqs-gold" aria-hidden="true" />
                     <h4 className="text-[0.78rem] font-semibold text-[#0E1F1B]">
                       The T1–T9 transition & directive vocabulary
                     </h4>
@@ -2046,7 +2046,7 @@ export function ConstituencySection({
                       </Pill>,
                     ])}
                   />
-                  <p className="text-[0.62rem] text-[#7A8C86] mt-2 leading-relaxed">
+                  <p className="text-[0.62rem] text-[#5B6E68] mt-2 leading-relaxed">
                     Governance directives (T3/T5/T7/T8/T9) are evidence-checked: the engine ENFORCES their rule
                     preconditions (a completed T2 record for T3; a completed exit window for T5; documented cause
                     for T7; fast-track window for T8; a fresh dossier for T9) and REJECTS directives whose
@@ -2069,14 +2069,14 @@ export function ConstituencySection({
                       <p className="text-[0.7rem] text-rose-600 leading-relaxed">
                         {machinery.honestLimits.line}
                       </p>
-                      <p className="text-[0.64rem] text-[#7A8C86] mt-2 leading-relaxed">
+                      <p className="text-[0.64rem] text-[#5B6E68] mt-2 leading-relaxed">
                         {machinery.honestLimits.parameterClass}
                       </p>
-                      <p className="text-[0.64rem] text-[#7A8C86] mt-2 leading-relaxed">
+                      <p className="text-[0.64rem] text-[#5B6E68] mt-2 leading-relaxed">
                         <span className="font-semibold text-[#5B6E68]">Scoring feeds:</span>{" "}
                         {machinery.honestLimits.scoringFeedDisclosure}
                       </p>
-                      <p className="text-[0.64rem] text-[#7A8C86] mt-2 leading-relaxed">
+                      <p className="text-[0.64rem] text-[#5B6E68] mt-2 leading-relaxed">
                         <span className="font-semibold text-[#5B6E68]">Contract layer:</span>{" "}
                         {machinery.honestLimits.contractLayer}
                       </p>
@@ -2116,7 +2116,7 @@ export function ConstituencySection({
         <Reveal>
           <Panel className="p-5">
             <div className="flex items-center gap-2 mb-2">
-              <Stamp className="h-4 w-4 text-mtqs-gold/80" aria-hidden="true" />
+              <Stamp className="h-4 w-4 text-mtqs-gold" aria-hidden="true" />
               <h3 id="constituency-approvals-h" className="text-sm font-semibold text-[#0E1F1B]">
                 Owner-directive approval ledger — TESTNET-PILOT scope only
               </h3>
@@ -2164,7 +2164,7 @@ export function ConstituencySection({
                   <Pill tone="muted">ledger {machinery.approvals.summary.ledgerCount}</Pill>
                   <Pill tone="amber">Gate-C production: {machinery.approvals.summary.productionGateC}</Pill>
                 </div>
-                <p className="text-[0.64rem] text-[#7A8C86] leading-relaxed mb-4">
+                <p className="text-[0.64rem] text-[#5B6E68] leading-relaxed mb-4">
                   {machinery.approvals.summary.note}
                 </p>
 
@@ -2211,7 +2211,7 @@ export function ConstituencySection({
         <Reveal>
           <Panel className="p-5">
             <div className="flex items-center gap-2 mb-2">
-              <FileCode2 className="h-4 w-4 text-mtqs-gold/80" aria-hidden="true" />
+              <FileCode2 className="h-4 w-4 text-mtqs-gold" aria-hidden="true" />
               <h3 id="constituency-contract-v4-h" className="text-sm font-semibold text-[#0E1F1B]">
                 Registry-based dynamic membership — compiled, deterministic, Gate-C-gated
               </h3>
@@ -2296,7 +2296,7 @@ export function ConstituencySection({
                 {/* Shadow demonstration — 4 cases */}
                 <div className="mt-5">
                   <div className="flex flex-wrap items-center gap-2 mb-2">
-                    <Scale className="h-4 w-4 text-mtqs-gold/70" aria-hidden="true" />
+                    <Scale className="h-4 w-4 text-mtqs-gold" aria-hidden="true" />
                     <h4 className="text-[0.78rem] font-semibold text-[#0E1F1B]">
                       Shadow-mode demonstration — V4 semantics, reference validator
                     </h4>

@@ -548,7 +548,7 @@ export function EventExplorer({ limit = 60 }: { limit?: number }) {
 
         {/* 16c-010: honest footnote when the live /api/trials feed failed */}
         {fetchError && !loading && (
-          <div className="mb-3 rounded-md border border-mtqs-rose/30 bg-mtqs-rose/5 px-3 py-2 text-[0.68rem] leading-relaxed text-mtqs-rose/90">
+          <div className="mb-3 rounded-md border border-mtqs-rose/30 bg-mtqs-rose/5 px-3 py-2 text-[0.68rem] leading-relaxed text-mtqs-rose">
             Live feed unavailable — the rows below are the last recorded trials plus synthetic events;
             nothing below is a live read. Use refresh to retry.
           </div>
@@ -556,7 +556,7 @@ export function EventExplorer({ limit = 60 }: { limit?: number }) {
 
         {/* ===== Search bar ===== */}
         <div className="relative mb-3">
-          <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-[#7A8C86]" />
+          <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-[#5B6E68]" />
           <input
             type="text"
             value={query}
@@ -565,14 +565,14 @@ export function EventExplorer({ limit = 60 }: { limit?: number }) {
             spellCheck={false}
             autoComplete="off"
             aria-label="Search events"
-            className="mtqs-focus w-full rounded-md border border-[#E3EAE6] bg-[#F7FAF8] pl-9 pr-3 py-2 text-xs text-[#0E1F1B] placeholder:text-[#7A8C86] focus:outline-none focus:border-mtqs-gold/50 transition"
+            className="mtqs-focus w-full rounded-md border border-[#E3EAE6] bg-[#F7FAF8] pl-9 pr-3 py-2 text-xs text-[#0E1F1B] placeholder:text-[#5B6E68] focus:outline-none focus:border-mtqs-gold/50 transition"
           />
           {query && (
             <button
               type="button"
               onClick={() => setQuery("")}
               aria-label="Clear search"
-              className="mtqs-focus absolute right-2 top-1/2 -translate-y-1/2 text-[#7A8C86] hover:text-[#0E1F1B] text-xs px-1.5 py-0.5 rounded"
+              className="mtqs-focus absolute right-2 top-1/2 -translate-y-1/2 text-[#5B6E68] hover:text-[#0E1F1B] text-xs px-1.5 py-0.5 rounded"
             >
               ✕
             </button>
@@ -624,9 +624,9 @@ export function EventExplorer({ limit = 60 }: { limit?: number }) {
             </div>
           ) : filteredEvents.length === 0 ? (
             <div className="p-6 text-center text-[0.78rem] text-[#5B6E68]">
-              <AlertTriangle className="h-5 w-5 mx-auto mb-2 text-[#7A8C86]" />
+              <AlertTriangle className="h-5 w-5 mx-auto mb-2 text-[#5B6E68]" />
               <div className="font-medium mb-1">No events match your search</div>
-              <div className="text-[0.7rem] text-[#7A8C86]">
+              <div className="text-[0.7rem] text-[#5B6E68]">
                 Try a different search term or clear the category filter.
               </div>
             </div>
@@ -694,7 +694,7 @@ export function EventExplorer({ limit = 60 }: { limit?: number }) {
                           </td>
                           <td className="px-3 py-2.5 text-[#33544C] max-w-[360px]">
                             <div className="truncate">{e.description}</div>
-                            <div className="flex items-center gap-2 mt-0.5 text-[0.62rem] text-[#7A8C86]">
+                            <div className="flex items-center gap-2 mt-0.5 text-[0.62rem] text-[#5B6E68]">
                               {e.source === "real" ? (
                                 <span className="text-mtqs-emerald">real · DB trial</span>
                               ) : (
@@ -702,14 +702,14 @@ export function EventExplorer({ limit = 60 }: { limit?: number }) {
                               )}
                               {e.chain && (
                                 <>
-                                  <span className="text-[#7A8C86]">·</span>
-                                  <span className="font-mono text-mtqs-gold/70">{e.chain}</span>
+                                  <span className="text-[#5B6E68]">·</span>
+                                  <span className="font-mono text-mtqs-gold">{e.chain}</span>
                                 </>
                               )}
                               {e.decisionId && (
                                 <>
-                                  <span className="text-[#7A8C86]">·</span>
-                                  <span className="font-mono text-[#7A8C86]">{e.decisionId}</span>
+                                  <span className="text-[#5B6E68]">·</span>
+                                  <span className="font-mono text-[#5B6E68]">{e.decisionId}</span>
                                 </>
                               )}
                             </div>
@@ -719,24 +719,24 @@ export function EventExplorer({ limit = 60 }: { limit?: number }) {
                                 title them so the hash is never mistaken for an on-chain tx. */}
                             {e.txHash ? (
                               <span
-                                className="inline-flex items-center gap-1.5 text-mtqs-gold/85"
+                                className="inline-flex items-center gap-1.5 text-mtqs-gold"
                                 title="sim hash — no on-chain tx (engine simulation)"
                               >
-                                <Hash className="h-3 w-3 text-[#7A8C86]" />
+                                <Hash className="h-3 w-3 text-[#5B6E68]" />
                                 {shortAddr(e.txHash, 8, 6)}
                               </span>
                             ) : (
-                              <span className="text-[#7A8C86] italic">—</span>
+                              <span className="text-[#5B6E68] italic">—</span>
                             )}
                           </td>
                           <td className="px-3 py-2.5 text-right font-mono tabular-nums whitespace-nowrap">
                             {e.block != null ? (
                               <span className="inline-flex items-center gap-1.5 text-[#5B6E68]">
-                                <Blocks className="h-3 w-3 text-[#7A8C86]" />
+                                <Blocks className="h-3 w-3 text-[#5B6E68]" />
                                 #{e.block.toLocaleString()}
                               </span>
                             ) : (
-                              <span className="text-[#7A8C86] italic">—</span>
+                              <span className="text-[#5B6E68] italic">—</span>
                             )}
                           </td>
                         </tr>
@@ -804,7 +804,7 @@ export function EventExplorer({ limit = 60 }: { limit?: number }) {
                                       wallet: {shortAddr(e.address, 6, 6)}
                                     </span>
                                   )}
-                                  <span className="ml-auto text-[#7A8C86] italic">
+                                  <span className="ml-auto text-[#5B6E68] italic">
                                     {e.source === "real"
                                       ? "Sourced from /api/trials (SQLite audit log)"
                                       : "Synthetic event · deterministic per hour · production will replace with on-chain logs"}
@@ -824,7 +824,7 @@ export function EventExplorer({ limit = 60 }: { limit?: number }) {
         </div>
 
         {/* ===== Footer annotation ===== */}
-        <div className="mt-3 text-[0.65rem] text-[#7A8C86] italic">
+        <div className="mt-3 text-[0.65rem] text-[#5B6E68] italic">
           Showing {filteredEvents.length} of {allEvents.length} events ·
           real trials from SQLite (Mint/Redeem) + synthetic protocol events
           (Oracle/Weight/Reserve/Risk/Rebalance/Governance/Genesis/Validation).

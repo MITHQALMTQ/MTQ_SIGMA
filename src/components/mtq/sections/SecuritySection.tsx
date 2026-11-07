@@ -176,7 +176,7 @@ export function SecuritySection({ onNavigate: _onNavigate }: { onNavigate: (id: 
       <Reveal>
         <Panel className="p-5">
           <div className="flex items-start gap-3">
-            <ShieldCheck className="h-5 w-5 text-mtqs-gold/80 mt-0.5 shrink-0" aria-hidden="true" />
+            <ShieldCheck className="h-5 w-5 text-mtqs-gold mt-0.5 shrink-0" aria-hidden="true" />
             <p className="text-[0.82rem] text-[#5B6E68] leading-relaxed">
               {BRAND_VOICE.statusDeclaration}. The security section is intentionally honest: it
               surfaces what is secured, what is exposed by the pilot design, what the Monte Carlo
@@ -190,7 +190,7 @@ export function SecuritySection({ onNavigate: _onNavigate }: { onNavigate: (id: 
       <section>
         <div className="flex items-end justify-between gap-4 mb-4">
           <div>
-            <div className="text-[0.6rem] uppercase tracking-[0.22em] text-mtqs-gold/75">01 · posture</div>
+            <div className="text-[0.6rem] uppercase tracking-[0.22em] text-mtqs-gold">01 · posture</div>
             <h3 className="mt-2 text-base font-semibold text-[#0E1F1B]">Security Posture</h3>
           </div>
           <Pill tone="amber">
@@ -238,7 +238,7 @@ export function SecuritySection({ onNavigate: _onNavigate }: { onNavigate: (id: 
               </div>
               <div className="text-sm text-[#0E1F1B] font-medium">7/7 Multi-Sig · 90d timelock</div>
               <div className="mt-1 text-[0.7rem] text-[#5B6E68] leading-relaxed">
-                <span className="text-mtqs-amber/90">DESIGN TARGET — not current state.</span> The pilot
+                <span className="text-mtqs-amber">DESIGN TARGET — not current state.</span> The pilot
                 Safe is 1/1 deployer-controlled (OD-35 CRITICAL — see Key Management below). Target
                 design: basket quantities (qᵢ) change only via constitutional governance. Risk
                 thresholds via Risk Council (4/7 · 24h). Emergency via Multi-Sig (4/7 · instant).
@@ -250,7 +250,7 @@ export function SecuritySection({ onNavigate: _onNavigate }: { onNavigate: (id: 
               </div>
               <div className="text-sm text-[#0E1F1B] font-medium">3 sources · 3-of-3 valid (design)</div>
               <div className="mt-1 text-[0.7rem] text-[#5B6E68] leading-relaxed">
-                <span className="text-mtqs-amber/90">DESIGN TARGET — not current state.</span> Design:
+                <span className="text-mtqs-amber">DESIGN TARGET — not current state.</span> Design:
                 Chainlink + Pyth + Chronicle per pair; any deviation &gt; 2.5% or staleness &gt; 60s
                 pauses mint + rebalance (§9.2). Current pilot: the runtime board runs off-chain feed
                 families only (Frankfurter ECB + gold-api + Yahoo/FRED macro, with synthetic
@@ -275,7 +275,7 @@ export function SecuritySection({ onNavigate: _onNavigate }: { onNavigate: (id: 
       <section>
         <div className="flex items-end justify-between gap-4 mb-4">
           <div>
-            <div className="text-[0.6rem] uppercase tracking-[0.22em] text-mtqs-gold/75">02 · key management</div>
+            <div className="text-[0.6rem] uppercase tracking-[0.22em] text-mtqs-gold">02 · key management</div>
             <h3 className="mt-2 text-base font-semibold text-[#0E1F1B]">Key Management</h3>
           </div>
           <Pill tone="rose">
@@ -286,7 +286,7 @@ export function SecuritySection({ onNavigate: _onNavigate }: { onNavigate: (id: 
         <Reveal>
           <Panel className="p-5">
             <div className="flex items-start gap-3 mb-4">
-              <KeyRound className="h-5 w-5 text-mtqs-rose/80 mt-0.5 shrink-0" aria-hidden="true" />
+              <KeyRound className="h-5 w-5 text-mtqs-rose mt-0.5 shrink-0" aria-hidden="true" />
               <p className="text-[0.78rem] text-[#5B6E68] leading-relaxed">
                 The pilot was deployed with a single deployer private key (held in .env, gitignored).
                 For the pilot this is honestly exposed; for production the protocol requires a 4/7
@@ -329,7 +329,7 @@ export function SecuritySection({ onNavigate: _onNavigate }: { onNavigate: (id: 
       <section>
         <div className="flex items-end justify-between gap-4 mb-4">
           <div>
-            <div className="text-[0.6rem] uppercase tracking-[0.22em] text-mtqs-gold/75">03 · audit</div>
+            <div className="text-[0.6rem] uppercase tracking-[0.22em] text-mtqs-gold">03 · audit</div>
             <h3 className="mt-2 text-base font-semibold text-[#0E1F1B]">Monte Carlo Audit Findings</h3>
           </div>
           <Pill tone={auditError ? "rose" : allPass ? "emerald" : "rose"}>
@@ -365,7 +365,7 @@ export function SecuritySection({ onNavigate: _onNavigate }: { onNavigate: (id: 
                     <div className="text-sm font-semibold text-[#0E1F1B] mb-1">
                       Monte Carlo audit data unavailable — nothing is fabricated
                     </div>
-                    <div className="font-mono text-[0.72rem] text-mtqs-rose/80">{auditError}</div>
+                    <div className="font-mono text-[0.72rem] text-mtqs-rose">{auditError}</div>
                     <div className="mt-1 text-[0.7rem] text-[#5B6E68] leading-relaxed">
                       No findings, invariants, or verdict are shown because the live /api/tests
                       response could not be loaded. Run the suite yourself in the Tests section.
@@ -384,7 +384,7 @@ export function SecuritySection({ onNavigate: _onNavigate }: { onNavigate: (id: 
             >
               <div
                 className={`text-[0.6rem] uppercase tracking-[0.22em] mb-1 ${
-                  isPass ? "text-mtqs-emerald/85" : "text-mtqs-rose/85"
+                  isPass ? "text-mtqs-emerald" : "text-mtqs-rose"
                 }`}
               >
                 Overall verdict
@@ -396,7 +396,7 @@ export function SecuritySection({ onNavigate: _onNavigate }: { onNavigate: (id: 
               </div>
             </div>
             <div className="mb-4">
-              <div className="text-[0.6rem] uppercase tracking-[0.18em] text-mtqs-gold/75 mb-2">
+              <div className="text-[0.6rem] uppercase tracking-[0.18em] text-mtqs-gold mb-2">
                 Invariants tested
               </div>
               <div className="flex flex-wrap gap-1.5">
@@ -461,7 +461,7 @@ export function SecuritySection({ onNavigate: _onNavigate }: { onNavigate: (id: 
               </div>
               <button
                 onClick={() => _onNavigate("validation")}
-                className="inline-flex items-center gap-1.5 text-[0.75rem] text-mtqs-gold/85 hover:text-mtqs-gold transition"
+                className="inline-flex items-center gap-1.5 text-[0.75rem] text-mtqs-gold hover:text-mtqs-gold transition"
               >
                 Open Tests
                 <ArrowRight className="h-3.5 w-3.5" aria-hidden="true" />
@@ -475,16 +475,16 @@ export function SecuritySection({ onNavigate: _onNavigate }: { onNavigate: (id: 
       <section>
         <div className="flex items-end justify-between gap-4 mb-4">
           <div>
-            <div className="text-[0.6rem] uppercase tracking-[0.22em] text-mtqs-gold/75">04 · regulatory</div>
+            <div className="text-[0.6rem] uppercase tracking-[0.22em] text-mtqs-gold">04 · regulatory</div>
             <h3 className="mt-2 text-base font-semibold text-[#0E1F1B]">Regulatory Posture (US + Sharia)</h3>
           </div>
-          <Scale className="h-4 w-4 text-mtqs-gold/70" aria-hidden="true" />
+          <Scale className="h-4 w-4 text-mtqs-gold" aria-hidden="true" />
         </div>
         <Reveal>
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
             <Panel className="p-5">
               <div className="flex items-center gap-2 mb-2">
-                <span className="text-[0.6rem] uppercase tracking-[0.22em] text-mtqs-gold/75">
+                <span className="text-[0.6rem] uppercase tracking-[0.22em] text-mtqs-gold">
                   United States
                 </span>
               </div>
@@ -519,7 +519,7 @@ export function SecuritySection({ onNavigate: _onNavigate }: { onNavigate: (id: 
 
             <Panel className="p-5">
               <div className="flex items-center gap-2 mb-2">
-                <span className="text-[0.6rem] uppercase tracking-[0.22em] text-mtqs-gold/75">
+                <span className="text-[0.6rem] uppercase tracking-[0.22em] text-mtqs-gold">
                   Sharia (design)
                 </span>
               </div>
@@ -566,7 +566,7 @@ export function SecuritySection({ onNavigate: _onNavigate }: { onNavigate: (id: 
                 <h5 className="text-[0.78rem] font-semibold text-[#0E1F1B] mb-1">
                   Compliance roadmap — §2.8 (5 phases, v2.0 verbatim)
                 </h5>
-                <p className="text-[0.7rem] text-[#7A8C86] mb-3">
+                <p className="text-[0.7rem] text-[#5B6E68] mb-3">
                   Until Phase 5 is complete, MTQΣ is <span className="text-mtqs-rose">NOT certified</span> as
                   Sharia-compliant. The adaptive-weighting change does not alter this roadmap; it widens the
                   review scope (MASE inputs are non-interest market observables; reserve instrument
@@ -608,16 +608,16 @@ export function SecuritySection({ onNavigate: _onNavigate }: { onNavigate: (id: 
       <section>
         <div className="flex items-end justify-between gap-4 mb-4">
           <div>
-            <div className="text-[0.6rem] uppercase tracking-[0.22em] text-mtqs-gold/75">05 · disclaimers</div>
+            <div className="text-[0.6rem] uppercase tracking-[0.22em] text-mtqs-gold">05 · disclaimers</div>
             <h3 className="mt-2 text-base font-semibold text-[#0E1F1B]">Disclaimers</h3>
           </div>
-          <FileWarning className="h-4 w-4 text-mtqs-amber/80" aria-hidden="true" />
+          <FileWarning className="h-4 w-4 text-mtqs-amber" aria-hidden="true" />
         </div>
         <Reveal>
           <Panel className="p-5">
             <ol className="space-y-2.5 text-[0.76rem] text-[#5B6E68] leading-relaxed">
               <li className="flex gap-2">
-                <span className="font-mono text-mtqs-gold/70 shrink-0">01.</span>
+                <span className="font-mono text-mtqs-gold shrink-0">01.</span>
                 <span>
                   <strong className="text-[#0E1F1B]">{BRAND_VOICE.statusDeclaration}.</strong>{" "}
                   The MTQΣ pilot is a faithful reference implementation of the blueprint math, not a
@@ -625,7 +625,7 @@ export function SecuritySection({ onNavigate: _onNavigate }: { onNavigate: (id: 
                 </span>
               </li>
               <li className="flex gap-2">
-                <span className="font-mono text-mtqs-gold/70 shrink-0">02.</span>
+                <span className="font-mono text-mtqs-gold shrink-0">02.</span>
                 <span>
                   <strong className="text-[#0E1F1B]">Not a security.</strong> Nothing on this site
                   is an offer to sell or a solicitation to buy any security, token, or financial
@@ -633,14 +633,14 @@ export function SecuritySection({ onNavigate: _onNavigate }: { onNavigate: (id: 
                 </span>
               </li>
               <li className="flex gap-2">
-                <span className="font-mono text-mtqs-gold/70 shrink-0">03.</span>
+                <span className="font-mono text-mtqs-gold shrink-0">03.</span>
                 <span>
                   <strong className="text-[#0E1F1B]">Not financial advice.</strong> The dashboard
                   is a reference for protocol engineers, not investment advice for token holders.
                 </span>
               </li>
               <li className="flex gap-2">
-                <span className="font-mono text-mtqs-gold/70 shrink-0">04.</span>
+                <span className="font-mono text-mtqs-gold shrink-0">04.</span>
                 <span>
                   <strong className="text-[#0E1F1B]">Testnet only.</strong> Canonical MTQΣ
                   contracts are deployed on testnets only ({canonicalCount} chains). Testnet tokens
@@ -648,7 +648,7 @@ export function SecuritySection({ onNavigate: _onNavigate }: { onNavigate: (id: 
                 </span>
               </li>
               <li className="flex gap-2">
-                <span className="font-mono text-mtqs-gold/70 shrink-0">05.</span>
+                <span className="font-mono text-mtqs-gold shrink-0">05.</span>
                 <span>
                   <strong className="text-[#0E1F1B]">Sharia — designed for review, not certified.</strong>{" "}
                   {BRAND_VOICE.designConstraint}. The F4 informational finding remains open until an
@@ -656,7 +656,7 @@ export function SecuritySection({ onNavigate: _onNavigate }: { onNavigate: (id: 
                 </span>
               </li>
               <li className="flex gap-2">
-                <span className="font-mono text-mtqs-gold/70 shrink-0">06.</span>
+                <span className="font-mono text-mtqs-gold shrink-0">06.</span>
                 <span>
                   <strong className="text-[#0E1F1B]">Past Monte Carlo results do not guarantee future resilience.</strong>{" "}
                   The {totalRuns > 0 ? `${totalRuns.toLocaleString()}-run ` : ""}Monte Carlo audit is a
@@ -664,7 +664,7 @@ export function SecuritySection({ onNavigate: _onNavigate }: { onNavigate: (id: 
                 </span>
               </li>
               <li className="flex gap-2">
-                <span className="font-mono text-mtqs-gold/70 shrink-0">07.</span>
+                <span className="font-mono text-mtqs-gold shrink-0">07.</span>
                 <span>
                   <strong className="text-[#0E1F1B]">Key rotation.</strong> The pilot deployer
                   key ({shortAddr(DEPLOYER_WALLET, 8, 6)}) was transmitted via chat; rotate it after
@@ -672,7 +672,7 @@ export function SecuritySection({ onNavigate: _onNavigate }: { onNavigate: (id: 
                 </span>
               </li>
               <li className="flex gap-2">
-                <span className="font-mono text-mtqs-gold/70 shrink-0">08.</span>
+                <span className="font-mono text-mtqs-gold shrink-0">08.</span>
                 <span>
                   <strong className="text-[#0E1F1B]">Engine runs in-process.</strong> The live
                   dashboard computes the blueprint math in-process for robustness; it does not read

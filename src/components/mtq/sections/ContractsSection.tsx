@@ -44,7 +44,7 @@ function CopyButton({ value, label }: { value: string; label: string }) {
         if (ok) toast.success(`Copied ${label}`, { description: shortAddr(value) });
         else toast.error("Copy failed");
       }}
-      className="text-[0.65rem] font-mono text-mtqs-gold/70 hover:text-mtqs-gold transition px-1.5 py-0.5 rounded border border-transparent hover:border-mtqs-amber/30"
+      className="text-[0.65rem] font-mono text-mtqs-gold hover:text-mtqs-gold transition px-1.5 py-0.5 rounded border border-transparent hover:border-mtqs-amber/30"
       aria-label={`Copy ${label}`}
     >
       copy
@@ -78,7 +78,7 @@ function ChainTab({ chain, active, onClick }: { chain: ChainInfo; active: boolea
     >
       {chain.label}
       {pending && (
-        <span className="ml-1.5 rounded-full border border-mtqs-amber/30 bg-mtqs-amber/10 px-1.5 py-0.5 align-middle font-mono text-[0.52rem] uppercase tracking-wider text-mtqs-amber/90">
+        <span className="ml-1.5 rounded-full border border-mtqs-amber/30 bg-mtqs-amber/10 px-1.5 py-0.5 align-middle font-mono text-[0.52rem] uppercase tracking-wider text-mtqs-amber">
           mainnet · pending deploy
         </span>
       )}
@@ -100,7 +100,7 @@ function CanonicalCard({ chainId }: { chainId: string }) {
     <Panel className="p-5 sm:p-6 mtqs-glow">
       <div className="flex items-start justify-between gap-3 mb-3">
         <div>
-          <div className="text-[0.6rem] uppercase tracking-[0.22em] text-mtqs-gold/75">
+          <div className="text-[0.6rem] uppercase tracking-[0.22em] text-mtqs-gold">
             Source of Truth · {info.chain}
           </div>
           <h3 className="mtqs-display mtqs-gold-text text-2xl font-semibold mt-1">
@@ -128,7 +128,7 @@ function CanonicalCard({ chainId }: { chainId: string }) {
         </div>
       </div>
       <div className="mt-3 rounded-md border border-mtqs-gold/25 bg-mtqs-gold/[0.05] p-3">
-        <div className="text-[0.6rem] uppercase tracking-[0.22em] text-mtqs-gold/75 mb-1">
+        <div className="text-[0.6rem] uppercase tracking-[0.22em] text-mtqs-gold mb-1">
           Contract address
         </div>
         <div className="flex items-center justify-between gap-3 flex-wrap">
@@ -139,7 +139,7 @@ function CanonicalCard({ chainId }: { chainId: string }) {
               href={info.explorer}
               target="_blank"
               rel="noopener noreferrer"
-              className="text-[0.65rem] text-mtqs-emerald/80 hover:text-mtqs-emerald transition"
+              className="text-[0.65rem] text-mtqs-emerald hover:text-mtqs-emerald transition"
             >
               explorer ↗
             </a>
@@ -196,12 +196,12 @@ function EcosystemTable({ chain, query }: { chain: ChainInfo; query: string }) {
                         <div className="text-[0.62rem] text-[#5B6E68] mt-0.5">{c.note}</div>
                       )}
                     </td>
-                    <td className="px-3 py-2.5 font-mono text-mtqs-gold/80 hidden sm:table-cell">
+                    <td className="px-3 py-2.5 font-mono text-mtqs-gold hidden sm:table-cell">
                       {c.symbol}
                     </td>
                     <td className="px-3 py-2.5 font-mono text-mtqs-gold">
                       {/^0x0+$/.test(c.address) ? (
-                        <span className="text-mtqs-amber/90" title={c.address}>
+                        <span className="text-mtqs-amber" title={c.address}>
                           0x000…000 · PENDING DEPLOY
                         </span>
                       ) : (
@@ -214,7 +214,7 @@ function EcosystemTable({ chain, query }: { chain: ChainInfo; query: string }) {
                         href={url}
                         target="_blank"
                         rel="noopener noreferrer"
-                        className="ml-2 text-[0.65rem] text-mtqs-emerald/80 hover:text-mtqs-emerald transition"
+                        className="ml-2 text-[0.65rem] text-mtqs-emerald hover:text-mtqs-emerald transition"
                       >
                         explorer ↗
                       </a>
@@ -244,7 +244,7 @@ function VerdictCell({ v }: { v: RoleVerdict | undefined }) {
       </span>
     );
   if (v === "false")
-    return <span className="font-mono text-[#7A8C86]">false</span>;
+    return <span className="font-mono text-[#5B6E68]">false</span>;
   if (v === "REVERT")
     return (
       <span className="inline-flex items-center gap-1 text-mtqs-amber font-mono" title="eth_call reverted — this contract/role query is not answered by the deployed bytecode; anomaly preserved">
@@ -252,7 +252,7 @@ function VerdictCell({ v }: { v: RoleVerdict | undefined }) {
       </span>
     );
   return (
-    <span className="inline-flex items-center gap-1 text-[#7A8C86] font-mono" title="RPC unreachable — live value UNVERIFIED">
+    <span className="inline-flex items-center gap-1 text-[#5B6E68] font-mono" title="RPC unreachable — live value UNVERIFIED">
       <XCircle className="h-3 w-3" aria-hidden="true" /> UNVERIFIED
     </span>
   );
@@ -302,7 +302,7 @@ function RoleMatrixPanel() {
     <Panel className="p-4 sm:p-6">
       <div className="flex flex-wrap items-start justify-between gap-3 mb-4">
         <div>
-          <div className="text-[0.6rem] uppercase tracking-[0.22em] text-mtqs-gold/75 flex items-center gap-1.5">
+          <div className="text-[0.6rem] uppercase tracking-[0.22em] text-mtqs-gold flex items-center gap-1.5">
             <ShieldCheck className="h-3 w-3" aria-hidden="true" /> AccessControl · Role Matrix
           </div>
           <h3 className="mtqs-display text-lg font-semibold text-[#0E1F1B] mt-1">Live Role Verification</h3>
@@ -332,7 +332,7 @@ function RoleMatrixPanel() {
       </div>
 
       {data?.status === "DEGRADED" && (
-        <div className="mb-4 rounded-md border border-mtqs-amber/30 bg-mtqs-amber/[0.06] p-2.5 text-[0.68rem] text-mtqs-amber/90">
+        <div className="mb-4 rounded-md border border-mtqs-amber/30 bg-mtqs-amber/[0.06] p-2.5 text-[0.68rem] text-mtqs-amber">
           LIVE CHECK FAILED — {data.reason} Displaying the last VERIFIED snapshot (block-height evidence below); live state
           is UNVERIFIED until the RPCs answer.
         </div>
@@ -340,7 +340,7 @@ function RoleMatrixPanel() {
 
       {/* Owner reference verification */}
       <div className="rounded-md border border-mtqs-gold/25 bg-mtqs-gold/[0.05] p-3 mb-4">
-        <div className="text-[0.6rem] uppercase tracking-[0.22em] text-mtqs-gold/75 mb-2">
+        <div className="text-[0.6rem] uppercase tracking-[0.22em] text-mtqs-gold mb-2">
           Owner reference — “Click Query → Should return true” (MTQ.sol · deployer account)
         </div>
         <div className="space-y-1.5">
@@ -348,17 +348,17 @@ function RoleMatrixPanel() {
             <div key={c.role} className="flex flex-wrap items-center justify-between gap-2 text-[0.7rem]">
               <div className="flex items-center gap-2 min-w-0">
                 <span className="font-mono text-[#0E1F1B] shrink-0">{c.role}</span>
-                <span className="font-mono text-[#7A8C86] truncate text-[0.62rem]">{shortAddr(MTQ_ROLE_HASHES[c.role], 10, 8)}</span>
+                <span className="font-mono text-[#5B6E68] truncate text-[0.62rem]">{shortAddr(MTQ_ROLE_HASHES[c.role], 10, 8)}</span>
                 <CopyButton value={MTQ_ROLE_HASHES[c.role]} label={`${c.role} hash`} />
               </div>
-              <span className={`font-mono shrink-0 ${c.matches ? "text-mtqs-emerald" : "text-[#7A8C86]"}`}>
+              <span className={`font-mono shrink-0 ${c.matches ? "text-mtqs-emerald" : "text-[#5B6E68]"}`}>
                 {c.matches ? "✓ TRUE — matches owner reference" : c.live === "false" || c.evidence === "false" ? "✗ FALSE — MISMATCH, investigate" : "live value UNVERIFIED"}
               </span>
             </div>
           ))}
         </div>
         {activeChain && (
-          <div className="mt-2 text-[0.62rem] text-[#7A8C86] font-mono">
+          <div className="mt-2 text-[0.62rem] text-[#5B6E68] font-mono">
             verified {activeChain.verifiedAt ?? activeChain.probedAt} · {activeChain.name} block {activeChain.block}
           </div>
         )}
@@ -411,17 +411,17 @@ function RoleMatrixPanel() {
         {ROLE_FINDINGS.map((f, i) => (
           <div key={i} className="flex items-start gap-2 text-[0.66rem] leading-relaxed">
             <GlowDot color={f.level === "verified" ? "emerald" : f.level === "anomaly" ? "amber" : "gold"} size="h-1.5 w-1.5" className="mt-1.5" />
-            <p className={f.level === "verified" ? "text-[#5B6E68]" : f.level === "anomaly" ? "text-mtqs-amber/80" : "text-mtqs-gold/85"}>{f.text}</p>
+            <p className={f.level === "verified" ? "text-[#5B6E68]" : f.level === "anomaly" ? "text-mtqs-amber" : "text-mtqs-gold"}>{f.text}</p>
           </div>
         ))}
       </div>
 
       {/* Owner cast reference — SHADOW MODE, display only */}
       <div className="mt-4 rounded-md border border-[#E3EAE6] bg-[#F7FAF8] p-3">
-        <div className="text-[0.6rem] uppercase tracking-[0.22em] text-[#7A8C86] mb-2">
+        <div className="text-[0.6rem] uppercase tracking-[0.22em] text-[#5B6E68] mb-2">
           Owner operations reference — cast commands
         </div>
-        <div className="text-[0.62rem] text-mtqs-amber/85 mb-2">
+        <div className="text-[0.62rem] text-mtqs-amber mb-2">
           SHADOW MODE ENFORCED: this command center NEVER executes transactions. Mint / transfer / pause / unpause are
           state-changing operations reserved to the protocol owner; RESERVE TRANSACTIONS NOT AUTHORIZED here.
         </div>
@@ -431,7 +431,7 @@ function RoleMatrixPanel() {
               <div className="min-w-0">
                 <div className="text-[0.68rem] text-[#0E1F1B]">{c.op}</div>
                 <code className="font-mono text-[0.6rem] text-[#5B6E68] break-all">{c.command}</code>
-                {c.note && <div className="text-[0.58rem] text-[#9AA9A3]">{c.note}</div>}
+                {c.note && <div className="text-[0.6rem] text-[#5B6E68]">{c.note}</div>}
               </div>
               <CopyButton value={c.command} label={`${c.op} command`} />
             </div>
@@ -456,7 +456,7 @@ function RoleMatrixRow({ row, zebra }: { row: RoleRowEvidence; zebra: boolean })
       <td className="px-3 py-2"><VerdictCell v={verdicts.DEFAULT_ADMIN_ROLE} /></td>
       <td className="px-3 py-2"><VerdictCell v={verdicts.MINTER_ROLE} /></td>
       <td className="px-3 py-2"><VerdictCell v={verdicts.PAUSER_ROLE} /></td>
-      <td className="px-3 py-2">{paused !== undefined ? <VerdictCell v={paused} /> : <span className="text-[#9AA9A3]">—</span>}</td>
+      <td className="px-3 py-2">{paused !== undefined ? <VerdictCell v={paused} /> : <span className="text-[#5B6E68]">—</span>}</td>
     </tr>
   );
   return (
@@ -507,7 +507,7 @@ export function ContractsSection({ onNavigate: _onNavigate }: { onNavigate: (id:
           <CanonicalCard chainId={canonicalKey} />
         ) : (
           <Panel className="p-5 sm:p-6">
-            <div className="text-[0.6rem] uppercase tracking-[0.22em] text-mtqs-amber/75">
+            <div className="text-[0.6rem] uppercase tracking-[0.22em] text-mtqs-amber">
               Source of Truth · {active.label}
             </div>
             <h3 className="mtqs-display text-xl font-semibold text-[#0E1F1B] mt-1">
@@ -590,7 +590,7 @@ export function ContractsSection({ onNavigate: _onNavigate }: { onNavigate: (id:
 
                 {/* Pending-deploy banner for mainnet placeholder chains */}
                 {isPendingDeploy(active) && (
-                  <div className="rounded-md border border-mtqs-amber/30 bg-mtqs-amber/[0.06] px-3 py-2 text-[0.68rem] leading-relaxed text-mtqs-amber/90">
+                  <div className="rounded-md border border-mtqs-amber/30 bg-mtqs-amber/[0.06] px-3 py-2 text-[0.68rem] leading-relaxed text-mtqs-amber">
                     MAINNET · PENDING DEPLOY — every registry entry below is the zero address (no contract
                     deployed on this chain). Kept for the deployment roadmap only; the pilot is TESTNET-ONLY.
                   </div>
@@ -607,7 +607,7 @@ export function ContractsSection({ onNavigate: _onNavigate }: { onNavigate: (id:
                     value={query}
                     onChange={(e) => setQuery(e.target.value)}
                     placeholder={`Filter ${active.contracts.length} ecosystem contracts by name, symbol, or address…`}
-                    className="w-full rounded-md border border-[#E3EAE6] bg-[#F7FAF8] pl-9 pr-3 py-2 text-[0.78rem] text-[#0E1F1B] placeholder:text-[#7A8C86] focus:outline-none focus:border-mtqs-gold/40 focus:bg-white transition"
+                    className="w-full rounded-md border border-[#E3EAE6] bg-[#F7FAF8] pl-9 pr-3 py-2 text-[0.78rem] text-[#0E1F1B] placeholder:text-[#5B6E68] focus:outline-none focus:border-mtqs-gold/40 focus:bg-white transition"
                     aria-label="Filter contracts"
                   />
                 </div>
@@ -641,7 +641,7 @@ export function ContractsSection({ onNavigate: _onNavigate }: { onNavigate: (id:
           <div className="mt-3">
             <button
               onClick={() => _onNavigate("mint")}
-              className="inline-flex items-center gap-1.5 text-[0.75rem] text-mtqs-gold/85 hover:text-mtqs-gold transition"
+              className="inline-flex items-center gap-1.5 text-[0.75rem] text-mtqs-gold hover:text-mtqs-gold transition"
             >
               Open Mint/Redeem simulator
               <ArrowRight className="h-3.5 w-3.5" aria-hidden="true" />

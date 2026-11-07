@@ -180,7 +180,7 @@ export function RedeemSection({
       {/* Amber truth banner (shared component) */}
       <Reveal>
         <TruthBanner>
-          <p className="text-[0.75rem] text-amber-700/90 leading-relaxed">
+          <p className="text-[0.75rem] text-amber-700 leading-relaxed">
             This redeem page runs the <strong className="text-amber-800">simulated pilot engine</strong> —
             no on-chain broadcast, no real value. And the exit side carries its own doctrine:
             redemption is priced against NAV and releases the <strong className="text-amber-800">full
@@ -244,7 +244,7 @@ export function RedeemSection({
         <Reveal>
           <Panel className="p-4 sm:p-5">
             <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 mb-4">
-              <div className="text-[0.6rem] uppercase tracking-[0.22em] text-mtqs-gold/75">
+              <div className="text-[0.6rem] uppercase tracking-[0.22em] text-mtqs-gold">
                 §12.2 · NAV settlement (§3.4.2 = audit-only comparison)
               </div>
               <Pill tone="emerald">
@@ -260,7 +260,7 @@ export function RedeemSection({
               setWallet={setWallet}
               onAfterTrial={onAfterTrial}
             />
-            <p className="mt-3 text-[0.65rem] text-[#7A8C86] leading-relaxed">
+            <p className="mt-3 text-[0.65rem] text-[#5B6E68] leading-relaxed">
               The pilot settles at NAV (§12.2 / §19.3.2 Step 2 — P0-FIX-2): burn MTQΣ, release the
               proportional basket at book value; the legacy §3.4.2 index quote is the audit-only
               comparison (see the audit sub-panel on every run). Every run is recorded in the pilot
@@ -289,7 +289,7 @@ export function RedeemSection({
             </div>
             {/* §19.3.1 user inputs */}
             <div>
-              <div className="text-[0.6rem] uppercase tracking-[0.22em] text-mtqs-gold/75 mb-2">
+              <div className="text-[0.6rem] uppercase tracking-[0.22em] text-mtqs-gold mb-2">
                 §19.3.1 · user inputs
               </div>
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-3">
@@ -307,7 +307,7 @@ export function RedeemSection({
 
             {/* §19.3.2 steps */}
             <div>
-              <div className="text-[0.6rem] uppercase tracking-[0.22em] text-mtqs-gold/75 mb-2">
+              <div className="text-[0.6rem] uppercase tracking-[0.22em] text-mtqs-gold mb-2">
                 §19.3.2 · the eight-step on-chain sequence
               </div>
               <ol className="space-y-3 max-h-96 overflow-y-auto mtqs-scroll pr-1">
@@ -328,7 +328,7 @@ export function RedeemSection({
                   </li>
                 ))}
               </ol>
-              <p className="mt-3 text-[0.68rem] text-[#7A8C86] leading-relaxed">
+              <p className="mt-3 text-[0.68rem] text-[#5B6E68] leading-relaxed">
                 The full-basket branch emits <code className="font-mono text-[0.65rem] text-mtqs-gold">Redeemed(user, mtqBurned, valueOut, assetAmounts)</code>;
                 the router branch emits <code className="font-mono text-[0.65rem] text-mtqs-gold">RedeemedSingle(user, mtqBurned, valueOut, outputAsset)</code> —
                 both feed the transparency layer (§24.4). The full-basket release doctrine is §19.6.2 (below).
@@ -348,7 +348,7 @@ export function RedeemSection({
         <Reveal>
           <Panel className="p-4 sm:p-5 space-y-4">
             <div className="rounded-md border border-[#E3EAE6] bg-[#F7FAF8] px-3 py-2.5">
-              <div className="text-[0.6rem] uppercase tracking-[0.22em] text-[#7A8C86] mb-1.5">
+              <div className="text-[0.6rem] uppercase tracking-[0.22em] text-[#5B6E68] mb-1.5">
                 router revert condition
               </div>
               <code className="font-mono text-[0.78rem] text-mtqs-gold">
@@ -398,7 +398,7 @@ export function RedeemSection({
             <div className="overflow-x-auto">
               <table className="w-full text-left border-collapse">
                 <thead>
-                  <tr className="text-[0.6rem] uppercase tracking-[0.22em] text-[#7A8C86]">
+                  <tr className="text-[0.6rem] uppercase tracking-[0.22em] text-[#5B6E68]">
                     <th className="py-2 pr-4 font-normal">State</th>
                     <th className="py-2 pr-4 font-normal">Redemption</th>
                     <th className="py-2 pr-4 font-normal">Fee</th>
@@ -456,7 +456,7 @@ export function RedeemSection({
                 </tbody>
               </table>
             </div>
-            <p className="mt-3 text-[0.68rem] text-[#7A8C86] leading-relaxed">
+            <p className="mt-3 text-[0.68rem] text-[#5B6E68] leading-relaxed">
               Fee values are imported from the pilot constants module (REDEEM_FEE_NORMAL / _STRESS / _DEFENSIVE / _RECOVERY) —
               nothing in the table is hand-typed. The effective rate is applied by the minting and
               redemption contracts (Ch 19); the matrix itself is §21.4.
@@ -477,7 +477,7 @@ export function RedeemSection({
             <div className="flex items-start gap-3">
               <AlertTriangle className="h-5 w-5 text-mtqs-amber shrink-0 mt-0.5" aria-hidden="true" />
               <div className="space-y-2">
-                <p className="text-[0.78rem] text-amber-700/90 leading-relaxed">
+                <p className="text-[0.78rem] text-amber-700 leading-relaxed">
                   <strong className="text-amber-800">
                     Redemption releases the FULL proportional basket — never a USD redemption promise.
                   </strong>{" "}

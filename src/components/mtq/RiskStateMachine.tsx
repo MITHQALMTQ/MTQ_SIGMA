@@ -227,7 +227,7 @@ export function RiskStateMachine({ snapshot }: { snapshot: MetricsSnapshot | nul
               );
             })}
           </div>
-          <p className="mt-3 text-[0.62rem] text-[#7A8C86]">
+          <p className="mt-3 text-[0.62rem] text-[#5B6E68]">
             Design-target governance bodies — not yet instantiated; the pilot is deployer-EOA-controlled
             with a 1/1 Safe (OD-35).
           </p>

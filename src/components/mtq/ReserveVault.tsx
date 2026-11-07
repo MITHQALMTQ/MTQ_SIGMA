@@ -237,7 +237,7 @@ function GoldWeightGauge({ snapshot }: { snapshot: MetricsSnapshot }) {
         {/* base line */}
         <div className="absolute inset-y-0" style={{ left: `${basePct}%` }}>
           <div className="h-full w-px bg-amber-500/40" />
-          <span className="absolute -top-0.5 -translate-x-1/2 text-[0.55rem] text-mtqs-amber/80 font-mono">base</span>
+          <span className="absolute -top-0.5 -translate-x-1/2 text-[0.6rem] text-mtqs-amber font-mono">base</span>
         </div>
 
         {/* observed marker */}
@@ -317,7 +317,7 @@ export function ReserveVault({ snapshot }: { snapshot: MetricsSnapshot | null })
             <span className="text-[0.625rem] uppercase tracking-[0.25em] text-[#5B6E68]">Vault Composition</span>
             <Pill tone="gold">§4 + §8.3</Pill>
           </div>
-          <p className="mb-2 text-[0.62rem] text-[#7A8C86]">
+          <p className="mb-2 text-[0.62rem] text-[#5B6E68]">
             Simulated pilot reserve (G8) — no real tokens or vaults exist.
           </p>
           <VaultDiagram snapshot={snapshot} />
@@ -339,7 +339,7 @@ export function ReserveVault({ snapshot }: { snapshot: MetricsSnapshot | null })
                     {/* TASK-28 — the token's OWN live market rate under the key so
                         the two gold-issuer rows are visibly distinct instruments. */}
                     {a.rate != null && (
-                      <span className="block text-[0.55rem] font-mono font-normal text-mtqs-gold/70">
+                      <span className="block text-[0.6rem] font-mono font-normal text-mtqs-gold">
                         ${fmtFixed(a.rate, 0)}/oz
                       </span>
                     )}
@@ -354,7 +354,7 @@ export function ReserveVault({ snapshot }: { snapshot: MetricsSnapshot | null })
                   </div>
                   <span className="w-20 text-right text-[0.7rem] font-mono text-mtqs-gold">
                     {fmtUsdCompact(a.v)}
-                    <span className="block text-[0.55rem] text-[#7A8C86]">{a.token}</span>
+                    <span className="block text-[0.6rem] text-[#5B6E68]">{a.token}</span>
                   </span>
                   <span className="w-10 text-right text-[0.65rem] font-mono text-[#5B6E68]">
                     {((a.v / total) * 100).toFixed(1)}%
@@ -367,7 +367,7 @@ export function ReserveVault({ snapshot }: { snapshot: MetricsSnapshot | null })
                 deliberately splits gold 50/50 across issuers (§5.6); in the
                 real market each token trades at its OWN rate. Honest footnote
                 with both live rates + the §4.1 ledger reference mark. */}
-            <div className="mt-3 border-t border-[#E3EAE6] pt-2 text-[0.62rem] text-[#7A8C86] leading-relaxed">
+            <div className="mt-3 border-t border-[#E3EAE6] pt-2 text-[0.62rem] text-[#5B6E68] leading-relaxed">
               PAXG and XAUT are distinct live-market instruments — 1 PAXG ≈{" "}
               <span className="font-mono">
                 {snapshot.fx.paxgMarketUsd != null ? `$${fmtFixed(snapshot.fx.paxgMarketUsd, 2)}` : "— (feed unavailable)"}
