@@ -1,5 +1,21 @@
 #!/bin/bash
-# MTQΣ dev-server watchdog v3 (Task 47 — root-cause remediation round 2).
+# MTQΣ dev-server watchdog v4 (Task 60 — root-cause remediation round 3).
+#
+# Changes vs v3 (task47):
+#   - PRE-BOOT GIT-DRIFT GUARD: before every `next dev` start, runs
+#     scripts/git-drift-guard.ts — incident #8 (2026-11-07) proved the last
+#     unprotected re-image surface: .git restored to a mid-session snapshot
+#     while origin/main was 26 commits ahead → the server booted STALE CODE
+#     and served it until a human noticed. The guard fetches, classifies
+#     local HEAD vs origin/main, and realigns forward-only (fast-forward, or
+#     diverged-with-content-subsumption-proof → archive + reset --hard).
+#     The LIVE DATABASES are gitignored — never touched by a realign. When
+#     package.json/bun.lock/prisma schema changed across the realign it also
+#     refreshes the runtime layer (bun install + prisma generate).
+#   - DRIFT-SUPERVISION SUBLOOP: every 60s while the server runs, the same
+#     guard re-checks (fetch throttled to 5 min inside the script); on a
+#     realign it kills :3000 (only when THIS watchdog is alive) so the main
+#     loop reboots the server through the full heal path on the new code.
 #
 # Changes vs v2 (task42):
 #   - PRE-BOOT SOURCE-INTEGRITY HEAL: before every `next dev` start, runs
@@ -70,7 +86,18 @@ WATCHDOG_PID_LOG=/tmp/mtq-watchdog.pid
 export NODE_OPTIONS="${NODE_OPTIONS:+$NODE_OPTIONS }--max-old-space-size=768"
 
 echo $$ > "$WATCHDOG_PID_LOG"
-echo "[$(date -u +%H:%M:%S)] watchdog v3 up (pid $$) — self-heal + source-integrity + cloud-sync armed" >> "$LOG"
+echo "[$(date -u +%H:%M:%S)] watchdog v4 up (pid $$) — git-drift + self-heal + source-integrity + cloud-sync armed" >> "$LOG"
+
+# Task 60: git-drift supervision loop (detached subshell). Never fatal.
+# The guard's own fetch is throttled (5 min) so a 60s cadence stays polite;
+# on REALIGNED it kills :3000 itself (verifying THIS watchdog is alive), the
+# main loop's `wait` returns, and the reboot boots the realigned code.
+(
+  while true; do
+    bun run scripts/git-drift-guard.ts >> "$LOG" 2>&1
+    sleep 60
+  done
+) &
 
 # Task 42: cloud-layer sync loop (detached subshell). Never fatal.
 (
@@ -86,6 +113,20 @@ while true; do
   if curl -s -m 3 -o /dev/null http://localhost:3000/api/health 2>/dev/null; then
     sleep 15
     continue
+  fi
+
+  # Pre-boot git-drift guard (Task 60): realign HEAD to origin BEFORE the
+  # source-integrity heal (the heal restores against the NEW HEAD) and
+  # BEFORE the server compiles any code. Exit 42 = realigned (boot will
+  # compile the new code); exit 1 = BLOCKED (unique local content / dirty
+  # tree) — boot anyway on local code, the battery will shout.
+  echo "[$(date -u +%H:%M:%S)] watchdog: :3000 down — git-drift guard before boot..." >> "$LOG"
+  bun run scripts/git-drift-guard.ts >> "$LOG" 2>&1
+  DRIFT_RC=$?
+  if [ "$DRIFT_RC" -eq 42 ]; then
+    echo "[$(date -u +%H:%M:%S)] watchdog: git-drift REALIGNED HEAD — booting the realigned code." >> "$LOG"
+  elif [ "$DRIFT_RC" -ne 0 ]; then
+    echo "[$(date -u +%H:%M:%S)] watchdog: git-drift BLOCKED (rc=$DRIFT_RC) — booting local HEAD; run scripts/session-open-battery.sh to decide." >> "$LOG"
   fi
 
   # Pre-boot source-integrity heal (Task 47): restore unstaged deletions of

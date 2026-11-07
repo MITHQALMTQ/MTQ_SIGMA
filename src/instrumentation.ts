@@ -14,6 +14,14 @@
 //      same safety rules as the watchdog subloop (cloudSyncRefresh refuses to
 //      overwrite a dump that is better than the live DB), plus a 60s
 //      source-integrity sweep for mid-run file deletions.
+//   4. In-process git-drift guard (Task 60 — incident #8): if the re-image
+//      strikes while THIS server keeps running (watchdog killed, server
+//      alive — the incident #7 geometry), local HEAD goes stale vs
+//      origin/main. The guard realigns forward-only under the same proofs
+//      as the watchdog CLI (fast-forward, or diverged-with-subsumption);
+//      dev-server hot reload picks up the swapped sources. Runtime-layer
+//      refresh (bun install) is intentionally skipped in-process — the
+//      watchdog's clean reboot owns that.
 // The Edge runtime is skipped.
 
 export async function register(): Promise<void> {
@@ -95,10 +103,25 @@ export async function register(): Promise<void> {
       } catch {
         /* best-effort — next tick retries */
       }
+      // 3c. mid-run git-drift guard (task60 — incident #8: re-image while the
+      //     server runs leaves HEAD stale vs origin/main; realign forward-only
+      //     under proof so hot-reload serves fresh code instead of stale).
+      try {
+        const { guardGitDrift } = await import("@/lib/boot/git-drift");
+        const r = guardGitDrift({ runtimeRefresh: false });
+        if (r.action === "fast-forwarded" || r.action === "realigned") {
+          console.log(
+            `[git-drift:inproc] ${r.action} → origin/main ${r.status.origin.slice(0, 12)} — dev hot-reload is picking up the realigned sources; ` +
+              `a clean server restart is advised (watchdog will do it on its next loop).`,
+          );
+        }
+      } catch (e) {
+        console.error("[git-drift:inproc] tick failed:", e);
+      }
     };
     g.__MTQ_GUARD_TIMER__ = setInterval(() => void tick(), 60_000);
     g.__MTQ_GUARD_TIMER__.unref?.();
     void tick(); // first tick immediately — bounded staleness right at boot
-    console.log("[guard] in-process cloud-sync + source-integrity loop armed (60s)");
+    console.log("[guard] in-process cloud-sync + source-integrity + git-drift loop armed (60s)");
   }
 }

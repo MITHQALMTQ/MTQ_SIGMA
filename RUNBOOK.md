@@ -192,6 +192,53 @@ Operational summary:
   the recovery source of record (the automatic loop refuses; honor the same
   rule manually).
 
+### 2.1.3 Git-drift guard — self-healing STALE CODE (Task 60, 2026-11-07)
+
+Root-cause remediation for incident #8 (2026-11-07 ~15:20Z): the re-image
+restored `.git` to a mid-session snapshot while origin/main was 26 commits
+ahead — the dev server booted STALE CODE (missing every task47–59 fix) and
+served it until a human noticed. Task 42/44 closed the DB-regression surface
+and task47 closed the working-tree-deletion surface; this guard closes the
+last unprotected surface: **local HEAD itself going stale vs origin**.
+
+Operational summary:
+
+- **The guard** (`src/lib/boot/git-drift.ts` + `scripts/git-drift-guard.ts`):
+  fetches origin (throttled 5 min), classifies local HEAD vs origin/main
+  three-way, and heals forward-only:
+  - `behind` (pure stale snapshot, clean tree) → `git merge --ff-only` —
+    provably lossless.
+  - `diverged` (the amend-drift signature) → realigns ONLY under
+    **content-subsumption proof**: every local-side path is derivable
+    (`backups/db-snapshots/**`, `upload/**`), deleted-locally-while-origin-
+    has-it (the 5× upload-route class), or holds a blob that already exists
+    in origin's history of that path (an ancestor state origin evolved past).
+    Proof holds → archive (git bundle + file copies + manifest to
+    `mtq-sigma-backups/selfheal-archive/gitdrift-<ts>/`) → `git reset --hard
+    origin/main`. Genuinely NEW local code → **BLOCK** (loud, human decides).
+  - The LIVE DATABASES are gitignored — never touched by a realign.
+  - Runtime layer: if `package.json`/`bun.lock`/`prisma/schema.prisma` changed
+    across the realign, the CLI refreshes deps (`bun install` + `prisma
+    generate`) so the server never boots against a stale client.
+- **dev-watchdog.sh v4**: pre-boot drift guard (BEFORE source-integrity heal —
+  the heal then restores against the NEW HEAD) + a 60s supervision subloop;
+  on realign it kills :3000 (only when the watchdog is alive) so the main
+  loop reboots through the full heal path on the new code.
+- **In-process belt** (`src/instrumentation.ts` plane 3c): if the re-image
+  strikes while the server keeps running (watchdog dead — the incident #7
+  geometry), the same guard realigns and dev hot-reload picks up the swapped
+  sources; runtime-layer refresh is intentionally skipped in-process.
+- **Battery plane [3/8]** (`scripts/session-open-battery.sh`): the guard runs
+  at session-open; exit 42 = realigned now (restart the server), exit 1 =
+  BLOCKED (unique content — see the [2/8] guidance).
+- **Manual commands:**
+  - Classify only: `bun run scripts/git-drift-guard.ts --status`
+  - Intentional divergence: `bun run scripts/git-drift-guard.ts --allow-drift "reason" [--hours N]`
+    (sentinel `db/ALLOW-GIT-REALIGN`, expires ≤168h; record it in worklog.md)
+- **Standing rule that the guard enforces mechanically: never leave work
+  unpushed** — unpushed commits are exactly what re-images destroy, and the
+  `ahead-only` classification reminds on every check.
+
 ### 2.2 Restore procedure (cold recovery)
 
 If the primary Turso DB is corrupted / deleted / region-down:
