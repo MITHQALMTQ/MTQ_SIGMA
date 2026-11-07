@@ -229,7 +229,7 @@ export function PitchSection({ onNavigate: _onNavigate }: { onNavigate: (id: Sec
                           ? "text-mtqs-emerald"
                           : p.tone === "amber"
                           ? "text-mtqs-amber"
-                          : "text-mtqs-gold-light"
+                          : "text-mtqs-gold"
                       }`}
                       aria-hidden="true"
                     />
@@ -282,7 +282,7 @@ export function PitchSection({ onNavigate: _onNavigate }: { onNavigate: (id: Sec
           <div className="flex flex-wrap items-center justify-center gap-2">
             <button
               onClick={() => _onNavigate("investors")}
-              className="inline-flex items-center gap-1.5 rounded-full border border-mtqs-gold/40 bg-mtqs-gold/10 px-5 py-2.5 text-sm font-medium text-mtqs-gold-light hover:bg-mtqs-gold/20 hover:border-mtqs-gold/60 transition"
+              className="inline-flex items-center gap-1.5 rounded-full border border-mtqs-gold/40 bg-mtqs-gold/10 px-5 py-2.5 text-sm font-medium text-mtqs-gold hover:bg-mtqs-gold/20 hover:border-mtqs-gold/60 transition"
             >
               Investor Verification
               <ArrowRight className="h-4 w-4" aria-hidden="true" />

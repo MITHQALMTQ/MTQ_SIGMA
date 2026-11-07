@@ -942,7 +942,7 @@ export function IssuanceSection({
                             ) : null}
                             {e.to ? <StateChip state={e.to} /> : <Pill tone="muted">machine-level</Pill>}
                           </div>
-                          <div className="font-mono text-[0.66rem] text-mtqs-gold-light/90">{e.reasonCode}</div>
+                          <div className="font-mono text-[0.66rem] text-mtqs-gold/90">{e.reasonCode}</div>
                           <p className="text-[0.66rem] text-[#5B6E68] leading-relaxed mt-0.5">{e.detail}</p>
                           <p className="text-[0.58rem] text-[#7A8C86] mt-0.5">{e.stepRef}</p>
                           {(e.econ.grossAmount || e.econ.feeAmount || e.econ.netAmount || e.econ.issuedAmount) && (
@@ -1239,7 +1239,7 @@ export function IssuanceSection({
                           </td>
                           <td className="px-2.5 py-1.5 font-mono text-[#5B6E68]">{r.requestId || "—"}</td>
                           <td className="px-2.5 py-1.5">
-                            <span className="rounded border border-[#E3EAE6] bg-[#F7FAF8] px-1 py-0.5 font-mono text-[0.6rem] text-mtqs-gold-light/80">
+                            <span className="rounded border border-[#E3EAE6] bg-[#F7FAF8] px-1 py-0.5 font-mono text-[0.6rem] text-mtqs-gold/80">
                               {r.kind}
                             </span>
                           </td>

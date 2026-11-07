@@ -326,7 +326,7 @@ function BorderedTable({
 /* ---------- Formula line styling ---------- */
 function Formula({ children }: { children: React.ReactNode }) {
   return (
-    <code className="block font-mono text-[0.78rem] sm:text-[0.85rem] text-mtqs-gold-light bg-[#F7FAF8] border border-[#E3EAE6] rounded-md px-4 py-3 overflow-x-auto whitespace-nowrap">
+    <code className="block font-mono text-[0.78rem] sm:text-[0.85rem] text-mtqs-gold bg-[#F7FAF8] border border-[#E3EAE6] rounded-md px-4 py-3 overflow-x-auto whitespace-nowrap">
       {children}
     </code>
   );

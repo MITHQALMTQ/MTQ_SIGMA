@@ -136,7 +136,7 @@ export function SimulationSection({
         <Reveal>
           <Panel className="p-4 sm:p-5">
             <p className="text-[0.75rem] text-[#5B6E68] leading-relaxed">
-              The full §23 stress matrix — scenarios <span className="font-mono text-mtqs-gold-light">S1–S11</span>:
+              The full §23 stress matrix — scenarios <span className="font-mono text-mtqs-gold">S1–S11</span>:
               Monte Carlo runs (S1–S4, 2,000 paths per scenario), reserve stress episodes (S5–S10) and
               the parameter perturbation study (S11), all measured through the reserve stress equation —
               runs on the <strong className="text-[#0E1F1B]">Validation</strong> tab, backed by the

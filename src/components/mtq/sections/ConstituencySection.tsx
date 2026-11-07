@@ -491,7 +491,7 @@ function BorderedTable({
 /* ---------- Formula line styling ---------- */
 function Formula({ children }: { children: React.ReactNode }) {
   return (
-    <code className="block font-mono text-[0.78rem] sm:text-[0.85rem] text-mtqs-gold-light bg-[#F7FAF8] border border-[#E3EAE6] rounded-md px-4 py-3 overflow-x-auto whitespace-nowrap">
+    <code className="block font-mono text-[0.78rem] sm:text-[0.85rem] text-mtqs-gold bg-[#F7FAF8] border border-[#E3EAE6] rounded-md px-4 py-3 overflow-x-auto whitespace-nowrap">
       {children}
     </code>
   );
@@ -1238,7 +1238,7 @@ export function ConstituencySection({
               <p id="constituency-score-h" className="text-[0.78rem] text-[#5B6E68] mb-3">
                 For every candidate currency i, the engine computes a composite eligibility score
                 from six positive and two negative components. A currency becomes eligible for the
-                active basket only if <span className="font-mono text-mtqs-gold-light">Q_i ≥ Q_min</span>.
+                active basket only if <span className="font-mono text-mtqs-gold">Q_i ≥ Q_min</span>.
               </p>
               <Formula>
                 Q_i = a_R·R_i + a_T·T_i + a_L·L_i + a_S·S_i + a_D·D_i + a_C·C_i − a_G·G_i − a_X·X_i
@@ -1901,7 +1901,7 @@ export function ConstituencySection({
             </h3>
             <p className="text-[0.76rem] text-[#5B6E68] leading-relaxed mb-4">
               Task M8-3a promoted the dynamic-membership reference layer into{" "}
-              <code className="font-mono text-[0.7rem] text-mtqs-gold-light">src/lib/mtq/constituency/</code>: a
+              <code className="font-mono text-[0.7rem] text-mtqs-gold">src/lib/mtq/constituency/</code>: a
               Map-keyed component registry (stable string IDs, never recycled), the T1–T9 lifecycle machinery with
               evidence-checked governance directives, and the glide/weight pipeline. The machinery replaces the
               “constituency is static” design gap — membership can grow and shrink at runtime — while the ACTIVE

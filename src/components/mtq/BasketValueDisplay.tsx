@@ -93,8 +93,8 @@ export function BasketValueDisplay({ snapshot }: BasketValueProps) {
                   updating
                 </motion.span>
               </div>
-              <h3 className="text-lg font-semibold text-white/90 mt-1">1 MTQΣ — Pilot-Ledger Reference Basket (simulated, legacy v1/v2)</h3>
-              <p className="text-xs text-white/55 mt-1">
+              <h3 className="text-lg font-semibold text-[#0E1F1B] mt-1">1 MTQΣ — Pilot-Ledger Reference Basket (simulated, legacy v1/v2)</h3>
+              <p className="text-xs text-[#33544C] mt-1">
                 Each ledger asset is held per unit in its <span className="text-mtqs-gold/80">own native unit</span> — individual,
                 not connected through the dollar. Gold is the anchor. Values are engine-live; the ledger itself is the
                 simulated pilot ledger (G8) — no on-chain proof of real assets. Under the v3.0 no-conventional-reserve
@@ -102,7 +102,7 @@ export function BasketValueDisplay({ snapshot }: BasketValueProps) {
               </p>
             </div>
           </div>
-          <div className="text-[0.55rem] text-white/35 text-right shrink-0">
+          <div className="text-[0.55rem] text-[#7A8C86] text-right shrink-0">
             <div>updated</div>
             <div className="font-mono text-mtqs-gold/50">
               {mounted ? new Date(updatedAt).toLocaleTimeString("en-US", { hour12: false }) : "—"}
@@ -122,17 +122,17 @@ export function BasketValueDisplay({ snapshot }: BasketValueProps) {
             >
               {gold.value}
             </motion.span>
-            <span className="text-sm text-white/60">of gold <span className="text-white/35">· {gold.unit}</span></span>
+            <span className="text-sm text-[#33544C]">of gold <span className="text-[#7A8C86]">· {gold.unit}</span></span>
             <span className="ml-auto inline-flex items-center gap-1.5 rounded-full border border-mtqs-gold/30 bg-mtqs-gold/10 px-2.5 py-1 text-[0.55rem] uppercase tracking-[0.18em] text-mtqs-gold">
               <span aria-hidden="true">🥇</span> the anchor
             </span>
           </div>
-          <div className="mt-2 flex flex-wrap items-center gap-x-4 gap-y-1 text-[0.68rem] text-white/45">
+          <div className="mt-2 flex flex-wrap items-center gap-x-4 gap-y-1 text-[0.68rem] text-[#5B6E68]">
             {goldOz != null && <span className="font-mono">{goldOz.toExponential(3)} troy oz / MTQΣ</span>}
             {holdings && (
               <span className="font-mono">
                 index vault {(holdings.indexGoldOz).toFixed(2)} oz + reserve buffer {(holdings.reserveGoldOz).toFixed(2)} oz
-                <span className="text-white/30"> (§14.1 separation)</span>
+                <span className="text-[#A3B5AF]"> (§14.1 separation)</span>
               </span>
             )}
             <span>anchored by gold — <span className="text-mtqs-gold/70">not pegged to USD</span> (§18.1 · §3.5 · I5/I6 — P<sub>MTQ,t</sub> = I<sub>t</sub>/I<sub>base</sub>; mint priced against the adaptive index, redemption against NAV)</span>
@@ -152,11 +152,11 @@ export function BasketValueDisplay({ snapshot }: BasketValueProps) {
                 initial={{ opacity: 0, scale: 0.95 }}
                 animate={{ opacity: 1, scale: 1 }}
                 transition={{ duration: 0.4, delay: i * 0.06 }}
-                className="p-3 rounded-lg border border-white/[0.06] bg-white/[0.02] hover:bg-white/[0.04] transition-colors"
+                className="p-3 rounded-lg border border-[#E3EAE6] bg-[#F6FAF8] hover:bg-[#EFF5F2] transition-colors"
               >
                 <div className="flex items-center gap-1.5 mb-1.5">
                   <div className="w-2 h-2 rounded-full" style={{ backgroundColor: a.color, boxShadow: `0 0 6px ${a.color}80` }} />
-                  <span className="text-[0.6rem] uppercase tracking-wider text-white/55">{a.code}</span>
+                  <span className="text-[0.6rem] uppercase tracking-wider text-[#33544C]">{a.code}</span>
                   {share != null && (
                     <span className="text-[0.55rem] text-mtqs-gold/50 ml-auto">
                       {(share * 100).toFixed(1)}%
@@ -168,14 +168,14 @@ export function BasketValueDisplay({ snapshot }: BasketValueProps) {
                     <>
                       {a.symbol}
                       {formatNative(a.code, qty)}
-                      <span className="text-[0.6rem] text-white/40 ml-1">{a.unit}</span>
+                      <span className="text-[0.6rem] text-[#7A8C86] ml-1">{a.unit}</span>
                     </>
                   ) : (
-                    <span className="text-white/30">—</span>
+                    <span className="text-[#A3B5AF]">—</span>
                   )}
                 </div>
-                <div className="text-[0.55rem] text-white/40 mt-0.5">{a.name}</div>
-                <div className="text-[0.5rem] text-white/30 mt-0.5">{a.token}</div>
+                <div className="text-[0.55rem] text-[#7A8C86] mt-0.5">{a.name}</div>
+                <div className="text-[0.5rem] text-[#A3B5AF] mt-0.5">{a.token}</div>
               </motion.div>
             );
           })}
@@ -189,22 +189,22 @@ export function BasketValueDisplay({ snapshot }: BasketValueProps) {
             </div>
             <div className="min-w-0">
               <div className="flex items-center gap-1.5">
-                <span className="text-[0.6rem] uppercase tracking-wider text-amber-100/80">Gold (XAU)</span>
+                <span className="text-[0.6rem] uppercase tracking-wider text-amber-700">Gold (XAU)</span>
                 {navShares && <span className="text-[0.55rem] text-mtqs-gold/60 ml-auto">{(navShares.gold * 100).toFixed(1)}%</span>}
               </div>
-              <div className="font-mono text-sm font-semibold text-mtqs-gold-light tabular-nums">
+              <div className="font-mono text-sm font-semibold text-mtqs-gold tabular-nums">
                 {goldOz != null ? (
                   <>
-                    {goldOz.toExponential(3)} <span className="text-[0.6rem] text-white/40">oz / MTQΣ</span>
+                    {goldOz.toExponential(3)} <span className="text-[0.6rem] text-[#7A8C86]">oz / MTQΣ</span>
                   </>
                 ) : "—"}
               </div>
-              <div className="text-[0.5rem] text-white/30">PAXG · XAUT — reference allocation · simulated custody model</div>
+              <div className="text-[0.5rem] text-[#A3B5AF]">PAXG · XAUT — reference allocation · simulated custody model</div>
             </div>
           </div>
-          <div className="p-3 rounded-lg border border-white/[0.06] bg-white/[0.02] flex items-center">
-            <p className="text-[0.65rem] text-white/45 leading-relaxed">
-              <span className="text-white/70">No dollar cross-conversion.</span> Each quantity above is the{" "}
+          <div className="p-3 rounded-lg border border-[#E3EAE6] bg-[#F6FAF8] flex items-center">
+            <p className="text-[0.65rem] text-[#5B6E68] leading-relaxed">
+              <span className="text-[#33544C]">No dollar cross-conversion.</span> Each quantity above is the{" "}
               <span className="text-mtqs-gold/70">modeled holding</span> of that asset per MTQΣ in the{" "}
               <span className="text-mtqs-amber/80">simulated pilot ledger</span> — a reference allocation under a
               simulated custody model (the pilot has no real vaults, issuers or custodians; G8). The unit is a basket of
@@ -215,19 +215,19 @@ export function BasketValueDisplay({ snapshot }: BasketValueProps) {
         </div>
 
         {/* Reconciliation — NAV shares (not dollar shares) */}
-        <div className="mt-3 flex flex-wrap items-center gap-x-3 gap-y-1 text-[0.6rem] text-white/40">
+        <div className="mt-3 flex flex-wrap items-center gap-x-3 gap-y-1 text-[0.6rem] text-[#7A8C86]">
           <GlowDot color="emerald" size="h-1.5 w-1.5" />
           <span>
             Σ live NAV shares:{" "}
             <span className="font-mono text-mtqs-emerald">{shareSum != null ? `${shareSum.toFixed(2)}%` : "—"}</span>{" "}
             (USD {(((navShares?.usd ?? 0) * 100)).toFixed(1)} · EUR {(((navShares?.eur ?? 0) * 100)).toFixed(1)} · Gold {(((navShares?.gold ?? 0) * 100)).toFixed(1)} …)
           </span>
-          <span className="text-white/25">·</span>
+          <span className="text-[#A3B5AF]">·</span>
           <span>basis: {basisLabel}</span>
         </div>
 
         {/* Honest note + USD reporting-numeraire footnote */}
-        <p className="mt-3 text-[0.7rem] text-white/40 leading-relaxed">
+        <p className="mt-3 text-[0.7rem] text-[#7A8C86] leading-relaxed">
           1 MTQΣ represents one unit of the Adaptive Reference Basket. The quantities above are live — they update every 4s
           from the simulated pilot ledger as the engine mints, redeems and rebalances. When the pilot&apos;s circulating supply is
           small relative to the genesis reserve, the per-token backing exceeds par (over-collateralization) — that surplus is
@@ -235,10 +235,10 @@ export function BasketValueDisplay({ snapshot }: BasketValueProps) {
           basket and gold-anchored</span> — it is never pegged to the US dollar or any single currency.
         </p>
         {snapshot && (
-          <p className="mt-1.5 text-[0.6rem] text-white/30 leading-relaxed">
+          <p className="mt-1.5 text-[0.6rem] text-[#A3B5AF] leading-relaxed">
             Reporting numeraire only (never a peg): 1 MTQΣ ≈{" "}
-            <span className="font-mono text-white/45">${snapshot.mtqPrice.toFixed(6)}</span> at the live chain-linked index
-            I_t = <span className="font-mono text-white/45">{snapshot.gfbIndex.toFixed(6)}</span> · P_MTQ = I_t × PAR, PAR = 1.00 basket-unit.
+            <span className="font-mono text-[#5B6E68]">${snapshot.mtqPrice.toFixed(6)}</span> at the live chain-linked index
+            I_t = <span className="font-mono text-[#5B6E68]">{snapshot.gfbIndex.toFixed(6)}</span> · P_MTQ = I_t × PAR, PAR = 1.00 basket-unit.
           </p>
         )}
       </Panel>

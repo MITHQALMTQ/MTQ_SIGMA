@@ -127,10 +127,10 @@ function BorderedTable({
   maxHeight?: string;
 }) {
   return (
-    <div className="overflow-hidden rounded-md border border-white/[0.06]">
+    <div className="overflow-hidden rounded-md border border-[#E3EAE6]">
       <div className={`${maxHeight} overflow-y-auto mtqs-scroll`}>
         <table className="w-full text-[0.74rem]">
-          <thead className="bg-white/[0.02] text-white/55 sticky top-0">
+          <thead className="bg-[#F6FAF8] text-[#33544C] sticky top-0">
             <tr>
               {headers.map((h, i) => (
                 <th key={i} className="text-left px-3 py-2 font-medium">
@@ -143,7 +143,7 @@ function BorderedTable({
             {rows.map((row, ri) => (
               <tr
                 key={ri}
-                className={`border-t border-white/[0.06] ${ri % 2 ? "bg-white/[0.01]" : ""}`}
+                className={`border-t border-[#E3EAE6] ${ri % 2 ? "bg-[#FAFCFA]" : ""}`}
               >
                 {row.map((cell, ci) => (
                   <td key={ci} className="px-3 py-2.5 align-top">
@@ -162,7 +162,7 @@ function BorderedTable({
 /* ---------- Formula line styling ---------- */
 function Formula({ children }: { children: React.ReactNode }) {
   return (
-    <code className="block font-mono text-[0.78rem] sm:text-[0.85rem] text-mtqs-gold-light bg-white/[0.03] border border-white/[0.06] rounded-md px-4 py-3 overflow-x-auto whitespace-nowrap">
+    <code className="block font-mono text-[0.78rem] sm:text-[0.85rem] text-mtqs-gold bg-[#F2F7F5] border border-[#E3EAE6] rounded-md px-4 py-3 overflow-x-auto whitespace-nowrap">
       {children}
     </code>
   );
@@ -171,12 +171,12 @@ function Formula({ children }: { children: React.ReactNode }) {
 /* ---------- One weight-state cell: MiniBar + mono % ---------- */
 function WeightCell({ w }: { w: number | undefined | null }) {
   if (w == null || !Number.isFinite(w)) {
-    return <span className="font-mono text-white/25">—</span>;
+    return <span className="font-mono text-[#A3B5AF]">—</span>;
   }
   return (
     <div className="flex items-center gap-2">
       <MiniBar value={w} max={0.35} colorClass="bg-mtqs-gold/60" className="w-16 sm:w-20" />
-      <span className="font-mono text-[0.7rem] text-white/75">{(w * 100).toFixed(2)}%</span>
+      <span className="font-mono text-[0.7rem] text-[#1F3A33]">{(w * 100).toFixed(2)}%</span>
     </div>
   );
 }
@@ -263,16 +263,16 @@ export function TransparencySection({
             <span className="font-mono text-[0.72rem] font-semibold tracking-widest text-mtqs-amber">
               TESTNET ONLY
             </span>
-            <span className="text-white/20">·</span>
-            <span className="text-[0.72rem] text-amber-100/80">
+            <span className="text-[#B5C6C0]">·</span>
+            <span className="text-[0.72rem] text-amber-700">
               everything published on this page is pilot output
             </span>
           </div>
-          <p className="text-[0.74rem] text-amber-100/70 leading-relaxed">
+          <p className="text-[0.74rem] text-amber-700 leading-relaxed">
             The publication machinery below — version tuples, weight series, decision records — is
             exercised live on the testnet pilot so its determinism can be inspected. The{" "}
-            <span className="text-white/90">production publication layer</span> requires the §25.5
-            validation gates, which have <span className="text-white/90">not been passed</span>.
+            <span className="text-[#0E1F1B]">production publication layer</span> requires the §25.5
+            validation gates, which have <span className="text-[#0E1F1B]">not been passed</span>.
           </p>
         </div>
       </Reveal>
@@ -288,25 +288,25 @@ export function TransparencySection({
         <div className="space-y-4">
           <Reveal>
             <Panel className="p-5">
-              <p className="text-[0.78rem] text-white/55 mb-3" id="transparency-repro-h">
+              <p className="text-[0.78rem] text-[#33544C] mb-3" id="transparency-repro-h">
                 The transparency architecture rests on a single computational fact: given identical
                 inputs, the system must produce identical outputs —
               </p>
               <Formula>(Data_t, Parameters_t, Versions_t) identical ⟹ W_t^Live identical</Formula>
-              <p className="text-[0.74rem] text-white/55 mt-3 leading-relaxed">
+              <p className="text-[0.74rem] text-[#33544C] mt-3 leading-relaxed">
                 The MASE registry intentionally does not re-solve the optimization on-chain; that
                 omission is safe only because anyone can re-run MASE off-chain from the published
                 versions and obtain the identical target, which the contract then verifies against
                 the constitution. The auditor is not asked to trust the submitter — only to execute
                 the same deterministic function on the same versioned inputs [MS §92].
               </p>
-              <ul className="mt-3 grid grid-cols-1 sm:grid-cols-2 gap-x-6 gap-y-1.5 text-[0.7rem] text-white/50">
+              <ul className="mt-3 grid grid-cols-1 sm:grid-cols-2 gap-x-6 gap-y-1.5 text-[0.7rem] text-[#5B6E68]">
                 <li>• Random generators seeded with published constants (MC families reproduce path-for-path, §23.5).</li>
                 <li>• Floating-point operations in a fixed order and precision.</li>
                 <li>• No computation depends on wall-clock time, network latency or environment state.</li>
                 <li>• Software versions recorded; input data snapshotted immutably under its DataVersion.</li>
               </ul>
-              <p className="text-[0.68rem] text-white/40 mt-3">
+              <p className="text-[0.68rem] text-[#7A8C86] mt-3">
                 A re-run that diverges in even one weight at one timestamp is a defect that blocks
                 the G7 reproducibility gate of §23.12.
               </p>
@@ -329,7 +329,7 @@ export function TransparencySection({
         />
         <Reveal>
           <Panel className="p-5">
-            <p className="text-[0.78rem] text-white/55 mb-4" id="transparency-versioning-h">
+            <p className="text-[0.78rem] text-[#33544C] mb-4" id="transparency-versioning-h">
               Every live calculation stores the full version tuple and result record, so it is
               attributable to exactly the inputs, models, parameters and oracle configuration that
               produced it — the backbone of institutional auditability [COO-26].
@@ -369,29 +369,29 @@ export function TransparencySection({
                   },
                 ] as const
               ).map((v) => (
-                <div key={v.name} className="p-4 rounded-xl border border-white/[0.06] bg-white/[0.02]">
+                <div key={v.name} className="p-4 rounded-xl border border-[#E3EAE6] bg-[#F6FAF8]">
                   <div className="flex items-center gap-2 mb-1.5">
                     <Layers className="h-3.5 w-3.5 text-mtqs-gold/80" aria-hidden="true" />
                     <span className="font-mono text-[0.8rem] font-semibold text-mtqs-gold">{v.name}</span>
                   </div>
-                  <p className="text-[0.68rem] text-white/50 leading-relaxed mb-2">{v.meaning}</p>
-                  <div className="pt-2 border-t border-white/[0.05]">
-                    <div className="text-[0.55rem] uppercase tracking-wider text-white/35 mb-0.5">
+                  <p className="text-[0.68rem] text-[#5B6E68] leading-relaxed mb-2">{v.meaning}</p>
+                  <div className="pt-2 border-t border-[#EDF2EF]">
+                    <div className="text-[0.55rem] uppercase tracking-wider text-[#7A8C86] mb-0.5">
                       {v.liveLabel}
                     </div>
-                    <div className="font-mono text-[0.66rem] text-white/70 break-words">
+                    <div className="font-mono text-[0.66rem] text-[#33544C] break-words">
                       {v.live ?? "—"}
                     </div>
                   </div>
                 </div>
               ))}
             </div>
-            <p className="text-[0.68rem] text-white/45 mt-4">
-              Each record also carries the computed <span className="font-mono text-white/70">Weight</span>{" "}
+            <p className="text-[0.68rem] text-[#5B6E68] mt-4">
+              Each record also carries the computed <span className="font-mono text-[#33544C]">Weight</span>{" "}
               vector (the output posted to and enforced by the registry), the full{" "}
-              <span className="font-mono text-white/70">Output</span> result record (component scores,
+              <span className="font-mono text-[#33544C]">Output</span> result record (component scores,
               constraint flags, pipeline intermediate states), and a{" "}
-              <span className="font-mono text-white/70">DecisionID</span> linking the calculation to the
+              <span className="font-mono text-[#33544C]">DecisionID</span> linking the calculation to the
               decision log of §24.4. Version discipline: a version identifier changes only through the
               governed process for its layer — data revisions are new DataVersions (never silent
               overwrites, §4.3), parameter changes are new ParameterVersions through the registry, and
@@ -419,7 +419,7 @@ export function TransparencySection({
         <div className="space-y-4">
           <Reveal>
             <Panel className="p-5">
-              <p className="text-[0.78rem] text-white/55 mb-3" id="transparency-publication-h">
+              <p className="text-[0.78rem] text-[#33544C] mb-3" id="transparency-publication-h">
                 Reproducibility makes results verifiable in principle; publication makes them
                 verifiable in practice. Only the published W_t series describes the composition of
                 MTQΣ — the publication is, in the strict sense, the definition of the basket&apos;s
@@ -428,11 +428,11 @@ export function TransparencySection({
               <BorderedTable
                 headers={["Published artifact", "Content"]}
                 rows={PUBLISHED_ARTIFACTS.map((a) => [
-                  <span key="a" className="text-white/85">{a.artifact}</span>,
-                  <span key="c" className="text-white/55">{a.content}</span>,
+                  <span key="a" className="text-[#0E1F1B]">{a.artifact}</span>,
+                  <span key="c" className="text-[#33544C]">{a.content}</span>,
                 ])}
               />
-              <p className="text-[0.68rem] text-white/45 mt-3">
+              <p className="text-[0.68rem] text-[#5B6E68] mt-3">
                 The publication set is deliberately larger than the weight vector: scoring tables and
                 eligibility decisions make the constituency engine as auditable as the weighting
                 engine (§4.5), and the deviation attribution connects composition change to its
@@ -448,7 +448,7 @@ export function TransparencySection({
           <Reveal delay={0.05}>
             <Panel className="p-5">
               <div className="flex flex-wrap items-center justify-between gap-2 mb-1">
-                <h3 className="text-sm font-semibold text-white/90">
+                <h3 className="text-sm font-semibold text-[#0E1F1B]">
                   Live four-state weights — W^Prior → W^Target → W^Smooth → W^Execution
                 </h3>
                 <Pill tone={ws ? "emerald" : gfb ? "amber" : "muted"}>
@@ -456,9 +456,9 @@ export function TransparencySection({
                   {ws ? "snapshot.weightStates" : gfb ? "/api/gfb fallback (target —)" : "unavailable"}
                 </Pill>
               </div>
-              <p className="text-[0.7rem] text-white/45 mb-3">
+              <p className="text-[0.7rem] text-[#5B6E68] mb-3">
                 The four states are never equivalent (§2.3).{" "}
-                <span className="text-white/80">
+                <span className="text-[#0E1F1B]">
                   The published weight is the EXECUTION weight (the §2.3 four-state rule; I6 = NAV-priced redemption per v2.0 §2.6)
                 </span>{" "}
                 — never the target or smoothed weight.
@@ -471,10 +471,10 @@ export function TransparencySection({
                   ))}
                 </div>
               ) : ws ? (
-                <div className="overflow-hidden rounded-md border border-white/[0.06]">
+                <div className="overflow-hidden rounded-md border border-[#E3EAE6]">
                   <div className="overflow-x-auto">
                     <table className="w-full text-[0.72rem]">
-                      <thead className="bg-white/[0.02] text-white/55">
+                      <thead className="bg-[#F6FAF8] text-[#33544C]">
                         <tr>
                           <th className="text-left px-3 py-2 font-medium">Component</th>
                           <th className="text-left px-3 py-2 font-medium">Prior (§3.2)</th>
@@ -485,7 +485,7 @@ export function TransparencySection({
                       </thead>
                       <tbody>
                         {CANON.map((c) => (
-                          <tr key={c} className="border-t border-white/[0.06]">
+                          <tr key={c} className="border-t border-[#E3EAE6]">
                             <td className="px-3 py-2 font-mono text-mtqs-gold">{c}</td>
                             <td className="px-3 py-2"><WeightCell w={ws.prior?.[c]} /></td>
                             <td className="px-3 py-2"><WeightCell w={ws.target?.[c]} /></td>
@@ -502,10 +502,10 @@ export function TransparencySection({
                   </div>
                 </div>
               ) : gfb ? (
-                <div className="overflow-hidden rounded-md border border-white/[0.06]">
+                <div className="overflow-hidden rounded-md border border-[#E3EAE6]">
                   <div className="overflow-x-auto">
                     <table className="w-full text-[0.72rem]">
-                      <thead className="bg-white/[0.02] text-white/55">
+                      <thead className="bg-[#F6FAF8] text-[#33544C]">
                         <tr>
                           <th className="text-left px-3 py-2 font-medium">Component</th>
                           <th className="text-left px-3 py-2 font-medium">Prior (§3.2)</th>
@@ -516,7 +516,7 @@ export function TransparencySection({
                       </thead>
                       <tbody>
                         {CANON.map((c) => (
-                          <tr key={c} className="border-t border-white/[0.06]">
+                          <tr key={c} className="border-t border-[#E3EAE6]">
                             <td className="px-3 py-2 font-mono text-mtqs-gold">{c}</td>
                             <td className="px-3 py-2"><WeightCell w={gfb.components?.[c]?.weight} /></td>
                             <td className="px-3 py-2"><WeightCell w={null} /></td>
@@ -529,12 +529,12 @@ export function TransparencySection({
                   </div>
                 </div>
               ) : (
-                <p className="text-[0.72rem] text-white/40">
+                <p className="text-[0.72rem] text-[#7A8C86]">
                   Live weight states unavailable from the snapshot and /api/gfb — nothing is
                   fabricated; the four-state definition is published via /api/evidence.
                 </p>
               )}
-              <p className="text-[0.6rem] text-white/35 mt-2">
+              <p className="text-[0.6rem] text-[#7A8C86] mt-2">
                 Mini-bars are scaled to a common 0–35% range for cross-state comparability. “—” =
                 state not exposed by the pilot snapshot at this tick.
               </p>
@@ -545,7 +545,7 @@ export function TransparencySection({
           <Reveal delay={0.07}>
             <Panel className="p-5">
               <div className="flex flex-wrap items-start justify-between gap-2 mb-1">
-                <h3 className="text-sm font-semibold text-white/90 flex items-center gap-2">
+                <h3 className="text-sm font-semibold text-[#0E1F1B] flex items-center gap-2">
                   <Scale className="h-3.5 w-3.5 text-mtqs-gold" aria-hidden="true" />
                   Chain-Link Divisor Publication · NAV-Form Reconciliation
                 </h3>
@@ -554,7 +554,7 @@ export function TransparencySection({
                   §9.1 · §9.3 · COO-17 · basis pinned: base-relative
                 </Pill>
               </div>
-              <p className="text-[0.7rem] text-white/45 mb-3">
+              <p className="text-[0.7rem] text-[#5B6E68] mb-3">
                 The weight change is a compositional event — the §9.3 divisor D_t absorbs it so the
                 published level never jumps, and every applied D_t is published with its B^± pair
                 (the ChainLinkAdjusted payload). The §9.1 aggregate form and the §9.2 recursion are
@@ -568,7 +568,7 @@ export function TransparencySection({
                 <div className="space-y-4">
                   {/* §9.1 equation with live component values */}
                   <div>
-                    <div className="text-[0.65rem] uppercase tracking-[0.18em] text-white/55 mb-2">
+                    <div className="text-[0.65rem] uppercase tracking-[0.18em] text-[#33544C] mb-2">
                       §9.1 · the NAV equation, live
                     </div>
                     <Formula>
@@ -577,28 +577,28 @@ export function TransparencySection({
                       {navForm.navRaw.toFixed(6)} = {navForm.navReconciled.toFixed(6)}
                     </Formula>
                     <div className="mt-2 grid grid-cols-2 sm:grid-cols-4 gap-2 text-[0.66rem]">
-                      <div className="p-2 rounded bg-white/[0.03]">
-                        <div className="text-white/40 text-[0.55rem] uppercase tracking-wider">
+                      <div className="p-2 rounded bg-[#F2F7F5]">
+                        <div className="text-[#7A8C86] text-[0.55rem] uppercase tracking-wider">
                           G<sub>t</sub> (implied = I<sub>t</sub>/NAV)
                         </div>
                         <div className="font-mono text-mtqs-gold">{navForm.gImplied.toFixed(9)}</div>
                       </div>
-                      <div className="p-2 rounded bg-white/[0.03]">
-                        <div className="text-white/40 text-[0.55rem] uppercase tracking-wider">
+                      <div className="p-2 rounded bg-[#F2F7F5]">
+                        <div className="text-[#7A8C86] text-[0.55rem] uppercase tracking-wider">
                           Σ term (Listing 3 getNavForm)
                         </div>
-                        <div className="font-mono text-white/85">{navForm.navRaw.toFixed(9)}</div>
+                        <div className="font-mono text-[#0E1F1B]">{navForm.navRaw.toFixed(9)}</div>
                       </div>
-                      <div className="p-2 rounded bg-white/[0.03]">
-                        <div className="text-white/40 text-[0.55rem] uppercase tracking-wider">
+                      <div className="p-2 rounded bg-[#F2F7F5]">
+                        <div className="text-[#7A8C86] text-[0.55rem] uppercase tracking-wider">
                           NAV<sub>t</sub> (= published I<sub>t</sub>)
                         </div>
                         <div className="font-mono text-mtqs-emerald">
                           {navForm.navReconciled.toFixed(9)}
                         </div>
                       </div>
-                      <div className="p-2 rounded bg-white/[0.03]">
-                        <div className="text-white/40 text-[0.55rem] uppercase tracking-wider">
+                      <div className="p-2 rounded bg-[#F2F7F5]">
+                        <div className="text-[#7A8C86] text-[0.55rem] uppercase tracking-wider">
                           §9.1 equation closes
                         </div>
                         <div
@@ -624,7 +624,7 @@ export function TransparencySection({
 
                   {/* per-component §9.1 terms */}
                   <div>
-                    <div className="text-[0.65rem] uppercase tracking-[0.18em] text-white/55 mb-2">
+                    <div className="text-[0.65rem] uppercase tracking-[0.18em] text-[#33544C] mb-2">
                       §9.1 · per-component terms (canonical order)
                     </div>
                     <BorderedTable
@@ -637,9 +637,9 @@ export function TransparencySection({
                       ]}
                       rows={navForm.terms.map((t) => [
                         <span key="c" className="font-mono text-mtqs-gold">{CANON[t.index]}</span>,
-                        <span key="w" className="font-mono text-white/75">{(t.weight * 100).toFixed(2)}%</span>,
-                        <span key="r" className="font-mono text-white/75">{t.relative.toFixed(6)}</span>,
-                        <span key="t" className="font-mono text-white/85">{t.term.toFixed(6)}</span>,
+                        <span key="w" className="font-mono text-[#1F3A33]">{(t.weight * 100).toFixed(2)}%</span>,
+                        <span key="r" className="font-mono text-[#1F3A33]">{t.relative.toFixed(6)}</span>,
+                        <span key="t" className="font-mono text-[#0E1F1B]">{t.term.toFixed(6)}</span>,
                       ])}
                     />
                   </div>
@@ -650,22 +650,22 @@ export function TransparencySection({
                       COO-17 · the two G senses (published, not merged)
                     </div>
                     <div className="grid grid-cols-1 sm:grid-cols-3 gap-2 text-[0.66rem]">
-                      <div className="p-2 rounded bg-white/[0.03]">
-                        <div className="text-white/40 text-[0.55rem] uppercase tracking-wider">
+                      <div className="p-2 rounded bg-[#F2F7F5]">
+                        <div className="text-[#7A8C86] text-[0.55rem] uppercase tracking-wider">
                           G<sub>t</sub> recorded = Π D<sub>s</sub> (§9.3 functional form)
                         </div>
-                        <div className="font-mono text-white/85">{navForm.gRecorded.toFixed(9)}</div>
+                        <div className="font-mono text-[#0E1F1B]">{navForm.gRecorded.toFixed(9)}</div>
                       </div>
-                      <div className="p-2 rounded bg-white/[0.03]">
-                        <div className="text-white/40 text-[0.55rem] uppercase tracking-wider">
+                      <div className="p-2 rounded bg-[#F2F7F5]">
+                        <div className="text-[#7A8C86] text-[0.55rem] uppercase tracking-wider">
                           §9.1 aggregate with recorded G
                         </div>
-                        <div className="font-mono text-white/85">
+                        <div className="font-mono text-[#0E1F1B]">
                           {navForm.navWithRecordedG.toFixed(9)}
                         </div>
                       </div>
-                      <div className="p-2 rounded bg-white/[0.03]">
-                        <div className="text-white/40 text-[0.55rem] uppercase tracking-wider">
+                      <div className="p-2 rounded bg-[#F2F7F5]">
+                        <div className="text-[#7A8C86] text-[0.55rem] uppercase tracking-wider">
                           residual (implied − recorded)
                         </div>
                         <div
@@ -678,7 +678,7 @@ export function TransparencySection({
                         </div>
                       </div>
                     </div>
-                    <p className="text-[0.62rem] text-amber-100/70 mt-2 leading-relaxed">
+                    <p className="text-[0.62rem] text-amber-700 mt-2 leading-relaxed">
                       v2.0 §9.1 (COO-17): “the aggregate form and the chain-linked recursion are
                       different mathematical objects that must be made to produce one published
                       I<sub>t</sub>.” The published series is the §9.2 recursion; the §9.1 equation
@@ -693,16 +693,16 @@ export function TransparencySection({
                   {/* per-update D_t/B± series */}
                   <div>
                     <div className="flex flex-wrap items-center justify-between gap-2 mb-2">
-                      <div className="text-[0.65rem] uppercase tracking-[0.18em] text-white/55">
+                      <div className="text-[0.65rem] uppercase tracking-[0.18em] text-[#33544C]">
                         §9.3 · applied divisor records (ChainLinkAdjusted-equivalent)
                       </div>
-                      <span className="font-mono text-[0.6rem] text-white/40">
+                      <span className="font-mono text-[0.6rem] text-[#7A8C86]">
                         retained {navForm.history.length} of {navForm.totalDivisorCommits} · window
                         50{navForm.historyTruncated ? " (older dropped — disclosed)" : ""}
                       </span>
                     </div>
                     {navForm.history.length === 0 ? (
-                      <div className="p-3 rounded-md border border-white/[0.06] bg-white/[0.02] text-[0.7rem] text-white/50">
+                      <div className="p-3 rounded-md border border-[#E3EAE6] bg-[#F6FAF8] text-[0.7rem] text-[#5B6E68]">
                         No weight change committed yet in this process lifetime — D<sub>t</sub> = 1
                         throughout and G<sub>t</sub> = 1.000000. A record is published on every
                         accepted weight change only (Listing 3 fires ChainLinkAdjusted on change,
@@ -715,18 +715,18 @@ export function TransparencySection({
                         rows={[...navForm.history]
                           .reverse()
                           .map((r) => [
-                            <span key="a" className="font-mono text-white/60">{new Date(r.at).toISOString()}</span>,
-                            <span key="k" className={`font-mono ${r.kind === "carry-forward" ? "text-mtqs-amber" : "text-white/70"}`}>
+                            <span key="a" className="font-mono text-[#33544C]">{new Date(r.at).toISOString()}</span>,
+                            <span key="k" className={`font-mono ${r.kind === "carry-forward" ? "text-mtqs-amber" : "text-[#33544C]"}`}>
                               {r.kind}
                             </span>,
                             <span key="d" className="font-mono text-mtqs-gold">{r.D.toFixed(9)}</span>,
-                            <span key="m" className="font-mono text-white/75">
+                            <span key="m" className="font-mono text-[#1F3A33]">
                               {r.bMinus != null ? r.bMinus.toFixed(6) : "— (pre-switch era)"}
                             </span>,
-                            <span key="p" className="font-mono text-white/75">
+                            <span key="p" className="font-mono text-[#1F3A33]">
                               {r.bPlus != null ? r.bPlus.toFixed(6) : "— (pre-switch era)"}
                             </span>,
-                            <span key="b" className={`font-mono ${r.basis === "raw-usd" ? "text-mtqs-amber" : "text-white/55"}`}>
+                            <span key="b" className={`font-mono ${r.basis === "raw-usd" ? "text-mtqs-amber" : "text-[#33544C]"}`}>
                               {r.basis}
                             </span>,
                           ])}
@@ -744,7 +744,7 @@ export function TransparencySection({
                       </p>
                     ) : null}
                     {divisorLedger ? (
-                      <p className="text-[0.6rem] text-white/45 mt-2 font-mono">
+                      <p className="text-[0.6rem] text-[#5B6E68] mt-2 font-mono">
                         ledger check: G_t = Π D_t over retained records →{" "}
                         {divisorLedger.consistent === true
                           ? `CONSISTENT (G=${divisorLedger.recordedG.toPrecision(12)})`
@@ -763,20 +763,20 @@ export function TransparencySection({
                         DIVISOR BASIS SWITCH · DISCLOSED
                       </span>
                     </div>
-                    <p className="text-[0.68rem] text-amber-100/75 leading-relaxed">
+                    <p className="text-[0.68rem] text-amber-700 leading-relaxed">
                       The app-layer divisor machinery previously valued B<sup>±</sup> in RAW USD
                       (Σ W × P<sub>i,t</sub>). Per Blueprint v2.0 §9.3 / Listing 3 (§9.8) and the
                       reference source MTQSigmaV3.sol commitWeights (L1384–1407) — reference
                       implementation, not deployed — the basis
-                      is now pinned <span className="text-white/90">BASE-RELATIVE</span>: B<sup>±</sup>{" "}
+                      is now pinned <span className="text-[#0E1F1B]">BASE-RELATIVE</span>: B<sup>±</sup>{" "}
                       = Σ W × (P<sub>i,t</sub>/P<sub>i,0</sub>) against the immutable genesis fixings
-                      §3.4. The raw-USD basis is <span className="text-white/90">SUPERSEDED</span> —
+                      §3.4. The raw-USD basis is <span className="text-[#0E1F1B]">SUPERSEDED</span> —
                       evidence preserved in the audit records; both bases deliver the same
                       zero-artificial-return guarantee, but they produce different numeric G
                       <sub>t</sub> series for the same history, so the series was NOT silently
                       re-based: the switch is published here and in honest-status.
                     </p>
-                    <p className="text-[0.66rem] text-amber-100/60 leading-relaxed mt-2">
+                    <p className="text-[0.66rem] text-amber-600 leading-relaxed mt-2">
                       TESTNET ONLY · SHADOW MODE: this is the app&apos;s shadow-mode chain-link
                       history (testnet simulation data held in the pilot&apos;s process memory) —
                       NOT on-chain ChainLinkAdjusted events. The V3 contract is not deployed here,
@@ -804,18 +804,18 @@ export function TransparencySection({
         <div className="space-y-4">
           <Reveal>
             <Panel className="p-5">
-              <p className="text-[0.78rem] text-white/55 mb-3" id="transparency-decision-log-h">
+              <p className="text-[0.78rem] text-[#33544C] mb-3" id="transparency-decision-log-h">
                 Weights describe state; the decision log describes action. For each executed trade
                 the system assigns a DecisionID, and that record must contain the complete economics
                 of the decision [MS §95]. The same structure is written for{" "}
-                <span className="text-white/80">no-trade decisions</span> — so inaction is as
+                <span className="text-[#0E1F1B]">no-trade decisions</span> — so inaction is as
                 explainable as action; silence in the log is never ambiguous.
               </p>
               <BorderedTable
                 headers={["Field", "Meaning"]}
                 rows={DECISION_FIELDS.map((f) => [
                   <span key="f" className="font-mono text-mtqs-gold">{f.field}</span>,
-                  <span key="m" className="text-white/55">{f.meaning}</span>,
+                  <span key="m" className="text-[#33544C]">{f.meaning}</span>,
                 ])}
               />
             </Panel>
@@ -825,13 +825,13 @@ export function TransparencySection({
           <Reveal delay={0.05}>
             <Panel className="p-5">
               <div className="flex flex-wrap items-center justify-between gap-2 mb-3">
-                <h3 className="text-sm font-semibold text-white/90">Latest live decision records</h3>
+                <h3 className="text-sm font-semibold text-[#0E1F1B]">Latest live decision records</h3>
                 <div className="flex items-center gap-2">
                   <Pill tone={snapshot?.rebalancePath === "marp" ? "emerald" : "amber"}>
                     <GlowDot color={snapshot?.rebalancePath === "marp" ? "emerald" : "amber"} size="h-1.5 w-1.5" />
                     {snapshot?.rebalancePath === "marp" ? "MARP path active" : snapshot ? "legacy §7 path active" : "…"}
                   </Pill>
-                  <span className="font-mono text-[0.6rem] text-white/35">
+                  <span className="font-mono text-[0.6rem] text-[#7A8C86]">
                     tick {snapshot ? new Date(snapshot.fetchedAt).toISOString() : "—"}
                   </span>
                 </div>
@@ -846,10 +846,10 @@ export function TransparencySection({
                 <div className="space-y-3">
                   {/* §7 single-direction decision */}
                   {rebalance ? (
-                    <div className="p-3.5 rounded-lg border border-white/[0.06] bg-white/[0.02]">
+                    <div className="p-3.5 rounded-lg border border-[#E3EAE6] bg-[#F6FAF8]">
                       <div className="flex flex-wrap items-center gap-2 mb-2">
-                        <History className="h-3.5 w-3.5 text-white/45" aria-hidden="true" />
-                        <span className="text-[0.66rem] uppercase tracking-[0.18em] text-white/50">
+                        <History className="h-3.5 w-3.5 text-[#5B6E68]" aria-hidden="true" />
+                        <span className="text-[0.66rem] uppercase tracking-[0.18em] text-[#5B6E68]">
                           §7 single-direction rebalance evaluation (gold ⇄ fiat)
                         </span>
                         <Pill tone={rebalance.shouldRebalance ? "emerald" : "muted"}>
@@ -857,47 +857,47 @@ export function TransparencySection({
                         </Pill>
                       </div>
                       <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-2 text-[0.68rem]">
-                        <div className="p-2 rounded bg-white/[0.03]">
-                          <div className="text-white/40 text-[0.55rem] uppercase tracking-wider">Direction</div>
-                          <div className="font-mono text-white/85">{dirLabel(rebalance.direction)}</div>
+                        <div className="p-2 rounded bg-[#F2F7F5]">
+                          <div className="text-[#7A8C86] text-[0.55rem] uppercase tracking-wider">Direction</div>
+                          <div className="font-mono text-[#0E1F1B]">{dirLabel(rebalance.direction)}</div>
                         </div>
-                        <div className="p-2 rounded bg-white/[0.03]">
-                          <div className="text-white/40 text-[0.55rem] uppercase tracking-wider">Observed gold</div>
-                          <div className="font-mono text-white/85">{(rebalance.observedGoldWeight * 100).toFixed(2)}%</div>
+                        <div className="p-2 rounded bg-[#F2F7F5]">
+                          <div className="text-[#7A8C86] text-[0.55rem] uppercase tracking-wider">Observed gold</div>
+                          <div className="font-mono text-[#0E1F1B]">{(rebalance.observedGoldWeight * 100).toFixed(2)}%</div>
                         </div>
-                        <div className="p-2 rounded bg-white/[0.03]">
-                          <div className="text-white/40 text-[0.55rem] uppercase tracking-wider">Target gold</div>
-                          <div className="font-mono text-white/85">{(rebalance.targetGoldWeight * 100).toFixed(2)}%</div>
+                        <div className="p-2 rounded bg-[#F2F7F5]">
+                          <div className="text-[#7A8C86] text-[0.55rem] uppercase tracking-wider">Target gold</div>
+                          <div className="font-mono text-[#0E1F1B]">{(rebalance.targetGoldWeight * 100).toFixed(2)}%</div>
                         </div>
-                        <div className="p-2 rounded bg-white/[0.03]">
-                          <div className="text-white/40 text-[0.55rem] uppercase tracking-wider">Deviation</div>
-                          <div className={`font-mono ${(rebalance.deviation >= 0 ? "text-mtqs-gold-light" : "text-mtqs-emerald")}`}>
+                        <div className="p-2 rounded bg-[#F2F7F5]">
+                          <div className="text-[#7A8C86] text-[0.55rem] uppercase tracking-wider">Deviation</div>
+                          <div className={`font-mono ${(rebalance.deviation >= 0 ? "text-mtqs-gold" : "text-mtqs-emerald")}`}>
                             {(rebalance.deviation * 100).toFixed(2)}pp
                           </div>
                         </div>
-                        <div className="p-2 rounded bg-white/[0.03]">
-                          <div className="text-white/40 text-[0.55rem] uppercase tracking-wider">Trade size</div>
-                          <div className="font-mono text-white/85">{fmtUsd(rebalance.tradeUsd)}</div>
+                        <div className="p-2 rounded bg-[#F2F7F5]">
+                          <div className="text-[#7A8C86] text-[0.55rem] uppercase tracking-wider">Trade size</div>
+                          <div className="font-mono text-[#0E1F1B]">{fmtUsd(rebalance.tradeUsd)}</div>
                         </div>
-                        <div className="p-2 rounded bg-white/[0.03]">
-                          <div className="text-white/40 text-[0.55rem] uppercase tracking-wider">No-trade zone ½θ</div>
-                          <div className="font-mono text-white/85">0.75% <span className="text-white/35">(crisis 1.5%)</span></div>
+                        <div className="p-2 rounded bg-[#F2F7F5]">
+                          <div className="text-[#7A8C86] text-[0.55rem] uppercase tracking-wider">No-trade zone ½θ</div>
+                          <div className="font-mono text-[#0E1F1B]">0.75% <span className="text-[#7A8C86]">(crisis 1.5%)</span></div>
                         </div>
                       </div>
-                      <p className="text-[0.66rem] text-white/50 mt-2 font-mono">{rebalance.reason}</p>
+                      <p className="text-[0.66rem] text-[#5B6E68] mt-2 font-mono">{rebalance.reason}</p>
                     </div>
                   ) : (
-                    <p className="text-[0.72rem] text-white/40">
+                    <p className="text-[0.72rem] text-[#7A8C86]">
                       Rebalance decision not exposed on this snapshot — published via /api/evidence.
                     </p>
                   )}
 
                   {/* MARP per-component decisions */}
                   {marpDecisions.length > 0 ? (
-                    <div className="p-3.5 rounded-lg border border-white/[0.06] bg-white/[0.02]">
+                    <div className="p-3.5 rounded-lg border border-[#E3EAE6] bg-[#F6FAF8]">
                       <div className="flex flex-wrap items-center gap-2 mb-2">
-                        <ScrollText className="h-3.5 w-3.5 text-white/45" aria-hidden="true" />
-                        <span className="text-[0.66rem] uppercase tracking-[0.18em] text-white/50">
+                        <ScrollText className="h-3.5 w-3.5 text-[#5B6E68]" aria-hidden="true" />
+                        <span className="text-[0.66rem] uppercase tracking-[0.18em] text-[#5B6E68]">
                           MARP per-component decisions ({marpDecisions.length})
                         </span>
                         {firstMandate ? (
@@ -906,10 +906,10 @@ export function TransparencySection({
                           </Pill>
                         ) : null}
                       </div>
-                      <div className="overflow-hidden rounded-md border border-white/[0.06]">
+                      <div className="overflow-hidden rounded-md border border-[#E3EAE6]">
                         <div className="max-h-72 overflow-y-auto mtqs-scroll">
                           <table className="w-full text-[0.68rem]">
-                            <thead className="bg-white/[0.02] text-white/50 sticky top-0">
+                            <thead className="bg-[#F6FAF8] text-[#5B6E68] sticky top-0">
                               <tr>
                                 <th className="text-left px-2.5 py-1.5 font-medium">Comp</th>
                                 <th className="text-left px-2.5 py-1.5 font-medium">Dir</th>
@@ -919,19 +919,19 @@ export function TransparencySection({
                                 <th className="text-left px-2.5 py-1.5 font-medium w-1/3">Reason</th>
                               </tr>
                             </thead>
-                            <tbody className="font-mono text-white/70">
+                            <tbody className="font-mono text-[#33544C]">
                               {marpDecisions.map((d, i) => (
-                                <tr key={`${d.component}-${i}`} className="border-t border-white/[0.05]">
+                                <tr key={`${d.component}-${i}`} className="border-t border-[#EDF2EF]">
                                   <td className="px-2.5 py-1.5 text-mtqs-gold">{d.component}</td>
                                   <td className="px-2.5 py-1.5">
-                                    <span className={d.shouldTrade ? "text-mtqs-emerald" : "text-white/35"}>
+                                    <span className={d.shouldTrade ? "text-mtqs-emerald" : "text-[#7A8C86]"}>
                                       {dirLabel(d.direction)}
                                     </span>
                                   </td>
                                   <td className="px-2.5 py-1.5 text-right">{d.level}</td>
                                   <td className="px-2.5 py-1.5 text-right">{(d.urgency * 100).toFixed(0)}%</td>
                                   <td className="px-2.5 py-1.5 text-right">{fmtUsd(d.tradeUsd)}</td>
-                                  <td className="px-2.5 py-1.5 font-sans text-white/50">{d.reason}</td>
+                                  <td className="px-2.5 py-1.5 font-sans text-[#5B6E68]">{d.reason}</td>
                                 </tr>
                               ))}
                             </tbody>
@@ -940,21 +940,21 @@ export function TransparencySection({
                       </div>
                       {firstMandate ? (
                         <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 mt-3 text-[0.66rem]">
-                          <div className="p-2 rounded bg-white/[0.03]">
-                            <div className="text-white/40 text-[0.55rem] uppercase tracking-wider">Expected benefit</div>
+                          <div className="p-2 rounded bg-[#F2F7F5]">
+                            <div className="text-[#7A8C86] text-[0.55rem] uppercase tracking-wider">Expected benefit</div>
                             <div className="font-mono text-mtqs-emerald">{fmtUsd(firstMandate.grossBenefitUsd)}</div>
                           </div>
-                          <div className="p-2 rounded bg-white/[0.03]">
-                            <div className="text-white/40 text-[0.55rem] uppercase tracking-wider">Expected cost</div>
-                            <div className="font-mono text-rose-200">{fmtUsd(firstMandate.costUsd)}</div>
+                          <div className="p-2 rounded bg-[#F2F7F5]">
+                            <div className="text-[#7A8C86] text-[0.55rem] uppercase tracking-wider">Expected cost</div>
+                            <div className="font-mono text-mtqs-rose">{fmtUsd(firstMandate.costUsd)}</div>
                           </div>
-                          <div className="p-2 rounded bg-white/[0.03]">
-                            <div className="text-white/40 text-[0.55rem] uppercase tracking-wider">Net benefit</div>
-                            <div className="font-mono text-white/85">{fmtUsd(firstMandate.netBenefitUsd)}</div>
+                          <div className="p-2 rounded bg-[#F2F7F5]">
+                            <div className="text-[#7A8C86] text-[0.55rem] uppercase tracking-wider">Net benefit</div>
+                            <div className="font-mono text-[#0E1F1B]">{fmtUsd(firstMandate.netBenefitUsd)}</div>
                           </div>
-                          <div className="p-2 rounded bg-white/[0.03]">
-                            <div className="text-white/40 text-[0.55rem] uppercase tracking-wider">Mandate</div>
-                            <div className="font-mono text-white/70">
+                          <div className="p-2 rounded bg-[#F2F7F5]">
+                            <div className="text-[#7A8C86] text-[0.55rem] uppercase tracking-wider">Mandate</div>
+                            <div className="font-mono text-[#33544C]">
                               {firstMandate.netBenefitEligible ? "eligible" : "blocked"} · shadow
                             </div>
                           </div>
@@ -962,13 +962,13 @@ export function TransparencySection({
                       ) : null}
                     </div>
                   ) : (
-                    <p className="text-[0.72rem] text-white/40">
+                    <p className="text-[0.72rem] text-[#7A8C86]">
                       MARP decisions not exposed on this snapshot — published via /api/evidence.
                     </p>
                   )}
 
                   <div className="flex flex-wrap items-center justify-between gap-2 pt-1">
-                    <p className="text-[0.66rem] text-white/45 max-w-2xl">
+                    <p className="text-[0.66rem] text-[#5B6E68] max-w-2xl">
                       Entries are append-only and SHA-256 HASH-CHAINED per table (rowHash = sha256(prevHash ‖ payload), v2.0 §24.4)
                       — each entry&apos;s integrity is checkable against the published weight series. HONEST PILOT
                       LIMITATION: retention is WINDOWED in the local pilot store (10k decision / 5k state-vector rows —
@@ -1003,20 +1003,20 @@ export function TransparencySection({
         />
         <Reveal>
           <Panel className="p-5">
-            <p className="text-[0.78rem] text-white/55 mb-3" id="transparency-equation-h">
+            <p className="text-[0.78rem] text-[#33544C] mb-3" id="transparency-equation-h">
               The complete conceptual pipeline — the single equation that summarizes the entire
               architecture from data to executed weights:
             </p>
             <Formula>
               W_t^Live = Execute[ Smooth( Constrain( Ensemble( Constituency(Data_t) ) ) ) ]
             </Formula>
-            <p className="text-[0.72rem] text-white/50 mt-2 mb-4">
+            <p className="text-[0.72rem] text-[#5B6E68] mt-2 mb-4">
               Read from the inside out: the constituency layer decides{" "}
-              <span className="text-white/80">who is in the universe</span>, the ensemble layer decides{" "}
-              <span className="text-white/80">how much each component should weigh</span>, the constraint
-              layer makes the result <span className="text-white/80">constitutionally admissible</span>,
-              the smoothing layer makes it <span className="text-white/80">temporally stable</span>, and
-              the execution layer decides <span className="text-white/80">what actually trades</span>.
+              <span className="text-[#0E1F1B]">who is in the universe</span>, the ensemble layer decides{" "}
+              <span className="text-[#0E1F1B]">how much each component should weigh</span>, the constraint
+              layer makes the result <span className="text-[#0E1F1B]">constitutionally admissible</span>,
+              the smoothing layer makes it <span className="text-[#0E1F1B]">temporally stable</span>, and
+              the execution layer decides <span className="text-[#0E1F1B]">what actually trades</span>.
             </p>
             <div className="space-y-3">
               {[
@@ -1041,20 +1041,20 @@ export function TransparencySection({
                   text: "Chapters 10–11: MARP compares the smoothed target with the actual weights, applies the no-trade thresholds and the cost-benefit test, scales and times execution against liquidity and cost, and respects the reserve state — producing what actually trades, logged field-by-field under its DecisionID (§24.4). W_t^Execution becomes the actual weight vector of the next period, closing the loop.",
                 },
               ].map((s) => (
-                <div key={s.step} className="p-3.5 rounded-lg border border-white/[0.06] bg-white/[0.02]">
+                <div key={s.step} className="p-3.5 rounded-lg border border-[#E3EAE6] bg-[#F6FAF8]">
                   <div className="text-[0.6rem] uppercase tracking-[0.2em] text-mtqs-gold/80 mb-1.5">
                     Step {s.step}
                   </div>
-                  <code className="block font-mono text-[0.72rem] text-mtqs-gold-light bg-white/[0.03] border border-white/[0.05] rounded px-3 py-2 overflow-x-auto whitespace-nowrap mb-2">
+                  <code className="block font-mono text-[0.72rem] text-mtqs-gold bg-[#F2F7F5] border border-[#EDF2EF] rounded px-3 py-2 overflow-x-auto whitespace-nowrap mb-2">
                     {s.formula}
                   </code>
-                  <p className="text-[0.68rem] text-white/50 leading-relaxed">{s.text}</p>
+                  <p className="text-[0.68rem] text-[#5B6E68] leading-relaxed">{s.text}</p>
                 </div>
               ))}
             </div>
             <div className="mt-4 flex items-start gap-2.5 p-3 rounded-lg border border-mtqs-emerald/20 bg-mtqs-emerald/[0.05]">
               <ShieldAlert className="h-4 w-4 text-mtqs-emerald mt-0.5 shrink-0" aria-hidden="true" />
-              <p className="text-[0.7rem] text-white/60 leading-relaxed">
+              <p className="text-[0.7rem] text-[#33544C] leading-relaxed">
                 The final equation is the audit trail in miniature: Data_t (§24.2 versioning) through
                 Constituency and Ensemble (Ch. 4; Ch. 5–7), through Constrain and Smooth (Ch. 8), to
                 Execute (Ch. 10–11) — with every state transition published (§24.3) and every executed

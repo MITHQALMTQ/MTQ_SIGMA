@@ -234,7 +234,7 @@ export function InvestorSection({
         <Panel className="p-5">
           <div className="flex items-start gap-3">
             <TrendingUp className="h-5 w-5 text-mtqs-gold/80 mt-0.5 shrink-0" aria-hidden="true" />
-            <p className="text-[0.82rem] text-white/55 leading-relaxed">
+            <p className="text-[0.82rem] text-[#33544C] leading-relaxed">
               This page is the investor diligence surface. Every cell is fetched live from the
               protocol&apos;s own API. Verify the canonical token contract on each chain, read the
               protocol&apos;s health from the live snapshot, review the honest findings (F1 &amp; F2
@@ -250,7 +250,7 @@ export function InvestorSection({
         <div className="flex items-end justify-between gap-4 mb-4">
           <div>
             <div className="text-[0.6rem] uppercase tracking-[0.22em] text-mtqs-gold/75">§deployments · live</div>
-            <h3 className="mt-2 text-base font-semibold text-white">On-Chain Verification</h3>
+            <h3 className="mt-2 text-base font-semibold text-[#0E1F1B]">On-Chain Verification</h3>
           </div>
         </div>
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
@@ -268,10 +268,10 @@ export function InvestorSection({
                 >
                   <div className="flex items-start justify-between gap-2">
                     <div>
-                      <div className="text-[0.6rem] uppercase tracking-[0.22em] text-white/75">
+                      <div className="text-[0.6rem] uppercase tracking-[0.22em] text-[#1F3A33]">
                         {info.chain}
                       </div>
-                      <div className="font-mono text-[0.65rem] text-white/60 mt-0.5">
+                      <div className="font-mono text-[0.65rem] text-[#33544C] mt-0.5">
                         cid {String(info.chainId)}
                       </div>
                     </div>
@@ -297,8 +297,8 @@ export function InvestorSection({
 
                   {loading ? (
                     <div className="space-y-2">
-                      <div className="h-3 w-full animate-pulse rounded bg-white/[0.04]" />
-                      <div className="h-3 w-2/3 animate-pulse rounded bg-white/[0.04]" />
+                      <div className="h-3 w-full animate-pulse rounded bg-[#EFF5F2]" />
+                      <div className="h-3 w-2/3 animate-pulse rounded bg-[#EFF5F2]" />
                     </div>
                   ) : hasError ? (
                     <div className="text-[0.68rem] text-mtqs-rose/80 leading-relaxed font-mono">
@@ -307,7 +307,7 @@ export function InvestorSection({
                   ) : (
                     <>
                       <div className="text-[0.72rem]">
-                        <div className="text-white/55 text-[0.6rem] uppercase tracking-[0.18em]">
+                        <div className="text-[#33544C] text-[0.6rem] uppercase tracking-[0.18em]">
                           name · symbol
                         </div>
                         <div className="font-mono text-mtqs-gold">
@@ -320,7 +320,7 @@ export function InvestorSection({
                         </div>
                       </div>
                       <div className="text-[0.72rem]">
-                        <div className="text-white/55 text-[0.6rem] uppercase tracking-[0.18em]">
+                        <div className="text-[#33544C] text-[0.6rem] uppercase tracking-[0.18em]">
                           decimals
                         </div>
                         <div className="font-mono text-mtqs-gold">
@@ -329,7 +329,7 @@ export function InvestorSection({
                       </div>
                       {data?.roles && (
                         <div className="text-[0.68rem]">
-                          <div className="text-white/55 text-[0.6rem] uppercase tracking-[0.18em]">
+                          <div className="text-[#33544C] text-[0.6rem] uppercase tracking-[0.18em]">
                             roles (deployer)
                           </div>
                           <div className="font-mono flex flex-wrap gap-1.5 mt-0.5">
@@ -345,7 +345,7 @@ export function InvestorSection({
                         </div>
                       )}
                       {data?.latestBlock != null && (
-                        <div className="text-[0.62rem] text-white/60 font-mono mt-auto">
+                        <div className="text-[0.62rem] text-[#33544C] font-mono mt-auto">
                           block #{data.latestBlock} · verified {fmtAgo(data.verifiedAt ? new Date(data.verifiedAt).getTime() : null)}
                         </div>
                       )}
@@ -363,7 +363,7 @@ export function InvestorSection({
         <div className="flex items-end justify-between gap-4 mb-4">
           <div>
             <div className="text-[0.6rem] uppercase tracking-[0.22em] text-mtqs-gold/75">§2-§8 · live snapshot</div>
-            <h3 className="mt-2 text-base font-semibold text-white">Protocol Health</h3>
+            <h3 className="mt-2 text-base font-semibold text-[#0E1F1B]">Protocol Health</h3>
           </div>
           <Pill tone={snapshot?.oraclePaused ? "rose" : "emerald"}>
             <GlowDot color={snapshot?.oraclePaused ? "rose" : "emerald"} size="h-1.5 w-1.5" />
@@ -377,8 +377,8 @@ export function InvestorSection({
               emerald: "text-mtqs-emerald",
               amber: "text-mtqs-amber",
               rose: "text-mtqs-rose",
-              gold: "text-mtqs-gold-light",
-              muted: "text-white/55",
+              gold: "text-mtqs-gold",
+              muted: "text-[#33544C]",
             };
             return (
               <Reveal key={c.label}>
@@ -388,7 +388,7 @@ export function InvestorSection({
                       className={`h-3.5 w-3.5 ${toneClasses[c.tone]}`}
                       aria-hidden="true"
                     />
-                    <span className="text-[0.6rem] uppercase tracking-[0.18em] text-white/75">
+                    <span className="text-[0.6rem] uppercase tracking-[0.18em] text-[#1F3A33]">
                       {c.label}
                     </span>
                   </div>
@@ -397,7 +397,7 @@ export function InvestorSection({
                   >
                     {c.value ?? "—"}
                   </div>
-                  <div className="mt-1 text-[0.62rem] text-white/55 truncate">
+                  <div className="mt-1 text-[0.62rem] text-[#33544C] truncate">
                     {c.sub}
                   </div>
                 </Panel>
@@ -412,7 +412,7 @@ export function InvestorSection({
         <div className="flex items-end justify-between gap-4 mb-4">
           <div>
             <div className="text-[0.6rem] uppercase tracking-[0.22em] text-mtqs-gold/75">v1.2 · reconciliation</div>
-            <h3 className="mt-2 text-base font-semibold text-white">Honest Findings</h3>
+            <h3 className="mt-2 text-base font-semibold text-[#0E1F1B]">Honest Findings</h3>
           </div>
           <Pill
             tone={
@@ -437,7 +437,7 @@ export function InvestorSection({
         <Reveal>
           <Panel className="p-5">
             {f1And2.length === 0 ? (
-              <div className="rounded-md border border-white/[0.06] bg-white/[0.02] p-4 text-center text-[0.75rem] text-white/55">
+              <div className="rounded-md border border-[#E3EAE6] bg-[#F6FAF8] p-4 text-center text-[0.75rem] text-[#33544C]">
                 Loading reconciliation findings…
               </div>
             ) : (
@@ -451,17 +451,17 @@ export function InvestorSection({
                     className="rounded-md border border-mtqs-emerald/40 bg-mtqs-emerald/5 p-4"
                   >
                     <div className="flex items-start justify-between gap-2 mb-2">
-                      <div className="text-sm font-semibold text-white">{f.title}</div>
+                      <div className="text-sm font-semibold text-[#0E1F1B]">{f.title}</div>
                       <Pill tone="emerald">
                         <GlowDot color="emerald" size="h-1.5 w-1.5" />
                         fixed
                       </Pill>
                     </div>
-                    <p className="text-[0.75rem] text-white/55 leading-relaxed">
+                    <p className="text-[0.75rem] text-[#33544C] leading-relaxed">
                       {f.description}
                     </p>
                     {f.resolution && (
-                      <p className="mt-2 text-[0.72rem] text-white/55 leading-relaxed">
+                      <p className="mt-2 text-[0.72rem] text-[#33544C] leading-relaxed">
                         <span className="text-mtqs-gold/80 uppercase tracking-[0.18em] text-[0.6rem] font-medium mr-1">
                           Resolution
                         </span>
@@ -472,7 +472,7 @@ export function InvestorSection({
                 ))}
               </div>
             )}
-            <div className="mt-4 text-[0.72rem] text-white/55 leading-relaxed">
+            <div className="mt-4 text-[0.72rem] text-[#33544C] leading-relaxed">
               <span className="text-mtqs-emerald/85 font-medium">F1</span> — the §12.2 vs §3.4.2
               redemption price contradiction is reconciled (§3.4.2 canonical, §12.2 informational).
               <span className="text-mtqs-emerald/85 font-medium"> F2</span> — the §5.6 Circle
@@ -502,7 +502,7 @@ export function InvestorSection({
         <div className="flex items-end justify-between gap-4 mb-4">
           <div>
             <div className="text-[0.6rem] uppercase tracking-[0.22em] text-mtqs-gold/75">pilot traction</div>
-            <h3 className="mt-2 text-base font-semibold text-white">Trial Traction</h3>
+            <h3 className="mt-2 text-base font-semibold text-[#0E1F1B]">Trial Traction</h3>
           </div>
           <Pill tone="gold">
             <Database className="h-3 w-3" aria-hidden="true" />
@@ -512,15 +512,15 @@ export function InvestorSection({
         <Reveal>
           <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
             <Panel className="p-4">
-              <div className="text-[0.6rem] uppercase tracking-[0.18em] text-white/75 mb-1">
+              <div className="text-[0.6rem] uppercase tracking-[0.18em] text-[#1F3A33] mb-1">
                 Total trials
               </div>
-              <div className="font-mono tabular-nums text-2xl text-mtqs-gold-light">
+              <div className="font-mono tabular-nums text-2xl text-mtqs-gold">
                 {trialCount.toLocaleString()}
               </div>
             </Panel>
             <Panel className="p-4">
-              <div className="text-[0.6rem] uppercase tracking-[0.18em] text-white/75 mb-1">
+              <div className="text-[0.6rem] uppercase tracking-[0.18em] text-[#1F3A33] mb-1">
                 Mints
               </div>
               <div className="font-mono tabular-nums text-2xl text-mtqs-emerald">
@@ -528,7 +528,7 @@ export function InvestorSection({
               </div>
             </Panel>
             <Panel className="p-4">
-              <div className="text-[0.6rem] uppercase tracking-[0.18em] text-white/75 mb-1">
+              <div className="text-[0.6rem] uppercase tracking-[0.18em] text-[#1F3A33] mb-1">
                 Redeems
               </div>
               <div className="font-mono tabular-nums text-2xl text-mtqs-amber">
@@ -536,7 +536,7 @@ export function InvestorSection({
               </div>
             </Panel>
             <Panel className="p-4">
-              <div className="text-[0.6rem] uppercase tracking-[0.18em] text-white/75 mb-1">
+              <div className="text-[0.6rem] uppercase tracking-[0.18em] text-[#1F3A33] mb-1">
                 Success rate
               </div>
               <div className="font-mono tabular-nums text-2xl text-mtqs-emerald">
@@ -552,16 +552,16 @@ export function InvestorSection({
         <div className="flex items-end justify-between gap-4 mb-4">
           <div>
             <div className="text-[0.6rem] uppercase tracking-[0.22em] text-mtqs-gold/75">due diligence · api</div>
-            <h3 className="mt-2 text-base font-semibold text-white">Investor Endpoints</h3>
+            <h3 className="mt-2 text-base font-semibold text-[#0E1F1B]">Investor Endpoints</h3>
           </div>
           <Pill tone="muted">all paths relative · GET only</Pill>
         </div>
         <Reveal>
           <Panel className="p-4 sm:p-5">
-            <div className="overflow-hidden rounded-md border border-white/[0.06]">
+            <div className="overflow-hidden rounded-md border border-[#E3EAE6]">
               <div className="max-h-96 overflow-y-auto mtqs-scroll">
                 <table className="w-full text-[0.72rem]">
-                  <thead className="bg-white/[0.02] text-white/55 sticky top-0">
+                  <thead className="bg-[#F6FAF8] text-[#33544C] sticky top-0">
                     <tr>
                       <th className="text-left px-3 py-2 font-medium">Endpoint</th>
                       <th className="text-left px-3 py-2 font-medium">Path</th>
@@ -573,11 +573,11 @@ export function InvestorSection({
                     {INVESTOR_ENDPOINTS.map((ep, i) => (
                       <tr
                         key={ep.url}
-                        className={`border-t border-white/[0.06] ${i % 2 ? "bg-white/[0.01]" : ""}`}
+                        className={`border-t border-[#E3EAE6] ${i % 2 ? "bg-[#FAFCFA]" : ""}`}
                       >
-                        <td className="px-3 py-2.5 text-white/90 font-medium">{ep.label}</td>
+                        <td className="px-3 py-2.5 text-[#0E1F1B] font-medium">{ep.label}</td>
                         <td className="px-3 py-2.5 font-mono text-mtqs-gold break-all">{ep.url}</td>
-                        <td className="px-3 py-2.5 text-white/75 hidden sm:table-cell">
+                        <td className="px-3 py-2.5 text-[#1F3A33] hidden sm:table-cell">
                           {ep.desc}
                         </td>
                         <td className="px-3 py-2.5 text-right">
@@ -589,7 +589,7 @@ export function InvestorSection({
                 </table>
               </div>
             </div>
-            <div className="mt-3 flex items-start gap-2 text-[0.7rem] text-white/55">
+            <div className="mt-3 flex items-start gap-2 text-[0.7rem] text-[#33544C]">
               <GlowDot color="gold" size="h-1.5 w-1.5" className="mt-1.5" />
               <p className="leading-relaxed">
                 All endpoints are read-only GET. Run a simulated mint or redeem in the Operations
@@ -604,7 +604,7 @@ export function InvestorSection({
       {/* Closing */}
       <Reveal>
         <Panel variant="emerald" className="p-5 sm:p-6 text-center">
-          <p className="text-[0.82rem] text-white/55 leading-relaxed max-w-2xl mx-auto mb-4">
+          <p className="text-[0.82rem] text-[#33544C] leading-relaxed max-w-2xl mx-auto mb-4">
             Investor diligence complete. Every metric above is reproducible from the endpoints
             listed. Review the Monte Carlo test suite for protocol resilience, or read the full
             blueprint reference in Docs.
@@ -612,14 +612,14 @@ export function InvestorSection({
           <div className="flex flex-wrap items-center justify-center gap-2">
             <button
               onClick={() => _onNavigate("validation")}
-              className="inline-flex items-center gap-1.5 rounded-full border border-white/[0.1] bg-white/[0.03] px-4 py-2 text-[0.78rem] font-medium text-white hover:border-mtqs-gold/30 hover:text-white transition"
+              className="inline-flex items-center gap-1.5 rounded-full border border-[#D3DED8] bg-[#F2F7F5] px-4 py-2 text-[0.78rem] font-medium text-[#0E1F1B] hover:border-mtqs-gold/30 hover:text-[#0E1F1B] transition"
             >
               View Tests
               <ArrowRight className="h-3.5 w-3.5" aria-hidden="true" />
             </button>
             <button
               onClick={() => _onNavigate("docs")}
-              className="inline-flex items-center gap-1.5 rounded-full border border-white/[0.1] bg-white/[0.03] px-4 py-2 text-[0.78rem] font-medium text-white hover:border-mtqs-gold/30 hover:text-white transition"
+              className="inline-flex items-center gap-1.5 rounded-full border border-[#D3DED8] bg-[#F2F7F5] px-4 py-2 text-[0.78rem] font-medium text-[#0E1F1B] hover:border-mtqs-gold/30 hover:text-[#0E1F1B] transition"
             >
               Blueprint Docs
               <ArrowRight className="h-3.5 w-3.5" aria-hidden="true" />
@@ -635,7 +635,7 @@ export function InvestorSection({
 function RoleChip({ label, ok }: { label: string; ok: boolean | null }) {
   if (ok === null) {
     return (
-      <span className="inline-flex items-center gap-1 rounded border border-white/[0.1] bg-white/[0.02] text-white/55 px-1.5 py-0.5 font-mono text-[0.6rem]">
+      <span className="inline-flex items-center gap-1 rounded border border-[#D3DED8] bg-[#F6FAF8] text-[#33544C] px-1.5 py-0.5 font-mono text-[0.6rem]">
         {label.toLowerCase()}?
       </span>
     );
@@ -645,7 +645,7 @@ function RoleChip({ label, ok }: { label: string; ok: boolean | null }) {
       className={`inline-flex items-center gap-1 rounded border px-1.5 py-0.5 font-mono text-[0.6rem] ${
         ok
           ? "border-mtqs-emerald/40 bg-mtqs-emerald/10 text-mtqs-emerald"
-          : "border-white/[0.1] bg-white/[0.02] text-white/60"
+          : "border-[#D3DED8] bg-[#F6FAF8] text-[#33544C]"
       }`}
     >
       {label.toLowerCase()}

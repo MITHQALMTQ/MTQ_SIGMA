@@ -461,7 +461,7 @@ export function SecuritySection({ onNavigate: _onNavigate }: { onNavigate: (id: 
               </div>
               <button
                 onClick={() => _onNavigate("validation")}
-                className="inline-flex items-center gap-1.5 text-[0.75rem] text-mtqs-gold/85 hover:text-mtqs-gold-light transition"
+                className="inline-flex items-center gap-1.5 text-[0.75rem] text-mtqs-gold/85 hover:text-mtqs-gold transition"
               >
                 Open Tests
                 <ArrowRight className="h-3.5 w-3.5" aria-hidden="true" />

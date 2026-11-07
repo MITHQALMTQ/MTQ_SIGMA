@@ -410,7 +410,7 @@ export function StatCard({
       ? "text-mtqs-rose"
       : tone === "neutral"
       ? "text-[#0E1F1B]"
-      : "text-mtqs-gold-light";
+      : "text-mtqs-gold";
   const trendColor =
     trendDirection === "up"
       ? "text-mtqs-emerald"
@@ -427,7 +427,7 @@ export function StatCard({
         </span>
         {Icon ? (
           <span className="inline-flex items-center justify-center rounded-md border border-mtqs-gold/25 bg-mtqs-gold/8 p-1.5">
-            <Icon className="h-3.5 w-3.5 text-mtqs-gold-light" aria-hidden="true" />
+            <Icon className="h-3.5 w-3.5 text-mtqs-gold" aria-hidden="true" />
           </span>
         ) : null}
       </div>

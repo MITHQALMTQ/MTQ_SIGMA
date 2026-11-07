@@ -27,9 +27,11 @@
     </linearGradient>
   </defs>
   <circle cx="24" cy="24" r="21.6" fill="url(#fdisc)"/>
+  <g transform="translate(24 24) scale(0.78) translate(-24 -24)">
   <path d="M7.5 37.5 L18.5 9 L18.5 15 L7.5 40 Z" fill="url(#ff1)"/>
   <path d="M18.5 9 L29.5 37.5 L29.5 40 L18.5 15 Z" fill="url(#ff2)"/>
   <path d="M18.5 37.5 L29.5 9 L29.5 15 L18.5 40 Z" fill="url(#ff3)"/>
   <path d="M29.5 9 L40.5 37.5 L40.5 40 L29.5 15 Z" fill="url(#ff4)"/>
+    </g>
   <circle cx="24" cy="24" r="22.4" fill="none" stroke="#0D9488" stroke-width="3.2"/>
 </svg>

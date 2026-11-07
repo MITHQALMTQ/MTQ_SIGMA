@@ -201,43 +201,48 @@ const ROWS: MatrixRow[] = [
 ];
 
 /* ---------- Status badge (cell-level) ---------- */
+/* F-59: badges previously sized to content (`inline-flex` + nowrap with no
+   width bound) → long labels ("marp.ts + engine.ts (live + wired)") overran
+   the grid cell and collided with the Notes column (VLM-flagged row 8).
+   Bound the pill to the cell (max-w-full) and let the label shrink
+   (min-w-0 + truncate) so overflow becomes a clean ellipsis. */
 function StatusBadge({ status, text }: { status: CellStatus; text: string }) {
   if (status === "on-chain") {
     return (
-      <Pill tone="emerald" className="whitespace-nowrap">
+      <Pill tone="emerald" className="whitespace-nowrap max-w-full">
         <CheckCircle2 className="h-3 w-3 shrink-0" aria-hidden="true" />
-        <span className="truncate">{text}</span>
+        <span className="truncate min-w-0">{text}</span>
       </Pill>
     );
   }
   if (status === "source-ready") {
     return (
-      <Pill tone="gold" className="whitespace-nowrap">
+      <Pill tone="gold" className="whitespace-nowrap max-w-full">
         <FileCode2 className="h-3 w-3 shrink-0" aria-hidden="true" />
-        <span className="truncate">{text}</span>
+        <span className="truncate min-w-0">{text}</span>
       </Pill>
     );
   }
   if (status === "ts-only") {
     return (
-      <Pill tone="amber" className="whitespace-nowrap">
+      <Pill tone="amber" className="whitespace-nowrap max-w-full">
         <Cog className="h-3 w-3 shrink-0" aria-hidden="true" />
-        <span className="truncate">{text}</span>
+        <span className="truncate min-w-0">{text}</span>
       </Pill>
     );
   }
   if (status === "not-implemented") {
     return (
-      <Pill tone="rose" className="whitespace-nowrap">
+      <Pill tone="rose" className="whitespace-nowrap max-w-full">
         <XCircle className="h-3 w-3 shrink-0" aria-hidden="true" />
-        <span className="truncate">{text}</span>
+        <span className="truncate min-w-0">{text}</span>
       </Pill>
     );
   }
   return (
-    <Pill tone="muted" className="whitespace-nowrap">
+    <Pill tone="muted" className="whitespace-nowrap max-w-full">
       <Minus className="h-3 w-3 shrink-0" aria-hidden="true" />
-      <span className="truncate">{text}</span>
+      <span className="truncate min-w-0">{text}</span>
     </Pill>
   );
 }

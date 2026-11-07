@@ -47,8 +47,12 @@ export function Header({
     <header
       /* F-57: sticky pinning moved to the single wrapper in PCC — this
          element is now a plain flow child (its old `sticky top-7 z-50`
-         is owned by the wrapper, which can never mis-stack). */
-      className="border-b border-[#E3EAE6] bg-white/95 shadow-[0_1px_12px_rgba(14,31,27,0.05)]"
+         is owned by the wrapper, which can never mis-stack).
+         F-59: bg-white/95 → bg-white — the 5% translucency let page
+         content bleed through the pinned header as faint ghost text
+         (VLM-flagged); opaque is also cheaper (no per-frame compositing
+         of the tall content beneath). */
+      className="border-b border-[#E3EAE6] bg-white shadow-[0_1px_12px_rgba(14,31,27,0.05)]"
       role="banner"
     >
 
@@ -70,7 +74,7 @@ export function Header({
                 Σ-v1.2
               </Pill>
             </div>
-            <span className="text-[0.62rem] sm:text-[0.66rem] tracking-[0.18em] uppercase text-[#7A8C86] truncate">
+            <span className="text-[0.66rem] sm:text-[0.7rem] tracking-[0.14em] uppercase text-[#5B6E68] truncate">
               {BRAND_VOICE.tagline}
             </span>
           </div>
@@ -121,11 +125,17 @@ export function Header({
 const tickerItem = (
   label: string,
   value: React.ReactNode,
-  tone: "default" | "gold" | "emerald" | "rose" | "amber" = "default"
+  tone: "default" | "gold" | "emerald" | "rose" | "amber" = "default",
+  /* F-59: responsive disclosure — secondary stats (LCR, BUFFER) hide below
+     xl (1280px) so the primary five (GFB · MTQ · NAV · RR · ORACLE) always
+     fit without clipping at mid-size windows (the 1143px owner screenshot);
+     same progressive-disclosure pattern as the status bar (md/lg gates). */
+  visibility: "" | "hidden xl:flex" = ""
 ) => ({
   label,
   value,
   tone,
+  visibility,
 });
 
 export function LiveTicker({ snapshot }: { snapshot: MetricsSnapshot | null }) {
@@ -178,16 +188,16 @@ export function LiveTicker({ snapshot }: { snapshot: MetricsSnapshot | null }) {
     tickerItem("MTQ", (
       <span className="flex items-center gap-1">
         <TickNumber value={snapshot.mtqPrice} format={(n) => fmtFixed(n, 4)} className={toneByPrice === "emerald" ? "text-mtqs-emerald" : "text-mtqs-rose"} />
-        <span className={`text-[0.6rem] ${snapshot.priceInBand ? "text-mtqs-emerald/70" : "text-mtqs-rose/80"}`}>
+        <span className={`text-[0.6rem] font-medium ${snapshot.priceInBand ? "text-mtqs-emerald/90" : "text-mtqs-rose/90"}`}>
           {snapshot.priceInBand ? "in-band" : "BREAKER"}
         </span>
       </span>
     ), toneByPrice),
     tickerItem("NAV", <TickNumber value={snapshot.nav} format={fmtUsdCompact} />, "default"),
     tickerItem("RR", <span className={toneByRr === "emerald" ? "text-mtqs-emerald" : toneByRr === "amber" ? "text-mtqs-amber" : "text-mtqs-rose"}>{rrTxt}</span>, toneByRr),
-    tickerItem("LCR", <span className={toneByLcr === "emerald" ? "text-mtqs-emerald" : "text-mtqs-amber"}>{lcrTxt}</span>, toneByLcr),
+    tickerItem("LCR", <span className={toneByLcr === "emerald" ? "text-mtqs-emerald" : "text-mtqs-amber"}>{lcrTxt}</span>, toneByLcr, "hidden xl:flex"),
     tickerItem("STATUS", <span className="uppercase tracking-wider text-[#0E1F1B]">{snapshot.status}</span>, "default"),
-    tickerItem("BUFFER", <span className="text-mtqs-gold">{snapshot.bufferState}</span>, "gold"),
+    tickerItem("BUFFER", <span className="text-mtqs-gold">{snapshot.bufferState}</span>, "gold", "hidden xl:flex"),
     tickerItem(
       "ORACLE",
       <span className={snapshot.oracleFailed ? "text-mtqs-rose" : snapshot.oracleDegraded ? "text-mtqs-amber" : "text-mtqs-emerald"}>{oracleText}</span>,
@@ -212,12 +222,19 @@ export function LiveTicker({ snapshot }: { snapshot: MetricsSnapshot | null }) {
               initial={{ opacity: 0, y: -4 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.25, delay: i * 0.03 }}
-              className="flex items-center gap-1.5 sm:gap-2 px-3 sm:px-4 py-2.5 border-r border-[#E3EAE6] last:border-r-0 shrink-0"
+              /* F-59: 8-stat row measured 1168px natural vs ~1072px content
+                 column at a 1440px viewport → the ORACLE value clipped ~96px
+                 (VLM-flagged twice). Adaptive densification: tighter item
+                 padding + label tracking + label→value gap reclaim ~108px so
+                 the full row fits without wrap at every ≥lg viewport, while
+                 overflow-x-auto stays as the mobile escape hatch. Secondary
+                 stats (LCR · BUFFER) additionally hide below xl. */
+              className={`flex items-center gap-1 px-2.5 sm:px-3 py-2.5 border-r border-[#E3EAE6] last:border-r-0 shrink-0 ${it.visibility}`}
             >
-              <span className="text-[0.55rem] sm:text-[0.6rem] uppercase tracking-[0.18em] sm:tracking-[0.22em] text-[#7A8C86] whitespace-nowrap">
+              <span className="text-[0.6rem] sm:text-[0.62rem] uppercase tracking-[0.12em] sm:tracking-[0.14em] font-semibold text-[#5B6E68] whitespace-nowrap">
                 {it.label}
               </span>
-              <span className="font-mono tabular-nums text-[0.72rem] sm:text-[0.8rem] font-medium whitespace-nowrap">
+              <span className="font-mono tabular-nums text-[0.75rem] sm:text-[0.8rem] font-medium whitespace-nowrap">
                 {it.value}
               </span>
             </motion.div>

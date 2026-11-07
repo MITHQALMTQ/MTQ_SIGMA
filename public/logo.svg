@@ -39,6 +39,7 @@
   <ellipse cx="19.5" cy="15.5" rx="13" ry="8" fill="rgba(94,234,212,0.10)"/>
 
   <!-- faceted M — drop shadow copy -->
+  <g transform="translate(24 24) scale(0.78) translate(-24 -24)">
   <g transform="translate(0 2.6)" opacity="0.9">
     <path d="M7.5 37.5 L18.5 9 L18.5 15 L7.5 40 Z" fill="#0B1B16"/>
     <path d="M18.5 9 L29.5 37.5 L29.5 40 L18.5 15 Z" fill="#0F241E"/>
@@ -53,6 +54,7 @@
     <path d="M18.5 37.5 L29.5 9 L29.5 15 L18.5 40 Z" fill="url(#mtqs-f3)"/>
     <path d="M29.5 9 L40.5 37.5 L40.5 40 L29.5 15 Z" fill="url(#mtqs-f4)"/>
   </g>
+</g>
 
   <!-- teal ring + inner hairline -->
   <circle cx="24" cy="24" r="22.2" fill="none" stroke="#0D9488" stroke-width="2.3"/>

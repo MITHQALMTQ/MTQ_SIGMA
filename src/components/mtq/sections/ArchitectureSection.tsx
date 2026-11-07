@@ -358,7 +358,7 @@ function FlowNode({
 }) {
   const cls =
     tone === "gold"
-      ? "border-mtqs-gold/45 bg-mtqs-gold/[0.07] text-mtqs-gold-light mtqs-glow"
+      ? "border-mtqs-gold/45 bg-mtqs-gold/[0.07] text-mtqs-gold mtqs-glow"
       : "border-[#E3EAE6] bg-[#F7FAF8] text-[#0E1F1B]";
   return (
     <div
@@ -515,7 +515,7 @@ export function ArchitectureSection({
             <div className="text-[0.6rem] uppercase tracking-[0.22em] text-mtqs-gold/75">
               §26.7 · the final one-sentence definition
             </div>
-            <p className="mtqs-display mt-2 text-base sm:text-lg font-medium leading-relaxed text-mtqs-gold-light">
+            <p className="mtqs-display mt-2 text-base sm:text-lg font-medium leading-relaxed text-mtqs-gold">
               &ldquo;MTQΣ is a transparent, dynamically weighted, multi-currency-and-gold monetary
               reference architecture in which the live composition is continuously calculated by a
               constrained, robust, multi-model stability engine and changed only through cost-aware,
@@ -692,7 +692,7 @@ export function ArchitectureSection({
         />
         <Reveal>
           <Panel className="p-5 sm:p-6">
-            <p className="mb-4 text-center font-mono text-sm sm:text-base text-mtqs-gold-light">
+            <p className="mb-4 text-center font-mono text-sm sm:text-base text-mtqs-gold">
               W<sup>Prior</sup> ≠ W<sup>Target</sup> ≠ W<sup>Smooth</sup> ≠ W<sup>Execution</sup>
             </p>
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
@@ -774,7 +774,7 @@ export function ArchitectureSection({
                       {ex.math.map((m) => (
                         <div
                           key={m}
-                          className="rounded border border-[#E3EAE6] bg-[#F7FAF8] px-2 py-1 font-mono text-[0.64rem] text-mtqs-gold-light break-words"
+                          className="rounded border border-[#E3EAE6] bg-[#F7FAF8] px-2 py-1 font-mono text-[0.64rem] text-mtqs-gold break-words"
                         >
                           {m}
                         </div>

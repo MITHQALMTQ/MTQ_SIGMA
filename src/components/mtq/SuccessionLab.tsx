@@ -484,7 +484,7 @@ export function SuccessionLab() {
                     </div>
                     <div className="p-2 rounded-lg bg-[#F7FAF8]">
                       <div className="text-[#7A8C86] text-[0.55rem] uppercase tracking-wider">Saved by acting</div>
-                      <div className="font-mono text-mtqs-gold-light">+{result.reserveFlow.savedByActingUsdPerMtq.toPrecision(3)}</div>
+                      <div className="font-mono text-mtqs-gold">+{result.reserveFlow.savedByActingUsdPerMtq.toPrecision(3)}</div>
                     </div>
                   </div>
                   <p className="mt-2 text-[0.6rem] text-[#7A8C86]">

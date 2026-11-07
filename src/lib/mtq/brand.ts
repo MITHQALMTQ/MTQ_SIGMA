@@ -100,21 +100,33 @@ export const BRAND_COLORS = {
 } as const;
 
 // === Governance tier colors (§14.2 hierarchy) ===
+// F-59: same dark-theme neon leftover class as STATUS_COLORS — tier labels
+// rendered at ~1.6-2.2:1 on light Panels. Now aligned to the documented
+// RiskStateMachine mapping (constitutional = gold/teal, monetary = emerald,
+// risk = amber, emergency = rose) in deep WCAG-AA tones.
 export const GOVERNANCE_TIERS = {
-  constitutional: { color: "#2BABFB", label: "Constitutional · 7/7 · 90d", glow: "0 0 24px rgba(43,171,251,0.35)" },
-  monetary: { color: "#00E5FF", label: "Monetary · DAO 51% · 48h", glow: "0 0 24px rgba(0,229,255,0.30)" },
-  risk: { color: "#ffb84d", label: "Risk · Council 4/7 · 24h", glow: "0 0 24px rgba(255,184,77,0.30)" },
-  emergency: { color: "#ff5d73", label: "Emergency · 4/7 · instant", glow: "0 0 24px rgba(255,93,115,0.35)" },
+  constitutional: { color: "#0F766E", label: "Constitutional · 7/7 · 90d", glow: "0 0 24px rgba(15,118,110,0.22)" },
+  monetary: { color: "#047857", label: "Monetary · DAO 51% · 48h", glow: "0 0 24px rgba(4,120,87,0.22)" },
+  risk: { color: "#B45309", label: "Risk · Council 4/7 · 24h", glow: "0 0 24px rgba(180,83,9,0.22)" },
+  emergency: { color: "#BE123C", label: "Emergency · 4/7 · instant", glow: "0 0 24px rgba(190,18,60,0.22)" },
 } as const;
 
 // === Status colors (§14.1 risk state machine) ===
+// F-59 (2026-11-07, owner screenshot): these were dark-theme NEON values
+// (#00E5FF cyan, #FFB84D…) surviving into the light theme — NORMAL rendered
+// at ~1.6:1 contrast on white, reading as "fuzzy/unreadable" in the header
+// pill, sidebar capsule, hero status line, risk timeline and charts. All
+// consumers paint TEXT + tinted bg on LIGHT surfaces (verified: Header,
+// Sidebar, InstitutionalHero, ReferenceChart, RiskStateMachine, RiskTimeline,
+// ConstitutionalSeparation, Docs, Home), so the palette is now deep-tone,
+// WCAG-AA on #FFFFFF/#FAFCFA, keeping the §14.1 semantic ladder.
 export const STATUS_COLORS: Record<string, { color: string; bg: string; label: string }> = {
-  NORMAL: { color: "#00E5FF", bg: "rgba(0,229,255,0.08)", label: "NORMAL" },
-  CAUTION: { color: "#FFB84D", bg: "rgba(255,184,77,0.08)", label: "CAUTION" },
-  STRESS: { color: "#FF8C42", bg: "rgba(255,140,66,0.08)", label: "STRESS" },
-  DEFENSIVE: { color: "#FF6B6B", bg: "rgba(255,107,107,0.08)", label: "DEFENSIVE" },
-  EMERGENCY: { color: "#FF4D6D", bg: "rgba(255,77,109,0.10)", label: "EMERGENCY" },
-  RECOVERY: { color: "#3882F6", bg: "rgba(56,130,246,0.08)", label: "RECOVERY" },
+  NORMAL: { color: "#0F766E", bg: "rgba(15,118,110,0.08)", label: "NORMAL" },
+  CAUTION: { color: "#B45309", bg: "rgba(180,83,9,0.08)", label: "CAUTION" },
+  STRESS: { color: "#C2410C", bg: "rgba(194,65,12,0.08)", label: "STRESS" },
+  DEFENSIVE: { color: "#BE123C", bg: "rgba(190,18,60,0.08)", label: "DEFENSIVE" },
+  EMERGENCY: { color: "#9F1239", bg: "rgba(159,18,57,0.10)", label: "EMERGENCY" },
+  RECOVERY: { color: "#92400E", bg: "rgba(146,64,14,0.08)", label: "RECOVERY" },
 };
 
 // === Typography (brand board: Montserrat primary + Inter secondary) ===

@@ -252,7 +252,7 @@ export function DashboardSection({
                 collateralization (Gate B, D-13.3–D-13.7 open).
               </p>
               <div className="rounded-md border border-[#E3EAE6] bg-[#F7FAF8] p-3 text-[0.72rem] text-[#5B6E68]">
-                <div className="font-mono text-mtqs-gold-light mb-1">§1.1 · Core Objective</div>
+                <div className="font-mono text-mtqs-gold mb-1">§1.1 · Core Objective</div>
                 Status: {snapshot?.status ?? "NORMAL"} · RR{" "}
                 {snapshot && Number.isFinite(snapshot.reserveRatio) ? fmtRatio(snapshot.reserveRatio) : "∞ — no liability"} ·
                 NAV {(snapshot?.nav ?? 0).toLocaleString("en-US", { maximumFractionDigits: 0 })}
@@ -492,7 +492,7 @@ export function DashboardSection({
               {onNavigate ? (
                 <button
                   onClick={() => onNavigate("contracts")}
-                  className="shrink-0 inline-flex items-center gap-1.5 rounded-full border border-mtqs-gold/30 bg-mtqs-gold/[0.06] px-4 py-2 text-[0.75rem] font-medium text-mtqs-gold-light hover:bg-mtqs-gold/[0.12] transition"
+                  className="shrink-0 inline-flex items-center gap-1.5 rounded-full border border-mtqs-gold/30 bg-mtqs-gold/[0.06] px-4 py-2 text-[0.75rem] font-medium text-mtqs-gold hover:bg-mtqs-gold/[0.12] transition"
                 >
                   Open Contracts registry
                   <span aria-hidden="true">→</span>

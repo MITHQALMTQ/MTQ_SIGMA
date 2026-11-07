@@ -288,7 +288,7 @@ export function MintSection({
                   <div key={input.param} className="rounded-md border border-[#E3EAE6] bg-[#F7FAF8] p-3">
                     <div className="flex items-baseline justify-between gap-2">
                       <span className="text-[0.72rem] font-medium text-[#0E1F1B]">{input.param}</span>
-                      <code className="font-mono text-[0.68rem] text-mtqs-gold-light">{input.symbol}</code>
+                      <code className="font-mono text-[0.68rem] text-mtqs-gold">{input.symbol}</code>
                     </div>
                     <p className="mt-1.5 text-[0.68rem] text-[#5B6E68] leading-relaxed">{input.desc}</p>
                   </div>
@@ -304,14 +304,14 @@ export function MintSection({
               <ol className="space-y-3 max-h-96 overflow-y-auto mtqs-scroll pr-1">
                 {MINT_STEPS.map((step, i) => (
                   <li key={step.title} className="flex gap-3">
-                    <span className="h-6 w-6 shrink-0 rounded-full border border-mtqs-gold/30 bg-mtqs-gold/5 flex items-center justify-center text-[0.68rem] font-mono font-semibold text-mtqs-gold-light">
+                    <span className="h-6 w-6 shrink-0 rounded-full border border-mtqs-gold/30 bg-mtqs-gold/5 flex items-center justify-center text-[0.68rem] font-mono font-semibold text-mtqs-gold">
                       {i + 1}
                     </span>
                     <div className="min-w-0">
                       <div className="text-[0.8rem] font-medium text-[#0E1F1B]">{step.title}</div>
                       <p className="text-[0.72rem] text-[#5B6E68] leading-relaxed">{step.body}</p>
                       {step.formula ? (
-                        <code className="mt-1.5 inline-block rounded bg-[#F7FAF8] px-1.5 py-0.5 font-mono text-[0.68rem] text-mtqs-gold-light">
+                        <code className="mt-1.5 inline-block rounded bg-[#F7FAF8] px-1.5 py-0.5 font-mono text-[0.68rem] text-mtqs-gold">
                           {step.formula}
                         </code>
                       ) : null}
@@ -320,8 +320,8 @@ export function MintSection({
                 ))}
               </ol>
               <p className="mt-3 text-[0.68rem] text-[#7A8C86] leading-relaxed">
-                On success the operation emits <code className="font-mono text-[0.65rem] text-mtqs-gold-light">Minted(user, tokenIn, amountIn, mtqMinted, mtqPrice)</code>,
-                and <code className="font-mono text-[0.65rem] text-mtqs-gold-light">SlippageWarning</code> whenever
+                On success the operation emits <code className="font-mono text-[0.65rem] text-mtqs-gold">Minted(user, tokenIn, amountIn, mtqMinted, mtqPrice)</code>,
+                and <code className="font-mono text-[0.65rem] text-mtqs-gold">SlippageWarning</code> whenever
                 a guard binds — both events feed the transparency and audit layer (§24.4). Reference
                 implementation: Listing 11 (§19.5).
               </p>
@@ -344,7 +344,7 @@ export function MintSection({
                 <div className="text-[0.6rem] uppercase tracking-[0.22em] text-[#7A8C86] mb-1.5">
                   revert condition
                 </div>
-                <code className="font-mono text-[0.78rem] text-mtqs-gold-light">
+                <code className="font-mono text-[0.78rem] text-mtqs-gold">
                   {"revert if MTQ_minted < minMTQOut"}
                 </code>
                 <p className="mt-2 text-[0.68rem] text-[#5B6E68] leading-relaxed">
@@ -356,7 +356,7 @@ export function MintSection({
                 <div className="text-[0.6rem] uppercase tracking-[0.22em] text-[#7A8C86] mb-1.5">
                   default guard from the quote
                 </div>
-                <code className="font-mono text-[0.78rem] text-mtqs-gold-light">
+                <code className="font-mono text-[0.78rem] text-mtqs-gold">
                   {"minMTQOut_default = (X_net / P_MTQ,t) × (1 − τ_user)"}
                 </code>
                 <p className="mt-2 text-[0.68rem] text-[#5B6E68] leading-relaxed">
@@ -369,7 +369,7 @@ export function MintSection({
               <li className="flex gap-2">
                 <span className="text-mtqs-gold shrink-0" aria-hidden="true">·</span>
                 <span>
-                  τ_user defaults to <code className="font-mono text-[0.68rem] text-mtqs-gold-light">0.005 (0.5%)</code> —
+                  τ_user defaults to <code className="font-mono text-[0.68rem] text-mtqs-gold">0.005 (0.5%)</code> —
                   the DEFAULT_SLIPPAGE constant of Listing 11. A user may always tighten the guard below
                   the default (for example to 0.1% around a large deposit).
                 </span>

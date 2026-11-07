@@ -241,7 +241,7 @@ function ReferenceSection() {
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 mb-6">
             <Panel className="p-5">
               <Stat label="GFB Index" value={
-                <span className="text-2xl font-mono tabular-nums text-mtqs-gold-light">
+                <span className="text-2xl font-mono tabular-nums text-mtqs-gold">
                   {gfb ? gfb.gfbIndex.toFixed(4) : loading ? <Skeleton className="h-7 w-24 inline-block" /> : "—"}
                 </span>
               } sub="chain-linked recursive · §9.2" />
@@ -457,7 +457,7 @@ function ReserveSection({ snapshot }: { snapshot: MetricsSnapshot | null }) {
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
             <Panel className="p-5">
               <Stat label="NAV (net asset value)" value={
-                <span className="text-2xl font-mono tabular-nums text-mtqs-gold-light">
+                <span className="text-2xl font-mono tabular-nums text-mtqs-gold">
                   {snapshot ? fmtUsd(snapshot.nav) : <Skeleton className="h-7 w-20 inline-block" />}
                 </span>
               } sub="post-haircut USD" />
@@ -746,7 +746,7 @@ function RebalancingSection({ snapshot }: { snapshot: MetricsSnapshot | null }) 
             </Panel>
             <Panel className="p-5">
               <Stat label="Trade Size (USD)" value={
-                <span className="text-2xl font-mono tabular-nums text-mtqs-gold-light">
+                <span className="text-2xl font-mono tabular-nums text-mtqs-gold">
                   {d ? fmtUsd(d.tradeUsd) : <Skeleton className="h-7 w-20 inline-block" />}
                 </span>
               } sub="after slippage + turnover cap" />

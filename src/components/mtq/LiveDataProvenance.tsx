@@ -360,7 +360,7 @@ export function LiveDataProvenance() {
                   <div className="text-[0.6rem] uppercase tracking-[0.22em] text-[#5B6E68] mb-1">
                     source string (snapshot)
                   </div>
-                  <div className="font-mono text-[0.72rem] text-mtqs-gold-light break-words leading-relaxed">
+                  <div className="font-mono text-[0.72rem] text-mtqs-gold break-words leading-relaxed">
                     {fx.source}
                   </div>
                 </div>
@@ -380,8 +380,8 @@ export function LiveDataProvenance() {
                   <ShieldCheck className="h-4 w-4 text-mtqs-emerald/80 mt-0.5 shrink-0" aria-hidden="true" />
                   <span>
                     <span className="text-[#0E1F1B]">Honest note.</span>{" "}
-                    VIX from Yahoo Finance <span className="font-mono text-mtqs-gold-light">^VIX</span> (CBOE).
-                    DXY from Yahoo Finance <span className="font-mono text-mtqs-gold-light">DX-Y.NYB</span> (ICE US Dollar Index).
+                    VIX from Yahoo Finance <span className="font-mono text-mtqs-gold">^VIX</span> (CBOE).
+                    DXY from Yahoo Finance <span className="font-mono text-mtqs-gold">DX-Y.NYB</span> (ICE US Dollar Index).
                     Fallback: Frankfurter self-calc using the official geometric weighted formula, then
                     seeded OU walk. All 8 signals should be <span className="text-mtqs-emerald/90">LIVE</span> when markets are open.
                   </span>

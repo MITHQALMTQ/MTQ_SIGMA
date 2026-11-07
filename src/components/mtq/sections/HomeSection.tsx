@@ -231,7 +231,7 @@ function LiveStatsBand({ snapshot }: { snapshot: MetricsSnapshot | null }) {
       : "text-mtqs-rose";
 
   const stats: { label: string; value: string | null; tone: string; hint?: string }[] = [
-    { label: "Reference Index", value: snapshot ? fmtFixed(snapshot.gfbIndex, 4) : null, tone: "text-mtqs-gold-light" },
+    { label: "Reference Index", value: snapshot ? fmtFixed(snapshot.gfbIndex, 4) : null, tone: "text-mtqs-gold" },
     { label: "Reference Value", value: snapshot ? fmtFixed(snapshot.mtqPrice, 4) : null, tone: snapshot?.priceInBand ? "text-mtqs-emerald" : "text-mtqs-rose" },
     { label: "Pilot Ledger NAV", value: snapshot ? fmtUsdCompact(snapshot.nav) : null, tone: "text-[#0E1F1B]" },
     {
@@ -393,7 +393,7 @@ export function HomeSection({
                   <PremiumCard className="p-5 sm:p-6 h-full flex flex-col gap-3">
                     <div className="flex items-center gap-2.5">
                       <div className="inline-flex items-center justify-center rounded-md border border-mtqs-gold/25 bg-mtqs-gold/10 p-2">
-                        <Icon className="h-4 w-4 text-mtqs-gold-light" aria-hidden="true" />
+                        <Icon className="h-4 w-4 text-mtqs-gold" aria-hidden="true" />
                       </div>
                       <span className="text-[0.6rem] uppercase tracking-[0.22em] text-mtqs-gold/75">
                         {c.eyebrow}
@@ -652,7 +652,7 @@ export function HomeSection({
             right={
               <button
                 onClick={() => onNavigate("contracts")}
-                className="inline-flex items-center gap-1.5 text-[0.72rem] text-mtqs-gold/80 hover:text-mtqs-gold-light transition"
+                className="inline-flex items-center gap-1.5 text-[0.72rem] text-mtqs-gold/80 hover:text-mtqs-gold transition"
               >
                 Full registry
                 <ArrowRight className="h-3.5 w-3.5" aria-hidden="true" />

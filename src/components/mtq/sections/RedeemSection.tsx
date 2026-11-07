@@ -297,7 +297,7 @@ export function RedeemSection({
                   <div key={input.param} className="rounded-md border border-[#E3EAE6] bg-[#F7FAF8] p-3">
                     <div className="flex items-baseline justify-between gap-2">
                       <span className="text-[0.72rem] font-medium text-[#0E1F1B]">{input.param}</span>
-                      <code className="font-mono text-[0.68rem] text-mtqs-gold-light">{input.symbol}</code>
+                      <code className="font-mono text-[0.68rem] text-mtqs-gold">{input.symbol}</code>
                     </div>
                     <p className="mt-1.5 text-[0.68rem] text-[#5B6E68] leading-relaxed">{input.desc}</p>
                   </div>
@@ -313,14 +313,14 @@ export function RedeemSection({
               <ol className="space-y-3 max-h-96 overflow-y-auto mtqs-scroll pr-1">
                 {REDEEM_STEPS.map((step, i) => (
                   <li key={step.title} className="flex gap-3">
-                    <span className="h-6 w-6 shrink-0 rounded-full border border-mtqs-gold/30 bg-mtqs-gold/5 flex items-center justify-center text-[0.68rem] font-mono font-semibold text-mtqs-gold-light">
+                    <span className="h-6 w-6 shrink-0 rounded-full border border-mtqs-gold/30 bg-mtqs-gold/5 flex items-center justify-center text-[0.68rem] font-mono font-semibold text-mtqs-gold">
                       {i + 1}
                     </span>
                     <div className="min-w-0">
                       <div className="text-[0.8rem] font-medium text-[#0E1F1B]">{step.title}</div>
                       <p className="text-[0.72rem] text-[#5B6E68] leading-relaxed">{step.body}</p>
                       {step.formula ? (
-                        <code className="mt-1.5 inline-block rounded bg-[#F7FAF8] px-1.5 py-0.5 font-mono text-[0.68rem] text-mtqs-gold-light">
+                        <code className="mt-1.5 inline-block rounded bg-[#F7FAF8] px-1.5 py-0.5 font-mono text-[0.68rem] text-mtqs-gold">
                           {step.formula}
                         </code>
                       ) : null}
@@ -329,8 +329,8 @@ export function RedeemSection({
                 ))}
               </ol>
               <p className="mt-3 text-[0.68rem] text-[#7A8C86] leading-relaxed">
-                The full-basket branch emits <code className="font-mono text-[0.65rem] text-mtqs-gold-light">Redeemed(user, mtqBurned, valueOut, assetAmounts)</code>;
-                the router branch emits <code className="font-mono text-[0.65rem] text-mtqs-gold-light">RedeemedSingle(user, mtqBurned, valueOut, outputAsset)</code> —
+                The full-basket branch emits <code className="font-mono text-[0.65rem] text-mtqs-gold">Redeemed(user, mtqBurned, valueOut, assetAmounts)</code>;
+                the router branch emits <code className="font-mono text-[0.65rem] text-mtqs-gold">RedeemedSingle(user, mtqBurned, valueOut, outputAsset)</code> —
                 both feed the transparency layer (§24.4). The full-basket release doctrine is §19.6.2 (below).
               </p>
             </div>
@@ -351,7 +351,7 @@ export function RedeemSection({
               <div className="text-[0.6rem] uppercase tracking-[0.22em] text-[#7A8C86] mb-1.5">
                 router revert condition
               </div>
-              <code className="font-mono text-[0.78rem] text-mtqs-gold-light">
+              <code className="font-mono text-[0.78rem] text-mtqs-gold">
                 {"revert if ExecPrice < OraclePrice × (1 − τ_user)"}
               </code>
             </div>
@@ -422,7 +422,7 @@ export function RedeemSection({
                         }`}
                       >
                         <td className="py-2.5 pr-4 whitespace-nowrap">
-                          <span className="font-mono text-mtqs-gold-light">{row.slot}</span>{" "}
+                          <span className="font-mono text-mtqs-gold">{row.slot}</span>{" "}
                           <span className="text-[#0E1F1B]">{row.state}</span>
                           {isCurrent ? (
                             <Pill tone="amber" className="ml-2">
@@ -438,7 +438,7 @@ export function RedeemSection({
                             <span className="text-[#0E1F1B]">{row.action}</span>
                           )}
                         </td>
-                        <td className="py-2.5 pr-4 font-mono tabular-nums text-mtqs-gold-light">
+                        <td className="py-2.5 pr-4 font-mono tabular-nums text-mtqs-gold">
                           {fee === null ? "—" : `${(fee * 100).toFixed(2)}%`}
                         </td>
                         <td className="py-2.5 text-[#5B6E68]">

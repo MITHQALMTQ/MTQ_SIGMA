@@ -512,7 +512,7 @@ export function SystemHealth({ snapshot: parentSnapshot }: { snapshot?: MetricsS
                   <span>
                     <span className="text-[#0E1F1B]">Honest note.</span>{" "}
                     This panel reflects the live engine state at{" "}
-                    <span className="font-mono text-mtqs-gold-light">
+                    <span className="font-mono text-mtqs-gold">
                       {snap ? new Date(snap.fetchedAt).toISOString().replace("T", " ").replace(/\.\d+Z$/, " UTC") : "—"}
                     </span>
                     . Engine "tick count" and "uptime" are not exposed by the

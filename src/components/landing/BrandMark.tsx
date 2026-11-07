@@ -60,7 +60,16 @@ export function BrandMark({
       )}
 
       {/* faceted M — two overlapping teal chevrons */}
-      <g>
+      {/* F-59 geometry fix (owner screenshot 2026-11-07: "logo hero edges is
+          getting outside the circle"): the M artwork corners sit at d≈23.0
+          from center — inside the ring STROKE band (21.05–23.35) — and the
+          +2.6 shadow copy reaches d≈24.9, past the ring's outer edge (23.35),
+          so the chevron tips visibly poked out of the circle at every size
+          (≈7px at the 220px hero). Scale the whole emblem 0.78 about the disc
+          center: artwork max d≈19.4, fully inside the disc (r 21.4) with a
+          proper coin-badge inset. userSpaceOnUse gradients resolve in the
+          referencing element's user space, so they scale with the artwork. */}
+      <g transform="translate(24 24) scale(0.78) translate(-24 -24)">
         {!bare && (
           <g transform="translate(0 2.6)" opacity="0.9">
             <path d="M7.5 37.5 L18.5 9 L18.5 15 L7.5 40 Z" fill="#0B1B16" />
