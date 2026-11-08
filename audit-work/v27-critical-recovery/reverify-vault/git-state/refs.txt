@@ -1,0 +1,5 @@
+HEAD=9fe40589fdff70f7636dc6f13d4cb29364016afe
+origin/main=8320a3a98c3fb4a0163c4168c391ab9fc8e3fdb1
+merge-base=ff67aa2ce9368a82145b00b94e80441738e3426c
+ahead_behind=1	37
+9fe40589fdff70f7636dc6f13d4cb29364016afe 2026-11-07T22:37:38Z task46 (dashboard-audit #5): Reserve Vault audit + F-46-1 — composition math verified EXACT at three levels (components Σ=NAV 1,112,915

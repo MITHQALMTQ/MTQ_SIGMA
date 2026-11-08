@@ -1,0 +1,35 @@
+{
+  "measuredAt": "2026-11-08T11:04:29.094Z",
+  "chain": {
+    "path": "db/chain.db",
+    "tip": 4152,
+    "count": 4152,
+    "integrity": "ok",
+    "genesisHash": null,
+    "genesisSpec": null,
+    "bootMode": "self-healed",
+    "chainId": null,
+    "validators": 8,
+    "rewardsEnabled": null,
+    "schemaV": null,
+    "contiguity": 1
+  },
+  "custom": {
+    "path": "db/custom.db",
+    "integrity": "ok",
+    "tableCount": 10,
+    "tableRows": {
+      "DailyStateVector": 664,
+      "IssuanceEvent": 0,
+      "MbzBackingCertificate": 0,
+      "MbzBank": 0,
+      "MbzMintRequest": 0,
+      "MetricSample": 0,
+      "OracleSample": 3984,
+      "PilotTrial": 0,
+      "RebalancingDecision": 7747,
+      "ScoringUpload": 0
+    },
+    "totalRows": 12395
+  }
+}

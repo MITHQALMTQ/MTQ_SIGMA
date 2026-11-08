@@ -1,0 +1,181 @@
+{
+  "commitA": "9fe4058",
+  "commitB": "origin/main",
+  "generatedAt": "2026-11-08T11:06:33.427Z",
+  "totalPaths": 28,
+  "identical": 28,
+  "differs": 0,
+  "aOnly": 0,
+  "bOnly": 0,
+  "nonAsciiPaths": 20,
+  "rows": [
+    {
+      "path": "upload/Futuristic MTQΣ Financial Ecosystem Dashboard.png",
+      "a": "c145223c88c6",
+      "b": "c145223c88c6",
+      "verdict": "IDENTICAL"
+    },
+    {
+      "path": "upload/KGBln.jpg",
+      "a": "01ba0d837790",
+      "b": "01ba0d837790",
+      "verdict": "IDENTICAL"
+    },
+    {
+      "path": "upload/MITHQAL_v25.3.1_Harmonized_Fully_Integrated.docx",
+      "a": "29f0e33f2716",
+      "b": "29f0e33f2716",
+      "verdict": "IDENTICAL"
+    },
+    {
+      "path": "upload/MTQSigma_Equation_by_Equation_Developer_Alignment_Specification.docx",
+      "a": "f0a0f6af8ebd",
+      "b": "f0a0f6af8ebd",
+      "verdict": "IDENTICAL"
+    },
+    {
+      "path": "upload/MTQSigma_Master_Monetary_Architecture_TechnicalDoc_v1.0_2026-09-08.docx",
+      "a": "704eaf62cc71",
+      "b": "704eaf62cc71",
+      "verdict": "IDENTICAL"
+    },
+    {
+      "path": "upload/MTQ_SIGMA.rtf",
+      "a": "a7cca6639f95",
+      "b": "a7cca6639f95",
+      "verdict": "IDENTICAL"
+    },
+    {
+      "path": "upload/MTQ_Sigma_Master_Blueprint_v2.0_Consolidated_2026-10-19.docx",
+      "a": "cd304e15c01e",
+      "b": "cd304e15c01e",
+      "verdict": "IDENTICAL"
+    },
+    {
+      "path": "upload/MTQΣ_Blueprint.docx",
+      "a": "f7d3646dd003",
+      "b": "f7d3646dd003",
+      "verdict": "IDENTICAL"
+    },
+    {
+      "path": "upload/PAR1D.jpg",
+      "a": "9ff8272e606f",
+      "b": "9ff8272e606f",
+      "verdict": "IDENTICAL"
+    },
+    {
+      "path": "upload/Screenshot 2026-09-08 at 2.32.23 AM.png",
+      "a": "c600e3a60571",
+      "b": "c600e3a60571",
+      "verdict": "IDENTICAL"
+    },
+    {
+      "path": "upload/Screenshot 2026-09-08 at 2.39.13 AM.png",
+      "a": "363a1fb9841e",
+      "b": "363a1fb9841e",
+      "verdict": "IDENTICAL"
+    },
+    {
+      "path": "upload/Screenshot 2026-10-24 at 11.17.20 PM.png",
+      "a": "69d24a84fe1f",
+      "b": "69d24a84fe1f",
+      "verdict": "IDENTICAL"
+    },
+    {
+      "path": "upload/Screenshot 2026-10-24 at 11.20.37 PM.png",
+      "a": "5e7570dc66af",
+      "b": "5e7570dc66af",
+      "verdict": "IDENTICAL"
+    },
+    {
+      "path": "upload/Screenshot 2026-10-24 at 11.21.33 PM.png",
+      "a": "1045e98b6953",
+      "b": "1045e98b6953",
+      "verdict": "IDENTICAL"
+    },
+    {
+      "path": "upload/Screenshot 2026-11-03 at 1.34.05 AM.png",
+      "a": "c0f2eb898f81",
+      "b": "c0f2eb898f81",
+      "verdict": "IDENTICAL"
+    },
+    {
+      "path": "upload/Screenshot 2026-11-06 at 12.28.59 AM.png",
+      "a": "eb410c179fa3",
+      "b": "eb410c179fa3",
+      "verdict": "IDENTICAL"
+    },
+    {
+      "path": "upload/Screenshot 2026-11-07 at 1.31.21 AM.png",
+      "a": "adc0997a20b9",
+      "b": "adc0997a20b9",
+      "verdict": "IDENTICAL"
+    },
+    {
+      "path": "upload/Screenshot 2026-11-07 at 1.48.21 AM.png",
+      "a": "19fd0cba6e96",
+      "b": "19fd0cba6e96",
+      "verdict": "IDENTICAL"
+    },
+    {
+      "path": "upload/Screenshot 2026-11-07 at 1.52.29 AM.png",
+      "a": "02dbd800435d",
+      "b": "02dbd800435d",
+      "verdict": "IDENTICAL"
+    },
+    {
+      "path": "upload/Screenshot 2026-11-07 at 1.53.15 AM.png",
+      "a": "db0eba23029f",
+      "b": "db0eba23029f",
+      "verdict": "IDENTICAL"
+    },
+    {
+      "path": "upload/Screenshot 2026-11-07 at 1.53.38 AM.png",
+      "a": "d0cbd65b2211",
+      "b": "d0cbd65b2211",
+      "verdict": "IDENTICAL"
+    },
+    {
+      "path": "upload/Screenshot 2026-11-07 at 1.54.10 AM.png",
+      "a": "35adca6f5cd5",
+      "b": "35adca6f5cd5",
+      "verdict": "IDENTICAL"
+    },
+    {
+      "path": "upload/Screenshot 2026-11-07 at 1.55.08 AM.png",
+      "a": "72592063465d",
+      "b": "72592063465d",
+      "verdict": "IDENTICAL"
+    },
+    {
+      "path": "upload/Screenshot 2026-11-07 at 1.56.01 AM.png",
+      "a": "951d68681368",
+      "b": "951d68681368",
+      "verdict": "IDENTICAL"
+    },
+    {
+      "path": "upload/Screenshot 2026-11-07 at 1.58.14 AM.png",
+      "a": "13c7f7e5f65e",
+      "b": "13c7f7e5f65e",
+      "verdict": "IDENTICAL"
+    },
+    {
+      "path": "upload/Screenshot 2026-11-07 at 12.48.20 PM.png",
+      "a": "d90b52b8daed",
+      "b": "d90b52b8daed",
+      "verdict": "IDENTICAL"
+    },
+    {
+      "path": "upload/Screenshot 2026-11-07 at 4.23.48 PM.png",
+      "a": "6d73e6a0ddfa",
+      "b": "6d73e6a0ddfa",
+      "verdict": "IDENTICAL"
+    },
+    {
+      "path": "upload/a_sleek_high_end_brand_identity_board_marketing.png",
+      "a": "bcf8adbe6d8d",
+      "b": "bcf8adbe6d8d",
+      "verdict": "IDENTICAL"
+    }
+  ]
+}
