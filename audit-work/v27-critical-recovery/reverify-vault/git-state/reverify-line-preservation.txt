@@ -1,0 +1,5 @@
+ref: refs/v27-reverify/local-line-9fe4058 -> 9fe40589fdff70f7636dc6f13d4cb29364016afe
+parent: ff67aa2ce9368a82145b00b94e80441738e3426c
+rev-count ff67aa2..9fe4058: 1
+content-diff: reverify-line-vs-ancestor.diff.gz (tree delta vs task45 ancestor, binary included)
+subsumption: 28/28 upload/ paths blob-identical at origin/main (see measurements/upload-blob-comparison.json)
