@@ -11,8 +11,8 @@
 
 | Item | Value |
 |---|---|
-| origin/main | `6ff8143` (this session's tooling commit; prior `39553ee` = 22:55:45Z monitor alert) |
-| Local HEAD | `6ff8143`, tree clean except by-design write-behind (`backups/db-snapshots/latest-chain.sql` refreshed to h17725, guard-derivable) and throttled monitor telemetry (`alerts.log`, `monitor-state.json` — swept by the next plane5 commit) |
+| origin/main | `6ff8143` at session write-time; post-fire chain (see §K): `fc6e7c6` heartbeat → `1069a73`/`644fd93` report updates → `158a0b8` dump-bearing commit (pushed 23:29Z) |
+| Local HEAD | `6ff8143` at session write-time; post-fire: HEAD `158a0b8` (dump-bearing commit, pushed 23:29Z — see §K); tree clean except by-design write-behind (`backups/db-snapshots/latest-chain.sql`, guard-derivable, re-dirties every 60s via the in-process refresh loop) |
 | Sandbox re-image | ~22:47Z (platform booted stale task46 snapshot `9fe4058` directly; recovery below) |
 | Server | `next dev` :3000 → **200**, watchdog v4 alive (relaunched 23:04Z through the full boot chain) |
 | DB (post-remediation) | chainTip **h17749** · integrity ok · boot_mode self-healed · genesis `gen_3baf0dba…` canonical · customRows 17,644 · integrity ok |
@@ -22,11 +22,11 @@
 
 | Job | Payload | Schedule | Execution history |
 |---|---|---|---|
-| 515684 (v3.1 monitor, **deleted at v30**) | 7-step agent contract | :55:45 hourly | **4/4 fires SUCCEEDED**: 19:55:45Z, 20:55:45Z, 21:55:45Z, 22:55:45Z (commits `0d761f1`, `bf4559d`, `39553ee`) |
+| 515684 (v3.1 monitor, **deleted at v30**) | 7-step agent contract | :55:45 hourly | **4/4 fires dispatched, stage=succeeded**: 19:55:45Z, 20:55:45Z, 21:55:45Z, 22:55:45Z (commits `0d761f1`, `bf4559d`, `39553ee`). **Honest gap:** the 21:55:45Z fire produced NO durable artifact (committed alerts.log jumps 20:56:18Z → 22:57:17Z; no commit between `bf4559d` and `39553ee`) — the turn completed but its internal outcome (alerted / silently healthy / failed internally) is unverifiable. This is exactly the pre-ledger blind spot the v30 execution ledger closes |
 | 515685 (v3.2 backstop, **deleted at v30**) | 7-step agent contract, ~2× payload size | :17:48 every 2h | **0/2 fires succeeded — BOTH permanently REJECTED**: 19:17:48Z and 21:17:48Z, `execution.stage=failed`, `info="model concurrency limit exceeded"`, run_count 2, no retry, next tick +2h |
-| **516197** (v3.3 backstop, new) | **deterministic ONE-script** (`scripts/plane5-run.sh backstop`) | :17:48 **hourly** | registered 23:15Z; first fire 00:17:48Z |
+| **516197** (v3.3 backstop, new) | **deterministic ONE-script** (`scripts/plane5-run.sh backstop`) | :17:48 **hourly** | registered 23:13Z; **FIRST FIRE 23:17:48Z — SUCCEEDED** (ledger FINAL `EXECUTED-OK` 23:18:12Z, run 4.8s; heartbeat 23:18:15.651Z OK; commit `fc6e7c6` pushed by the scheduled run itself — see §J row 1); next fire 00:17:48Z |
 | **516198** (v3.2 monitor, new) | **deterministic TWO-tool-call** (cron list → `plane5-run.sh monitor --scheduler-json`) | :55:45 hourly | registered 23:15Z; first fire 23:55:45Z |
-| **516211** (one-shot verifier) | acceptance verification + REPORT §J update + early-fire guard | one_time ~01:30Z | registered 23:19Z (first registration 516200 deleted: epoch display anomaly, §I.5) |
+| **516211** (one-shot verifier) | acceptance verification + REPORT §J update + early-fire guard | one_time ~01:30Z | registered 23:19:45Z; **persistence re-verified via scheduler API 23:28Z** (run_count=0, expr `2026-11-09 09:30:00` Asia/Shanghai = 01:30Z) — an earlier API read at ~23:20Z showed only 2 jobs (read raced the registration; no re-registration performed, no duplicate created). First registration 516200 deleted: epoch display anomaly, §I.5 |
 
 ## C. Root cause of concurrency failures — **ROOT CAUSE IDENTIFIED AS A PLATFORM LIMITATION; not fully eliminable from inside the sandbox**
 
@@ -64,19 +64,21 @@ Findings (with live evidence from this session's re-image):
 
 - The durable alert record **survived the 22:47Z re-image** (proof: alerts.log lines from 12:05Z / 19:59:08Z / 20:56:18Z present on disk and in git history after the reset) — Phase F's re-image-survival requirement is proven by this very incident.
 - Missed backstop fires became alerts: 19:17:48Z + 21:17:48Z rejections → monitor alerts 19:59:08Z (`0d761f1`), 20:56:18Z (`bf4559d`), 22:57:17Z (`39553ee`) — **no silent suppression** (the monitor kept firing hourly through the backstop's failures).
-- Heartbeat remains honestly STALE (17:25:14.581Z, result=OK) — last successful backstop execution; it is never presented as proof of current health. Clock round-trip verified (tsIso↔tsMs).
+- Heartbeat was honestly STALE (17:25:14.581Z, result=OK) at session write-time — never presented as proof of current health; **post-fire it is FRESH (23:18:15.651Z result=OK, nextDue +1h, commit `fc6e7c6`)** — see §K. Clock round-trip verified (tsIso↔tsMs).
 - `monitor-state.json` durable + /tmp mirror; `missingSinceMs` baseline governs (heartbeat present-but-stale ⇒ baseline intact, null).
 
-## H. Six-plane operational results — **PASS (manual session measurement 23:14:30Z); SCHEDULER-DISPATCHED RUN PENDING 00:17:48Z**
+## H. Six-plane operational results — **PASS — measured by the SCHEDULER-DISPATCHED fire (job 516197, scheduled 23:17:48Z, executed 23:18:12–18Z)**
 
 | Plane | Result | Evidence |
 |---|---|---|
-| git | OK | HEAD==origin/main `6ff8143`, guard exit 0 |
-| db | OK | h17749 · integrity ok · customRows 17,644 · boot_mode self-healed (not re-seeded) · recoveryDeficit 0 · unbackedAhead 88 |
-| server | 200 + watchdog alive | curl 200; 3 watchdog processes (relaunched via v4 chain 23:04Z) |
-| route | 403 (fail-closed) | POST /api/constituency/upload → 403, file present |
-| durable lag | diskTip h17725 / committedTip h17661 / unbacked 88 / deficit 0 | write-behind refreshed post-heal |
-| heartbeat | stale 17:25:14Z (honest) | awaits first hourly backstop fire |
+| git | OK | bootstrap guard exit 0 within the dispatched run; HEAD==origin/main verified pre-fire |
+| db | OK | liveTip h17788 contiguous · integrity ok · customRows 17,606 · boot_mode not re-seeded · genesis `gen_3baf0dba…` canonical · recoveryDeficit **0** |
+| server | 200 + watchdog alive | curl 200 within the dispatched run; watchdog v4 (relaunched via v4 chain 23:04Z) |
+| route | 403 (fail-closed) | POST /api/constituency/upload → 403, route file present |
+| durable lag | committedTip h17661 · unbackedAhead **127** · deficit 0 | closed to h17789 by dump-bearing commit `158a0b8` (pushed 23:29Z, §K) |
+| heartbeat | **fresh 23:18:15.651Z result=OK** (nextDue +1h) | sha256 `b72033b1…247e0406b`; tsIso↔tsMs round-trip verified; commit `fc6e7c6` |
+
+(Superseded manual measurement 23:14:30Z — pre-fire snapshot h17749/unbacked 88 — retained in git history of this file.)
 
 ## I. Remaining platform limitations — **DOCUMENTED (not claimed fixed)**
 
@@ -114,3 +116,17 @@ Findings (with live evidence from this session's re-image):
 ### §I addendum (5) — scheduler one_time registration quirk (observed 23:16–23:19Z)
 
 The platform's one_time handling is internally inconsistent: an epoch-**millis** expr validates (future) but the stored/displayed fire time parses the same number as **seconds** (job 516200 displayed next_run year 58825 → deleted); an epoch-**seconds** expr fails validation ("should after now time" — parsed as millis); a datetime **string** validates against server-local (Asia/Shanghai) time regardless of the job tz field (a 01:10Z-labeled string was rejected as past). Verifier re-registered as **516211** with expr `2026-11-09 09:30:00` + tz Asia/Shanghai — every possible interpretation lands at-or-after 01:30Z, i.e. after both acceptance fires; the payload carries an explicit early-fire guard (verify only what has happened; report the remainder NOT VERIFIED). This quirk is a platform limitation (§I), worked around — not fixed.
+
+---
+
+## K. Addendum — post-first-dispatched-fire reconciliation (23:29Z, same v30 effort)
+
+Recorded by the session that executed the acceptance evidence relay (job 516197's first fire); reconciles the concurrent-session commit chain so every §-reference above resolves:
+
+1. **Commit chain after the first dispatched fire:** `fc6e7c6` (23:18:15Z — the scheduled run's own heartbeat/ledger commit) → `1069a73` (23:20:09Z — verifier re-registration note, §I.5) → `644fd93` (23:21:15Z — §J row 1 → PASS with the dispatched-fire evidence) → `158a0b8` (23:21:43Z — dump-bearing commit h17789, closing the §H unbackedAhead=127 exposure; committed by the concurrent session but left unpushed — **pushed 23:29Z by this session**).
+2. **Concurrency-rejection attribution refinement:** the first dispatched fire (23:17:48Z) ran to completion in a 4.8s script window WHILE the interactive v30 session was still committing (last commit 23:21:43Z) — i.e. the lightweight one-script payload completed inside a window where both v3.2 fires were concurrency-rejected. Correlation, not claimed causality (§C.4).
+3. **21:55:45Z blind spot verified and documented** (§B): the committed alerts.log jumps 20:56:18Z → 22:57:17Z with no intervening commit — the fire's internal outcome is unverifiable pre-ledger. The v30 ledger makes every future fire's internal outcome durable (first entries already present: monitor smoke 23:14:02Z, backstop STARTED/FINAL 23:18:12Z).
+4. **Verifier 516211 persistence re-verified** via the scheduler API (23:28Z: run_count=0, one_time, 01:30Z) — an earlier API read that showed only 2 jobs raced its registration; no duplicate was created.
+5. **§J row 2 remains NOT VERIFIED until the monitor v3.2 payload's first dispatch (job 516198, 23:55:45Z)** — the final status line stays HELD per the acceptance rule; verifier 516211 finalizes §J after 01:30Z.
+6. **Write-behind dump discipline confirmed live:** the disk dump re-dirties within 60s of any commit (in-process cloudSyncRefresh loop, h17789→h17853 within minutes; liveTip h17876 at 23:28Z) — committed tip h17789 is the durable floor; unbackedAhead at the next dispatched fire is expected ≈ liveTip − 17789 and is bounded by the 60s refresh + hourly dump-bearing commits.
+7. **Final remote state at this addendum's push:** see the commit message of this addendum and `git rev-parse origin/main` — the acceptance verifier (516211) re-reads it at ~01:30Z.
