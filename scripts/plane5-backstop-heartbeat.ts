@@ -61,7 +61,7 @@ if (roundTrip !== tsMs) {
   console.error(`CLOCK MISMATCH tsIso=${tsIso} tsMs=${tsMs} roundTrip=${roundTrip} — NOT writing`);
   process.exit(1);
 }
-const nextDueMs = tsMs + 7_200_000; // 2h backstop cadence (convention of prior heartbeat)
+const nextDueMs = tsMs + 3_600_000; // hourly backstop cadence since v30 (job fired :17:48 hourly)
 
 const hb = {
   tsIso, tsMs, nextDueMs,

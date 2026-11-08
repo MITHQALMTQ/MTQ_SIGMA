@@ -27,6 +27,47 @@
 export async function register(): Promise<void> {
   if (process.env.NEXT_RUNTIME !== "nodejs") return;
 
+  // [0] GIT-DRIFT GUARD — BEFORE the DB self-heal (v29 §3/§4, v30 Phase D).
+  //     Live incident 2026-11-08T22:47:59Z: a re-image booted the platform's
+  //     own `next dev` directly on a STALE task46-era snapshot (no watchdog,
+  //     no external bootstrap), and ensureChainNode's forward-only self-heal
+  //     restored db/chain.db from the snapshot's OBSOLETE disk dump (h3941)
+  //     while origin/main's committed dump was h17661 → a 13,719-block data
+  //     regression executed BEFORE any repository verification. This gate
+  //     makes that ordering structurally impossible in-process, no matter
+  //     WHO starts the server: the tree is realigned forward-only (under the
+  //     guard's archive + content-subsumption proofs; db/*.db never touched)
+  //     BEFORE the self-heal reads the disk dumps, so the dumps the heal
+  //     consumes are the newest committed ones. Every FUTURE snapshot ships
+  //     this gate (it is committed source), which is what makes the fix
+  //     permanent across re-images.
+  //     BLOCKED (genuine unique local content) → the chain layer does NOT
+  //     self-heal over unadjudicated content — it stands down and reports
+  //     (operator adjudication), while the web app keeps serving.
+  //     Fetch/verify unreachable (e.g. transient network at boot) → proceed
+  //     best-effort with the disk dumps and log LOUDLY; the authoritative
+  //     strict gate remains the EXTERNAL bootstrap (scripts/plane5-bootstrap.
+  //     sh exit 9/12 semantics) + the watchdog v4 boot chain.
+  let driftBlocked = false;
+  try {
+    const { guardGitDrift } = await import("@/lib/boot/git-drift");
+    const r = guardGitDrift({ runtimeRefresh: false });
+    if (r.action === "blocked") {
+      driftBlocked = true;
+      console.error(
+        `[git-drift:boot] BLOCKED (${r.note ?? "unique local content"}) — DB self-heal STANDS DOWN pending operator adjudication; ` +
+          `chain layer will report ready:false`,
+      );
+    } else if (r.action === "fast-forwarded" || r.action === "realigned") {
+      console.log(
+        `[git-drift:boot] ${r.action} → origin/main ${r.status.origin.slice(0, 12)} BEFORE db self-heal — ` +
+          `the disk dumps the heal reads are now the newest committed ones`,
+      );
+    }
+  } catch (e) {
+    console.error("[git-drift:boot] guard FAILED (unverified — proceeding best-effort):", e);
+  }
+
   // [1] Source-file integrity — before anything compiles or boots.
   try {
     const { restoreDeletedTrackedFiles } = await import("@/lib/boot/source-integrity");
@@ -42,18 +83,25 @@ export async function register(): Promise<void> {
     console.error("[source-integrity] boot guard FAILED (app continues):", e);
   }
 
-  // [2] Chain devnet node (includes the DB self-heal — task42).
-  try {
-    const { ensureChainNode } = await import("@/lib/chain/node");
-    await ensureChainNode();
-  } catch (e) {
-    // Fail honest: log loudly, keep serving the app WITHOUT the chain —
-    // /api/chain routes report ready:false with the error. Never crash the
-    // whole web app because the chain layer could not boot.
-    console.error("[chain] devnet node FAILED to boot (app continues without chain):", e);
+  // [2] Chain devnet node (includes the DB self-heal — task42). Gated on
+  //     the [0] drift verdict: BLOCKED means never self-heal over
+  //     unadjudicated unique content.
+  if (driftBlocked) {
     const g = globalThis as unknown as { __MTQ_CHAIN_ERROR__?: string };
-    g.__MTQ_CHAIN_ERROR__ = String(e);
-  }
+    g.__MTQ_CHAIN_ERROR__ = "git-drift guard BLOCKED at boot — DB self-heal stood down pending operator adjudication";
+  } else {
+    try {
+      const { ensureChainNode } = await import("@/lib/chain/node");
+      await ensureChainNode();
+    } catch (e) {
+      // Fail honest: log loudly, keep serving the app WITHOUT the chain —
+      // /api/chain routes report ready:false with the error. Never crash the
+      // whole web app because the chain layer could not boot.
+      console.error("[chain] devnet node FAILED to boot (app continues without chain):", e);
+      const g = globalThis as unknown as { __MTQ_CHAIN_ERROR__?: string };
+      g.__MTQ_CHAIN_ERROR__ = String(e);
+    }
+  } // end else (not driftBlocked) — chain node + DB self-heal gated on [0]
 
   // [2b] Pilot-engine warm boot (2026-11-08 root-cause fix — lazy-init gap).
   //      The §engine tick loop (pilot-state) previously started ONLY when an
