@@ -249,6 +249,52 @@ All figures read directly from the databases (committed dump AND live; read-only
 
 ---
 
+## L. Session addendum — original directive instance (final close, 2026-11-08T14:07Z)
+
+**Cross-validation.** The instance that received the V28 directive directly (11:51:30Z→close)
+independently executed the same acceptance battery in parallel with the chained monitor/backstop
+turns that authored §A–§K: guard regression 14/14 (228 asserts) re-run; its own isolated restore
+of the exact committed dumps (**same SHA-256s** `a6e36edd…`/`16c82ed8…`, same verdicts: contiguous
+1→16,056, genesis/chain-id/validators/schema all matching); its own 13-table reconciliation
+(PROTECTED 10/10 byte-exact — identical content digests); its own monetary battery (all-zero
+monetary surfaces, `applied=0` across all rebalancing rows); three controlled stack recycles with
+pre/post measurements (12:26–12:31Z, 12:37–12:47Z fix-verification, 12:46:58Z final relaunch —
+the §G boot-chain lines are from these); three real production builds including the differential
+verification of the standalone data-layer fork fix (`fca1bbf` — "concurrent session" in the §A
+ledger IS this instance: chain store + db-ops + genesis `canonicalRoot()` unification, canonical
+tip advancing h16,835→h16,843 while the bundle copy stayed frozen, dev-server handoff resuming
+exactly at h16,843); browser E2E (landing renders, zero page/console errors, mobile-390 no
+horizontal overflow — screenshots committed at `e3bd601`). Its full report draft is preserved in
+history at `e3bd601` (superseded by this report per the custody addendum `81f1eae`). **Findings
+cross-validate with zero contradictions.**
+
+**Monitor fire #8 (scheduled 13:55:45Z) — pending dispatch, recorded honestly.** Not dispatched
+through 14:07Z: the gateway serializes chained cron fires through the active conversation, and
+the original directive instance's session was active (finding §K-1; scheduler record: run_count
+remains 6, last_run_at 11:55:47Z). The post-backstop monitor observation of the fresh heartbeat
+is therefore NOT yet live-recorded: at close the durable heartbeat is fresh (13:27:14.281Z,
+age 2,407s ≪ 9,000s threshold, result OK) — the next dispatched monitor fire necessarily reads
+`HEARTBEAT_OK`/`PLANE_5_OK` and will durably record it (monitor-state update) autonomously when
+the gateway dispatches it, with no operator action required. This bounded gap mirrors §B.4's
+honest note on the BLOCKED branch (contract-proven, not live-exercised): the live-exercised
+states this session are PLANE_5_ALERT (12:05:16Z) and PLANE_5_OK (13:27:14Z backstop heartbeat,
+all six planes OK); HEARTBEAT_OK-vs-health separation is structural in the payload contract.
+
+**Final figures at close (14:07:20Z):** live chain **h17,696** contiguous 0 gaps, integrity ok ·
+custom 17,833 rows (integrity ok) · disk write-behind dump **h17,661** @ 14:04:03Z · committed
+dump h16,056 at `94e4c65`'s parent — **refreshed to h17,6xx by this addendum's commit** (closing
+unbackedAhead to ≈0; recoveryDeficit 0 throughout the session) · `GET /` 200 · upload POST 403 ·
+exactly one watchdog (pid 17061 family, pid-file consistent) and one dev server, zero standalone
+servers · heartbeat SHA-256 `01748d190d78bb454050a6485241bee8689104a31ee1ea2f42f3a2242d8224bb`
+(unchanged since `f9a0296`).
+
+**Final remote SHA:** the commit carrying this addendum is the final acceptance commit; its SHA
+is verified against `origin/main` immediately after push and recorded in the operator's session
+close-out (the push range is visible in the push output `…→<final>` on
+`https://github.com/MITHQALMTQ/MTQ_SIGMA` branch `main`).
+
+---
+
 ## FINAL ACCEPTANCE STATUS
 
 **RECOVERY VERIFIED — OPERATIONAL STABILITY TESTING COMPLETE — TESTNET ONLY — MONETARY/GOVERNANCE ACCEPTANCE PENDING**
