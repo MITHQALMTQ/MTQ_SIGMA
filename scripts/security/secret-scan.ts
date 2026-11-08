@@ -419,8 +419,14 @@ export function scanPath(root: string, target: string): ScanResult {
 export function scanStaged(root: string): ScanResult {
   let out: string[];
   try {
-    out = execFileSync("git", ["diff", "--cached", "--name-only", "--diff-filter=ACM"], { cwd: root, encoding: "utf8" })
-      .split("\n").map((s) => s.trim()).filter(Boolean);
+    // v27 fix (incident-#10 class, same defect as git-drift.ts): line-oriented
+    // `--name-only` output C-quotes non-ASCII paths (e.g. U+202F filenames),
+    // so a staged file with such a name was silently skipped by the secret
+    // scan (fail-open). -z emits the true filesystem names, NUL-delimited;
+    // parse NUL-separated bytes instead of lines and never trim (paths may
+    // legitimately contain leading/trailing spaces).
+    out = execFileSync("git", ["diff", "--cached", "--name-only", "--diff-filter=ACM", "-z"], { cwd: root, encoding: "utf8" })
+      .split("\0").filter((p) => p.length > 0);
   } catch (e) {
     return { scannedFiles: 0, findings: [], suppressed: 0, errors: [{ file: "(git)", error: (e as Error).message }] };
   }

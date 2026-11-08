@@ -1,4 +1,5 @@
-// MTQΣ — Boot-time git-drift guard (Task 60 — root-cause remediation round 3).
+// MTQΣ — Boot-time git-drift guard (Task 60 — root-cause remediation round 3;
+// quoting defect fixed in v27 critical recovery — incident #10).
 //
 // WHY (incident #8, 2026-11-07 ~15:20Z): the sandbox re-image restored .git to
 // a MID-SESSION snapshot (an amended task46) while origin/main had advanced 26
@@ -9,6 +10,19 @@
 // local HEAD ITSELF was stale: the dev server booted the old code and served
 // it happily until a human noticed. That was the last unprotected surface of
 // the recurring re-image incident class.
+//
+// WHY round 2 (incident #10, 2026-11-08): the guard itself was defeated by
+// git's default PATH QUOTING. `git diff --name-only` C-quotes any path with
+// non-ASCII bytes (the 11 owner screenshots carry U+202F NARROW NO-BREAK
+// SPACE: "upload/Screenshot …\342\200\257AM.png"). The quoted string then
+// (a) bypassed the upload/ derivable-prefix fast-path, and (b) failed every
+// rev-parse blob lookup (that literal quoted name does not exist in the
+// tree) — so 11 existing evidence screenshots were misclassified as
+// UNIQUE-CONTENT and the guard BLOCKED forever on a geometry it was designed
+// to realign. The permanent fix: ALL path-listing reads are NUL-delimited
+// (-z, literal bytes, never quoted), and ALL path-bearing git invocations
+// go through argv (execFileSync, no shell) so spaces, quotes, tabs,
+// newlines, $, backticks, and every Unicode codepoint survive verbatim.
 //
 // WHAT THIS MODULE DOES (fail-safe; destructive only under PROOF):
 //   classifyGitDrift()  — fetch origin (throttled, timeout) + three-way
@@ -21,7 +35,8 @@
 //     DIVERGED (ahead AND behind — the amend-drift signature of incident #8)
 //         → auto-realign ONLY under CONTENT-SUBSUMPTION PROOF: every path on
 //           the local side of the three-dot diff is either
-//           (a) derivable/evidence (backups/db-snapshots/**, upload/**),
+//           (a) derivable/evidence (backups/db-snapshots/**, upload/**,
+//               backups/plane5/** — the re-derivable telemetry heartbeat),
 //           (b) locally DELETED while origin still has it (the exact
 //               "upload route deleted 5×" class — origin wins), or
 //           (c) locally modified/added but the LOCAL BLOB is an ancestor
@@ -46,21 +61,28 @@
 // Dependency policy: node builtins ONLY (importable from the Next.js server
 // AND plain bun scripts; mirrors src/lib/boot/source-integrity.ts).
 
-import { execSync } from "node:child_process";
+import { execSync, execFileSync } from "node:child_process";
 import { existsSync, mkdirSync, readFileSync, writeFileSync, copyFileSync, statSync } from "node:fs";
 import { dirname, join, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 
-const ROOT = resolve(dirname(fileURLToPath(import.meta.url)), "..", "..", "..");
+// ROOT override (v27 critical-recovery): tests drive the guard against
+// temporary repositories by exporting MTQ_SIGMA_ROOT; production derivation
+// (script location) is unchanged and remains the default. The override never
+// widens what the guard may touch — it only retargets WHICH repo it inspects.
+const ROOT = process.env.MTQ_SIGMA_ROOT
+  ? resolve(process.env.MTQ_SIGMA_ROOT)
+  : resolve(dirname(fileURLToPath(import.meta.url)), "..", "..", "..");
 export const GIT_DIR = join(ROOT, ".git");
 export const DRIFT_SENTINEL_PATH = join(ROOT, "db", "ALLOW-GIT-REALIGN");
 export const DRIFT_STATE_PATH = join("/tmp", "mtq-git-drift-state.json");
 export const REALIGN_MARKER_PATH = join("/tmp", "mtq-git-realign.flag");
 
 /** Paths whose local-side changes are always safe to drop (live-derivable
- * dumps and owner evidence screenshots — recoverable from the live DB or
- * preserved in the pre-realign archive). */
-const DERIVABLE_PREFIXES = ["backups/db-snapshots/", "upload/"];
+ * dumps, owner evidence screenshots, and the plane-5 telemetry heartbeat —
+ * all recoverable from the live DB or re-created by the next plane-5 run,
+ * and preserved in the pre-realign archive regardless). */
+const DERIVABLE_PREFIXES = ["backups/db-snapshots/", "upload/", "backups/plane5/"];
 
 /** Minimum seconds between network fetches (the guard may be called every
  * 60s by two loops; fetch is throttled so the sandbox stays a polite client). */
@@ -99,6 +121,13 @@ export function writeDriftSentinel(hours: number, reason: string): void {
 
 // ─── git plumbing (all failures caught → caller decides) ────────────────────
 
+/**
+ * Shell-string git helper — SAFE ONLY for commands whose every argument is a
+ * literal we control (refs/SHAs/flags). NEVER pass a PATH through this: the
+ * shell would mangle quotes/spaces/$/backticks and git would C-quote
+ * non-ASCII output (the incident-#10 class). Path-bearing commands MUST use
+ * gitArgs() below.
+ */
 function git(args: string, opts: { timeout?: number } = {}): string | null {
   try {
     return execSync(`git ${args}`, {
@@ -113,12 +142,41 @@ function git(args: string, opts: { timeout?: number } = {}): string | null {
   }
 }
 
-/** Porcelain v1 (-z) records MUST NOT be trimmed: an unstaged record is
- *  `"XY path"` with X = ' ' — a leading space that is PART OF THE DATA.
- *  .trim() would shift every field left by one (status codes misread, paths
- *  lose their first character — the write-behind regex would never match and
- *  every unstaged modification would misclassify). Mirrors the no-trim read
- *  in src/lib/boot/source-integrity.ts listUnstagedDeletions(). */
+/**
+ * Argv-safe git invocation: NO shell — paths travel as literal argv bytes and
+ * survive spaces, double/single quotes, tabs, newlines, $, backticks, and
+ * every Unicode codepoint (U+202F included) verbatim. This is the ONLY
+ * sanctioned way to hand git a path. Output is raw (no trim) — trim only
+ * SHA/ref outputs, never path lists.
+ */
+function gitArgs(args: string[], opts: { timeout?: number } = {}): string | null {
+  try {
+    return execFileSync("git", args, {
+      cwd: ROOT,
+      encoding: "utf8",
+      maxBuffer: 64 * 1024 * 1024,
+      timeout: opts.timeout ?? 20_000,
+      stdio: ["ignore", "pipe", "pipe"],
+    });
+  } catch {
+    return null;
+  }
+}
+
+function gitArgsOk(args: string[], opts: { timeout?: number } = {}): boolean {
+  return gitArgs(args, opts) !== null;
+}
+
+/**
+ * Porcelain v1 (-z) records MUST NOT be trimmed: an unstaged record is
+ * `"XY path"` with X = ' ' — a leading space that is PART OF THE DATA.
+ * .trim() would shift every field left by one (status codes misread, paths
+ * lose their first character — the write-behind regex would never match and
+ * every unstaged modification would misclassify). Note: -z porcelain output
+ * is NUL-delimited and NEVER path-quoted (literal bytes) — the incident-#10
+ * quoting hazard does not apply here. Mirrors the no-trim read in
+ * src/lib/boot/source-integrity.ts listUnstagedDeletions().
+ */
 function gitRaw(args: string, opts: { timeout?: number } = {}): string | null {
   try {
     return execSync(`git ${args}`, {
@@ -280,12 +338,36 @@ export interface SubsumptionReport {
   blockers: string[];
 }
 
-/** Paths changed on the LOCAL side since the merge-base (three-dot diff). */
+/**
+ * Paths changed on the LOCAL side since the merge-base (three-dot diff).
+ *
+ * v27 FIX (incident-#10 class): the previous implementation read the diff
+ * line-oriented WITHOUT -z, so git's default C-quoting mangled every path
+ * containing non-ASCII bytes (e.g. U+202F NARROW NO-BREAK SPACE in the owner
+ * screenshots): the quoted form ("upload/…\342\200\257AM.png") was treated as
+ * a literal filename — it bypassed the DERIVABLE_PREFIXES fast-path (leading
+ * double-quote) AND failed rev-parse blob lookups — flipping 11 derivable
+ * evidence files into false "unique-content" blockers and BLOCKING every
+ * realign of the amended-task46 geometry (incidents #9 and #10).
+ *
+ * Fix: NUL-delimited output (-z) is parsed as NUL-separated bytes.
+ * `git diff -z` NEVER quotes paths, so every entry is the true filesystem
+ * name — spaces, tabs, newlines, quotes, parentheses, Unicode and U+202F
+ * all round-trip exactly. --no-renames is preserved so each NUL record is
+ * exactly one path (no paired old/new names). core.quotepath=off is
+ * belt-and-suspenders. Every other filename reader in this module
+ * (writeBehindDirtyDumps, trackedTreeDirty) already used porcelain -z and
+ * was verified quote-free.
+ */
 export function localSideChangedPaths(status: GitDriftStatus): string[] {
   if (!status.mergeBase) return [];
-  const out = git(`diff --name-only --no-renames ${status.origin}...${status.head}`);
+  const out = gitArgs([
+    "-c", "core.quotepath=off",
+    "diff", "--name-only", "-z", "--no-renames",
+    `${status.origin}...${status.head}`,
+  ]);
   if (out === null || out === "") return [];
-  return out.split("\n").filter(Boolean);
+  return out.split("\0").filter(Boolean);
 }
 
 /**
@@ -294,6 +376,10 @@ export function localSideChangedPaths(status: GitDriftStatus): string[] {
  * while-origin-has-it, or holds a blob that already exists somewhere in
  * origin/main's history of that path (an ancestor state origin evolved
  * past — exactly the amend-drift signature of incident #8).
+ *
+ * All blob/path lookups go through argv (gitArgs) — a path containing
+ * quotes, $, or backticks would corrupt under shell interpolation, and a
+ * C-quoted pseudo-path would simply not resolve.
  */
 export function proveSubsumption(status: GitDriftStatus): SubsumptionReport {
   const report: SubsumptionReport = { safe: true, paths: [], blockers: [] };
@@ -304,8 +390,8 @@ export function proveSubsumption(status: GitDriftStatus): SubsumptionReport {
       report.paths.push({ path: p, verdict: "derivable" });
       continue;
     }
-    const localBlob = git(`rev-parse ${status.head}:${JSON.stringify(p)}`);
-    const originBlob = git(`rev-parse ${status.origin}:${JSON.stringify(p)}`);
+    const localBlob = gitArgs(["rev-parse", `${status.head}:${p}`])?.trim() ?? null;
+    const originBlob = gitArgs(["rev-parse", `${status.origin}:${p}`])?.trim() ?? null;
     if (localBlob === null && originBlob !== null) {
       // Deleted locally, alive upstream → the 5× upload-route class.
       report.paths.push({ path: p, verdict: "deleted-origin-wins" });
@@ -318,12 +404,12 @@ export function proveSubsumption(status: GitDriftStatus): SubsumptionReport {
     if (localBlob !== null) {
       // Modified/added locally: subsumed iff this exact blob appears anywhere
       // in origin/main's history of the path (local is an old snapshot).
-      const hist = git(`rev-list ${status.origin} -- ${JSON.stringify(p)}`);
+      const hist = gitArgs(["rev-list", status.origin, "--", p]);
       let subsumed = false;
       if (hist) {
         for (const c of hist.split("\n").filter(Boolean)) {
-          const b = git(`rev-parse ${c}:${JSON.stringify(p)}`);
-          if (b === localBlob) {
+          const b = gitArgs(["rev-parse", `${c}:${p}`])?.trim() ?? null;
+          if (b !== null && b === localBlob) {
             subsumed = true;
             break;
           }
@@ -350,11 +436,12 @@ function archiveDrift(status: GitDriftStatus, subsumption: SubsumptionReport | n
     mkdirSync(dir, { recursive: true });
     // 1. Full bundle of the local line (complete history incl. local-only commits).
     const bundle = join(dir, "local-line.bundle");
-    gitOk(`bundle create ${JSON.stringify(bundle)} --all`);
+    gitArgsOk(["bundle", "create", bundle, "--all"]);
     // 2. Byte copies of every local-side changed path (git-independent recovery) —
     //    PLUS the write-behind dump files' current on-disk bytes (their unstaged
     //    modifications are the freshest data snapshot; reset --hard/checkout
     //    discards them, so the archive keeps the only copy).
+    //    Paths are literal (from -z reads) — join() handles every byte safely.
     const filesDir = join(dir, "files");
     const archivePaths = new Set<string>((subsumption?.paths ?? []).map((x) => x.path));
     for (const p of writeBehindDirtyDumps()) archivePaths.add(p);
@@ -404,8 +491,8 @@ function refreshRuntimeLayer(oldHead: string, newHead: string, log: (s: string) 
   const runtimeFiles = ["package.json", "bun.lock", "prisma/schema.prisma"];
   let changed = false;
   for (const f of runtimeFiles) {
-    const a = git(`rev-parse ${oldHead}:${JSON.stringify(f)}`);
-    const b = git(`rev-parse ${newHead}:${JSON.stringify(f)}`);
+    const a = gitArgs(["rev-parse", `${oldHead}:${f}`])?.trim() ?? null;
+    const b = gitArgs(["rev-parse", `${newHead}:${f}`])?.trim() ?? null;
     if (a !== b) {
       changed = true;
       log(`[git-drift] runtime layer changed across realign: ${f}`);
@@ -500,7 +587,7 @@ export function guardGitDrift(
         // Discard the unstaged dump modification so the FF merge cannot be
         // refused over it; the next cloud-sync tick (≤60s) re-dumps from the
         // LIVE DB (the source of truth, untouched by any realign).
-        gitOk(`checkout -- ${JSON.stringify(p)}`);
+        gitArgsOk(["checkout", "--", p]);
       }
       if (!gitOk(`merge --ff-only ${status.origin}`)) {
         log("[git-drift] BLOCKED: fast-forward merge failed (run by hand: git merge --ff-only origin/main).");
