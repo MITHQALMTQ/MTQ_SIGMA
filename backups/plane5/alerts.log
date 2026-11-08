@@ -1,3 +1,4 @@
 # plane-5 alerts (durable; monitor appends; committed when synced)
 # 2026-11-08T06:0xZ SIMULATION SETUP (v27 recovery §7.4): controlled stale heartbeat (age 14,400s) written to prove alert delivery end-to-end; the next scheduled backstop rewrites it fresh
 2026-11-08T12:05:16Z ALERT age=36539s last=2026-11-08T01:56:17.479Z
+2026-11-08T19:59:08.197Z age=9233 classification=PLANE_5_ALERT heartbeat=2026-11-08T17:25:14.581Z result=OK
