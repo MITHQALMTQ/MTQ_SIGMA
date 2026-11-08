@@ -1,0 +1,132 @@
+{
+ "minHeight": 1,
+ "liveTip": {
+  "h": 16750,
+  "n": 16750
+ },
+ "contiguousGaps": 0,
+ "integrity": {
+  "integrity_check": "ok"
+ },
+ "genesisBlockHash": "blk_1871a6a72c80923da8eb1ed31c9b71cbb0803e27e878c7353f972278522b896e",
+ "genesisChainId": "mtq-devnet-1",
+ "genesisPrevHash": "",
+ "b2PrevHash": "blk_1871a6a72c80923da8eb1ed31c9b71cbb0803e27e878c7353f972278522b896e",
+ "b2LinksGenesis": true,
+ "tipHash": "blk_90b84c37f59005ae1ff0ed6227c1db58aa554ba83f0f31a0b9006b9dae3462ed",
+ "tipChainId": "mtq-devnet-1",
+ "validators": 8,
+ "meta": {
+  "genesis_hash": "gen_3baf0dba552b527da4e9f6cedae44d04d0a40f7d",
+  "boot_mode": "self-healed",
+  "treasury_address": "mtq194e13e7e290a60f072aaa6f887d8f7e2248bc2d2",
+  "chain_params": "{\"base_fee_u\":1000,\"max_block_txs\":200,\"voting_period_s\":60,\"timelock_s\":15,\"heartbeat_ms\":5000,\"unbonding_s\":30,\"rewards_enabled\":0,\"block_reward_u\":0}",
+  "selfheal_at": "2026-11-08T11:13:25.825Z",
+  "selfheal_dump": "latest-chain.sql"
+ },
+ "tables": [
+  "accounts",
+  "blocks",
+  "events",
+  "meta",
+  "oracle_observations",
+  "oracle_prices",
+  "proposals",
+  "stakes",
+  "txs",
+  "unbondings",
+  "validators",
+  "votes"
+ ],
+ "chainCounts": {},
+ "validatorIdentities": [
+  {
+   "pub_key": "05ae18b057b36be2e78718f4a5a4081fc8daa0b3fcb577b93ab155e03b18276c",
+   "address": "mtq1d0969d4c97a72c811778b3a38eddf00daa5f7f28",
+   "moniker": "mtq-val-0.helios",
+   "power": 20,
+   "commission_bp": 500,
+   "status": "ACTIVE",
+   "self_stake": 1000000,
+   "delegated": 1000000,
+   "joined_height": 0
+  },
+  {
+   "pub_key": "65cc1b015539b9850fe228083d1ab1629f852e5e4c86b6a0bfdb8c24ebbb0aa4",
+   "address": "mtq1320fab1e06ad8bb64b9508163f8cb6ea35b31bc5",
+   "moniker": "mtq-val-5.sovereign-b31bc5",
+   "power": 1,
+   "commission_bp": 700,
+   "status": "ACTIVE",
+   "self_stake": 100000,
+   "delegated": 0,
+   "joined_height": 615
+  },
+  {
+   "pub_key": "6632fe10f06b0839f2feadb1429c6c998adffb2670d51d83ea0b60c8cc5a2204",
+   "address": "mtq19d53b3162cee39585a7f0e5c2f0767b8570029e5",
+   "moniker": "mtq-val-2.meridian",
+   "power": 10,
+   "commission_bp": 500,
+   "status": "ACTIVE",
+   "self_stake": 1000000,
+   "delegated": 0,
+   "joined_height": 0
+  },
+  {
+   "pub_key": "6da88f305c517d33c16b5e2fa5d188d83d7727b76284aa67941ea40d848d6f09",
+   "address": "mtq1740b970a6b6d6ef721951708771fda7041d48627",
+   "moniker": "mtq-val-1.equinox",
+   "power": 10,
+   "commission_bp": 500,
+   "status": "ACTIVE",
+   "self_stake": 1000000,
+   "delegated": 0,
+   "joined_height": 0
+  },
+  {
+   "pub_key": "bf75f97d2f2ea3283b68ea823add2b54add7e4a8467915408f40476f39780568",
+   "address": "mtq190f7e5df68e154e26dc0bb52bd6c63a0e82e2694",
+   "moniker": "mtq-val-5.sovereign-2e2694",
+   "power": 1,
+   "commission_bp": 700,
+   "status": "ACTIVE",
+   "self_stake": 100000,
+   "delegated": 0,
+   "joined_height": 461
+  },
+  {
+   "pub_key": "db46dff3fb1f61f62ff26c37a3c1504923541e831d17239dea12b1c7391a190c",
+   "address": "mtq12683597a43357086c64b104b7c237a82dcb8b38f",
+   "moniker": "mtq-val-5.sovereign-b8b38f",
+   "power": 1,
+   "commission_bp": 700,
+   "status": "ACTIVE",
+   "self_stake": 100000,
+   "delegated": 0,
+   "joined_height": 539
+  },
+  {
+   "pub_key": "de01a7c229b439eacd83040ba61c4085e13468e290c8e294795fc7cc21422efd",
+   "address": "mtq1ce17b55a99cf90116cde4efac7852d95824fd690",
+   "moniker": "mtq-val-3.aegis",
+   "power": 10,
+   "commission_bp": 500,
+   "status": "ACTIVE",
+   "self_stake": 1000000,
+   "delegated": 0,
+   "joined_height": 0
+  },
+  {
+   "pub_key": "feb3b6f5a4ec524c448be3126537b822d090dbc7fb46851168c6b003e7520601",
+   "address": "mtq1f6fa3c1db2e4a6bf4cec49b8cefcc10f919dbe03",
+   "moniker": "mtq-val-5.sovereign-9dbe03",
+   "power": 1,
+   "commission_bp": 700,
+   "status": "ACTIVE",
+   "self_stake": 100000,
+   "delegated": 0,
+   "joined_height": 671
+  }
+ ]
+}

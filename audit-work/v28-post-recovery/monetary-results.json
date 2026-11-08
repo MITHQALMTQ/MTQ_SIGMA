@@ -1,0 +1,382 @@
+{
+ "generatedAtIso": "2026-11-08T12:42:19.106Z",
+ "customTableCounts": {
+  "AiModelCatalog": 101,
+  "ConsensusRun": 50,
+  "ConsensusVote": 146,
+  "DailyStateVector": 2380,
+  "IssuanceEvent": 0,
+  "MbzBackingCertificate": 0,
+  "MbzBank": 0,
+  "MbzMintRequest": 0,
+  "MetricSample": 0,
+  "OracleSample": 5030,
+  "PilotTrial": 2,
+  "RebalancingDecision": 10054,
+  "ScoringUpload": 0
+ },
+ "issuanceEvents": {
+  "total": 0,
+  "rows": []
+ },
+ "mbzMintRequests": {
+  "by": "state",
+  "dist": []
+ },
+ "mbzBank": null,
+ "mbzBackingCertificates": {
+  "columns": [
+   "id",
+   "certificateId",
+   "bank",
+   "amountUsd",
+   "custodianAttestationHash",
+   "custodianAttestationExpiry",
+   "reserveAssetBreakdownHash",
+   "issuedAt",
+   "verified",
+   "createdAt"
+  ],
+  "rows": []
+ },
+ "rebalancingDecisionColumns": [
+  "id",
+  "tickAt",
+  "tickCount",
+  "prevHash",
+  "rowHash",
+  "navUsd",
+  "reserveRatio",
+  "observedGoldWeight",
+  "targetGoldWeight",
+  "deviationPct",
+  "shouldRebalance",
+  "direction",
+  "tradeUsd",
+  "reason",
+  "blockedBy",
+  "applied",
+  "preGoldNet",
+  "postGoldNet",
+  "preFiatNet",
+  "postFiatNet",
+  "postReserveRatio",
+  "postObservedGoldWeight",
+  "createdAt"
+ ],
+ "rebalancingDecisionTotal": 10054,
+ "rebalancingDecisionNewest": [
+  {
+   "id": "cmw7to0rt002omulahkvajpod",
+   "tickAt": 1794141737704,
+   "tickCount": 41,
+   "prevHash": "5a9c90bf17aba0a8629c82e6558b8dffdfb9c6a06bc2d1acf5c273188cb01770",
+   "rowHash": "ac0d32540a57da8311572706764c4882bd0015d111113af335fada644d20e67f",
+   "navUsd": 1112066.72365152,
+   "reserveRatio": 0,
+   "observedGoldWeight": 0.237200199426635,
+   "targetGoldWeight": 0.208734285838791,
+   "deviationPct": 2.84659135878448,
+   "shouldRebalance": 0,
+   "direction": 0,
+   "tradeUsd": 0,
+   "reason": "Turnover budget exhausted (§11.5.2): the daily 5%-of-NAV cap is consumed — deviation 2.85pp would otherwise trade (~$31656); nothing executable until the budget resets [advisory — MARP execution active (audit P1-4)]",
+   "blockedBy": "Turnover budget exhausted (§11.5.2): the daily 5%-of-NAV cap is consumed — deviation 2.85pp would otherwise trade (~$31656); nothing executable until the budget resets [advisory — MARP execution active (audit P1-4)]",
+   "applied": 0,
+   "preGoldNet": null,
+   "postGoldNet": null,
+   "preFiatNet": null,
+   "postFiatNet": null,
+   "postReserveRatio": null,
+   "postObservedGoldWeight": null,
+   "createdAt": 1794141737705
+  },
+  {
+   "id": "cmw7tnxoo002nmulaidbrywp6",
+   "tickAt": 1794141733704,
+   "tickCount": 40,
+   "prevHash": "1a1257f026b4166213d96552b55fe4063b1553214d9a4149f1ee0c9a8d3b9b47",
+   "rowHash": "5a9c90bf17aba0a8629c82e6558b8dffdfb9c6a06bc2d1acf5c273188cb01770",
+   "navUsd": 1112036.74706854,
+   "reserveRatio": 0,
+   "observedGoldWeight": 0.237163364086727,
+   "targetGoldWeight": 0.208733756573708,
+   "deviationPct": 2.84296075130188,
+   "shouldRebalance": 0,
+   "direction": 0,
+   "tradeUsd": 0,
+   "reason": "Turnover budget exhausted (§11.5.2): the daily 5%-of-NAV cap is consumed — deviation 2.84pp would otherwise trade (~$31615); nothing executable until the budget resets [advisory — MARP execution active (audit P1-4)]",
+   "blockedBy": "Turnover budget exhausted (§11.5.2): the daily 5%-of-NAV cap is consumed — deviation 2.84pp would otherwise trade (~$31615); nothing executable until the budget resets [advisory — MARP execution active (audit P1-4)]",
+   "applied": 0,
+   "preGoldNet": null,
+   "postGoldNet": null,
+   "preFiatNet": null,
+   "postFiatNet": null,
+   "postReserveRatio": null,
+   "postObservedGoldWeight": null,
+   "createdAt": 1794141733705
+  },
+  {
+   "id": "cmw7tnulk002mmulary5xntdh",
+   "tickAt": 1794141729704,
+   "tickCount": 39,
+   "prevHash": "ccebb8a7853101b939d60a1043a978ec573a7ecb7b2c2ffb6cb92d1d1269ab4b",
+   "rowHash": "1a1257f026b4166213d96552b55fe4063b1553214d9a4149f1ee0c9a8d3b9b47",
+   "navUsd": 1112075.97696689,
+   "reserveRatio": 0,
+   "observedGoldWeight": 0.237197279648784,
+   "targetGoldWeight": 0.208732853204174,
+   "deviationPct": 2.84644264446104,
+   "shouldRebalance": 0,
+   "direction": 0,
+   "tradeUsd": 0,
+   "reason": "Turnover budget exhausted (§11.5.2): the daily 5%-of-NAV cap is consumed — deviation 2.85pp would otherwise trade (~$31655); nothing executable until the budget resets [advisory — MARP execution active (audit P1-4)]",
+   "blockedBy": "Turnover budget exhausted (§11.5.2): the daily 5%-of-NAV cap is consumed — deviation 2.85pp would otherwise trade (~$31655); nothing executable until the budget resets [advisory — MARP execution active (audit P1-4)]",
+   "applied": 0,
+   "preGoldNet": null,
+   "postGoldNet": null,
+   "preFiatNet": null,
+   "postFiatNet": null,
+   "postReserveRatio": null,
+   "postObservedGoldWeight": null,
+   "createdAt": 1794141729704
+  }
+ ],
+ "proposals": [
+  {
+   "id": 4,
+   "type": "validator_set_change",
+   "title": "Admit mtq-val-5.sovereign-9dbe03 to the ACTIVE set",
+   "description": "V4 dynamic-membership mechanism demo — governance-executed validator admission.",
+   "proposer": "mtq19d53b3162cee39585a7f0e5c2f0767b8570029e5",
+   "status": "EXECUTED",
+   "submitted_height": 673,
+   "voting_end_ms": 1793914045219,
+   "execute_after_ms": 1793914060219,
+   "executed_height": 700,
+   "payload": "{\"action\":\"add\",\"validator\":\"mtq1f6fa3c1db2e4a6bf4cec49b8cefcc10f919dbe03\"}",
+   "deposit": 100000,
+   "yes_power": 40,
+   "no_power": 0,
+   "abstain_power": 0
+  },
+  {
+   "id": 3,
+   "type": "validator_set_change",
+   "title": "Admit mtq-val-5.sovereign-b31bc5 to the ACTIVE set",
+   "description": "V4 dynamic-membership mechanism demo — governance-executed validator admission.",
+   "proposer": "mtq19d53b3162cee39585a7f0e5c2f0767b8570029e5",
+   "status": "EXECUTED",
+   "submitted_height": 617,
+   "voting_end_ms": 1793913537162,
+   "execute_after_ms": 1793913552162,
+   "executed_height": 645,
+   "payload": "{\"action\":\"add\",\"validator\":\"mtq1320fab1e06ad8bb64b9508163f8cb6ea35b31bc5\"}",
+   "deposit": 100000,
+   "yes_power": 37,
+   "no_power": 0,
+   "abstain_power": 0
+  },
+  {
+   "id": 2,
+   "type": "validator_set_change",
+   "title": "Admit mtq-val-5.sovereign-b8b38f to the ACTIVE set",
+   "description": "V4 dynamic-membership mechanism demo — governance-executed validator admission.",
+   "proposer": "mtq19d53b3162cee39585a7f0e5c2f0767b8570029e5",
+   "status": "EXECUTED",
+   "submitted_height": 541,
+   "voting_end_ms": 1793913299902,
+   "execute_after_ms": 1793913314902,
+   "executed_height": 569,
+   "payload": "{\"action\":\"add\",\"validator\":\"mtq12683597a43357086c64b104b7c237a82dcb8b38f\"}",
+   "deposit": 100000,
+   "yes_power": 35,
+   "no_power": 0,
+   "abstain_power": 0
+  },
+  {
+   "id": 1,
+   "type": "validator_set_change",
+   "title": "Admit mtq-val-5.sovereign-2e2694 to the ACTIVE set",
+   "description": "V4 dynamic-membership mechanism demo — governance-executed validator admission.",
+   "proposer": "mtq19d53b3162cee39585a7f0e5c2f0767b8570029e5",
+   "status": "EXECUTED",
+   "submitted_height": 463,
+   "voting_end_ms": 1793913066266,
+   "execute_after_ms": 1793913081266,
+   "executed_height": 491,
+   "payload": "{\"action\":\"add\",\"validator\":\"mtq190f7e5df68e154e26dc0bb52bd6c63a0e82e2694\"}",
+   "deposit": 100000,
+   "yes_power": 32,
+   "no_power": 0,
+   "abstain_power": 0
+  }
+ ],
+ "proposalStatusDist": [
+  {
+   "status": "EXECUTED",
+   "n": 4
+  }
+ ],
+ "votesTotal": 12,
+ "eventTypeDist": [
+  {
+   "type": "block.committed",
+   "n": 16846
+  },
+  {
+   "type": "gov.processing",
+   "n": 78
+  },
+  {
+   "type": "block.tx_count",
+   "n": 58
+  },
+  {
+   "type": "oracle.price_published",
+   "n": 43
+  },
+  {
+   "type": "oracle.price_degraded",
+   "n": 12
+  },
+  {
+   "type": "econ.block_reward",
+   "n": 6
+  },
+  {
+   "type": "oracle.price_stale",
+   "n": 5
+  },
+  {
+   "type": "staking.unbond_released",
+   "n": 4
+  },
+  {
+   "type": "gov.validator_added",
+   "n": 4
+  }
+ ],
+ "monetaryEventScan": [],
+ "txColumns": [
+  "hash",
+  "height",
+  "idx",
+  "raw",
+  "result",
+  "time_ms"
+ ],
+ "txKindColumn": null,
+ "txKindDist": [],
+ "accounts": [
+  {
+   "address": "mtq12683597a43357086c64b104b7c237a82dcb8b38f",
+   "nonce": 1,
+   "fee_u": 99062,
+   "pmtq_u": 0
+  },
+  {
+   "address": "mtq1320fab1e06ad8bb64b9508163f8cb6ea35b31bc5",
+   "nonce": 1,
+   "fee_u": 99028,
+   "pmtq_u": 0
+  },
+  {
+   "address": "mtq165c687014cf97bcb04fa6e1ed413af316b381fcf",
+   "nonce": 0,
+   "fee_u": 10000000000,
+   "pmtq_u": 10000000
+  },
+  {
+   "address": "mtq1740b970a6b6d6ef721951708771fda7041d48627",
+   "nonce": 31,
+   "fee_u": 4999170413,
+   "pmtq_u": 0
+  },
+  {
+   "address": "mtq190f7e5df68e154e26dc0bb52bd6c63a0e82e2694",
+   "nonce": 1,
+   "fee_u": 99098,
+   "pmtq_u": 0
+  },
+  {
+   "address": "mtq194e13e7e290a60f072aaa6f887d8f7e2248bc2d2",
+   "nonce": 21,
+   "fee_u": 949999973000,
+   "pmtq_u": 950000000
+  },
+  {
+   "address": "mtq19d53b3162cee39585a7f0e5c2f0767b8570029e5",
+   "nonce": 7,
+   "fee_u": 4999594008,
+   "pmtq_u": 0
+  },
+  {
+   "address": "mtq19f49a20248dc929e657ed77e6518d3384c35b197",
+   "nonce": 0,
+   "fee_u": 10000000000,
+   "pmtq_u": 10000000
+  },
+  {
+   "address": "mtq1ce17b55a99cf90116cde4efac7852d95824fd690",
+   "nonce": 24,
+   "fee_u": 4999977209,
+   "pmtq_u": 0
+  },
+  {
+   "address": "mtq1d0969d4c97a72c811778b3a38eddf00daa5f7f28",
+   "nonce": 34,
+   "fee_u": 4998968154,
+   "pmtq_u": 0
+  },
+  {
+   "address": "mtq1df040df2bd95a1d46f0fe35da5a3c0f4926ffea2",
+   "nonce": 0,
+   "fee_u": 10000000000,
+   "pmtq_u": 10000000
+  },
+  {
+   "address": "mtq1ebdbdb3280ee9cc3147806c3f8bfea29a54b02bb",
+   "nonce": 0,
+   "fee_u": 10000000000,
+   "pmtq_u": 10000000
+  },
+  {
+   "address": "mtq1f5b4cbadeb7b309ab414bfb70c36080bad87aacc",
+   "nonce": 0,
+   "fee_u": 10000000000,
+   "pmtq_u": 10000000
+  },
+  {
+   "address": "mtq1f6fa3c1db2e4a6bf4cec49b8cefcc10f919dbe03",
+   "nonce": 1,
+   "fee_u": 99028,
+   "pmtq_u": 0
+  }
+ ],
+ "blocksRecent": [
+  {
+   "height": 16835,
+   "num_txs": 0,
+   "time_ms": 1794141457616
+  },
+  {
+   "height": 16834,
+   "num_txs": 0,
+   "time_ms": 1794141451796
+  },
+  {
+   "height": 16833,
+   "num_txs": 0,
+   "time_ms": 1794141446191
+  }
+ ],
+ "chainMeta": {
+  "genesis_hash": "gen_3baf0dba552b527da4e9f6cedae44d04d0a40f7d",
+  "boot_mode": "self-healed",
+  "treasury_address": "mtq194e13e7e290a60f072aaa6f887d8f7e2248bc2d2",
+  "chain_params": "{\"base_fee_u\":1000,\"max_block_txs\":200,\"voting_period_s\":60,\"timelock_s\":15,\"heartbeat_ms\":5000,\"unbonding_s\":30,\"rewards_enabled\":0,\"block_reward_u\":0}",
+  "selfheal_at": "2026-11-08T11:13:25.825Z",
+  "selfheal_dump": "latest-chain.sql"
+ }
+}

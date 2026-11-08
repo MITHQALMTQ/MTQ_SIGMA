@@ -1,0 +1,379 @@
+{
+ "generatedAtIso": "2026-11-08T12:41:05.008Z",
+ "committedDumps": {
+  "originSha": "5f061f712688610bcbf143fd26338cfcba5e8436",
+  "chain": {
+   "sha256": "a6e36eddd692b393ba534d86c3c96969a3b17de5cfbc1f3e331ff44cecbad9ac",
+   "gitBlob": "02e1c52d0d7a7deceb6247290373438365d181a2",
+   "tipLine": "-- MTQ-DUMP-TIP rows=32580 height=16056 tables=12 [accounts:14 blocks:16056 events:16277 meta:6 oracle_observations:72 oracle_prices:2 proposals:4 stakes:4 txs:121 unbondings:4 validators:8 votes:12]",
+   "bytes": 29578105
+  },
+  "custom": {
+   "sha256": "16c82ed840a7c67632186bd31cf2b0f20d11c5b3b3bcf57b844dd216f1023442",
+   "gitBlob": "60d4be0583266f06cc2694e75e99f690dff81952",
+   "tipLine": "-- MTQ-DUMP-TIP rows=17673 height=- tables=13 [AiModelCatalog:101 ConsensusRun:50 ConsensusVote:146 DailyStateVector:2219 IssuanceEvent:0 MbzBackingCertificate:0 MbzBank:0 MbzMintRequest:0 MetricSample:0 OracleSample:5054 PilotTrial:2 RebalancingDecision:10101 ScoringUpload:0]",
+   "bytes": 13941075
+  }
+ },
+ "restoredChain": {
+  "integrity": [
+   {
+    "integrity_check": "ok"
+   }
+  ],
+  "foreignKeyCheckViolations": 0,
+  "minHeight": 1,
+  "tip": {
+   "h": 16056,
+   "n": 16056
+  },
+  "gaps": 0,
+  "contiguous": true,
+  "genesisBlockHash": "blk_1871a6a72c80923da8eb1ed31c9b71cbb0803e27e878c7353f972278522b896e",
+  "genesisChainId": "mtq-devnet-1",
+  "genesisPrevHash": "",
+  "b2LinksGenesis": true,
+  "meta": {
+   "genesis_hash": "gen_3baf0dba552b527da4e9f6cedae44d04d0a40f7d",
+   "boot_mode": "self-healed",
+   "treasury_address": "mtq194e13e7e290a60f072aaa6f887d8f7e2248bc2d2",
+   "chain_params": "{\"base_fee_u\":1000,\"max_block_txs\":200,\"voting_period_s\":60,\"timelock_s\":15,\"heartbeat_ms\":5000,\"unbonding_s\":30,\"rewards_enabled\":0,\"block_reward_u\":0}",
+   "selfheal_at": "2026-11-08T11:13:25.825Z",
+   "selfheal_dump": "latest-chain.sql"
+  },
+  "validators": 8,
+  "validatorIdentities": [
+   {
+    "pub_key": "05ae18b057b36be2e78718f4a5a4081fc8daa0b3fcb577b93ab155e03b18276c",
+    "address": "mtq1d0969d4c97a72c811778b3a38eddf00daa5f7f28",
+    "moniker": "mtq-val-0.helios",
+    "power": 20,
+    "commission_bp": 500,
+    "status": "ACTIVE",
+    "self_stake": 1000000,
+    "delegated": 1000000,
+    "joined_height": 0
+   },
+   {
+    "pub_key": "65cc1b015539b9850fe228083d1ab1629f852e5e4c86b6a0bfdb8c24ebbb0aa4",
+    "address": "mtq1320fab1e06ad8bb64b9508163f8cb6ea35b31bc5",
+    "moniker": "mtq-val-5.sovereign-b31bc5",
+    "power": 1,
+    "commission_bp": 700,
+    "status": "ACTIVE",
+    "self_stake": 100000,
+    "delegated": 0,
+    "joined_height": 615
+   },
+   {
+    "pub_key": "6632fe10f06b0839f2feadb1429c6c998adffb2670d51d83ea0b60c8cc5a2204",
+    "address": "mtq19d53b3162cee39585a7f0e5c2f0767b8570029e5",
+    "moniker": "mtq-val-2.meridian",
+    "power": 10,
+    "commission_bp": 500,
+    "status": "ACTIVE",
+    "self_stake": 1000000,
+    "delegated": 0,
+    "joined_height": 0
+   },
+   {
+    "pub_key": "6da88f305c517d33c16b5e2fa5d188d83d7727b76284aa67941ea40d848d6f09",
+    "address": "mtq1740b970a6b6d6ef721951708771fda7041d48627",
+    "moniker": "mtq-val-1.equinox",
+    "power": 10,
+    "commission_bp": 500,
+    "status": "ACTIVE",
+    "self_stake": 1000000,
+    "delegated": 0,
+    "joined_height": 0
+   },
+   {
+    "pub_key": "bf75f97d2f2ea3283b68ea823add2b54add7e4a8467915408f40476f39780568",
+    "address": "mtq190f7e5df68e154e26dc0bb52bd6c63a0e82e2694",
+    "moniker": "mtq-val-5.sovereign-2e2694",
+    "power": 1,
+    "commission_bp": 700,
+    "status": "ACTIVE",
+    "self_stake": 100000,
+    "delegated": 0,
+    "joined_height": 461
+   },
+   {
+    "pub_key": "db46dff3fb1f61f62ff26c37a3c1504923541e831d17239dea12b1c7391a190c",
+    "address": "mtq12683597a43357086c64b104b7c237a82dcb8b38f",
+    "moniker": "mtq-val-5.sovereign-b8b38f",
+    "power": 1,
+    "commission_bp": 700,
+    "status": "ACTIVE",
+    "self_stake": 100000,
+    "delegated": 0,
+    "joined_height": 539
+   },
+   {
+    "pub_key": "de01a7c229b439eacd83040ba61c4085e13468e290c8e294795fc7cc21422efd",
+    "address": "mtq1ce17b55a99cf90116cde4efac7852d95824fd690",
+    "moniker": "mtq-val-3.aegis",
+    "power": 10,
+    "commission_bp": 500,
+    "status": "ACTIVE",
+    "self_stake": 1000000,
+    "delegated": 0,
+    "joined_height": 0
+   },
+   {
+    "pub_key": "feb3b6f5a4ec524c448be3126537b822d090dbc7fb46851168c6b003e7520601",
+    "address": "mtq1f6fa3c1db2e4a6bf4cec49b8cefcc10f919dbe03",
+    "moniker": "mtq-val-5.sovereign-9dbe03",
+    "power": 1,
+    "commission_bp": 700,
+    "status": "ACTIVE",
+    "self_stake": 100000,
+    "delegated": 0,
+    "joined_height": 671
+   }
+  ],
+  "tables": [
+   "accounts",
+   "blocks",
+   "events",
+   "meta",
+   "oracle_observations",
+   "oracle_prices",
+   "proposals",
+   "stakes",
+   "txs",
+   "unbondings",
+   "validators",
+   "votes"
+  ]
+ },
+ "liveChain": {
+  "minHeight": 1,
+  "tip": {
+   "h": 16835,
+   "n": 16835
+  },
+  "gaps": 0,
+  "integrity": [
+   {
+    "integrity_check": "ok"
+   }
+  ],
+  "genesisBlockHash": "blk_1871a6a72c80923da8eb1ed31c9b71cbb0803e27e878c7353f972278522b896e",
+  "meta": {
+   "genesis_hash": "gen_3baf0dba552b527da4e9f6cedae44d04d0a40f7d",
+   "boot_mode": "self-healed",
+   "treasury_address": "mtq194e13e7e290a60f072aaa6f887d8f7e2248bc2d2",
+   "chain_params": "{\"base_fee_u\":1000,\"max_block_txs\":200,\"voting_period_s\":60,\"timelock_s\":15,\"heartbeat_ms\":5000,\"unbonding_s\":30,\"rewards_enabled\":0,\"block_reward_u\":0}",
+   "selfheal_at": "2026-11-08T11:13:25.825Z",
+   "selfheal_dump": "latest-chain.sql"
+  },
+  "validators": 8
+ },
+ "crossChecks": {
+  "genesisHashMatch": true,
+  "chainIdMatch": true,
+  "metaGenesisMatch": true,
+  "validatorSetsEqual": true,
+  "schemaChainEqual": true,
+  "schemaCustomEqual": true,
+  "restoredCustomIntegrity": [
+   {
+    "integrity_check": "ok"
+   }
+  ],
+  "liveCustomIntegrity": [
+   {
+    "integrity_check": "ok"
+   }
+  ],
+  "bootMode": "self-healed",
+  "genesisSpec": "gen_3baf0dba552b527da4e9f6cedae44d04d0a40f7d"
+ },
+ "chainTableCounts": {
+  "accounts": {
+   "restored": 14,
+   "live": 14
+  },
+  "blocks": {
+   "restored": 16056,
+   "live": 16835
+  },
+  "events": {
+   "restored": 16277,
+   "live": 17056
+  },
+  "meta": {
+   "restored": 6,
+   "live": 6
+  },
+  "oracle_observations": {
+   "restored": 72,
+   "live": 72
+  },
+  "oracle_prices": {
+   "restored": 2,
+   "live": 2
+  },
+  "proposals": {
+   "restored": 4,
+   "live": 4
+  },
+  "stakes": {
+   "restored": 4,
+   "live": 4
+  },
+  "txs": {
+   "restored": 121,
+   "live": 121
+  },
+  "unbondings": {
+   "restored": 4,
+   "live": 4
+  },
+  "validators": {
+   "restored": 8,
+   "live": 8
+  },
+  "votes": {
+   "restored": 12,
+   "live": 12
+  }
+ },
+ "tipsAndLag": {
+  "liveTip": 16835,
+  "diskDumpTip": 16827,
+  "committedDumpTip": 16056,
+  "unbackedAhead": 779,
+  "recoveryDeficit": 0,
+  "dumpBearingCommit": "2026-11-08T11:23:34Z f19cb38",
+  "dumpCommitAgeMin": 78
+ },
+ "customReconciliation": {
+  "committedTables": [
+   "AiModelCatalog",
+   "ConsensusRun",
+   "ConsensusVote",
+   "DailyStateVector",
+   "IssuanceEvent",
+   "MbzBackingCertificate",
+   "MbzBank",
+   "MbzMintRequest",
+   "MetricSample",
+   "OracleSample",
+   "PilotTrial",
+   "RebalancingDecision",
+   "ScoringUpload"
+  ],
+  "liveTables": [
+   "AiModelCatalog",
+   "ConsensusRun",
+   "ConsensusVote",
+   "DailyStateVector",
+   "IssuanceEvent",
+   "MbzBackingCertificate",
+   "MbzBank",
+   "MbzMintRequest",
+   "MetricSample",
+   "OracleSample",
+   "PilotTrial",
+   "RebalancingDecision",
+   "ScoringUpload"
+  ],
+  "onlyInLive": [],
+  "onlyInCommitted": [],
+  "deltas": [
+   {
+    "table": "AiModelCatalog",
+    "class": "PROTECTED",
+    "committedRows": 101,
+    "liveRows": 101,
+    "verdict": "EXACT-MATCH (sha e506b5a9b16db0d6)"
+   },
+   {
+    "table": "ConsensusRun",
+    "class": "PROTECTED",
+    "committedRows": 50,
+    "liveRows": 50,
+    "verdict": "EXACT-MATCH (sha 54069b143f5c6238)"
+   },
+   {
+    "table": "ConsensusVote",
+    "class": "PROTECTED",
+    "committedRows": 146,
+    "liveRows": 146,
+    "verdict": "EXACT-MATCH (sha 57a041adbee81146)"
+   },
+   {
+    "table": "DailyStateVector",
+    "class": "TELEMETRY",
+    "committedRows": 2219,
+    "liveRows": 2377,
+    "verdict": "retention-capped (cap 5000); committed 2219 → live 2377, within cap"
+   },
+   {
+    "table": "IssuanceEvent",
+    "class": "PROTECTED",
+    "committedRows": 0,
+    "liveRows": 0,
+    "verdict": "EXACT-MATCH (sha e3b0c44298fc1c14)"
+   },
+   {
+    "table": "MbzBackingCertificate",
+    "class": "PROTECTED",
+    "committedRows": 0,
+    "liveRows": 0,
+    "verdict": "EXACT-MATCH (sha e3b0c44298fc1c14)"
+   },
+   {
+    "table": "MbzBank",
+    "class": "PROTECTED",
+    "committedRows": 0,
+    "liveRows": 0,
+    "verdict": "EXACT-MATCH (sha e3b0c44298fc1c14)"
+   },
+   {
+    "table": "MbzMintRequest",
+    "class": "PROTECTED",
+    "committedRows": 0,
+    "liveRows": 0,
+    "verdict": "EXACT-MATCH (sha e3b0c44298fc1c14)"
+   },
+   {
+    "table": "MetricSample",
+    "class": "PROTECTED",
+    "committedRows": 0,
+    "liveRows": 0,
+    "verdict": "EXACT-MATCH (sha e3b0c44298fc1c14)"
+   },
+   {
+    "table": "OracleSample",
+    "class": "TELEMETRY",
+    "committedRows": 5054,
+    "liveRows": 5012,
+    "verdict": "LIVE EXCEEDS CAP 5000"
+   },
+   {
+    "table": "PilotTrial",
+    "class": "PROTECTED",
+    "committedRows": 2,
+    "liveRows": 2,
+    "verdict": "EXACT-MATCH (sha bda50d87af23eaf6)"
+   },
+   {
+    "table": "RebalancingDecision",
+    "class": "TELEMETRY",
+    "committedRows": 10101,
+    "liveRows": 10028,
+    "verdict": "LIVE EXCEEDS CAP 10000"
+   },
+   {
+    "table": "ScoringUpload",
+    "class": "PROTECTED",
+    "committedRows": 0,
+    "liveRows": 0,
+    "verdict": "EXACT-MATCH (sha e3b0c44298fc1c14)"
+   }
+  ]
+ }
+}
