@@ -59,7 +59,7 @@ const eslintConfig = [...nextCoreWebVitals, ...nextTypescript, {
   // registers, recorded outputs) — they must not be modified to satisfy
   // production lint rules (evidence preservation), so they are excluded
   // from linting entirely. Production source remains fully covered.
-  ignores: ["mobile/", "node_modules/**", ".next/**", "out/**", "build/**", "next-env.d.ts", "examples/**", "skills", "audit-work/**", "backups/**"]
+  ignores: ["mobile/", "node_modules/**", ".next/**", "out/**", "build/**", "next-env.d.ts", "examples/**", "skills", "audit-work/**", "backups/**", "mtq-sigma-backups/**"]
 }];
 
 export default eslintConfig;

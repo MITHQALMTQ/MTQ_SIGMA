@@ -1,0 +1,20 @@
+{
+  "verifiedAtUtc": "2026-11-08T06:07Z",
+  "source": "cronjob-gateway-prod registry (external to the sandbox — survives re-images)",
+  "job_513022": {
+    "name": "MTQΣ plane-5 backstop v2 (guard-script realign + heartbeat + durable lag)",
+    "kind": "fixed_rate", "expr": "7200", "tz": "Africa/Cairo",
+    "enabled": true, "status": 1,
+    "runCount": 4, "lastExecutionStage": "succeeded",
+    "nextRunTime": "2026-11-08T08:28:35+02:00",
+    "preRecoveryPayloadPreserved": "evidence/cron-jobs.json (vault)"
+  },
+  "job_513021": {
+    "name": "MTQΣ plane-5 heartbeat monitor (read-only alert on missed scheduler window)",
+    "kind": "fixed_rate", "expr": "3600", "tz": "Africa/Cairo",
+    "enabled": true, "status": 1,
+    "runCount": 9, "lastExecutionStage": "started (in-flight at verification)",
+    "nextRunTime": "2026-11-08T08:27:43+02:00"
+  },
+  "note": "Payload updates (durable heartbeat under backups/plane5/, status semantics per directive §7.3, lag metrics per §8) belong to the coordinating executor's claimed steps; pre-recovery definitions hashed in vault SHA256SUMS."
+}

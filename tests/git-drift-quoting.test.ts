@@ -74,7 +74,7 @@ function resetThrottle(): void {
   writeFileSync("/tmp/mtq-git-drift-state.json", JSON.stringify({ lastFetchAt: 0, lastFetchOk: false, lastOrigin: "" }));
 }
 
-function buildFixture(opts: { uniqueFile?: boolean } = {}): Fixture {
+async function buildFixture(opts: { uniqueFile?: boolean } = {}): Promise<Fixture> {
   const root = mkdtempSync(join(tmpdir(), "gdq-"));
   const originDir = join(root, "origin.git");
   const work = join(root, "work");
@@ -130,7 +130,7 @@ function buildFixture(opts: { uniqueFile?: boolean } = {}): Fixture {
   // ── import the ACTUAL guard implementation rooted at the fixture ──
   mkdirSync(join(work, "src/lib/boot"), { recursive: true });
   copyFileSync(LIB_SRC, join(work, "src/lib/boot/git-drift.ts"));
-  const lib = require(join(work, "src/lib/boot/git-drift.ts")) as typeof import("../src/lib/boot/git-drift");
+  const lib = (await import(join(work, "src/lib/boot/git-drift.ts"))) as typeof import("../src/lib/boot/git-drift");
   return {
     root,
     work,
@@ -147,8 +147,8 @@ const cleanup: string[] = [];
 describe("git-drift guard — quoting/subsumption regression (incident #10)", () => {
   let fx: Fixture;
 
-  beforeAll(() => {
-    fx = buildFixture();
+  beforeAll(async () => {
+    fx = await buildFixture();
     cleanup.push(fx.root);
   });
 
@@ -242,8 +242,8 @@ describe("git-drift guard — quoting/subsumption regression (incident #10)", ()
     }
   });
 
-  test("genuine unique-content still BLOCKS (protection not weakened)", () => {
-    const fxB = buildFixture({ uniqueFile: true });
+  test("genuine unique-content still BLOCKS (protection not weakened)", async () => {
+    const fxB = await buildFixture({ uniqueFile: true });
     cleanup.push(fxB.root);
     resetThrottle();
     const report = fxB.lib.guardGitDrift({ runtimeRefresh: false, log: () => {} });
@@ -255,8 +255,8 @@ describe("git-drift guard — quoting/subsumption regression (incident #10)", ()
     expect(existsSync(join(fxB.work, "src/lib/genuinely-new.ts"))).toBe(true);
   });
 
-  test("write-behind dump modification never blocks a realign AND its fresher bytes are archived", () => {
-    const fxC = buildFixture();
+  test("write-behind dump modification never blocks a realign AND its fresher bytes are archived", async () => {
+    const fxC = await buildFixture();
     cleanup.push(fxC.root);
     const fresher = "-- MTQ-DUMP-TIP rows=9999 height=99999 (unstaged write-behind refresh)\n";
     writeFileSync(join(fxC.work, "backups/db-snapshots/latest-chain.sql"), fresher);
@@ -271,8 +271,8 @@ describe("git-drift guard — quoting/subsumption regression (incident #10)", ()
     expect(readFileSync(join(dir, "files/backups/db-snapshots/latest-chain.sql"), "utf8")).toBe(fresher);
   });
 
-  test("STAGED changes still block (explicit intent respected)", () => {
-    const fxD = buildFixture();
+  test("STAGED changes still block (explicit intent respected)", async () => {
+    const fxD = await buildFixture();
     cleanup.push(fxD.root);
     writeFileSync(join(fxD.work, "README.md"), "staged edit\n");
     git(fxD.work, ["add", "README.md"]);

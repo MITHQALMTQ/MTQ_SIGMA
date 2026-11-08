@@ -1,0 +1,10 @@
+{
+  "testAtUtc": "2026-11-08T05:59:21Z",
+  "scenario": "controlled missed-heartbeat simulation (temp /tmp heartbeat with tsMs = now-9,500,006ms, threshold 9,000,000ms)",
+  "decision": "ALERT fired",
+  "logLine": "2026-11-08T05:59:21Z ALERT age=9500006ms last=2026-11-08T03:05:00.000Z (appended to /tmp/plane5-alerts.log)",
+  "appProbe": "HTTP 200 (http://localhost:3000/)",
+  "cleanup": "fake heartbeat removed post-test; real monitor state unpolluted",
+  "evidenceFor": "directive §7.4 items 5-6 (missed-heartbeat simulation + alert delivery)",
+  "openGap": "heartbeat/monitor-state durability in /tmp — backups/plane5/ durable design in progress by coordinating executor; cron payload updates pending"
+}

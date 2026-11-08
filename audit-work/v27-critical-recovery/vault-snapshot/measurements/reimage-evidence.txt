@@ -1,0 +1,7 @@
+MeasuredAtUtc: 2026-11-08T05:3xZ
+origin/main: 62430419c57afd8d4b70acd48f6d5b992c2a393a (2026-11-07T22:15:08Z)
+local HEAD: 9fe40589fdff70f7636dc6f13d4cb29364016afe (task46 amend, 2026-11-07T22:37:38Z)
+divergence: 1 ahead / 34 behind; merge-base ff67aa2
+sandbox re-image evidence: /tmp wiped 5× (00:28/02:28/03:28/04:28/05:27Z); working tree reset to HEAD each wipe (untracked route restore + unstaged dump mod erased); on-box gitignored db/*.db restored to snapshot state (h~3.9k, 10 custom tables); hourly wipe cadence ≈ :28
+upload route deletions observed this session: instances 6,7,8 (worktree wipes)
+watchdog observed post-recycle: ABSENT (dead) each cycle; server auto-started by env hook each cycle

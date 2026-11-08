@@ -1,0 +1,24 @@
+{
+  "measuredAtUtc": "2026-11-08T05:57Z",
+  "chainTip": 15865,
+  "blockCount": 15865,
+  "contiguous": true,
+  "genesisBlockHash": "blk_1871a6a72c80923da8eb1ed31c9b71cbb0803e27e878c7353f972278522b896e",
+  "genesisHeader": {
+    "chain_id": "mtq-devnet-1",
+    "prev_hash": ""
+  },
+  "validators": "8 (from live-db.json 05:30Z measurement, unchanged)",
+  "integrity": "ok",
+  "recoverySource": "origin/main 6243041 committed dumps (chain h15801) + live resume +6..+64",
+  "notes": "recovered tip 15801 -> live resumed; the 31 blocks 15801-15832 from pre-wipe live state remain unrecoverable (no durable copy) — live has now advanced PAST that mark (15865 > 15832), making the gap moot: the chain is at a strictly newer consistent state",
+  "parentHashVerification": {
+    "method": "dense adjacent pairs",
+    "range": "15795-15865",
+    "pairsChecked": 70,
+    "failures": 0,
+    "genesisLink2to1": true,
+    "recoveryBoundary15801to15802": true,
+    "note": "first sampler compared non-adjacent rows (harness bug, corrected); all true adjacent pairs pass including the dump-resume boundary"
+  }
+}

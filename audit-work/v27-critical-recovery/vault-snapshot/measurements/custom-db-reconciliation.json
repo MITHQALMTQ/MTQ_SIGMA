@@ -1,0 +1,22 @@
+{
+  "measuredAtUtc": "2026-11-08T05:55Z",
+  "postRecoveryLive": {"tables": 13, "integrity": "ok", "totalRows": 17650},
+  "originDumpAt6243041": {"tables": 13, "totalRows": 17673},
+  "perTable": {
+    "AiModelCatalog": {"dump": 101, "live": 101, "delta": 0, "class": "protected-model-registry", "verdict": "EXACT"},
+    "ConsensusRun": {"dump": 50, "live": 50, "delta": 0, "class": "governance-consensus", "verdict": "EXACT"},
+    "ConsensusVote": {"dump": 146, "live": 146, "delta": 0, "class": "governance-consensus", "verdict": "EXACT"},
+    "DailyStateVector": {"dump": 2219, "live": 2227, "delta": 8, "class": "telemetry-cap-5000", "verdict": "+8 live-mined post-recovery"},
+    "IssuanceEvent": {"dump": 0, "live": 0, "delta": 0, "class": "financial-issuance", "verdict": "EXACT"},
+    "MbzBackingCertificate": {"dump": 0, "live": 0, "delta": 0, "class": "financial", "verdict": "EXACT"},
+    "MbzBank": {"dump": 0, "live": 0, "delta": 0, "class": "financial", "verdict": "EXACT"},
+    "MbzMintRequest": {"dump": 0, "live": 0, "delta": 0, "class": "financial", "verdict": "EXACT"},
+    "MetricSample": {"dump": 0, "live": 0, "delta": 0, "class": "telemetry", "verdict": "EXACT"},
+    "OracleSample": {"dump": 5054, "live": 5042, "delta": -12, "class": "telemetry-cap-5000", "verdict": "-12 retention eviction"},
+    "PilotTrial": {"dump": 2, "live": 2, "delta": 0, "class": "protected-trials", "verdict": "EXACT"},
+    "RebalancingDecision": {"dump": 10101, "live": 10082, "delta": -19, "class": "telemetry-cap-10000", "verdict": "-19 retention eviction; dump was a pre-eviction snapshot (10,101 > cap) — caps enforce on live eviction cadence, telemetry-only, never chain/ownership/financial"},
+    "ScoringUpload": {"dump": 0, "live": 0, "delta": 0, "class": "protected-uploads", "verdict": "EXACT"}
+  },
+  "protectedRecordPreservation": "ALL protected classes (issuance, financial, governance, consensus, validator-adjacent, uploads, trials, model registry) delta=0 EXACT",
+  "telemetryOnlyDifferences": "DailyStateVector +8 (new live samples), OracleSample -12 + RebalancingDecision -19 (retention caps 5000/10000) — documented retention implementation, no protected records affected"
+}

@@ -1,0 +1,2 @@
+# plane-5 alerts (durable; monitor appends; committed when synced)
+# 2026-11-08T06:0xZ SIMULATION SETUP (v27 recovery §7.4): controlled stale heartbeat (age 14,400s) written to prove alert delivery end-to-end; the next scheduled backstop rewrites it fresh

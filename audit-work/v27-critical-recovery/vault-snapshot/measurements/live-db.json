@@ -1,0 +1,33 @@
+{
+  "measuredAtUtc": "2026-11-08T05:30:12.771Z",
+  "liveChain": {
+    "tip": 4199,
+    "blockCount": 4199,
+    "validators": 8,
+    "meta": {
+      "genesis_hash": "gen_3baf0dba552b527da4e9f6cedae44d04d0a40f7d",
+      "boot_mode": "self-healed",
+      "treasury_address": "mtq194e13e7e290a60f072aaa6f887d8f7e2248bc2d2",
+      "chain_params": "{\"base_fee_u\":1000,\"max_block_txs\":200,\"voting_period_s\":60,\"timelock_s\":15,\"heartbeat_ms\":5000,\"unbonding_s\":30,\"rewards_enabled\":0,\"block_reward_u\":0}",
+      "selfheal_at": "2026-11-08T05:05:56.630Z",
+      "selfheal_dump": "latest-chain.sql"
+    },
+    "integrity": "ok"
+  },
+  "liveCustom": {
+    "tables": 10,
+    "rows": {
+      "DailyStateVector": 664,
+      "IssuanceEvent": 0,
+      "MbzBackingCertificate": 0,
+      "MbzBank": 0,
+      "MbzMintRequest": 0,
+      "MetricSample": 0,
+      "OracleSample": 3984,
+      "PilotTrial": 0,
+      "RebalancingDecision": 7747,
+      "ScoringUpload": 0
+    },
+    "integrity": "ok"
+  }
+}

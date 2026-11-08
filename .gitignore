@@ -80,6 +80,16 @@ weight-vector.json
 !/backups/db-snapshots/
 /backups/db-snapshots/*
 !/backups/db-snapshots/latest-*.sql
+# v27 CRITICAL RECOVERY — PLANE-5 DURABLE TELEMETRY: the heartbeat/monitor-state/
+# alerts files under backups/plane5/ are tracked so the external scheduler's
+# liveness signal and alert record SURVIVE sandbox re-images (which wipe /tmp
+# hourly). Tiny JSON/log files, rewritten each run; guard-derivable prefix —
+# a stranded write can never block a git-drift realignment.
+!/backups/plane5/
+/backups/plane5/*
+!/backups/plane5/heartbeat.json
+!/backups/plane5/monitor-state.json
+!/backups/plane5/alerts.log
 
 # TASK 12 — AI-tool persisted-output cache (never commit: may snapshot file
 # contents that contain or later contain sensitive material)
