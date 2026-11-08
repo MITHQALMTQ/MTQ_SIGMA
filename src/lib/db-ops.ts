@@ -48,10 +48,48 @@
 import { createClient } from "@libsql/client";
 import { execSync } from "node:child_process";
 import { existsSync, mkdirSync, readFileSync, renameSync, rmSync, writeFileSync } from "node:fs";
-import { basename, dirname, join, resolve } from "node:path";
+import { basename, dirname, join, resolve, sep } from "node:path";
 import { fileURLToPath } from "node:url";
 
-const ROOT = resolve(dirname(fileURLToPath(import.meta.url)), "..", "..");
+const moduleRoot = resolve(dirname(fileURLToPath(import.meta.url)), "..", "..");
+const moduleInsideBuildOutput = moduleRoot.includes(join(sep, ".next", sep));
+
+/**
+ * Canonical deployment root for the data layer (v28 §5 root-cause fix).
+ *
+ * Production-build acceptance found the standalone server silently
+ * operating on a BUILD-TIME COPY of the databases: Turbopack's whole-project
+ * tracing (triggered by the dynamic fs access in this module) places db/,
+ * config/ and more inside .next/standalone/, and Next's standalone
+ * server.js runs `process.chdir(<bundle root>)` at boot — so every
+ * cwd-relative resolution inside the server landed on the stale copy.
+ * Observed live: the standalone chain node resumed at the build-time tip
+ * and appended blocks into the BUNDLE copy (h16764–h16791, then h16836–
+ * h16875 across two verification runs) while the canonical db/ — guarded by
+ * write-behind dumps, self-heal, cloud-sync and plane-5 monitoring — stayed
+ * frozen: a silent data-layer fork.
+ *
+ * Resolution order (mirrors the MTQ_SIGMA_ROOT override contract already
+ * used by src/lib/boot/git-drift.ts):
+ *   1. MTQ_SIGMA_ROOT env override (tests / deliberate relocation);
+ *   2. when the process runs FROM the in-repo bundle (cwd ends with
+ *      .next/standalone — the chdir performed by server.js), the canonical
+ *      root is two levels above it;
+ *   3. a module that still lives in the source tree (dev server and plain
+ *      `bun run scripts/*`) keeps the cwd-independent source-tree
+ *      resolution — unchanged behavior;
+ *   4. a bundled module launched in place falls back to the launch
+ *      directory.
+ */
+export function canonicalRoot(): string {
+  if (process.env.MTQ_SIGMA_ROOT) return resolve(process.env.MTQ_SIGMA_ROOT);
+  const cwd = process.cwd();
+  if (cwd.endsWith(join(".next", "standalone"))) return resolve(cwd, "..", "..");
+  if (!moduleInsideBuildOutput) return moduleRoot;
+  return resolve(cwd);
+}
+
+const ROOT = canonicalRoot();
 
 export const DB_DIR = join(ROOT, "db");
 export const CHAIN_DB = join(DB_DIR, "chain.db");

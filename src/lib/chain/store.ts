@@ -10,14 +10,21 @@
 import { createClient, type Client } from "@libsql/client";
 import { mkdirSync } from "node:fs";
 import { dirname, join } from "node:path";
+import { canonicalRoot } from "../db-ops";
 import { blockHeaderHash, type Block, type ChainParams, type GovProposal, type OracleObservation, type OraclePriceRecord, type Tx, type UnbondingEntry, type Validator } from "./shared";
 
 let client: Client | null = null;
 
 export function chainDb(): Client {
   if (client) return client;
-  const url = `file:${join(process.cwd(), "db", "chain.db")}`;
-  mkdirSync(dirname(join(process.cwd(), "db", "chain.db")), { recursive: true });
+  // v28 §5 root-cause fix: resolve against canonicalRoot(), NOT raw cwd —
+  // Next's standalone server.js chdirs into .next/standalone at boot, and
+  // the bundle contains a build-time COPY of db/; a raw-cwd join here made
+  // the production chain node append blocks into that throwaway copy
+  // (observed live, two runs) while the canonical db/ stayed frozen.
+  const dbPath = join(canonicalRoot(), "db", "chain.db");
+  const url = `file:${dbPath}`;
+  mkdirSync(dirname(dbPath), { recursive: true });
   client = createClient({ url });
   return client;
 }

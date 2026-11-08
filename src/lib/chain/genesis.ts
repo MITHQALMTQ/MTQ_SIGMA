@@ -10,6 +10,7 @@
 import { existsSync, readFileSync, writeFileSync, mkdirSync } from "node:fs";
 import { join } from "node:path";
 import { createHash } from "node:crypto";
+import { canonicalRoot } from "../db-ops";
 import { nodeKeys, pubToAddress, type NodeKeys } from "./crypto";
 import { CHAIN_ID, DEFAULT_CHAIN_PARAMS, MICRO, type ChainParams } from "./shared";
 
@@ -29,7 +30,10 @@ export interface Genesis {
   allocs: Array<{ address: string; fee_u: number; pmtq_u: number; note: string }>;
 }
 
-const GENESIS_PATH = join(process.cwd(), "config", "chain-genesis.json");
+// v28 §5: canonicalRoot() (not raw cwd) — same standalone-bundle fork class
+// as the chain store fix: the traced bundle carries a build-time copy of
+// config/, and server.js chdirs into the bundle at boot.
+const GENESIS_PATH = join(canonicalRoot(), "config", "chain-genesis.json");
 
 // Fixed genesis time (2025-11-01T00:00:00Z) — constant for byte-reproducibility.
 const GENESIS_TIME_MS = 1761955200000;
@@ -110,7 +114,7 @@ export function ensureGenesis(): { genesis: Genesis; keys: NodeKeys; created: bo
     return { genesis: onDisk, keys, created: false };
   }
 
-  mkdirSync(join(process.cwd(), "config"), { recursive: true });
+  mkdirSync(join(canonicalRoot(), "config"), { recursive: true });
   writeFileSync(GENESIS_PATH, JSON.stringify(canonical, null, 2));
   return { genesis: canonical, keys, created: true };
 }
