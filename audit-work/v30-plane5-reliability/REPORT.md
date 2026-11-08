@@ -3,7 +3,7 @@
 **Release classification:** TESTNET ONLY · SHADOW MODE · MONETARY/GOVERNANCE ACCEPTANCE PENDING
 **Session window:** 2026-11-08 ~22:58Z → 23:20Z (interactive v30 session; all times UTC)
 **Baseline at session start:** origin/main `bf4559d` → working session commit `6ff8143` (tooling) → this report
-**Final status line:** **NOT EARNED YET** — held until one-time verifier job `516200` (fires 01:10Z) confirms the first scheduler-dispatched hourly backstop cycle. See §J.
+**Final status line:** **NOT EARNED YET** — held until one-time verifier job `516211` (fires ~01:30Z; re-registered after the scheduler one_time epoch-handling quirk documented in §I) confirms the first scheduler-dispatched hourly backstop cycle. See §J.
 
 ---
 
@@ -26,7 +26,7 @@
 | 515685 (v3.2 backstop, **deleted at v30**) | 7-step agent contract, ~2× payload size | :17:48 every 2h | **0/2 fires succeeded — BOTH permanently REJECTED**: 19:17:48Z and 21:17:48Z, `execution.stage=failed`, `info="model concurrency limit exceeded"`, run_count 2, no retry, next tick +2h |
 | **516197** (v3.3 backstop, new) | **deterministic ONE-script** (`scripts/plane5-run.sh backstop`) | :17:48 **hourly** | registered 23:15Z; first fire 00:17:48Z |
 | **516198** (v3.2 monitor, new) | **deterministic TWO-tool-call** (cron list → `plane5-run.sh monitor --scheduler-json`) | :55:45 hourly | registered 23:15Z; first fire 23:55:45Z |
-| **516200** (one-shot verifier) | acceptance verification + REPORT §J update | one_time 01:10Z | registered 23:16Z |
+| **516211** (one-shot verifier) | acceptance verification + REPORT §J update + early-fire guard | one_time ~01:30Z | registered 23:19Z (first registration 516200 deleted: epoch display anomaly, §I.5) |
 
 ## C. Root cause of concurrency failures — **ROOT CAUSE IDENTIFIED AS A PLATFORM LIMITATION; not fully eliminable from inside the sandbox**
 
@@ -85,13 +85,13 @@ Findings (with live evidence from this session's re-image):
 3. **Scheduler API exposes only last-state + run_count** (no execution IDs/history endpoint) — the durable ledger + per-fire scheduler-json snapshots compensate.
 4. **Platform-internal slot attribution is unobservable** — root-cause analysis is bounded by what the scheduler exposes (honest limit, §C).
 
-## J. Final acceptance matrix — **as of 23:20Z (pre-first-hourly-fire); verifier 516200 finalizes at ~01:10Z**
+## J. Final acceptance matrix — **as of 23:20Z (pre-first-hourly-fire); verifier 516211 finalizes at ~01:30Z**
 
 | # | Criterion | Verdict | Evidence / pending |
 |---|---|---|---|
 | 1 | Backstop executes successfully through the actual scheduler | **NOT VERIFIED** | every v3.2 fire rejected (§B); first v3.3 hourly fire 00:17:48Z; job 516197 run_count must advance with stage=succeeded + ledger FINAL + fresh heartbeat + commit |
 | 2 | Monitor executes successfully through the actual scheduler | **PASS (v3.1: 4/4 fires, commits `0d761f1`/`bf4559d`/`39553ee`)** / v3.2 payload NOT VERIFIED until 23:55:45Z (job 516198) | scheduler-dispatched with committed telemetry |
-| 3 | Neither recurring job silently lost through concurrency rejection | **PASS for detection** (rejections → committed alerts 19:59/20:56/22:57; monitor cross-checks both jobs' run_count/stage every fire via scheduler-json; a deleted job is visible as absent from cron list) | permanence re-verified by 516200 |
+| 3 | Neither recurring job silently lost through concurrency rejection | **PASS for detection** (rejections → committed alerts 19:59/20:56/22:57; monitor cross-checks both jobs' run_count/stage every fire via scheduler-json; a deleted job is visible as absent from cron list) | permanence re-verified by 516211 |
 | 4 | Every execution has durable evidence | **PASS** | execution-ledger.jsonl + heartbeat + alerts + git commits (§D/G) |
 | 5 | Missed executions generate alerts | **PASS** | 19:17:48Z/21:17:48Z rejections → three committed alert lines; no silent suppression |
 | 6 | A successful heartbeat does not conceal a failed plane | **PASS** | matrix sim fresh-BLOCKED→PLANE_5_BLOCKED (5/5); writer computes result=OK only when every plane passes; monitor contract keeps BLOCKED distinct from OK |
@@ -99,14 +99,18 @@ Findings (with live evidence from this session's re-image):
 | 8 | Old app code cannot DB-self-heal before repository verification, or the limitation is explicitly documented | **PASS** (in-process gate [0] committed `6ff8143`; every future snapshot ships it) **+ limitation documented** (platform hook unchangeable; pre-gate snapshots covered by external layers only — §E.3) |
 | 9 | Database recovery remains forward-only and integrity-verified | **PASS** | h4028→h17661 forward-only restore + resume to h17749; integrity ok; genesis canonical; deficit 0 (§F) |
 | 10 | No duplicate recovery loops or competing servers | **PASS** | single watchdog instance; backstop `flock` makes concurrent self-heal structurally impossible (OVERLAP_SKIP exit 43 verified); watchdog EADDRINUSE port guard |
-| — | **Final status line** | **HELD** | emitted only by verifier 516200 after criteria 1 + the v3.2-payload row of 2 actually pass |
+| — | **Final status line** | **HELD** | emitted only by verifier 516211 after criteria 1 + the v3.2-payload row of 2 actually pass |
 
 ---
 
-### Evidence pointer for verifier 516200
+### Evidence pointer for verifier 516211
 
 - Ledger: `backups/plane5/execution-ledger.jsonl` (look for `mode=backstop` FINAL `EXECUTED-*` after 00:00Z, and `mode=monitor` classification entries).
 - Scheduler: cron list → jobs 516197/516198 run_count/stage/info/last_run_at/next_run_time.
 - Heartbeat: `backups/plane5/heartbeat.json` (expect tsIso ≈ 00:17:48Z+, result per real planes, nextDueMs +1h) + `sha256sum`.
 - Commits: `git log --oneline` — expect `plane5-heartbeat: … OK` (job 516197) and possibly `plane5-monitor: …` (job 516198).
 - Rules: a manual execution NEVER substitutes for scheduler-dispatched evidence; PASS only what the durable record proves.
+
+### §I addendum (5) — scheduler one_time registration quirk (observed 23:16–23:19Z)
+
+The platform's one_time handling is internally inconsistent: an epoch-**millis** expr validates (future) but the stored/displayed fire time parses the same number as **seconds** (job 516200 displayed next_run year 58825 → deleted); an epoch-**seconds** expr fails validation ("should after now time" — parsed as millis); a datetime **string** validates against server-local (Asia/Shanghai) time regardless of the job tz field (a 01:10Z-labeled string was rejected as past). Verifier re-registered as **516211** with expr `2026-11-09 09:30:00` + tz Asia/Shanghai — every possible interpretation lands at-or-after 01:30Z, i.e. after both acceptance fires; the payload carries an explicit early-fire guard (verify only what has happened; report the remainder NOT VERIFIED). This quirk is a platform limitation (§I), worked around — not fixed.
