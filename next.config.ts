@@ -6,6 +6,11 @@ const nextConfig: NextConfig = {
   // — was letting type errors ship to Vercel with zero static guarantees.
   // Now type errors fail the build in CI and on Vercel.
   reactStrictMode: false,
+  // Production build contract (v28 audit fix): package.json `build` assembles
+  // .next/standalone (.next/static + public/ copied in) and `start` launches
+  // `bun .next/standalone/server.js` — both require `output: "standalone"`,
+  // which this config never set (no production build had ever emitted it).
+  output: "standalone",
   // Hide the dev-only Next.js indicator badge (the floating "N" circle) —
   // it is not part of the product UI and pollutes previews/screenshots.
   devIndicators: false,

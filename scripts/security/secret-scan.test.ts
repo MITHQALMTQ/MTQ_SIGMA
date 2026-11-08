@@ -180,5 +180,10 @@ describe("secret-scanner gate", () => {
     ).length).toBe(0);
     // And the known literals must NOT be present anywhere in the tree
     expect(result.findings.length).toBe(0);
-  });
+    // v28 fix: explicit timeout budget. The full-worktree scan (1,443 files,
+    // evidence archives included) takes ~14-18s and reliably exceeded bun's
+    // 5s default — the gate test failed on BUDGET, not on findings (standalone
+    // scan exits 0 with zero findings). Root cause was the missing budget as
+    // the tree grew, not a scan regression.
+  }, 60000);
 });
