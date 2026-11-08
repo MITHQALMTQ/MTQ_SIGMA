@@ -89,7 +89,7 @@ Findings (with live evidence from this session's re-image):
 
 | # | Criterion | Verdict | Evidence / pending |
 |---|---|---|---|
-| 1 | Backstop executes successfully through the actual scheduler | **NOT VERIFIED** | every v3.2 fire rejected (§B); first v3.3 hourly fire 00:17:48Z; job 516197 run_count must advance with stage=succeeded + ledger FINAL + fresh heartbeat + commit |
+| 1 | Backstop executes successfully through the actual scheduler | **PASS** (2026-11-08T23:17:48Z fire) | job 516197 run_count=1 · scheduler last_run_at 23:17:48Z (dispatch) · ledger FINAL `EXECUTED-OK` 23:18:12Z (run 4.8s: git OK · db OK h17788/deficit 0/unbacked 127 · server 200+watchdog · route 403) · fresh heartbeat 23:18:15.651Z result=OK (nextDue +1h) · commit `fc6e7c6` pushed by the scheduled run itself. NOTE: dispatched while an interactive session was active — the lightweight v3.3 payload succeeded where every v3.2 fire was concurrency-rejected (correlation observed; platform-internal causality not claimed). Scheduler `stage` field read "started" at inspection — completion proven by the durable ledger + commit (§I.3 API limitation). Next routine fire 00:17:48Z |
 | 2 | Monitor executes successfully through the actual scheduler | **PASS (v3.1: 4/4 fires, commits `0d761f1`/`bf4559d`/`39553ee`)** / v3.2 payload NOT VERIFIED until 23:55:45Z (job 516198) | scheduler-dispatched with committed telemetry |
 | 3 | Neither recurring job silently lost through concurrency rejection | **PASS for detection** (rejections → committed alerts 19:59/20:56/22:57; monitor cross-checks both jobs' run_count/stage every fire via scheduler-json; a deleted job is visible as absent from cron list) | permanence re-verified by 516211 |
 | 4 | Every execution has durable evidence | **PASS** | execution-ledger.jsonl + heartbeat + alerts + git commits (§D/G) |
@@ -99,7 +99,7 @@ Findings (with live evidence from this session's re-image):
 | 8 | Old app code cannot DB-self-heal before repository verification, or the limitation is explicitly documented | **PASS** (in-process gate [0] committed `6ff8143`; every future snapshot ships it) **+ limitation documented** (platform hook unchangeable; pre-gate snapshots covered by external layers only — §E.3) |
 | 9 | Database recovery remains forward-only and integrity-verified | **PASS** | h4028→h17661 forward-only restore + resume to h17749; integrity ok; genesis canonical; deficit 0 (§F) |
 | 10 | No duplicate recovery loops or competing servers | **PASS** | single watchdog instance; backstop `flock` makes concurrent self-heal structurally impossible (OVERLAP_SKIP exit 43 verified); watchdog EADDRINUSE port guard |
-| — | **Final status line** | **HELD** | emitted only by verifier 516211 after criteria 1 + the v3.2-payload row of 2 actually pass |
+| — | **Final status line** | **HELD** (one row pending) | row 1 PASS at 23:17:48Z; emitted only by verifier 516211 after the v3.2-payload monitor row (job 516198, 23:55:45Z fire) also passes |
 
 ---
 
