@@ -10509,3 +10509,9 @@ Release classification unchanged: **TESTNET ONLY · SHADOW MODE · NOT ACCEPTED*
 - **Boot-order fix (permanent):** `src/instrumentation.ts` step [0] — git-drift guard BEFORE the DB self-heal on every server boot (committed source ⇒ every future re-image snapshot ships it; guard BLOCKED ⇒ self-heal stands down).
 - **Simulations:** classification matrix 5/5 (fresh-BLOCKED → PLANE_5_BLOCKED — fresh heartbeat never masks a failed plane); overlap guard exit 43 with zero durable writes; monitor smoke run end-to-end (throttle correctly suppressed commit 17 min < 30).
 - tsc 0 · eslint 0 · secret-scan PASS · full evidence: audit-work/v30-plane5-reliability/REPORT.md (§A–J; final status line HELD pending verifier 516200).
+
+## 2026-11-09T00:12:30Z — plane5 monitor fire (job 516198, 23:55:45Z dispatch) + v30 hotfix
+- fire initially BLOCKED twice at bootstrap exit 13: unpushed local snapshot commit 3d37d99 (the 23:17:48Z backstop fire's dump) diverged from origin 32a70ee; guard directive PUSH honored → pushed 32a70ee..3d37d99, secret-scan PASS
+- root-cause bug found: ledger() crashed (json.loads) on '[bootstrap …] FAIL …'-prefixed bootstrapTail → durable BOOTSTRAP-FAILED evidence silently lost + BLOCKED line never surfaced (exit 9, two consecutive fires)
+- hotfix: non-JSON '{'/'[' fragments kept verbatim in ledger; BLOCKED lines emitted to both streams; syntax-checked + unit-tested
+- fire then completed: PLANE_5_OK age=3094s hb=2026-11-08T23:18:15.651Z result=OK origin=e95354da, durable ledger EXECUTED-PLANE_5_OK, commit dcc21a5 (pushed); §J row 2 monitor-observation evidence now durable

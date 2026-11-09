@@ -95,7 +95,16 @@ import json, sys, os
 path, phase, outcome, ts, mode, job, sched, dur = sys.argv[1:9]
 extra = {}
 for a in sys.argv[9:]:
-    k, _, v = a.partition('='); extra[k] = v if not (v.startswith('{') or v.startswith('[')) else json.loads(v)
+    k, _, v = a.partition('=')
+    # v30 hotfix (job 516198 fire 2026-11-09T00:09Z): a fragment starting with
+    # '{'/'[' that is NOT valid JSON (e.g. a '[bootstrap ...] FAIL ...' log tail
+    # passed as bootstrapTail/guardTail) previously CRASHED this append — the
+    # durable BOOTSTRAP-FAILED / EXECUTED-BLOCKED evidence was lost. Parse when
+    # possible, otherwise keep the fragment verbatim. Evidence is never dropped.
+    if v[:1] in ('{', '['):
+        try: extra[k] = json.loads(v)
+        except Exception: extra[k] = v
+    else: extra[k] = v
 entry = {"tsIso": ts, "mode": mode, "jobId": job, "phase": phase, "outcome": outcome,
          "durationMs": int(dur), "schedulerObserved": json.loads(sched) if sched != "null" else None, **extra}
 line = json.dumps(entry, separators=(',', ':'))
@@ -113,7 +122,10 @@ BOOT_OUT="$( { REMOTE="$(git remote get-url origin 2>/dev/null)"; case "$REMOTE"
 BOOT_EXIT=$?
 if [ "$BOOT_EXIT" -ne 0 ]; then
   ledger FINAL "BOOTSTRAP-FAILED" "bootstrapExit=$BOOT_EXIT" "bootstrapTail=$(echo "$BOOT_OUT" | tail -2 | tr '\n' ' ')"
+  # v30 hotfix: BLOCKED line is emitted to BOTH streams — the relay agent must
+  # see the classification even if one stream is dropped on non-zero exit.
   echo "PLANE_5_${MODE^^} BLOCKED bootstrap_exit=$BOOT_EXIT — $(echo "$BOOT_OUT" | tail -1)"
+  echo "PLANE_5_${MODE^^} BLOCKED bootstrap_exit=$BOOT_EXIT — $(echo "$BOOT_OUT" | tail -1)" >&2
   exit 9
 fi
 echo "$BOOT_OUT" | tail -4
@@ -236,7 +248,9 @@ esac
 
 if [ "$GIT_PLANE" = "BLOCKED" ]; then
   ledger FINAL "EXECUTED-BLOCKED" "git=BLOCKED" "guardExit=$GUARD_EXIT" "guardTail=$(tail -3 /tmp/plane5-guard.out | tr '\n' ' ')"
+  # v30 hotfix: BLOCKED line on both streams (relay-agent visibility, see above)
   echo "PLANE_5_BACKSTOP BLOCKED git=BLOCKED guard_exit=$GUARD_EXIT — $(tail -2 /tmp/plane5-guard.out | tr '\n' ' ')"
+  echo "PLANE_5_BACKSTOP BLOCKED git=BLOCKED guard_exit=$GUARD_EXIT — $(tail -2 /tmp/plane5-guard.out | tr '\n' ' ')" >&2
   exit 1
 fi
 
