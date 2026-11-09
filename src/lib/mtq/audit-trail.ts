@@ -136,9 +136,21 @@ let LAST_MARP_PERSIST_AT_FALLBACK = 0;
 // cap, the oldest rows (by `createdAt` descending sort, i.e. the rows that
 // fall outside the most-recent MAX_* window) are deleted in batches of
 // `PRUNE_BATCH_SIZE` to avoid locking the DB for too long.
-const MAX_REBALANCING_DECISIONS = 10_000;
-const MAX_DAILY_STATE_VECTORS = 5_000;
-const MAX_ORACLE_SAMPLES = 5_000;
+//
+// V31 §9 CLOUD UNION (operator directive 2026-11-10: "upgrade the local
+// server with all databases that are available on cloud that is not on local
+// server"): the local sandbox is now the FULL-HISTORY node — the union of the
+// Neon mirror (frozen 2026-10-29, deep history: DSV 15,962 / OS 34,958 /
+// RD 56,513), the Turso window, and local live telemetry was imported
+// additively (scripts/cloud-to-local-import.ts). The caps below are raised
+// ABOVE that union so the imported history is RETAINED locally, with growth
+// headroom; the capped-window policy remains the CLOUD (production) side's
+// behavior. Cap-hit prunes stay incremental (1000-row batches, ≤10% of the
+// dump-tip total) so they never trip the cloud-sync regression guard's
+// prune tolerance.
+const MAX_REBALANCING_DECISIONS = 75_000;
+const MAX_DAILY_STATE_VECTORS = 25_000;
+const MAX_ORACLE_SAMPLES = 50_000;
 const PRUNE_BATCH_SIZE = 1_000; // delete in batches of 1000 to avoid locking
 
 // Coerce non-finite numbers (Infinity/NaN) to 0 for SQLite Float storage.
