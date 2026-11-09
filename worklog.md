@@ -10593,3 +10593,10 @@ Release classification unchanged: **TESTNET ONLY · SHADOW MODE · NOT ACCEPTED*
 - remediation: server/watchdog relaunch=yes · route=present · rebootstrap=no
 - planes: git=OK db=ALERT server=000000 route=000000 · tip=h3997 rows=12395 unbacked=0 deficit=17604
 - heartbeat: 2026-11-09T15:19:13.135Z result=ALERT (dual write: /tmp + durable-when-synced)
+
+## 2026-11-09T16:35Z — V31 TURN 3: permanent startup repair + recovery hardening + validation (job-less turn; concurrent executor session active 12:00–15:19Z)
+- Arrived to the fifth Incident-22 recurrence (14:50Z re-image; DB regressed to h3997; server 500 from the swc/bun parser divergence in the concurrent executor's generation-store) — root cause ACCEPTED, not reinvestigated.
+- Fixed + pushed: swc-safe chain_id query, true-tip generation ids, type fix; watchdog v5 port-guard (HTTP-200 readiness, non-200 reclaimed); platform entrypoint gate chain (`bun run dev` → dev-entrypoint.sh → watchdog v5 singleton → guard → heal → preflight → generation selfheal → next dev → readiness); runtime-preflight meriyah path false-positive fix; R-4 14-state taxonomy (shared classifier + verifier + monitor F-3 fix + backstop plane-2 + heartbeat dbState); OVERLAP_SKIP holder companions; durable decision journaling; generation-binary repo hygiene. Commits b322840, a0475c0, 50193cc(sweep), 6df5f07(publish v5), 27f2a0a, 842a2de.
+- Verified live: server 200; DB HEALTHY h21871 (deficit 0); 16:17:48Z scheduler fire ran the new pipeline end-to-end (heartbeat dbState=HEALTHY result=OK); manual monitor PLANE_5_OK db=HEALTHY; 138-test battery green (60 units + 78/78 harness); tsc 0; lint 0.
+- Reports: turn3-permanent-remediation-report.md (14-field records, 20-criterion gate); register + this log.
+- Honest status: V31 NOT COMPLETE — platform base-image refresh BLOCKED (operator), re-image cycles 1/3, 24h soak in progress (completes 2026-11-10T15:23Z).

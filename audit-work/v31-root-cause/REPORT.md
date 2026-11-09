@@ -126,3 +126,35 @@ Explain why Plane 5 previously reported a healthy chain tip of h20333 with 18,14
 ## F. TURN 2B second-pass verification (appendendum, 2026-11-09T12:19–12:52Z)
 
 An independent second read-only forensic pass corroborated every material conclusion of the report above and upgraded two partial items to complete: (1) **full parent-hash continuity walk — 0 violations** across all 20,332 snapshot edges and 20,381 live edges (closes §14.6); (2) **cold rebuild of both published dumps** as a second reconstructibility proof (chain exactly 20,333 blocks contiguous; custom 18,077 rows exact manifest match). It also decoded the `server=000000`/`route=000000` token semantics (curl `000` + fallback `echo 000` concatenation = no HTTP listener at probe time), corroborated latent defect F-1 at code level, proved via committed-ledger archaeology that the 06:18–10:18 backstop FINAL entries were never in any commit (post-commit dirty appends wiped at turn-boundary re-provisionings), retracted a preliminary "CLI syntax corruption" reading after byte-level verification (Incident 18's documented `[h` display-mangling trap — file verified correct, 1:0 token counts), and recorded live forward growth to h20524 @12:41Z (server 200, route 403, git synced `817d06a`). Full detail: `database-regression-forensic-report.md` §18 (Addendum). **Phase verdict unchanged: `PHASE_2B_COMPLETE`.**
+
+---
+
+# V31 TURN 3 — Permanent Platform Startup Repair, Database Recovery Hardening & End-to-End Validation
+
+**Execution window:** 2026-11-09T15:48Z → 16:35Z (this session)
+**Baseline at start:** origin/main `f6b2c31`; live DB regressed h3997 (deficit 17604); server HTTP 500; heartbeat 15:19Z result=ALERT
+**State at close:** origin/main `842a2de`; DB HEALTHY h21871 (deficit 0); server 200; entrypoint gate chain live; 138-test battery green; heartbeat dbState=HEALTHY result=OK
+**Classification:** TESTNET ONLY · SHADOW MODE · NOT PRODUCTION-AUTHORIZED
+
+The full 14-field remediation records (R-1, R-2, R-2B, R-3, R-4, R-5, R-6), the §9–§13 evidence, and the §14 completion gate live in
+[`turn3-permanent-remediation-report.md`](./turn3-permanent-remediation-report.md).
+This section summarizes the turn.
+
+## A. Objective
+Eliminate the complete Incident-22 causal chain permanently, repair every architectural weakness it exposed, verify the actual platform startup process, and validate end-to-end — without reopening the closed investigation and without fabricating completion.
+
+## B. What the turn found on arrival (the fifth recurrence, live)
+- The 14:50Z re-image had re-run the full causal chain (dev.log verbatim: stale self-heal h3941 → realign → swc/meriyah crash).
+- The concurrent-executor TURN 3 code batch (`e8da08a`) had landed mid-flight: the generation store had already restored h21601 at 15:23:10Z (journal + casualty archive), but its `generation-store.ts` carried an swc/bun parser-divergence defect that left the server returning HTTP 500 (MODULE_UNPARSABLE) — which the then-running watchdog v4 passively supervised as "healthy" (curl exit code, not HTTP status).
+
+## C. What the turn built and verified (all live, all pushed)
+1. **Emergency + audit repairs** (`b322840`): swc-safe rewrite of the chain_id query, true-tip generation ids, `sourceOrigin` type fix, port-guard hardening (HTTP 200 = healthy; non-200 reclaimed through the heal chain), generation-binary repo hygiene (mid-import torn states blocked from history).
+2. **R-1 platform entrypoint gate chain** (`a0475c0`): `bun run dev` → `scripts/dev-entrypoint.sh` → watchdog v5 (singleton flock; runtime preflight with the meriyah false-positive fixed to the real vendored path; fail-closed self-heal exits) → next dev → readiness. Live boot verified 16:03→16:08.
+3. **R-4 14-state taxonomy** (`50193cc`): shared classifier (`db-plane-state.ts`), verifier CLI, monitor F-3 fix (probes the ACTUAL DB read-only), backstop plane-2 replacement (the old probe crashed on a missing DB file), heartbeat carries dbState. Live: 16:17:48Z scheduler fire ran the full new pipeline (heartbeat h21712 dbState=HEALTHY result=OK; publish v5); manual monitor run PLANE_5_OK db=HEALTHY.
+4. **R-5/R-6** (`27f2a0a`, `842a2de`): watchdog singleton; OVERLAP_SKIP holder identity recorded at acquisition (lsof self-listing rejected with a live reproduction); durable DECISION_AUTHORIZED/DECISION_REFUSED journaling.
+5. **§10 battery**: 60 new bun-test units + the updated 78/78 harness = **138 green** (requirement: ≥44); tsc 0, lint 0 errors.
+
+## D. Honest open items (the completion gate, 16/20 criteria met)
+**Final status: `V31 NOT COMPLETE — SPECIFIC BLOCKERS LISTED`** — (1) the platform base-image refresh (operator action; until then each re-image keeps a ≤1h backstop window); (2) re-image cycles 2–3 of ≥3 (1/3 observed, cycle 1 fully evidenced); (3) the 24-hour soak (started 15:23Z, completes 2026-11-10T15:23Z); (4) multi-fire scheduler evidence on the pure new-code path (accruing hourly). All in-repo remediations: FIXED AND VERIFIED.
+
+**Production remains unauthorized. TESTNET ONLY · SHADOW MODE.**
