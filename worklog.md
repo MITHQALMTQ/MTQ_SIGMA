@@ -10521,3 +10521,13 @@ Release classification unchanged: **TESTNET ONLY · SHADOW MODE · NOT ACCEPTED*
 - monitor first attempt BLOCKED bootstrap_exit=13 (wrapper auto-commit ca5b429 of latest-chain.sql unpushed) — hotfix visibility worked, BLOCKED line surfaced; pushed per guard directive e0daa15..ca5b429; re-run completed PLANE_5_OK age=6029s hb=23:18:15.651Z, commit 2cae872 (carried the hotfix-recovered BOOTSTRAP-FAILED ledger lines)
 - structural loop identified: platform snapshot-restore re-dirties backups/db-snapshots/latest-chain.sql each session; cron wrapper auto-commits it WITHOUT pushing → next fire bootstrap exit 13 every hour
 - fix: backstop commit rule now includes backups/db-snapshots (allowlist + 3 git-add sites) so the hourly backstop pushes the snapshot forward itself; monitor stays observe-only
+
+## 2026-11-09T01:28:00Z — V31 root-cause batch RC-1..RC-6 landed
+- Phase 0 read-only audit complete (register: audit-work/v31-root-cause/ROOT_CAUSE_REGISTER.md); cloud architecture documented: Turso primary + Neon mirror exist in code but are UNCONFIGURED in this sandbox (reported UNVERIFIED, not healthy)
+- RC-1: execution ledger now git-tracked (.gitignore negation added; file added to the commit; verified via check-ignore + ls-tree after push)
+- RC-2: job attribution — topology defaults monitor=516198 / backstop=516197, PLANE5_JOB_ID/--job-id override; manual smoke run recorded job=manual
+- RC-3: monitor degraded-bootstrap mode — exit 13/14/15 observes + alerts (/tmp only, never a commit, classification never OK); authenticity failures remain hard BLOCKED
+- RC-4: heartbeat result requires watchdog v4 (writer + inline fallback; planes.watchdog field)
+- RC-5: ledger append-only rotation (>1000 lines -> tracked archive, last 200 kept; probe-verified 1005->200+805, no loss)
+- RC-6: snapshot parse failure (tip<0) degrades db plane to ALERT, never OK (7-case probe all PASS); unbackedAhead>2000 -> RECOVERY_REQUIRED
+- regression evidence: bash -n OK, bun build writer OK, RC-5/RC-6 probes PASS, manual monitor smoke run PLANE_5_OK age=442s job=manual bootstrap=OK; scheduler-fire confirmation pending (01:55:45Z monitor, 02:17:48Z backstop)

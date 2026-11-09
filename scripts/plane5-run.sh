@@ -16,6 +16,18 @@
 #   bash scripts/plane5-run.sh monitor  [--job-id N] [--scheduler-json '<json>']
 #   bash scripts/plane5-run.sh backstop [--job-id N]
 #
+# JOB IDENTITY (V31 RC-2): scheduler fires derive their job ID from the
+# verified registry topology (monitor = 516198, backstop = 516197; registry
+# checked 2026-11-09). Manual invocations should set PLANE5_JOB_ID=manual or
+# --job-id manual to avoid misattribution. Re-verify the registry whenever
+# plane-5 jobs are recreated.
+#
+# MONITOR DEGRADED MODE (V31 RC-3): if bootstrap fails ONLY at sync/prerequisite
+# stages (exit 13/14/15 — guard already passed, tree provably synced-or-ahead)
+# the monitor still observes the on-disk heartbeat and alerts (/tmp telemetry
+# only, NEVER a commit, classification never OK). Authenticity failures
+# (exit 11/12/1/other) remain hard BLOCKED. See EXIT CODES below.
+#
 # RETRIEVAL AFTER A RE-IMAGE (self-sufficient — the checkout may be a stale
 # snapshot whose scripts/ predate this file):
 #   git fetch origin >/dev/null 2>&1; \
@@ -53,9 +65,16 @@
 set -uo pipefail
 ROOT="${MTQ_SIGMA_ROOT:-/home/z/my-project}"
 MODE="${1:-}"
-JOB_ID="manual"
 SCHED_JSON="null"
 shift 2>/dev/null || true
+# V31 RC-2 (2026-11-09): cron payloads are immutable and carry no --job-id, so
+# scheduler fires derive identity from the registry topology above. Override:
+# PLANE5_JOB_ID env or --job-id (manual runs should use "manual").
+case "$MODE" in
+  monitor)  JOB_ID="${PLANE5_JOB_ID:-516198}" ;;
+  backstop) JOB_ID="${PLANE5_JOB_ID:-516197}" ;;
+  *)        JOB_ID="${PLANE5_JOB_ID:-manual}" ;;
+esac
 while [ $# -gt 0 ]; do
   case "$1" in
     --job-id) JOB_ID="${2:-manual}"; shift 2 ;;
@@ -108,8 +127,25 @@ for a in sys.argv[9:]:
 entry = {"tsIso": ts, "mode": mode, "jobId": job, "phase": phase, "outcome": outcome,
          "durationMs": int(dur), "schedulerObserved": json.loads(sched) if sched != "null" else None, **extra}
 line = json.dumps(entry, separators=(',', ':'))
+def rotate(p):
+    # V31 RC-5 (2026-11-09): append-only rotation — history moves to a tracked
+    # archive (execution-ledger.archive.jsonl), never deleted. Rotation failure
+    # must never block the evidence append itself.
+    try:
+        if not os.path.exists(p): return
+        with open(p) as f: lines = f.readlines()
+        if len(lines) <= 1000: return
+        move, keep = lines[:-200], lines[-200:]
+        arch = os.path.join(os.path.dirname(p), "execution-ledger.archive.jsonl")
+        with open(arch, "a") as f: f.writelines(move)
+        tmp = p + ".rotating"
+        with open(tmp, "w") as f: f.writelines(keep)
+        os.replace(tmp, p)
+    except Exception:
+        pass
 for p in (path, "backups/plane5/execution-ledger.jsonl"):
     try:
+        rotate(p)
         os.makedirs(os.path.dirname(p), exist_ok=True) if os.path.dirname(p) and not os.path.exists(os.path.dirname(p)) else None
         with open(p, 'a') as f: f.write(line + "\n")
     except Exception:
@@ -120,18 +156,30 @@ PYEOF
 # ── (§0) bootstrap from authoritative origin — NEVER raw-git realign ──
 BOOT_OUT="$( { REMOTE="$(git remote get-url origin 2>/dev/null)"; case "$REMOTE" in *MITHQALMTQ/MTQ_SIGMA*) ;; *) echo REMOTE_AUTH_FAIL; exit 9;; esac; git fetch origin >/dev/null 2>&1 || { echo FETCH_FAIL_BLOCKED; exit 9; }; if [ -f scripts/plane5-bootstrap.sh ]; then bash scripts/plane5-bootstrap.sh; else git show origin/main:scripts/plane5-bootstrap.sh > /tmp/plane5-bootstrap.sh && bash /tmp/plane5-bootstrap.sh; fi; } 2>&1 )"
 BOOT_EXIT=$?
+BOOTSTRAP_STATE="OK"
 if [ "$BOOT_EXIT" -ne 0 ]; then
   ledger FINAL "BOOTSTRAP-FAILED" "bootstrapExit=$BOOT_EXIT" "bootstrapTail=$(echo "$BOOT_OUT" | tail -2 | tr '\n' ' ')"
-  # v30 hotfix: BLOCKED line is emitted to BOTH streams — the relay agent must
-  # see the classification even if one stream is dropped on non-zero exit.
-  echo "PLANE_5_${MODE^^} BLOCKED bootstrap_exit=$BOOT_EXIT — $(echo "$BOOT_OUT" | tail -1)"
-  echo "PLANE_5_${MODE^^} BLOCKED bootstrap_exit=$BOOT_EXIT — $(echo "$BOOT_OUT" | tail -1)" >&2
-  exit 9
+  # V31 RC-3 (2026-11-09): a monitor fire whose bootstrap failed ONLY at the
+  # sync/prerequisite stages (13 = HEAD provably ahead after the guard passed;
+  # 14/15 = synced tree, prerequisite/snapshot issue) still holds the freshest
+  # heartbeat evidence on disk — it OBSERVES and ALERTS in degraded mode
+  # (/tmp telemetry only, NEVER a commit, classification never OK) instead of
+  # going blind. Authenticity failures (11 remote, 12 fetch, 1 guard BLOCKED,
+  # anything else) remain hard BLOCKED: nothing about the tree can be trusted.
+  DEGRADED="no"
+  if [ "$MODE" = "monitor" ]; then
+    case "$BOOT_EXIT" in 13|14|15) DEGRADED="yes" ;; esac
+  fi
+  if [ "$DEGRADED" != "yes" ]; then
+    echo "PLANE_5_${MODE^^} BLOCKED bootstrap_exit=$BOOT_EXIT — $(echo "$BOOT_OUT" | tail -1)"
+    echo "PLANE_5_${MODE^^} BLOCKED bootstrap_exit=$BOOT_EXIT — $(echo "$BOOT_OUT" | tail -1)" >&2
+    exit 9
+  fi
+  BOOTSTRAP_STATE="DEGRADED(exit=$BOOT_EXIT)"
 fi
-echo "$BOOT_OUT" | tail -4
+[ "$BOOTSTRAP_STATE" = "OK" ] && echo "$BOOT_OUT" | tail -4
 
-# tree is bootstrapped (synced) → durable ledger writes are permitted
-ORIGIN_SHA="$(git rev-parse origin/main)"
+ORIGIN_SHA="$(git rev-parse origin/main 2>/dev/null || echo unknown)"
 
 # ════════════════════════════════════════════════════════════════════
 # MONITOR — observes and alerts; NEVER remediates (v3.1 contract)
@@ -171,27 +219,39 @@ PYEOF
 
   ALERTING="no"
   [ "$CLASSIFICATION" != "PLANE_5_OK" ] && ALERTING="yes"
+  # V31 RC-3: a degraded bootstrap compromises the durable telemetry layer
+  # itself — never report OK while unsynced; force the alerting flow.
+  if [ "$BOOTSTRAP_STATE" != "OK" ]; then
+    ALERTING="yes"
+    [ "$CLASSIFICATION" = "PLANE_5_OK" ] && CLASSIFICATION="PLANE_5_ALERT"
+  fi
 
   if [ "$ALERTING" = "yes" ]; then
     # alert flow: durable alerts.log line + monitor-state (durable+/tmp)
-    python3 - "$AGE_S" "$CLASSIFICATION" "$HB_TSISO" "$HB_RESULT" <<'PYEOF'
+    python3 - "$AGE_S" "$CLASSIFICATION" "$HB_TSISO" "$HB_RESULT" "$BOOTSTRAP_STATE" <<'PYEOF'
 import json, sys, datetime, os
-age, cls, hb_ts, hb_res = sys.argv[1:5]
+age, cls, hb_ts, hb_res, boot = sys.argv[1:6]
 n = datetime.datetime.now(datetime.timezone.utc)
 ts = n.strftime("%Y-%m-%dT%H:%M:%S.") + f"{n.microsecond//1000:03d}Z"
 now_ms = int(n.timestamp()*1000)
-line = f"{ts} age={age} classification={cls} heartbeat={hb_ts} result={hb_res}"
-with open("backups/plane5/alerts.log", "a") as f: f.write(line + "\n")
-state = {"lastSeenMs": now_ms, "lastResult": hb_res if hb_res != "MISSING" else "MISSING", "missingSinceMs": now_ms if hb_res == "MISSING" else None}
-json.dump(state, open("backups/plane5/monitor-state.json", "w"))
+line = f"{ts} age={age} classification={cls} heartbeat={hb_ts} result={hb_res} bootstrap={boot}"
+# V31 RC-3: durable alert/state writes ONLY when the tree is synced (bootstrap
+# OK); degraded runs keep /tmp copies so the observer never loses the alert
+# record even while it cannot publish.
+if boot == "OK":
+    with open("backups/plane5/alerts.log", "a") as f: f.write(line + "\n")
+with open("/tmp/plane5-alerts.log", "a") as f: f.write(line + "\n")
+state = {"lastSeenMs": now_ms, "lastResult": hb_res if hb_res != "MISSING" else "MISSING", "missingSinceMs": now_ms if hb_res == "MISSING" else None, "bootstrapState": boot}
+if boot == "OK":
+    json.dump(state, open("backups/plane5/monitor-state.json", "w"))
 json.dump(state, open("/tmp/plane5-monitor-state.json", "w"))
 PYEOF
   else
     # healthy run: still refresh state (fresh durable read clears missingSince)
-    python3 - "$HB_RESULT" <<'PYEOF'
+    python3 - "$HB_RESULT" "$BOOTSTRAP_STATE" <<'PYEOF'
 import json, sys, datetime
 n = datetime.datetime.now(datetime.timezone.utc); now_ms = int(n.timestamp()*1000)
-state = {"lastSeenMs": now_ms, "lastResult": sys.argv[1], "missingSinceMs": None}
+state = {"lastSeenMs": now_ms, "lastResult": sys.argv[1], "missingSinceMs": None, "bootstrapState": sys.argv[2]}
 json.dump(state, open("backups/plane5/monitor-state.json", "w"))
 json.dump(state, open("/tmp/plane5-monitor-state.json", "w"))
 PYEOF
@@ -214,7 +274,8 @@ import sys, datetime
 age = (datetime.datetime.now(datetime.timezone.utc) - datetime.datetime.fromisoformat('$LAST_COMMIT_ISO'.replace('Z','+00:00'))).total_seconds()
 print('yes' if age > 1800 else 'no')")"
   COMMIT_SHA="none"
-  if { [ "$ALERTING" = "yes" ] || [ "$CLASSIFICATION" != "$LAST_CLS" ]; } && [ "$THROTTLE_OK" = "yes" ]; then
+  # V31 RC-3: no commit whatsoever while the tree is not synced.
+  if [ "$BOOTSTRAP_STATE" = "OK" ] && { [ "$ALERTING" = "yes" ] || [ "$CLASSIFICATION" != "$LAST_CLS" ]; } && [ "$THROTTLE_OK" = "yes" ]; then
     if git add backups/plane5 2>/dev/null && git commit -m "plane5-monitor: $(date -u +%FT%T.%3NZ) $CLASSIFICATION" >/dev/null 2>&1 && git push origin main >/dev/null 2>&1; then
       COMMIT_SHA="$(git rev-parse --short HEAD)"
     else
@@ -222,8 +283,8 @@ print('yes' if age > 1800 else 'no')")"
     fi
   fi
 
-  ledger FINAL "EXECUTED-$CLASSIFICATION" "classification=$CLASSIFICATION" "heartbeatTsIso=$HB_TSISO" "ageS=$AGE_S" "heartbeatResult=$HB_RESULT" "heartbeatOriginSha=$HB_ORIGIN" "commit=$COMMIT_SHA"
-  echo "PLANE_5_MONITOR $CLASSIFICATION age=${AGE_S}s hb=$HB_TSISO result=$HB_RESULT origin=$HB_ORIGIN job=$JOB_ID ledger=outcome=EXECUTED-$CLASSIFICATION"
+  ledger FINAL "EXECUTED-$CLASSIFICATION" "classification=$CLASSIFICATION" "bootstrapState=$BOOTSTRAP_STATE" "heartbeatTsIso=$HB_TSISO" "ageS=$AGE_S" "heartbeatResult=$HB_RESULT" "heartbeatOriginSha=$HB_ORIGIN" "commit=$COMMIT_SHA"
+  echo "PLANE_5_MONITOR $CLASSIFICATION age=${AGE_S}s hb=$HB_TSISO result=$HB_RESULT origin=$HB_ORIGIN job=$JOB_ID bootstrap=$BOOTSTRAP_STATE ledger=outcome=EXECUTED-$CLASSIFICATION"
   exit 0
 fi
 
@@ -281,10 +342,14 @@ committed = subprocess.run(["git", "show", "origin/main:backups/db-snapshots/lat
 committed_tip = tip(committed)
 unbacked = max(0, (h or 0) - committed_tip)
 deficit = max(0, committed_tip - (h or 0))
+# V31 RC-6 (2026-11-09): an unparseable snapshot (tip < 0) means recovery-source
+# health is UNKNOWN — it must degrade the db plane, NEVER read as healthy.
+# unbackedAhead beyond the stale-dump bound (~3h of growth) also degrades.
+parse_ok = disk_tip >= 0 and committed_tip >= 0
 floors_ok = integrity == "ok" and cintegrity == "ok" and (h or 0) >= 500 and crows >= 4000 and meta.get("boot_mode") != "re-seeded"
-db = "OK" if (floors_ok and deficit <= 60) else ("ALERT" if (not floors_ok or deficit > 10000) else "RECOVERY_REQUIRED")
+db = "OK" if (floors_ok and parse_ok and deficit <= 60 and unbacked <= 2000) else ("ALERT" if (not floors_ok or not parse_ok or deficit > 10000) else "RECOVERY_REQUIRED")
 print(json.dumps({"liveTip": h, "nBlocks": n, "customRows": crows, "integrity": integrity, "customIntegrity": cintegrity,
-                  "bootMode": meta.get("boot_mode"), "diskTip": disk_tip, "committedTip": committed_tip,
+                  "bootMode": meta.get("boot_mode"), "diskTip": disk_tip, "committedTip": committed_tip, "snapshotParseOk": parse_ok,
                   "unbackedAhead": unbacked, "recoveryDeficit": deficit, "db": db}))
 PYEOF
 )"
@@ -309,6 +374,7 @@ if [ "$SERVER" != "200" ] || [ "$WATCHDOG_ALIVE" = "0" ]; then
   REMEDIATED="yes"
 fi
 SERVER_PLANE="$SERVER"; [ "$WATCHDOG_ALIVE" != "0" ] && [ "$SERVER" = "200" ] && SERVER_PLANE="200+watchdog"
+WATCHDOG_STATE="no"; [ "$WATCHDOG_ALIVE" != "0" ] && WATCHDOG_STATE="yes"
 
 # ── plane 4: upload route (fail-closed 403) ──────────────────────────
 ROUTE_STATE="present"
@@ -341,15 +407,17 @@ except Exception:
 print("yes" if ok else "no")' 2>/dev/null || echo no)"
 if [ "$HB_OK" != "yes" ]; then
   # writer failed/unverified: fall back to building the heartbeat here (same contract)
-  HB_JSON="$(python3 - "$GIT_PLANE" "$DB_PLANE" "$SERVER" "$ROUTE" "$UNBACKED" "$DEFICIT" "$LIVE_TIP" "$CROWS" "$ORIGIN_SHA" <<'PYEOF'
+  HB_JSON="$(python3 - "$GIT_PLANE" "$DB_PLANE" "$SERVER" "$ROUTE" "$UNBACKED" "$DEFICIT" "$LIVE_TIP" "$CROWS" "$ORIGIN_SHA" "$WATCHDOG_STATE" <<'PYEOF'
 import json, sys, datetime, os
-git, db, server, route, unb, deficit, tip, rows, origin = sys.argv[1:10]
+git, db, server, route, unb, deficit, tip, rows, origin, wd = sys.argv[1:11]
 n = datetime.datetime.now(datetime.timezone.utc); ts_ms = int(n.timestamp()*1000)
 ts = n.strftime("%Y-%m-%dT%H:%M:%S.") + f"{n.microsecond//1000:03d}Z"
 assert int(datetime.datetime.fromisoformat(ts.replace("Z","+00:00")).timestamp()*1000) == ts_ms
-result = "OK" if (git=="OK" and db=="OK" and server=="200" and route=="403") else ("ALERT" if db=="ALERT" else "BLOCKED")
+# V31 RC-4 (2026-11-09): overall OK requires the watchdog v4 boot-chain owner
+# to be alive — a fresh heartbeat must never claim health while it is missing.
+result = "OK" if (git=="OK" and db=="OK" and server=="200" and route=="403" and wd=="yes") else ("ALERT" if db=="ALERT" else "BLOCKED")
 hb = {"tsIso": ts, "tsMs": ts_ms, "nextDueMs": ts_ms+3600000,
-      "planes": {"git": git, "db": db, "server": server, "route": route, "unbackedAhead": int(unb), "recoveryDeficit": int(deficit)},
+      "planes": {"git": git, "db": db, "server": server, "route": route, "watchdog": wd, "unbackedAhead": int(unb), "recoveryDeficit": int(deficit)},
       "chainTip": int(tip), "customRows": int(rows), "originSha": origin, "result": result}
 open("/tmp/plane5-heartbeat.json","w").write(json.dumps(hb, indent=2)+"\n")
 if git == "OK": open("backups/plane5/heartbeat.json","w").write(json.dumps(hb, indent=2)+"\n")

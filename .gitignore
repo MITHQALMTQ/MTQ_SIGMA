@@ -90,6 +90,10 @@ weight-vector.json
 !/backups/plane5/heartbeat.json
 !/backups/plane5/monitor-state.json
 !/backups/plane5/alerts.log
+# V31 RC-1 (2026-11-09): the execution ledger IS durable audit evidence —
+# rejected/missed/succeeded dispatch records must survive re-images via git.
+!/backups/plane5/execution-ledger.jsonl
+!/backups/plane5/execution-ledger.archive.jsonl
 
 # TASK 12 — AI-tool persisted-output cache (never commit: may snapshot file
 # contents that contain or later contain sensitive material)

@@ -38,20 +38,29 @@ custom.close();
 
 const server = sh("curl", ["-s", "-o", "/dev/null", "-w", "%{http_code}", "-m", "5", "http://localhost:3000/"]);
 const route = sh("curl", ["-s", "-o", "/dev/null", "-w", "%{http_code}", "-X", "POST", "-m", "5", "http://localhost:3000/api/constituency/upload"]);
+// V31 RC-4 (2026-11-09): the watchdog v4 boot-chain owner must be measured
+// fresh here — a heartbeat may never claim OK while the watchdog is missing.
+const watchdog = sh("bash", ["-c", "ps ax -o cmd= | grep -F 'dev-watchdog.sh' | grep -vF grep | head -1 | wc -l"]).trim() === "1";
 const originSha = sh("git", ["rev-parse", "origin/main"]);
 const headSha = sh("git", ["rev-parse", "HEAD"]);
 const diskTipLine = sh("sed", ["-n", "3p", "backups/db-snapshots/latest-chain.sql"]);
 const committedTipLine = (shBig("git", ["show", "origin/main:backups/db-snapshots/latest-chain.sql"]).split("\n")[2] ?? "");
-const diskTip = Number(diskTipLine.match(/height=(\d+)/)![1]);
-const committedTip = Number(committedTipLine.match(/height=(\d+)/)![1]);
+// V31 RC-6 (2026-11-09): an unparseable snapshot (tip < 0) means recovery-source
+// health is UNKNOWN — it must degrade the db plane, never read as healthy.
+const tipOf = (line: string) => { const m = line.match(/height=(\d+)/); return m ? Number(m[1]) : -1; };
+const diskTip = tipOf(diskTipLine);
+const committedTip = tipOf(committedTipLine);
+const snapshotParseOk = diskTip >= 0 && committedTip >= 0;
 const unbackedAhead = Math.max(0, liveTip - committedTip);
 const recoveryDeficit = Math.max(0, committedTip - liveTip);
 
 const git = headSha === originSha ? "OK" : "BLOCKED";
-const dbOk = integrityChain === "ok" && integrityCustom === "ok" && liveTip >= 500 && customRows >= 4000
-  && bootMode !== "re-seeded" && recoveryDeficit <= 60;
-const db = dbOk ? "OK" : (recoveryDeficit > 10000 ? "ALERT" : "RECOVERY_REQUIRED");
-const result = git === "OK" && db === "OK" && server === "200" && route === "403" ? "OK" : (db === "ALERT" ? "ALERT" : "BLOCKED");
+const floorsOk = integrityChain === "ok" && integrityCustom === "ok" && liveTip >= 500 && customRows >= 4000
+  && bootMode !== "re-seeded";
+const dbOk = floorsOk && snapshotParseOk && recoveryDeficit <= 60 && unbackedAhead <= 2000;
+const db = dbOk ? "OK" : (!floorsOk || !snapshotParseOk || recoveryDeficit > 10000 ? "ALERT" : "RECOVERY_REQUIRED");
+// V31 RC-4: overall OK requires EVERY operational plane including the watchdog.
+const result = git === "OK" && db === "OK" && server === "200" && route === "403" && watchdog ? "OK" : (db === "ALERT" ? "ALERT" : "BLOCKED");
 
 // ── clocks from the same source, verified before writing ───────────
 const tsMs = Date.now();
@@ -65,7 +74,7 @@ const nextDueMs = tsMs + 3_600_000; // hourly backstop cadence since v30 (job fi
 
 const hb = {
   tsIso, tsMs, nextDueMs,
-  planes: { git, db, server, route, unbackedAhead, recoveryDeficit },
+  planes: { git, db, server, route, watchdog: watchdog ? "alive" : "missing", snapshotParseOk, unbackedAhead, recoveryDeficit },
   chainTip: liveTip, customRows, originSha, result,
 };
 writeFileSync("/tmp/plane5-heartbeat.json", JSON.stringify(hb, null, 2) + "\n");
