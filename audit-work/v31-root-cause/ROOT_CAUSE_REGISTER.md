@@ -201,7 +201,11 @@ Commit SHAs for this batch: recorded in the landing commit message and `worklog.
 - **Residual limitation:** none in-repo once committed.
 - **Status:** FIXED (worktree verified; commit confirmation pending at write time).
 
-## Incident 19 — Cron wrapper auto-commits durable artifacts without pushing (recurring exit-13 loop)
+## Incident 19 — Bootstrap/git-drift guard contradiction (recurring exit-13 loop) — ROOT-CAUSE FIXED (V31 TURN 2A)
+
+**TURN 2A resolution (2026-11-09 03:2xZ):** the contradiction itself is eliminated — see `incident-19-bootstrap-contradiction.md` for the full evidence chain and `REPORT.md` for the turn summary. The strict `HEAD == origin/main` assertion (bootstrap §3.8) and the heartbeat writer's equality check were replaced by ONE shared branch-state classification (`src/lib/boot/git-state.ts`): a verified snapshot/evidence-only forward-only ahead state (SAFE_SNAPSHOT_AHEAD) now proceeds, while SOURCE_CODE_AHEAD / BEHIND / DIVERGED / REMOTE_UNAVAILABLE / SNAPSHOT_INVALID / AUTHORITY_UNVERIFIED all block. The recurring drift feed was removed at its responsible layer: the write-behind loop now refreshes UNTRACKED staging dumps, and the tracked recovery files are written ONLY by the validated atomic publisher (`scripts/snapshot-publish.ts`: manifest with sha256/genesis/height/version, commit of exactly the three snapshot paths, push; threshold-gated autonomous publication; transition repair). Isolated regression harness 78/78 PASS including the original-scenario reproduction and the source-ahead negative. LIVE evidence: repair publications `5ded004` (manifest v1) and `694e7dc` (manifest v2); the scheduler-dispatched 03:17:48Z fire (job 516197) completed `EXECUTED-OK gitState=EXACT_MATCH` (ledger 03:18:05.278Z, heartbeat 03:18:12.402Z OK) — the exact fire class that failed at 02:18:12.717Z. Residual: platform turn-end auto-commit remains outside repository control (its output is now classified and self-healing); manual-run job-ID attribution hardening pending. Status: FIXED (live scheduler-fire evidence recorded; multi-fire soak accrues with subsequent fires).
+
+### (Historical entry — pre-T2A understanding and mitigation)
 
 - **Incident:** the platform's cron agent-loop wrapper auto-commits leftover dirty tracked files (write-behind dumps — commits 3d37d99, ca5b429, edc2569) at fire end but never pushes. The NEXT scheduled fire's bootstrap then hits `HEAD != origin/main after guard` → exit 13 → BLOCKED until an interactive session pushes. Observed on three consecutive fires (2026-11-09 00:09Z / 00:55Z / 01:17Z era).
 - **Root cause:** (a) the platform snapshot-restore re-dirties `backups/db-snapshots/latest-chain.sql` on every sandbox recycle (live DB ahead of committed dump); (b) the wrapper commits but cannot push; (c) the backstop commit rule historically excluded `backups/db-snapshots/`.
@@ -252,3 +256,19 @@ src/instrumentation.ts previously proceeded "best-effort" when the boot git-drif
 - **Regression test:** `bun run scripts/cloud-db-probe.ts --turso/--neon` (env-driven) + the evidence file's verdict table — re-runnable by any future session or the operator.
 - **Live evidence:** 2026-11-09T02:00–02:05Z probes (Vercel API deployments+env-decrypt, Turso 401, Neon schema+counts+sync-state, Inngest 200) — all outputs preserved verbatim in cloud-layer-evidence.md.
 - **Residual limitation:** Vercel billing and Turso token minting are operator-only platform actions; the repository cannot remediate them. Recorded per V31 Directive 0 as platform-controlled.
+
+---
+
+## Fix batch landed 2026-11-09 TURN 2A (incident 19 root cause)
+
+| ID | Fix | Files | Regression evidence |
+|---|---|---|---|
+| T2A-1 | Shared branch-state classification (8 states) | `src/lib/boot/git-state.ts`, `scripts/git-state-classify.ts` | Harness S1–S20 (78/78); live classifier verdicts 02:5xZ–03:2xZ |
+| T2A-2 | Bootstrap §3.8 → classification; §3.10 → manifest verification | `scripts/plane5-bootstrap.sh` | Harness S1–S16/P1/P2; live bootstrap exit 0 at 03:12:19Z |
+| T2A-3 | Heartbeat writer git plane via classifier (third equality site) | `scripts/plane5-backstop-heartbeat.ts` | P1 heartbeat `result=OK gitState=SAFE_SNAPSHOT_AHEAD`; live 03:18:12Z heartbeat OK |
+| T2A-4 | Staging write-behind (tracked dumps no longer perpetually dirty) | `src/lib/db-ops.ts`, `scripts/db-cloud-sync.ts`, `src/instrumentation.ts`, `src/lib/boot/inproc-publication.ts` | Live dev.log: staged refresh messages post-restart; clean tree between publications |
+| T2A-5 | Atomic validated publication + manifest + threshold + repair | `src/lib/boot/snapshot-manifest.ts`, `scripts/snapshot-publish.ts` | Harness S9–S13/S16/S18/R1; live `5ded004`, `694e7dc` |
+| T2A-6 | Wrapper publication step + transition repair + ledger attribution | `scripts/plane5-run.sh` | Harness R1/P1/P2/S19; live fire 03:18:05Z ledger fields |
+| T2A-7 | Isolated regression harness (Phases 6–7) | `tests/plane5-git-state-regression.sh` | 78/78 PASS (log: `regression-harness-run.txt`) |
+
+Landing commits: `48da9bc` (source fix + harness), `5ded004` / `694e7dc` (system-produced publications), `1d8cb11` (03:17:48Z fire's evidence commit). Secret scan re-run at landing: PASS (`bun run scripts/security/secret-scan.ts`). Typecheck 0 · lint 0 errors · parse gates PASS.
