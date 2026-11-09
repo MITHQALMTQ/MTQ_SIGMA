@@ -302,3 +302,48 @@ The 12:19:34Z heartbeat still records the pre-recovery ALERT (`recoveryDeficit 1
 Read-only operations performed: `git fetch` (remote-ref update only), `git show/log/reflog` (reads), file reads (`cat`/`head`/`tail`/`rg`), read-only SQLite probes (`bun:sqlite` `readonly:true` with busy timeout; one transient `SQLITE_BUSY` from the concurrent platform recovery proved a live writer existed — no write was attempted), HTTP GET/POST probes of the already-running server (200/403 observations only). **No:** restore, overwrite, reseed, truncate, delete, WAL/journal touch, migration, initialization, self-heal invocation, recovery-cursor change, snapshot publication, restart/re-image, competing recovery, Git reset/force-push, or monetary/governance/consensus/crypto state change — was performed by this investigation. Forensic evidence preserved: the drift archive (incl. stale dump byte copies), selfheal-archive stubs, db meta `selfheal_at` fields, ledger, and this report. dev.log's pre-truncation crash content is preserved verbatim in §1/§9 of this report (the file rotates per server start via `tee`).
 
 **Production remains unauthorized. TESTNET ONLY · SHADOW MODE.**
+
+---
+
+## 18. Addendum — independent second-pass verification (second forensic session, 2026-11-09T12:19–12:52Z)
+
+A second read-only forensic pass re-verified this report's findings against fresh evidence, independently and from the committed report's own claims. **All material conclusions were corroborated; two items were upgraded from partial to complete; one preliminary false-positive was retracted by byte-level check.** No operational state was modified.
+
+### A.1 Full parent-hash continuity walk — closes §3.9/3.10 and §14.6 (was spot-verified)
+
+SQL JSON1 self-join over every block (`json_extract(header,'$.prev_hash') == hash(height-1)`):
+
+| Database | Heights > 1 | Continuity violations | Tip | h3941 hash |
+|---|---|---|---|---|
+| Cold rebuild of published `latest-chain.sql` (into `/tmp`, never touching live paths) | 20,332 | **0** | h20333, no gaps (count 20,333 = min 1 = max 20333) | `blk_21a8f6e0613a0e63c09d05d71c1b08551f51cf93f6a86f820ef0a2ad48f7ac16` |
+| Live `db/chain.db` byte-copy (post-recovery) | 20,381 | **0** | h20382 (at copy time 12:27Z) | identical |
+
+The splice block h3941 is byte-identical across (a) the published h20333 dump rebuild, (b) the pre-recovery archived chain.db (selfheal-era), and (c) the current live DB — one chain, strictly extended. §14.6 is **CLOSED**: the full 20,333-block walk shows zero continuity violations.
+
+### A.2 Cold rebuild of both published dumps — second independent reconstructibility proof (extends §3.12)
+
+- Chain: `latest-chain.sql` imported into a fresh `/tmp` SQLite file → `integrity_check ok`, exactly 20,333 blocks (1..20333, zero missing heights), meta genesis `gen_3baf0dba…`, full continuity walk clean (A.1). Import ≈0.3 s — which also independently explains why the image-era restores completed in seconds rather than being torn by turn boundaries (corroborating §4's oscillation mechanism; the earlier alternative "interrupted partial-import" hypothesis is **refuted** by the same data: the stale custom dump's per-table counts ARE 664/3,984/7,747, restored byte-identically).
+- Custom: `latest-custom.sql` imported into a fresh `/tmp` file → `integrity_check ok`, total **18,077 rows — exact manifest match**, per-table counts consistent (DailyStateVector 2,614; OracleSample 5,054; RebalancingDecision 10,110; the three newer tables present: AiModelCatalog 101, ConsensusRun 50, ConsensusVote 146). Post-restore live deltas (−36 rows net) remain within the documented 90% prune-tolerance and were re-confirmed as runtime churn, not loss.
+
+### A.3 Ledger FINAL-entry forensics — commit-level corroboration of §1 row 11
+
+`git show` of the committed ledger at each heartbeat commit: `8d77859` (10:20:20Z) and `b0535e6` (10:57:04Z) both contain **20 lines — 11 FINALs only for fires ≤ 03:23Z** and bare STARTEDs for the 06:18–10:18 fires; `3f91941` (11:57:41Z) = 21 lines (adds the 11:56 monitor FINAL); `817d06a` = 22 lines. This proves the 06:18–10:18 FINALs were **never in any commit** — appended post-commit as dirty working-tree state and wiped at turn-boundary re-provisionings — exactly as §1 row 11 states. (The 12:18:26Z backstop's FINAL survives because that turn's instance persisted into the second pass.)
+
+### A.4 `server=000000` / `route=000000` token semantics — independently decoded (corroborates §9)
+
+`scripts/plane5-run.sh` lines 464/481: `SERVER="$(curl -s -o /dev/null -w '%{http_code}' -m 5 … || echo 000)"` — when the connection is refused, curl still *prints* `000` and the fallback `echo 000` *appends*, yielding the six-zero token. `000000` therefore means "no HTTP listener at probe time" (process absent) — not a probe malfunction, not a 403 anomaly. With the recovered server running, the planes return their contract values (200 / 403).
+
+### A.5 Self-heal CLI integrity — preliminary "syntax corruption" finding RETRACTED after byte-level check
+
+The second pass initially mis-read `scripts/db-selfheal.ts:26` as containing a corrupted token (`argsoursIdx`), and a fragment extracted through the same output layer reproduced the false syntax error. **Byte-level verification (Incident 18's standing methodology note applies verbatim):** `rg -c 'args\[hoursIdx \+ 1\]'` = **1**, `rg -c 'argsoursIdx'` = **0** — the file is correct; `bun build` and `node --check` on the real bytes both pass. The `[h` byte sequence is swallowed by the conversation output layer (the exact trap registered under Incident 18). No defect exists; the CLI and the in-process path are both sound. Lesson recorded: byte-level tools are the only authoritative verdicts for bracket-heavy lines.
+
+### A.6 F-1 corroboration and live status update
+
+- **F-1 independently corroborated:** `src/lib/db-ops.ts` line 611's restore branch (`if (chainTip && chainDumpH > liveChainH)`) does not test `chainSource.note`, while lines 608–610 claim fail-closed refusal — the gap is real and remains recommendation R-2 (operator authorization pending).
+- **Live status at 12:41Z:** chain advanced to **h20524** (staged write-behind tip `.staging/latest-chain.sql`, 37,774,661 bytes @ 12:41 — vs h20410 at 12:33Z and h20382 at 12:27Z), ~6 s/block cadence per `chain_params.heartbeat_ms=5000`; server 200; route 403; git `HEAD == origin/main == 817d06a`. Forward growth is healthy; `unbackedAhead` will accrue until the next threshold publication — expected behavior, not a regression.
+
+### A.7 Addendum verdict
+
+Every §11 root-cause element, §5 reconciliation, §6 identity claim, §7 process mapping, §8 metric arithmetic, and §9 diagnosis was re-verified independently and stands. §14.6 upgraded to fully verified. **Phase verdict unchanged: `PHASE_2B_COMPLETE`.** The repair posture is unchanged: no database action is required or authorized; R-1 (platform image refresh) remains the class-defeating fix, R-2/R-3 remain prepared in-repo recommendations awaiting operator authorization.
+
+**Production remains unauthorized. TESTNET ONLY · SHADOW MODE.**
