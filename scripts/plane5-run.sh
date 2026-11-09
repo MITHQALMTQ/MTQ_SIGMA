@@ -377,8 +377,8 @@ DIRTY="$(git status --porcelain | wc -l)"
 if [ "$HB_RESULT" = "OK" ] || python3 -c '
 import subprocess, sys
 out = subprocess.run(["git","status","--porcelain"], capture_output=True, text=True).stdout
-sys.exit(0 if all(l.split()[-1].startswith(("backups/plane5/","worklog.md")) for l in out.splitlines() if l.strip()) else 1)'; then
-  if git add backups/plane5 worklog.md 2>/dev/null; then
+sys.exit(0 if all(l.split()[-1].startswith(("backups/plane5/","worklog.md","backups/db-snapshots/")) for l in out.splitlines() if l.strip()) else 1)'; then
+  if git add backups/plane5 worklog.md backups/db-snapshots 2>/dev/null; then
     if git commit -m "plane5-heartbeat: $HB_TSISO $HB_RESULT" >/dev/null 2>&1; then
       if git push origin main >/dev/null 2>&1; then
         COMMIT_SHA="$(git rev-parse --short HEAD)"
@@ -386,7 +386,7 @@ sys.exit(0 if all(l.split()[-1].startswith(("backups/plane5/","worklog.md")) for
         # push rejected: guard ONCE (realigns; plane5 files derivable), rewrite, retry once
         bun run scripts/git-drift-guard.ts >/dev/null 2>&1
         bun run scripts/plane5-backstop-heartbeat.ts >/dev/null 2>&1
-        git add backups/plane5 worklog.md 2>/dev/null
+        git add backups/plane5 worklog.md backups/db-snapshots 2>/dev/null
         git commit -m "plane5-heartbeat: $(date -u +%FT%T.%3NZ) $HB_RESULT (post-realign retry)" >/dev/null 2>&1 \
           && git push origin main >/dev/null 2>&1 && COMMIT_SHA="$(git rev-parse --short HEAD)" || { git checkout -- backups/plane5/ 2>/dev/null; COMMIT_SHA="push-failed-restored"; }
       fi
@@ -397,7 +397,7 @@ sys.exit(0 if all(l.split()[-1].startswith(("backups/plane5/","worklog.md")) for
 else
   # non-OK with non-plane5 tree changes: durable heartbeat already written by the
   # writer when git=OK — commit ONLY plane5 files is impossible; report honestly.
-  git add backups/plane5 2>/dev/null && git commit -m "plane5-heartbeat: $HB_TSISO $HB_RESULT" >/dev/null 2>&1 \
+  git add backups/plane5 backups/db-snapshots 2>/dev/null && git commit -m "plane5-heartbeat: $HB_TSISO $HB_RESULT" >/dev/null 2>&1 \
     && git push origin main >/dev/null 2>&1 && COMMIT_SHA="$(git rev-parse --short HEAD)" || { git checkout -- backups/plane5/ 2>/dev/null; COMMIT_SHA="held-nonplane5-dirty"; }
 fi
 

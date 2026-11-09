@@ -10515,3 +10515,9 @@ Release classification unchanged: **TESTNET ONLY · SHADOW MODE · NOT ACCEPTED*
 - root-cause bug found: ledger() crashed (json.loads) on '[bootstrap …] FAIL …'-prefixed bootstrapTail → durable BOOTSTRAP-FAILED evidence silently lost + BLOCKED line never surfaced (exit 9, two consecutive fires)
 - hotfix: non-JSON '{'/'[' fragments kept verbatim in ledger; BLOCKED lines emitted to both streams; syntax-checked + unit-tested
 - fire then completed: PLANE_5_OK age=3094s hb=2026-11-08T23:18:15.651Z result=OK origin=e95354da, durable ledger EXECUTED-PLANE_5_OK, commit dcc21a5 (pushed); §J row 2 monitor-observation evidence now durable
+
+## 2026-11-09T01:02:30Z — plane5 monitor fire 2 (job 516198, 00:55:45Z dispatch) + structural loop fix
+- scheduler: backstop 00:17:48Z fire REJECTED (model concurrency limit exceeded, run_count=2, stage=failed) — durably recorded in ledger schedulerObserved; no silent suppression
+- monitor first attempt BLOCKED bootstrap_exit=13 (wrapper auto-commit ca5b429 of latest-chain.sql unpushed) — hotfix visibility worked, BLOCKED line surfaced; pushed per guard directive e0daa15..ca5b429; re-run completed PLANE_5_OK age=6029s hb=23:18:15.651Z, commit 2cae872 (carried the hotfix-recovered BOOTSTRAP-FAILED ledger lines)
+- structural loop identified: platform snapshot-restore re-dirties backups/db-snapshots/latest-chain.sql each session; cron wrapper auto-commits it WITHOUT pushing → next fire bootstrap exit 13 every hour
+- fix: backstop commit rule now includes backups/db-snapshots (allowlist + 3 git-add sites) so the hourly backstop pushes the snapshot forward itself; monitor stays observe-only
