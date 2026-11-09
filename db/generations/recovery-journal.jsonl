@@ -1,0 +1,4 @@
+{"ts":"2026-11-09T15:23:10.742Z","generationId":"gen-20261109T151814356Z-h0-q573","phase":"PREPARE","detail":"isolated import from published source (expect h21601 / 18077 custom rows)"}
+{"ts":"2026-11-09T15:23:10.839Z","generationId":"gen-20261109T151814356Z-h0-q573","phase":"VALIDATED","detail":"h21601 · 18077 custom rows · all §4.2 checks passed"}
+{"ts":"2026-11-09T15:23:10.839Z","generationId":"gen-20261109T151814356Z-h0-q573","phase":"ACTIVATING","detail":"prior pointer: none"}
+{"ts":"2026-11-09T15:23:10.860Z","generationId":"gen-20261109T151814356Z-h0-q573","phase":"ACTIVATED","detail":"pointer committed · h21601 · 18077 custom rows · casualty archive kept"}

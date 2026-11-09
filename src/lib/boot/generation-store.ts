@@ -181,20 +181,23 @@ function newGenerationId(sourceTipHeight: number): string {
 /** Import both dumps into an ISOLATED generation directory. The operational
  *  paths (db/chain.db, db/custom.db) are never touched here. */
 export async function prepareGeneration(input: PrepareInput): Promise<PreparedGeneration> {
-  const generationId = newGenerationId(0);
-  const dir = rootOf(input.root, join(GENERATIONS_DIR, generationId));
-  mkdirSync(dir, { recursive: true });
-
   // Expected facts come from the dump tip lines (validated by the caller's
-  // authorization; re-derived here for defense in depth).
+  // authorization; re-derived here for defense in depth) — parsed BEFORE the
+  // generation identity is minted, so the id records the TRUE source tip
+  // (a `…-h0-…` id from a hard-coded 0 was observed on 2026-11-09 and is
+  // misleading as durable recovery evidence).
   const chainTipM = input.chainDumpSql.match(/^-- MTQ-DUMP-TIP rows=(\d+) height=(\d+) /m);
   const customTipM = input.customDumpSql.match(/^-- MTQ-DUMP-TIP rows=(\d+) height=(\d+|-) /m);
   if (!chainTipM || !customTipM) {
-    journalAppend(input.root, { ts: new Date().toISOString(), generationId, phase: "PREPARE_FAILED", detail: "dump tip line unparseable (v2 format required — legacy v1 refused)" });
+    journalAppend(input.root, { ts: new Date().toISOString(), generationId: "(none — tip unparseable)", phase: "PREPARE_FAILED", detail: "dump tip line unparseable (v2 format required — legacy v1 refused) — no generation directory created" });
     throw new Error("prepareGeneration: dump tip line unparseable (v2 self-contained dumps only)");
   }
   const expectHeight = Number(chainTipM[2]);
   const expectCustomRows = Number(customTipM[1]);
+
+  const generationId = newGenerationId(expectHeight);
+  const dir = rootOf(input.root, join(GENERATIONS_DIR, generationId));
+  mkdirSync(dir, { recursive: true });
 
   for (const [kind, sql] of [["chain", input.chainDumpSql], ["custom", input.customDumpSql]] as const) {
     const dbPath = join(dir, `${kind}.db`);
@@ -236,7 +239,7 @@ export interface ValidationReport {
 export async function validateGeneration(
   root: string,
   prepared: PreparedGeneration,
-  source: PrepareInput["source"],
+  source: PrepareInput["sourceOrigin"],
   manifestVersion: number | null,
 ): Promise<ValidationReport> {
   const reasons: string[] = [];
@@ -272,9 +275,14 @@ export async function validateGeneration(
     )[0] ?? 0);
     if (gap !== 0) reasons.push(`parent-hash continuity FAILED: ${gap} broken edge(s)`);
     // Chain identity: the committed header chain_id must be canonical.
+    // (Parenthesization kept in the swc-safe multi-line form used by the
+    // parent-hash query above — the earlier single-line comma form parsed
+    // under bun but NOT under swc/Turbopack, which took the whole server
+    // down with MODULE_UNPARSABLE; never reintroduce it.)
     const cid = String(Object.values(
-      (await c.execute("SELECT json_extract(header, '$.chain_id') cid FROM blocks ORDER BY height DESC LIMIT 1"),
-      ).rows[0] ?? {},
+      (await c.execute(
+        "SELECT json_extract(header, '$.chain_id') cid FROM blocks ORDER BY height DESC LIMIT 1",
+      )).rows[0] ?? {},
     )[0] ?? "");
     chainIdOk = cid === CANONICAL_CHAIN_ID;
     if (!chainIdOk) reasons.push(`chain_id '${cid}' is not the canonical ${CANONICAL_CHAIN_ID}`);

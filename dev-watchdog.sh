@@ -123,11 +123,26 @@ echo "[$(date -u +%H:%M:%S)] watchdog v5 up (pid $$) — git-drift + source-inte
 ) &
 
 while true; do
-  # Port guard: a healthy server is already up (ours from a previous loop,
+  # Port guard: a HEALTHY server is already up (ours from a previous loop,
   # or an externally-started one) — supervise passively, never double-start.
-  if curl -s -m 3 -o /dev/null http://localhost:3000/api/health 2>/dev/null; then
+  # V31 TURN 3 (readiness verification): "healthy" = HTTP 200 on /api/health,
+  # NOT merely "a listener answered". Proven live on 2026-11-09T15:2xZ: the
+  # instrumentation MODULE_UNPARSABLE defect served HTTP 500 on every route,
+  # yet `curl -s` exits 0 on any HTTP status — this watchdog passively
+  # supervised a dead-in-effect server indefinitely. A non-200 responder is
+  # now reclaimed through the full heal chain (kill + guard → integrity →
+  # preflight → selfheal → next dev). Connection failure (code 000) still
+  # means "port free" — boot normally, no kill.
+  HEALTH_CODE=$(curl -s -m 3 -o /dev/null -w "%{http_code}" http://localhost:3000/api/health 2>/dev/null)
+  if [ "$HEALTH_CODE" = "200" ]; then
     sleep 15
     continue
+  fi
+  if [ -n "$HEALTH_CODE" ] && [ "$HEALTH_CODE" != "000" ]; then
+    echo "[$(date -u +%H:%M:%S)] watchdog: :3000 answers but NOT healthy (HTTP $HEALTH_CODE) — reclaiming the port through the full heal chain" >> "$LOG"
+    pkill -f "node_modules/.bin/next dev" >> "$LOG" 2>&1 || true
+    pkill -f "next-server" >> "$LOG" 2>&1 || true
+    sleep 3
   fi
 
   # Pre-boot git-drift guard (Task 60): realign HEAD to origin BEFORE the

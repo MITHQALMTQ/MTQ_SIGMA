@@ -147,3 +147,21 @@ db/ALLOW-GENESIS-RESET
 # TASK-47 — intentional file-deletion sentinel (source-integrity opt-out;
 # expiry+reason live in the file, never commit it — remove to re-arm)
 db/ALLOW-FILE-DELETIONS
+
+# V31 TURN 3 (R-2B staged generations, 2026-11-09): generation directories
+# hold SQLite binaries (≈55MB per generation, REDUNDANT with the git-tracked
+# published dumps — every recovery re-imports from those, sha-verified) and
+# casualty archives (rollback forensics — disk-only, pruned to 3). A platform
+# turn-end sweep STAGED a mid-import binary state (2.9MB of a still-growing
+# 47MB file) — torn-state-in-history is exactly the class TURN 3 eliminates.
+# The small durable-evidence files ARE tracked: each generation's
+# generation.json manifest, recovery-journal.jsonl, active-generation.json.
+db/generations/*/chain.db
+db/generations/*/chain.db-journal
+db/generations/*/chain.db-wal
+db/generations/*/chain.db-shm
+db/generations/*/custom.db
+db/generations/*/custom.db-journal
+db/generations/*/custom.db-wal
+db/generations/*/custom.db-shm
+db/generations/casualty-*/
