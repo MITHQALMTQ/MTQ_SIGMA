@@ -97,6 +97,19 @@ if [ ! -f scripts/runtime-preflight.ts ]; then
   git show origin/main:scripts/runtime-preflight.ts > scripts/runtime-preflight.ts
   log "runtime preflight materialized from origin/main (was absent)"
 fi
+# V31 TURN 3 (R-4 §6): the 14-state DB-plane verifier (and its library
+# dependencies) must be materializable from origin before either plane5
+# mode can classify the actual database.
+if [ ! -f scripts/plane5-db-verify.ts ]; then
+  git show origin/main:scripts/plane5-db-verify.ts > scripts/plane5-db-verify.ts
+  log "plane5-db-verify materialized from origin/main (was absent)"
+fi
+for dep in src/lib/boot/db-plane-state.ts src/lib/boot/db-probe.ts src/lib/boot/generation-store.ts; do
+  if [ ! -f "$dep" ]; then
+    git show "origin/main:$dep" > "$dep"
+    log "$dep materialized from origin/main (was absent)"
+  fi
+done
 
 # ── (§3.5–§3.7) run the proven guard (archive+subsumption+forward-only) ─
 bun run scripts/git-drift-guard.ts

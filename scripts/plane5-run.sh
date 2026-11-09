@@ -113,7 +113,7 @@ if [ "$MODE" = "backstop" ]; then
   exec 9>"${PLANE5_LOCK_FILE:-/tmp/plane5-backstop.lock}"
   if ! flock -n 9; then
     echo "$(date -u +%FT%T.%3NZ) {\"mode\":\"backstop\",\"jobId\":\"$JOB_ID\",\"phase\":\"FINAL\",\"outcome\":\"OVERLAP-SKIP\"}" >> /tmp/plane5-execution-ledger.jsonl
-    echo "PLANE_5_BACKSTOP OVERLAP_SKIP — lock held by a concurrent execution; this fire stands down (no concurrent self-heal)"
+    echo "PLANE_5_BACKSTOP OVERLAP_SKIP state=LOCK_CONTENTION — lock held by a concurrent execution; this fire stands down (no concurrent self-heal)"
     exit 43
   fi
 fi
@@ -285,8 +285,44 @@ PYEOF
   AGE_S="$(echo "$READOUT" | python3 -c 'import json,sys; print(json.load(sys.stdin)["ageS"])')"
   HB_ORIGIN="$(echo "$READOUT" | python3 -c 'import json,sys; print(json.load(sys.stdin)["originSha"])')"
 
+  # V31 TURN 3 (R-4 §6, F-3 fix): the monitor probes the ACTUAL database
+  # plane — a regressed database can never again hide behind a fresh OK
+  # heartbeat (the h20333→h3941 regression did exactly that for ~3h). The
+  # probe is READ-ONLY: the monitor OBSERVES and ALERTS; it NEVER remediates
+  # (that is the backstop's function). Infra planes are observed the same
+  # way and folded into the 14-state taxonomy (SERVER_UNAVAILABLE /
+  # WATCHDOG_UNAVAILABLE / ROUTE_FAILURE; LOCK_CONTENTION and
+  # BOOTSTRAP_BLOCKED exit earlier; SCHEDULER_REJECTED rides the ledger's
+  # schedulerObserved field).
+  MON_DBV_OUT="$(bun run scripts/plane5-db-verify.ts 2>/dev/null || true)"
+  MON_DBV_OK="$(printf '%s' "$MON_DBV_OUT" | python3 -c 'import json,sys
+try:
+    d = json.load(sys.stdin); assert d.get("state")
+    print("yes")
+except Exception:
+    print("no")' 2>/dev/null || echo no)"
+  if [ "$MON_DBV_OK" != "yes" ]; then
+    MON_DBV_OUT='{"state":"DATABASE_UNREADABLE","severity":"alert","detail":"plane5-db-verify unavailable or unparseable (fail-closed — never health)"}'
+  fi
+  DBV_STATE="$(printf '%s' "$MON_DBV_OUT" | python3 -c 'import json,sys; print(json.load(sys.stdin)["state"])')"
+  DBV_SEVERITY="$(printf '%s' "$MON_DBV_OUT" | python3 -c 'import json,sys; print(json.load(sys.stdin).get("severity","alert"))')"
+  DBV_DETAIL="$(printf '%s' "$MON_DBV_OUT" | python3 -c 'import json,sys; print(str(json.load(sys.stdin).get("detail","n/a"))[:200])')"
+  MON_SERVER="$(curl -s -o /dev/null -w '%{http_code}' -m 5 http://localhost:3000/ 2>/dev/null || echo 000)"
+  MON_WATCHDOG="$(ps ax -o cmd= | grep -F 'dev-watchdog.sh' | grep -vF grep | head -1 | wc -l)"
+  MON_ROUTE="$(curl -s -o /dev/null -w '%{http_code}' -m 5 -X POST http://localhost:3000/api/constituency/upload 2>/dev/null || echo 000)"
+  INFRA_STATE="none"
+  [ "$MON_SERVER" != "200" ] && INFRA_STATE="SERVER_UNAVAILABLE"
+  [ "$MON_WATCHDOG" = "0" ] && [ "$INFRA_STATE" = "none" ] && INFRA_STATE="WATCHDOG_UNAVAILABLE"
+  [ "$MON_ROUTE" != "403" ] && [ "$INFRA_STATE" = "none" ] && INFRA_STATE="ROUTE_FAILURE"
+
   ALERTING="no"
   [ "$CLASSIFICATION" != "PLANE_5_OK" ] && ALERTING="yes"
+  # V31 TURN 3 (R-4): the monitor's OWN DB-plane probe and infra observation
+  # alert independently of the heartbeat — no self-report can mask them.
+  if [ "$DBV_SEVERITY" != "ok" ] || [ "$INFRA_STATE" != "none" ]; then
+    ALERTING="yes"
+    [ "$CLASSIFICATION" = "PLANE_5_OK" ] && CLASSIFICATION="PLANE_5_ALERT"
+  fi
   # V31 RC-3: a degraded bootstrap compromises the durable telemetry layer
   # itself — never report OK while unsynced; force the alerting flow.
   if [ "$BOOTSTRAP_STATE" != "OK" ]; then
@@ -296,30 +332,33 @@ PYEOF
 
   if [ "$ALERTING" = "yes" ]; then
     # alert flow: durable alerts.log line + monitor-state (durable+/tmp)
-    python3 - "$AGE_S" "$CLASSIFICATION" "$HB_TSISO" "$HB_RESULT" "$BOOTSTRAP_STATE" <<'PYEOF'
+    # V31 TURN 3 (R-4): the alert line carries the 14-state taxonomy fields
+    # (dbState/infraState) — no generic ALERT.
+    python3 - "$AGE_S" "$CLASSIFICATION" "$HB_TSISO" "$HB_RESULT" "$BOOTSTRAP_STATE" "$DBV_STATE" "$INFRA_STATE" "$DBV_DETAIL" <<'PYEOF'
 import json, sys, datetime, os
-age, cls, hb_ts, hb_res, boot = sys.argv[1:6]
+age, cls, hb_ts, hb_res, boot, db_state, infra_state, db_detail = sys.argv[1:9]
 n = datetime.datetime.now(datetime.timezone.utc)
 ts = n.strftime("%Y-%m-%dT%H:%M:%S.") + f"{n.microsecond//1000:03d}Z"
 now_ms = int(n.timestamp()*1000)
-line = f"{ts} age={age} classification={cls} heartbeat={hb_ts} result={hb_res} bootstrap={boot}"
+line = f"{ts} age={age} classification={cls} dbState={db_state} infraState={infra_state} heartbeat={hb_ts} result={hb_res} bootstrap={boot}"
+if db_state != "HEALTHY": line += f" dbDetail={db_detail}"
 # V31 RC-3: durable alert/state writes ONLY when the tree is synced (bootstrap
 # OK); degraded runs keep /tmp copies so the observer never loses the alert
 # record even while it cannot publish.
 if boot == "OK":
     with open("backups/plane5/alerts.log", "a") as f: f.write(line + "\n")
 with open("/tmp/plane5-alerts.log", "a") as f: f.write(line + "\n")
-state = {"lastSeenMs": now_ms, "lastResult": hb_res if hb_res != "MISSING" else "MISSING", "missingSinceMs": now_ms if hb_res == "MISSING" else None, "bootstrapState": boot}
+state = {"lastSeenMs": now_ms, "lastResult": hb_res if hb_res != "MISSING" else "MISSING", "missingSinceMs": now_ms if hb_res == "MISSING" else None, "bootstrapState": boot, "dbState": db_state, "infraState": infra_state}
 if boot == "OK":
     json.dump(state, open("backups/plane5/monitor-state.json", "w"))
 json.dump(state, open("/tmp/plane5-monitor-state.json", "w"))
 PYEOF
   else
     # healthy run: still refresh state (fresh durable read clears missingSince)
-    python3 - "$HB_RESULT" "$BOOTSTRAP_STATE" <<'PYEOF'
+    python3 - "$HB_RESULT" "$BOOTSTRAP_STATE" "$DBV_STATE" <<'PYEOF'
 import json, sys, datetime
 n = datetime.datetime.now(datetime.timezone.utc); now_ms = int(n.timestamp()*1000)
-state = {"lastSeenMs": now_ms, "lastResult": sys.argv[1], "missingSinceMs": None, "bootstrapState": sys.argv[2]}
+state = {"lastSeenMs": now_ms, "lastResult": sys.argv[1], "missingSinceMs": None, "bootstrapState": sys.argv[2], "dbState": sys.argv[3]}
 json.dump(state, open("backups/plane5/monitor-state.json", "w"))
 json.dump(state, open("/tmp/plane5-monitor-state.json", "w"))
 PYEOF
@@ -351,8 +390,8 @@ print('yes' if age > 1800 else 'no')")"
     fi
   fi
 
-  ledger FINAL "EXECUTED-$CLASSIFICATION" "classification=$CLASSIFICATION" "bootstrapState=$BOOTSTRAP_STATE" "heartbeatTsIso=$HB_TSISO" "ageS=$AGE_S" "heartbeatResult=$HB_RESULT" "heartbeatOriginSha=$HB_ORIGIN" "commit=$COMMIT_SHA"
-  echo "PLANE_5_MONITOR $CLASSIFICATION age=${AGE_S}s hb=$HB_TSISO result=$HB_RESULT origin=$HB_ORIGIN job=$JOB_ID bootstrap=$BOOTSTRAP_STATE ledger=outcome=EXECUTED-$CLASSIFICATION"
+  ledger FINAL "EXECUTED-$CLASSIFICATION" "classification=$CLASSIFICATION" "bootstrapState=$BOOTSTRAP_STATE" "heartbeatTsIso=$HB_TSISO" "ageS=$AGE_S" "heartbeatResult=$HB_RESULT" "heartbeatOriginSha=$HB_ORIGIN" "dbState=$DBV_STATE" "dbSeverity=$DBV_SEVERITY" "infraState=$INFRA_STATE" "server=$MON_SERVER" "watchdog=$MON_WATCHDOG" "route=$MON_ROUTE" "dbDetail=$DBV_DETAIL" "commit=$COMMIT_SHA"
+  echo "PLANE_5_MONITOR $CLASSIFICATION age=${AGE_S}s hb=$HB_TSISO result=$HB_RESULT origin=$HB_ORIGIN db=$DBV_STATE infra=$INFRA_STATE server=$MON_SERVER watchdog=$MON_WATCHDOG route=$MON_ROUTE job=$JOB_ID bootstrap=$BOOTSTRAP_STATE ledger=outcome=EXECUTED-$CLASSIFICATION"
   exit 0
 fi
 
@@ -385,59 +424,34 @@ if [ "$GIT_PLANE" = "BLOCKED" ]; then
 fi
 
 # ── plane 2: db regression + dual lag metrics (readonly) ─────────────
-DB_READOUT="$(python3 - <<'PYEOF'
-import sqlite3, json, subprocess, re
-def ro(p):
-    c = sqlite3.connect(f"file:{p}?mode=ro", uri=True); return c
-chain = ro("db/chain.db")
-h, n = chain.execute("SELECT MAX(height), COUNT(*) FROM blocks").fetchone()
-integrity = chain.execute("PRAGMA integrity_check").fetchone()[0]
-meta = dict(chain.execute("SELECT key, value FROM meta").fetchall())
-chain.close()
-custom = ro("db/custom.db")
-tables = [r[0] for r in custom.execute("SELECT name FROM sqlite_master WHERE type='table' AND name NOT LIKE 'sqlite_%' AND name NOT LIKE '_prisma%'").fetchall()]
-crows = sum(custom.execute(f"SELECT COUNT(*) FROM [{t}]").fetchone()[0] for t in tables)
-cintegrity = custom.execute("PRAGMA integrity_check").fetchone()[0]
-custom.close()
-def tip(src):
-    try:
-        line = src.split("\n")[2]
-        m = re.search(r"height=(\d+)", line)
-        return int(m.group(1)) if m else -1
-    except Exception:
-        return -1
-# V31 TURN 2A: diskTip = the STAGED write-behind dump (freshest on-disk state)
-# when present, else the published tracked file. publishedTip = the dump at
-# HEAD (may be ahead of origin's in a SAFE_SNAPSHOT_AHEAD state); committedTip
-# stays ORIGIN's — the honest cloud-layer lag metric (unbackedAhead).
-import os
-disk_src = "backups/db-snapshots/.staging/latest-chain.sql" if os.path.exists("backups/db-snapshots/.staging/latest-chain.sql") else "backups/db-snapshots/latest-chain.sql"
-disk_tip = tip(open(disk_src, errors="replace").read(4096))
-published = subprocess.run(["git", "show", "HEAD:backups/db-snapshots/latest-chain.sql"], capture_output=True, timeout=60).stdout.decode(errors="replace")
-published_tip = tip(published)
-committed = subprocess.run(["git", "show", "origin/main:backups/db-snapshots/latest-chain.sql"], capture_output=True, timeout=60).stdout.decode(errors="replace")
-committed_tip = tip(committed)
-unbacked = max(0, (h or 0) - committed_tip)
-deficit = max(0, committed_tip - (h or 0))
-# V31 RC-6 (2026-11-09): an unparseable snapshot (tip < 0) means recovery-source
-# health is UNKNOWN — it must degrade the db plane, NEVER read as healthy.
-# unbackedAhead beyond the stale-dump bound (~3h of growth) also degrades.
-parse_ok = disk_tip >= 0 and committed_tip >= 0
-floors_ok = integrity == "ok" and cintegrity == "ok" and (h or 0) >= 500 and crows >= 4000 and meta.get("boot_mode") != "re-seeded"
-db = "OK" if (floors_ok and parse_ok and deficit <= 60 and unbacked <= 2000) else ("ALERT" if (not floors_ok or not parse_ok or deficit > 10000) else "RECOVERY_REQUIRED")
-print(json.dumps({"liveTip": h, "nBlocks": n, "customRows": crows, "integrity": integrity, "customIntegrity": cintegrity,
-                  "bootMode": meta.get("boot_mode"), "diskTip": disk_tip, "diskSource": disk_src, "publishedTip": published_tip, "committedTip": committed_tip, "snapshotParseOk": parse_ok,
-                  "unbackedAhead": unbacked, "recoveryDeficit": deficit, "db": db}))
-PYEOF
-)"
-DB_PLANE="$(echo "$DB_READOUT" | python3 -c 'import json,sys; print(json.load(sys.stdin)["db"])')"
-LIVE_TIP="$(echo "$DB_READOUT" | python3 -c 'import json,sys; print(json.load(sys.stdin)["liveTip"])')"
-CROWS="$(echo "$DB_READOUT" | python3 -c 'import json,sys; print(json.load(sys.stdin)["customRows"])')"
-UNBACKED="$(echo "$DB_READOUT" | python3 -c 'import json,sys; print(json.load(sys.stdin)["unbackedAhead"])')"
-DEFICIT="$(echo "$DB_READOUT" | python3 -c 'import json,sys; print(json.load(sys.stdin)["recoveryDeficit"])')"
-COMMITTED_TIP="$(echo "$DB_READOUT" | python3 -c 'import json,sys; print(json.load(sys.stdin)["committedTip"])')"
-DISK_TIP="$(echo "$DB_READOUT" | python3 -c 'import json,sys; print(json.load(sys.stdin)["diskTip"])')"
-PUBLISHED_TIP="$(echo "$DB_READOUT" | python3 -c 'import json,sys; print(json.load(sys.stdin)["publishedTip"])')"
+# V31 TURN 3 (R-4 §6): the collapsed OK/RECOVERY_REQUIRED/ALERT probe (which
+# also CRASHED outright on a missing database file — sqlite3.connect on an
+# absent path raises and the whole readout evaporated) is replaced by the
+# SHARED 14-state classifier: scripts/plane5-db-verify.ts consumes db-probe's
+# explicit outcomes, the generation-store pointer/journal, and the committed
+# layer — the SAME taxonomy the monitor and the heartbeat writer consume.
+# An unavailable/unparseable verifier is FAIL-CLOSED: inability to verify the
+# database is NEVER reported as health.
+DB_READOUT="$(bun run scripts/plane5-db-verify.ts 2>/dev/null || true)"
+DBV_OK="$(printf '%s' "$DB_READOUT" | python3 -c 'import json,sys
+try:
+    d = json.load(sys.stdin); assert d.get("state")
+    print("yes")
+except Exception:
+    print("no")' 2>/dev/null || echo no)"
+if [ "$DBV_OK" != "yes" ]; then
+  DB_READOUT='{"state":"DATABASE_UNREADABLE","severity":"alert","detail":"plane5-db-verify unavailable or unparseable (fail-closed — never health)","liveTip":0,"customRows":0,"unbackedAhead":0,"recoveryDeficit":0,"diskTip":null,"publishedTip":null,"committedTip":null,"snapshotParseOk":false}'
+fi
+DB_PLANE="$(printf '%s' "$DB_READOUT" | python3 -c 'import json,sys; print(json.load(sys.stdin)["state"])')"
+DB_SEVERITY="$(printf '%s' "$DB_READOUT" | python3 -c 'import json,sys; print(json.load(sys.stdin).get("severity","alert"))')"
+DB_DETAIL="$(printf '%s' "$DB_READOUT" | python3 -c 'import json,sys; print(str(json.load(sys.stdin).get("detail","n/a"))[:220])')"
+LIVE_TIP="$(printf '%s' "$DB_READOUT" | python3 -c 'import json,sys; print(json.load(sys.stdin).get("liveTip") or 0)')"
+CROWS="$(printf '%s' "$DB_READOUT" | python3 -c 'import json,sys; print(json.load(sys.stdin).get("customRows") or 0)')"
+UNBACKED="$(printf '%s' "$DB_READOUT" | python3 -c 'import json,sys; print(json.load(sys.stdin).get("unbackedAhead") or 0)')"
+DEFICIT="$(printf '%s' "$DB_READOUT" | python3 -c 'import json,sys; print(json.load(sys.stdin).get("recoveryDeficit") or 0)')"
+COMMITTED_TIP="$(printf '%s' "$DB_READOUT" | python3 -c 'import json,sys; print(json.load(sys.stdin).get("committedTip") or "?")')"
+DISK_TIP="$(printf '%s' "$DB_READOUT" | python3 -c 'import json,sys; print(json.load(sys.stdin).get("diskTip") or "?")')"
+PUBLISHED_TIP="$(printf '%s' "$DB_READOUT" | python3 -c 'import json,sys; print(json.load(sys.stdin).get("publishedTip") or "?")')"
 
 # ── plane 2b: validated snapshot publication (V31 TURN 2A) ────────────
 # The recovery source of record is published by the VALIDATED atomic path:
@@ -505,18 +519,21 @@ except Exception:
     ok = False
 print("yes" if ok else "no")' 2>/dev/null || echo no)"
 if [ "$HB_OK" != "yes" ]; then
-  # writer failed/unverified: fall back to building the heartbeat here (same contract)
-  HB_JSON="$(python3 - "$GIT_PLANE" "$DB_PLANE" "$SERVER" "$ROUTE" "$UNBACKED" "$DEFICIT" "$LIVE_TIP" "$CROWS" "$ORIGIN_SHA" "$WATCHDOG_STATE" <<'PYEOF'
+  # writer failed/unverified: fall back to building the heartbeat here (same
+  # contract). V31 TURN 3 (R-4): carries the 14-state dbState and severity.
+  HB_JSON="$(python3 - "$GIT_PLANE" "$DB_PLANE" "$DB_SEVERITY" "$SERVER" "$ROUTE" "$UNBACKED" "$DEFICIT" "$LIVE_TIP" "$CROWS" "$ORIGIN_SHA" "$WATCHDOG_STATE" <<'PYEOF'
 import json, sys, datetime, os
-git, db, server, route, unb, deficit, tip, rows, origin, wd = sys.argv[1:11]
+git, db_state, sev, server, route, unb, deficit, tip, rows, origin, wd = sys.argv[1:12]
 n = datetime.datetime.now(datetime.timezone.utc); ts_ms = int(n.timestamp()*1000)
 ts = n.strftime("%Y-%m-%dT%H:%M:%S.") + f"{n.microsecond//1000:03d}Z"
 assert int(datetime.datetime.fromisoformat(ts.replace("Z","+00:00")).timestamp()*1000) == ts_ms
-# V31 RC-4 (2026-11-09): overall OK requires the watchdog v4 boot-chain owner
-# to be alive — a fresh heartbeat must never claim health while it is missing.
-result = "OK" if (git=="OK" and db=="OK" and server=="200" and route=="403" and wd=="yes") else ("ALERT" if db=="ALERT" else "BLOCKED")
+db = "OK" if db_state in ("HEALTHY", "DATABASE_RECOVERED") else db_state
+# V31 RC-4 + TURN 3: overall OK requires EVERY plane (watchdog owner alive,
+# db healthy-family state) — a fresh heartbeat must never claim health while
+# one is missing. Severity carries the taxonomy; no generic ALERT.
+result = "OK" if (git=="OK" and db=="OK" and server=="200" and route=="403" and wd=="yes") else ("ALERT" if sev=="alert" else "BLOCKED")
 hb = {"tsIso": ts, "tsMs": ts_ms, "nextDueMs": ts_ms+3600000,
-      "planes": {"git": git, "db": db, "server": server, "route": route, "watchdog": wd, "unbackedAhead": int(unb), "recoveryDeficit": int(deficit)},
+      "planes": {"git": git, "db": db, "dbState": db_state, "dbSeverity": sev, "server": server, "route": route, "watchdog": wd, "unbackedAhead": int(unb), "recoveryDeficit": int(deficit)},
       "chainTip": int(tip), "customRows": int(rows), "originSha": origin, "result": result}
 open("/tmp/plane5-heartbeat.json","w").write(json.dumps(hb, indent=2)+"\n")
 if git == "OK": open("backups/plane5/heartbeat.json","w").write(json.dumps(hb, indent=2)+"\n")
@@ -583,7 +600,7 @@ try:
 except Exception:
     print("UNKNOWN")' 2>/dev/null || echo UNKNOWN)"
 
-ledger FINAL "EXECUTED-$HB_RESULT" "git=$GIT_PLANE" "gitState=$GIT_STATE_FINAL" "db=$DB_PLANE" "server=$SERVER_PLANE" "route=$ROUTE" \
+ledger FINAL "EXECUTED-$HB_RESULT" "git=$GIT_PLANE" "gitState=$GIT_STATE_FINAL" "db=$DB_PLANE" "dbState=$DB_PLANE" "dbSeverity=$DB_SEVERITY" "dbDetail=$DB_DETAIL" "server=$SERVER_PLANE" "route=$ROUTE" \
   "result=$HB_RESULT" "heartbeatTsIso=$HB_TSISO" "chainTip=$LIVE_TIP" "customRows=$CROWS" \
   "unbackedAhead=$UNBACKED" "recoveryDeficit=$DEFICIT" "diskTip=$DISK_TIP" "publishedTip=$PUBLISHED_TIP" "committedTip=$COMMITTED_TIP" \
   "snapshotPublished=$PUBLISHED_NOW" "publishCommit=$PUBLISH_COMMIT" "repair=$REPAIR_STATUS" \

@@ -166,6 +166,7 @@ export function authorizeRecovery(input: AuthorizationInput): RecoveryDecision {
       chainStatus === "DATABASE_BUSY" ? "LIVE_DB_BUSY"
         : chainStatus === "DATABASE_INTEGRITY_FAILURE" ? "LIVE_DB_INTEGRITY_FAILURE"
         : chainStatus === "DATABASE_IDENTITY_MISMATCH" ? "LIVE_DB_IDENTITY_MISMATCH"
+        : chainStatus === "DATABASE_SCHEMA_UNSUPPORTED" ? "LIVE_DB_SCHEMA_UNSUPPORTED"
         : "LIVE_DB_UNREADABLE",
     );
   }

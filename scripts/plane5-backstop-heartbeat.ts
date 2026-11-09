@@ -1,13 +1,23 @@
 // plane5 backstop v3.1 (job 514615) — step 6 heartbeat writer.
 // Measures all planes fresh, verifies clock consistency, writes /tmp + durable copy.
 // Tracked in git as of 2026-11-08 (re-images repeatedly wiped the untracked copy).
-import { Database } from "bun:sqlite";
-import { readFileSync, writeFileSync } from "node:fs";
+//
+// V31 TURN 3 (R-4 §6): the DB plane carries the SHARED 14-state taxonomy
+// (src/lib/boot/db-plane-state.ts — the SAME classifier the monitor, the
+// backstop plane-2 verifier (scripts/plane5-db-verify.ts) and the regression
+// harness consume). A missing/unreadable database no longer CRASHES the
+// writer — it records DATABASE_MISSING / DATABASE_UNREADABLE and the
+// heartbeat honestly reports the state (a crashed writer left the stale
+// heartbeat as the only evidence; F-3 let a regression hide behind it).
+import { readFileSync, writeFileSync, existsSync } from "node:fs";
 import { execFileSync } from "node:child_process";
 import { dirname, join, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 import { classifyGitState } from "../src/lib/boot/git-state";
 import { parseDumpTipText } from "../src/lib/boot/snapshot-manifest";
+import { probeChainDatabase, probeCustomDatabase } from "../src/lib/boot/db-probe";
+import { readPointer, journalRead } from "../src/lib/boot/generation-store";
+import { classifyDbPlane } from "../src/lib/boot/db-plane-state";
 
 // V31 RC-7 (incident 17): canonical root from MODULE LOCATION — never a
 // hardcoded absolute path and never process.cwd() (the standalone server
@@ -33,18 +43,35 @@ const shBig = (cmd: string, args: string[]) => {
 };
 
 // ── fresh measurements ──────────────────────────────────────────────
-const chain = new Database(join(REPO_ROOT, "db", "chain.db"), { readonly: true });
-const { h: liveTip, n: nBlocks } = chain.query("SELECT MAX(height) h, COUNT(*) n FROM blocks").get() as any;
-const integrityChain = (chain.query("PRAGMA integrity_check").get() as any).integrity_check;
-const bootMode = (chain.query("SELECT value FROM meta WHERE key='boot_mode'").get() as any)?.value;
-chain.close();
+// V31 TURN 3 (R-4): explicit probe outcomes (db-probe) + generation-store
+// pointer/journal feed the SHARED classifier. The writer measures; it never
+// remediates. A missing/unreadable database records its state instead of
+// crashing the writer.
+const chainProbe = await probeChainDatabase(join(REPO_ROOT, "db", "chain.db"));
+const customProbe = await probeCustomDatabase(join(REPO_ROOT, "db", "custom.db"));
+const liveTip = chainProbe.status === "DATABASE_HEALTHY" ? (chainProbe.height ?? 0) : 0;
+const nBlocks = chainProbe.blocks ?? 0;
+const integrityChain = chainProbe.status === "DATABASE_HEALTHY" ? "ok" : `probe=${chainProbe.status}`;
+const customRows = customProbe.status === "DATABASE_HEALTHY" ? (customProbe.rows ?? 0) : 0;
+const integrityCustom = customProbe.status === "DATABASE_HEALTHY" ? "ok" : `probe=${customProbe.status}`;
 
-const custom = new Database(join(REPO_ROOT, "db", "custom.db"), { readonly: true });
-let customRows = 0;
-for (const r of custom.query("SELECT name FROM sqlite_master WHERE type='table' AND name NOT LIKE 'sqlite_%' AND name NOT LIKE '_prisma%'").all() as any[])
-  customRows += (custom.query(`SELECT COUNT(*) n FROM [${r.name}]`).get() as any).n;
-const integrityCustom = (custom.query("PRAGMA integrity_check").get() as any).integrity_check;
-custom.close();
+// meta markers (evidence only — they survive inside sanctioned restores;
+// read with the read-only python sqlite shim to avoid a second client).
+let bootMode: string | null = null;
+let selfhealAt: string | null = null;
+try {
+  const metaOut = execFileSync(
+    "python3",
+    ["-c", 'import sqlite3, json; c = sqlite3.connect("file:' + join(REPO_ROOT, "db", "chain.db") + '?mode=ro", uri=True); print(json.dumps(dict(c.execute("SELECT key, value FROM meta").fetchall())))'],
+    { encoding: "utf8", timeout: 10_000 },
+  );
+  const meta = JSON.parse(metaOut) as Record<string, string>;
+  bootMode = meta.boot_mode ?? null;
+  selfhealAt = meta.selfheal_at ?? null;
+} catch { /* evidence only */ }
+const pointerRaw = readPointer(REPO_ROOT);
+const journal = journalRead(REPO_ROOT);
+const journalTail = journal.length ? { phase: journal[journal.length - 1].phase, ts: journal[journal.length - 1].ts } : null;
 
 const server = sh("curl", ["-s", "-o", "/dev/null", "-w", "%{http_code}", "-m", "5", "http://localhost:3000/"]);
 const route = sh("curl", ["-s", "-o", "/dev/null", "-w", "%{http_code}", "-X", "POST", "-m", "5", "http://localhost:3000/api/constituency/upload"]);
@@ -91,12 +118,34 @@ const committedTip = tipOf(committedTipLine);
 const snapshotParseOk = diskTip >= 0 && committedTip >= 0;
 const unbackedAhead = Math.max(0, liveTip - committedTip);
 const recoveryDeficit = Math.max(0, committedTip - liveTip);
-const floorsOk = integrityChain === "ok" && integrityCustom === "ok" && liveTip >= 500 && customRows >= 4000
-  && bootMode !== "re-seeded";
-const dbOk = floorsOk && snapshotParseOk && recoveryDeficit <= 60 && unbackedAhead <= 2000;
-const db = dbOk ? "OK" : (!floorsOk || !snapshotParseOk || recoveryDeficit > 10000 ? "ALERT" : "RECOVERY_REQUIRED");
-// V31 RC-4: overall OK requires EVERY operational plane including the watchdog.
-const result = git === "OK" && db === "OK" && server === "200" && route === "403" && watchdog ? "OK" : (db === "ALERT" ? "ALERT" : "BLOCKED");
+let committedCustomRows: number | null = null;
+try {
+  const t = parseDumpTipText(shBig("git", ["show", "origin/main:backups/db-snapshots/latest-custom.sql"]).slice(0, 4096));
+  committedCustomRows = t ? t.rows : null;
+} catch { /* classifier treats null as unverifiable — never as healthy */ }
+
+// V31 TURN 3 (R-4 §6): THE shared 14-state classification — the same
+// implementation the monitor and the plane-2 verifier consume.
+const cls = classifyDbPlane({
+  chainProbe,
+  customProbe,
+  bootMode,
+  selfhealAt,
+  pointer: pointerRaw ? { chainTip: pointerRaw.chainTip, activatedAt: pointerRaw.activatedAt } : null,
+  journalTail,
+  committedTip: committedTip >= 0 ? committedTip : null,
+  committedCustomRows,
+});
+const dbState = cls.state;
+// db plane value: OK only for the healthy-family states; otherwise the
+// STATE NAME itself (planes.db may never collapse to a generic ALERT).
+const db = dbState === "HEALTHY" || dbState === "DATABASE_RECOVERED" ? "OK" : dbState;
+// V31 RC-4 + TURN 3: overall OK requires EVERY operational plane including
+// the watchdog AND a verifiable snapshot layer AND bounded write-behind lag.
+const result =
+  git === "OK" && db === "OK" && server === "200" && route === "403" && watchdog && snapshotParseOk && unbackedAhead <= 2000
+    ? "OK"
+    : cls.severity === "alert" ? "ALERT" : "BLOCKED";
 
 // ── clocks from the same source, verified before writing ───────────
 const tsMs = Date.now();
@@ -110,9 +159,9 @@ const nextDueMs = tsMs + 3_600_000; // hourly backstop cadence since v30 (job fi
 
 const hb = {
   tsIso, tsMs, nextDueMs,
-  planes: { git, db, server, route, watchdog: watchdog ? "alive" : "missing", snapshotParseOk, unbackedAhead, recoveryDeficit },
+  planes: { git, db, dbState, dbSeverity: cls.severity, dbDetail: cls.detail, server, route, watchdog: watchdog ? "alive" : "missing", snapshotParseOk, unbackedAhead, recoveryDeficit },
   chainTip: liveTip, customRows, originSha, headSha, gitState, result,
 };
 writeFileSync("/tmp/plane5-heartbeat.json", JSON.stringify(hb, null, 2) + "\n");
 if (git === "OK") writeFileSync(join(REPO_ROOT, "backups", "plane5", "heartbeat.json"), JSON.stringify(hb, null, 2) + "\n");
-console.log(JSON.stringify({ ...hb, nBlocks, integrityChain, integrityCustom, bootMode, diskTip, committedTip, durableWritten: git === "OK" }, null, 1));
+console.log(JSON.stringify({ ...hb, nBlocks, integrityChain, integrityCustom, bootMode, selfhealAt, dbState, generation: pointerRaw ? pointerRaw.generationId : null, journalTail, diskTip, committedTip, durableWritten: git === "OK" }, null, 1));

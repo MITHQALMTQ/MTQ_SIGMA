@@ -1,18 +1,24 @@
 {
-  "tsIso": "2026-11-09T15:19:13.135Z",
-  "tsMs": 1794237553135,
-  "nextDueMs": 1794241153135,
+  "tsIso": "2026-11-09T16:18:49.370Z",
+  "tsMs": 1794241129370,
+  "nextDueMs": 1794244729370,
   "planes": {
     "git": "OK",
-    "db": "ALERT",
-    "server": "000000",
-    "route": "000000",
-    "watchdog": "yes",
-    "unbackedAhead": 0,
-    "recoveryDeficit": 17604
+    "db": "OK",
+    "dbState": "HEALTHY",
+    "dbSeverity": "ok",
+    "dbDetail": "live h21712 · 17968 custom rows · probes healthy · at/ahead of every verified reference",
+    "server": "200",
+    "route": "403",
+    "watchdog": "alive",
+    "snapshotParseOk": true,
+    "unbackedAhead": 49,
+    "recoveryDeficit": 0
   },
-  "chainTip": 3997,
-  "customRows": 12395,
-  "originSha": "947e640b3aacf2c40930f287455f2ec79208ea02",
-  "result": "ALERT"
+  "chainTip": 21712,
+  "customRows": 17968,
+  "originSha": "6df5f07fd2e3aa6b1fb0a09d6d94389d85d6419e",
+  "headSha": "6df5f07fd2e3aa6b1fb0a09d6d94389d85d6419e",
+  "gitState": "EXACT_MATCH",
+  "result": "OK"
 }
