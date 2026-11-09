@@ -10558,3 +10558,8 @@ Release classification unchanged: **TESTNET ONLY · SHADOW MODE · NOT ACCEPTED*
 - **Live scheduler-fire evidence:** the 03:17:48Z fire (job 516197) completed EXECUTED-OK gitState=EXACT_MATCH (ledger 03:18:05.278Z; heartbeat 03:18:12.402Z OK; evidence commit 1d8cb11 pushed) — the exact fire class that failed at 02:18:12.717Z. Its turn-end sweep then produced the transition geometry (dump-only commit 46a63d3 → SNAPSHOT_INVALID) and the sanctioned repair path self-healed it live (publication 694e7dc, manifest v2, h20333, pushed → EXACT_MATCH).
 - **Reports:** audit-work/v31-root-cause/{incident-19-bootstrap-contradiction.md, REPORT.md, regression-harness-run.txt} + register update.
 - TESTNET ONLY · SHADOW MODE · production unauthorized.
+
+## 2026-11-09T06:20:24Z — plane5 backstop (job 516197, deterministic runner)
+- remediation: server/watchdog relaunch=yes · route=present · rebootstrap=no
+- planes: git=OK db=ALERT server=000000 route=000000 · tip=h3945 rows=12395 unbacked=0 deficit=16388
+- heartbeat: 2026-11-09T06:20:24.240Z result=ALERT (dual write: /tmp + durable-when-synced)
