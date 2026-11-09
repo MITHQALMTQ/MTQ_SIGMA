@@ -1,7 +1,7 @@
 {
-  "tsIso": "2026-11-09T03:18:12.402Z",
-  "tsMs": 1794194292402,
-  "nextDueMs": 1794197892402,
+  "tsIso": "2026-11-09T03:23:31.563Z",
+  "tsMs": 1794194611563,
+  "nextDueMs": 1794198211563,
   "planes": {
     "git": "OK",
     "db": "OK",
@@ -9,13 +9,13 @@
     "route": "403",
     "watchdog": "alive",
     "snapshotParseOk": true,
-    "unbackedAhead": 125,
+    "unbackedAhead": 57,
     "recoveryDeficit": 0
   },
-  "chainTip": 20334,
-  "customRows": 18148,
-  "originSha": "48da9bccb0ba6d8d9e0352d70930744a5d20a218",
-  "headSha": "48da9bccb0ba6d8d9e0352d70930744a5d20a218",
+  "chainTip": 20390,
+  "customRows": 18003,
+  "originSha": "694e7dc6cc9597321452f0f493b630deadcd5df9",
+  "headSha": "694e7dc6cc9597321452f0f493b630deadcd5df9",
   "gitState": "EXACT_MATCH",
   "result": "OK"
 }
