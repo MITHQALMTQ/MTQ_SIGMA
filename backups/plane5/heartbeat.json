@@ -1,7 +1,7 @@
 {
-  "tsIso": "2026-11-09T17:20:18.260Z",
-  "tsMs": 1794244818260,
-  "nextDueMs": 1794248418260,
+  "tsIso": "2026-11-09T18:19:56.180Z",
+  "tsMs": 1794248396180,
+  "nextDueMs": 1794251996180,
   "planes": {
     "git": "OK",
     "db": "STALE_IMAGE",
@@ -11,10 +11,10 @@
     "route": "000000",
     "watchdog": "yes",
     "unbackedAhead": 0,
-    "recoveryDeficit": 17720
+    "recoveryDeficit": 17470
   },
-  "chainTip": 3943,
+  "chainTip": 4193,
   "customRows": 12395,
-  "originSha": "aa34a3cb06c2f30a95551407d839ae1de4c5394d",
+  "originSha": "7f43c2d55f347902a349a2f1f10e8b6fd2d9d3ac",
   "result": "ALERT"
 }
