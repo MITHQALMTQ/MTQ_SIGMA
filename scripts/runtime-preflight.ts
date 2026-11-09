@@ -89,14 +89,24 @@ if (nextInstalled) {
   }
 }
 
-// 3. Vendored meriyah: @sentry/server-utils' code-transformer requires
-//    node_modules/meriyah/dist/meriyah2.js at next.config.ts transpile time
-//    (the exact MODULE_NOT_FOUND of the 14:56Z crash).
-if (!existsSync(join(ROOT, "node_modules/meriyah/dist/meriyah2.js"))) {
+// 3. Vendored meriyah: @sentry/server-utils' code-transformer requires its
+//    OWN vendored meriyah2.js at next.config.ts transpile time (the exact
+//    MODULE_NOT_FOUND of the 14:5xZ crash). The require is RELATIVE —
+//    `../../../meriyah/dist/meriyah2.js` from
+//    …/vendored/@apm-js-collab/code-transformer/lib/ resolves to
+//    @sentry/server-utils/build/cjs/vendored/meriyah/dist/meriyah2.js;
+//    top-level node_modules/meriyah is NEVER consulted (meriyah is not a
+//    bun.lock package — it ships INSIDE the @sentry tarball, which is why
+//    `bun install --frozen-lockfile` genuinely repairs this check).
+//    (V31 TURN 3 live fix 2026-11-09T16:0xZ: the original check probed
+//    node_modules/meriyah/dist/meriyah2.js — a path nothing requires —
+//    and false-positive-BLOCKED a fully consistent runtime.)
+const MERIYAH_VENDORED = "node_modules/@sentry/server-utils/build/cjs/vendored/meriyah/dist/meriyah2.js";
+if (existsSync(join(ROOT, "node_modules/@sentry")) && !existsSync(join(ROOT, MERIYAH_VENDORED))) {
   issues.push({
-    check: "node_modules/meriyah/dist/meriyah2.js",
-    expected: "present (vendored @sentry code-transformer dependency)",
-    actual: existsSync(join(ROOT, "node_modules/@sentry")) ? "MISSING while @sentry is installed" : "missing (@sentry absent — informational)",
+    check: MERIYAH_VENDORED,
+    expected: "present (@sentry server-utils vendored code-transformer dependency)",
+    actual: "MISSING while @sentry is installed (repair: bun install --frozen-lockfile re-extracts the @sentry tarball)",
   });
 }
 
@@ -110,7 +120,7 @@ const prismaInfo = existsSync(join(ROOT, "node_modules/.prisma/client/index.js")
   ? "generated"
   : "not-generated (postinstall prisma generate pending — informational)";
 
-const ok = issues.filter((i) => !i.actual.startsWith("missing (@sentry absent")).length === 0;
+const ok = issues.length === 0;
 const detail = ok
   ? `runtime layer consistent (next ${nextInstalled ?? "?"} · swc match · meriyah present · ${prismaInfo})`
   : `runtime layer MISMATCH: ${issues.map((i) => `${i.check}: expected ${i.expected}, actual ${i.actual}`).join("; ")}`;

@@ -65,6 +65,21 @@
 
 cd /home/z/my-project
 
+# V31 TURN 3 (R-5 §7): SINGLETON LOCK — exactly one watchdog per sandbox.
+# Acquired before ANY other action so a refused duplicate exits without
+# touching the pid file, the log tail, or the supervision loops. Without
+# this, a second entry (platform dev-entrypoint retry racing the pid-file
+# write, cron backstop remediation, manual start) would run a second
+# drift-guard loop, a second cloud-sync write-behind (concurrent dump
+# writes), and a second next-dev management loop (EADDRINUSE ping-pong) —
+# the OVERLAP_SKIP-class concurrency hazard, now structural rather than
+# schedulable.
+exec 9>/tmp/mtq-watchdog.lock
+if ! flock -n 9; then
+  echo "[$(date -u +%Y-%m-%dT%H:%M:%SZ)] watchdog: singleton lock held by another instance — this start is a no-op (no duplicate supervision)" >> /tmp/watchdog-launch.log
+  exit 0
+fi
+
 # Load .env.local (Next.js loads it too, but we want to be sure for any
 # spawned subprocesses that we exec)
 set -a
