@@ -75,3 +75,50 @@ No force-push, no reset, no raw Git realignment, no history rewriting (the sweep
 3. Platform turn-end auto-commit remains outside repository control; its effects are now classified/bounded/self-healing rather than eliminated at the source.
 
 **Production remains unauthorized. TESTNET ONLY · SHADOW MODE.**
+
+---
+---
+
+# V31 TURN 2B — Critical Database Regression Forensic Investigation & Runtime Integrity
+
+**Execution window:** 2026-11-09T12:04:33Z → ~12:35Z (this session)
+**Baseline at start:** origin/main `a1a4ae2` (local +1 unpushed platform sweep `3f91941` — correctly classified `SAFE_SNAPSHOT_AHEAD` by the live fire during the turn)
+**State at close:** origin/main `817d06a`; live chain h20410 (integrity ok); server 200; route 403; git synced
+**Classification:** TESTNET ONLY · SHADOW MODE · NOT PRODUCTION-AUTHORIZED · **investigation strictly READ-ONLY**
+
+The full forensic evidence chain lives in
+[`database-regression-forensic-report.md`](./database-regression-forensic-report.md)
+(register: Incident 22). This section summarizes the turn.
+
+## A. Objective
+
+Explain why Plane 5 previously reported a healthy chain tip of h20333 with 18,146 rows and later reported a live tip of h3942–h3945 with 12,395 rows — establishing where the authoritative h20333 state exists and why the live application reported h3945 — without modifying any operational database, recovery cursor, snapshot, or Git state.
+
+## B. What was proven
+
+1. **The healthy baseline is real and durable:** the 03:18:05.278Z ledger entry records `chainTip=20333, customRows=18146, diskTip=20271, publishedTip=20209, unbackedAhead=124, recoveryDeficit=0, server=200+watchdog, route=403, result=OK`; the authoritative snapshot was published at 03:20:21Z (`694e7dc`, manifest v2, chain h20333 · 41,134 rows · custom 18,077 rows, genesis `gen_3baf0dba…`), sha256-verified independently during this investigation.
+2. **The regression is real and timestamped:** first regressed observation 06:18:43Z (`tip=h3945 rows=12395 deficit=16388`); the live DB regressed inside the window (03:23:49Z, 06:18:43Z) — the prior session died at 03:23:26Z mid-backstop-run; the 05:17:49Z dispatch hit a sandbox death.
+3. **The mechanism (proven by direct forensic capture of a live recurrence at 11:53Z):** the platform re-provisions instances from a **task46-era base image** (local HEAD `9fe4058`, reflog from Nov 5–7, Next 16.1.x, working-tree dumps stamped **2026-11-06T14:03:46Z** at chain h3941/custom 12,395 rows) and boots its own `next dev` directly on it; the image's **pre-T2A self-heal** (message "RESTORED from cloud dump", byte-identical to `48da9bc~1`) restores the re-image-wiped db/ from the stale dumps **before any git realignment** — durable proof: db meta `selfheal_at=2026-11-09T11:53:41.959Z`, empty chain archive dir (file deleted), 221,184-byte custom stub, drift archive with byte copies of the stale dumps.
+4. **The oscillation h3945→h3942→h3945→h3944→h3945 with constant rows:** per-instance restore-to-h3941 + 1–4 blocks of growth before each turn's teardown. One mechanism, not reorgs or dual databases.
+5. **Server/route 000000:** the mid-turn realignment flips code/deps under the running 16.1.3 server → hot-restart → `setCodeFrameRenderer` TypeError + swc 16.1.3-vs-16.4.5 mismatch → process death; `000000` = connection refused (curl probe semantics verified).
+6. **No permanent data loss:** the h20333 state was preserved in the published snapshot throughout; the live DB's re-grown blocks were empty (`num_txs=0`); custom telemetry's 5,682 hidden rows were preserved in the published custom dump.
+7. **The sanctioned recovery executed organically during the investigation:** the scheduled 12:17:48Z backstop fire (ledger 12:18:26.034Z, `remediated=yes`) relaunched watchdog v4 → db-selfheal restored h20333 at **12:22:19.263Z** → `next dev` v16.4.5 at 12:23Z → verified recovered (chain h20410, integrity ok, server 200, route 403, git synced `817d06a`). Not a manual action; ledger-evidenced.
+
+## C. Root cause (lowest responsible layer)
+
+**The platform's sandbox provisioning — a stale base image plus direct dev-server start with no pre-boot realignment hook.** Every in-repo defense (drift-guard-before-heal, T2A manifest gating, watchdog v4 ordering, forward-only rules) is correct and committed but cannot execute in a process generation whose code predates it. This is the Incident-1/2/4 family, third documented occurrence, now with full forensic proof.
+
+## D. Defects found in current code (disclosed, unfixed)
+
+- **F-1:** `selfHealDatabases()` logs "recovery from it refused (fail-closed)" for a noted-unusable published dump, but the restore branch is not gated on the note.
+- **F-2:** a missing `manifest.json` skips published-dump verification entirely (not fail-closed).
+- **F-3:** monitor fires never probe the DB plane — the regression hid behind a fresh OK heartbeat for ~3h.
+
+## E. Deliverables and verdict
+
+- New: `audit-work/v31-root-cause/database-regression-forensic-report.md` (17 sections: chronology, DB identities/paths, h20333 verification, live-DB verification, record-level differences, genesis/identity reconciliation, process mapping, metric audit, server/route diagnostics, recovery-mechanism inventory, root-cause determination, data-loss and recoverability assessments, unresolved evidence, gated remediation plan, §14 acceptance checklist, compliance statement).
+- Updated: `ROOT_CAUSE_REGISTER.md` (Incident 22 added; Incident 4 marked RECURRED; TURN 2B note), this report.
+- **Phase verdict: `PHASE_2B_COMPLETE`** — all 13 acceptance criteria met; cloud layer honestly **UNVERIFIED** (no credentials in this environment; Incident 21 evidence remains the latest verified state).
+- Remediation R-1 (platform image refresh — the class-defeating fix) is operator/platform-side; in-repo hardening R-2/R-3 prepared as recommendations only. **No operational database was modified by this investigation** — all probes read-only; the recovery was the platform's own scheduled fire + watchdog.
+
+**Production remains unauthorized. TESTNET ONLY · SHADOW MODE.**

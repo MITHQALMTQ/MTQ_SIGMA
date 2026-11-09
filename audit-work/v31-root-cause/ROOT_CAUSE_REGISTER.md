@@ -44,7 +44,7 @@ Status vocabulary: `VERIFIED-FIXED` (live evidence), `FIXED-IN-CODE` (source-ver
 
 ## Incident 4 — Chain database regression h17,661 → h4,028
 
-- **Status:** OPEN (historical incident; permanent correction partially in place).
+- **Status:** RECURRED 2026-11-09 (see Incident 22: h20333 → h3941, same class, full forensic proof) — root cause now PROVEN at the platform layer; in-repo forward-only logic held every time it ran with current code.
 - **Root cause:** an older snapshot was restored over a newer live chain (pre-forward-only era).
 - **Impact:** ~13.6k blocks of chain history temporarily lost (recovered via git dump lineage).
 - **Previous fix:** forward-only recovery rules + dual lag metrics (`unbackedAhead`, `recoveryDeficit`) in backstop plane 2 and the heartbeat writer; `db-selfheal.ts` restores only when the dump is strictly newer.
@@ -257,6 +257,19 @@ src/instrumentation.ts previously proceeded "best-effort" when the boot git-drif
 - **Live evidence:** 2026-11-09T02:00–02:05Z probes (Vercel API deployments+env-decrypt, Turso 401, Neon schema+counts+sync-state, Inngest 200) — all outputs preserved verbatim in cloud-layer-evidence.md.
 - **Residual limitation:** Vercel billing and Turso token minting are operator-only platform actions; the repository cannot remediate them. Recorded per V31 Directive 0 as platform-controlled.
 
+## Incident 22 — Chain database regression h20333 → h3941 (Incident-4 class; V31 TURN 2B forensic finding)
+
+- **Status:** ROOT CAUSE PROVEN (platform layer) · live DB organically RECOVERED 2026-11-09T12:22:19Z · class recurrence risk OPEN (platform image staleness). Full evidence: `audit-work/v31-root-cause/database-regression-forensic-report.md`.
+- **Incident:** between the healthy 03:18:05Z backstop observation (chainTip 20333, customRows 18146, deficit 0, server 200, route 403 — ledger) and the 06:18:43Z observation (tip h3945, rows 12395, deficit 16388, server/route 000000), the live db/ regressed ~16,392 blocks; tip oscillated h3941–h3969 with rows constant 12395 across hourly fires.
+- **Root cause (proven):** the platform re-provisions sandbox instances from a task46-era base image (local HEAD `9fe4058`, Next 16.1.x runtime, working-tree dumps stamped 2026-11-06T14:03:46Z at chain h3941/custom 12,395 rows) and starts its own `next dev` directly on it; the image's PRE-T2A instrumentation self-heal (no drift guard, no manifest gate — message format "RESTORED from cloud dump", byte-identical to `48da9bc~1`) restores the re-image-wiped db/ from the image's stale dumps BEFORE any git realignment. Later realignment flips code/deps under the running 16.1.3 server → hot-restart → `setCodeFrameRenderer` TypeError + swc 16.1.3-vs-16.4.5 mismatch → server dead (server=000000 route=000000). Cycle repeats per re-provisioning.
+- **Decisive evidence:** db meta `selfheal_at=2026-11-09T11:53:41.959Z` + `selfheal_dump=latest-chain.sql`; drift-heal archive `gitdrift-2026-11-09T11-56-20Z` (localHead `9fe4058`, `diverged localOnly=1 behind=99`, byte copies of the stale dumps 7,381,956/8,915,620 bytes); selfheal-archive chain dir EMPTY (db deleted) + custom 221,184-byte stub (re-image signature); reflog last local entry = task46 amend; dev.log crash sequence (captured pre-truncation); block h3941 byte-identical between live DB, stale dump, and h20333 published dump (same chain, older state).
+- **Impact:** NO permanent data loss — the authoritative h20333 state was sha256-verified in the published snapshot the whole time and restored bit-consistently; ~9h of live service on a 16,392-block-older view; ~3h detection gap (monitors do not probe the DB; 04:17 fire gateway-rejected, 05:17 sandbox-dead).
+- **Organic recovery (not manual):** the scheduled 12:17:48Z backstop fire (ledger 12:18:26.034Z, `remediated=yes`, `gitState=SAFE_SNAPSHOT_AHEAD` — the T2A classifier correctly admitting the unpushed sweep) relaunched watchdog v4 → db-selfheal restored h20333 at 12:22:19.263Z → `next dev` v16.4.5 at 12:23Z → chain h20410+ integrity ok, server 200, route 403, git synced `817d06a` (verified 12:33Z).
+- **Latent defects found in current code (disclosed, unfixed — operator authorization required):** F-1 `selfHealDatabases()` logs "recovery refused (fail-closed)" for a noted-unusable published dump but the restore branch is not gated on the note; F-2 a MISSING manifest.json skips published-dump verification entirely (not fail-closed); F-3 monitor fires never probe the DB plane (regression hid behind a fresh OK heartbeat for ~3h).
+- **Preventive invariant:** DB self-heal must consume only dumps whose authority was verified in the SAME process generation — a stale image defeats every committed defense; the platform image is part of the trusted computing base and must carry the guard.
+- **Permanent correction:** platform-side (refresh the base image to ≥ `48da9bc`-era instrumentation, or add a pre-boot realignment hook before `next dev`) — cannot be done from inside the repository. In-repo hardening R-2/R-3 (F-1/F-2/F-3) prepared as recommendations only.
+- **Regression test:** the incident itself is now a documented reproduction (image-restore → stale-code boot → stale-dump heal → realign → crash → watchdog recovery); harness coverage for F-1/F-2 pending authorization.
+
 ---
 
 ## Fix batch landed 2026-11-09 TURN 2A (incident 19 root cause)
@@ -272,3 +285,7 @@ src/instrumentation.ts previously proceeded "best-effort" when the boot git-drif
 | T2A-7 | Isolated regression harness (Phases 6–7) | `tests/plane5-git-state-regression.sh` | 78/78 PASS (log: `regression-harness-run.txt`) |
 
 Landing commits: `48da9bc` (source fix + harness), `5ded004` / `694e7dc` (system-produced publications), `1d8cb11` (03:17:48Z fire's evidence commit). Secret scan re-run at landing: PASS (`bun run scripts/security/secret-scan.ts`). Typecheck 0 · lint 0 errors · parse gates PASS.
+
+## TURN 2B (2026-11-09T12:04–12:35Z) — database-regression forensic investigation (Incident 22)
+
+Read-only investigation; **no code, no database, no Git state was modified by the turn** (reports only; the live recovery was executed by the scheduled backstop fire + watchdog v4, concurrent platform activity with durable ledger evidence). Deliverables: `database-regression-forensic-report.md` (new), this register update (Incident 22 + Incident 4 recurrence status), `REPORT.md` TURN 2B section. Verdict: `PHASE_2B_COMPLETE` — all 13 phase-acceptance criteria met; cloud layer honestly UNVERIFIED. The class-defeating fix is platform-side (stale base image); in-repo hardening recommendations F-1/F-2/F-3 await operator authorization.
