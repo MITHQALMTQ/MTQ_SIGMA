@@ -1,14 +1,21 @@
-// MTQΣ — Database self-heal CLI (Task 42 root-cause remediation).
+// MTQΣ — Database self-heal CLI (Task 42 root-cause remediation; V31 TURN 3
+// exit-code contract).
 //
 // Invoked automatically by dev-watchdog.sh before every `next dev` start,
 // and by src/lib/chain/node.ts at node boot (in-process). Also runnable by
 // hand:
 //
 //   bun run scripts/db-selfheal.ts
-//     Forward-only heal: restores db/{chain,custom}.db from the git-tracked
-//     cloud dumps whenever the dumps are strictly ahead. Archives regressed
-//     files to mtq-sigma-backups/selfheal-archive/. Exit 0 = ok/healed,
-//     exit 1 = a restore was needed but FAILED (do not boot on torn state).
+//     Central recovery decision (src/lib/boot/recovery-authorization.ts) +
+//     staged-generation restore (src/lib/boot/generation-store.ts).
+//     Exit 0 = ok / no restore needed / fresh environment / sentinel;
+//     exit 1 = a restore was AUTHORIZED but FAILED (torn/impossible — do not
+//               boot on it);
+//     exit 2 = recovery REFUSED fail-closed (unverified source / unreadable
+//               live DB / manifest missing …) — the databases are untouched
+//               and operator adjudication is required; the application must
+//               NOT start (V31 TURN 3 §2.3: a rejected startup leaves the
+//               database untouched and exposes a blocked/degraded status).
 //
 //   bun run scripts/db-selfheal.ts --allow-reset "reason" [--hours 24]
 //     Writes the intentional-reset sentinel (db/ALLOW-GENESIS-RESET) so the
@@ -43,14 +50,19 @@ const report = await selfHealDatabases();
 console.log(JSON.stringify(report, null, 2));
 
 if (report.error) {
-  console.error("[selfheal] FAIL — a restore was needed but failed; NOT booting on torn state:");
+  console.error("[selfheal] FAIL — an authorized restore failed; NOT booting on torn state:");
   console.error(`           ${report.error}`);
-  console.error("           The git-tracked dumps and the selfheal-archive/ copies are intact.");
+  console.error("           The git-tracked dumps and every immutable generation remain intact.");
   process.exit(1);
 }
+if (report.chain.action === "refused" || report.custom.action === "refused") {
+  console.error("[selfheal] RECOVERY REFUSED (fail-closed) — databases untouched, operator adjudication required:");
+  console.error(`           ${report.chain.note ?? "n/a"}`);
+  process.exit(2);
+}
 if (report.healed) {
-  console.log("[selfheal] databases restored from the git-tracked cloud layer (forward-only; archives kept).");
+  console.log("[selfheal] databases RESTORED as one validated generation (forward-only; casualty archive kept).");
 } else {
-  console.log("[selfheal] OK — live databases at/ahead of the cloud dumps; no heal required.");
+  console.log("[selfheal] OK — live databases at/ahead of every verified recovery source; no restore required.");
 }
 process.exit(0);

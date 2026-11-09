@@ -80,11 +80,18 @@ export async function ensureChainNode(): Promise<ChainNodeRuntime> {
   // Task-42 ROOT-CAUSE REMEDIATION (incident 2026-11-06): a sandbox re-image
   // wipes the gitignored data layer — booting on a wiped db/chain.db used to
   // silently re-seed genesis (divergence + forensic mess). BEFORE any
-  // schema/genesis work, self-heal both databases forward-only from the
-  // git-tracked cloud dumps whenever the cloud layer is strictly ahead. This
-  // runs no matter who starts the dev server (platform restart, watchdog, or
-  // manual). Once-per-process guard via globalThis (HMR-safe); an intentional
-  // genesis reset opts out via the db/ALLOW-GENESIS-RESET sentinel.
+  // schema/genesis work, self-heal both databases through the CENTRAL
+  // recovery decision (V31 TURN 3: explicit probe outcomes, manifest-gated
+  // sources, staged-generation restore). This runs no matter who starts the
+  // dev server (platform restart, watchdog, or manual). Once-per-process
+  // guard via globalThis (HMR-safe); an intentional genesis reset opts out
+  // via the db/ALLOW-GENESIS-RESET sentinel.
+  //
+  // V31 TURN 3 (§3.3/§2.3): a REFUSED (fail-closed) or FAILED heal must never
+  // fall through to genesis seeding — the re-seed path is unreachable unless
+  // the heal is clean (none / restored / fresh-environment / sentinel). On
+  // refusal the chain layer stands down (ready:false) and the app serves
+  // degraded; the databases remain untouched for operator adjudication.
   const SH = G as unknown as { __MTQ_DB_SELFHEALED__?: boolean };
   if (!SH.__MTQ_DB_SELFHEALED__) {
     SH.__MTQ_DB_SELFHEALED__ = true;
@@ -93,12 +100,25 @@ export async function ensureChainNode(): Promise<ChainNodeRuntime> {
       const rep = await selfHealDatabases();
       if (rep.healed) {
         console.log(
-          `[chain] DB SELF-HEAL — restored from git-tracked cloud dumps: ` +
-          `chain ${rep.chain.live} → ${rep.chain.dump}, custom ${rep.custom.live} → ${rep.custom.dump}`,
+          `[chain] DB SELF-HEAL — restored one validated generation: ` +
+          `chain ${rep.chain.live} ← ${rep.chain.dump}, custom ${rep.custom.live} ← ${rep.custom.dump}` +
+          (rep.generation ? ` · generation ${rep.generation.generationId}` : ""),
+        );
+      }
+      if (rep.chain.action === "refused" || rep.custom.action === "refused") {
+        throw new Error(
+          `[chain] DB RECOVERY REFUSED (fail-closed) — ${rep.chain.note ?? "central authorization refused"} — ` +
+          `chain node stands down (operator adjudication); databases untouched`,
+        );
+      }
+      if (rep.error) {
+        throw new Error(
+          `[chain] DB self-heal FAILED — ${rep.error} — chain node stands down (never re-seed over a torn state)`,
         );
       }
     } catch (e) {
-      console.error("[chain] DB self-heal FAILED (continuing — an empty DB may re-seed):", e);
+      console.error("[chain] DB self-heal did not complete cleanly (chain layer stands down):", e);
+      throw e instanceof Error ? e : new Error(String(e));
     }
   }
 

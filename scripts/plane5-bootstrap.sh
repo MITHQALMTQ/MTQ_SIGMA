@@ -90,6 +90,13 @@ if [ ! -f src/lib/boot/snapshot-manifest.ts ]; then
   git show origin/main:src/lib/boot/snapshot-manifest.ts > src/lib/boot/snapshot-manifest.ts
   log "snapshot-manifest library materialized from origin/main (was absent)"
 fi
+# V31 TURN 3 (R-1 §2.3): runtime preflight is part of the pre-boot gate; a
+# re-imaged checkout must be able to fetch it from origin before it can
+# classify anything.
+if [ ! -f scripts/runtime-preflight.ts ]; then
+  git show origin/main:scripts/runtime-preflight.ts > scripts/runtime-preflight.ts
+  log "runtime preflight materialized from origin/main (was absent)"
+fi
 
 # ── (§3.5–§3.7) run the proven guard (archive+subsumption+forward-only) ─
 bun run scripts/git-drift-guard.ts
@@ -175,6 +182,25 @@ fi
 MAN_V="$(git show HEAD:backups/db-snapshots/manifest.json | python3 -c 'import json,sys; print(json.load(sys.stdin).get("version","?"))' 2>/dev/null || echo '?')"
 log "snapshot verified at HEAD: manifest v$MAN_V · committedTip=h$TIP_H · sha256 match · canonical genesis gen_3baf0dba… present"
 
+# ── (§3.11) runtime consistency — V31 TURN 3 (R-1 §2.3, in-repo) ───────
+# The fourth Incident-22 recurrence (2026-11-09T14:51Z): git realigns the
+# tree while node_modules keeps the stale image's dependency state → the
+# platform's next dev dies at config load (swc 16.1.3 vs next 16.4.5,
+# missing vendored meriyah) before any guard acts. When node_modules exists,
+# its next/swc/meriyah state must match the package manifest — a mismatch
+# is a hard bootstrap failure (exit 16) that the wrapper repairs with ONE
+# `bun install --frozen-lockfile` + ONE retry. Absent node_modules (isolated
+# regression sandboxes / fresh clones) the step is skipped: nothing to
+# validate, nothing to start against.
+if [ -d node_modules ] && command -v bun >/dev/null 2>&1; then
+  if ! bun run scripts/runtime-preflight.ts >/tmp/plane5-runtime-preflight.out 2>&1; then
+    log "FAIL runtime preflight — $(tail -1 /tmp/plane5-runtime-preflight.out 2>/dev/null | head -c 300)"
+    log "runtime layer mismatch — repair: bun install --frozen-lockfile, then retry bootstrap"
+    exit 16
+  fi
+  log "runtime preflight OK — node_modules matches the package manifest (next/swc/meriyah)"
+fi
+
 log "BOOTSTRAP_OK — repository authoritative; application boot chain may proceed"
-log "boot chain order (watchdog v4): drift guard → source-integrity heal → db-selfheal (forward-only + rollback-prevention + identity gate) → next dev"
+log "boot chain order (watchdog v5): drift guard → source-integrity heal → runtime preflight → db-selfheal (central authorization + staged generations + rollback prevention + identity gate) → next dev"
 exit 0

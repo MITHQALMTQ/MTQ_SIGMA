@@ -1,5 +1,20 @@
 #!/bin/bash
-# MTQΣ dev-server watchdog v4 (Task 60 — root-cause remediation round 3).
+# MTQΣ dev-server watchdog v5 (V31 TURN 3 — permanent startup repair).
+#
+# Changes vs v4 (V31 TURN 3):
+#   - RUNTIME DEPENDENCY PREFLIGHT before every `next dev` start: the
+#     Incident-22 fourth recurrence (2026-11-09T14:51Z) proved the re-image
+#     crash class — git realigns source while node_modules keeps the stale
+#     image's dependency state (next 16.4.5 + @next/swc 16.1.3 + missing
+#     vendored meriyah) → next dev dies at next.config.ts load and the old
+#     watchdog crash-looped through it. Now: preflight (scripts/runtime-
+#     preflight.ts) → bun install --frozen-lockfile on mismatch → re-check →
+#     still mismatched → DO NOT START next dev (honest blocked status,
+#     retry in 60s). The application never starts on an unverified runtime.
+#   - FAIL-CLOSED DB SELF-HEAL EXIT CONTRACT: db-selfheal exit 1 (authorized
+#     restore failed) or exit 2 (recovery REFUSED fail-closed) → next dev is
+#     NOT started (the old "booting anyway" behavior re-seeded genesis over
+#     unadjudicated databases — the silent divergence path is closed).
 #
 # Changes vs v3 (task47):
 #   - PRE-BOOT GIT-DRIFT GUARD: before every `next dev` start, runs
@@ -86,7 +101,7 @@ WATCHDOG_PID_LOG=/tmp/mtq-watchdog.pid
 export NODE_OPTIONS="${NODE_OPTIONS:+$NODE_OPTIONS }--max-old-space-size=768"
 
 echo $$ > "$WATCHDOG_PID_LOG"
-echo "[$(date -u +%H:%M:%S)] watchdog v4 up (pid $$) — git-drift + self-heal + source-integrity + cloud-sync armed" >> "$LOG"
+echo "[$(date -u +%H:%M:%S)] watchdog v5 up (pid $$) — git-drift + source-integrity + runtime-preflight + generation-gated self-heal + cloud-sync armed" >> "$LOG"
 
 # Task 60: git-drift supervision loop (detached subshell). Never fatal.
 # The guard's own fetch is throttled (5 min) so a 60s cadence stays polite;
@@ -134,13 +149,35 @@ while true; do
   echo "[$(date -u +%H:%M:%S)] watchdog: :3000 down — source-integrity heal before boot..." >> "$LOG"
   bun run scripts/source-integrity-heal.ts >> "$LOG" 2>&1 || true
 
-  # Pre-boot DB self-heal (Task 42): restore a wiped/regressed data layer
-  # BEFORE the chain node boots — the silent re-seed path is closed.
-  echo "[$(date -u +%H:%M:%S)] watchdog: :3000 down — running DB self-heal before boot..." >> "$LOG"
-  if bun run scripts/db-selfheal.ts >> "$LOG" 2>&1; then
-    :
-  else
-    echo "[$(date -u +%H:%M:%S)] watchdog: self-heal FAILED — booting anyway; watch for a re-seed in dev.log" >> "$LOG"
+  # V31 TURN 3 (R-1 §2.3, in-repo): RUNTIME DEPENDENCY PREFLIGHT. The boot
+  # chain order is guard → source-integrity heal → runtime preflight →
+  # db-selfheal → next dev. A mismatched runtime layer is healed (one
+  # bun install --frozen-lockfile) — and when it cannot be healed, next dev
+  # is NOT started: an honest blocked status instead of a crash loop.
+  echo "[$(date -u +%H:%M:%S)] watchdog: :3000 down — runtime preflight before boot..." >> "$LOG"
+  if ! bun run scripts/runtime-preflight.ts >> "$LOG" 2>&1; then
+    echo "[$(date -u +%H:%M:%S)] watchdog: runtime preflight FAILED — refreshing runtime layer (bun install --frozen-lockfile)..." >> "$LOG"
+    bun install --frozen-lockfile >> "$LOG" 2>&1 \
+      || echo "[$(date -u +%H:%M:%S)] watchdog: bun install FAILED (network/cache — will retry next loop)" >> "$LOG"
+    if ! bun run scripts/runtime-preflight.ts >> "$LOG" 2>&1; then
+      echo "[$(date -u +%H:%M:%S)] watchdog: runtime preflight STILL FAILED — BLOCKED: NOT starting next dev on a mismatched runtime (honest degraded status; retry in 60s)" >> "$LOG"
+      sleep 60
+      continue
+    fi
+  fi
+
+  # Pre-boot DB self-heal (Task 42 → V31 TURN 3 central authorization): the
+  # chain node's silent re-seed path is closed — and so is the old "booting
+  # anyway" fallback. Exit 1 = authorized restore failed (torn state);
+  # exit 2 = recovery REFUSED fail-closed (operator adjudication). In BOTH
+  # cases the databases are untouched and next dev must NOT start.
+  echo "[$(date -u +%H:%M:%S)] watchdog: :3000 down — running DB self-heal (central authorization) before boot..." >> "$LOG"
+  SELFHEAL_RC=0
+  bun run scripts/db-selfheal.ts >> "$LOG" 2>&1 || SELFHEAL_RC=$?
+  if [ "$SELFHEAL_RC" -ne 0 ]; then
+    echo "[$(date -u +%H:%M:%S)] watchdog: db-selfheal rc=$SELFHEAL_RC — BLOCKED: NOT starting next dev (1=authorized restore failed; 2=recovery REFUSED, operator adjudication). Databases untouched; retry in 60s." >> "$LOG"
+    sleep 60
+    continue
   fi
 
   echo "[$(date -u +%H:%M:%S)] watchdog: starting next dev..." >> "$LOG"

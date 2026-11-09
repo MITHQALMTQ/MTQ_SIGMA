@@ -56,6 +56,15 @@ import {
   readManifestFile,
   validateManifestAgainst,
 } from "./boot/snapshot-manifest";
+import { probeChainDatabase, probeCustomDatabase } from "./boot/db-probe";
+import {
+  activateGeneration,
+  detectForeignWrite,
+  prepareGeneration,
+  reconcileActivation,
+  validateGeneration,
+} from "./boot/generation-store";
+import { authorizeRecovery } from "./boot/recovery-authorization";
 
 const moduleRoot = resolve(dirname(fileURLToPath(import.meta.url)), "..", "..");
 const moduleInsideBuildOutput = moduleRoot.includes(join(sep, ".next", sep));
@@ -371,113 +380,29 @@ export function writeSentinel(hours: number, reason: string): void {
   writeFileSync(SENTINEL_PATH, `${exp}\n${reason}\n`);
 }
 
-// ─── restore (forward-only, verified) ────────────────────────────────────────
-
-interface RestoreOpts {
-  kind: "chain" | "custom";
-  dbPath: string;
-  dumpPath: string;
-  expectHeight?: number;
-  expectRows?: number;
-  log?: (s: string) => void;
-}
-
-/**
- * Rebuild a database from a dump. Steps:
- *   1. ARCHIVE the current file (+ journal/wal/shm siblings) to
- *      mtq-sigma-backups/selfheal-archive/<ts>-<kind>/ (forensics — never
- *      destroy the regressed state, it may contain unrecoverable post-dump
- *      writes that must be honestly bounded).
- *   2. Create the schema (embedded in v2 dumps; legacy v1 falls back to
- *      initSchema() for chain / `prisma db push` for custom).
- *   3. Apply the dump in one transaction, then VERIFY: integrity_check ok,
- *      exact expected tip/rows. On any failure the half-built file is
- *      REMOVED (nothing may boot on a torn restore) and the error rethrown —
- *      the archive + the git-tracked dump remain intact.
- */
-async function restoreDbFromDump(opts: RestoreOpts): Promise<void> {
-  const { kind, dbPath, dumpPath } = opts;
-  const log = opts.log ?? (() => {});
-  const sql = readFileSync(dumpPath, "utf8");
-  const selfContained = sql.includes("CREATE TABLE");
-
-  const ts = new Date().toISOString().replace(/[^0-9A-Za-z]/g, "");
-  const arcDir = join(ARCHIVE_DIR, `${ts}-${kind}`);
-  mkdirSync(arcDir, { recursive: true });
-  for (const p of [dbPath, `${dbPath}-journal`, `${dbPath}-wal`, `${dbPath}-shm`]) {
-    if (existsSync(p)) {
-      renameSync(p, join(arcDir, basename(p)));
-      log(`[selfheal] archived ${basename(p)} → ${arcDir}`);
-    }
-  }
-
-  mkdirSync(dirname(dbPath), { recursive: true });
-  if (!selfContained) {
-    log(`[selfheal] legacy v1 dump (data-only) — creating schema first`);
-    if (kind === "chain") {
-      const { initSchema } = await import("./chain/store");
-      await initSchema();
-    } else {
-      execSync("bun run db:push", { cwd: ROOT, stdio: "pipe" });
-    }
-  }
-
-  const c = createClient({ url: `file:${dbPath}` });
-  try {
-    await c.executeMultiple(sql);
-    const integ = await c.execute("PRAGMA integrity_check");
-    const integOk = String(Object.values(integ.rows[0] ?? {})[0] ?? "");
-    if (integOk !== "ok") throw new Error(`integrity_check returned '${integOk}'`);
-
-    if (kind === "chain") {
-      const h = Number(
-        Object.values((await c.execute("SELECT COALESCE(MAX(height), 0) AS h FROM blocks")).rows[0] ?? {})[0] ?? 0,
-      );
-      if (opts.expectHeight !== undefined && h !== opts.expectHeight) {
-        throw new Error(`restored chain height ${h} != dump tip ${opts.expectHeight}`);
-      }
-      const stamp = new Date().toISOString();
-      await c.execute({
-        sql: "INSERT INTO meta (key, value) VALUES ('boot_mode', 'self-healed') ON CONFLICT(key) DO UPDATE SET value = excluded.value",
-        args: [],
-      });
-      await c.execute({
-        sql: "INSERT INTO meta (key, value) VALUES (?, ?) ON CONFLICT(key) DO UPDATE SET value = excluded.value",
-        args: ["selfheal_at", stamp],
-      });
-      await c.execute({
-        sql: "INSERT INTO meta (key, value) VALUES (?, ?) ON CONFLICT(key) DO UPDATE SET value = excluded.value",
-        args: ["selfheal_dump", basename(dumpPath)],
-      });
-    } else {
-      const tables = (await c.execute(
-        "SELECT name FROM sqlite_master WHERE type='table' AND name NOT LIKE 'sqlite_%'",
-      )).rows.map((r) => String(Object.values(r)[0]));
-      let total = 0;
-      for (const t of tables) {
-        total += Number(Object.values((await c.execute(`SELECT count(*) c FROM "${t}"`)).rows[0] ?? {})[0] ?? 0);
-      }
-      if (opts.expectRows !== undefined && total !== opts.expectRows) {
-        throw new Error(`restored custom rows ${total} != dump rows ${opts.expectRows}`);
-      }
-    }
-  } catch (e) {
-    c.close();
-    for (const p of [dbPath, `${dbPath}-journal`, `${dbPath}-wal`, `${dbPath}-shm`]) {
-      if (existsSync(p)) {
-        try { rmSync(p, { force: true }); } catch { /* best-effort */ }
-      }
-    }
-    throw e;
-  } finally {
-    c.close();
-  }
-}
-
-// ─── self-heal decision engine ───────────────────────────────────────────────
+// ─── recovery (V31 TURN 3: central authorization + staged generations) ───────
+//
+// The pre-TURN-3 implementation restored dump-by-dump directly into the
+// operational path with locally re-derived per-database decisions (defects
+// F-1 refused-note-not-gating, F-2 missing-manifest bypass, and the
+// unreadable→height-0 hazard). Restoration now:
+//   1. reconciles any interrupted activation (generation-store, §4.4);
+//   2. probes BOTH live databases with EXPLICIT outcomes (db-probe, §3.1);
+//   3. obtains ONE decision from the central recovery authorization
+//      (recovery-authorization, §3.2 — repository identity, runtime source
+//      state, manifest/hash/completeness/genesis verification, recovery
+//      direction, cross-database generation consistency — fail-closed on
+//      every unverified condition; refusal is terminal, never re-derived
+//      here, §3.3);
+//   4. on authorization ONLY: imports BOTH dumps into an isolated immutable
+//      generation directory, fully validates it (integrity, genesis, chain
+//      id, height contiguity, parent-hash continuity, exact counts — §4.2),
+//      and activates it crash-safely (single atomic active-generation pointer
+//      + durable journal + forensic casualty archive — §4.3). A refused or
+//      failed restoration leaves the operational databases UNTOUCHED.
 
 export interface HealAction {
-  action: "none" | "restored" | "no-dump" | "sentinel";
+  action: "none" | "restored" | "no-dump" | "sentinel" | "refused";
   live: string;
   dump: string;
   note?: string;
@@ -488,30 +413,20 @@ export interface HealReport {
   custom: HealAction;
   healed: boolean;
   error?: string;
-}
-
-/**
- * Forward-only database self-heal. Restores a DB from the best VALID dump
- * (staged write-behind copy first — minutes-fresh; the published git-tracked
- * file otherwise) ONLY when that dump is strictly ahead (live missing /
- * unreadable / genesis-scale / behind). A live DB at or ahead of the dump is
- * never touched — this can never roll data back, only forward.
- *
- * V31 TURN 2A recovery-source rules (incident 19 fix):
- *   • STAGED dumps (untracked, ≤60s+threshold fresh) are used only when they
- *     parse, are transaction-complete, carry the canonical genesis (chain),
- *     and are not behind the published dump.
- *   • PUBLISHED dumps are used only when they parse and are complete; when a
- *     manifest exists, its sha256 MUST match the file — a hash mismatch means
- *     the published snapshot is not independently verifiable and recovery
- *     from it is REFUSED (fail-closed; the classifier/bootstrap gates block
- *     earlier, this is defense-in-depth at the recovery boundary itself).
- */
-interface RecoverySource {
-  path: string;
-  tip: DumpTip;
-  origin: "staged" | "published";
-  note?: string;
+  /** V31 TURN 3: the central decision record (durable audit evidence). */
+  decision?: {
+    authorized: boolean;
+    action: string;
+    refusal?: string;
+    sourceOrigin?: string;
+    sourceHeight?: number;
+    liveChainHeight: number | null;
+    controlledRecovery: boolean;
+    checks: { check: string; verdict: string; detail: string }[];
+  };
+  /** V31 TURN 3: active generation pointer state after this run. */
+  generation?: { generationId: string; chainTip: number; customRows: number };
+  reconciledActivation?: string;
 }
 
 function safeText(p: string): string | null {
@@ -522,72 +437,28 @@ function safeText(p: string): string | null {
   }
 }
 
-/** Pick the recovery source of record for one database: the staged write-behind
- *  dump when it is structurally valid and not behind the published one; the
- *  published dump otherwise (manifest-verified when a manifest exists). */
-function bestRecoverySource(kind: "chain" | "custom"): RecoverySource | null {
-  const stagedPath = kind === "chain" ? CHAIN_DUMP_STAGING : CUSTOM_DUMP_STAGING;
-  const publishedPath = kind === "chain" ? CHAIN_DUMP : CUSTOM_DUMP;
-  const stagedTip = readDumpTip(stagedPath);
-  const publishedTip = readDumpTip(publishedPath);
-
-  if (stagedTip) {
-    let structural = stagedTip.v2;
-    let note: string | undefined;
-    try {
-      const text = readFileSync(stagedPath, "utf8");
-      if (!dumpComplete(text)) { structural = false; note = "staged dump incomplete"; }
-      if (kind === "chain" && structural && !dumpGenesisOk(text)) { structural = false; note = "staged dump lacks canonical genesis"; }
-    } catch {
-      structural = false;
-      note = "staged dump unreadable";
-    }
-    if (structural) {
-      const aheadOfPublished = !publishedTip
-        || (kind === "chain"
-          ? (stagedTip.height ?? 0) >= (publishedTip.height ?? 0)
-          : stagedTip.rows >= Math.floor((publishedTip.rows ?? 0) * 0.9));
-      if (aheadOfPublished) {
-        return { path: stagedPath, tip: stagedTip, origin: "staged" };
-      }
-    }
-    // else: fall through to the published source (staged copy is transient debris)
-  }
-  if (publishedTip) {
-    let usable = true;
-    let note: string | undefined;
-    try {
-      const text = readFileSync(publishedPath, "utf8");
-      if (!dumpComplete(text)) { usable = false; note = "published dump incomplete"; }
-    } catch {
-      usable = false;
-      note = "published dump unreadable";
-    }
-    const manifest = readManifestFile(SNAPSHOT_MANIFEST_PATH);
-    if (manifest && usable) {
-      const chainText = safeText(CHAIN_DUMP);
-      const customText = safeText(CUSTOM_DUMP);
-      const v = validateManifestAgainst(manifest, chainText, customText);
-      if (!v.ok) {
-        usable = false;
-        note = `manifest verification FAILED: ${v.reasons.slice(0, 2).join("; ")}`;
-      }
-    }
-    if (usable) return { path: publishedPath, tip: publishedTip, origin: "published" };
-    return { path: publishedPath, tip: publishedTip, origin: "published", note };
-  }
-  return null;
-}
-
 export async function selfHealDatabases(opts: { log?: (s: string) => void } = {}): Promise<HealReport> {
   const log = opts.log ?? ((s: string) => console.log(s));
-  const sentinel = sentinelActive();
   const report: HealReport = {
     chain: { action: "none", live: "", dump: "" },
     custom: { action: "none", live: "", dump: "" },
     healed: false,
   };
 
+  // [0] Reconcile any interrupted activation BEFORE any database consumer
+  //     (§4.4): the system always lands on the previous or the new COMPLETE
+  //     valid generation — never a mixed or partially imported one.
+  try {
+    const rec = reconcileActivation(ROOT);
+    if (rec.reconciled) {
+      report.reconciledActivation = `${rec.outcome}: ${rec.detail}`;
+      log(`[selfheal] reconciled interrupted activation — ${rec.detail}`);
+    }
+  } catch (e) {
+    log(`[selfheal] activation reconcile FAILED (continuing fail-closed): ${e instanceof Error ? e.message : String(e)}`);
+  }
+
+  const sentinel = sentinelActive();
   if (sentinel.active) {
     report.chain = { action: "sentinel", live: "-", dump: "-", note: "intentional reset acknowledged" };
     report.custom = { action: "sentinel", live: "-", dump: "-", note: "intentional reset acknowledged" };
@@ -595,61 +466,141 @@ export async function selfHealDatabases(opts: { log?: (s: string) => void } = {}
     return report;
   }
 
-  // chain.db
-  const chainProbe = await probeChainHeight(CHAIN_DB);
-  const chainSource = bestRecoverySource("chain");
-  const chainTip = chainSource?.tip ?? null;
-  const chainDumpH = chainTip?.height ?? 0;
-  const liveChainH = chainProbe.ok ? chainProbe.height : 0;
-  report.chain.live = chainProbe.ok ? `h${chainProbe.height}` : chainProbe.reason;
-  report.chain.dump = chainTip
-    ? `${chainSource?.origin} ${chainTip.v2 ? "v2" : "v1"} h${chainTip.height ?? 0} · ${chainTip.rows} rows${chainSource?.note ? ` · ${chainSource.note}` : ""}`
-    : "none";
-  if (chainSource?.note && /FAILED|incomplete|unreadable/.test(chainSource.note)) {
-    log(`[selfheal] WARNING — published chain dump unusable (${chainSource.note}); recovery from it refused (fail-closed)`);
-  }
-  if (chainTip && chainDumpH > liveChainH) {
+  // [1] Explicit live probes — a FAILED read is never a height of zero (§3.1).
+  const chainProbe = await probeChainDatabase(CHAIN_DB);
+  const customProbe = await probeCustomDatabase(CUSTOM_DB);
+  report.chain.live = chainProbe.status === "DATABASE_HEALTHY" ? `h${chainProbe.height}` : chainProbe.status;
+  report.custom.live = customProbe.status === "DATABASE_HEALTHY" ? `${customProbe.rows} rows` : customProbe.status;
+
+  // [2] Foreign-write detection (Incident-22 signature aid): live behind the
+  //     last activated generation → journalled evidence for the operator.
+  if (chainProbe.status === "DATABASE_HEALTHY") {
     try {
-      await restoreDbFromDump({ kind: "chain", dbPath: CHAIN_DB, dumpPath: chainSource!.path, expectHeight: chainDumpH, log });
-      report.chain.action = "restored";
-      report.healed = true;
-      log(`[selfheal] chain.db RESTORED from ${chainSource!.origin} dump (live ${report.chain.live} → h${chainDumpH})`);
-    } catch (e) {
-      report.error = `chain restore failed: ${e instanceof Error ? e.message : String(e)}`;
-      log(`[selfheal] ERROR — ${report.error}`);
-    }
-  } else if (!chainTip && !chainProbe.ok) {
+      const fw = detectForeignWrite(ROOT, chainProbe.height ?? null, undefined);
+      if (fw.foreign) log(`[selfheal] FOREIGN WRITE DETECTED — ${fw.detail}`);
+    } catch { /* detection is evidence-only */ }
+  }
+
+  // [3] Runtime source state (precondition for any restoration — the git
+  //     classification is NEVER sufficient by itself, §3.2).
+  let remoteOk = false;
+  let gitState = "AUTHORITY_UNVERIFIED";
+  try {
+    const remote = execSync("git remote get-url origin", { cwd: ROOT, encoding: "utf8", timeout: 15_000 }).trim();
+    remoteOk = /MITHQALMTQ\/MTQ_SIGMA/.test(remote);
+  } catch { /* fail-closed below */ }
+  if (remoteOk) {
+    try {
+      const { classifyGitState } = await import("./boot/git-state");
+      gitState = classifyGitState({ fetch: false, root: ROOT }).state;
+    } catch { /* AUTHORITY_UNVERIFIED — fail-closed */ }
+  }
+
+  // [4] THE decision — one shared implementation, consumed verbatim (§3.2/§3.3).
+  const published = {
+    chainText: safeText(CHAIN_DUMP),
+    customText: safeText(CUSTOM_DUMP),
+    manifestPath: SNAPSHOT_MANIFEST_PATH,
+  };
+  const staged = { chainText: safeText(CHAIN_DUMP_STAGING), customText: safeText(CUSTOM_DUMP_STAGING) };
+  const decision = authorizeRecovery({
+    root: ROOT,
+    remoteOk,
+    gitState,
+    chainProbe,
+    customProbe,
+    sentinelActive: false, // sentinel stand-down already returned above
+    published,
+    staged,
+  });
+  report.decision = {
+    authorized: decision.authorized,
+    action: decision.action,
+    refusal: decision.refusal,
+    sourceOrigin: decision.source?.origin,
+    sourceHeight: decision.source?.chainHeight,
+    liveChainHeight: decision.liveChainHeight,
+    controlledRecovery: decision.controlledRecovery,
+    checks: decision.checks,
+  };
+
+  // Fresh-environment first boot: no live databases AND no recovery payloads
+  // on disk at all — genesis seeding is the honest first boot (nothing to
+  // lose, nothing to recover). Any EXISTING payload without verification is a
+  // REFUSAL (F-2 — never an implicit legacy acceptance, §3.4).
+  const freshEnvironment =
+    decision.refusal === "NO_VERIFIED_RECOVERY_SOURCE" &&
+    chainProbe.status === "DATABASE_MISSING" &&
+    customProbe.status === "DATABASE_MISSING" &&
+    published.chainText === null && published.customText === null &&
+    staged.chainText === null && staged.customText === null;
+  if (freshEnvironment) {
     report.chain.action = "no-dump";
-    report.chain.note = "no DB and no valid cloud dump — fresh environment, first boot will seed genesis";
-  }
-
-  // custom.db
-  const customProbe = await probeCustomRows(CUSTOM_DB);
-  const customSource = bestRecoverySource("custom");
-  const customTip = customSource?.tip ?? null;
-  const liveCustomRows = customProbe.ok ? customProbe.rows : 0;
-  report.custom.live = customProbe.ok ? `${customProbe.rows} rows` : customProbe.reason;
-  report.custom.dump = customTip
-    ? `${customSource?.origin} ${customTip.v2 ? "v2" : "v1"} ${customTip.rows} rows${customSource?.note ? ` · ${customSource.note}` : ""}`
-    : "none";
-  if (customSource?.note && /FAILED|incomplete|unreadable/.test(customSource.note)) {
-    log(`[selfheal] WARNING — published custom dump unusable (${customSource.note}); recovery from it refused (fail-closed)`);
-  }
-  if (customTip && customBehindDump(liveCustomRows, customTip.rows)) {
-    try {
-      await restoreDbFromDump({ kind: "custom", dbPath: CUSTOM_DB, dumpPath: customSource!.path, expectRows: customTip.rows, log });
-      report.custom.action = "restored";
-      report.healed = true;
-      log(`[selfheal] custom.db RESTORED from ${customSource!.origin} dump (live ${report.custom.live} → ${customTip.rows} rows)`);
-    } catch (e) {
-      report.error = `${report.error ? report.error + " · " : ""}custom restore failed: ${e instanceof Error ? e.message : String(e)}`;
-      log(`[selfheal] ERROR — custom restore failed: ${e instanceof Error ? e.message : String(e)}`);
-    }
-  } else if (!customTip && !customProbe.ok) {
+    report.chain.note = "fresh environment — first boot will seed genesis";
     report.custom.action = "no-dump";
-    report.custom.note = "no DB and no valid cloud dump — fresh environment";
+    report.custom.note = "fresh environment";
+    log("[selfheal] fresh environment (no databases, no recovery payloads) — first boot will seed genesis");
+    return report;
   }
 
+  if (!decision.authorized) {
+    if (decision.refusal === "NO_RESTORE_NEEDED") {
+      report.chain.dump = decision.source ? `${decision.source.origin} h${decision.source.chainHeight}` : "n/a";
+      report.custom.dump = decision.source ? `${decision.source.origin} ${decision.source.customRows} rows` : "n/a";
+      log(`[selfheal] OK — live databases at/ahead of every verified recovery source (${report.chain.live} / ${report.custom.live})`);
+      return report;
+    }
+    // TERMINAL refusal — fail-closed; the operational databases stay untouched.
+    report.chain.action = "refused";
+    report.custom.action = "refused";
+    const note = `${decision.refusal}: ${decision.reasons.slice(0, 2).join("; ") || "fail-closed"}`;
+    report.chain.note = note;
+    report.custom.note = note;
+    log(`[selfheal] RECOVERY REFUSED (fail-closed) — ${note}`);
+    log(`[selfheal] live chain ${report.chain.live} · live custom ${report.custom.live} — operator adjudication required; databases untouched`);
+    return report;
+  }
+
+  // [5] Authorized controlled restoration — one validated generation (§4).
+  const src = decision.source!;
+  report.chain.dump = `${src.origin} h${src.chainHeight} · ${src.customRows} custom rows${src.manifestVersion !== null ? ` · manifest v${src.manifestVersion}` : ""}`;
+  report.custom.dump = report.chain.dump;
+  try {
+    const prepared = await prepareGeneration({
+      root: ROOT,
+      chainDumpSql: src.chainText,
+      customDumpSql: src.customText,
+      sourceOrigin: src.origin,
+      manifestVersion: src.manifestVersion,
+      chainSha256: null,
+      customSha256: null,
+    });
+    const validation = await validateGeneration(ROOT, prepared, src.origin, src.manifestVersion);
+    if (!validation.ok) {
+      report.error = `generation validation failed: ${validation.reasons.slice(0, 2).join("; ")}`;
+      log(`[selfheal] ERROR — ${report.error} (generation discarded; live databases untouched)`);
+      return report;
+    }
+    const activation = await activateGeneration(ROOT, prepared, src.origin);
+    // Post-activation verification — the final state is measured, not assumed.
+    const reChain = await probeChainDatabase(CHAIN_DB);
+    const reCustom = await probeCustomDatabase(CUSTOM_DB);
+    if (reChain.status !== "DATABASE_HEALTHY" || reChain.height !== activation.chainTip) {
+      report.error = `post-activation probe mismatch: ${reChain.status} h${reChain.height ?? "?"} != activated h${activation.chainTip}`;
+      log(`[selfheal] ERROR — ${report.error}`);
+      return report;
+    }
+    report.chain.action = "restored";
+    report.custom.action = "restored";
+    report.healed = true;
+    report.chain.live = `h${reChain.height}`;
+    report.custom.live = `${reCustom.status === "DATABASE_HEALTHY" ? reCustom.rows : "?"} rows`;
+    report.generation = { generationId: activation.generationId, chainTip: activation.chainTip, customRows: activation.customRows };
+    log(`[selfheal] generation RESTORED — ${activation.detail} (live chain → h${activation.chainTip}); casualty archive kept`);
+  } catch (e) {
+    report.error = `generation restore failed: ${e instanceof Error ? e.message : String(e)}`;
+    log(`[selfheal] ERROR — ${report.error} (live databases untouched; dump sources intact)`);
+  }
   return report;
 }
 
