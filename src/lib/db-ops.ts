@@ -50,6 +50,12 @@ import { execSync } from "node:child_process";
 import { existsSync, mkdirSync, readFileSync, renameSync, rmSync, writeFileSync } from "node:fs";
 import { basename, dirname, join, resolve, sep } from "node:path";
 import { fileURLToPath } from "node:url";
+import {
+  dumpComplete,
+  dumpGenesisOk,
+  readManifestFile,
+  validateManifestAgainst,
+} from "./boot/snapshot-manifest";
 
 const moduleRoot = resolve(dirname(fileURLToPath(import.meta.url)), "..", "..");
 const moduleInsideBuildOutput = moduleRoot.includes(join(sep, ".next", sep));
@@ -118,6 +124,20 @@ export const CUSTOM_DB = join(DB_DIR, "custom.db");
 export const SNAP_DIR = join(ROOT, "backups", "db-snapshots");
 export const CHAIN_DUMP = join(SNAP_DIR, "latest-chain.sql");
 export const CUSTOM_DUMP = join(SNAP_DIR, "latest-custom.sql");
+// V31 TURN 2A (incident 19 root-cause fix, Phase 5): the write-behind loop
+// refreshes UNTRACKED STAGING copies — never the git-tracked published files.
+// The tracked latest-*.sql + manifest.json are written ONLY by the validated
+// atomic publisher (scripts/snapshot-publish.ts + src/lib/boot/
+// snapshot-manifest.ts). This structurally ends the incident-19 loop: the
+// platform agent-loop wrapper auto-commits dirty tracked files at every
+// agent-turn end, so a perpetually-dirty tracked dump meant uncontrolled
+// unpushed snapshot drift on every turn. Staging is gitignored (via
+// /backups/db-snapshots/*), transient, and safely re-derivable from the live
+// databases.
+export const STAGING_DIR = join(SNAP_DIR, ".staging");
+export const CHAIN_DUMP_STAGING = join(STAGING_DIR, "latest-chain.sql");
+export const CUSTOM_DUMP_STAGING = join(STAGING_DIR, "latest-custom.sql");
+export const SNAPSHOT_MANIFEST_PATH = join(SNAP_DIR, "manifest.json");
 const ARCHIVE_DIR = join(ROOT, "mtq-sigma-backups", "selfheal-archive");
 export const SENTINEL_PATH = join(DB_DIR, "ALLOW-GENESIS-RESET");
 
@@ -240,6 +260,7 @@ export async function dumpDatabase(dbPath: string, outPath: string): Promise<Dum
     parts.push(...dataParts, `COMMIT;`, ``);
 
     const tmp = `${outPath}.tmp`;
+    mkdirSync(dirname(outPath), { recursive: true });
     writeFileSync(tmp, parts.join("\n") + "\n");
     renameSync(tmp, outPath);
     return { db: dbPath, out: outPath, rows, tables: tables.length, height };
@@ -470,11 +491,94 @@ export interface HealReport {
 }
 
 /**
- * Forward-only database self-heal. Restores a DB from its git-tracked cloud
- * dump ONLY when the dump is strictly ahead (live missing / unreadable /
- * genesis-scale / behind). A live DB at or ahead of the dump is never
- * touched — this can never roll data back, only forward.
+ * Forward-only database self-heal. Restores a DB from the best VALID dump
+ * (staged write-behind copy first — minutes-fresh; the published git-tracked
+ * file otherwise) ONLY when that dump is strictly ahead (live missing /
+ * unreadable / genesis-scale / behind). A live DB at or ahead of the dump is
+ * never touched — this can never roll data back, only forward.
+ *
+ * V31 TURN 2A recovery-source rules (incident 19 fix):
+ *   • STAGED dumps (untracked, ≤60s+threshold fresh) are used only when they
+ *     parse, are transaction-complete, carry the canonical genesis (chain),
+ *     and are not behind the published dump.
+ *   • PUBLISHED dumps are used only when they parse and are complete; when a
+ *     manifest exists, its sha256 MUST match the file — a hash mismatch means
+ *     the published snapshot is not independently verifiable and recovery
+ *     from it is REFUSED (fail-closed; the classifier/bootstrap gates block
+ *     earlier, this is defense-in-depth at the recovery boundary itself).
  */
+interface RecoverySource {
+  path: string;
+  tip: DumpTip;
+  origin: "staged" | "published";
+  note?: string;
+}
+
+function safeText(p: string): string | null {
+  try {
+    return existsSync(p) ? readFileSync(p, "utf8") : null;
+  } catch {
+    return null;
+  }
+}
+
+/** Pick the recovery source of record for one database: the staged write-behind
+ *  dump when it is structurally valid and not behind the published one; the
+ *  published dump otherwise (manifest-verified when a manifest exists). */
+function bestRecoverySource(kind: "chain" | "custom"): RecoverySource | null {
+  const stagedPath = kind === "chain" ? CHAIN_DUMP_STAGING : CUSTOM_DUMP_STAGING;
+  const publishedPath = kind === "chain" ? CHAIN_DUMP : CUSTOM_DUMP;
+  const stagedTip = readDumpTip(stagedPath);
+  const publishedTip = readDumpTip(publishedPath);
+
+  if (stagedTip) {
+    let structural = stagedTip.v2;
+    let note: string | undefined;
+    try {
+      const text = readFileSync(stagedPath, "utf8");
+      if (!dumpComplete(text)) { structural = false; note = "staged dump incomplete"; }
+      if (kind === "chain" && structural && !dumpGenesisOk(text)) { structural = false; note = "staged dump lacks canonical genesis"; }
+    } catch {
+      structural = false;
+      note = "staged dump unreadable";
+    }
+    if (structural) {
+      const aheadOfPublished = !publishedTip
+        || (kind === "chain"
+          ? (stagedTip.height ?? 0) >= (publishedTip.height ?? 0)
+          : stagedTip.rows >= Math.floor((publishedTip.rows ?? 0) * 0.9));
+      if (aheadOfPublished) {
+        return { path: stagedPath, tip: stagedTip, origin: "staged" };
+      }
+    }
+    // else: fall through to the published source (staged copy is transient debris)
+  }
+  if (publishedTip) {
+    let usable = true;
+    let note: string | undefined;
+    try {
+      const text = readFileSync(publishedPath, "utf8");
+      if (!dumpComplete(text)) { usable = false; note = "published dump incomplete"; }
+    } catch {
+      usable = false;
+      note = "published dump unreadable";
+    }
+    const manifest = readManifestFile(SNAPSHOT_MANIFEST_PATH);
+    if (manifest && usable) {
+      const chainText = safeText(CHAIN_DUMP);
+      const customText = safeText(CUSTOM_DUMP);
+      const v = validateManifestAgainst(manifest, chainText, customText);
+      if (!v.ok) {
+        usable = false;
+        note = `manifest verification FAILED: ${v.reasons.slice(0, 2).join("; ")}`;
+      }
+    }
+    if (usable) return { path: publishedPath, tip: publishedTip, origin: "published" };
+    return { path: publishedPath, tip: publishedTip, origin: "published", note };
+  }
+  return null;
+}
+
 export async function selfHealDatabases(opts: { log?: (s: string) => void } = {}): Promise<HealReport> {
   const log = opts.log ?? ((s: string) => console.log(s));
   const sentinel = sentinelActive();
@@ -493,55 +597,71 @@ export async function selfHealDatabases(opts: { log?: (s: string) => void } = {}
 
   // chain.db
   const chainProbe = await probeChainHeight(CHAIN_DB);
-  const chainTip = readDumpTip(CHAIN_DUMP);
+  const chainSource = bestRecoverySource("chain");
+  const chainTip = chainSource?.tip ?? null;
   const chainDumpH = chainTip?.height ?? 0;
   const liveChainH = chainProbe.ok ? chainProbe.height : 0;
   report.chain.live = chainProbe.ok ? `h${chainProbe.height}` : chainProbe.reason;
   report.chain.dump = chainTip
-    ? `${chainTip.v2 ? "v2" : "v1"} h${chainTip.height ?? 0} · ${chainTip.rows} rows`
+    ? `${chainSource?.origin} ${chainTip.v2 ? "v2" : "v1"} h${chainTip.height ?? 0} · ${chainTip.rows} rows${chainSource?.note ? ` · ${chainSource.note}` : ""}`
     : "none";
+  if (chainSource?.note && /FAILED|incomplete|unreadable/.test(chainSource.note)) {
+    log(`[selfheal] WARNING — published chain dump unusable (${chainSource.note}); recovery from it refused (fail-closed)`);
+  }
   if (chainTip && chainDumpH > liveChainH) {
     try {
-      await restoreDbFromDump({ kind: "chain", dbPath: CHAIN_DB, dumpPath: CHAIN_DUMP, expectHeight: chainDumpH, log });
+      await restoreDbFromDump({ kind: "chain", dbPath: CHAIN_DB, dumpPath: chainSource!.path, expectHeight: chainDumpH, log });
       report.chain.action = "restored";
       report.healed = true;
-      log(`[selfheal] chain.db RESTORED from cloud dump (live ${report.chain.live} → h${chainDumpH})`);
+      log(`[selfheal] chain.db RESTORED from ${chainSource!.origin} dump (live ${report.chain.live} → h${chainDumpH})`);
     } catch (e) {
       report.error = `chain restore failed: ${e instanceof Error ? e.message : String(e)}`;
       log(`[selfheal] ERROR — ${report.error}`);
     }
   } else if (!chainTip && !chainProbe.ok) {
     report.chain.action = "no-dump";
-    report.chain.note = "no DB and no cloud dump — fresh environment, first boot will seed genesis";
+    report.chain.note = "no DB and no valid cloud dump — fresh environment, first boot will seed genesis";
   }
 
   // custom.db
   const customProbe = await probeCustomRows(CUSTOM_DB);
-  const customTip = readDumpTip(CUSTOM_DUMP);
+  const customSource = bestRecoverySource("custom");
+  const customTip = customSource?.tip ?? null;
   const liveCustomRows = customProbe.ok ? customProbe.rows : 0;
   report.custom.live = customProbe.ok ? `${customProbe.rows} rows` : customProbe.reason;
   report.custom.dump = customTip
-    ? `${customTip.v2 ? "v2" : "v1"} ${customTip.rows} rows`
+    ? `${customSource?.origin} ${customTip.v2 ? "v2" : "v1"} ${customTip.rows} rows${customSource?.note ? ` · ${customSource.note}` : ""}`
     : "none";
+  if (customSource?.note && /FAILED|incomplete|unreadable/.test(customSource.note)) {
+    log(`[selfheal] WARNING — published custom dump unusable (${customSource.note}); recovery from it refused (fail-closed)`);
+  }
   if (customTip && customBehindDump(liveCustomRows, customTip.rows)) {
     try {
-      await restoreDbFromDump({ kind: "custom", dbPath: CUSTOM_DB, dumpPath: CUSTOM_DUMP, expectRows: customTip.rows, log });
+      await restoreDbFromDump({ kind: "custom", dbPath: CUSTOM_DB, dumpPath: customSource!.path, expectRows: customTip.rows, log });
       report.custom.action = "restored";
       report.healed = true;
-      log(`[selfheal] custom.db RESTORED from cloud dump (live ${report.custom.live} → ${customTip.rows} rows)`);
+      log(`[selfheal] custom.db RESTORED from ${customSource!.origin} dump (live ${report.custom.live} → ${customTip.rows} rows)`);
     } catch (e) {
       report.error = `${report.error ? report.error + " · " : ""}custom restore failed: ${e instanceof Error ? e.message : String(e)}`;
       log(`[selfheal] ERROR — custom restore failed: ${e instanceof Error ? e.message : String(e)}`);
     }
   } else if (!customTip && !customProbe.ok) {
     report.custom.action = "no-dump";
-    report.custom.note = "no DB and no cloud dump — fresh environment";
+    report.custom.note = "no DB and no valid cloud dump — fresh environment";
   }
 
   return report;
 }
 
 // ─── cloud-layer write-behind sync ───────────────────────────────────────────
+//
+// V31 TURN 2A (incident 19 root-cause fix, Phase 5): the write-behind loop
+// refreshes the UNTRACKED STAGING dumps (backups/db-snapshots/.staging/), NOT
+// the git-tracked published files. The tracked latest-*.sql + manifest.json
+// are written exclusively by the validated atomic publisher
+// (scripts/snapshot-publish.ts). The regression-suppression reference is the
+// BEST dump on disk (staged or published, whichever is ahead) — a wipe is
+// still never allowed to overwrite a better dump.
 
 export interface SyncDbOutcome {
   refreshed: boolean;
@@ -553,12 +673,20 @@ export interface SyncReport {
   custom: SyncDbOutcome;
 }
 
+/** Best (freshest) tip among staged + published dumps for one database. */
+function bestDumpTip(staged: DumpTip | null, published: DumpTip | null): DumpTip | null {
+  if (!staged) return published;
+  if (!published) return staged;
+  const key = (t: DumpTip) => (t.height ?? 0) * 1_000_000_000 + t.rows;
+  return key(staged) >= key(published) ? staged : published;
+}
+
 /**
- * Refresh the git-tracked cloud dumps when the live databases have moved
- * past them (bounded write-behind). CRITICAL SAFETY: a dump is NEVER
- * regenerated when the live DB is BEHIND the existing dump — that is the
- * re-image regression signature, and overwriting the good cloud copy with
- * a wiped/genesis-scale dump would destroy the recovery source of record.
+ * Refresh the STAGED write-behind dumps when the live databases have moved
+ * past the best existing dump (bounded write-behind). CRITICAL SAFETY: a dump
+ * is NEVER regenerated when the live DB is BEHIND the existing dump — that is
+ * the re-image regression signature, and overwriting the good copy with a
+ * wiped/genesis-scale dump would destroy the recovery source of record.
  */
 export async function cloudSyncRefresh(opts: { log?: (s: string) => void } = {}): Promise<SyncReport> {
   const log = opts.log ?? (() => {});
@@ -569,47 +697,51 @@ export async function cloudSyncRefresh(opts: { log?: (s: string) => void } = {})
 
   // chain
   const cp = await probeChainHeight(CHAIN_DB);
-  const ct = readDumpTip(CHAIN_DUMP);
+  const stagedCT = readDumpTip(CHAIN_DUMP_STAGING);
+  const publishedCT = readDumpTip(CHAIN_DUMP);
+  const ct = bestDumpTip(stagedCT, publishedCT);
   if (!cp.ok) {
     out.chain.detail = `live ${cp.reason} — dump suppressed (self-heal territory)`;
   } else if (ct && (ct.height ?? 0) > cp.height) {
-    out.chain.detail = `live h${cp.height} BEHIND dump h${ct.height} — refresh suppressed (regression signature)`;
+    out.chain.detail = `live h${cp.height} BEHIND best dump h${ct.height} — refresh suppressed (regression signature)`;
     log(`[cloud-sync] REGRESSION SIGNATURE — ${out.chain.detail}`);
   } else if (!ct || !ct.v2) {
-    const info = await dumpDatabase(CHAIN_DB, CHAIN_DUMP);
+    const info = await dumpDatabase(CHAIN_DB, CHAIN_DUMP_STAGING);
     out.chain.refreshed = true;
-    out.chain.detail = `dump ${!ct ? "missing" : "legacy v1"} → v2 (h${info.height}, ${info.rows} rows)`;
+    out.chain.detail = `staged dump ${!ct ? "missing" : "legacy v1"} → v2 (h${info.height}, ${info.rows} rows)`;
   } else {
     const delta = cp.height - (ct.height ?? 0);
     if (delta >= SYNC_CHAIN_DELTA) {
-      const info = await dumpDatabase(CHAIN_DB, CHAIN_DUMP);
+      const info = await dumpDatabase(CHAIN_DB, CHAIN_DUMP_STAGING);
       out.chain.refreshed = true;
-      out.chain.detail = `+${delta} blocks past dump tip → refreshed (h${info.height}, ${info.rows} rows)`;
+      out.chain.detail = `+${delta} blocks past dump tip → staged refreshed (h${info.height}, ${info.rows} rows)`;
     } else {
-      out.chain.detail = `h${cp.height} vs dump h${ct.height ?? "-"} (Δ${delta} < ${SYNC_CHAIN_DELTA})`;
+      out.chain.detail = `h${cp.height} vs best dump h${ct.height ?? "-"} (Δ${delta} < ${SYNC_CHAIN_DELTA})`;
     }
   }
 
   // custom
   const xp = await probeCustomRows(CUSTOM_DB);
-  const xt = readDumpTip(CUSTOM_DUMP);
+  const stagedXT = readDumpTip(CUSTOM_DUMP_STAGING);
+  const publishedXT = readDumpTip(CUSTOM_DUMP);
+  const xt = bestDumpTip(stagedXT, publishedXT);
   if (!xp.ok) {
     out.custom.detail = `live ${xp.reason} — dump suppressed (self-heal territory)`;
   } else if (xt && customBehindDump(xp.rows, xt.rows)) {
-    out.custom.detail = `live ${xp.rows} rows BEHIND dump ${xt.rows} (material deficit) — refresh suppressed (regression signature)`;
+    out.custom.detail = `live ${xp.rows} rows BEHIND best dump ${xt.rows} (material deficit) — refresh suppressed (regression signature)`;
     log(`[cloud-sync] REGRESSION SIGNATURE — ${out.custom.detail}`);
   } else if (!xt || !xt.v2) {
-    const info = await dumpDatabase(CUSTOM_DB, CUSTOM_DUMP);
+    const info = await dumpDatabase(CUSTOM_DB, CUSTOM_DUMP_STAGING);
     out.custom.refreshed = true;
-    out.custom.detail = `dump ${!xt ? "missing" : "legacy v1"} → v2 (${info.rows} rows)`;
+    out.custom.detail = `staged dump ${!xt ? "missing" : "legacy v1"} → v2 (${info.rows} rows)`;
   } else {
     const delta = xp.rows - xt.rows;
     if (delta >= SYNC_CUSTOM_DELTA) {
-      const info = await dumpDatabase(CUSTOM_DB, CUSTOM_DUMP);
+      const info = await dumpDatabase(CUSTOM_DB, CUSTOM_DUMP_STAGING);
       out.custom.refreshed = true;
-      out.custom.detail = `+${delta} rows past dump → refreshed (${info.rows} rows)`;
+      out.custom.detail = `+${delta} rows past dump → staged refreshed (${info.rows} rows)`;
     } else {
-      out.custom.detail = `${xp.rows} rows vs dump ${xt.rows} (Δ${delta} < ${SYNC_CUSTOM_DELTA})`;
+      out.custom.detail = `${xp.rows} rows vs best dump ${xt.rows} (Δ${delta} < ${SYNC_CUSTOM_DELTA})`;
     }
   }
 

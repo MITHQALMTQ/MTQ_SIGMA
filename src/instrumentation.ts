@@ -137,10 +137,20 @@ export async function register(): Promise<void> {
   // [3] In-process cloud-sync write-behind + source-integrity sweep (Task 47).
   //     Global-this guarded (hot reload re-runs modules; the interval must
   //     not stack), unref'd (never keeps the process alive on shutdown).
+  //     V31 TURN 2A (incident 19 fix): the write-behind now refreshes the
+  //     UNTRACKED STAGING dumps (backups/db-snapshots/.staging/) — the
+  //     git-tracked published files are written only by the validated atomic
+  //     publisher (scripts/snapshot-publish.ts), so the platform turn-end
+  //     auto-commit can no longer sweep a dirty tracked dump into unpushed
+  //     uncontrolled commits (the incident-19 loop). A threshold-gated
+  //     publication (≥ PUBLISH_CHAIN_DELTA blocks) bounds published-snapshot
+  //     staleness even while scheduler fires are rejected — the publisher
+  //     itself classifies the git state first and never publishes from an
+  //     unadjudicated tree.
   const g = globalThis as unknown as { __MTQ_GUARD_TIMER__?: ReturnType<typeof setInterval> };
   if (!g.__MTQ_GUARD_TIMER__) {
     const tick = async (): Promise<void> => {
-      // 3a. write-behind dump refresh — never overwrites a better dump.
+      // 3a. write-behind dump refresh (staging) — never overwrites a better dump.
       try {
         const { cloudSyncRefresh } = await import("@/lib/db-ops");
         const r = await cloudSyncRefresh();
@@ -149,6 +159,20 @@ export async function register(): Promise<void> {
         }
       } catch (e) {
         console.error("[cloud-sync:inproc] tick failed:", e);
+      }
+      // 3a2. threshold-gated snapshot publication (V31 TURN 2A): when the
+      //      staged dump is far enough past the published one, spawn the
+      //      validated publisher ONCE. Fire-and-forget — the tick never
+      //      blocks on git, and the publisher refuses unadjudicated trees.
+      //      The spawn lives in @/lib/boot/inproc-publication (the module
+      //      owns its node builtins) because DIRECT node:-imports here break
+      //      the Edge-runtime compilation of this entry (observed live
+      //      2026-11-09T03:12Z).
+      try {
+        const { maybePublishThreshold } = await import("@/lib/boot/inproc-publication");
+        await maybePublishThreshold();
+      } catch (e) {
+        console.error("[cloud-sync:inproc] publication check failed (non-fatal):", e);
       }
       // 3b. mid-run source-file deletion sweep (re-image while server runs).
       try {

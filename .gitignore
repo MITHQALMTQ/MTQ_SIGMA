@@ -80,6 +80,12 @@ weight-vector.json
 !/backups/db-snapshots/
 /backups/db-snapshots/*
 !/backups/db-snapshots/latest-*.sql
+# V31 TURN 2A (incident 19 fix): the snapshot publication manifest is tracked
+# alongside the payloads — sha256 content hashes, heights, genesis identity,
+# version progression. The .staging/ write-behind directory stays ignored
+# (covered by /backups/db-snapshots/* above): it is transient, untracked by
+# design, and only the validated publisher writes the tracked files.
+!/backups/db-snapshots/manifest.json
 # v27 CRITICAL RECOVERY — PLANE-5 DURABLE TELEMETRY: the heartbeat/monitor-state/
 # alerts files under backups/plane5/ are tracked so the external scheduler's
 # liveness signal and alert record SURVIVE sandbox re-images (which wipe /tmp

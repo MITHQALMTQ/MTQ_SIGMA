@@ -1,0 +1,87 @@
+[36m[HARNESS][0m 
+[36m[HARNESS][0m V31 TURN 2A regression harness — work dir /tmp/mtq-v31-t2a-9UfLtL
+[36m[HARNESS][0m Building template (real tooling + fixture snapshots + manifest v1)…
+[36m[HARNESS][0m Template ready. Running Phase 6 scenarios S1–S20 + Phase 7 P1/P2/R1…
+[32m  PASS[0m S1 classifier: EXACT_MATCH
+[32m  PASS[0m S1 classifier exit 0
+[32m  PASS[0m S1 bootstrap exit 0
+[32m  PASS[0m S1 bootstrap reports EXACT_MATCH
+[32m  PASS[0m S2 classifier: SAFE_SNAPSHOT_AHEAD (1 commit)
+[32m  PASS[0m S2 classifier exit 0 (proceed)
+[32m  PASS[0m S2 bootstrap exit 0
+[32m  PASS[0m S2 bootstrap reports SAFE_SNAPSHOT_AHEAD
+[32m  PASS[0m S3 classifier: SAFE (3 commits)
+[32m  PASS[0m S3 bootstrap exit 0
+[32m  PASS[0m S4 classifier: SOURCE_CODE_AHEAD
+[32m  PASS[0m S4 classifier exit 10 (blocked)
+[32m  PASS[0m S4 bootstrap BLOCKED exit 13
+[32m  PASS[0m S4 bootstrap names the state
+[32m  PASS[0m S5 classifier: SOURCE_CODE_AHEAD (mixed)
+[32m  PASS[0m S5 bootstrap BLOCKED exit 13
+[32m  PASS[0m S6 classifier: BEHIND
+[32m  PASS[0m S6 classifier exit 11 (blocked)
+[32m  PASS[0m S6 bootstrap proceeds ONLY via guard fast-forward (controlled update)
+[32m  PASS[0m S6 guard fast-forwarded
+[32m  PASS[0m S6 bootstrap EXACT_MATCH after FF
+[32m  PASS[0m S7 classifier: DIVERGED
+[32m  PASS[0m S7 classifier exit 12 (blocked)
+[32m  PASS[0m S7 bootstrap blocked (guard exit 1 on unique content)
+[32m  PASS[0m S8 classifier: REMOTE_UNAVAILABLE
+[32m  PASS[0m S8 classifier exit 13 (blocked)
+[32m  PASS[0m S8 bootstrap fetch failure blocks (exit 12)
+[32m  PASS[0m S9 classifier: SNAPSHOT_INVALID
+[32m  PASS[0m S9 classifier exit 14 (blocked)
+[32m  PASS[0m S9 bootstrap BLOCKED exit 13
+[32m  PASS[0m S10 classifier: SNAPSHOT_INVALID (manifest missing)
+[32m  PASS[0m S10 bootstrap BLOCKED exit 13
+[32m  PASS[0m S10 bootstrap names missing manifest
+[32m  PASS[0m S11 classifier: SNAPSHOT_INVALID (no genesis)
+[32m  PASS[0m S11 bootstrap BLOCKED exit 13
+[32m  PASS[0m S12 classifier: SNAPSHOT_INVALID (height regression)
+[32m  PASS[0m S12 bootstrap BLOCKED exit 13
+[32m  PASS[0m S13 classifier: SNAPSHOT_INVALID (partial dump)
+[32m  PASS[0m S13 bootstrap BLOCKED exit 13
+[32m  PASS[0m S14 classifier: AUTHORITY_UNVERIFIED (heal CLI absent)
+[32m  PASS[0m S14 classifier exit 15 (blocked)
+[32m  PASS[0m S14 bootstrap BLOCKED exit 13
+[32m  PASS[0m S15 manifest version progressed to 3
+[32m  PASS[0m S15 classifier: SAFE
+[32m  PASS[0m S15 bootstrap exit 0
+[32m  PASS[0m S16 classifier: SNAPSHOT_INVALID (one bad commit among valid)
+[32m  PASS[0m S16 bootstrap BLOCKED exit 13
+[32m  PASS[0m S17 classifier (fresh fetch): DIVERGED — stale acceptance impossible
+[32m  PASS[0m S17 bootstrap never accepts stale: controlled realign-under-proof or block
+[32m  PASS[0m S17 guard archived + realigned (subsumption-proven, never a blind accept)
+[32m  PASS[0m S17 post-realign state is EXACT_MATCH
+[32m  PASS[0m S18 threshold-less publisher publishes the staged dump
+[32m  PASS[0m S18 classifier after second publication: SAFE (2 ahead)
+[32m  PASS[0m S18 bootstrap exit 0
+[32m  PASS[0m S19 wrapper stands down with OVERLAP_SKIP
+[32m  PASS[0m S19 durable ledger untouched by the stood-down fire
+[32m  PASS[0m S20 classifier: AUTHORITY_UNVERIFIED (reset sentinel)
+[32m  PASS[0m S20 bootstrap BLOCKED exit 13
+[32m  PASS[0m P1 pre-state: EXACT_MATCH (verified clone matching origin)
+[32m  PASS[0m P1 wrapper publication created a local commit
+[32m  PASS[0m P1 bootstrap: SAFE_SNAPSHOT_AHEAD
+[32m  PASS[0m P1 bootstrap exit 0 (original failure ELIMINATED)
+[32m  PASS[0m P1 bootstrap reaches snapshot verification stage
+[32m  PASS[0m P1 bootstrap BOOTSTRAP_OK
+[32m  PASS[0m P1 full backstop: gitState=SAFE_SNAPSHOT_AHEAD
+[32m  PASS[0m P1 full backstop: result=OK
+[32m  PASS[0m P1 full backstop: db=OK (fixture DB integrity)
+[32m  PASS[0m P1 ledger: EXECUTED-OK
+[32m  PASS[0m P1 heartbeat written with result OK (git plane healthy under SAFE-ahead)
+[32m  PASS[0m P1 recovery authorization verified (heal CLI present · sentinel inactive · manifest hash ok)
+[32m  PASS[0m P2 classifier: SOURCE_CODE_AHEAD
+[32m  PASS[0m P2 bootstrap BLOCKED exit 13
+[32m  PASS[0m P2 wrapper relays BLOCKED bootstrap_exit=13
+[32m  PASS[0m P2 ledger: BOOTSTRAP-FAILED with gitState=SOURCE_CODE_AHEAD
+[32m  PASS[0m R1 pre-repair: SNAPSHOT_INVALID
+[32m  PASS[0m R1 post-repair state is a PROCEED state (EXACT_MATCH or SAFE_SNAPSHOT_AHEAD — never SNAPSHOT_INVALID)
+[32m  PASS[0m R1 wrapper completed OK after repair
+[32m  PASS[0m R1 ledger records REPAIR-PUBLICATION
+[36m[HARNESS][0m 
+[36m[HARNESS][0m ══════════════════════════════════════════════════════════
+[36m[HARNESS][0m   PASS=78  FAIL=0
+[36m[HARNESS][0m ══════════════════════════════════════════════════════════
+[36m[HARNESS][0m ALL SCENARIOS PASS — work dir retained for inspection: /tmp/mtq-v31-t2a-9UfLtL

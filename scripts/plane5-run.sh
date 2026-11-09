@@ -16,6 +16,24 @@
 #   bash scripts/plane5-run.sh monitor  [--job-id N] [--scheduler-json '<json>']
 #   bash scripts/plane5-run.sh backstop [--job-id N]
 #
+# V31 TURN 2A (incident 19 root-cause fix):
+#   • The bootstrap's git gate is now the SHARED branch-state classification
+#     (EXACT_MATCH / SAFE_SNAPSHOT_AHEAD proceed; everything else BLOCKS),
+#     replacing the contradictory strict HEAD==origin assertion.
+#   • PLANE5_LOCK_FILE (default /tmp/plane5-backstop.lock) — override for
+#     isolated regression sandboxes.
+#   • The backstop PUBLISHES validated snapshots (scripts/snapshot-publish.ts)
+#     after its DB plane: dump+manifest atomically, committed with exactly the
+#     three snapshot paths, pushed. The 60s write-behind loops no longer dirty
+#     the tracked dumps at all (staging architecture — see db-ops.ts).
+#   • SNAPSHOT_INVALID transition repair: when the ONLY bootstrap failure is a
+#     missing/mismatched publication manifest (e.g. a platform turn-end sweep
+#     advanced a dump without one), the wrapper performs ONE sanctioned repair
+#     publication and retries the bootstrap ONCE. This is snapshot PUBLICATION,
+#     never database recovery — the fail-closed recovery authorization in
+#     db-selfheal.ts is untouched, and structurally-invalid dumps (bad genesis,
+#     height regression, partial payload) are refused by the publisher.
+#
 # JOB IDENTITY (V31 RC-2): scheduler fires derive their job ID from the
 # verified registry topology (monitor = 516198, backstop = 516197; registry
 # checked 2026-11-09). Manual invocations should set PLANE5_JOB_ID=manual or
@@ -87,9 +105,12 @@ done
 cd "$ROOT" || { echo "BOOTSTRAP_FAILED root-missing"; exit 10; }
 
 # backstop holds an exclusive flock for its WHOLE run (bootstrap included) —
-# concurrent self-heal operations are structurally impossible (v30 §3 Phase B)
+# concurrent self-heal operations are structurally impossible (v30 §3 Phase B).
+# PLANE5_LOCK_FILE override exists for the isolated regression harness
+# (tests/plane5-git-state-regression.sh) so sandbox runs never contend with
+# the operational lock.
 if [ "$MODE" = "backstop" ]; then
-  exec 9>/tmp/plane5-backstop.lock
+  exec 9>"${PLANE5_LOCK_FILE:-/tmp/plane5-backstop.lock}"
   if ! flock -n 9; then
     echo "$(date -u +%FT%T.%3NZ) {\"mode\":\"backstop\",\"jobId\":\"$JOB_ID\",\"phase\":\"FINAL\",\"outcome\":\"OVERLAP-SKIP\"}" >> /tmp/plane5-execution-ledger.jsonl
     echo "PLANE_5_BACKSTOP OVERLAP_SKIP — lock held by a concurrent execution; this fire stands down (no concurrent self-heal)"
@@ -154,11 +175,52 @@ PYEOF
 }
 
 # ── (§0) bootstrap from authoritative origin — NEVER raw-git realign ──
-BOOT_OUT="$( { REMOTE="$(git remote get-url origin 2>/dev/null)"; case "$REMOTE" in *MITHQALMTQ/MTQ_SIGMA*) ;; *) echo REMOTE_AUTH_FAIL; exit 9;; esac; git fetch origin >/dev/null 2>&1 || { echo FETCH_FAIL_BLOCKED; exit 9; }; if [ -f scripts/plane5-bootstrap.sh ]; then bash scripts/plane5-bootstrap.sh; else git show origin/main:scripts/plane5-bootstrap.sh > /tmp/plane5-bootstrap.sh && bash /tmp/plane5-bootstrap.sh; fi; } 2>&1 )"
+run_bootstrap() {
+  REMOTE="$(git remote get-url origin 2>/dev/null)"
+  case "$REMOTE" in *MITHQALMTQ/MTQ_SIGMA*) ;; *) echo REMOTE_AUTH_FAIL; return 9;; esac
+  git fetch origin >/dev/null 2>&1 || { echo FETCH_FAIL_BLOCKED; return 9; }
+  if [ -f scripts/plane5-bootstrap.sh ]; then bash scripts/plane5-bootstrap.sh; else git show origin/main:scripts/plane5-bootstrap.sh > /tmp/plane5-bootstrap.sh && bash /tmp/plane5-bootstrap.sh; fi
+}
+BOOT_OUT="$(run_bootstrap 2>&1)"
 BOOT_EXIT=$?
 BOOTSTRAP_STATE="OK"
+REPAIR_STATUS="not-needed"
+GIT_STATE_BOOT="UNKNOWN"
+# V31 TURN 2A — SNAPSHOT_INVALID transition repair: when the ONLY bootstrap
+# failure is an unverifiable publication state (missing/mismatched manifest —
+# e.g. a platform turn-end sweep advanced the tracked dump without one, the
+# incident-19 geometry), perform ONE sanctioned repair publication and retry
+# the bootstrap ONCE. Publication ≠ recovery: the publisher structurally
+# validates the dumps (parse/genesis/completeness/forward-only) and the
+# fail-closed recovery authorization is untouched. All other blocked states
+# (SOURCE_CODE_AHEAD/BEHIND/DIVERGED/REMOTE_UNAVAILABLE/AUTHORITY_UNVERIFIED)
+# have no publication fix and never enter this path.
+if [ "$BOOT_EXIT" -ne 0 ] && [ "$MODE" = "backstop" ]; then
+  GIT_STATE_BOOT="$(python3 -c 'import json
+try:
+    print(json.load(open("/tmp/plane5-git-state.json"))["state"])
+except Exception:
+    print("UNKNOWN")' 2>/dev/null || echo UNKNOWN)"
+  if [ "$BOOT_EXIT" -eq 13 ] && [ "$GIT_STATE_BOOT" = "SNAPSHOT_INVALID" ] && [ -f scripts/snapshot-publish.ts ]; then
+    REPAIR_OUT="$(bun run scripts/snapshot-publish.ts --repair 2>&1 | tail -1)"
+    REPAIR_PUBLISHED="$(printf '%s' "$REPAIR_OUT" | python3 -c 'import json,sys
+try:
+    print(str(json.load(sys.stdin).get("published", "false")).lower())
+except Exception:
+    print("unparseable")' 2>/dev/null || echo unparseable)"
+    REPAIR_STATUS="attempted(published=$REPAIR_PUBLISHED)"
+    ledger REPAIR "REPAIR-PUBLICATION" "repair=$REPAIR_STATUS" "repairTail=$(printf '%s' "$REPAIR_OUT" | tail -c 300)"
+    if [ "$REPAIR_PUBLISHED" = "true" ]; then
+      BOOT_OUT="$(run_bootstrap 2>&1)"
+      BOOT_EXIT=$?
+      REPAIR_STATUS="$REPAIR_STATUS;retryBootstrapExit=$BOOT_EXIT"
+    else
+      REPAIR_STATUS="$REPAIR_STATUS;retry-skipped"
+    fi
+  fi
+fi
 if [ "$BOOT_EXIT" -ne 0 ]; then
-  ledger FINAL "BOOTSTRAP-FAILED" "bootstrapExit=$BOOT_EXIT" "bootstrapTail=$(echo "$BOOT_OUT" | tail -2 | tr '\n' ' ')"
+  ledger FINAL "BOOTSTRAP-FAILED" "bootstrapExit=$BOOT_EXIT" "bootstrapTail=$(echo "$BOOT_OUT" | tail -2 | tr '\n' ' ')" "gitState=$GIT_STATE_BOOT" "repair=$REPAIR_STATUS"
   # V31 RC-3 (2026-11-09): a monitor fire whose bootstrap failed ONLY at the
   # sync/prerequisite stages (13 = HEAD provably ahead after the guard passed;
   # 14/15 = synced tree, prerequisite/snapshot issue) still holds the freshest
@@ -297,8 +359,9 @@ fi
 # ════════════════════════════════════════════════════════════════════
 # BACKSTOP — six planes, sanctioned remediation (v3.2 contract)
 # ════════════════════════════════════════════════════════════════════
-exec 9>/tmp/plane5-backstop.lock
-if ! flock -n 9; then :; fi # lock already acquired above (kept for clarity)
+# NOTE: the exclusive flock was acquired ONCE at the top of the script (fd 9,
+# env-overridable via PLANE5_LOCK_FILE). No second exec/open here — re-opening
+# fd 9 would momentarily release the lock we already hold.
 ledger STARTED "EXECUTING" "note=backstop lock acquired"
 
 # ── plane 1: git drift (harness-proven guard; never raw git) ─────────
@@ -343,7 +406,15 @@ def tip(src):
         return int(m.group(1)) if m else -1
     except Exception:
         return -1
-disk_tip = tip(open("backups/db-snapshots/latest-chain.sql", errors="replace").read(4096))
+# V31 TURN 2A: diskTip = the STAGED write-behind dump (freshest on-disk state)
+# when present, else the published tracked file. publishedTip = the dump at
+# HEAD (may be ahead of origin's in a SAFE_SNAPSHOT_AHEAD state); committedTip
+# stays ORIGIN's — the honest cloud-layer lag metric (unbackedAhead).
+import os
+disk_src = "backups/db-snapshots/.staging/latest-chain.sql" if os.path.exists("backups/db-snapshots/.staging/latest-chain.sql") else "backups/db-snapshots/latest-chain.sql"
+disk_tip = tip(open(disk_src, errors="replace").read(4096))
+published = subprocess.run(["git", "show", "HEAD:backups/db-snapshots/latest-chain.sql"], capture_output=True, timeout=60).stdout.decode(errors="replace")
+published_tip = tip(published)
 committed = subprocess.run(["git", "show", "origin/main:backups/db-snapshots/latest-chain.sql"], capture_output=True, timeout=60).stdout.decode(errors="replace")
 committed_tip = tip(committed)
 unbacked = max(0, (h or 0) - committed_tip)
@@ -355,7 +426,7 @@ parse_ok = disk_tip >= 0 and committed_tip >= 0
 floors_ok = integrity == "ok" and cintegrity == "ok" and (h or 0) >= 500 and crows >= 4000 and meta.get("boot_mode") != "re-seeded"
 db = "OK" if (floors_ok and parse_ok and deficit <= 60 and unbacked <= 2000) else ("ALERT" if (not floors_ok or not parse_ok or deficit > 10000) else "RECOVERY_REQUIRED")
 print(json.dumps({"liveTip": h, "nBlocks": n, "customRows": crows, "integrity": integrity, "customIntegrity": cintegrity,
-                  "bootMode": meta.get("boot_mode"), "diskTip": disk_tip, "committedTip": committed_tip, "snapshotParseOk": parse_ok,
+                  "bootMode": meta.get("boot_mode"), "diskTip": disk_tip, "diskSource": disk_src, "publishedTip": published_tip, "committedTip": committed_tip, "snapshotParseOk": parse_ok,
                   "unbackedAhead": unbacked, "recoveryDeficit": deficit, "db": db}))
 PYEOF
 )"
@@ -366,6 +437,28 @@ UNBACKED="$(echo "$DB_READOUT" | python3 -c 'import json,sys; print(json.load(sy
 DEFICIT="$(echo "$DB_READOUT" | python3 -c 'import json,sys; print(json.load(sys.stdin)["recoveryDeficit"])')"
 COMMITTED_TIP="$(echo "$DB_READOUT" | python3 -c 'import json,sys; print(json.load(sys.stdin)["committedTip"])')"
 DISK_TIP="$(echo "$DB_READOUT" | python3 -c 'import json,sys; print(json.load(sys.stdin)["diskTip"])')"
+PUBLISHED_TIP="$(echo "$DB_READOUT" | python3 -c 'import json,sys; print(json.load(sys.stdin)["publishedTip"])')"
+
+# ── plane 2b: validated snapshot publication (V31 TURN 2A) ────────────
+# The recovery source of record is published by the VALIDATED atomic path:
+# staging → structural validation → manifest (sha256/genesis/height/version)
+# → tracked files → commit (exactly the three snapshot paths) → push. This is
+# the replacement for the v30 “backstop commit rule includes
+# backups/db-snapshots” mitigation: the write-behind no longer dirties the
+# tracked files at all, so the platform turn-end sweep has nothing to sweep.
+PUBLISH_OUT="$(bun run scripts/snapshot-publish.ts 2>/dev/null | tail -1)"
+PUBLISHED_NOW="$(printf '%s' "$PUBLISH_OUT" | python3 -c 'import json,sys
+try:
+    d = json.load(sys.stdin)
+    print("yes" if d.get("published") else "no")
+except Exception:
+    print("no")' 2>/dev/null || echo no)"
+PUBLISH_COMMIT="$(printf '%s' "$PUBLISH_OUT" | python3 -c 'import json,sys
+try:
+    d = json.load(sys.stdin)
+    print(d.get("commit") or "none")
+except Exception:
+    print("none")' 2>/dev/null || echo none)"
 
 # ── plane 3: dev server + watchdog (sanctioned remediation) ──────────
 SERVER="$(curl -s -o /dev/null -w '%{http_code}' -m 5 http://localhost:3000/ 2>/dev/null || echo 000)"
@@ -445,14 +538,19 @@ if [ "$REMEDIATED" = "yes" ] || [ "$ROUTE_STATE" = "WORKTREE-ONLY(temporary)" ] 
   } >> worklog.md 2>/dev/null || true
 fi
 
-# commit rules (git synced here by construction — BLOCKED exited earlier)
+# commit rules (V31 TURN 2A: snapshots are owned by the validated publisher —
+# plane 2b above — so these rules now cover ONLY the plane-5 evidence files and
+# the worklog; backups/db-snapshots is deliberately absent from every git add,
+# and a dirty snapshot file routes to the honest held-dirty branch so the next
+# publisher/repair pass owns it. git synced-or-safe here by construction —
+# BLOCKED exited earlier.)
 COMMIT_SHA="none"
 DIRTY="$(git status --porcelain | wc -l)"
 if [ "$HB_RESULT" = "OK" ] || python3 -c '
 import subprocess, sys
 out = subprocess.run(["git","status","--porcelain"], capture_output=True, text=True).stdout
-sys.exit(0 if all(l.split()[-1].startswith(("backups/plane5/","worklog.md","backups/db-snapshots/")) for l in out.splitlines() if l.strip()) else 1)'; then
-  if git add backups/plane5 worklog.md backups/db-snapshots 2>/dev/null; then
+sys.exit(0 if all(l.split()[-1].startswith(("backups/plane5/","worklog.md")) for l in out.splitlines() if l.strip()) else 1)'; then
+  if git add backups/plane5 worklog.md 2>/dev/null; then
     if git commit -m "plane5-heartbeat: $HB_TSISO $HB_RESULT" >/dev/null 2>&1; then
       if git push origin main >/dev/null 2>&1; then
         COMMIT_SHA="$(git rev-parse --short HEAD)"
@@ -460,7 +558,7 @@ sys.exit(0 if all(l.split()[-1].startswith(("backups/plane5/","worklog.md","back
         # push rejected: guard ONCE (realigns; plane5 files derivable), rewrite, retry once
         bun run scripts/git-drift-guard.ts >/dev/null 2>&1
         bun run scripts/plane5-backstop-heartbeat.ts >/dev/null 2>&1
-        git add backups/plane5 worklog.md backups/db-snapshots 2>/dev/null
+        git add backups/plane5 worklog.md 2>/dev/null
         git commit -m "plane5-heartbeat: $(date -u +%FT%T.%3NZ) $HB_RESULT (post-realign retry)" >/dev/null 2>&1 \
           && git push origin main >/dev/null 2>&1 && COMMIT_SHA="$(git rev-parse --short HEAD)" || { git checkout -- backups/plane5/ 2>/dev/null; COMMIT_SHA="push-failed-restored"; }
       fi
@@ -471,14 +569,25 @@ sys.exit(0 if all(l.split()[-1].startswith(("backups/plane5/","worklog.md","back
 else
   # non-OK with non-plane5 tree changes: durable heartbeat already written by the
   # writer when git=OK — commit ONLY plane5 files is impossible; report honestly.
-  git add backups/plane5 backups/db-snapshots 2>/dev/null && git commit -m "plane5-heartbeat: $HB_TSISO $HB_RESULT" >/dev/null 2>&1 \
+  # (A dirty backups/db-snapshots file lands here too: the publisher owns it.)
+  git add backups/plane5 2>/dev/null && git commit -m "plane5-heartbeat: $HB_TSISO $HB_RESULT" >/dev/null 2>&1 \
     && git push origin main >/dev/null 2>&1 && COMMIT_SHA="$(git rev-parse --short HEAD)" || { git checkout -- backups/plane5/ 2>/dev/null; COMMIT_SHA="held-nonplane5-dirty"; }
 fi
 
-ledger FINAL "EXECUTED-$HB_RESULT" "git=$GIT_PLANE" "db=$DB_PLANE" "server=$SERVER_PLANE" "route=$ROUTE" \
+# git-state attribution (V31 TURN 2A): the classification the bootstrap used,
+# read back from the report it persisted (never re-derived — the ledger must
+# attribute the SAME state that gated this execution).
+GIT_STATE_FINAL="$(python3 -c 'import json
+try:
+    print(json.load(open("/tmp/plane5-git-state.json"))["state"])
+except Exception:
+    print("UNKNOWN")' 2>/dev/null || echo UNKNOWN)"
+
+ledger FINAL "EXECUTED-$HB_RESULT" "git=$GIT_PLANE" "gitState=$GIT_STATE_FINAL" "db=$DB_PLANE" "server=$SERVER_PLANE" "route=$ROUTE" \
   "result=$HB_RESULT" "heartbeatTsIso=$HB_TSISO" "chainTip=$LIVE_TIP" "customRows=$CROWS" \
-  "unbackedAhead=$UNBACKED" "recoveryDeficit=$DEFICIT" "diskTip=$DISK_TIP" "committedTip=$COMMITTED_TIP" \
+  "unbackedAhead=$UNBACKED" "recoveryDeficit=$DEFICIT" "diskTip=$DISK_TIP" "publishedTip=$PUBLISHED_TIP" "committedTip=$COMMITTED_TIP" \
+  "snapshotPublished=$PUBLISHED_NOW" "publishCommit=$PUBLISH_COMMIT" "repair=$REPAIR_STATUS" \
   "remediated=$REMEDIATED" "routeState=$ROUTE_STATE" "commit=$COMMIT_SHA" "originSha=$ORIGIN_SHA"
 
-echo "PLANE_5_BACKSTOP git=$GIT_PLANE db=$DB_PLANE server=$SERVER_PLANE route=$ROUTE tip=h$LIVE_TIP rows=$CROWS unbacked=$UNBACKED deficit=$DEFICIT heartbeat=$HB_TSISO result=$HB_RESULT origin=$ORIGIN_SHA commit=$COMMIT_SHA job=$JOB_ID"
+echo "PLANE_5_BACKSTOP git=$GIT_PLANE gitState=$GIT_STATE_FINAL db=$DB_PLANE server=$SERVER_PLANE route=$ROUTE tip=h$LIVE_TIP rows=$CROWS unbacked=$UNBACKED deficit=$DEFICIT published=h$PUBLISHED_TIP snapshotPublished=$PUBLISHED_NOW heartbeat=$HB_TSISO result=$HB_RESULT origin=$ORIGIN_SHA commit=$COMMIT_SHA job=$JOB_ID"
 exit 0
