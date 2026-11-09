@@ -10540,3 +10540,11 @@ Release classification unchanged: **TESTNET ONLY · SHADOW MODE · NOT ACCEPTED*
 - incident 18 documented: db-selfheal.ts CLI token corruption dead-since-birth (worktree repaired by concurrent session; parse gate recorded: bun build --target=node)
 - incident 19 documented: wrapper commit-without-push loop (3 occurrences today; backstop commit-rule extension is the durable mitigation)
 - verification: bun build --target=node PASS on all touched scripts; bash -n PASS; bun run typecheck exit 0; secret-scan PASS on push
+
+## 2026-11-09T02:06Z — V31 Phase 2/3/4 cloud-layer audit (interactive session)
+- resumed on baseline: unpushed wrapper commit 73143da (dump h19319) pushed per guard directive → HEAD==origin==73143da; incident-19 mitigation confirmed working (bootstrap exit 0 over uncommitted dump, no manual realign)
+- monitor fire 01:55:45Z REJECTED (model concurrency limit exceeded — this session holds the slot; stage=failed run_count=3); rejected-dispatch observability exercised instead of silence
+- manual monitor smoke 02:03:58Z on the RC-fixed script: PLANE_5_OK age=2689s job=516198 bootstrap=OK — RC-2 topology attribution regression evidence CAPTURED (ledger jobId=516198, schedulerObserved embeds the rejection)
+- CLOUD LAYER PROBED (read-only; scripts/cloud-db-probe.ts committed): Vercel HTTP 402 Payment required / DEPLOYMENT_DISABLED (latest deploy 9fc7ccd 2026-10-28 — pushes undeployed); Turso 401 on the operator-provided token AND on the byte-identical production Vercel token (env decrypted via API) → primary cloud DB unavailable to the production app itself; Neon ALIVE schema OK but mirror frozen 2026-10-29T02:01Z (dsv 15,962 / os 34,958 / rd 56,513 rows; mtq_sync_state cursors); Inngest event key LIVE (200 no-op event)
+- Incident 21 registered (root cause: Vercel billing + Turso auth; audit-history cause: no plane ever probed the cloud layer); permanent in-repo correction: repeatable cloud probe + evidence file; operator actions documented (credits, token mint, sync self-heals via durable cursor)
+- NO write to any cloud database; live app NOT switched off local SQLite (shadow mode, acceptance pending)
