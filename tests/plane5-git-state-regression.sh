@@ -133,6 +133,19 @@ build_template() {
   cp "$REPO_SRC/scripts/git-drift-guard.ts"             "$TEMPLATE/scripts/"
   cp "$REPO_SRC/scripts/git-state-classify.ts"          "$TEMPLATE/scripts/"
   cp "$REPO_SRC/scripts/snapshot-publish.ts"            "$TEMPLATE/scripts/"
+  # V31 TURN 3 (R-4 §6): the 14-state DB-plane verifier + its library
+  # dependencies (db-plane-state classifier, db-probe outcomes, the
+  # generation-store pointer/journal readers) + the runtime preflight
+  # (bootstrap §3.11 — the template carries package.json + a node_modules
+  # symlink so the preflight and the @libsql imports resolve exactly as in
+  # production).
+  cp "$REPO_SRC/scripts/plane5-db-verify.ts"            "$TEMPLATE/scripts/"
+  cp "$REPO_SRC/scripts/runtime-preflight.ts"          "$TEMPLATE/scripts/"
+  cp "$REPO_SRC/src/lib/boot/db-plane-state.ts"         "$TEMPLATE/src/lib/boot/"
+  cp "$REPO_SRC/src/lib/boot/db-probe.ts"               "$TEMPLATE/src/lib/boot/"
+  cp "$REPO_SRC/src/lib/boot/generation-store.ts"      "$TEMPLATE/src/lib/boot/"
+  cp "$REPO_SRC/package.json"                          "$TEMPLATE/package.json"
+  ln -sfn "$REPO_SRC/node_modules"                      "$TEMPLATE/node_modules"
   cp "$REPO_SRC/scripts/plane5-backstop-heartbeat.ts"   "$TEMPLATE/scripts/"
   cp "$REPO_SRC/src/lib/boot/git-drift.ts"              "$TEMPLATE/src/lib/boot/"
   cp "$REPO_SRC/src/lib/boot/git-state.ts"              "$TEMPLATE/src/lib/boot/"
@@ -158,6 +171,7 @@ build_template() {
                 "$TEMPLATE/backups/db-snapshots/manifest.json" 1
   cat > "$TEMPLATE/.gitignore" <<'EOF'
 /backups/db-snapshots/.staging/
+node_modules
 EOF
   # Fixture live databases (the wrapper's plane 2 + the heartbeat writer read these).
   python3 - "$TEMPLATE" <<'PYEOF'
@@ -489,7 +503,7 @@ W_P1="$(cd "$P1" && MTQ_SIGMA_ROOT="$P1" PLANE5_LOCK_FILE="$WORK/lock-p1" PATH="
         bash scripts/plane5-run.sh backstop --job-id manual 2>&1 | tail -1)"
 check_contains "P1" "P1 full backstop: gitState=SAFE_SNAPSHOT_AHEAD" "gitState=SAFE_SNAPSHOT_AHEAD" "$W_P1"
 check_contains "P1" "P1 full backstop: result=OK" "result=OK" "$W_P1"
-check_contains "P1" "P1 full backstop: db=OK (fixture DB integrity)" " db=OK " "$W_P1"
+check_contains "P1" "P1 full backstop: db plane HEALTHY (14-state taxonomy; fixture DB integrity)" " db=HEALTHY " "$W_P1"
 L_P1="$(tail -1 "$P1/backups/plane5/execution-ledger.jsonl" | python3 -c 'import json,sys; print(json.load(sys.stdin).get("outcome"))')"
 check "P1" "P1 ledger: EXECUTED-OK" "EXECUTED-OK" "$L_P1"
 HB_P1="$(python3 -c 'import json; print(json.load(open("'"$P1"'/backups/plane5/heartbeat.json")).get("result"))' 2>/dev/null || echo missing)"

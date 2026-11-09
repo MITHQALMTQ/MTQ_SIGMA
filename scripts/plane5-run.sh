@@ -110,10 +110,27 @@ cd "$ROOT" || { echo "BOOTSTRAP_FAILED root-missing"; exit 10; }
 # (tests/plane5-git-state-regression.sh) so sandbox runs never contend with
 # the operational lock.
 if [ "$MODE" = "backstop" ]; then
-  exec 9>"${PLANE5_LOCK_FILE:-/tmp/plane5-backstop.lock}"
-  if ! flock -n 9; then
+  PLANE5_LOCK="${PLANE5_LOCK_FILE:-/tmp/plane5-backstop.lock}"
+  exec 9>"$PLANE5_LOCK"
+  if flock -n 9; then
+    # V31 TURN 3 (R-5 §7): the holder records its OWN identity (pid, cmdline,
+    # acquisition time) in the lock's companion file — future OVERLAP_SKIPs
+    # can name WHO held the lock and SINCE WHEN. The 2026-11-09 13:17Z/14:17Z
+    # skips left an unidentified holder because no holder evidence existed;
+    # post-mortem identification (lsof scans) is unreliable — the
+    # investigating process itself inherits fd 9 on the lock file and
+    # self-lists. The lock itself is NEVER removed because it appears old —
+    # only the holder's own process exit releases it.
+    printf '%s pid=%s cmd=%s\n' "$(date -u +%FT%T.%3NZ)" "$$" \
+      "$(tr '\0' ' ' < /proc/$$/cmdline 2>/dev/null | head -c 140)" \
+      > "$PLANE5_LOCK.holder" 2>/dev/null || true
+  else
+    HOLDER_INFO=""
+    if [ -f "$PLANE5_LOCK.holder" ]; then
+      HOLDER_INFO=" lastHolder=$(head -c 240 "$PLANE5_LOCK.holder" 2>/dev/null | tr '\n' ' ')"
+    fi
     echo "$(date -u +%FT%T.%3NZ) {\"mode\":\"backstop\",\"jobId\":\"$JOB_ID\",\"phase\":\"FINAL\",\"outcome\":\"OVERLAP-SKIP\"}" >> /tmp/plane5-execution-ledger.jsonl
-    echo "PLANE_5_BACKSTOP OVERLAP_SKIP state=LOCK_CONTENTION — lock held by a concurrent execution; this fire stands down (no concurrent self-heal)"
+    echo "PLANE_5_BACKSTOP OVERLAP_SKIP state=LOCK_CONTENTION — lock held by a concurrent execution; this fire stands down (no concurrent self-heal)${HOLDER_INFO}"
     exit 43
   fi
 fi
