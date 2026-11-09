@@ -8,3 +8,4 @@
 {"ts":"2026-11-09T20:24:04.493Z","generationId":"gen-20261109T201850258Z-h21663-ui23","phase":"VALIDATED","detail":"h21663 · 18077 custom rows · all §4.2 checks passed"}
 {"ts":"2026-11-09T20:24:04.493Z","generationId":"gen-20261109T201850258Z-h21663-ui23","phase":"ACTIVATING","detail":"prior pointer: gen-20261109T151814356Z-h0-q573"}
 {"ts":"2026-11-09T20:24:04.513Z","generationId":"gen-20261109T201850258Z-h21663-ui23","phase":"ACTIVATED","detail":"pointer committed · h21663 · 18077 custom rows · casualty archive kept"}
+{"ts":"2026-11-09T22:51:25.653Z","generationId":"(decision)","phase":"DECISION_REFUSED","detail":"RUNTIME_SOURCE_UNVERIFIED: fail-closed"}
