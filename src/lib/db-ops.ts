@@ -91,6 +91,27 @@ export function canonicalRoot(): string {
 
 const ROOT = canonicalRoot();
 
+// V31 Phase 5 (incidents 5/6): fail-closed boot assertion. The canonical
+// databases must NEVER resolve inside build output — a root under .next/
+// means cwd-based resolution regressed (Turbopack standalone geometry) and
+// every write would land in a bundled copy that dies with the next build,
+// silently splitting the database layer. Refuse to boot instead.
+// canonicalRoot() already unwinds .next/standalone, so this assertion firing
+// means a NEW resolution defect — the loud failure is the point.
+assertRootOutsideBuildOutput(ROOT);
+
+export function assertRootOutsideBuildOutput(root: string): void {
+  if (
+    root.split(sep).includes(".next") ||
+    root === ".next" ||
+    root.endsWith(sep + ".next")
+  ) {
+    throw new Error(
+      `[db-ops] FAIL-CLOSED BOOT (V31 Phase 5, incidents 5/6): canonical DB root ${root} resolves inside build output (.next/) — refusing to operate on a bundled database copy. Fix path resolution or set MTQ_SIGMA_ROOT to the real repository root.`
+    );
+  }
+}
+
 export const DB_DIR = join(ROOT, "db");
 export const CHAIN_DB = join(DB_DIR, "chain.db");
 export const CUSTOM_DB = join(DB_DIR, "custom.db");
