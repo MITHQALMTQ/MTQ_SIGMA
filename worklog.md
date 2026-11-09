@@ -10583,3 +10583,8 @@ Release classification unchanged: **TESTNET ONLY · SHADOW MODE · NOT ACCEPTED*
 - remediation: server/watchdog relaunch=yes · route=present · rebootstrap=no
 - planes: git=OK db=ALERT server=000000 route=000000 · tip=h3945 rows=12395 unbacked=0 deficit=16388
 - heartbeat: 2026-11-09T10:20:19.417Z result=ALERT (dual write: /tmp + durable-when-synced)
+
+## 2026-11-09T12:19:34Z — plane5 backstop (job 516197, deterministic runner)
+- remediation: server/watchdog relaunch=yes · route=present · rebootstrap=no
+- planes: git=OK db=ALERT server=000000 route=000000 · tip=h3969 rows=12395 unbacked=0 deficit=16364
+- heartbeat: 2026-11-09T12:19:34.500Z result=ALERT (dual write: /tmp + durable-when-synced)
