@@ -1,7 +1,7 @@
 {
-  "version": 4,
+  "version": 5,
   "format": 1,
-  "generatedAt": "2026-11-09T14:23:11.048Z",
+  "generatedAt": "2026-11-09T16:17:57.944Z",
   "source": {
     "repo": "MITHQALMTQ/MTQ_SIGMA",
     "environment": "testnet-shadow"
@@ -9,12 +9,12 @@
   "chain": {
     "path": "backups/db-snapshots/latest-chain.sql",
     "sourceDb": "db/chain.db",
-    "sha256": "d28e0160a085bc480e5ab9f7b0dfaae014d77f5a690937037685ea6d041c8417",
-    "bytes": 39750449,
-    "rows": 43670,
+    "sha256": "85bf95357053b946bcfeaea71d29ec656e3d9d3bec41e76cf2945b21c7ba3c0e",
+    "bytes": 39864188,
+    "rows": 43794,
     "tables": 12,
     "dumpFormat": 2,
-    "height": 21601,
+    "height": 21663,
     "genesis": "gen_3baf0dba552b527da4e9f6cedae44d04d0a40f7d"
   },
   "custom": {
