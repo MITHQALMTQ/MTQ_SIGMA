@@ -10531,3 +10531,12 @@ Release classification unchanged: **TESTNET ONLY · SHADOW MODE · NOT ACCEPTED*
 - RC-5: ledger append-only rotation (>1000 lines -> tracked archive, last 200 kept; probe-verified 1005->200+805, no loss)
 - RC-6: snapshot parse failure (tip<0) degrades db plane to ALERT, never OK (7-case probe all PASS); unbackedAhead>2000 -> RECOVERY_REQUIRED
 - regression evidence: bash -n OK, bun build writer OK, RC-5/RC-6 probes PASS, manual monitor smoke run PLANE_5_OK age=442s job=manual bootstrap=OK; scheduler-fire confirmation pending (01:55:45Z monitor, 02:17:48Z backstop)
+
+## 2026-11-09T01:45Z — V31 RC-7/8/9 root-cause batch (interactive session, coordinated with concurrent RC-1..RC-6 session)
+- backstop 01:17:48Z fire: all six planes OK, tip=h19072, commit 11871b7 (first fire on the extended commit rule)
+- RC-7 (incident 17): 6 files de-hardcoded to canonical paths (consensus, audit-trail, check-audit-trail, add-gemini-catalog, backup-sqlite, heartbeat-writer cwd+db+durable-write); repo grep `file:/home/z/my-project/db` now returns nothing
+- RC-8 (incident 3 / Phase 6.B): instrumentation fail-closed on UNVERIFIED origin + mid-run stand-down lift via 60s tick; BLOCKED never auto-lifted
+- RC-9 (incident 20 / Phase 8): monitor overdue classification via heartbeat nextDueMs + 15min grace; MISSING carries explicit PLANE_5_ALERT; unit probe 4/4 PASS
+- incident 18 documented: db-selfheal.ts CLI token corruption dead-since-birth (worktree repaired by concurrent session; parse gate recorded: bun build --target=node)
+- incident 19 documented: wrapper commit-without-push loop (3 occurrences today; backstop commit-rule extension is the durable mitigation)
+- verification: bun build --target=node PASS on all touched scripts; bash -n PASS; bun run typecheck exit 0; secret-scan PASS on push

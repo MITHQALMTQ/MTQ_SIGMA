@@ -30,7 +30,7 @@ import { createHash } from "node:crypto";
 import { mkdirSync, writeFileSync } from "node:fs";
 import { join } from "node:path";
 
-const DB_URL = process.env.DATABASE_URL || "file:/home/z/my-project/db/custom.db";
+const DB_URL = process.env.DATABASE_URL || `file:${join(import.meta.dir, "..", "db", "custom.db")}`;
 const OUT_DIR = join(import.meta.dir, "..", "backups");
 
 const db = new PrismaClient({

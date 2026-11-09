@@ -194,7 +194,8 @@ if [ "$MODE" = "monitor" ]; then
 import json, sys, datetime
 path, src = sys.argv[1], sys.argv[2]
 if src == "missing" or not path:
-    print(json.dumps({"hb": "MISSING", "tsMs": 0, "tsIso": "MISSING", "result": "MISSING"})); raise SystemExit
+    print(json.dumps({"hb": "MISSING", "tsMs": 0, "tsIso": "MISSING", "result": "MISSING",
+                      "ageS": -1, "classification": "PLANE_5_ALERT", "clockConsistent": False, "originSha": "?"})); raise SystemExit
 hb = json.load(open(path))
 n = datetime.datetime.now(datetime.timezone.utc); now_ms = int(n.timestamp()*1000)
 try:
@@ -203,7 +204,12 @@ except Exception:
     parsed = -1
 consistent = parsed == hb["tsMs"]
 age = (now_ms - hb["tsMs"]) // 1000 if consistent else 999999999
-cls = ("PLANE_5_ALERT" if age >= 9000 else
+# V31 RC-9 (incident 14 extension / Phase 8): a heartbeat OLDER than its own
+# nextDueMs (plus a 15-minute grace) means the scheduled backstop that should
+# have refreshed it was missed or REJECTED — alert even while age < 9000s so a
+# rejected dispatch can never hide behind a still-young heartbeat.
+overdue = (hb.get("nextDueMs") or 0) > 0 and now_ms > hb["nextDueMs"] + 900000
+cls = ("PLANE_5_ALERT" if age >= 9000 or overdue else
        "PLANE_5_OK" if hb.get("result") == "OK" else
        "PLANE_5_" + str(hb.get("result", "ALERT")).upper())
 print(json.dumps({"hb": "present", "tsMs": hb["tsMs"], "tsIso": hb["tsIso"], "result": hb.get("result","?"),

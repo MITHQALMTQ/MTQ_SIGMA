@@ -15,10 +15,11 @@
 // "db:verify": "bun run scripts/check-audit-trail.ts").
 
 import { PrismaClient } from "@prisma/client";
+import { join } from "node:path";
 import { verifyAuditChain } from "../src/lib/mtq/audit-trail";
 
 const db = new PrismaClient({
-  datasources: { db: { url: process.env.DATABASE_URL || "file:/home/z/my-project/db/custom.db" } },
+  datasources: { db: { url: process.env.DATABASE_URL || `file:${join(import.meta.dir, "..", "db", "custom.db")}` } },
 });
 
 const iso = (ms: unknown) => new Date(Number(ms)).toISOString();

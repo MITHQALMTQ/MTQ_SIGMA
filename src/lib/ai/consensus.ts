@@ -51,9 +51,11 @@
 // ============================================================================
 
 import { createHash } from "node:crypto";
+import { join } from "node:path";
 import { createClient } from "@libsql/client";
 import { db } from "@/lib/db";
 import { hasKey, type AIProvider } from "./keys";
+import { canonicalRoot } from "../db-ops";
 
 // ---------------------------------------------------------------------------
 // The validated consensus roster
@@ -835,7 +837,7 @@ let tablesEnsured: Promise<void> | null = null;
 export function ensureConsensusTables(): Promise<void> {
   if (!tablesEnsured) {
     tablesEnsured = (async () => {
-      const url = process.env.DATABASE_URL ?? "file:/home/z/my-project/db/custom.db";
+      const url = process.env.DATABASE_URL ?? `file:${join(canonicalRoot(), "db", "custom.db")}`;
       const c = createClient({ url: url.startsWith("file:") ? url : `file:${url}` });
       try {
         await c.executeMultiple(DDL.join("\n"));

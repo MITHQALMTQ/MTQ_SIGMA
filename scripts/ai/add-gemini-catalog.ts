@@ -13,13 +13,14 @@
 // honest live-probe outcome: GEO_BLOCKED_400 (not WORKING — generation was
 // never observed from here; it serves from supported regions e.g. Vercel US).
 import { createClient } from "@libsql/client";
+import { join } from "node:path";
 
 const ROWS = [
   { id: "gemini::gemini-3.8-flash", model: "gemini-3.8-flash", role: "anchor" },
   { id: "gemini::gemini-3.5-flash", model: "gemini-3.5-flash", role: "verifier" },
 ];
 
-const c = createClient({ url: "file:/home/z/my-project/db/custom.db" });
+const c = createClient({ url: `file:${join(import.meta.dir, "..", "..", "db", "custom.db")}` });
 const now = new Date().toISOString();
 for (const r of ROWS) {
   await c.execute({

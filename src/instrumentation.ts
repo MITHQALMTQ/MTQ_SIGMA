@@ -49,6 +49,7 @@ export async function register(): Promise<void> {
   //     strict gate remains the EXTERNAL bootstrap (scripts/plane5-bootstrap.
   //     sh exit 9/12 semantics) + the watchdog v4 boot chain.
   let driftBlocked = false;
+  let driftUnverified = false;
   try {
     const { guardGitDrift } = await import("@/lib/boot/git-drift");
     const r = guardGitDrift({ runtimeRefresh: false });
@@ -65,7 +66,13 @@ export async function register(): Promise<void> {
       );
     }
   } catch (e) {
-    console.error("[git-drift:boot] guard FAILED (unverified — proceeding best-effort):", e);
+    // V31 RC-8 (Phase 6.B fail-closed): a guard FAILURE leaves origin UNVERIFIED.
+    // A temporary network failure must never silently authorize recovery from a
+    // stale local dump — the chain node (and its self-heal) stands down, the web
+    // app serves degraded, and the 60s tick below lifts the stand-down once the
+    // guard verifies origin mid-run.
+    driftUnverified = true;
+    console.error("[git-drift:boot] guard FAILED (origin UNVERIFIED) — DB self-heal STANDS DOWN fail-closed; retry via the 60s tick:", e);
   }
 
   // [1] Source-file integrity — before anything compiles or boots.
@@ -86,9 +93,14 @@ export async function register(): Promise<void> {
   // [2] Chain devnet node (includes the DB self-heal — task42). Gated on
   //     the [0] drift verdict: BLOCKED means never self-heal over
   //     unadjudicated unique content.
-  if (driftBlocked) {
-    const g = globalThis as unknown as { __MTQ_CHAIN_ERROR__?: string };
-    g.__MTQ_CHAIN_ERROR__ = "git-drift guard BLOCKED at boot — DB self-heal stood down pending operator adjudication";
+  if (driftBlocked || driftUnverified) {
+    const g = globalThis as unknown as { __MTQ_CHAIN_ERROR__?: string; __MTQ_CHAIN_STANDDOWN_UNVERIFIED__?: boolean };
+    if (driftBlocked) {
+      g.__MTQ_CHAIN_ERROR__ = "git-drift guard BLOCKED at boot — DB self-heal stood down pending operator adjudication";
+    } else {
+      g.__MTQ_CHAIN_ERROR__ = "git-drift guard UNVERIFIED at boot — DB self-heal stood down fail-closed (a temporary verification failure must not authorize recovery from a stale local dump)";
+      g.__MTQ_CHAIN_STANDDOWN_UNVERIFIED__ = true;
+    }
   } else {
     try {
       const { ensureChainNode } = await import("@/lib/chain/node");
@@ -162,6 +174,25 @@ export async function register(): Promise<void> {
             `[git-drift:inproc] ${r.action} → origin/main ${r.status.origin.slice(0, 12)} — dev hot-reload is picking up the realigned sources; ` +
               `a clean server restart is advised (watchdog will do it on its next loop).`,
           );
+        }
+        // V31 RC-8 recovery path: lift an UNVERIFIED boot stand-down once the
+        // guard has verified origin mid-run (any non-blocked action here means
+        // origin/main was fetched and classified — the dumps the heal will
+        // consume are now verified-newest). BLOCKED stands-down are NEVER
+        // lifted automatically (operator adjudication required).
+        const sg = globalThis as unknown as { __MTQ_CHAIN_STANDDOWN_UNVERIFIED__?: boolean; __MTQ_CHAIN_ERROR__?: string };
+        if (sg.__MTQ_CHAIN_STANDDOWN_UNVERIFIED__ && r.action !== "blocked") {
+          sg.__MTQ_CHAIN_STANDDOWN_UNVERIFIED__ = false;
+          try {
+            const { ensureChainNode } = await import("@/lib/chain/node");
+            await ensureChainNode();
+            sg.__MTQ_CHAIN_ERROR__ = undefined;
+            console.log("[chain] stand-down LIFTED mid-run: guard verified origin — chain node booted");
+          } catch (bootErr) {
+            sg.__MTQ_CHAIN_STANDDOWN_UNVERIFIED__ = true;
+            sg.__MTQ_CHAIN_ERROR__ = String(bootErr);
+            console.error("[chain] stand-down lift FAILED (retries next tick):", bootErr);
+          }
         }
       } catch (e) {
         console.error("[git-drift:inproc] tick failed:", e);

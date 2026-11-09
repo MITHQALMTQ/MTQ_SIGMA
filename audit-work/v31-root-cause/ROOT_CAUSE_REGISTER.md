@@ -183,3 +183,57 @@ Commit SHAs for this batch: recorded in the landing commit message and `worklog.
 3. Cron payload immutability (job ID cannot be baked into payloads) — Incident 13.
 4. Cron wrapper auto-commit behavior — Incident 18.4.
 5. Cloud operational databases (Turso/Neon) unconfigured in this sandbox — Phase 2/3/4 verification blocked pending credentials; reported UNVERIFIED, never healthy.
+
+---
+
+## Incident 18 — Database self-heal CLI dead since birth (syntax corruption)
+
+- **Incident:** `scripts/db-selfheal.ts` — the watchdog's pre-boot forward-only heal CLI — contained a corrupted token (`args[hoursIdx + 1]` mangled to `argsoursIdx + 1]`) since its creating commit (4fe4528, task42 era). Every watchdog pre-boot heal invocation failed to parse; the failure was swallowed by `dev-watchdog.sh` ("self-heal FAILED — booting anyway"), making the warning constant and meaningless.
+- **Root cause:** source-level token corruption introduced at file creation; no parse gate existed for recovery-critical scripts, and the watchdog's tolerated-failure branch turned a hard defect into permanent silent degradation.
+- **Trigger:** every watchdog boot since task42.
+- **Impact:** the only DB-heal path that actually worked was the in-process one (ensureChainNode → selfHealDatabases). A boot geometry where the server starts WITHOUT the chain node would have had NO working heal. A redundant path masked a broken recovery tool from every prior audit.
+- **Previous fix:** none — the corruption was never noticed (no parse gate, tolerant watchdog branch).
+- **Why it failed:** the redundant in-process heal made the broken CLI invisible; the tolerated-failure branch fired constantly (alert fatigue).
+- **Permanent correction:** token repaired; `bun build --target=node scripts/db-selfheal.ts` bundles 83 modules clean; `od -c` byte-verified `args[hoursIdx + 1]`. Verification lesson recorded: bare `bun build` defaults to the BROWSER target and reports misleading failures on `node:url` — recovery-critical scripts must be parse-checked with `--target=node`.
+- **Preventive invariant:** every script under scripts/ that participates in recovery must pass `bun build --target=node`; the watchdog's tolerated-failure branch must emit a classification, not a constant warning.
+- **Regression test:** `bun build --target=node scripts/db-selfheal.ts` exit 0 (parse gate; PASS).
+- **Live evidence:** grep/sed 2026-11-09T01:29Z showed the corrupted token; od + clean bundle at 01:36Z show the repair (worktree fix by the concurrent RC session; HEAD blob confirmation pending at write time).
+- **Residual limitation:** none in-repo once committed.
+- **Status:** FIXED (worktree verified; commit confirmation pending at write time).
+
+## Incident 19 — Cron wrapper auto-commits durable artifacts without pushing (recurring exit-13 loop)
+
+- **Incident:** the platform's cron agent-loop wrapper auto-commits leftover dirty tracked files (write-behind dumps — commits 3d37d99, ca5b429, edc2569) at fire end but never pushes. The NEXT scheduled fire's bootstrap then hits `HEAD != origin/main after guard` → exit 13 → BLOCKED until an interactive session pushes. Observed on three consecutive fires (2026-11-09 00:09Z / 00:55Z / 01:17Z era).
+- **Root cause:** (a) the platform snapshot-restore re-dirties `backups/db-snapshots/latest-chain.sql` on every sandbox recycle (live DB ahead of committed dump); (b) the wrapper commits but cannot push; (c) the backstop commit rule historically excluded `backups/db-snapshots/`.
+- **Trigger:** hourly cadence — every fire following a wrapper commit.
+- **Impact:** scheduled executions BLOCKED; heartbeat freshness degraded; hourly manual pushes required.
+- **Previous fix:** ad-hoc manual pushes honoring the guard's directive.
+- **Why it failed:** the commit-without-push lifecycle was never eliminated.
+- **Permanent correction:** backstop commit rule extended to `backups/db-snapshots/` (commit 94b08a9) so the hourly backstop itself publishes the dump; RC-3 degraded-bootstrap observation prevents blind exits meanwhile.
+- **Preventive invariant:** every scheduled execution that creates local commits must push them or leave the tree clean; durable artifacts must reach the cloud layer in the same execution that produced them.
+- **Regression test:** scheduler-fire sequence — a fire following a wrapper commit must reach BOOTSTRAP_OK without manual pushes (pending next fires).
+- **Live evidence:** wrapper commits + exit-13 BLOCKED line (00:56:32Z) + successful re-runs after guard-directed pushes.
+- **Residual limitation:** the wrapper's commit-without-push behavior is platform-side and cannot be edited from the repository; the repository-level mitigation makes the NEXT fire self-healing instead of blocked.
+
+## Incident 20 — Monitor blind to rejected/missed dispatches while heartbeat is young
+
+- **Incident:** the monitor classified a heartbeat PLANE_5_OK purely on age < 9,000s + result=OK. A REJECTED backstop dispatch (00:17:48Z, "model concurrency limit exceeded") left no fresh heartbeat, yet the 00:55Z monitor reported PLANE_5_OK — the rejection was durable in the ledger but did not affect the health classification.
+- **Root cause:** the classification ignored the heartbeat's own `nextDueMs` watermark: a heartbeat older than its promised refresh time was still "young" under the 9,000s rule.
+- **Trigger:** any missed/rejected backstop fire followed by a monitor fire within 2.5h.
+- **Impact:** V31 Phase 8 violation — "a fresh heartbeat must not conceal a rejected scheduler execution"; degradation visible up to 2.5h late.
+- **Previous fix:** V30 embedded schedulerObserved in the ledger (evidence, not classification).
+- **Why it failed:** evidence without classification does not alert.
+- **Permanent correction (RC-9):** classification treats a heartbeat older than `nextDueMs + 15 min grace` as PLANE_5_ALERT regardless of age; MISSING heartbeats now carry an explicit PLANE_5_ALERT classification instead of an empty field.
+- **Preventive invariant:** the health verdict must be a function of the heartbeat watermark, not only wall-clock age.
+- **Regression test:** unit probe — fresh OK → PLANE_5_OK; overdue (due 36 min ago) → PLANE_5_ALERT; age > 9000 → PLANE_5_ALERT; fresh result=BLOCKED → PLANE_5_BLOCKED (all PASS 2026-11-09).
+- **Live evidence:** unit probe output; 00:17:48Z rejection in scheduler registry + ledger schedulerObserved.
+- **Residual limitation:** none in-repo.
+- **Status:** FIXED-TODAY (RC-9).
+
+## RC-7 (incident 17 extension) — canonical database path authority completed
+
+Five hardcoded `file:/home/z/my-project/db/custom.db` fallbacks and the heartbeat writer's hardcoded `cwd` were replaced with module-location-derived canonical paths (`canonicalRoot()` for in-repo src modules; `import.meta.dir`-relative for standalone scripts; `MTQ_SIGMA_ROOT` override honored). Files: src/lib/ai/consensus.ts, src/lib/mtq/audit-trail.ts, scripts/check-audit-trail.ts, scripts/ai/add-gemini-catalog.ts, scripts/backup-sqlite.ts, scripts/plane5-backstop-heartbeat.ts. Preventive invariant: no source file may contain an absolute sandbox path; a repo-wide grep for `file:/home/z/my-project/db` must return nothing (PASS). Repo typecheck exit 0.
+
+## RC-8 (incident 3 extension) — fail-closed boot on UNVERIFIED origin
+
+src/instrumentation.ts previously proceeded "best-effort" when the boot git-drift guard THREW (e.g. transient network failure), allowing the chain node's self-heal to consume unverified disk dumps — the exact geometry V31 Phase 6.B forbids. Now: guard exception → chain node stands down (ready:false, explicit reason), the 60s in-process tick re-runs the guard and boots the chain node once origin verification succeeds; BLOCKED stand-downs are never lifted automatically. Boot states: VERIFIED (chain boots), UNVERIFIED (stand down + auto-retry), BLOCKED (stand down + operator adjudication).

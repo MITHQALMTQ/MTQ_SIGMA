@@ -4,10 +4,18 @@
 import { Database } from "bun:sqlite";
 import { writeFileSync } from "node:fs";
 import { execFileSync } from "node:child_process";
+import { dirname, join, resolve } from "node:path";
+import { fileURLToPath } from "node:url";
+
+// V31 RC-7 (incident 17): canonical root from MODULE LOCATION — never a
+// hardcoded absolute path and never process.cwd() (the standalone server
+// chdirs at boot). The writer is a scheduled component: it must always
+// measure and write the CANONICAL databases and telemetry paths.
+const REPO_ROOT = process.env.MTQ_SIGMA_ROOT ?? resolve(dirname(fileURLToPath(import.meta.url)), "..");
 
 const sh = (cmd: string, args: string[]) => {
   const t = Date.now();
-  const out = execFileSync(cmd, args, { encoding: "utf8", cwd: "/home/z/my-project", timeout: 15000 }).trim();
+  const out = execFileSync(cmd, args, { encoding: "utf8", cwd: REPO_ROOT, timeout: 15000 }).trim();
   console.error(`[step] ${cmd} ${args[0]} ${Date.now() - t}ms`);
   return out;
 };
@@ -15,7 +23,7 @@ const sh = (cmd: string, args: string[]) => {
 const shBig = (cmd: string, args: string[]) => {
   for (let i = 0; ; i++) {
     try {
-      return execFileSync(cmd, args, { encoding: "utf8", cwd: "/home/z/my-project", timeout: 30000, maxBuffer: 64 * 1024 * 1024 });
+      return execFileSync(cmd, args, { encoding: "utf8", cwd: REPO_ROOT, timeout: 30000, maxBuffer: 64 * 1024 * 1024 });
     } catch (e) {
       if (i >= 2) throw e;
     }
@@ -23,13 +31,13 @@ const shBig = (cmd: string, args: string[]) => {
 };
 
 // ── fresh measurements ──────────────────────────────────────────────
-const chain = new Database("db/chain.db", { readonly: true });
+const chain = new Database(join(REPO_ROOT, "db", "chain.db"), { readonly: true });
 const { h: liveTip, n: nBlocks } = chain.query("SELECT MAX(height) h, COUNT(*) n FROM blocks").get() as any;
 const integrityChain = (chain.query("PRAGMA integrity_check").get() as any).integrity_check;
 const bootMode = (chain.query("SELECT value FROM meta WHERE key='boot_mode'").get() as any)?.value;
 chain.close();
 
-const custom = new Database("db/custom.db", { readonly: true });
+const custom = new Database(join(REPO_ROOT, "db", "custom.db"), { readonly: true });
 let customRows = 0;
 for (const r of custom.query("SELECT name FROM sqlite_master WHERE type='table' AND name NOT LIKE 'sqlite_%' AND name NOT LIKE '_prisma%'").all() as any[])
   customRows += (custom.query(`SELECT COUNT(*) n FROM [${r.name}]`).get() as any).n;
@@ -78,5 +86,5 @@ const hb = {
   chainTip: liveTip, customRows, originSha, result,
 };
 writeFileSync("/tmp/plane5-heartbeat.json", JSON.stringify(hb, null, 2) + "\n");
-if (git === "OK") writeFileSync("backups/plane5/heartbeat.json", JSON.stringify(hb, null, 2) + "\n");
+if (git === "OK") writeFileSync(join(REPO_ROOT, "backups", "plane5", "heartbeat.json"), JSON.stringify(hb, null, 2) + "\n");
 console.log(JSON.stringify({ ...hb, nBlocks, integrityChain, integrityCustom, bootMode, diskTip, committedTip, durableWritten: git === "OK" }, null, 1));

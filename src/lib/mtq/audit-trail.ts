@@ -31,6 +31,8 @@
 import { db } from "@/lib/db";
 import type { MetricsSnapshot, RebalanceDecision } from "./engine";
 import type { OracleBoard } from "./oracle";
+import { join } from "node:path";
+import { canonicalRoot } from "../db-ops";
 
 const DAILY_VECTOR_THROTTLE_MS = 30_000; // persist DailyStateVector at most every 30s
 const ORACLE_SAMPLE_THROTTLE_MS = 30_000; // persist OracleSample batch at most every 30s
@@ -803,7 +805,7 @@ async function verifyRd(url: string): Promise<ChainVerifyResult> {
 export async function verifyAuditChain(opts?: {
   dbUrl?: string;
 }): Promise<{ dailyStateVector: ChainVerifyResult; rebalancingDecision: ChainVerifyResult }> {
-  const url = opts?.dbUrl ?? process.env.DATABASE_URL ?? "file:/home/z/my-project/db/custom.db";
+  const url = opts?.dbUrl ?? process.env.DATABASE_URL ?? `file:${join(canonicalRoot(), "db", "custom.db")}`;
   const [dailyStateVector, rebalancingDecision] = await Promise.all([
     verifyDsv(url),
     verifyRd(url),
