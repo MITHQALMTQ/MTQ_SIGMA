@@ -2,3 +2,5 @@
 {"ts":"2026-11-09T15:23:10.839Z","generationId":"gen-20261109T151814356Z-h0-q573","phase":"VALIDATED","detail":"h21601 · 18077 custom rows · all §4.2 checks passed"}
 {"ts":"2026-11-09T15:23:10.839Z","generationId":"gen-20261109T151814356Z-h0-q573","phase":"ACTIVATING","detail":"prior pointer: none"}
 {"ts":"2026-11-09T15:23:10.860Z","generationId":"gen-20261109T151814356Z-h0-q573","phase":"ACTIVATED","detail":"pointer committed · h21601 · 18077 custom rows · casualty archive kept"}
+{"ts":"2026-11-09T20:18:49.613Z","generationId":"gen-20261109T151814356Z-h0-q573","phase":"FOREIGN_WRITE_DETECTED","detail":"live h3966 < active generation gen-20261109T151814356Z-h0-q573 tip h21601"}
+{"ts":"2026-11-09T20:18:50.257Z","generationId":"(decision)","phase":"DECISION_AUTHORIZED","detail":"authorized: published h21663 over live h3966"}

@@ -10600,3 +10600,8 @@ Release classification unchanged: **TESTNET ONLY · SHADOW MODE · NOT ACCEPTED*
 - Verified live: server 200; DB HEALTHY h21871 (deficit 0); 16:17:48Z scheduler fire ran the new pipeline end-to-end (heartbeat dbState=HEALTHY result=OK); manual monitor PLANE_5_OK db=HEALTHY; 138-test battery green (60 units + 78/78 harness); tsc 0; lint 0.
 - Reports: turn3-permanent-remediation-report.md (14-field records, 20-criterion gate); register + this log.
 - Honest status: V31 NOT COMPLETE — platform base-image refresh BLOCKED (operator), re-image cycles 1/3, 24h soak in progress (completes 2026-11-10T15:23Z).
+
+## 2026-11-09T20:19:49Z — plane5 backstop (job 516197, deterministic runner)
+- remediation: server/watchdog relaunch=yes · route=present · rebootstrap=no
+- planes: git=OK db=STALE_IMAGE server=000000 route=000000 · tip=h3966 rows=12395 unbacked=0 deficit=17697
+- heartbeat: 2026-11-09T20:19:49.096Z result=ALERT (dual write: /tmp + durable-when-synced)
