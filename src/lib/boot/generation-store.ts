@@ -102,7 +102,9 @@ export interface JournalEntry {
     | "RECONCILED_ROLLBACK"
     | "ROLLED_BACK"
     | "DISCARDED"
-    | "FOREIGN_WRITE_DETECTED";
+    | "FOREIGN_WRITE_DETECTED"
+    | "DECISION_AUTHORIZED"
+    | "DECISION_REFUSED";
   detail?: string;
 }
 

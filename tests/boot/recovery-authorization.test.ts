@@ -133,7 +133,7 @@ describe("recovery-authorization — live-probe refusals (never height zero)", (
       customProbe: customProbe("DATABASE_UNREADABLE"),
     }));
     expect(d.authorized).toBe(false);
-    expect(["LIVE_DB_UNREADABLE", "LIVE_DB_SCHEMA_UNSUPPORTED"]).toContain(d.refusal);
+    expect(["LIVE_DB_UNREADABLE", "LIVE_DB_SCHEMA_UNSUPPORTED"]).toContain(d.refusal ?? "");
   });
 });
 

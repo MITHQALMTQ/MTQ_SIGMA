@@ -60,6 +60,7 @@ import { probeChainDatabase, probeCustomDatabase } from "./boot/db-probe";
 import {
   activateGeneration,
   detectForeignWrite,
+  journalAppend,
   prepareGeneration,
   reconcileActivation,
   validateGeneration,
@@ -523,6 +524,29 @@ export async function selfHealDatabases(opts: { log?: (s: string) => void } = {}
     controlledRecovery: decision.controlledRecovery,
     checks: decision.checks,
   };
+
+  // V31 TURN 3 (R-6 §8): the DECISION itself is journalled — every
+  // authorization AND every fail-closed refusal leaves a durable record in
+  // the recovery journal (the "why", complementing the pipeline phases'
+  // "what"). The healthy no-op (action NONE — nothing to restore) is NOT
+  // journalled: it is the steady-state case and the heartbeat/ledger
+  // already record it; a refused decision never touches the databases —
+  // the journal entry is the operator-adjudication evidence.
+  try {
+    if (decision.action === "RESTORE_GENERATION") {
+      journalAppend(ROOT, {
+        ts: new Date().toISOString(), generationId: "(decision)",
+        phase: "DECISION_AUTHORIZED",
+        detail: `authorized: ${decision.source?.origin} h${decision.source?.chainHeight} over live h${decision.liveChainHeight ?? "missing"}${decision.controlledRecovery ? " (controlled — live missing)" : ""}`,
+      });
+    } else if (decision.action === "BLOCKED") {
+      journalAppend(ROOT, {
+        ts: new Date().toISOString(), generationId: "(decision)",
+        phase: "DECISION_REFUSED",
+        detail: `${decision.refusal ?? "fail-closed"}: ${decision.reasons.slice(0, 2).join("; ") || "fail-closed"}`,
+      });
+    }
+  } catch { /* evidence append is best-effort; the decision record in the report remains */ }
 
   // Fresh-environment first boot: no live databases AND no recovery payloads
   // on disk at all — genesis seeding is the honest first boot (nothing to
