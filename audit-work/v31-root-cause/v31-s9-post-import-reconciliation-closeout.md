@@ -132,3 +132,23 @@
 - The cron registry wipe is now absorbed operationally (jobs re-registered 519580/519582 — the 02:17:48Z fire executed the full contract including publication), but the registry lives outside the repo and will be lost again on the next refresh.
 
 **TESTNET ONLY — SHADOW MODE — NOT PRODUCTION-AUTHORIZED.**
+
+---
+
+## 10. Continuation session (2026-11-10T21:39–22:35Z) — 9th/10th recurrence verification, guard adjudication, sanctioned restoration relaunch
+
+The platform refreshed the base image twice more after this report (≈16:2xZ and 21:23Z): live DBs re-wiped to a schema-only stub (custom.db 221KB, 12 tables, all 0 rows; chain.db absent), the repo re-frozen to a stale Nov-7 lineage + 2 local-only commits (guard BLOCKED at the 16:56Z monitor fire), and the cron registry wiped a second time. A continuation session (V31 §9 directive) performed:
+
+| Step | Result |
+|---|---|
+| Guard adjudication (BLOCKED operator path) | 38 local-side paths: 21 ancestor-blob · 12 derivable · 1 deleted-origin-wins · **1 unique-content: worklog.md, 5 lines — the orphaned 08:20:30Z telemetry entry, recovered verbatim into the canonical worklog**. Local line archived to `mtq-sigma-backups/selfheal-archive/gitdrift-2026-11-10T21-38Z/` (binary format-patches ×2 + local-line.bundle + ADJUDICATION.md). Realigned to `ff2d385` — no genuine content lost (blob-redundancy proof). |
+| v11 re-verification | SHA-256 recomputed **EXACT** for both payloads (`d698e636…`/`4009e7b8…`); INSERT statements 47,586/128,729 = manifest = actual data rows (8 ConsensusVote INSERTs wrap lines — line-count pitfall documented); per-table split cross-validates the §1 live snapshot to the row (128,567 + 162 post-restore ticks = 128,729). |
+| Hash-chain (§4 re-verified from the committed dump) | Hash-bearing: DSV 2,938 + RD 10,274 · **unhashed 70,804 (DSV 14,964 + RD 55,840) — IDENTICAL to the §4 live-verified set** · broken 0 (live re-verification re-run after restore) · OS 39,288 unhashed-by-design (no hash columns in schema). |
+| Cursors (§5 re-verified) | 3 archival rows frozen 2026-10-29T02:01Z (1793239270379 / …514 / …262); consumers audit re-confirmed — `neon-client.ts` operates the Neon-side cloud table only; the local copy is inert. |
+| Retention (§6 re-verified) | `audit-retention-test.ts` independently re-run → **PASS** (defaults 75k/25k/50k · MTQ_AUDIT_RETENTION_* overrides honored · PRUNE_BATCH_SIZE=1000 incremental batching · oldest-first · engine rows survive · isolated temp DB, removed). |
+| Restoration | `plane5-run.sh backstop` 21:36:41Z: guard EXACT_MATCH → `DATABASE_REGRESSION` (h0/0) → watchdog v5 launched (singleton lock) → journal `DECISION_AUTHORIZED: published h23559 over live hmissing (controlled)` → generation `gen-20261110T213647981Z-h23559-zo2n` staged (chain complete 52,797,440 B; custom import in flight at commit time, ETA ~02:15Z) → heartbeat 21:37:46Z ALERT committed `40d7803` + pushed. Activation → next dev → write-behind staging refresh → the hourly backstop publishes **v12** autonomously. |
+| Watch | Registry re-armed after the 2nd wipe: monitor **522457** + backstop **522460** (hourly :55:45Z / :17:48Z UTC). |
+
+Final status (continuation): **IMPORT EXECUTION VERIFIED** (unchanged) · **DATA RECONCILIATION VERIFIED** (flagged exceptions unchanged — fetched-total + conflict content; evidence destroyed by the platform refreshes) · **RECOVERY SNAPSHOT VERIFIED** (v11 independently re-verified cryptographically; machine restoration to the v11 state relaunched through the sanctioned chain; v12+ publication continues on the hourly cadence with the write-behind staging).
+
+**TESTNET ONLY — SHADOW MODE — NOT PRODUCTION-AUTHORIZED.**
