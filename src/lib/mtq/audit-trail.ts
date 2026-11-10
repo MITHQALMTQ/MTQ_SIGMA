@@ -148,9 +148,31 @@ let LAST_MARP_PERSIST_AT_FALLBACK = 0;
 // behavior. Cap-hit prunes stay incremental (1000-row batches, ≤10% of the
 // dump-tip total) so they never trip the cloud-sync regression guard's
 // prune tolerance.
-const MAX_REBALANCING_DECISIONS = 75_000;
-const MAX_DAILY_STATE_VECTORS = 25_000;
-const MAX_ORACLE_SAMPLES = 50_000;
+//
+// V31 §9 Phase 6 (2026-11-10) — shared exported configuration + environment
+// overrides. The app previously had NO environment-specific retention
+// configuration: the enlarged caps were compiled-in constants documented as
+// "local full-history node" policy. The INTENDED deployment behavior (per
+// the comment above) is now expressed as an actual configuration surface:
+//   • DEFAULTS = the LOCAL FULL-HISTORY node policy (values unchanged —
+//     the union is retained with headroom; local behavior is identical).
+//   • A production/capped-window deployment opts in by setting the
+//     MTQ_AUDIT_RETENTION_* env vars (e.g. 10000/5000/5000) — one place to
+//     configure, and tests/probes read the same exported RETENTION_CAPS.
+const envCap = (name: string, localDefault: number): number => {
+  const raw = process.env[name];
+  if (raw === undefined || raw.trim() === "") return localDefault;
+  const n = Number(raw);
+  return Number.isFinite(n) && n >= 0 ? Math.floor(n) : localDefault;
+};
+export const RETENTION_CAPS = {
+  rebalancingDecision: envCap("MTQ_AUDIT_RETENTION_REBALANCING_DECISION", 75_000),
+  dailyStateVector: envCap("MTQ_AUDIT_RETENTION_DAILY_STATE_VECTOR", 25_000),
+  oracleSample: envCap("MTQ_AUDIT_RETENTION_ORACLE_SAMPLE", 50_000),
+} as const;
+const MAX_REBALANCING_DECISIONS = RETENTION_CAPS.rebalancingDecision;
+const MAX_DAILY_STATE_VECTORS = RETENTION_CAPS.dailyStateVector;
+const MAX_ORACLE_SAMPLES = RETENTION_CAPS.oracleSample;
 const PRUNE_BATCH_SIZE = 1_000; // delete in batches of 1000 to avoid locking
 
 // Coerce non-finite numbers (Infinity/NaN) to 0 for SQLite Float storage.

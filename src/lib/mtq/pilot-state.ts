@@ -704,7 +704,10 @@ async function tick(store: PilotStore) {
     console.error("[audit-trail] persistOracleSamples:", e);
   }
   // v13 AUDIT-RETENTION — prune the audit-trail tables once every 5 min.
-  // Caps RebalancingDecision ≤10k, DailyStateVector ≤5k, OracleSample ≤5k.
+  // Caps come from the shared exported RETENTION_CAPS (audit-trail.ts):
+  // local full-history node defaults RD ≤75k, DSV ≤25k, OS ≤50k
+  // (env-overridable via MTQ_AUDIT_RETENTION_* for production deployments —
+  // V31 §9 Phase 6; the old ≤10k/≤5k/≤5k figures were the pre-§9 caps).
   // Skipped on the very first tick (lastPruneAt = 0 → runs prune immediately
   // so any pre-existing overflow from a prior version is cleaned up before
   // we accumulate more rows).

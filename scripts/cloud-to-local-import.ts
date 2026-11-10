@@ -26,6 +26,22 @@
 // Credentials: inline env ONLY (TURSO_URL, TURSO_TOKEN, NEON_PG) — same
 // convention as scripts/cloud-db-probe.ts; never hardcoded, never committed.
 //
+// V31 §9 Phase 2 CORRECTION (2026-11-10): insertion totals were computed from
+// before/after row COUNTS — a method that silently absorbs concurrent app
+// writes and retention prunes into the "inserted" figure (the re-run of
+// 2026-11-09 23:2xZ reported inserted=8,650 while live moved 123,558→132,223,
+// a +15 residual of concurrent ticks; per-table counts were polluted the
+// same way). The method is now corrected to STATEMENT-LEVEL affected-row
+// counts (Σ ResultSet.rowsAffected of the INSERT OR IGNORE batches — 1 per
+// actually-inserted row, 0 per PK-ignored row). The before/after counts are
+// still taken and reported as a CROSS-CHECK, and their difference from the
+// statement total is reported explicitly as `concurrent` (concurrent
+// application writes minus retention prunes during the import window).
+// Per-pass log lines now print PER-PASS contributions and running totals
+// separately — the old lines printed the ACCUMULATED tally on the second
+// (Turso) pass, which read as if the accumulated total were that source's
+// own contribution (the "DSV +2,997 (neon) +3,000 (turso)" double-counting).
+//
 // Invoke:
 //   export $(grep -v '^#' /tmp/cloud.env | xargs)
 //   bun run scripts/cloud-to-local-import.ts [--dry-run]
@@ -186,7 +202,22 @@ function normalize(localCol: string, v: unknown): unknown {
   return v;
 }
 
-interface Tally { before: number; fetched: number; inserted: number }
+interface Tally {
+  before: number;
+  fetched: number;          // rows fetched from cloud sources (accumulated)
+  inserted: number;         // STATEMENT-level inserted (Σ rowsAffected; accumulated)
+  ignored: number;          // PK-conflict ignored by INSERT OR IGNORE (fetched-attempted − inserted)
+  netDelta: number;        // Σ (after − before) row-count deltas (cross-check)
+}
+
+// Per-pass contribution snapshot (printed on each source's log line so an
+// accumulated tally can never be misread as that pass's own contribution).
+interface PassDelta {
+  fetched: number;
+  inserted: number;
+  ignored: number;
+  netDelta: number;
+}
 
 async function localColumns(c: ReturnType<typeof createClient>, table: string): Promise<string[]> {
   const rs = await c.execute(`PRAGMA table_info("${table}")`);
@@ -243,29 +274,48 @@ const neonFn = neonModule.neon(neonUrl) as unknown as { query: (q: string, p?: u
 const pg = (q: string, p: unknown[] = []): Promise<Record<string, unknown>[]> => neonFn.query(q, p);
 
 const tallies = new Map<string, Tally>();
-const bump = (t: string, fetched = 0, inserted = 0) => {
-  const cur = tallies.get(t) ?? { before: 0, fetched: 0, inserted: 0 };
-  cur.fetched += fetched; cur.inserted += inserted;
+const bump = (t: string, d: Partial<PassDelta>) => {
+  const cur = tallies.get(t) ?? { before: 0, fetched: 0, inserted: 0, ignored: 0, netDelta: 0 };
+  cur.fetched += d.fetched ?? 0;
+  cur.inserted += d.inserted ?? 0;
+  cur.ignored += d.ignored ?? 0;
+  cur.netDelta += d.netDelta ?? 0;
   tallies.set(t, cur);
 };
 
-async function insertRows(table: string, localCols: string[], rows: Record<string, unknown>[]): Promise<number> {
+const passLine = (table: string, source: string, pass: PassDelta, t: Tally): string =>
+  `[import] ${table} ← ${source}: pass(+) fetched=${pass.fetched} inserted=${pass.inserted} ` +
+  `ignored=${pass.ignored} net=${pass.netDelta} | totals fetched=${t.fetched} inserted=${t.inserted} ` +
+  `ignored=${t.ignored} net=${t.netDelta} (before=${t.before})`;
+
+async function insertRows(
+  table: string,
+  localCols: string[],
+  rows: Record<string, unknown>[],
+): Promise<{ inserted: number; before: number; after: number }> {
   // rows are keyed by LOCAL column names, values already normalized.
-  if (rows.length === 0) return 0;
+  // Returns the STATEMENT-LEVEL inserted count (Σ rowsAffected — the V31 §9
+  // Phase 2 correction: immune to concurrent app writes / retention prunes)
+  // alongside the before/after counts (kept as a cross-check; their delta may
+  // legitimately differ from the statement count when the app writes or a
+  // prune runs during the import window).
+  if (rows.length === 0) return { inserted: 0, before: NaN, after: NaN };
   const cols = localCols.filter((c) => rows.some((r) => r[c] !== undefined));
   const placeholders = cols.map(() => "?").join(", ");
   const sqlStmt = `INSERT OR IGNORE INTO "${table}" (${cols.map((c) => `"${c}"`).join(", ")}) VALUES (${placeholders})`;
   const before = await countOf(local, table);
+  let inserted = 0;
   for (let i = 0; i < rows.length; i += 500) {
     const chunk = rows.slice(i, i + 500);
     const stmts = chunk.map((r) => ({
       sql: sqlStmt,
       args: cols.map((c) => (r[c] === undefined ? null : r[c])),
     }));
-    await retryBusy(() => local.batch(stmts, "write"), `${table} chunk ${i / 500}`);
+    const results = await retryBusy(() => local.batch(stmts, "write"), `${table} chunk ${i / 500}`);
+    for (const r of results) inserted += Number(r?.rowsAffected ?? 0);
   }
   const after = await countOf(local, table);
-  return after - before;
+  return { inserted, before, after };
 }
 
 // ─── pass 1: Neon (deepest history) ────────────────────────────────────────
@@ -273,7 +323,7 @@ for (const map of NEON_TABLES) {
   const localCols = await localColumns(local, map.to);
   if (localCols.length === 0) { console.log(`[import] ${map.to}: no local table — skipping Neon ${map.from}`); continue; }
   const before = await countOf(local, map.to);
-  tallies.set(map.to, { before, fetched: 0, inserted: 0 });
+  tallies.set(map.to, { before, fetched: 0, inserted: 0, ignored: 0, netDelta: 0 });
   const neonCols = Object.keys(map.cols);
   const colList = neonCols.map((c) => `"${c}"`).join(", ");
   let lastId = "";
@@ -294,13 +344,16 @@ for (const map of NEON_TABLES) {
     fetched += page.length;
     if (page.length < 2000) break;
   }
-  bump(map.to, fetched, 0);
+  const pass: PassDelta = { fetched, inserted: 0, ignored: 0, netDelta: 0 };
+  bump(map.to, pass);
   if (!DRY_RUN) {
-    const inserted = await insertRows(map.to, localCols, pending);
-    bump(map.to, 0, inserted);
+    const r = await insertRows(map.to, localCols, pending);
+    pass.inserted = r.inserted;
+    pass.ignored = Math.max(0, fetched - r.inserted);
+    pass.netDelta = Number.isFinite(r.after) && Number.isFinite(r.before) ? r.after - r.before : 0;
+    bump(map.to, pass);
   }
-  const t = tallies.get(map.to)!;
-  console.log(`[import] ${map.to} ← neon/${map.from}: before=${t.before} fetched=${t.fetched} inserted=${t.inserted}`);
+  console.log(passLine(map.to, `neon/${map.from}`, pass, tallies.get(map.to)!));
 }
 
 // ─── pass 2: Turso (newer window + keeper_audit) ────────────────────────────
@@ -309,7 +362,7 @@ for (const t of TURSO_TABLES) {
   if (!tursoMaster.includes(t)) { console.log(`[import] ${t}: absent in Turso — skipping`); continue; }
   const localCols = await localColumns(local, t);
   if (localCols.length === 0) { console.log(`[import] ${t}: no local table — skipping Turso`); continue; }
-  if (!tallies.has(t)) tallies.set(t, { before: await countOf(local, t), fetched: 0, inserted: 0 });
+  if (!tallies.has(t)) tallies.set(t, { before: await countOf(local, t), fetched: 0, inserted: 0, ignored: 0, netDelta: 0 });
   const cols = localCols; // import every column the LOCAL schema has
   const colList = cols.map((c) => `"${c}"`).join(", ");
   let lastId = "";
@@ -327,13 +380,16 @@ for (const t of TURSO_TABLES) {
     fetched += page.length;
     if (page.length < 2000) break;
   }
-  bump(t, fetched, 0);
+  const pass: PassDelta = { fetched, inserted: 0, ignored: 0, netDelta: 0 };
+  bump(t, pass);
   if (!DRY_RUN) {
-    const inserted = await insertRows(t, localCols, pending);
-    bump(t, 0, inserted);
+    const r = await insertRows(t, localCols, pending);
+    pass.inserted = r.inserted;
+    pass.ignored = Math.max(0, fetched - r.inserted);
+    pass.netDelta = Number.isFinite(r.after) && Number.isFinite(r.before) ? r.after - r.before : 0;
+    bump(t, pass);
   }
-  const tv = tallies.get(t)!;
-  console.log(`[import] ${t} ← turso: before=${tv.before} fetched=${tv.fetched} inserted=${tv.inserted}`);
+  console.log(passLine(t, "turso", pass, tallies.get(t)!));
 }
 
 // ─── pass 3: new tables (keeper_audit ← Turso · mtq_sync_state ← Neon) ─────
@@ -344,7 +400,7 @@ if (!DRY_RUN) {
 // keeper_audit (integer PK pagination)
 {
   const before = await countOf(local, "keeper_audit");
-  tallies.set("keeper_audit", { before, fetched: 0, inserted: 0 });
+  tallies.set("keeper_audit", { before, fetched: 0, inserted: 0, ignored: 0, netDelta: 0 });
   const cols = ["id", "tick_at", "tick_epoch", "step", "status", "tx_hash", "gas_used", "message", "keeper", "contract"];
   const colList = cols.join(", ");
   let lastId = 0;
@@ -362,19 +418,24 @@ if (!DRY_RUN) {
     fetched += page.length;
     if (page.length < 2000) break;
   }
-  bump("keeper_audit", fetched, 0);
+  const pass: PassDelta = { fetched, inserted: 0, ignored: 0, netDelta: 0 };
+  bump("keeper_audit", pass);
   if (!DRY_RUN) {
-    const inserted = await insertRows("keeper_audit", cols, pending);
-    bump("keeper_audit", 0, inserted);
+    const r = await insertRows("keeper_audit", cols, pending);
+    pass.inserted = r.inserted;
+    pass.ignored = Math.max(0, fetched - r.inserted);
+    pass.netDelta = Number.isFinite(r.after) && Number.isFinite(r.before) ? r.after - r.before : 0;
+    bump("keeper_audit", pass);
   }
-  const tv = tallies.get("keeper_audit")!;
-  console.log(`[import] keeper_audit ← turso: before=${tv.before} fetched=${tv.fetched} inserted=${tv.inserted}`);
+  console.log(passLine("keeper_audit", "turso", pass, tallies.get("keeper_audit")!));
 }
 
 // mtq_sync_state (mirror high-water cursors; 3 rows)
 {
   const rows = await pg(`SELECT prisma_model, last_tick_at, last_id, updated_at FROM mtq_sync_state ORDER BY prisma_model`) as Record<string, unknown>[];
-  tallies.set("mtq_sync_state", { before: await countOf(local, "mtq_sync_state"), fetched: rows.length, inserted: 0 });
+  const before = await countOf(local, "mtq_sync_state");
+  tallies.set("mtq_sync_state", { before, fetched: rows.length, inserted: 0, ignored: 0, netDelta: 0 });
+  const pass: PassDelta = { fetched: rows.length, inserted: 0, ignored: 0, netDelta: 0 };
   if (!DRY_RUN && rows.length > 0) {
     const pending = rows.map((r) => ({
       prisma_model: r.prisma_model,
@@ -382,11 +443,13 @@ if (!DRY_RUN) {
       last_id: r.last_id,
       updated_at: toMs(r.updated_at, "updated_at"),
     }));
-    const inserted = await insertRows("mtq_sync_state", ["prisma_model", "last_tick_at", "last_id", "updated_at"], pending);
-    bump("mtq_sync_state", 0, inserted);
+    const r = await insertRows("mtq_sync_state", ["prisma_model", "last_tick_at", "last_id", "updated_at"], pending);
+    pass.inserted = r.inserted;
+    pass.ignored = Math.max(0, rows.length - r.inserted);
+    pass.netDelta = Number.isFinite(r.after) && Number.isFinite(r.before) ? r.after - r.before : 0;
+    bump("mtq_sync_state", pass);
   }
-  const tv = tallies.get("mtq_sync_state")!;
-  console.log(`[import] mtq_sync_state ← neon: before=${tv.before} fetched=${tv.fetched} inserted=${tv.inserted}`);
+  console.log(passLine("mtq_sync_state", "neon", pass, tallies.get("mtq_sync_state")!));
 }
 
 // Neon local_cache (701 rows) deliberately SKIPPED: pg_prewarm platform telemetry.
@@ -398,13 +461,26 @@ if (!DRY_RUN) {
   const qc = await local.execute("PRAGMA quick_check");
   integrity = String(Object.values(qc.rows[0] ?? {})[0] ?? "unknown");
 }
+// Statement-level totals (V31 §9 Phase 2 correction) + count-method cross-check:
+//   inserted      = Σ rowsAffected — actual INSERT OR IGNORE insertions
+//   ignored       = fetched − inserted — PK-conflict skips (identical-content
+//                   vs different-content classification requires a source-vs-
+//                   local row comparison; the importer never overwrites a
+//                   local row, so conflicts are preserved, not lost)
+//   netDelta      = Σ (after − before) — the old count-based figure
+//   concurrent    = netDelta − inserted — app writes minus retention prunes
+//                   that the old count-based method silently absorbed
 const totalInserted = [...tallies.values()].reduce((a, t) => a + t.inserted, 0);
 const totalFetched = [...tallies.values()].reduce((a, t) => a + t.fetched, 0);
+const totalIgnored = [...tallies.values()].reduce((a, t) => a + t.ignored, 0);
+const totalNetDelta = [...tallies.values()].reduce((a, t) => a + t.netDelta, 0);
 const finalRows = await probeCustomRows(CUSTOM_DB);
 
 console.log(
   `CLOUD_IMPORT_DONE result=OK mode=${DRY_RUN ? "DRY-RUN" : "EXECUTE"} ` +
-  `sources=neon+turso tables=${tallies.size} fetched=${totalFetched} inserted=${totalInserted} ` +
+  `sources=neon+turso tables=${tallies.size} fetched=${totalFetched} ` +
+  `inserted=${totalInserted} ignored=${totalIgnored} netDelta=${totalNetDelta} ` +
+  `concurrent=${totalNetDelta - totalInserted} ` +
   `customRows=${finalRows.ok ? finalRows.rows : "unreadable"} integrity=${integrity} ` +
   `chainUntouched=yes skipped=local_cache(neon-platform-internal)`,
 );
