@@ -1,1 +1,1 @@
-{"lastSeenMs": 1794261358929, "lastResult": "OK", "missingSinceMs": null, "bootstrapState": "OK", "dbState": "HEALTHY"}
+{"lastSeenMs": 1794279443805, "lastResult": "OK", "missingSinceMs": null, "bootstrapState": "OK", "dbState": "STALE_IMAGE", "infraState": "SERVER_UNAVAILABLE"}

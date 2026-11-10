@@ -14,3 +14,4 @@
 2026-11-09T13:56:05.130Z age=5790 classification=PLANE_5_ALERT heartbeat=2026-11-09T12:19:34.500Z result=ALERT bootstrap=OK
 2026-11-09T14:56:49.776Z age=9435 classification=PLANE_5_ALERT heartbeat=2026-11-09T12:19:34.500Z result=ALERT bootstrap=OK
 2026-11-09T20:56:03.912Z age=2173 classification=PLANE_5_ALERT dbState=HEALTHY infraState=none heartbeat=2026-11-09T20:19:49.096Z result=ALERT bootstrap=OK
+2026-11-10T02:57:23.805Z age=2225 classification=PLANE_5_ALERT dbState=STALE_IMAGE infraState=SERVER_UNAVAILABLE heartbeat=2026-11-10T02:20:16.603Z result=OK bootstrap=OK dbDetail=live h3947 < active generation 23435 (activated 2026-11-10T02:07:32.227Z) · boot_mode=self-healed · selfheal_at=2026-11-10T02:56:19.567Z NEWER than the activation — a restore OUTSIDE the generation co
