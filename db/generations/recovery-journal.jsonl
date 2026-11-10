@@ -11,3 +11,7 @@
 {"ts":"2026-11-09T22:51:25.653Z","generationId":"(decision)","phase":"DECISION_REFUSED","detail":"RUNTIME_SOURCE_UNVERIFIED: fail-closed"}
 {"ts":"2026-11-10T00:19:25.739Z","generationId":"gen-20261109T201850258Z-h21663-ui23","phase":"FOREIGN_WRITE_DETECTED","detail":"live h3946 < active generation gen-20261109T201850258Z-h21663-ui23 tip h21663"}
 {"ts":"2026-11-10T00:19:26.785Z","generationId":"(decision)","phase":"DECISION_AUTHORIZED","detail":"authorized: published h23435 over live h3946"}
+{"ts":"2026-11-10T02:07:31.870Z","generationId":"gen-20261110T001926785Z-h23435-i2bw","phase":"PREPARE","detail":"isolated import from published source (expect h23435 / 128303 custom rows)"}
+{"ts":"2026-11-10T02:07:32.187Z","generationId":"gen-20261110T001926785Z-h23435-i2bw","phase":"VALIDATED","detail":"h23435 · 128303 custom rows · all §4.2 checks passed"}
+{"ts":"2026-11-10T02:07:32.188Z","generationId":"gen-20261110T001926785Z-h23435-i2bw","phase":"ACTIVATING","detail":"prior pointer: gen-20261109T201850258Z-h21663-ui23"}
+{"ts":"2026-11-10T02:07:32.228Z","generationId":"gen-20261110T001926785Z-h23435-i2bw","phase":"ACTIVATED","detail":"pointer committed · h23435 · 128303 custom rows · casualty archive kept"}
