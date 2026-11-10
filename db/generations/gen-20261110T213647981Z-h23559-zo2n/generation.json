@@ -1,0 +1,27 @@
+{
+  "generationId": "gen-20261110T213647981Z-h23559-zo2n",
+  "createdAt": "2026-11-10T23:04:16.037Z",
+  "source": {
+    "origin": "published",
+    "manifestVersion": 11,
+    "chainSha256": null,
+    "customSha256": null
+  },
+  "chain": {
+    "height": 23559,
+    "blocks": 23559,
+    "genesis": "gen_3baf0dba552b527da4e9f6cedae44d04d0a40f7d",
+    "chainId": "mtq-devnet-1"
+  },
+  "custom": {
+    "rows": 128729,
+    "tables": 15
+  },
+  "validation": {
+    "integrity": "ok",
+    "heightContiguity": true,
+    "parentHashContinuity": true,
+    "crossDatabaseGeneration": true,
+    "validatedAt": "2026-11-10T23:04:16.037Z"
+  }
+}

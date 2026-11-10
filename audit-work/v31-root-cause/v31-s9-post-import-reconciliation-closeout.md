@@ -151,4 +151,16 @@ The platform refreshed the base image twice more after this report (≈16:2xZ an
 
 Final status (continuation): **IMPORT EXECUTION VERIFIED** (unchanged) · **DATA RECONCILIATION VERIFIED** (flagged exceptions unchanged — fetched-total + conflict content; evidence destroyed by the platform refreshes) · **RECOVERY SNAPSHOT VERIFIED** (v11 independently re-verified cryptographically; machine restoration to the v11 state relaunched through the sanctioned chain; v12+ publication continues on the hourly cadence with the write-behind staging).
 
+### 10.1 Completion (23:04–23:25Z) — restoration activated, live battery all-green, v12 published + independently validated
+
+| Item | Result |
+|---|---|
+| Activation | `gen-20261110T213647981Z-h23559-zo2n` **VALIDATED h23559 · 128,729 rows — exactly the v11 manifest count — all §4.2 checks** → **ACTIVATED 23:04:16.073Z** (casualty archive kept) → `next dev` healthy (health 200 at 23:12; watchdog 3 procs). |
+| Live hash-chain re-verification | `check-audit-trail` (read-only): **DSV verified 2,954 EXACT + RD 10,462 EXACT (canonical v2.1) · broken 0 · legacy-float 0 · unhashed 70,804** — identical to both the §4 live set and the committed-dump count (**three-way agreement**). |
+| Live battery | quick_check **ok** · regression battery **OK — mature databases** (h23648 · 129,029) · `/api/trials` 200 serving the cloud-imported trial `cmw5aec6…` · `/api/landing-stats` 200 · upload route **403 fail-closed** · cloud-sync guard quiet · retention no-op (DSV 17,928/25k · OS 39,444/50k · RD 66,415/75k, growing) · NO cloud writes (credentials structurally absent). |
+| **v12 publication** | `scripts/snapshot-publish.ts` (sole sanctioned path): chain **h23686 · 47,840 rows** (sha `7805026b99f5e8316e44…`) · custom **129,156 rows · 15 tables** (sha `d965a5c96846437273…`) · generated 2026-11-10T23:18:15.646Z · atomic · commit **`0f7b10a` PUSHED** (exactly the three snapshot paths). |
+| Post-publication validation | manifest v12 re-read from origin ✓ · both SHA-256 recomputed **EXACT** ✓ · INSERT counts 47,840/129,156 = manifest ✓ · genesis ✓ · live-vs-published delta normal-widening (bounded by the 60s write-behind + hourly publication). |
+
+Final status (completed): **IMPORT EXECUTION VERIFIED** · **DATA RECONCILIATION VERIFIED** (flagged exceptions: fetched-total + conflict content — await operator-supplied cloud credentials) · **RECOVERY SNAPSHOT VERIFIED** (v11 → v12). Remaining limitation: ~2,985 cloud-only top-up rows + the PK-conflict content audit await credentials and an approved plan.
+
 **TESTNET ONLY — SHADOW MODE — NOT PRODUCTION-AUTHORIZED.**
