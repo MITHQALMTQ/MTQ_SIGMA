@@ -1,20 +1,24 @@
 {
-  "tsIso": "2026-11-10T21:37:46.679Z",
-  "tsMs": 1794346666679,
-  "nextDueMs": 1794350266679,
+  "tsIso": "2026-11-10T23:31:59.705Z",
+  "tsMs": 1794353519705,
+  "nextDueMs": 1794357119705,
   "planes": {
     "git": "OK",
-    "db": "DATABASE_REGRESSION",
-    "dbState": "DATABASE_REGRESSION",
-    "dbSeverity": "alert",
-    "server": "000000",
-    "route": "000000",
-    "watchdog": "yes",
-    "unbackedAhead": 0,
+    "db": "OK",
+    "dbState": "DATABASE_RECOVERED",
+    "dbSeverity": "ok",
+    "dbDetail": "generation activated at 2026-11-10T23:04:16.073Z (h23846) — sanctioned recovery completed within the last 28min",
+    "server": "200",
+    "route": "403",
+    "watchdog": "alive",
+    "snapshotParseOk": true,
+    "unbackedAhead": 35,
     "recoveryDeficit": 0
   },
-  "chainTip": 0,
-  "customRows": 0,
-  "originSha": "ff2d3851049268b2c1b9b264e6140d6a84487679",
-  "result": "ALERT"
+  "chainTip": 23846,
+  "customRows": 129692,
+  "originSha": "3704c80aefdca7b0361dfa5679987ded1a9c1310",
+  "headSha": "3704c80aefdca7b0361dfa5679987ded1a9c1310",
+  "gitState": "EXACT_MATCH",
+  "result": "OK"
 }
