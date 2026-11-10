@@ -9,3 +9,5 @@
 {"ts":"2026-11-09T20:24:04.493Z","generationId":"gen-20261109T201850258Z-h21663-ui23","phase":"ACTIVATING","detail":"prior pointer: gen-20261109T151814356Z-h0-q573"}
 {"ts":"2026-11-09T20:24:04.513Z","generationId":"gen-20261109T201850258Z-h21663-ui23","phase":"ACTIVATED","detail":"pointer committed · h21663 · 18077 custom rows · casualty archive kept"}
 {"ts":"2026-11-09T22:51:25.653Z","generationId":"(decision)","phase":"DECISION_REFUSED","detail":"RUNTIME_SOURCE_UNVERIFIED: fail-closed"}
+{"ts":"2026-11-10T00:19:25.739Z","generationId":"gen-20261109T201850258Z-h21663-ui23","phase":"FOREIGN_WRITE_DETECTED","detail":"live h3946 < active generation gen-20261109T201850258Z-h21663-ui23 tip h21663"}
+{"ts":"2026-11-10T00:19:26.785Z","generationId":"(decision)","phase":"DECISION_AUTHORIZED","detail":"authorized: published h23435 over live h3946"}

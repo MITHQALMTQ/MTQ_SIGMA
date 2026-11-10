@@ -10632,3 +10632,8 @@ Release classification unchanged: **TESTNET ONLY · SHADOW MODE · NOT ACCEPTED*
 - Post-import validation: check-db-regression OK (chain h23534 · custom 132,245 rows, no regression signature, comfortably above the 90% floor of the 128,303-row dump) · landing HTTP 200 · sanctioned upload route /api/constituency/upload fail-closed 403 · watchdog alive.
 - Coverage statement: every table of BOTH cloud databases (Turso: 10-table family incl. keeper_audit; Neon: 5 mtq_* tables + mtq_sync_state cursors) is now represented locally in the union; Neon local_cache remains deliberately skipped (pg_prewarm platform telemetry, not MTQ data). Inngest/Vercel hold no MTQ database tables (event/app layer; Vercel serving still 402 billing-blocked — operator action).
 - Honest classification: local stack remains the authoritative full-history union node; nothing was pushed TO the cloud. TESTNET ONLY · SHADOW MODE.
+
+## 2026-11-10T00:20:25Z — plane5 backstop (job 516197, deterministic runner)
+- remediation: server/watchdog relaunch=yes · route=present · rebootstrap=no
+- planes: git=OK db=STALE_IMAGE server=000000 route=000000 · tip=h3946 rows=12395 unbacked=0 deficit=19489
+- heartbeat: 2026-11-10T00:20:25.538Z result=ALERT (dual write: /tmp + durable-when-synced)
