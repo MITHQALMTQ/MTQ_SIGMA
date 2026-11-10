@@ -80,6 +80,26 @@ weight-vector.json
 !/backups/db-snapshots/
 /backups/db-snapshots/*
 !/backups/db-snapshots/latest-*.sql
+# V31 TURN 2A (incident 19 fix): the snapshot publication manifest is tracked
+# alongside the payloads — sha256 content hashes, heights, genesis identity,
+# version progression. The .staging/ write-behind directory stays ignored
+# (covered by /backups/db-snapshots/* above): it is transient, untracked by
+# design, and only the validated publisher writes the tracked files.
+!/backups/db-snapshots/manifest.json
+# v27 CRITICAL RECOVERY — PLANE-5 DURABLE TELEMETRY: the heartbeat/monitor-state/
+# alerts files under backups/plane5/ are tracked so the external scheduler's
+# liveness signal and alert record SURVIVE sandbox re-images (which wipe /tmp
+# hourly). Tiny JSON/log files, rewritten each run; guard-derivable prefix —
+# a stranded write can never block a git-drift realignment.
+!/backups/plane5/
+/backups/plane5/*
+!/backups/plane5/heartbeat.json
+!/backups/plane5/monitor-state.json
+!/backups/plane5/alerts.log
+# V31 RC-1 (2026-11-09): the execution ledger IS durable audit evidence —
+# rejected/missed/succeeded dispatch records must survive re-images via git.
+!/backups/plane5/execution-ledger.jsonl
+!/backups/plane5/execution-ledger.archive.jsonl
 
 # TASK 12 — AI-tool persisted-output cache (never commit: may snapshot file
 # contents that contain or later contain sensitive material)
@@ -123,3 +143,25 @@ contracts/cache/
 # TASK-42 — intentional-reset sentinel (auto-heal opt-out; expiry+reason live
 # in the file, never commit it — remove it to re-arm the DB self-heal)
 db/ALLOW-GENESIS-RESET
+
+# TASK-47 — intentional file-deletion sentinel (source-integrity opt-out;
+# expiry+reason live in the file, never commit it — remove to re-arm)
+db/ALLOW-FILE-DELETIONS
+
+# V31 TURN 3 (R-2B staged generations, 2026-11-09): generation directories
+# hold SQLite binaries (≈55MB per generation, REDUNDANT with the git-tracked
+# published dumps — every recovery re-imports from those, sha-verified) and
+# casualty archives (rollback forensics — disk-only, pruned to 3). A platform
+# turn-end sweep STAGED a mid-import binary state (2.9MB of a still-growing
+# 47MB file) — torn-state-in-history is exactly the class TURN 3 eliminates.
+# The small durable-evidence files ARE tracked: each generation's
+# generation.json manifest, recovery-journal.jsonl, active-generation.json.
+db/generations/*/chain.db
+db/generations/*/chain.db-journal
+db/generations/*/chain.db-wal
+db/generations/*/chain.db-shm
+db/generations/*/custom.db
+db/generations/*/custom.db-journal
+db/generations/*/custom.db-wal
+db/generations/*/custom.db-shm
+db/generations/casualty-*/

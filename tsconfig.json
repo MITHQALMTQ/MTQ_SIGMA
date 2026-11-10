@@ -45,6 +45,7 @@
     "mobile",
     "contracts",
     "audit-work",
-    "backups"
+    "backups",
+    "mtq-sigma-backups"
   ]
 }
