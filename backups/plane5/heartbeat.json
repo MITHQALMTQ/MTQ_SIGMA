@@ -1,20 +1,20 @@
 {
-  "tsIso": "2026-11-10T08:20:30.419Z",
-  "tsMs": 1794298830419,
-  "nextDueMs": 1794302430419,
+  "tsIso": "2026-11-10T21:37:46.679Z",
+  "tsMs": 1794346666679,
+  "nextDueMs": 1794350266679,
   "planes": {
     "git": "OK",
-    "db": "STALE_IMAGE",
-    "dbState": "STALE_IMAGE",
+    "db": "DATABASE_REGRESSION",
+    "dbState": "DATABASE_REGRESSION",
     "dbSeverity": "alert",
     "server": "000000",
     "route": "000000",
     "watchdog": "yes",
     "unbackedAhead": 0,
-    "recoveryDeficit": 19613
+    "recoveryDeficit": 0
   },
-  "chainTip": 3946,
-  "customRows": 12395,
-  "originSha": "c177ae37eb8e67a838d205b4a4cfd4578aea6e6b",
+  "chainTip": 0,
+  "customRows": 0,
+  "originSha": "ff2d3851049268b2c1b9b264e6140d6a84487679",
   "result": "ALERT"
 }

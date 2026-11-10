@@ -52,3 +52,4 @@
 {"tsIso":"2026-11-10T04:18:41.512Z","mode":"backstop","jobId":"516197","phase":"STARTED","outcome":"EXECUTING","durationMs":36540,"schedulerObserved":null,"note":"backstop lock acquired"}
 {"tsIso":"2026-11-10T05:18:40.012Z","mode":"backstop","jobId":"516197","phase":"STARTED","outcome":"EXECUTING","durationMs":38806,"schedulerObserved":null,"note":"backstop lock acquired"}
 {"tsIso":"2026-11-10T08:18:43.948Z","mode":"backstop","jobId":"516197","phase":"STARTED","outcome":"EXECUTING","durationMs":41320,"schedulerObserved":null,"note":"backstop lock acquired"}
+{"tsIso":"2026-11-10T21:36:39.199Z","mode":"backstop","jobId":"516197","phase":"STARTED","outcome":"EXECUTING","durationMs":2731,"schedulerObserved":null,"note":"backstop lock acquired"}
