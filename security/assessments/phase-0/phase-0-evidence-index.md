@@ -82,3 +82,23 @@ Addresses (public data): v1.2 tokens Monad-10143 `0x5D95…fd4a`, Arc-5042002 `0
 ## 8. Chain of custody note
 
 This assessment directory (17 documents) was written read-only relative to application/monetary/deployment/database/signing behavior. The ONLY mutation attributable to Phase 0 is the addition of `security/assessments/phase-0/**` itself, committed on a dedicated evidence branch (not main) via the wired pre-commit secret gate. No realignment, boot, install, dependency change, credential change, or history rewrite was performed (§21 STEP 10 compliance).
+
+## 9. Addendum (2026-11-11T00:5xZ) — concurrent platform automation interfered TWICE during evidence preservation
+
+Reflog (exact timestamps):
+
+```
+d6fd5d6 HEAD@{2026-11-11 00:54:06 +0000}: checkout: moving from main to security/phase-0-baseline    ← auditor (git switch -c)
+d6fd5d6 HEAD@{2026-11-11 00:54:11 +0000}: checkout: moving from security/phase-0-baseline to main     ← INTERFERENCE #1 (not the auditor)
+29581df HEAD@{2026-11-11 00:54:11 +0000}: commit: Phase 0 forensic baseline …                       ← auditor commit (landed on main as a result)
+29581df HEAD@{2026-11-11 00:55:55 +0000}: checkout: moving from main to security/phase-0-baseline    ← auditor correction
+d6fd5d6 HEAD@{2026-11-11 00:56:12 +0000}: checkout: moving from security/phase-0-baseline to main     ← INTERFERENCE #2 (17s after correction)
+```
+
+Effects and containment: interference #1 caused the Phase-0 commit to land on local `main` and the first evidence-branch push to carry only d6fd5d6; corrected at 00:55Z (branch ref → 29581df, remote fast-forwarded d6fd5d6..29581df, local `main` restored to substituted ground truth d6fd5d6). Interference #2 switched the working tree back to `main` (evidence files transiently absent from tree — never lost: committed on branch and pushed). No interference touched origin/main (926ee00 throughout), no Phase-0 content was altered (content integrity = commit 29581df), and both events were detected and contained within ~60s.
+
+Attribution (evidence, not certainty): no registered plane-5 fire was active in either window (backstop 00:17:48Z fire left no relay/telemetry — registration ≠ execution; monitor due 00:55:45Z). The platform boot chain runs `.zscripts/*` steps ("Project initialization check" 21s, "Restoring zcode state", "custom dev script" — /tmp/boot-timeline.log, root-owned, started 00:20:14Z), and a platform-side normalization loop executing `git checkout main` is the most plausible actor class; the historical UUID-cron commits (38 on origin/main) demonstrate this behavior class exists in the estate. Exact script attribution remains open — documented, not guessed.
+
+Evidentiary value: live corroboration of F-0-P0-03 (single shared administrative substrate — uncoordinated automation mutates git HEAD mid-operation of another principal, twice, seconds after each correction) and of the §13.3/§1.4 principle that separate processes are not separate security boundaries when they share the substrate.
+
+Final preservation state (post-correction): evidence = branch `security/phase-0-baseline` @ 29581df (+ this addendum commit), pushed to origin; local `main` = d6fd5d6 (substituted ground truth, restored); origin/main = 926ee00 (untouched throughout Phase 0).
