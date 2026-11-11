@@ -1,8 +1,8 @@
 # Phase 0 — Independent Review Preparation (consolidated verification-support package)
 
-**Document ID:** SEC-P0-IRP-001 · **Version:** 1.0 · **Prepared:** 2026-11-11T03:3xZ (UTC)
+**Document ID:** SEC-P0-IRP-001 · **Version:** 1.1 · **Prepared:** 2026-11-11T03:3xZ (UTC) · **Updated:** 2026-11-11T12:4xZ (UTC) by SEC-P0-ADDENDUM-001 (COO corrective directive — public object exposure, rotation risk, API/boot review)
 **Assignment:** COO *Phase-0 Independent Verification Support* §D–§G: owner-side evidence checklist, P0 rotation-procedure review, evidence-integrity package (SHA-256 manifest, chain-of-custody), reproduction results, unresolved owner actions, exact evidence still required.
-**Companion documents (this branch):** `authoritative-main-delta-assessment.md` (SEC-P0-DELTA-001) · `secret-history-assessment.md` (SEC-P0-SECHIST-001).
+**Companion documents (this branch):** `authoritative-main-delta-assessment.md` (SEC-P0-DELTA-001) · `secret-history-assessment.md` (SEC-P0-SECHIST-001) · `public-object-exposure-and-review-addendum.md` (SEC-P0-ADDENDUM-001 — **corrective**; supersedes SECHIST §6.3's exposure wording).
 **Release classification:** TESTNET ONLY — SHADOW MODE — NOT PRODUCTION-AUTHORIZED.
 
 > **Standing independence limitation:** this package was prepared by the same AI-agent lineage that operates the assessed environment. **It is preparation for independent review, not independent review** — the author explicitly does not claim reviewer status (directive §A final rule). Every external fact below is marked **[UNVERIFIED — pending owner/reviewer evidence]** and no finding is claimed resolved.
@@ -13,8 +13,9 @@
 
 | §9.2 item (management plan) | Status | Where evidenced |
 |---|---|---|
-| 1 — Public historical key exposure | **REPRODUCED + EXTENDED** | secret-history §2–§3: intro commits verified (count 1 at `2e684d9d8:worklog.md`, 1 at `2da73fd65:scripts/verify-key-and-audit-roles.ts`); NEW: 12 worklog versions, 3 committed tool-transcripts, C-045-b 7 files, **zero public-remote-ref reachability of the 23 key-material blobs** |
-| 4 — API authorization findings (code-level) | **RE-ANCHORED** | delta §2: 63 routes on authoritative (59 assessed); 2 new unaudited ai/* surfaces flagged |
+| 1 — Public historical key exposure | **REPRODUCED + EXTENDED + CORRECTED (v1.1)** | secret-history §2–§3 (intro commits verified; 12 worklog versions; 3 committed tool-transcripts; C-045-b 7 files; zero public-remote-ref reachability over all 29 refs incl. pull refs) — **then corrected by SEC-P0-ADDENDUM-001 §2/§5**: the 23 key-material blobs are **anonymously retrievable by direct object address** (raw/HTML/diff/patch/API/protocol; 12/12 key-bearing files at the intro commits HTTP 200 with key-pattern present; single anonymous `--depth=1` SHA fetch delivers 12/23 blobs; retrieval keys = short SHAs printed in the *pushed* evidence docs). "Public exposure may be nil" is RETIRED |
+| 1-C — Corrective addendum (v1.1) | **DELIVERED** | `public-object-exposure-and-review-addendum.md`: seven-level exposure model (§3), revised EVM conclusion (§5), Solana separate-incident checklist S-1…S-8 (§6), Option-A/B rotation risk verdict (§7), `ai/consensus` + `ai/catalog-sync` code-level review AF-03/AF-04 (§8), boot-chain `|| true` semantics AF-05 (§9), evidence-package completion incl. lost-harness documentation (§10) |
+| 4 — API authorization findings (code-level) | **RE-ANCHORED + TWO ROUTES NOW AUDITED (v1.1)** | delta §2: 63 routes on authoritative (59 assessed); `ai/consensus` + `ai/catalog-sync` fully audited in addendum §8 (both unauthenticated/unauthorizeded — findings AF-03/AF-04); remaining: full 63-route re-audit |
 | 6 — Platform re-image substitution | **REPRODUCED** | delta §1 + management plan §2.2 (topology, reflog, boot-timeline); actor attribution remains open **[HYPOTHESIS]** |
 | 7 — Source-integrity/boot-chain gaps | **REPRODUCED + MECHANISM PINNED** | delta §5: identical `|| true` invocation; difference = dependency presence (heal script absent at d6fd5d6) |
 | 8 — Scheduler registration/execution | **REPRODUCED** | management plan §13 + delta §6 (59-entry origin ledger vs 1-entry substituted; registration ≠ execution live instances) |
@@ -22,7 +23,7 @@
 | 5 — Git credential scope | **PENDING** — owner GitHub-side audit | |
 | 9 — Branch protection/CI enforcement | **PENDING** — owner GitHub-side attestation | |
 
-Evidence-integrity anchors: git topology verified frozen (origin/main 926ee00; evidence branch ff595158; substituted d6fd5d6 untouched; management-plan branch a328d97 pushed).
+Evidence-integrity anchors: git topology verified frozen (origin/main 926ee00; evidence branch ff595158; substituted d6fd5d6 untouched; management-plan branch a328d97 pushed; review-prep branch c5a2678 pushed — this v1.1 update and the addendum add docs-only commits on top, parent lineage unchanged).
 
 ---
 
@@ -126,15 +127,21 @@ The full post-rotation role matrix must show **zero** for the old EOA across (pe
 
 **Numbering key (Appendix-A order):** 1 architecture-inventory · 2 attack-path-analysis · 3 authority-graph · 4 authorization-flow-inventory · 5 contract-and-governance-assessment · 6 critical-asset-inventory · 7 critical-vulnerability-register · 8 developer-ai-and-cicd-assessment · 9 phase-0-evidence-index · 10 phase-0-executive-summary · 11 recovery-and-state-integrity-assessment · 12 security-dependency-register · 13 security-phase-plan · 14 threat-model · 15 trust-boundary-diagram · 16 validator-bridge-oracle-assessment · 17 wallet-and-signing-assessment (all `.md`, under `security/assessments/phase-0/`).
 
-**Supplementary (this program's post-acceptance deliverables — review-support tier):**
+**Supplementary (this program's post-acceptance deliverables — review-support tier).** Artifact key: (1) `management-containment-and-review-plan.md` @ `origin/security/phase-0-management-plan` `a328d97` · (2) `authoritative-main-delta-assessment.md` @ this branch `c5a2678` (unchanged in v1.1) · (3) `secret-history-assessment.md` @ this branch `c5a2678` (unchanged; §6.3 corrected by addendum §5, file preserved) · (4) `independent-review-preparation.md` (this file, v1.1) @ this assignment's commit — self-digest omitted (circular), recorded in addendum §10.1 · (5) `public-object-exposure-and-review-addendum.md` @ this assignment's commit — its digest travels in the assignment commit message · (6) the committed repo integrity scanner (`scripts/security/secret-scan.ts`) @ `origin/main` `926ee00` · (7) its committed redaction helper (`scripts/security/redact-known-secrets.ts`) @ `origin/main` `926ee00` · (8) the **original one-off history-scan harness + raw redacted output — ABSENT from this substrate** (destroyed by the 2026-11-11T00:20Z platform re-image; directory verified missing at 11:37Z before this session re-created it) — its digest is unrecordable from here, and an owner-side pre-re-image copy, if one exists, is the sole surviving source (addendum §10.2) · (9) this session's exposure-test artifacts (battery scripts, status log, blob-ID list) — evidence-package tier only, under `/home/z/phase0-review-tmp/`; digests in addendum §10.2 item 3.
 
-| File | Ref / commit | Content SHA-256 |
-|---|---|---|
-| management-containment-and-review-plan.md | `origin/security/phase-0-management-plan` @ `a328d97` | `ef54488aeca97d3ade455866e611365082cc0e41cf239d7ebf5680956c15e33b` |
-| authoritative-main-delta-assessment.md | this branch @ (see §4.2) | (record at commit; verify via `git show <ref>:<path> | sha256sum`) |
-| secret-history-assessment.md | this branch @ (see §4.2) | (same) |
-| independent-review-preparation.md | this branch @ (see §4.2) | (same) |
-| private scan harness + redacted raw output | private evidence package only (`/home/z/phase0-review-tmp/*`, owner-copied) | bundle-hash recorded in custody log |
+Digests (verify each via `git show <ref>:<path> | sha256sum`, reviewer read-only):
+
+| # | SHA-256 of content |
+|---|---|
+| 1 | `ef54488aeca97d3ade455866e611365082cc0e41cf239d7ebf5680956c15e33b` |
+| 2 | `bedc0dbc184ad438ee6c50db79a7b28f3fdf16681856f01edd45a6d3c4e7f402` |
+| 3 | `098112dbbf41acf21082a8c2c4eecb0f049e585f846835f3807f4412b512b96a` |
+| 4 | (self — see addendum §10.1) |
+| 5 | (assignment commit message) |
+| 6 | `92681a780bd974c414af7b16d423953894a64734cc190d15073458e93ad722f5` |
+| 7 | `f2b9f544659cc91fb327740e6d5fc45d2ef32eb2c02d2881b85278cc01e96657` |
+| 8 | (unrecordable — artifact lost to the re-image) |
+| 9 | (see addendum §10.2 item 3) |
 
 ### 4.2 Git commit and blob references (pin set)
 
@@ -142,11 +149,13 @@ The full post-rotation role matrix must show **zero** for the old EOA across (pe
 origin/main                          926ee001e70e404dd3ea870c37f4786524458517
 origin/security/phase-0-baseline    ff59515852053f197ddd725b7bc4107d63a0d589
 origin/security/phase-0-management-plan a328d97d4f545484267ff8776e63eda3316d20a9
+origin/security/phase-0-review-prep c5a2678ee202224d0c0a1d559b88d1d27709b5e6  (v1.0; v1.1 = this assignment's docs-only commit on top)
 origin/backup-incident10-amend      9fe40589fdff70f7636dc6f13d4cb29364016afe
 substituted local main (frozen)     d6fd5d69816bbd096d673b90ca5e26c18e0241bd
 evidence-branch chain               29581df → ff59515 (addendum)
 key-material lineage (local-only)   backup-2026-09-22 (404ae56b) · backup-stable-2026-09-26 (a91f1f07)
 key intro commits                   2e684d9d8 (worklog.md) · 2da73fd65 (scripts + tool-results)
+new remote refs enumerated v1.1     refs/pull/1..3/head (0/23 key blobs each) · tag backup-2026-11-11 → 926ee00 (automation still active)
 ```
 
 ### 4.3 Verification commands (reviewer, read-only)
@@ -183,31 +192,35 @@ git show 926ee00:worklog.md | grep -cE '<full-literal regex per public fingerpri
 
 ## 5. Unresolved owner actions (consolidated, none closed)
 
-1. D-1…D-9 evidence items (§2) — owner/reviewer supplied.
-2. Lineage adjudication + §6.3 restoration authorization (management plan §12 row 1) — pending Gate #1.
-3. P0-01 phases A–E (§5 of the management plan; §3 here for the procedure review) — A actionable now; B–E owner-authorized per step.
-4. Credential audit + rotation sequence (§7.2) — owner GitHub-side.
-5. Disclosure-containment decision incl. the two local September tags + D3 history-remediation decision (secret-history §6) — owner.
-6. Solana urgency (D5): superseded-mint authority is the exposed key; 4.98 SOL drainable by any repo holder; current-mint custody CKPT-2 — owner verification + containment.
-7. Platform attribution evidence (F-0-P0-02 §6.2) — owner + platform provider.
+1. D-1…D-9 evidence items (§2) — owner/reviewer supplied. **D-8 expanded (v1.1):** the pushed `security/phase-0-review-prep` evidence documents print the short SHAs that unlock anonymous retrieval of the key-bearing historical objects (addendum §2.4/§4) — the evidence-visibility decision must now account for the docs being retrieval-key disclosures.
+2. **(v1.1, URGENT) AF-01/AF-02 — active public object exposure:** owner decisions on D-3 history remediation (trigger strengthened), GitHub-support dangling-object GC, evidence-branch visibility, repo-visibility posture; nothing executed from this sandbox (guardrails).
+3. Lineage adjudication + §6.3 restoration authorization (management plan §12 row 1) — pending Gate #1.
+4. P0-01 phases A–E (§5 of the management plan; §3 here and addendum §7 for the procedure review — B-first sequencing verdict, compromised-signer window, three "safe"-label prerequisites) — A actionable now; B–E owner-authorized per step.
+5. Credential audit + rotation sequence (§7.2) — owner GitHub-side; note the backup automation pushed a new tag during the v1.1 session (addendum §2.10) — the acting identity remains active.
+6. Disclosure-containment decision incl. the two local September tags + D3 history-remediation decision (secret-history §6; addendum §5/§11) — owner.
+7. Solana urgency (D5; **separate incident track v1.1**): superseded-mint authority = exposed C-045-b key; addendum §6 checklist S-1…S-8 fresh chain reads + CKPT-2 custody attestation; 4.98 SOL figure to be re-verified; no signing authorized.
+8. Platform attribution evidence (F-0-P0-02 §6.2) — owner + platform provider.
+9. **(v1.1)** AF-03/AF-04 API gating decisions (addendum §8.3) and AF-05 boot-chain fail-closed recommendation (addendum §9) — Phase-1/Phase-5 inputs, decisions owner-side.
+10. **(v1.1)** Private-evidence custody: the original scan harness/raw output were destroyed by the re-image (addendum §10.2) — owner-side pre-re-image copy (if any) must be hashed and logged at transfer; this session's new test artifacts await the same.
 
 ## 6. Exact evidence still required (by review item)
 
-- §9.2-1: reviewer re-run of the secret-history scan (harness in the private package) + spot-check of the 2 unmapped worklog blobs. **Sandbox-side: complete.**
+- §9.2-1: reviewer re-run of the secret-history scan (original harness lost to the re-image — addendum §10.2; re-implement per SECHIST §1 taxonomy or use the committed repo scanner, hash in addendum §10.1) + spot-check of the 2 unmapped worklog blobs + **reproduction of the addendum §2 direct-object tests with an unauthenticated client (addendum §13)**. **Sandbox-side: complete (raw/HTML/protocol tiers; API tier per addendum §2.7).**
 - §9.2-2/3: fresh eth_call role matrix + Safe reads at named blocks (independent RPC) — **not yet supplied.**
-- §9.2-4: route-level authz re-audit on the 63-route authoritative surface (incl. `ai/consensus`, `ai/catalog-sync`) — **Phase-1 input, pending.**
+- §9.2-4: route-level authz re-audit on the 63-route authoritative surface — `ai/consensus` + `ai/catalog-sync` **now code-level audited (addendum §8, AF-03/AF-04)**; the remaining 61-route re-audit is a Phase-1 input, pending.
 - §9.2-5: GitHub-side token audit — **not yet supplied.**
 - §9.2-6: platform audit logs for the re-image/checkout events — **not yet supplied.**
 - §9.2-7: re-verification drill on the authoritative lineage post-restoration (T-4/T-27-class) — **pending restoration.**
 - §9.2-8: one captured live BLOCKED relay + post-restoration heartbeat continuity — **pending scheduler fire/restoration.**
 - §9.2-9: GitHub-side branch-protection/CI attestation — **not yet supplied.**
 
-## 7. Final gate status
+## 7. Final gate status (v1.1 — COO corrective directive §9)
 
 ```
-PHASE 0 — INDEPENDENT REVIEW IN PROGRESS
+PHASE 0 — INDEPENDENT REVIEW PREPARATION WITH CORRECTIVE FINDINGS
+P0 KEY COMPROMISE — OWNER CONTAINMENT REQUIRED
 PHASE 1 — NOT AUTHORIZED
 TESTNET ONLY — SHADOW MODE — NOT PRODUCTION-AUTHORIZED
 ```
 
-No P0/P1 finding is claimed resolved; every resolution claim awaits independently verified evidence (owner/reviewer). No implementation changes of any kind were made in this assignment: three documents added on a fresh branch from authoritative main; no merges, no boots, no history writes, no key operations, no credential changes.
+No P0/P1 finding is claimed resolved; every resolution claim awaits independently verified evidence (owner/reviewer). **No compromised key is claimed revoked and no historical exposure is claimed contained** (addendum §5: the C-045-a/b material is anonymously retrievable by direct object address until independent evidence proves otherwise). No implementation changes of any kind were made across both assignments: documentation only, on fresh/docs-only branches from authoritative main; no merges, no boots, no history writes, no key operations, no credential changes.
