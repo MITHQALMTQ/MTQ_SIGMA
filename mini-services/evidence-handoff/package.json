@@ -1,0 +1,9 @@
+{
+  "name": "evidence-handoff",
+  "private": true,
+  "version": "1.0.0",
+  "description": "SEC-P0-EVIDENCE-PRESERVATION-002 — inert static handoff service for the encrypted evidence archive. Not the MTQSigma application; performs no database or repository operations.",
+  "scripts": {
+    "dev": "bun --hot index.ts"
+  }
+}
