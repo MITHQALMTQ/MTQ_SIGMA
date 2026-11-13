@@ -20,3 +20,8 @@
 {"ts":"2026-11-10T23:04:16.037Z","generationId":"gen-20261110T213647981Z-h23559-zo2n","phase":"VALIDATED","detail":"h23559 · 128729 custom rows · all §4.2 checks passed"}
 {"ts":"2026-11-10T23:04:16.037Z","generationId":"gen-20261110T213647981Z-h23559-zo2n","phase":"ACTIVATING","detail":"prior pointer: gen-20261110T001926785Z-h23435-i2bw"}
 {"ts":"2026-11-10T23:04:16.073Z","generationId":"gen-20261110T213647981Z-h23559-zo2n","phase":"ACTIVATED","detail":"pointer committed · h23559 · 128729 custom rows · casualty archive kept"}
+{"ts":"2026-11-12T23:44:24.806Z","generationId":"(decision)","phase":"DECISION_AUTHORIZED","detail":"authorized: published h23811 over live hmissing (controlled — live missing)"}
+{"ts":"2026-11-13T01:14:42.482Z","generationId":"gen-20261112T234424807Z-h23811-3smm","phase":"PREPARE","detail":"isolated import from published source (expect h23811 / 129583 custom rows)"}
+{"ts":"2026-11-13T01:14:42.738Z","generationId":"gen-20261112T234424807Z-h23811-3smm","phase":"VALIDATED","detail":"h23811 · 129583 custom rows · all §4.2 checks passed"}
+{"ts":"2026-11-13T01:14:42.739Z","generationId":"gen-20261112T234424807Z-h23811-3smm","phase":"ACTIVATING","detail":"prior pointer: gen-20261110T213647981Z-h23559-zo2n"}
+{"ts":"2026-11-13T01:14:42.782Z","generationId":"gen-20261112T234424807Z-h23811-3smm","phase":"ACTIVATED","detail":"pointer committed · h23811 · 129583 custom rows · casualty archive kept"}
